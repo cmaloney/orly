@@ -1,0 +1,46 @@
+/* <stig/lang_tests/general/objects.stig> 
+
+   This Stig script tests primitive object operations.
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+obj_1 = <{ .a: 1.0, .b: true, .c: "Hello, world!", .d: 3.14 }>;
+empty_obj = <{}>;
+obj_access_1 = obj_1.a + obj_1.d;
+obj_access_2 = <{.a: 1, .b: true}>.a;
+
+test {
+  /* constructors and equality-based comparisons */
+  t1: <{.a: 1, .b: true, .c: "foo", .d: 2}> == <{.a: 1, .b: true, .c: "foo", .d: 2}>;
+  t2: <{.a: 1, .b: true, .c: "foo", .d: 2}> != <{.a: 1, .b: false, .c: "bar", .d: 2}>;
+  t3: <{.a: 1, .b: 2, .c: 3}> != <{.a: 1, .b: 3, .c: 2}>;
+  t4: <{.a: true, .b: false}> == <{.a: true, .b: false}>;
+  t5: <{.a: true, .b: false}> != <{.a: false, .b: true}>;
+  t6: <{.a: "Wedge", .b: "Biggs", .c: "Porkins"}> == <{.a: "Wedge", .b: "Biggs", .c: "Porkins"}>;
+  t7: <{.a: "Wedge", .b: "Biggs", .c: "Porkins"}> != <{.a: "Wedge", .b: "Porkins", .c: "Porkins"}>;
+  t8: <{.a: 3.14, .b: 2.71}> == <{.a: 3.14, .b: 2.71}>;
+  t9: <{.a: 3.14, .b: 2.71}> != <{.a: 2.71, .b: 3.14}>;
+  t10: <{.a: <{.a:1,.b:2,.c:3}>, .b: <{.a:4,.b:5,.c:6}>, .c: <{.a:7}>, .d: <{.a:8,.b:9}>}> == <{.a: <{.a:1,.b:2,.c:3}>, .b: <{.a:4,.b:5,.c:6}>, .c: <{.a:7}>, .d: <{.a:8,.b:9}>}>;
+  t11: <{.a: <{.a:1,.b:2,.c:3}>, .b: <{.a:4,.b:1,.c:6}>, .c: <{.a:7}>, .d: <{.a:8,.b:9}>}> != <{.a: <{.a:1,.b:2,.c:3}>, .b: <{.a:4,.b:5,.c:6}>, .c: <{.a:7}>, .d: <{.a:8,.b:9}>}>;
+
+  /* access operator */
+  t12: <{.a: 1, .b: true, .c: "foo", .d: 3.14, .e: <{.a: 1, .b: true}>}>.a == 1;
+  t13: <{.a: 1, .b: true, .c: "foo", .d: 3.14, .e: <{.a: 1, .b: true}>}>.b == true;
+  t14: <{.a: 1, .b: true, .c: "foo", .d: 3.14, .e: <{.a: 1, .b: true}>}>.c == "foo";
+  t15: <{.a: 1, .b: true, .c: "foo", .d: 3.14, .e: <{.a: 1, .b: true}>}>.d == 3.14;
+  t16: <{.a: 1, .b: true, .c: "foo", .d: 3.14, .e: <{.a: 1, .b: true}>}>.e == <{.a: 1, .b: true}>;
+};
+

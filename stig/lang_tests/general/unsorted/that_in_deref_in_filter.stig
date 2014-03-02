@@ -1,0 +1,11 @@
+false_numbers = /* this works */
+    ((**nums if that > *<['thresh']>::(int)) as [int])
+    where {
+        nums = given::([int]);
+    };
+
+true_numbers = /* error */
+    ((**nums if *<[that]>::(bool)) as [int])
+    where {
+        nums = given::([int]);
+    };

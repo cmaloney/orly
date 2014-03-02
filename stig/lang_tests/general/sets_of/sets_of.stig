@@ -1,0 +1,124 @@
+/* <stig/lang_tests/general/sets_of/sets_of.stig> 
+
+   This Stig script tests operations on sets of collections.
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+set_of_lists = {[1, 2, 3], [4], [5, 6]};
+set_of_sets = {{1, 2, 3}, {4}, {5, 6}};
+set_of_dics = {{1:true, 2:false, 3:true}, {4:true}, {5:false, 6:false}};
+set_of_addresses = {<[1, true]>, <[2, false]>, <[3, true]>};
+set_of_objects = {<{.a: true}>, <{.a: false}>, <{.a: true}>};
+
+test {
+  t1: set_of_lists == {[1, 2, 3], [4], [5, 6]};
+  t2: set_of_lists != {[1, 2, 3], [4], [5, 7]};
+  t3: set_of_lists != {[1, 2], [3], [4], [5, 6]};
+  t4: set_of_lists < {[1, 2, 3], [4], [5, 6], [7]};
+  t5: not (set_of_lists < set_of_lists);
+  t6: not (set_of_lists > {[1, 2, 3], [4], [5, 6], [7]});
+  t7: set_of_lists <= {[1, 2, 3], [4], [5, 6], [7]};
+  t8: set_of_lists <= set_of_lists;
+  t9: not (set_of_lists >= {[1, 2, 3], [4], [5, 6], [7]});
+  t10: set_of_lists >= {[1, 2, 3], [4]};
+  t11: set_of_lists >= set_of_lists;
+  t12: not (set_of_lists <= {[1, 2, 3], [4]});
+  t13: set_of_lists > {[1, 2, 3], [4]};
+  t14: not (set_of_lists > set_of_lists);
+  t15: not (set_of_lists < {[1, 2, 3], [4]});
+  t16: (empty {[int]}) is empty;
+  t17: empty {[int]} != set_of_lists;
+  t18: [1, 2, 3] in set_of_lists;
+  t19: not ([5, 6, 7] in set_of_lists);
+  t20: set_of_lists | empty {[int]} == set_of_lists;
+  t21: set_of_lists | {[1]} == {[1], [1, 2, 3], [4], [5, 6]};
+  t22: set_of_lists | {[1, 2, 3]} == set_of_lists;
+  t23: set_of_lists | set_of_lists == set_of_lists;
+  t24: set_of_lists | (set_of_lists | {[1]}) == {[1], [1, 2, 3], [4], [5, 6]};
+  t25: empty {[int]} | {[1]} == {[1]};
+  t26: empty {[int]} | empty {[int]} == empty {[int]};
+  t27: set_of_lists & empty {[int]} == empty {[int]};
+  t28: set_of_lists & {[1]} == empty {[int]};
+  t29: set_of_lists & {[1, 2, 3]} == {[1, 2, 3]};
+  t30: set_of_lists & {[1, 2, 3], [5, 6]} == {[1, 2, 3], [5, 6]};
+  t31: set_of_lists & set_of_lists == set_of_lists;
+  t32: set_of_lists & (set_of_lists & {[1]}) == empty {[int]};
+  t33: set_of_lists & (set_of_lists & {[1, 2, 3]}) == {[1, 2, 3]};
+  t34: empty {[int]} & {[1]} == empty {[int]};
+  t35: empty {[int]} & empty {[int]} == empty {[int]};
+  t36: set_of_lists - empty {[int]} == set_of_lists;
+  t37: set_of_lists - {[1]} == set_of_lists;
+  t38: set_of_lists - {[1, 2, 3]} == {[4], [5, 6]};
+  t39: set_of_lists - {[1], [1, 2, 3]} == {[4], [5, 6]};
+  t40: set_of_lists - set_of_lists == empty {[int]};
+  t41: empty {[int]} - {[1]} == empty {[int]};
+  t42: empty {[int]} - empty {[int]} == empty {[int]};
+  t43: set_of_lists ^ empty {[int]} == set_of_lists;
+  t44: set_of_lists ^ {[1]} == set_of_lists | {[1]};
+  t45: set_of_lists ^ {[1], [1, 2, 3]} == {[1], [4], [5, 6]};
+  t46: set_of_lists ^ set_of_lists == empty {[int]};
+  t47: empty {[int]} ^ {[1]} == {[1]};
+  t48: empty {[int]} ^ empty {[int]} == empty {[int]};
+
+  t49: set_of_sets == {{1, 2, 3}, {4}, {5, 6}};
+  t50: set_of_sets != {{1, 2, 3}, {4}, {5, 7}};
+  t51: set_of_sets != {{1}, {2, 3}, {4}, {5, 6}};
+  t52: set_of_sets < {{1, 2, 3}, {4}, {5, 6}, {7}};
+  t53: not (set_of_sets < set_of_sets);
+  t54: not (set_of_sets > {{1, 2, 3}, {4}, {5, 6}, {7}});
+  t55: set_of_sets <= {{1, 2, 3}, {4}, {5, 6}, {7}};
+  t56: set_of_sets <= set_of_sets;
+  t57: not (set_of_sets >= {{1, 2, 3}, {4}, {5, 6}, {7}});
+  t58: set_of_sets >= {{1, 2, 3}, {4}};
+  t59: set_of_sets >= set_of_sets;
+  t60: not (set_of_sets <= {{1, 2, 3}, {4}});
+  t61: set_of_sets > {{1, 2, 3}, {4}};
+  t62: not (set_of_sets > set_of_sets);
+  t63: not (set_of_sets < {{1, 2, 3}, {4}});
+  t64: (empty {{int}}) is empty;
+  t65: empty {{int}} != set_of_sets;
+  t66: {1, 2, 3} in set_of_sets;
+  t67: not ({5, 6, 7} in set_of_sets);
+  t68: set_of_sets | empty {{int}} == set_of_sets;
+  t69: set_of_sets | {{1}} == {{1}, {1, 2, 3}, {4}, {5, 6}};
+  t70: set_of_sets | {{1, 2, 3}} == set_of_sets;
+  t71: set_of_sets | set_of_sets == set_of_sets;
+  t72: set_of_sets | (set_of_sets | {{1}}) == {{1}, {1, 2, 3}, {4}, {5, 6}};
+  t73: empty {{int}} | {{1}} == {{1}};
+  t74: empty {{int}} | empty {{int}} == empty {{int}};
+  t75: set_of_sets & empty {{int}} == empty {{int}};
+  t76: set_of_sets & {{1}} == empty {{int}};
+  t77: set_of_sets & {{1, 2, 3}} == {{1, 2, 3}};
+  t78: set_of_sets & {{1, 2, 3}, {5, 6}} == {{1, 2, 3}, {5, 6}};
+  t79: set_of_sets & set_of_sets == set_of_sets;
+  t80: set_of_sets & (set_of_sets & {{1}}) == empty {{int}};
+  t81: set_of_sets & (set_of_sets & {{1, 2, 3}}) == {{1, 2, 3}};
+  t82: empty {{int}} & {{1}} == empty {{int}};
+  t83: empty {{int}} & empty {{int}} == empty {{int}};
+  t84: set_of_sets - empty {{int}} == set_of_sets;
+  t85: set_of_sets - {{1}} == set_of_sets;
+  t86: set_of_sets - {{1, 2, 3}} == {{4}, {5, 6}};
+  t87: set_of_sets - {{1}, {1, 2, 3}} == {{4}, {5, 6}};
+  t88: set_of_sets - set_of_sets == empty {{int}};
+  t89: empty {{int}} - {{1}} == empty {{int}};
+  t90: empty {{int}} - empty {{int}} == empty {{int}};
+  t91: set_of_sets ^ empty {{int}} == set_of_sets;
+  t92: set_of_sets ^ {{1}} == set_of_sets | {{1}};
+  t93: set_of_sets ^ {{1}, {1, 2, 3}} == {{1}, {4}, {5, 6}};
+  t94: set_of_sets ^ set_of_sets == empty {{int}};
+  t95: empty {{int}} ^ {{1}} == {{1}};
+  t96: empty {{int}} ^ empty {{int}} == empty {{int}};
+};

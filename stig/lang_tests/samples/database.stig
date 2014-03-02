@@ -1,0 +1,74 @@
+/* <stig/lang_tests/samples/database.stig> 
+
+   Some sample database manipulations in Stig script.
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+package #1;
+
+/* Reads an integer from a location */
+read_val = (*<['values', n]>::(int)) where {
+    n = given::(int);
+};
+
+/* Writes an integer to a location */
+write_val = ((true) effecting {
+  new <['values', n]> <- x;
+} ) where {
+  n = given::(int);
+  x = given::(int);
+};
+
+/* conditional append function */
+conditional_append = (((true) effecting {
+  *<[n]>::([int]) += [x];
+}
+  if *<[n]>::([int]?) is known else (true) effecting  {
+  new <[n]> <- [x]; } ))
+where {
+  n = given::(int);
+  x = given::(int);
+};
+
+test {
+  t1: write_val (.n:1, .x:42) == true {
+    t2: read_val(.n:1) == 42;
+  };
+  t3: write_val (.n:2, .x:62) == true {
+    t4: read_val(.n:2) == 62;
+  };
+  t5: write_val (.n:3, .x:48) == true {
+    t6: read_val(.n:3) == 48;
+  };
+  t7: write_val (.n:4, .x:43) == true {
+    t8: read_val(.n:4) == 43;
+  };
+  t9: write_val (.n:5, .x:23) == true {
+    t10: read_val(.n:5) == 23;
+  };
+  t11: write_val (.n:6, .x:99) == true {
+    t12: read_val(.n:6) == 99;
+  };
+  t13: write_val (.n:7, .x:11) == true {
+    t14: read_val(.n:7) == 11;
+  };
+  t15: conditional_append(.n:1, .x:2) {
+    t16: conditional_append(.n:1, .x:3) {
+      t17: conditional_append(.n:1, .x:1) {
+        t18: *<[1]>::([int]) == [2, 3, 1];
+      };
+    };
+  };
+};

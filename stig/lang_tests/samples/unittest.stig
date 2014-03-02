@@ -1,0 +1,84 @@
+/* <stig/lang_tests/samples/unittest.stig> 
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+package #1;
+
+add = (x + y) where {
+    x = (given::(int)) assert {that >= 0;};
+    y = (given::(int)) assert {that >= 0;};
+  };
+
+make_addr = (<["foo", "bar", x]>) where {
+    x = given::(str);
+  };
+
+with {} test { t1: 1 == 1;};
+
+with {} test {
+  t2: 1 == 1 {
+    t3: add(.x: 1, .y: 1) == 2;
+    t4: add(.x: 2, .y: add(.x: 1, .y: 1)) == 4;
+   };
+  t5: 2 > 0;
+ };
+
+test {
+  t6: (add(.x: 1, .y: 0) + z == 2) where {
+    z = 1;
+   };
+ };
+
+test {
+  t7: (a + 1 == 2) where {
+    a = add(.x: 0, .y: 1);
+   };
+ };
+
+with {
+  <["foo", "bar"]> <- 3;
+  <["foo", "bar", "gak"]> <- 9;
+} test {
+  t8: add(.x: 1, .y: 1) == 2 {
+    t9: (add(.x: 1, .y: 1) + from_db > 0) where {
+      from_db = *<["foo", "bar"]>::(int);
+     };
+    t10: (add(.x: 1, .y: 2) + from_db > 0) where {
+      from_db = *make_addr(.x: "gak")::(int);
+     };
+   };
+  t11: add(.x: 0, .y: 0) == 0;
+  t12: add(.x: 5, .y: 37) == 42;
+};
+
+/*
+/* Note. This breaks because function calling is not currently supported within with blocks (same goes for assertions).
+   The fix has to do with TExprFactory's EnclosingFunc being set to nullptr (0): See stig/synth/test_def.cc. */
+with {
+  <["foo", "bar"]> <- add(.x: 1, .y: 2);
+  make_addr(.x: "gak") <- (2 + add(.x: 3, .y: 4)) assert {that >= 0;};
+} test {
+  t13: add(.x: 1, .y: 1) == 2 {
+    t14: (add(.x: 1, .y: 1) + from_db > 0) where {
+      from_db = *<["foo", "bar"]>::(int);
+     };
+    t15: (add(.x: 1, .y: 2) + from_db > 0) where {
+      from_db = *make_addr(.x: "gak")::(int);
+     };
+   };
+  t16: add(.x: 0, .y: 0) == 0;
+  t17: add(.x: 5, .y: 37) == 42;
+};
+*/

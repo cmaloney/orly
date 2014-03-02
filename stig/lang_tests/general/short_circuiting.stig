@@ -1,0 +1,121 @@
+/* <stig/lang_tests/general/short_circuiting.stig> 
+
+   This Stig script tests logical operations' short-circuiting behaviors (or
+   lack thereof).
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+set_zero = ((v) effecting { *<[0]>::(bool) <- true; }) where { v = given::(bool); };
+set_one = ((v) effecting { *<[1]>::(bool) <- true; }) where { v = given::(bool); };
+set_two = ((v) effecting { *<[2]>::(bool) <- true; }) where { v = given::(bool); };
+set_three = ((v) effecting { *<[3]>::(bool) <- true; }) where { v = given::(bool); };
+opt_set_zero = ((v) effecting { *<[0]>::(bool) <- true; }) where { v = given::(bool?); };
+opt_set_one = ((v) effecting { *<[1]>::(bool) <- true; }) where { v = given::(bool?); };
+
+with {
+  <[0]> <- false;
+  <[1]> <- false;
+  <[2]> <- false;
+  <[3]> <- false;
+} test {
+  /* and */
+  tand1: not (set_zero(.v: false) and set_one(.v: true)) {
+    tand1s0: *<[0]>::(bool);
+    tand1s1: *<[1]>::(bool);
+  };
+  tand2: not (set_zero(.v: true) and set_one(.v: false)) {
+    tand2s0: *<[0]>::(bool);
+    tand2s1: *<[1]>::(bool);
+  };
+
+  tand3: (opt_set_zero(.v: false) and set_one(.v: true)) is known false {
+    tand3s0: *<[0]>::(bool);
+    tand3s1: *<[1]>::(bool);
+  };
+  tand4: (opt_set_zero(.v: true) and set_one(.v: false)) is known false {
+    tand4s0: *<[0]>::(bool);
+    tand4s1: *<[1]>::(bool);
+  };
+  tand5: (set_zero(.v: false) and opt_set_one(.v: true)) is known false {
+    tand5s0: *<[0]>::(bool);
+    tand5s1: *<[1]>::(bool);
+  };
+  tand6: (set_zero(.v: true) and opt_set_one(.v: false)) is known false {
+    tand6s0: *<[0]>::(bool);
+    tand6s1: *<[1]>::(bool);
+  };
+  tand7: (opt_set_zero(.v: false) and opt_set_one(.v: true)) is known false {
+    tand7s0: *<[0]>::(bool);
+    tand7s1: *<[1]>::(bool);
+  };
+  tand8: (opt_set_zero(.v: true) and opt_set_one(.v: false)) is known false {
+    tand8s0: *<[0]>::(bool);
+    tand8s1: *<[1]>::(bool);
+  };
+
+  /* or */
+  tor1: set_zero(.v: false) or set_one(.v: true) {
+    tor1s0: *<[0]>::(bool);
+    tor1s1: *<[1]>::(bool);
+  };
+  tor2: set_zero(.v: true) or set_one(.v: false) {
+    tor2s0: *<[0]>::(bool);
+    tor2s1: *<[1]>::(bool);
+  };
+  tor3: (opt_set_zero(.v: false) or set_one(.v: true)) is known true {
+    tor3s0: *<[0]>::(bool);
+    tor3s1: *<[1]>::(bool);
+  };
+  tor4: (opt_set_zero(.v: true) or set_one(.v: false)) is known true {
+    tor4s0: *<[0]>::(bool);
+    tor4s1: *<[1]>::(bool);
+  };
+  tor5: (set_zero(.v: false) or opt_set_one(.v: true)) is known true {
+    tor5s0: *<[0]>::(bool);
+    tor5s1: *<[1]>::(bool);
+  };
+  tor6: (set_zero(.v: true) or opt_set_one(.v: false)) is known true {
+    tor6s0: *<[0]>::(bool);
+    tor6s1: *<[1]>::(bool);
+  };
+  tor7: (opt_set_zero(.v: false) or opt_set_one(.v: true)) is known true {
+    tor7s0: *<[0]>::(bool);
+    tor7s1: *<[1]>::(bool);
+  };
+  tor8: (opt_set_zero(.v: true) or opt_set_one(.v: false)) is known true {
+    tor8s0: *<[0]>::(bool);
+    tor8s1: *<[1]>::(bool);
+  };
+
+  tandand1: not (set_zero(.v: false) and set_one(.v: true) and set_two(.v: true)) {
+    tandand1s0: *<[0]>::(bool);
+    tandand1s1: *<[1]>::(bool);
+    tandand1s2: *<[2]>::(bool);
+  };
+
+  tandor1: ((set_zero(.v: false) and set_one(.v: true)) or set_two(.v: true)) {
+    tandor1s0: *<[0]>::(bool);
+    tandor1s1: *<[1]>::(bool);
+    tandor1s2: *<[2]>::(bool);
+  };
+  tandorand1: not (set_zero(.v: false) and set_one(.v: true) or set_two(.v: true) and set_three(.v: false)) {
+    tandorand1s0: *<[0]>::(bool);
+    tandorand1s1: *<[1]>::(bool);
+    tandorand1s2: *<[2]>::(bool);
+    tandorand1s3: *<[3]>::(bool);
+  };
+};
+

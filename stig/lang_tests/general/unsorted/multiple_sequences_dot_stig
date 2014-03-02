@@ -1,0 +1,258 @@
+/* <stig/lang_tests/general/unsorted/multiple_sequences_dot_stig>
+
+   Copyright 2010-2014 Tagged
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+/*** cartesian product tests (result: sets) ***/
+/* simple products */
+t14: ((x + y) as {int} == {7, 8, 9, 10, 11}) where {
+  x = [1..3];
+  y = [1..3] + 5;
+};
+t15: ((x - y) as {int} == {-2, -1, 0, 1, 2}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t16: ((x * y) as {int} == {1, 2, 3, 4, 6, 9}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t17: ((x ** y) as {real} == {1.0, 2.0, 3.0, 4.0, 8.0, 9.0, 27.0}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t18: ((x / y) as {int} == {0, 1, 2, 3}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t19: ((x % y) as {int} == {0, 1, 2}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t20: ((y + 5 + 5 + [1..2]) as {int} == {12, 13, 14, 15}) where {
+  y = [1..3];
+};
+t21: (([1, x] + [y, 1]) as {[int]} ==
+                                 {[1, 1, 1, 1], [1, 1, 2, 1], [1, 1, 3, 1],
+                                  [1, 2, 1, 1], [1, 2, 2, 1], [1, 2, 3, 1],
+                                  [1, 3, 1, 1], [1, 3, 2, 1], [1, 3, 3, 1]}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t22: ((y + [1..2]) as {int} == {3, 4, 5, 6, 7, 8, 9}) where {
+  y = [1..5] + [1..2];
+};
+t23: ((y + [1..2]) as {int} == {4, 5, 6, 7, 8, 9, 10, 11, 12}) where {
+  y = [1..5] + [1..2] + [1..3];
+};
+t24: ((y1 + y2 + z1 + z2) as {int} == {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}) where {
+  y1 = [1..5];
+  y2 = [1..5];
+  z1 = [1..2];
+  z2 = [1..2];
+};
+
+ TODO: Fix following test cases once we introduce a way to correlate sequences.
+t14: ((x + y) as {int} == {7, 8, 9, 10, 11}) where {
+  x = [1..3];
+  y = [1..3] + 5;
+};
+t15: ((x - y) as {int} == {-2, -1, 0, 1, 2}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t16: ((x * y) as {int} == {1, 2, 3, 4, 6, 9}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t17: ((x ** y) as {real} == {1.0, 2.0, 3.0, 4.0, 8.0, 9.0, 27.0}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t18: ((x / y) as {int} == {0, 1, 2, 3}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t19: ((x % y) as {int} == {0, 1, 2}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t20: ((y + 5 + 5 + [1..2]) as {int} == {12, 13, 14, 15}) where {
+  y = [1..3];
+};
+t21: (([1, x] + [y, 1]) as {[int]} ==
+                                 {[1, 1, 1, 1], [1, 1, 2, 1], [1, 1, 3, 1],
+                                  [1, 2, 1, 1], [1, 2, 2, 1], [1, 2, 3, 1],
+                                  [1, 3, 1, 1], [1, 3, 2, 1], [1, 3, 3, 1]}) where {
+  x = [1..3];
+  y = [1..3];
+};
+t22: ((y + [1..2]) as {int} == {3, 4, 5, 6, 7, 8, 9}) where {
+  y = [1..5] + [1..2];
+};
+t23: ((y + [1..2]) as {int} == {4, 5, 6, 7, 8, 9, 10, 11, 12}) where {
+  y = [1..5] + [1..2] + [1..3];
+};
+t24: ((y1 + y2 + z1 + z2) as {int} == {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}) where {
+  y1 = [1..5];
+  y2 = [1..5];
+  z1 = [1..2];
+  z2 = [1..2];
+};
+
+
+/* test whether cartesian products occur when sequences are combined through
+   explicit function calls */
+t25: ((seq(.low: 0, .high: 3) + seq(.low: 0, .high: 2)) as {int} == {0, 1, 2, 3, 4, 5}) where {
+  seq = ([low..high]) where {
+    low = given::(int);
+    high = given::(int);
+  };
+};
+
+/* test more complicated sequences (e.g., sequences of lists) */
+ TODO: Fix following test cases once we introduce a way to correlate sequences.
+t26: ((x + y) as {[int]} == {[1, 2, 3, 1, 2, 3], [1, 2, 3, 2, 3, 4], [1, 2, 3, 3, 4, 5],
+                        [2, 3, 4, 1, 2, 3], [2, 3, 4, 2, 3, 4], [2, 3, 4, 3, 4, 5],
+                        [3, 4, 5, 1, 2, 3], [3, 4, 5, 2, 3, 4], [3, 4, 5, 3, 4, 5]}) where {
+  x = **[[1, 2, 3], [2, 3, 4], [3, 4, 5]];
+  y = **[[1, 2, 3], [2, 3, 4], [3, 4, 5]];
+};
+t27: ((x | y) as {{int}} == {{1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {2, 3}, {2, 3, 4}, {3, 4}}) where {
+  x = **{{1, 2}, {2, 3}, {3, 4}};
+  y = **{{1, 2}, {2, 3}, {3, 4}};
+};
+
+
+/*** cartesian product tests (result: lists) ***/
+/* simple products */
+ TODO: Fix following test cases once we introduce a way to correlate sequences.
+tlcp1: (((x + y) as [int] sorted_by lhs < rhs) == [7, 8, 8, 9, 9, 9, 10, 10, 11]) where {
+  x = [1..3];
+  y = [1..3] + 5;
+};
+tlcp2: (((x - y) as [int] sorted_by lhs < rhs) == [-2, -1, -1, 0, 0, 0, 1, 1, 2]) where {
+  x = [1..3];
+  y = [1..3];
+};
+tlcp3: (((x * y) as [int] sorted_by lhs < rhs) == [1, 2, 2, 3, 3, 4, 6, 6, 9]) where {
+  x = [1..3];
+  y = [1..3];
+};
+tlcp4: (((x ** y) as [real] sorted_by lhs < rhs) == [1.0, 1.0, 1.0, 2.0, 3.0, 4.0, 8.0, 9.0, 27.0]) where {
+  x = [1..3];
+  y = [1..3];
+};
+tlcp5: (((x / y) as [int] sorted_by lhs < rhs) == [0, 0, 0, 1, 1, 1, 1, 2, 3]) where {
+  x = [1..3];
+  y = [1..3];
+};
+tlcp6: (((x % y) as [int] sorted_by lhs < rhs) == [0, 0, 0, 0, 0, 1, 1, 1, 2]) where {
+  x = [1..3];
+  y = [1..3];
+};
+tlcp7: (((y + 5 + 5 + [1..2]) as [int] sorted_by lhs < rhs) == [12, 13, 13, 14, 14, 15]) where {
+  y = [1..3];
+};
+tlcp8: ((([1, x] + [y, 1]) as [[int]] sorted_by lhs < rhs) ==
+                                 [[1, 1, 1, 1], [1, 1, 2, 1], [1, 1, 3, 1],
+                                  [1, 2, 1, 1], [1, 2, 2, 1], [1, 2, 3, 1],
+                                  [1, 3, 1, 1], [1, 3, 2, 1], [1, 3, 3, 1]]) where {
+  x = [1..3];
+  y = [1..3];
+};
+tlcp9: (((y + [1..2]) as [int] sorted_by lhs < rhs) ==
+    [3,
+     4, 4, 4,
+     5, 5, 5, 5,
+     6, 6, 6, 6,
+     7, 7, 7, 7,
+     8, 8, 8,
+     9]) where {
+  y = [1..5] + [1..2];
+};
+tlcp10: (((y + [1..2]) as [int] sorted_by lhs < rhs) ==
+    [4,
+     5, 5, 5, 5,
+     6, 6, 6, 6, 6, 6, 6, 6,
+     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+     10,10,10,10,10,10,10,10,
+     11,11,11,11,
+     12]) where {
+  y = [1..5] + [1..2] + [1..3];
+};
+
+/* test whether cartesian products occur when sequences are combined through
+   explicit function calls */
+tlcp12: (((seq(.low: 0, .high: 3) + seq(.low: 0, .high: 2)) as [int] sorted_by lhs < rhs) ==
+    [0,
+     1, 1,
+     2, 2, 2,
+     3, 3, 3,
+     4, 4,
+     5]) where {
+  seq = ([low..high]) where {
+    low = given::(int);
+    high = given::(int);
+  };
+};
+
+/* test more complicated sequences (e.g., sequences of lists) */
+tlcp13: (((x + y) as [[int]] sorted_by lhs < rhs) ==
+                       [[1, 2, 3, 1, 2, 3], [1, 2, 3, 2, 3, 4], [1, 2, 3, 3, 4, 5],
+                        [2, 3, 4, 1, 2, 3], [2, 3, 4, 2, 3, 4], [2, 3, 4, 3, 4, 5],
+                        [3, 4, 5, 1, 2, 3], [3, 4, 5, 2, 3, 4], [3, 4, 5, 3, 4, 5]]) where {
+  x = **[[1, 2, 3], [2, 3, 4], [3, 4, 5]];
+  y = **[[1, 2, 3], [2, 3, 4], [3, 4, 5]];
+};
+tlcp14: (((x | y) as [{int}] sorted_by lhs < rhs) ==
+    [{1}, {1, 2}, {1, 2}, {1, 2}, {1, 2, 3}, {1, 2, 3}, {1, 2, 3}, {1, 2, 3}, {1, 2, 3}]) where {
+  x = **{{1}, {1, 2}, {1, 2, 3}};
+  y = **{{1}, {1, 2}, {1, 2, 3}};
+};
+
+read_range = (*<[n]>::(int) as [int]) where {
+  low = given::(int);
+  high = given::(int);
+  n = [low..high];
+};
+
+with {
+  <[0]> <- 0;
+  <[1]> <- 1;
+  <[2]> <- 2;
+  <[3]> <- 3;
+  <[4]> <- 4;
+  <[5]> <- 5;
+} test {
+  t32: ((**read_range(.low: 0, .high: 3) + **read_range(.low: 0, .high: 3)) reduce start 0 + that) == 48;
+  t33: ((**x + **x reduce start 0 + that) == 48) where {
+    x = read_range(.low: 0, .high: 3);
+  };
+  t34: ((**x + **y reduce start 0 + that) == 48) where {
+    x = read_range(.low: 0, .high: 3);
+    y = read_range(.low: 0, .high: 3);
+  };
+  t35: ((**read_range(.low: 0, .high: 3) * **read_range(.low: 0, .high: 3)) reduce start 0 + that) == 36;
+  t36: ((**x * **x reduce start 0 + that) == 36) where {
+    x = read_range(.low: 0, .high: 3);
+  };
+  t37: ((x * y reduce start 0 + that) == 36) where {
+    x = **read_range(.low: 0, .high: 3);
+    y = **read_range(.low: 0, .high: 3);
+  };
+};
+

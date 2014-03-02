@@ -1,0 +1,159 @@
+/* <stig/lang_tests/general/sets_of/sets_of_opt_lt_lteq.stig> 
+
+   TODO
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+s1 = empty {int?};
+s2 = {0 as int?};
+s3 = {1 as int?};
+s4 = {unknown int};
+s5 = {0 as int?, 1 as int?};
+s6 = {0 as int?, unknown int};
+s7 = {1 as int?, unknown int};
+s8 = {0 as int?, 1 as int?, unknown int};
+
+test {
+  tslt1: (s1 < s1) is known false;
+  tslt2: (s1 < s2) is known true;
+  tslt3: (s1 < s3) is known true;
+  tslt4: (s1 < s4) is known true;
+  tslt5: (s1 < s5) is known true;
+  tslt6: (s1 < s6) is known true;
+  tslt7: (s1 < s7) is known true;
+  tslt8: (s1 < s8) is known true;
+  tslt9: (s2 < s1) is known false;
+  tslt10: (s2 < s2) is known false;
+  tslt11: (s2 < s3) is known false;
+  tslt12: (s2 < s4) is known false;
+  tslt13: (s2 < s5) is known true;
+  tslt14: (s2 < s6) is known true;
+  tslt15: (s2 < s7) is unknown;
+  tslt16: (s2 < s8) is known true;
+  tslt17: (s3 < s1) is known false;
+  tslt18: (s3 < s2) is known false;
+  tslt19: (s3 < s3) is known false;
+  tslt20: (s3 < s4) is known false;
+  tslt21: (s3 < s5) is known true;
+  tslt22: (s3 < s6) is unknown;
+  tslt23: (s3 < s7) is known true;
+  tslt24: (s3 < s8) is known true;
+  tslt25: (s4 < s1) is known false;
+  tslt26: (s4 < s2) is known false;
+  tslt27: (s4 < s3) is known false;
+  tslt28: (s4 < s4) is known false;
+  tslt29: (s4 < s5) is unknown;
+  tslt30: (s4 < s6) is unknown;
+  tslt31: (s4 < s7) is unknown;
+  tslt32: (s4 < s8) is unknown;
+  tslt33: (s5 < s1) is known false;
+  tslt34: (s5 < s2) is known false;
+  tslt35: (s5 < s3) is known false;
+  tslt36: (s5 < s4) is known false;
+  tslt37: (s5 < s5) is known false;
+  tslt38: (s5 < s6) is known false;
+  tslt39: (s5 < s7) is known false;
+  tslt40: (s5 < s8) is known true;
+  tslt41: (s6 < s1) is known false;
+  tslt42: (s6 < s2) is known false;
+  tslt43: (s6 < s3) is known false;
+  tslt44: (s6 < s4) is known false;
+  tslt45: (s6 < s5) is known false;
+  tslt46: (s6 < s6) is known false;
+  tslt47: (s6 < s7) is known false;
+  tslt48: (s6 < s8) is unknown;
+  tslt49: (s7 < s1) is known false;
+  tslt50: (s7 < s2) is known false;
+  tslt51: (s7 < s3) is known false;
+  tslt52: (s7 < s4) is known false;
+  tslt53: (s7 < s5) is known false;
+  tslt54: (s7 < s6) is known false;
+  tslt55: (s7 < s7) is known false;
+  tslt56: (s7 < s8) is unknown;
+  tslt57: (s8 < s1) is known false;
+  tslt58: (s8 < s2) is known false;
+  tslt59: (s8 < s3) is known false;
+  tslt60: (s8 < s4) is known false;
+  tslt61: (s8 < s5) is known false;
+  tslt62: (s8 < s6) is known false;
+  tslt63: (s8 < s7) is known false;
+  tslt64: (s8 < s8) is known false;
+
+  tslte1: (s1 <= s1) is known true;
+  tslte2: (s1 <= s2) is known true;
+  tslte3: (s1 <= s3) is known true;
+  tslte4: (s1 <= s4) is known true;
+  tslte5: (s1 <= s5) is known true;
+  tslte6: (s1 <= s6) is known true;
+  tslte7: (s1 <= s7) is known true;
+  tslte8: (s1 <= s8) is known true;
+  tslte9: (s2 <= s1) is known false;
+  tslte10: (s2 <= s2) is known true;
+  tslte11: (s2 <= s3) is known false;
+  tslte12: (s2 <= s4) is unknown;
+  tslte13: (s2 <= s5) is known true;
+  tslte14: (s2 <= s6) is known true;
+  tslte15: (s2 <= s7) is unknown;
+  tslte16: (s2 <= s8) is known true;
+  tslte17: (s3 <= s1) is known false;
+  tslte18: (s3 <= s2) is known false;
+  tslte19: (s3 <= s3) is known true;
+  tslte20: (s3 <= s4) is unknown;
+  tslte21: (s3 <= s5) is known true;
+  tslte22: (s3 <= s6) is unknown;
+  tslte23: (s3 <= s7) is known true;
+  tslte24: (s3 <= s8) is known true;
+  tslte25: (s4 <= s1) is known false;
+  tslte26: (s4 <= s2) is unknown;
+  tslte27: (s4 <= s3) is unknown;
+  tslte28: (s4 <= s4) is unknown;
+  tslte29: (s4 <= s5) is unknown;
+  tslte30: (s4 <= s6) is unknown;
+  tslte31: (s4 <= s7) is unknown;
+  tslte32: (s4 <= s8) is unknown;
+  tslte33: (s5 <= s1) is known false;
+  tslte34: (s5 <= s2) is known false;
+  tslte35: (s5 <= s3) is known false;
+  tslte36: (s5 <= s4) is known false;
+  tslte37: (s5 <= s5) is known true;
+  tslte38: (s5 <= s6) is unknown;
+  tslte39: (s5 <= s7) is unknown;
+  tslte40: (s5 <= s8) is known true;
+  tslte41: (s6 <= s1) is known false;
+  tslte42: (s6 <= s2) is known false;
+  tslte43: (s6 <= s3) is known false;
+  tslte44: (s6 <= s4) is known false;
+  tslte45: (s6 <= s5) is unknown;
+  tslte46: (s6 <= s6) is unknown;
+  tslte47: (s6 <= s7) is unknown;
+  tslte48: (s6 <= s8) is unknown;
+  tslte49: (s7 <= s1) is known false;
+  tslte50: (s7 <= s2) is known false;
+  tslte51: (s7 <= s3) is known false;
+  tslte52: (s7 <= s4) is known false;
+  tslte53: (s7 <= s5) is unknown;
+  tslte54: (s7 <= s6) is unknown;
+  tslte55: (s7 <= s7) is unknown;
+  tslte56: (s7 <= s8) is unknown;
+  tslte57: (s8 <= s1) is known false;
+  tslte58: (s8 <= s2) is known false;
+  tslte59: (s8 <= s3) is known false;
+  tslte60: (s8 <= s4) is known false;
+  tslte61: (s8 <= s5) is known false;
+  tslte62: (s8 <= s6) is known false;
+  tslte63: (s8 <= s7) is known false;
+  tslte64: (s8 <= s8) is unknown;
+};

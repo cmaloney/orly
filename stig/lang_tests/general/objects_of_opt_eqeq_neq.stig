@@ -1,0 +1,112 @@
+/* <stig/lang_tests/general/objects_of_opt_eqeq_neq.stig> 
+
+   This Stig script tests comparisons between collections of optional types.
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+o1 = <{.a: 0 as int?, .b: 0 as int?}>;
+o2 = <{.a: 0 as int?, .b: unknown int}>;
+o3 = <{.a: unknown int, .b: 0 as int?}>;
+o4 = <{.a: unknown int, .b: unknown int}>;
+o5 = <{.a: 1 as int?, .b: 1 as int?}>;
+o6 = <{.a: 1 as int?, .b: unknown int}>;
+o7 = <{.a: unknown int, .b: 1 as int?}>;
+
+/* TODO objects cannot have optionals as values */
+
+test {
+  toeq1: (o1 == o1) is known true;
+  toeq2: (o1 == o2) is unknown;
+  toeq3: (o1 == o3) is unknown;
+  toeq4: (o1 == o4) is unknown;
+  toeq5: (o1 == o5) is known false;
+  toeq6: (o1 == o6) is known false;
+  toeq7: (o1 == o7) is known false;
+  toeq8: (o2 == o1) is unknown;
+  toeq9: (o2 == o2) is unknown;
+  toeq10: (o2 == o3) is unknown;
+  toeq11: (o2 == o4) is unknown;
+  toeq12: (o2 == o5) is known false;
+  toeq13: (o2 == o6) is known false;
+  toeq14: (o2 == o7) is unknown;
+  toeq15: (o3 == o1) is unknown;
+  toeq16: (o3 == o2) is unknown;
+  toeq17: (o3 == o3) is unknown;
+  toeq18: (o3 == o4) is unknown;
+  toeq19: (o3 == o5) is known false;
+  toeq20: (o3 == o6) is unknown;
+  toeq21: (o3 == o7) is known false;
+  toeq22: (o4 == o1) is unknown;
+  toeq23: (o4 == o2) is unknown;
+  toeq24: (o4 == o3) is unknown;
+  toeq25: (o4 == o4) is unknown;
+  toeq26: (o4 == o5) is unknown;
+  toeq27: (o4 == o6) is unknown;
+  toeq28: (o4 == o7) is unknown;
+  toeq29: (o5 == o1) is known false;
+  toeq30: (o5 == o2) is known false;
+  toeq31: (o5 == o3) is known false;
+  toeq32: (o5 == o4) is unknown;
+  toeq33: (o6 == o1) is known false;
+  toeq34: (o6 == o2) is known false;
+  toeq35: (o6 == o3) is unknown;
+  toeq36: (o6 == o4) is unknown;
+  toeq37: (o7 == o1) is known false;
+  toeq38: (o7 == o2) is unknown;
+  toeq39: (o7 == o3) is known false;
+  toeq40: (o7 == o4) is unknown;
+
+  toneq1: (o1 != o1) is known false;
+  toneq2: (o1 != o2) is unknown;
+  toneq3: (o1 != o3) is unknown;
+  toneq4: (o1 != o4) is unknown;
+  toneq5: (o1 != o5) is known true;
+  toneq6: (o1 != o6) is known true;
+  toneq7: (o1 != o7) is known true;
+  toneq8: (o2 != o1) is unknown;
+  toneq9: (o2 != o2) is unknown;
+  toneq10: (o2 != o3) is unknown;
+  toneq11: (o2 != o4) is unknown;
+  toneq12: (o2 != o5) is known true;
+  toneq13: (o2 != o6) is known true;
+  toneq14: (o2 != o7) is unknown;
+  toneq15: (o3 != o1) is unknown;
+  toneq16: (o3 != o2) is unknown;
+  toneq17: (o3 != o3) is unknown;
+  toneq18: (o3 != o4) is unknown;
+  toneq19: (o3 != o5) is known true;
+  toneq20: (o3 != o6) is unknown;
+  toneq21: (o3 != o7) is known true;
+  toneq22: (o4 != o1) is unknown;
+  toneq23: (o4 != o2) is unknown;
+  toneq24: (o4 != o3) is unknown;
+  toneq25: (o4 != o4) is unknown;
+  toneq26: (o4 != o5) is unknown;
+  toneq27: (o4 != o6) is unknown;
+  toneq28: (o4 != o7) is unknown;
+  toneq29: (o5 != o1) is known true;
+  toneq30: (o5 != o2) is known true;
+  toneq31: (o5 != o3) is known true;
+  toneq32: (o5 != o4) is unknown;
+  toneq33: (o6 != o1) is known true;
+  toneq34: (o6 != o2) is known true;
+  toneq35: (o6 != o3) is unknown;
+  toneq36: (o6 != o4) is unknown;
+  toneq37: (o7 != o1) is known true;
+  toneq38: (o7 != o2) is unknown;
+  toneq39: (o7 != o3) is known true;
+  toneq40: (o7 != o4) is unknown;
+};

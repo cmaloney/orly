@@ -1,0 +1,573 @@
+/* <stig/lang_tests/general/known_unknown_ordering.stig> 
+
+   This Stig script tests ordering comparison operations between optional and
+   unknown types.
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+smalluuid = {12345678-1234-1234-1234-123456789012};
+largeuuid = {12345678-1234-4321-1234-123456789012};
+
+/* boolean tests */
+/*
+test {
+  tblt1: ((false as bool?) < true) is known true;
+  tblt2: ((false as bool?) < false) is known false;
+  tblt3: ((true as bool?) < true) is known false;
+  tblt4: ((true as bool?) < false) is known false;
+  tblt5: (false < (true as bool?)) is known true;
+  tblt6: (false < (false as bool?)) is known false;
+  tblt7: (true < (true as bool?)) is known false;
+  tblt8: (true < (false as bool?)) is known false;
+  tblt9: ((false as bool?) < (true as bool?)) is known true;
+  tblt10: ((false as bool?) < (false as bool?)) is known false;
+  tblt11: ((true as bool?) < (true as bool?)) is known false;
+  tblt12: ((true as bool?) < (false as bool?)) is known false;
+  tblt13: (unknown bool < true) is unknown;
+  tblt14: (unknown bool < false) is unknown;
+  tblt15: (true < unknown bool) is unknown;
+  tblt16: (false < unknown bool) is unknown;
+  tblt17: (unknown bool < (true as bool?)) is unknown;
+  tblt18: (unknown bool < (false as bool?)) is unknown;
+  tblt19: ((true as bool?) < unknown bool) is unknown;
+  tblt20: ((false as bool?) < unknown bool) is unknown;
+  tblt21: (unknown bool < unknown bool) is unknown;
+
+  tblte1: ((false as bool?) <= true) is known true;
+  tblte2: ((false as bool?) <= false) is known true;
+  tblte3: ((true as bool?) <= true) is known true;
+  tblte4: ((true as bool?) <= false) is known false;
+  tblte5: (false <= (true as bool?)) is known true;
+  tblte6: (false <= (false as bool?)) is known true;
+  tblte7: (true <= (true as bool?)) is known true;
+  tblte8: (true <= (false as bool?)) is known false;
+  tblte9: ((false as bool?) <= (true as bool?)) is known true;
+  tblte10: ((false as bool?) <= (false as bool?)) is known true;
+  tblte11: ((true as bool?) <= (true as bool?)) is known true;
+  tblte12: ((true as bool?) <= (false as bool?)) is known false;
+  tblte13: (unknown bool <= true) is unknown;
+  tblte14: (unknown bool <= false) is unknown;
+  tblte15: (true <= unknown bool) is unknown;
+  tblte16: (false <= unknown bool) is unknown;
+  tblte17: (unknown bool <= (true as bool?)) is unknown;
+  tblte18: (unknown bool <= (false as bool?)) is unknown;
+  tblte19: ((true as bool?) <= unknown bool) is unknown;
+  tblte20: ((false as bool?) <= unknown bool) is unknown;
+  tblte21: (unknown bool <= unknown bool) is unknown;
+
+  tbgte1: ((false as bool?) >= true) is known false;
+  tbgte2: ((false as bool?) >= false) is known true;
+  tbgte3: ((true as bool?) >= true) is known true;
+  tbgte4: ((true as bool?) >= false) is known true;
+  tbgte5: (false >= (true as bool?)) is known false;
+  tbgte6: (false >= (false as bool?)) is known true;
+  tbgte7: (true >= (true as bool?)) is known true;
+  tbgte8: (true >= (false as bool?)) is known true;
+  tbgte9: ((false as bool?) >= (true as bool?)) is known false;
+  tbgte10: ((false as bool?) >= (false as bool?)) is known true;
+  tbgte11: ((true as bool?) >= (true as bool?)) is known true;
+  tbgte12: ((true as bool?) >= (false as bool?)) is known true;
+  tbgte13: (unknown bool >= true) is unknown;
+  tbgte14: (unknown bool >= false) is unknown;
+  tbgte15: (true >= unknown bool) is unknown;
+  tbgte16: (false >= unknown bool) is unknown;
+  tbgte17: (unknown bool >= (true as bool?)) is unknown;
+  tbgte18: (unknown bool >= (false as bool?)) is unknown;
+  tbgte19: ((true as bool?) >= unknown bool) is unknown;
+  tbgte20: ((false as bool?) >= unknown bool) is unknown;
+  tbgte21: (unknown bool >= unknown bool) is unknown;
+
+  tbgt1: ((false as bool?) > true) is known false;
+  tbgt2: ((false as bool?) > false) is known false;
+  tbgt3: ((true as bool?) > true) is known false;
+  tbgt4: ((true as bool?) > false) is known true;
+  tbgt5: (false > (true as bool?)) is known false;
+  tbgt6: (false > (false as bool?)) is known false;
+  tbgt7: (true > (true as bool?)) is known false;
+  tbgt8: (true > (false as bool?)) is known true;
+  tbgt9: ((false as bool?) > (true as bool?)) is known false;
+  tbgt10: ((false as bool?) > (false as bool?)) is known false;
+  tbgt11: ((true as bool?) > (true as bool?)) is known false;
+  tbgt12: ((true as bool?) > (false as bool?)) is known true;
+  tbgt13: (unknown bool > true) is unknown;
+  tbgt14: (unknown bool > false) is unknown;
+  tbgt15: (true > unknown bool) is unknown;
+  tbgt16: (false > unknown bool) is unknown;
+  tbgt17: (unknown bool > (true as bool?)) is unknown;
+  tbgt18: (unknown bool > (false as bool?)) is unknown;
+  tbgt19: ((true as bool?) > unknown bool) is unknown;
+  tbgt20: ((false as bool?) > unknown bool) is unknown;
+  tbgt21: (unknown bool > unknown bool) is unknown;
+};
+*/
+
+/* integral tests */
+test {
+  tilt1: ((-1 as int?) < 1) is known true;
+  tilt2: ((-1 as int?) < -1) is known false;
+  tilt3: ((1 as int?) < 1) is known false;
+  tilt4: ((1 as int?) < -1) is known false;
+  tilt5: (-1 < (1 as int?)) is known true;
+  tilt6: (-1 < (-1 as int?)) is known false;
+  tilt7: (1 < (1 as int?)) is known false;
+  tilt8: (1 < (-1 as int?)) is known false;
+  tilt9: ((-1 as int?) < (1 as int?)) is known true;
+  tilt10: ((-1 as int?) < (-1 as int?)) is known false;
+  tilt11: ((1 as int?) < (1 as int?)) is known false;
+  tilt12: ((1 as int?) < (-1 as int?)) is known false;
+  tilt13: (unknown int < 1) is unknown;
+  tilt14: (unknown int < -1) is unknown;
+  tilt15: (1 < unknown int) is unknown;
+  tilt16: (-1 < unknown int) is unknown;
+  tilt17: (unknown int < (1 as int?)) is unknown;
+  tilt18: (unknown int < (-1 as int?)) is unknown;
+  tilt19: ((1 as int?) < unknown int) is unknown;
+  tilt20: ((-1 as int?) < unknown int) is unknown;
+  tilt21: (unknown int < unknown int) is unknown;
+
+  tilte1: ((-1 as int?) <= 1) is known true;
+  tilte2: ((-1 as int?) <= -1) is known true;
+  tilte3: ((1 as int?) <= 1) is known true;
+  tilte4: ((1 as int?) <= -1) is known false;
+  tilte5: (-1 <= (1 as int?)) is known true;
+  tilte6: (-1 <= (-1 as int?)) is known true;
+  tilte7: (1 <= (1 as int?)) is known true;
+  tilte8: (1 <= (-1 as int?)) is known false;
+  tilte9: ((-1 as int?) <= (1 as int?)) is known true;
+  tilte10: ((-1 as int?) <= (-1 as int?)) is known true;
+  tilte11: ((1 as int?) <= (1 as int?)) is known true;
+  tilte12: ((1 as int?) <= (-1 as int?)) is known false;
+  tilte13: (unknown int <= 1) is unknown;
+  tilte14: (unknown int <= -1) is unknown;
+  tilte15: (1 <= unknown int) is unknown;
+  tilte16: (-1 <= unknown int) is unknown;
+  tilte17: (unknown int <= (1 as int?)) is unknown;
+  tilte18: (unknown int <= (-1 as int?)) is unknown;
+  tilte19: ((1 as int?) <= unknown int) is unknown;
+  tilte20: ((-1 as int?) <= unknown int) is unknown;
+  tilte21: (unknown int <= unknown int) is unknown;
+
+  tigte1: ((-1 as int?) >= 1) is known false;
+  tigte2: ((-1 as int?) >= -1) is known true;
+  tigte3: ((1 as int?) >= 1) is known true;
+  tigte4: ((1 as int?) >= -1) is known true;
+  tigte5: (-1 >= (1 as int?)) is known false;
+  tigte6: (-1 >= (-1 as int?)) is known true;
+  tigte7: (1 >= (1 as int?)) is known true;
+  tigte8: (1 >= (-1 as int?)) is known true;
+  tigte9: ((-1 as int?) >= (1 as int?)) is known false;
+  tigte10: ((-1 as int?) >= (-1 as int?)) is known true;
+  tigte11: ((1 as int?) >= (1 as int?)) is known true;
+  tigte12: ((1 as int?) >= (-1 as int?)) is known true;
+  tigte13: (unknown int >= 1) is unknown;
+  tigte14: (unknown int >= -1) is unknown;
+  tigte15: (1 >= unknown int) is unknown;
+  tigte16: (-1 >= unknown int) is unknown;
+  tigte17: (unknown int >= (1 as int?)) is unknown;
+  tigte18: (unknown int >= (-1 as int?)) is unknown;
+  tigte19: ((1 as int?) >= unknown int) is unknown;
+  tigte20: ((-1 as int?) >= unknown int) is unknown;
+  tigte21: (unknown int >= unknown int) is unknown;
+
+  tigt1: ((-1 as int?) > 1) is known false;
+  tigt2: ((-1 as int?) > -1) is known false;
+  tigt3: ((1 as int?) > 1) is known false;
+  tigt4: ((1 as int?) > -1) is known true;
+  tigt5: (-1 > (1 as int?)) is known false;
+  tigt6: (-1 > (-1 as int?)) is known false;
+  tigt7: (1 > (1 as int?)) is known false;
+  tigt8: (1 > (-1 as int?)) is known true;
+  tigt9: ((-1 as int?) > (1 as int?)) is known false;
+  tigt10: ((-1 as int?) > (-1 as int?)) is known false;
+  tigt11: ((1 as int?) > (1 as int?)) is known false;
+  tigt12: ((1 as int?) > (-1 as int?)) is known true;
+  tigt13: (unknown int > 1) is unknown;
+  tigt14: (unknown int > -1) is unknown;
+  tigt15: (1 > unknown int) is unknown;
+  tigt16: (-1 > unknown int) is unknown;
+  tigt17: (unknown int > (1 as int?)) is unknown;
+  tigt18: (unknown int > (-1 as int?)) is unknown;
+  tigt19: ((1 as int?) > unknown int) is unknown;
+  tigt20: ((-1 as int?) > unknown int) is unknown;
+  tigt21: (unknown int > unknown int) is unknown;
+};
+
+/* list tests */
+test {
+  tllt1: (([-1] as [int]?) < [1]) is known true;
+  tllt2: (([-1] as [int]?) < [-1]) is known false;
+  tllt3: (([1] as [int]?) < [1]) is known false;
+  tllt4: (([1] as [int]?) < [-1]) is known false;
+  tllt5: ([-1] < ([1] as [int]?)) is known true;
+  tllt6: ([-1] < ([-1] as [int]?)) is known false;
+  tllt7: ([1] < ([1] as [int]?)) is known false;
+  tllt8: ([1] < ([-1] as [int]?)) is known false;
+  tllt9: (([-1] as [int]?) < ([1] as [int]?)) is known true;
+  tllt10: (([-1] as [int]?) < ([-1] as [int]?)) is known false;
+  tllt11: (([1] as [int]?) < ([1] as [int]?)) is known false;
+  tllt12: (([1] as [int]?) < ([-1] as [int]?)) is known false;
+  tllt13: (unknown [int] < [1]) is unknown;
+  tllt14: (unknown [int] < [-1]) is unknown;
+  tllt15: ([1] < unknown [int]) is unknown;
+  tllt16: ([-1] < unknown [int]) is unknown;
+  tllt17: (unknown [int] < ([1] as [int]?)) is unknown;
+  tllt18: (unknown [int] < ([-1] as [int]?)) is unknown;
+  tllt19: (([1] as [int]?) < unknown [int]) is unknown;
+  tllt20: (([-1] as [int]?) < unknown [int]) is unknown;
+  tllt21: (unknown [int] < unknown [int]) is unknown;
+
+  tllte1: (([-1] as [int]?) <= [1]) is known true;
+  tllte2: (([-1] as [int]?) <= [-1]) is known true;
+  tllte3: (([1] as [int]?) <= [1]) is known true;
+  tllte4: (([1] as [int]?) <= [-1]) is known false;
+  tllte5: ([-1] <= ([1] as [int]?)) is known true;
+  tllte6: ([-1] <= ([-1] as [int]?)) is known true;
+  tllte7: ([1] <= ([1] as [int]?)) is known true;
+  tllte8: ([1] <= ([-1] as [int]?)) is known false;
+  tllte9: (([-1] as [int]?) <= ([1] as [int]?)) is known true;
+  tllte10: (([-1] as [int]?) <= ([-1] as [int]?)) is known true;
+  tllte11: (([1] as [int]?) <= ([1] as [int]?)) is known true;
+  tllte12: (([1] as [int]?) <= ([-1] as [int]?)) is known false;
+  tllte13: (unknown [int] <= [1]) is unknown;
+  tllte14: (unknown [int] <= [-1]) is unknown;
+  tllte15: ([1] <= unknown [int]) is unknown;
+  tllte16: ([-1] <= unknown [int]) is unknown;
+  tllte17: (unknown [int] <= ([1] as [int]?)) is unknown;
+  tllte18: (unknown [int] <= ([-1] as [int]?)) is unknown;
+  tllte19: (([1] as [int]?) <= unknown [int]) is unknown;
+  tllte20: (([-1] as [int]?) <= unknown [int]) is unknown;
+  tllte21: (unknown [int] <= unknown [int]) is unknown;
+
+  tlgte1: (([-1] as [int]?) >= [1]) is known false;
+  tlgte2: (([-1] as [int]?) >= [-1]) is known true;
+  tlgte3: (([1] as [int]?) >= [1]) is known true;
+  tlgte4: (([1] as [int]?) >= [-1]) is known true;
+  tlgte5: ([-1] >= ([1] as [int]?)) is known false;
+  tlgte6: ([-1] >= ([-1] as [int]?)) is known true;
+  tlgte7: ([1] >= ([1] as [int]?)) is known true;
+  tlgte8: ([1] >= ([-1] as [int]?)) is known true;
+  tlgte9: (([-1] as [int]?) >= ([1] as [int]?)) is known false;
+  tlgte10: (([-1] as [int]?) >= ([-1] as [int]?)) is known true;
+  tlgte11: (([1] as [int]?) >= ([1] as [int]?)) is known true;
+  tlgte12: (([1] as [int]?) >= ([-1] as [int]?)) is known true;
+  tlgte13: (unknown [int] >= [1]) is unknown;
+  tlgte14: (unknown [int] >= [-1]) is unknown;
+  tlgte15: ([1] >= unknown [int]) is unknown;
+  tlgte16: ([-1] >= unknown [int]) is unknown;
+  tlgte17: (unknown [int] >= ([1] as [int]?)) is unknown;
+  tlgte18: (unknown [int] >= ([-1] as [int]?)) is unknown;
+  tlgte19: (([1] as [int]?) >= unknown [int]) is unknown;
+  tlgte20: (([-1] as [int]?) >= unknown [int]) is unknown;
+  tlgte21: (unknown [int] >= unknown [int]) is unknown;
+
+  tlgt1: (([-1] as [int]?) > [1]) is known false;
+  tlgt2: (([-1] as [int]?) > [-1]) is known false;
+  tlgt3: (([1] as [int]?) > [1]) is known false;
+  tlgt4: (([1] as [int]?) > [-1]) is known true;
+  tlgt5: ([-1] > ([1] as [int]?)) is known false;
+  tlgt6: ([-1] > ([-1] as [int]?)) is known false;
+  tlgt7: ([1] > ([1] as [int]?)) is known false;
+  tlgt8: ([1] > ([-1] as [int]?)) is known true;
+  tlgt9: (([-1] as [int]?) > ([1] as [int]?)) is known false;
+  tlgt10: (([-1] as [int]?) > ([-1] as [int]?)) is known false;
+  tlgt11: (([1] as [int]?) > ([1] as [int]?)) is known false;
+  tlgt12: (([1] as [int]?) > ([-1] as [int]?)) is known true;
+  tlgt13: (unknown [int] > [1]) is unknown;
+  tlgt14: (unknown [int] > [-1]) is unknown;
+  tlgt15: ([1] > unknown [int]) is unknown;
+  tlgt16: ([-1] > unknown [int]) is unknown;
+  tlgt17: (unknown [int] > ([1] as [int]?)) is unknown;
+  tlgt18: (unknown [int] > ([-1] as [int]?)) is unknown;
+  tlgt19: (([1] as [int]?) > unknown [int]) is unknown;
+  tlgt20: (([-1] as [int]?) > unknown [int]) is unknown;
+  tlgt21: (unknown [int] > unknown [int]) is unknown;
+};
+
+/* set tests */
+test {
+  tslt1: (({-1} as {int}?) < {-1, 1}) is known true;
+  tslt2: (({-1} as {int}?) < {-1}) is known false;
+  tslt3: (({-1, 1} as {int}?) < {-1, 1}) is known false;
+  tslt4: (({-1, 1} as {int}?) < {-1}) is known false;
+  tslt5: ({-1} < ({-1, 1} as {int}?)) is known true;
+  tslt6: ({-1} < ({-1} as {int}?)) is known false;
+  tslt7: ({-1, 1} < ({-1, 1} as {int}?)) is known false;
+  tslt8: ({-1, 1} < ({-1} as {int}?)) is known false;
+  tslt9: (({-1} as {int}?) < ({-1, 1} as {int}?)) is known true;
+  tslt10: (({-1} as {int}?) < ({-1} as {int}?)) is known false;
+  tslt11: (({-1, 1} as {int}?) < ({-1, 1} as {int}?)) is known false;
+  tslt12: (({-1, 1} as {int}?) < ({-1} as {int}?)) is known false;
+  tslt13: (unknown {int} < {-1, 1}) is unknown;
+  tslt14: (unknown {int} < {-1}) is unknown;
+  tslt15: ({-1, 1} < unknown {int}) is unknown;
+  tslt16: ({-1} < unknown {int}) is unknown;
+  tslt17: (unknown {int} < ({-1, 1} as {int}?)) is unknown;
+  tslt18: (unknown {int} < ({-1} as {int}?)) is unknown;
+  tslt19: (({-1, 1} as {int}?) < unknown {int}) is unknown;
+  tslt20: (({-1} as {int}?) < unknown {int}) is unknown;
+  tslt21: (unknown {int} < unknown {int}) is unknown;
+
+  tslte1: (({-1} as {int}?) <= {-1, 1}) is known true;
+  tslte2: (({-1} as {int}?) <= {-1}) is known true;
+  tslte3: (({-1, 1} as {int}?) <= {-1, 1}) is known true;
+  tslte4: (({-1, 1} as {int}?) <= {-1}) is known false;
+  tslte5: ({-1} <= ({-1, 1} as {int}?)) is known true;
+  tslte6: ({-1} <= ({-1} as {int}?)) is known true;
+  tslte7: ({-1, 1} <= ({-1, 1} as {int}?)) is known true;
+  tslte8: ({-1, 1} <= ({-1} as {int}?)) is known false;
+  tslte9: (({-1} as {int}?) <= ({-1, 1} as {int}?)) is known true;
+  tslte10: (({-1} as {int}?) <= ({-1} as {int}?)) is known true;
+  tslte11: (({-1, 1} as {int}?) <= ({-1, 1} as {int}?)) is known true;
+  tslte12: (({-1, 1} as {int}?) <= ({-1} as {int}?)) is known false;
+  tslte13: (unknown {int} <= {-1, 1}) is unknown;
+  tslte14: (unknown {int} <= {-1}) is unknown;
+  tslte15: ({-1, 1} <= unknown {int}) is unknown;
+  tslte16: ({-1} <= unknown {int}) is unknown;
+  tslte17: (unknown {int} <= ({-1, 1} as {int}?)) is unknown;
+  tslte18: (unknown {int} <= ({-1} as {int}?)) is unknown;
+  tslte19: (({-1, 1} as {int}?) <= unknown {int}) is unknown;
+  tslte20: (({-1} as {int}?) <= unknown {int}) is unknown;
+  tslte21: (unknown {int} <= unknown {int}) is unknown;
+
+  tsgte1: (({-1} as {int}?) >= {-1, 1}) is known false;
+  tsgte2: (({-1} as {int}?) >= {-1}) is known true;
+  tsgte3: (({-1, 1} as {int}?) >= {-1, 1}) is known true;
+  tsgte4: (({-1, 1} as {int}?) >= {-1}) is known true;
+  tsgte5: ({-1} >= ({-1, 1} as {int}?)) is known false;
+  tsgte6: ({-1} >= ({-1} as {int}?)) is known true;
+  tsgte7: ({-1, 1} >= ({-1, 1} as {int}?)) is known true;
+  tsgte8: ({-1, 1} >= ({-1} as {int}?)) is known true;
+  tsgte9: (({-1} as {int}?) >= ({-1, 1} as {int}?)) is known false;
+  tsgte10: (({-1} as {int}?) >= ({-1} as {int}?)) is known true;
+  tsgte11: (({-1, 1} as {int}?) >= ({-1, 1} as {int}?)) is known true;
+  tsgte12: (({-1, 1} as {int}?) >= ({-1} as {int}?)) is known true;
+  tsgte13: (unknown {int} >= {-1, 1}) is unknown;
+  tsgte14: (unknown {int} >= {-1}) is unknown;
+  tsgte15: ({-1, 1} >= unknown {int}) is unknown;
+  tsgte16: ({-1} >= unknown {int}) is unknown;
+  tsgte17: (unknown {int} >= ({-1, 1} as {int}?)) is unknown;
+  tsgte18: (unknown {int} >= ({-1} as {int}?)) is unknown;
+  tsgte19: (({-1, 1} as {int}?) >= unknown {int}) is unknown;
+  tsgte20: (({-1} as {int}?) >= unknown {int}) is unknown;
+  tsgte21: (unknown {int} >= unknown {int}) is unknown;
+
+  tsgt1: (({-1} as {int}?) > {-1, 1}) is known false;
+  tsgt2: (({-1} as {int}?) > {-1}) is known false;
+  tsgt3: (({-1, 1} as {int}?) > {-1, 1}) is known false;
+  tsgt4: (({-1, 1} as {int}?) > {-1}) is known true;
+  tsgt5: ({-1} > ({-1, 1} as {int}?)) is known false;
+  tsgt6: ({-1} > ({-1} as {int}?)) is known false;
+  tsgt7: ({-1, 1} > ({-1, 1} as {int}?)) is known false;
+  tsgt8: ({-1, 1} > ({-1} as {int}?)) is known true;
+  tsgt9: (({-1} as {int}?) > ({-1, 1} as {int}?)) is known false;
+  tsgt10: (({-1} as {int}?) > ({-1} as {int}?)) is known false;
+  tsgt11: (({-1, 1} as {int}?) > ({-1, 1} as {int}?)) is known false;
+  tsgt12: (({-1, 1} as {int}?) > ({-1} as {int}?)) is known true;
+  tsgt13: (unknown {int} > {-1, 1}) is unknown;
+  tsgt14: (unknown {int} > {-1}) is unknown;
+  tsgt15: ({-1, 1} > unknown {int}) is unknown;
+  tsgt16: ({-1} > unknown {int}) is unknown;
+  tsgt17: (unknown {int} > ({-1, 1} as {int}?)) is unknown;
+  tsgt18: (unknown {int} > ({-1} as {int}?)) is unknown;
+  tsgt19: (({-1, 1} as {int}?) > unknown {int}) is unknown;
+  tsgt20: (({-1} as {int}?) > unknown {int}) is unknown;
+  tsgt21: (unknown {int} > unknown {int}) is unknown;
+};
+
+/* address tests */
+test {
+  talt1: ((<[-1]> as <[int]>?) < <[1]>) is known true;
+  talt2: ((<[-1]> as <[int]>?) < <[-1]>) is known false;
+  talt3: ((<[1]> as <[int]>?) < <[1]>) is known false;
+  talt4: ((<[1]> as <[int]>?) < <[-1]>) is known false;
+  talt5: (<[-1]> < (<[1]> as <[int]>?)) is known true;
+  talt6: (<[-1]> < (<[-1]> as <[int]>?)) is known false;
+  talt7: (<[1]> < (<[1]> as <[int]>?)) is known false;
+  talt8: (<[1]> < (<[-1]> as <[int]>?)) is known false;
+  talt9: ((<[-1]> as <[int]>?) < (<[1]> as <[int]>?)) is known true;
+  talt10: ((<[-1]> as <[int]>?) < (<[-1]> as <[int]>?)) is known false;
+  talt11: ((<[1]> as <[int]>?) < (<[1]> as <[int]>?)) is known false;
+  talt12: ((<[1]> as <[int]>?) < (<[-1]> as <[int]>?)) is known false;
+  talt13: (unknown <[int]> < <[1]>) is unknown;
+  talt14: (unknown <[int]> < <[-1]>) is unknown;
+  talt15: (<[1]> < unknown <[int]>) is unknown;
+  talt16: (<[-1]> < unknown <[int]>) is unknown;
+  talt17: (unknown <[int]> < (<[1]> as <[int]>?)) is unknown;
+  talt18: (unknown <[int]> < (<[-1]> as <[int]>?)) is unknown;
+  talt19: ((<[1]> as <[int]>?) < unknown <[int]>) is unknown;
+  talt20: ((<[-1]> as <[int]>?) < unknown <[int]>) is unknown;
+  talt21: (unknown <[int]> < unknown <[int]>) is unknown;
+
+  talte1: ((<[-1]> as <[int]>?) <= <[1]>) is known true;
+  talte2: ((<[-1]> as <[int]>?) <= <[-1]>) is known true;
+  talte3: ((<[1]> as <[int]>?) <= <[1]>) is known true;
+  talte4: ((<[1]> as <[int]>?) <= <[-1]>) is known false;
+  talte5: (<[-1]> <= (<[1]> as <[int]>?)) is known true;
+  talte6: (<[-1]> <= (<[-1]> as <[int]>?)) is known true;
+  talte7: (<[1]> <= (<[1]> as <[int]>?)) is known true;
+  talte8: (<[1]> <= (<[-1]> as <[int]>?)) is known false;
+  talte9: ((<[-1]> as <[int]>?) <= (<[1]> as <[int]>?)) is known true;
+  talte10: ((<[-1]> as <[int]>?) <= (<[-1]> as <[int]>?)) is known true;
+  talte11: ((<[1]> as <[int]>?) <= (<[1]> as <[int]>?)) is known true;
+  talte12: ((<[1]> as <[int]>?) <= (<[-1]> as <[int]>?)) is known false;
+  talte13: (unknown <[int]> <= <[1]>) is unknown;
+  talte14: (unknown <[int]> <= <[-1]>) is unknown;
+  talte15: (<[1]> <= unknown <[int]>) is unknown;
+  talte16: (<[-1]> <= unknown <[int]>) is unknown;
+  talte17: (unknown <[int]> <= (<[1]> as <[int]>?)) is unknown;
+  talte18: (unknown <[int]> <= (<[-1]> as <[int]>?)) is unknown;
+  talte19: ((<[1]> as <[int]>?) <= unknown <[int]>) is unknown;
+  talte20: ((<[-1]> as <[int]>?) <= unknown <[int]>) is unknown;
+  talte21: (unknown <[int]> <= unknown <[int]>) is unknown;
+
+  tagte1: ((<[-1]> as <[int]>?) >= <[1]>) is known false;
+  tagte2: ((<[-1]> as <[int]>?) >= <[-1]>) is known true;
+  tagte3: ((<[1]> as <[int]>?) >= <[1]>) is known true;
+  tagte4: ((<[1]> as <[int]>?) >= <[-1]>) is known true;
+  tagte5: (<[-1]> >= (<[1]> as <[int]>?)) is known false;
+  tagte6: (<[-1]> >= (<[-1]> as <[int]>?)) is known true;
+  tagte7: (<[1]> >= (<[1]> as <[int]>?)) is known true;
+  tagte8: (<[1]> >= (<[-1]> as <[int]>?)) is known true;
+  tagte9: ((<[-1]> as <[int]>?) >= (<[1]> as <[int]>?)) is known false;
+  tagte10: ((<[-1]> as <[int]>?) >= (<[-1]> as <[int]>?)) is known true;
+  tagte11: ((<[1]> as <[int]>?) >= (<[1]> as <[int]>?)) is known true;
+  tagte12: ((<[1]> as <[int]>?) >= (<[-1]> as <[int]>?)) is known true;
+  tagte13: (unknown <[int]> >= <[1]>) is unknown;
+  tagte14: (unknown <[int]> >= <[-1]>) is unknown;
+  tagte15: (<[1]> >= unknown <[int]>) is unknown;
+  tagte16: (<[-1]> >= unknown <[int]>) is unknown;
+  tagte17: (unknown <[int]> >= (<[1]> as <[int]>?)) is unknown;
+  tagte18: (unknown <[int]> >= (<[-1]> as <[int]>?)) is unknown;
+  tagte19: ((<[1]> as <[int]>?) >= unknown <[int]>) is unknown;
+  tagte20: ((<[-1]> as <[int]>?) >= unknown <[int]>) is unknown;
+  tagte21: (unknown <[int]> >= unknown <[int]>) is unknown;
+
+  tagt1: ((<[-1]> as <[int]>?) > <[1]>) is known false;
+  tagt2: ((<[-1]> as <[int]>?) > <[-1]>) is known false;
+  tagt3: ((<[1]> as <[int]>?) > <[1]>) is known false;
+  tagt4: ((<[1]> as <[int]>?) > <[-1]>) is known true;
+  tagt5: (<[-1]> > (<[1]> as <[int]>?)) is known false;
+  tagt6: (<[-1]> > (<[-1]> as <[int]>?)) is known false;
+  tagt7: (<[1]> > (<[1]> as <[int]>?)) is known false;
+  tagt8: (<[1]> > (<[-1]> as <[int]>?)) is known true;
+  tagt9: ((<[-1]> as <[int]>?) > (<[1]> as <[int]>?)) is known false;
+  tagt10: ((<[-1]> as <[int]>?) > (<[-1]> as <[int]>?)) is known false;
+  tagt11: ((<[1]> as <[int]>?) > (<[1]> as <[int]>?)) is known false;
+  tagt12: ((<[1]> as <[int]>?) > (<[-1]> as <[int]>?)) is known true;
+  tagt13: (unknown <[int]> > <[1]>) is unknown;
+  tagt14: (unknown <[int]> > <[-1]>) is unknown;
+  tagt15: (<[1]> > unknown <[int]>) is unknown;
+  tagt16: (<[-1]> > unknown <[int]>) is unknown;
+  tagt17: (unknown <[int]> > (<[1]> as <[int]>?)) is unknown;
+  tagt18: (unknown <[int]> > (<[-1]> as <[int]>?)) is unknown;
+  tagt19: ((<[1]> as <[int]>?) > unknown <[int]>) is unknown;
+  tagt20: ((<[-1]> as <[int]>?) > unknown <[int]>) is unknown;
+  tagt21: (unknown <[int]> > unknown <[int]>) is unknown;
+};
+
+/* uuid tests */
+/*
+test {
+  tult1: ((smalluuid as id?) < largeuuid) is known true;
+  tult2: ((smalluuid as id?) < smalluuid) is known false;
+  tult3: ((largeuuid as id?) < largeuuid) is known false;
+  tult4: ((largeuuid as id?) < smalluuid) is known false;
+  tult5: (smalluuid < (largeuuid as id?)) is known true;
+  tult6: (smalluuid < (smalluuid as id?)) is known false;
+  tult7: (largeuuid < (largeuuid as id?)) is known false;
+  tult8: (largeuuid < (smalluuid as id?)) is known false;
+  tult9: ((smalluuid as id?) < (largeuuid as id?)) is known true;
+  tult10: ((smalluuid as id?) < (smalluuid as id?)) is known false;
+  tult11: ((largeuuid as id?) < (largeuuid as id?)) is known false;
+  tult12: ((largeuuid as id?) < (smalluuid as id?)) is known false;
+  tult13: (unknown id < largeuuid) is unknown;
+  tult14: (unknown id < smalluuid) is unknown;
+  tult15: (largeuuid < unknown id) is unknown;
+  tult16: (smalluuid < unknown id) is unknown;
+  tult17: (unknown id < (largeuuid as id?)) is unknown;
+  tult18: (unknown id < (smalluuid as id?)) is unknown;
+  tult19: ((largeuuid as id?) < unknown id) is unknown;
+  tult20: ((smalluuid as id?) < unknown id) is unknown;
+  tult21: (unknown id < unknown id) is unknown;
+
+  tulte1: ((smalluuid as id?) <= largeuuid) is known true;
+  tulte2: ((smalluuid as id?) <= smalluuid) is known true;
+  tulte3: ((largeuuid as id?) <= largeuuid) is known true;
+  tulte4: ((largeuuid as id?) <= smalluuid) is known false;
+  tulte5: (smalluuid <= (largeuuid as id?)) is known true;
+  tulte6: (smalluuid <= (smalluuid as id?)) is known true;
+  tulte7: (largeuuid <= (largeuuid as id?)) is known true;
+  tulte8: (largeuuid <= (smalluuid as id?)) is known false;
+  tulte9: ((smalluuid as id?) <= (largeuuid as id?)) is known true;
+  tulte10: ((smalluuid as id?) <= (smalluuid as id?)) is known true;
+  tulte11: ((largeuuid as id?) <= (largeuuid as id?)) is known true;
+  tulte12: ((largeuuid as id?) <= (smalluuid as id?)) is known false;
+  tulte13: (unknown id <= largeuuid) is unknown;
+  tulte14: (unknown id <= smalluuid) is unknown;
+  tulte15: (largeuuid <= unknown id) is unknown;
+  tulte16: (smalluuid <= unknown id) is unknown;
+  tulte17: (unknown id <= (largeuuid as id?)) is unknown;
+  tulte18: (unknown id <= (smalluuid as id?)) is unknown;
+  tulte19: ((largeuuid as id?) <= unknown id) is unknown;
+  tulte20: ((smalluuid as id?) <= unknown id) is unknown;
+  tulte21: (unknown id <= unknown id) is unknown;
+
+  tugte1: ((smalluuid as id?) >= largeuuid) is known false;
+  tugte2: ((smalluuid as id?) >= smalluuid) is known true;
+  tugte3: ((largeuuid as id?) >= largeuuid) is known true;
+  tugte4: ((largeuuid as id?) >= smalluuid) is known true;
+  tugte5: (smalluuid >= (largeuuid as id?)) is known false;
+  tugte6: (smalluuid >= (smalluuid as id?)) is known true;
+  tugte7: (largeuuid >= (largeuuid as id?)) is known true;
+  tugte8: (largeuuid >= (smalluuid as id?)) is known true;
+  tugte9: ((smalluuid as id?) >= (largeuuid as id?)) is known false;
+  tugte10: ((smalluuid as id?) >= (smalluuid as id?)) is known true;
+  tugte11: ((largeuuid as id?) >= (largeuuid as id?)) is known true;
+  tugte12: ((largeuuid as id?) >= (smalluuid as id?)) is known true;
+  tugte13: (unknown id >= largeuuid) is unknown;
+  tugte14: (unknown id >= smalluuid) is unknown;
+  tugte15: (largeuuid >= unknown id) is unknown;
+  tugte16: (smalluuid >= unknown id) is unknown;
+  tugte17: (unknown id >= (largeuuid as id?)) is unknown;
+  tugte18: (unknown id >= (smalluuid as id?)) is unknown;
+  tugte19: ((largeuuid as id?) >= unknown id) is unknown;
+  tugte20: ((smalluuid as id?) >= unknown id) is unknown;
+  tugte21: (unknown id >= unknown id) is unknown;
+
+  tugt1: ((smalluuid as id?) > largeuuid) is known false;
+  tugt2: ((smalluuid as id?) > smalluuid) is known false;
+  tugt3: ((largeuuid as id?) > largeuuid) is known false;
+  tugt4: ((largeuuid as id?) > smalluuid) is known true;
+  tugt5: (smalluuid > (largeuuid as id?)) is known false;
+  tugt6: (smalluuid > (smalluuid as id?)) is known false;
+  tugt7: (largeuuid > (largeuuid as id?)) is known false;
+  tugt8: (largeuuid > (smalluuid as id?)) is known true;
+  tugt9: ((smalluuid as id?) > (largeuuid as id?)) is known false;
+  tugt10: ((smalluuid as id?) > (smalluuid as id?)) is known false;
+  tugt11: ((largeuuid as id?) > (largeuuid as id?)) is known false;
+  tugt12: ((largeuuid as id?) > (smalluuid as id?)) is known true;
+  tugt13: (unknown id > largeuuid) is unknown;
+  tugt14: (unknown id > smalluuid) is unknown;
+  tugt15: (largeuuid > unknown id) is unknown;
+  tugt16: (smalluuid > unknown id) is unknown;
+  tugt17: (unknown id > (largeuuid as id?)) is unknown;
+  tugt18: (unknown id > (smalluuid as id?)) is unknown;
+  tugt19: ((largeuuid as id?) > unknown id) is unknown;
+  tugt20: ((smalluuid as id?) > unknown id) is unknown;
+  tugt21: (unknown id > unknown id) is unknown;
+};
+*/
+

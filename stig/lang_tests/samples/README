@@ -1,0 +1,29 @@
+Welcome to the Stig sample code directory.
+All of these samples compile (as of the late November release) but some of them will be more useful than others for you to read.
+
+Older But Still Of Interest
+===========================
+
+sort.stig -- Implementation of mergesort in Stigscript.  Useful both to see the functional programming approach to mergesort as well as seeing how a unit test framework looks.  However, this is somewhat obsolete due to the fact that we now have a sorted_by sorting keyword built into the language.
+
+fizzbuzz.stig -- the classic "fizzbuzz" programming question.
+
+database.stig -- This shows a few sample functions to read and write to the database.
+
+pointclick.stig -- The first Stig Demo program back in March, a demonstration of "Stupid Key Tricks", storing clicked points by their distances as keys so you get the sorted key list back.
+
+time_diff.stig and time_pnt.stig -- these are samples of how we expect the time types to work eventually (though not all of it is implemented)
+
+Everything Else
+===============
+
+The rest of the files in here are mostly small samples of one particular functionality of the language, like reduce, or filter, or known/unknown, conditional writes, etc.  Take a look through them to see examples of things that compile, but they're not full programs or anything.
+
+-----
+
+README (c) by Tagged, Inc.
+
+README is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+
+You should have received a copy of the license along with this work. If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
+

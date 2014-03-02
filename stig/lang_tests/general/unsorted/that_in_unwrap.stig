@@ -1,0 +1,86 @@
+/* <stig/lang_tests/general/unsorted/that_in_unwrap.stig> 
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+obj is <{
+    .first: int,
+    .sec: int?
+}>;
+
+ob0 = <{
+    .first: 7,
+    .sec: 11 as int?
+}>;
+
+ob1 = <{
+    .first: 4,
+    .sec: 3 as int?
+}>;
+
+opt_four = 4 as int?;
+
+first_above_five = /* this works */
+    ((**objs if that.first > 5) as [obj])
+    where {
+        objs = given::([obj]);
+    };
+
+sec_known = /* this works */
+    ((**objs if that.sec is known) as [obj])
+    where {
+        objs = given::([obj]);
+    };
+
+known_above_five = /* this works */
+    (known x > 5)
+    where {
+        x = given::(int?);
+    };
+
+known_above_four = /* this works */
+    ((true if known x > 5 else false))
+    where {
+        x = given::(int?);
+    };
+
+sec_above_four = /* this works */
+    (known ob.sec > 4)
+    where {
+        ob = given::(obj);
+    };
+
+sec_above_given = /* this works */
+    ((**nums if known ob0.sec > that) as [int])
+    where {
+        nums = given::([int]);
+    };
+
+/* invariant: opt_ints must not contain unknowns */
+opts_above_five = /* error */
+    ((**opt_ints if known that > 5) as [int?])
+    where {
+        opt_ints = given::([int?]);
+    };
+
+sec_above_five = /* error */
+    ((**objs if that.sec is known and_then known that.sec > 5) as [obj])
+    where {
+        objs = given::([obj]);
+    };
+
+test {
+    t0: sec_above_given(.nums: [3, 18, 9]) == [3, 9];
+    t1: (opts_above_five(.opt_ints: [5 as int?, 3 as int?, 10 as int?]) == [10 as int?]) is known true;
+    t2: (sec_above_five(.objs: [ob0, ob1]) == [ob0]) is known true;
+};

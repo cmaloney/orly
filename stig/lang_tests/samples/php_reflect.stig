@@ -1,0 +1,51 @@
+reflect_bool = (param) where {
+	param = given::(bool);
+};
+
+reflect_int = (param) where {
+	param = given::(int);
+};
+
+reflect_real = (param) where {
+	param = given::(real);
+};
+
+reflect_str = (param) where {
+	param = given::(str);
+};
+
+reflect_time_pnt = (param) where {
+	param = given::(time_pnt);
+};
+
+reflect_time_diff = (param) where {
+	param = given::(time_diff);
+};
+
+reflect_id = (param) where {
+	param = given::(id);
+};
+
+reflect_list_str = (param) where {
+	param = given::([str]);
+};
+
+reflect_set_str = (param) where {
+	param = given::({str});
+};
+
+reflect_dict_str = (param) where {
+	param = given::({str:int});
+};
+
+reflect_opt_str = (param) where {
+	param = given::(str?);
+};
+
+reflect_tuple_str_int = (param) where {
+	param = given::(<[str, int]>);
+};
+
+reflect_object = (param) where {
+	param = given::(<{.param_str:str, .param_int:int}>);
+};

@@ -1,0 +1,58 @@
+<html>
+<!--
+Copyright 2010-2014 Tagged
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<form method="GET" action="http://localhost:19380/sys/health">
+<input type="submit" value="Health">
+</form>
+
+<form method="GET" action="http://localhost:19380/sys/counters">
+<input type="submit" value="Counters">
+</form>
+
+<form method="GET" action="http://localhost:19380/sys/reset_counters">
+<input type="submit" value="Reset Counters">
+</form>
+
+<form method="GET" action="http://localhost:19380/sys/install_package">
+file = <input type="text" name="file" value='packages/sample_so.1.so'>
+<input type="submit" value="Install Package">
+</form>
+
+<form method="GET" action="http://localhost:19380/sys/uninstall_package">
+file = <input type="text" name="file" value="packages/sample_so.1.so">
+<input type="submit" value="Uninstall Package">
+</form>
+
+<form method="GET" action="http://localhost:19380/sys/create_private_pov">
+session = <input type="text" name="session" value="123">
+parent = <input type="text" name="parent" value="5">
+ttl = <input type="text" name="ttl" value="1000">
+<input type="submit" value="Create Private Pov">
+</form>
+
+<form method="GET" action="http://localhost:19380/sys/create_shared_pov">
+parent = <input type="text" name="parent" value="2">
+ttl = <input type="text" name="ttl" value="10">
+<input type="submit" value="Create Shared Pov">
+</form>
+
+<form method="GET" action="http://localhost:19380/sys/create_session">
+acct = <input type="text" name="acct" value="123">
+ttl = <input type="text" name="ttl" value="1000">
+<input type="submit" value="Create Session">
+</form>
+
+</html>

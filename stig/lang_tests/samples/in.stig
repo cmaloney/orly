@@ -1,0 +1,16 @@
+/* <stig/in.stig>
+
+   An implementation of "in" (contains) in Stig script. */
+
+package #1;
+
+contains1 = (5 in [1, 2, 3]);
+contains2 = (3 in [1, 2, 3]);
+contains3 = (5 in {1, 2, 3});
+contains4 = (3 in {1, 2, 3});
+contains5 = (5 in {1:1.1, 2:2.2, 3:3.3});
+contains6 = (3 in {1:1.1, 2:2.2, 3:3.3});
+contains7 = (n in x) where {
+  n = given::(int);
+  x = {1, 2, 3};
+};

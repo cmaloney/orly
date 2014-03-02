@@ -1,0 +1,77 @@
+package #1;
+
+add_friendship = ((true) effecting {
+  new <[from_uid, to_uid]> <- now;
+  new <[to_uid, from_uid]> <- now;
+}) where {
+  from_uid = given::(int);
+  to_uid = given::(int);
+};
+
+get_common_friends = (friends_of_1 & friends_of_2) where {
+  friends_of_1 = (keys (time_pnt) @ <[user_1, free::(int)]>).1 as {int};
+  friends_of_2 = (keys (time_pnt) @ <[user_2, free::(int)]>).1 as {int};
+  user_1 = given::(int);
+  user_2 = given::(int);
+};
+
+get_3rd_degree_common = (f_of_f_1 & f_of_f_2) where {
+  friends_of_1 = (keys (time_pnt) @ <[user_1, free::(int)]>).1;
+  f_of_f_1 = (friends_of_1 reduce (start empty {int} | ((keys (time_pnt) @ <[that, free::(int)]>).1 as {int}))) - {user_1};
+  friends_of_2 = (keys (time_pnt) @ <[user_2, free::(int)]>).1;
+  f_of_f_2 = (friends_of_2 reduce (start empty {int} | ((keys (time_pnt) @ <[that, free::(int)]>).1 as {int}))) - {user_2};
+  user_1 = given::(int);
+  user_2 = given::(int);
+};
+
+with {
+} test {
+  t1: add_friendship(.from_uid:1, .to_uid:2) == true {
+    t11: get_common_friends(.user_1:1, .user_2:2) == empty {int};
+  };
+};
+
+/* common friends */
+with {
+  <[1, 3]> <- now;
+  <[3, 1]> <- now;
+  <[2, 3]> <- now;
+  <[3, 2]> <- now;
+
+  <[1, 4]> <- now;
+  <[4, 1]> <- now;
+  <[2, 4]> <- now;
+  <[4, 2]> <- now;
+} test {
+  t1: get_common_friends(.user_1:1, .user_2:2) == {3, 4};
+};
+
+/* 3rd degree common friends */
+with {
+  <[1, 3]> <- now;
+  <[3, 1]> <- now;
+  <[1, 5]> <- now;
+  <[5, 1]> <- now;
+
+  <[2, 4]> <- now;
+  <[4, 2]> <- now;
+  <[2, 6]> <- now;
+  <[6, 2]> <- now;
+
+  <[3, 7]> <- now;
+  <[7, 3]> <- now;
+
+  <[5, 8]> <- now;
+  <[8, 5]> <- now;
+  <[5, 9]> <- now;
+  <[9, 5]> <- now;
+
+  <[4, 7]> <- now;
+  <[7, 4]> <- now;
+  <[4, 8]> <- now;
+  <[8, 4]> <- now;
+  <[6, 9]> <- now;
+  <[9, 6]> <- now;
+} test {
+  t1: get_3rd_degree_common(.user_1:1, .user_2:2) == {7, 8, 9};
+};

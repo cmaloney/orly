@@ -1,0 +1,110 @@
+/* <stig/lang_tests/general/dicts_of/dicts_of_opt_eqeq_neq.stig> 
+
+   TODO
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+d1 = {(0 as int?):(0 as int?)};
+d2 = {(0 as int?):unknown int};
+d3 = {unknown int:(0 as int?)};
+d4 = {unknown int:unknown int};
+d5 = {(1 as int?):(1 as int?)};
+d6 = {(1 as int?):unknown int};
+d7 = {unknown int:(1 as int?)};
+
+test {
+  tdeq1: (d1 == d1) is known true;
+  tdeq2: (d1 == d2) is unknown;
+  tdeq3: (d1 == d3) is unknown;
+  tdeq4: (d1 == d4) is unknown;
+  tdeq5: (d1 == d5) is known false;
+  tdeq6: (d1 == d6) is known false;
+  tdeq7: (d1 == d7) is known false;
+  tdeq8: (d2 == d1) is unknown;
+  tdeq9: (d2 == d2) is unknown;
+  tdeq10: (d2 == d3) is unknown;
+  tdeq11: (d2 == d4) is unknown;
+  tdeq12: (d2 == d5) is known false;
+  tdeq13: (d2 == d6) is known false;
+  tdeq14: (d2 == d7) is unknown;
+  tdeq15: (d3 == d1) is unknown;
+  tdeq16: (d3 == d2) is unknown;
+  tdeq17: (d3 == d3) is unknown;
+  tdeq18: (d3 == d4) is unknown;
+  tdeq19: (d3 == d5) is known false;
+  tdeq20: (d3 == d6) is unknown;
+  tdeq21: (d3 == d7) is known false;
+  tdeq22: (d4 == d1) is unknown;
+  tdeq23: (d4 == d2) is unknown;
+  tdeq24: (d4 == d3) is unknown;
+  tdeq25: (d4 == d4) is unknown;
+  tdeq26: (d4 == d5) is unknown;
+  tdeq27: (d4 == d6) is unknown;
+  tdeq28: (d4 == d7) is unknown;
+  tdeq29: (d5 == d1) is known false;
+  tdeq30: (d5 == d2) is known false;
+  tdeq31: (d5 == d3) is known false;
+  tdeq32: (d5 == d4) is unknown;
+  tdeq33: (d6 == d1) is known false;
+  tdeq34: (d6 == d2) is known false;
+  tdeq35: (d6 == d3) is unknown;
+  tdeq36: (d6 == d4) is unknown;
+  tdeq37: (d7 == d1) is known false;
+  tdeq38: (d7 == d2) is unknown;
+  tdeq39: (d7 == d3) is known false;
+  tdeq40: (d7 == d4) is unknown;
+
+  tdneq1: (d1 != d1) is known false;
+  tdneq2: (d1 != d2) is unknown;
+  tdneq3: (d1 != d3) is unknown;
+  tdneq4: (d1 != d4) is unknown;
+  tdneq5: (d1 != d5) is known true;
+  tdneq6: (d1 != d6) is known true;
+  tdneq7: (d1 != d7) is known true;
+  tdneq8: (d2 != d1) is unknown;
+  tdneq9: (d2 != d2) is unknown;
+  tdneq10: (d2 != d3) is unknown;
+  tdneq11: (d2 != d4) is unknown;
+  tdneq12: (d2 != d5) is known true;
+  tdneq13: (d2 != d6) is known true;
+  tdneq14: (d2 != d7) is unknown;
+  tdneq15: (d3 != d1) is unknown;
+  tdneq16: (d3 != d2) is unknown;
+  tdneq17: (d3 != d3) is unknown;
+  tdneq18: (d3 != d4) is unknown;
+  tdneq19: (d3 != d5) is known true;
+  tdneq20: (d3 != d6) is unknown;
+  tdneq21: (d3 != d7) is known true;
+  tdneq22: (d4 != d1) is unknown;
+  tdneq23: (d4 != d2) is unknown;
+  tdneq24: (d4 != d3) is unknown;
+  tdneq25: (d4 != d4) is unknown;
+  tdneq26: (d4 != d5) is unknown;
+  tdneq27: (d4 != d6) is unknown;
+  tdneq28: (d4 != d7) is unknown;
+  tdneq29: (d5 != d1) is known true;
+  tdneq30: (d5 != d2) is known true;
+  tdneq31: (d5 != d3) is known true;
+  tdneq32: (d5 != d4) is unknown;
+  tdneq33: (d6 != d1) is known true;
+  tdneq34: (d6 != d2) is known true;
+  tdneq35: (d6 != d3) is unknown;
+  tdneq36: (d6 != d4) is unknown;
+  tdneq37: (d7 != d1) is known true;
+  tdneq38: (d7 != d2) is unknown;
+  tdneq39: (d7 != d3) is known true;
+  tdneq40: (d7 != d4) is unknown;
+};

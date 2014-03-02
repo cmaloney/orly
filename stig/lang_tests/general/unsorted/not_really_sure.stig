@@ -1,0 +1,80 @@
+/* <stig/lang_tests/general/unsorted/not_really_sure.stig> 
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+level_data is <{
+    .exp_to_level: int
+}>;
+
+get_level_data =
+    (*<['levels', level]>::(level_data))
+    where {
+        level = given::(int);
+    };
+
+get_val =
+    (*<[key]>::(int))
+    where {
+        key = given::(int);
+    };
+
+deref =
+    (get_val(.key: key) - exp)
+    where {
+        key = given::(int);
+        exp = given::(int);
+    };
+
+get_remaining_exp =
+    (get_level_data(.level: level).exp_to_level - exp)
+    where {
+        level = given::(int);
+        exp = given::(int);
+    };
+
+h_profile = deref(.key: 0, .exp: 0); /* this works */
+
+return_remaining_exp = get_remaining_exp(.level: 1, .exp: 0); /* works */
+
+fetch_profile = get_remaining_exp(.level: 1, .exp: 0); /* error */
+
+/* names that work:
+    et_profile
+    g_profile
+    _profile
+    fet_profile
+    fetc_profile
+    tch_profile
+    profile_
+    profile_f
+    profile_h
+    profile_ech
+    profile_tch
+*/
+
+/* names that don't work:
+    profile
+    fetch_profile
+    get_profile
+    ge_profile
+    f_profile
+    t_profile
+    h_profile
+    ch_profile
+    etch_profile
+    profile_fetch
+    profile_ch
+    profile_etch
+    profile_get
+*/
