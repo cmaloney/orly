@@ -1,0 +1,56 @@
+package #1;
+
+insert = ((true) effecting {
+  new <[uid]> <- val;
+}) where {
+  uid = given::(int);
+  val = given::(int);
+};
+
+get_key = (keys (int) @ <[uid]>.0 as [int]) where {
+  uid = given::(int);
+};
+
+get = (*keys (int) @ <[uid]>::(int) as [int]) where {
+  uid = given::(int);
+};
+
+force_get = (*<[uid]>::(int)) where {
+  uid = given::(int);
+};
+
+with {
+  <[1]> <- 2;
+  <[2]> <- 4;
+  <[3]> <- 6;
+} test {
+  get1: get(.uid:1) == [2];
+  get2: get(.uid:2) == [4];
+  get3: get(.uid:3) == [6];
+  get4: get(.uid:4) == empty [int];
+  get_key1: get_key(.uid:1) == [1];
+  get_key2: get_key(.uid:2) == [2];
+  get_key3: get_key(.uid:3) == [3];
+  get_key4: get_key(.uid:4) == empty [int];
+  force_get1: force_get(.uid:1) == 2;
+  force_get2: force_get(.uid:2) == 4;
+  force_get3: force_get(.uid:3) == 6;
+};
+
+with {
+
+} test {
+  insert1: insert(.uid:1, .val:2) == true {
+    insert1a: get(.uid:1) == [2];
+    insert1b: get(.uid:2) == empty [int];
+    insert1a1: insert(.uid:2, .val:4) == true {
+      insert1a1a: get(.uid:1) == [2];
+      insert1a1b: get(.uid:2) == [4];
+      insert1a1c: get(.uid:3) == empty [int];
+    };
+  };
+  insert2: insert(.uid:3, .val:6) == true {
+    insert2a: get(.uid:1) == empty [int];
+    insert2b: get(.uid:3) == [6];
+  };
+};
