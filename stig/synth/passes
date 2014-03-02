@@ -1,0 +1,60 @@
+# Copyright 2010-2014 Tagged
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+Symbol/Expr Generation: By end all names will be bound to symbolic type definitions
+  1) Build up scopes (symbol tables) and base expression tree. The expression tree is a tree of things inheriting from
+     TDef. These may contain TRefs (which they must be able to list). This includes building out package import definitions.
+  2) Use the symbol table and TDef graph to bind all TRefs to TDefs.
+  3) Do a topo sort of the TDef dependency graph
+  4) Starting at the top of the TDef dependency graph, build up the
+
+  Typedefs (N passes)
+    1) Resolve final type/type alias. Keep alias around purely for clean error messages. Build up the type signature. Each pass resolves 1 layer
+       -If any recursion is found, mark the def as dead and report it.
+  Packages  (1 pass)
+    Build package import symbolics, definition placeholder
+  TRef resolution (N passes, determined at start).
+
+  Functions & Expressions (N passes): Done when we have a full symbolic tree or are making no progress because of errors.
+
+    1) Error on cyclic w/o parameters as we can't determine type without full evaluation
+
+# TODO: Rewrite to be the new variant.
+    While not stable:
+      For each function def which isn't symbolic:
+        Attempt to build out parameter types by evaluating where/givens. Try to build function parameter definition
+        Build rhs symbolic tree if possible, adding new nodes, binding to map from CST Nodes to symbol nodes.
+        If another function has a full definition, bind to the definition.
+        If resolvable type of an object which a member is being accessed in, bind the access type
+        If resolvable pull out address position
+        If we can resolve the full definition, build a symbolic, map the CST node to the symbolic.
+      NOTE: Watch for cycles / undeterminable return types
+
+Bind outer level of symbolic, pass to CodeGen.
+
+
+Definites:
+  scope/stub contruction
+  typedefs reduction/collapse (n passes)
+  bind function definition (name, parameter list) BEFORE function expression.
+  Check that function arguments are of right name/count.
+  Check function parameter binding
+  build out expression definition
+
+
+Passes for a scope
+1) Get names
+2) Get signatures for functions
+3) Build out expression trees
+    -When a where is hit, go through steps 1 and 2.
