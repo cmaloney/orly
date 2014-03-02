@@ -1,0 +1,28 @@
+"tools" {
+  "ld" {
+    "flags" {
+      "--coverage";
+    }
+  }
+  "g++" {
+    "flags" {
+      "--coverage";
+    }
+  }
+}
+"files" {
+  "stig/indy/disk/data_file.cc" {
+    "g++" {
+      "flags" {
+        "--coverage";
+      }
+    }
+  }
+  "stig/svr_tools/installer.test.o" {
+    "ld" {
+      "flags" {
+        "--coverage"
+      }
+    }
+  }
+}

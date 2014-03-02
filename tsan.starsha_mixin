@@ -1,0 +1,46 @@
+"tools" {
+  "ld" {
+    "flags" {
+      "-fsanitize=thread";
+      "-pie";
+      "-fPIC";
+    }
+  }
+  "g++" {
+    "flags" {
+      "-fsanitize=thread";
+      "-fno-omit-frame-pointer";
+      "-pie";
+      "-fPIC";
+    }
+  }
+}
+"files" {
+  "stig/server/stig.o" {
+    "ld" {
+      "flags" {
+        "-fsanitize=thread";
+        "-pie";
+        "-fPIC";
+      }
+    }
+  }
+  "stig/indy/disk/data_file.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fno-omit-frame-pointer";
+        "-pie";
+        "-fPIC";
+      }
+    }
+  }
+  "third_party/mongoose/mongoose.c" {
+    "gcc" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fPIC";
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+   "report_name" : "stig_disk_usage_report_report",
+   "report_type" : "standard",
+   "title" : "Stig Disk Usage Report",
+   "vertical_label" : "bytes",
+   "series" : [
+      { "metric": "stig_Disk_Usage_max", "color": "33cc33", "label": "Disk Max", "type": "stack" },
+      { "metric": "stig_Disk_Usage", "color": "5555cc", "label": "Disk Used", "line_width": "2", "type": "line" }
+   ]
+}

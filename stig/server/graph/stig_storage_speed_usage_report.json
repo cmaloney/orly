@@ -1,0 +1,12 @@
+{
+   "report_name" : "stig_storage_speed_usage",
+   "report_type" : "standard",
+   "title" : "Stig Storage Speed Usage",
+   "vertical_label" : "bytes",
+   "series" : [
+      { "metric": "stig_Slow_Usage", "color": "3333bb", "label": "Slow Storage", "type": "stack" },
+      { "metric": "stig_Fast_Usage", "color": "33cc33", "label": "Fast Storage", "type": "stack" }
+   ]
+}
+
+

@@ -1,0 +1,264 @@
+/* <stig/client/program/program.nycr> 
+
+   Grammar for Stig client shell.
+
+      new private pov (under <id>) ;
+      new shared pov (under <id>) ;
+      ttl <id> = <time_diff> ;
+      install <package> ;
+      uninstall <package> ;
+      call <method> ( .name: val );
+
+   Copyright 2010-2014 Tagged
+   
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+     http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------
+    TERMINALS
+   ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+prec lowest_prec;
+prec unary_prec;
+prec highest_prec;
+
+open_addr         = '"<["';
+close_addr        = '"]>"';
+
+open_brace        = '"{"';
+close_brace       = '"}"';
+
+open_bracket      = '"["';
+close_bracket     = '"]"';
+
+open_obj          = '"<{"';
+close_obj         = '"}>"';
+
+open_paren        = '"("';
+close_paren       = '")"';
+
+colon             = '":"';
+comma             = '","';
+dot               = '"."';
+fslash            = '"/"';
+left_arrow        = '"<-"';
+question_mark     = '"?"' unary_prec left;
+semi              = '";"';
+
+empty_kwd         = '"empty"' unary_prec right;
+exit_kwd          = '"exit"';
+unknown_kwd       = '"unknown"' unary_prec right;
+try_kwd           = '"try"';
+new_kwd           = '"new"';
+safe_kwd          = '"safe"';
+fast_kwd          = '"fast"';
+set_kwd           = '"set"';
+ttl_kwd           = '"ttl"';
+user_id_kwd       = '"user_id"';
+to_kwd            = '"to"';
+private_kwd       = '"private"';
+shared_kwd        = '"shared"';
+pause_kwd         = '"pause"';
+unpause_kwd       = '"unpause"';
+install_kwd       = '"install"';
+uninstall_kwd     = '"uninstall"';
+begin_kwd         = '"begin"';
+end_kwd           = '"end"';
+import_kwd        = '"import"';
+from_kwd          = '"from"';
+image_kwd         = '"image"';
+xact_kwd          = '"xact"';
+echo_kwd          = '"echo"';
+pov_kwd           = '"pov"';
+tail_kwd          = '"tail"';
+
+unary_placeholder = '' unary_prec right;
+name = '[_a-zA-Z][_a-zA-Z0-9]*' pri 2;
+
+name_list -> name opt_name_list_tail;
+
+    opt_name_list_tail;
+    no_name_list_tail : opt_name_list_tail -> empty;
+    name_list_tail    : opt_name_list_tail -> fslash name_list;
+
+package_name -> name_list dot int_expr;
+
+pov_guarantee;
+safe_guarantee : pov_guarantee -> safe_kwd;
+fast_guarantee : pov_guarantee -> fast_kwd;
+
+pov_kind;
+private_kind : pov_kind -> private_kwd;
+shared_kind  : pov_kind -> shared_kwd;
+
+status_kind;
+pause_kind   : status_kind -> pause_kwd;
+unpause_kind : status_kind -> unpause_kwd;
+
+opt_parent;
+no_parent : opt_parent -> empty;
+parent    : opt_parent -> from_kwd id_expr;
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------
+    TOP-LEVEL
+   ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+program -> top <stig/client/program>;
+
+top;
+
+stmt : top;
+exit_stmt           : stmt -> exit_kwd semi;
+begin_import_stmt   : stmt -> begin_kwd import_kwd semi;
+end_import_stmt     : stmt -> end_kwd import_kwd semi;
+import_stmt         : stmt -> import_kwd xact_count:int_expr from_kwd file:double_quoted_str_expr semi;
+install_stmt        : stmt -> install_kwd package_name semi;
+uninstall_stmt      : stmt -> uninstall_kwd package_name semi;
+pov_cons_stmt       : stmt -> new_kwd pov_guarantee pov_kind pov_kwd opt_parent semi;
+pov_status_stmt     : stmt -> status_kind id_expr semi;
+set_user_id_stmt    : stmt -> set_kwd user_id_kwd id_expr semi;
+set_ttl_stmt        : stmt -> set_kwd ttl_kwd id_expr to_kwd int_expr semi;
+try_stmt            : stmt -> try_kwd pov_id:id_expr package:name_list method_name:name args:obj_expr semi;
+echo_stmt           : stmt -> echo_kwd expr semi;
+tail_stmt           : stmt -> tail_kwd semi;
+
+image : top -> image_kwd open_brace opt_xact_seq close_brace;
+
+  opt_xact_seq;
+  no_xact_seq : opt_xact_seq -> empty;
+  xact_seq    : opt_xact_seq -> xact opt_xact_seq;
+
+xact -> xact_kwd open_brace opt_kv_seq close_brace;
+
+  opt_kv_seq;
+  no_kv_seq : opt_kv_seq -> empty;
+  kv_seq    : opt_kv_seq -> any_kv opt_kv_seq;
+
+any_kv;
+bad_kv : any_kv -> error semi;
+kv     : any_kv -> lhs:expr left_arrow rhs:expr semi;
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------
+    TYPES
+   ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+type;
+bool_type      : type  = '"bool"';       /* bool */
+id_type        : type  = '"id"';         /* id */
+int_type       : type  = '"int"';        /* int */
+real_type      : type  = '"real"';       /* real */
+str_type       : type  = '"str"';        /* str */
+time_diff_type : type  = '"time_diff"';  /* time_diff */
+time_pnt_type  : type  = '"time_pnt"';   /* time_pnt */
+
+paren_type : type -> open_paren type close_paren;                       /* ( int ) */
+dict_type  : type -> open_brace key:type colon value:type close_brace;  /* { int : int } */
+list_type  : type -> open_bracket type close_bracket;                   /* [ int ] */
+set_type   : type -> open_brace type close_brace;                       /* { int } */
+opt_type   : type -> type question_mark prec unary_placeholder;         /* int? */
+
+addr_type : type -> open_addr opt_addr_type_member_list close_addr;   /* <[ asc|dec type, asc|desc type, ... ]> */
+
+  opt_addr_type_member_list;
+  no_addr_type_member_list : opt_addr_type_member_list -> empty;
+  addr_type_member_list : opt_addr_type_member_list    -> addr_type_member opt_addr_type_member_list_tail;
+
+  opt_addr_type_member_list_tail;
+  no_addr_type_member_list_tail : opt_addr_type_member_list_tail -> empty;
+  addr_type_member_list_tail    : opt_addr_type_member_list_tail -> comma addr_type_member_list;
+
+  addr_type_member -> opt_ordering type;
+
+obj_type : type -> open_obj opt_obj_type_member_list close_obj;  /* <{ .name : type, .name : type, ... }> */
+
+  opt_obj_type_member_list;
+  no_obj_type_member_list : opt_obj_type_member_list -> empty;
+  obj_type_member_list    : opt_obj_type_member_list -> obj_type_member opt_obj_type_member_list_tail;
+
+  opt_obj_type_member_list_tail;
+  no_obj_type_member_list_tail : opt_obj_type_member_list_tail -> empty;
+  obj_type_member_list_tail    : opt_obj_type_member_list_tail -> comma obj_type_member_list;
+
+  obj_type_member -> dot name colon type;
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------
+    EXPRESSIONS
+   ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+expr;
+false_expr     : expr = '"false"';
+true_expr      : expr = '"true"';
+id_expr        : expr = r'\{[[:xdigit:]]{8}\-([[:xdigit:]]{4}\-){3}[[:xdigit:]]{12}\}';
+int_expr       : expr = r'[\-\+]?[[:digit:]]+';
+real_expr      : expr = r'[\-\+]?[[:digit:]]+\.[[:digit:]]+([eE][\-\+]?[[:digit:]]+)?';
+time_diff_expr : expr = r'\{[\-\+]?[[:digit:]]+T([[:digit:]]+\:){2}[[:digit:]]+\}';
+time_pnt_expr  : expr = r'\{[[:digit:]]+(\-[[:digit:]]{1,2}){2}T([[:digit:]]{1,2}\:){2}[[:digit:]]{1,2}(Z|([\-\+][[:digit:]]{1,2}\:[[:digit:]]{1,2}))\}';
+
+str_expr : expr;
+double_quoted_raw_str_expr : str_expr = '{DOUBLE_QUOTED_RAW_STRING}' pri 1;
+double_quoted_str_expr     : str_expr = '{DOUBLE_QUOTED_STRING}';
+single_quoted_raw_str_expr : str_expr = '{SINGLE_QUOTED_RAW_STRING}' pri 1;
+single_quoted_str_expr     : str_expr = '{SINGLE_QUOTED_STRING}';
+
+paren_expr   : expr -> open_paren expr close_paren;  /* ( expr ) */
+empty_expr   : expr -> empty_kwd type;               /* empty [int] */
+unknown_expr : expr -> unknown_kwd type;             /* unknown int */
+opt_expr     : expr -> expr question_mark;           /* 3? */
+
+list_expr : expr -> open_bracket expr_list close_bracket;  /* [ expr, expr, ... ] */
+set_expr  : expr -> open_brace expr_list close_brace;      /* { expr, expr, ... } */
+
+  expr_list -> expr opt_expr_list_tail;
+
+    opt_expr_list_tail;
+    no_expr_list_tail : opt_expr_list_tail -> empty;
+    expr_list_tail    : opt_expr_list_tail -> comma expr_list;
+
+dict_expr : expr -> open_brace dict_member_list close_brace;  /* { key_expr : val_expr, key_expr : val_expr, ... } */
+
+  dict_member_list -> dict_member opt_dict_member_list_tail;
+
+  opt_dict_member_list_tail;
+  no_dict_member_list_tail : opt_dict_member_list_tail -> empty;
+  dict_member_list_tail    : opt_dict_member_list_tail -> comma dict_member_list;
+
+  dict_member -> key:expr colon value:expr;
+
+addr_expr : expr -> open_addr opt_addr_member_list close_addr;  /* <[ asc|desc expr, asc|desc expr, ... ]> */
+
+  opt_addr_member_list;
+  no_addr_member_list : opt_addr_member_list -> empty;
+  addr_member_list    : opt_addr_member_list -> addr_member opt_addr_member_list_tail;
+
+  opt_addr_member_list_tail;
+  no_addr_member_list_tail : opt_addr_member_list_tail -> empty;
+  addr_member_list_tail    : opt_addr_member_list_tail -> comma addr_member_list;
+
+  addr_member -> opt_ordering expr;
+
+  opt_ordering;
+  no_ordering   : opt_ordering -> empty;
+  asc_ordering  : opt_ordering = '"asc"';
+  desc_ordering : opt_ordering = '"desc"';
+
+obj_expr : expr -> open_obj opt_obj_member_list close_obj;  /* <{ .name : expr, .name : expr, ... }> */
+
+  opt_obj_member_list;
+  no_obj_member_list : opt_obj_member_list -> empty;
+  obj_member_list    : opt_obj_member_list -> obj_member opt_obj_member_list_tail;
+
+  opt_obj_member_list_tail;
+  no_obj_member_list_tail : opt_obj_member_list_tail -> empty;
+  obj_member_list_tail    : opt_obj_member_list_tail -> comma obj_member_list;
+
+  obj_member -> dot name colon expr;
+

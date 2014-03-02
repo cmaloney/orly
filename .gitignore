@@ -1,0 +1,10 @@
+*.pyc
+*.swp
+*~
+*.*~
+tools/starsha
+tools/clang
+tools/clang++
+third_party/llvm
+third_party/llvm_build
+

@@ -1,0 +1,6 @@
+args {
+  filled;
+  outlined;
+  lw = 3.0;
+}
+

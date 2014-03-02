@@ -1,0 +1,58 @@
+"tools" {
+  "ld" {
+    "flags" {
+      "-fsanitize=address";
+    }
+  }
+  "g++" {
+    "flags" {
+      "-fsanitize=address";
+      "-fno-omit-frame-pointer";
+    }
+  }
+}
+"files" {
+  "stig/stig.o" {
+    "ld" {
+      "flags" {
+        "-fsanitize=address";
+      }
+    }
+  }
+  "stig/spa/spa.o" {
+    "ld" {
+      "flags" {
+        "-fsanitize=address";
+      }
+    }
+  }
+  "stig/exit.test.o" {
+    "ld" {
+      "flags" {
+        "-fsanitize=address";
+      }
+    }
+  }
+  "stig/sample.test.o" {
+    "ld" {
+      "flags" {
+        "-fsanitize=address";
+      }
+    }
+  }
+  "stig/server/stig.o" {
+    "ld" {
+      "flags" {
+        "-fsanitize=address";
+      }
+    }
+  }
+  "stig/indy/disk/data_file.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=address";
+        "-fno-omit-frame-pointer";
+      }
+    }
+  }
+}

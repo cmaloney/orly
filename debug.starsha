@@ -1,0 +1,189 @@
+"root" {
+  "exclude" {
+    ".git";
+  }
+  "include" {}
+  "tools" {
+    "ld" {
+      "flags" {
+        "-Wl,--as-needed";
+        "-rdynamic";
+      }
+      "libs" {
+        "-luuid";
+        "-lpthread";
+        "-lrt";
+        "-ldl";
+        "-laio";
+        "-lgmp";
+        "-lgmpxx";
+        "-lz";
+        "-licuuc";
+        "-lreadline";
+        "-lsnappy";
+      }
+    }
+    "g++" {
+      "flags" {
+        "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+        "-g";
+        "-Wno-type-limits";
+        "-Werror";
+        "-DDEBUG";
+        "-Wno-parentheses";
+        "-Wold-style-cast";
+        "-Wall";
+        "-Wextra";
+        "-Wno-delete-non-virtual-dtor";
+        "-std=c++11";
+        "-DSTIG_HOST";
+      }
+    }
+    "gcc" {
+      "flags" {
+        "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+        "-g";
+        "-Wno-type-limits";
+        "-Werror";
+        "-DDEBUG";
+        "-Wno-parentheses";
+        "-Wall";
+        "-Wextra";
+        "-std=c11"
+        "-Wno-unused-but-set-parameter";
+        "-Wno-strict-aliasing";
+      }
+    }
+  }
+  "files" {
+    "third_party/mongoose/mongoose.c" {
+      "gcc" {
+        "flags" {
+          "-g";
+          "-DDEBUG";
+        }
+      }
+    }
+    "stig/client/program/program.program.flex.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+        }
+      }
+    }
+    "stig/client/program/program.program.bison.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+        }
+      }
+    }
+    "stig/stig.package.flex.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+        }
+      }
+    }
+    "stig/stig.package.bison.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+        }
+      }
+    }
+    "stig/stig.checkpoint.flex.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+        }
+      }
+    }
+    "stig/stig.checkpoint.bison.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+        }
+      }
+    }
+    "stig/stig.command.flex.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+        }
+      }
+    }
+    "stig/stig.command.bison.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+        }
+      }
+    }
+    "stig/server/stig.o" {
+      "ld" {
+        "flags" {
+          "-rdynamic";
+          "-Wl,-rpath -Wl,/opt/gcc/lib64 --enable-new-dtags";
+          "-Wl,--as-needed";
+        }
+        "libs" {
+          "-luuid";
+          "-lgomp";
+          "-lpthread";
+          "-lrt";
+          "-ldl";
+          "-laio";
+          "-lgmp";
+          "-lgmpxx";
+          "-lsnappy";
+          "-lz";
+        }
+      }
+    }
+    "stig/indy/disk/data_file.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-Wno-type-limits";
+          "-Werror";
+          "-DDEBUG";
+          "-Wno-parentheses";
+          "-Wold-style-cast";
+          "-Wall";
+          "-Wextra";
+          "-Wno-delete-non-virtual-dtor";
+          "-std=c++11";
+          "-DSTIG_HOST";
+          "-msse2";
+        }
+      }
+    }
+  }
+}
+

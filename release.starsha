@@ -1,0 +1,121 @@
+"root" {
+  "exclude" {
+    ".git";
+  }
+  "include" {}
+  "tools" {
+    "ld" {
+      "flags" {
+        "-Wl,--as-needed";
+        "-O3";
+        "-flto";
+        "-s";
+        "-rdynamic";
+      }
+      "libs" {
+        "-luuid";
+        "-lpthread"
+        "-lrt";
+        "-ldl";
+        "-laio";
+        "-lgmp";
+        "-lgmpxx";
+        "-lz";
+        "-lreadline";
+        "-lsnappy";
+      }
+    }
+    "g++" {
+      "flags" {
+        "-DSTIG_HOST";
+        "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+        "-O3";
+        "-flto";
+        "-Wno-type-limits";
+        "-Werror";
+        "-DNDEBUG";
+        "-Wall";
+        "-Wextra";
+        "-Wno-unused";
+        "-Wno-unused-parameter";
+	      "-Wno-unused-result";
+        "-Wno-strict-aliasing";
+        "-Wno-delete-non-virtual-dtor";
+        "-std=c++11";
+      }
+    }
+    "gcc" {
+      "flags" {
+        "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+        "-O3";
+        "-flto";
+        "-Wno-type-limits";
+        "-Werror";
+        "-DNDEBUG";
+        "-Wno-parentheses";
+        "-Wall";
+        "-Wextra";
+        "-Wno-unused";
+        "-std=c11";
+      }
+    }
+  }
+  "files" {
+    "third_party/mongoose/mongoose.c" {
+      "gcc" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+        }
+      }
+    }
+    "stig/server/stig.o" {
+      "ld" {
+        "flags" {
+          "-Wl,--as-needed";
+          "-O3";
+          "-flto";
+          "-s";
+          "-rdynamic";
+          "-Wl,-rpath -Wl,/opt/gcc/lib64 -Wl,--enable-new-dtags";
+        }
+        "libs" {
+          "-lgomp";
+          "-luuid";
+          "-lpthread";
+          "-lrt";
+          "-ldl";
+          "-laio";
+          "-lgmp";
+          "-lgmpxx";
+          "-lz";
+          "-lsnappy";
+        }
+      }
+    }
+    "stig/indy/fiber/fiber.cc" {
+     "g++" {
+        "flags" {
+          "-DSTIG_HOST";
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-O3";
+          "-flto";
+          "-Wno-type-limits";
+          "-Werror";
+          "-DNDEBUG";
+          "-Wall";
+          "-Wextra";
+          "-Wno-unused";
+          "-Wno-unused-parameter";
+          "-Wno-unused-result";
+          "-Wno-strict-aliasing";
+          "-Wno-delete-non-virtual-dtor";
+          "-std=c++11";
+          "-Wno-invalid-offsetof";
+        }
+      }
+    }
+  }
+}
+

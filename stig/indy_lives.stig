@@ -1,0 +1,4 @@
+package #1;
+
+sum = (a + b) where { a = given::(int); b = given::(int); };
+

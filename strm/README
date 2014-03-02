@@ -1,0 +1,152 @@
+PIPELINES & AGENTS
+
+  When streaming data, we use the notion of a pipeline made up of producers and
+  their associated consumers.  Each pipeline flows either inward or outward.
+  An inward-flowing pipeline reads from some source (the producer) and makes
+  the data available to be popped by some agent (the consumer).  An outward-
+  flowing pipline does the reverse: it reads from agent (the producer) and
+  pushes data to some destination (the consumer).
+
+  Notice that one end of a pipeline is characterized as an agent and the other
+  is not.  The agent is the driver of the pipeline and the other components
+  are driven by him.  That is the distinction between in- and out-flowing
+  pipelines: the agent is driving either by popping (in-flowing) or pushining
+  (out-flowing).
+
+  The end of the pipeline nearest the agent is termed the active end.  The
+  end farthest from the agent is the passive end.  Which end is a consumer
+  and which is a producer depends in the direction of flow:
+
+                 So active     And passive
+    Flow Is:     End Is:       End Is:
+    -----------  -----------  ------------
+    Inward       Consumer      Producer
+    Outward      Producer      Consumer
+
+  For example, to write binary data to a file, you'll want to construct an
+  outward-flowing pipeline.  The producer will encode the data in a binary
+  format and the consumer write it to the file.
+
+  To read the data back, you'll want an inward-flowing pipeline.  In this case,
+  the producer will read from the file and the consumer will decode the binary
+  format.
+
+  In both cases, 'you' are the active agent producing or consuming binary data
+  and the file is passively being written to or read from.
+
+PRODUCERS & CONSUMERS
+
+  Producers and consumers always have a 1:1 relationship.  In the simplest
+  case, you plug a pair of them together to form your pipeline.  It is also
+  possible to form pipelines of multiple producer-consumer objects, but we'll
+  talk about that later.
+
+  The separation of producer from consumer permits each to be specialized
+  independently.  You then mix-and-match them to form the pipeline you need.
+
+  In general, there are producers for encoding binary or UTF-8 data, reading
+  from files or sockets, reading from static or dynamic in-memory buffers.
+  There are also consumers for decoding binary or UTF-8 data, writing to files
+  or sockets, and building static or dynamic in-memory buffers.
+
+  By plugging these pieces together, you can define pipelines to write binary
+  data to a socket, read UTF-8 data from an in-memory buffer, copy data between
+  buffers, or whatever combination might be useful.
+
+  The constructors for the active-side objects (in-flowing consumers and
+  out-flowing producers) require a pointer to their passive-side counterparts.
+  That is to say, you must construct the passive object first, then attach
+  the active object to it.  You must then destroy the objects in the reverse
+  order: active then passive.  This is assures that active object is always
+  attached to a passive one.  It is ok for a passive object to have no active
+  object attached.
+
+  You will find the base classes for in-flowing producers and consumers in
+  <strm/in.h>.  The out-flowing versions are in <strm/out.h>.  These base
+  classes enforce the 1:1 relationship and the order of construction and
+  destruction.
+
+ENCODING & DECODING AGENTS
+
+  The active end of an out-flowing stream is commonly an encoding agent.  This
+  is an object with overloads of operator<<, allowing you to push data to it,
+  in a manner similar to that of std::ostream.
+
+  Conversely, the active end of an in-flowing stream is commonly an decoding
+  agent.  This is an object with overloads of operator>>, allowing you to pop
+  data to it, in a manner similar to that of std::istream.
+
+  Encoding and decoding agents come in matched pairs, according to the format
+  on which they are based.  What is written by an encoder can be read by its
+  corresponding decoder.  For example, a binary encoder writes data in a
+  compact, binary-oriented format which can be read by a binary decoder.
+
+  An decoding agent is the active end in-flowing stream.  This is an object
+  with overloads of operator>>, allowing you to pop data from it.  (That is, it
+  is a consumer.)
+
+  Binary encoding and decoding agents are in <strm/bin>.  The out-flowing
+  (producer) is in <strm/bin/out.h> and in-flowing (consumer) is in
+  <strm/bin/in.h>.
+
+  The UTF-8 encoding and decoding agents are in <strm/utf8> and follow the
+  same naming convention as those in <strm/bin>.  (NOTE: These are TODO.)
+
+IN-MEMORY PASSIVE ENDS
+
+  TODO
+
+FILE-DESCRIPTOR-BASED PASSIVE ENDS
+
+  TODO
+
+ADPATERS & TRANSFORMERS
+
+  It is possible for an object to be both a producer and a consumer.  Such
+  objects are neither completely active nor completely passive.  They react
+  to the arrival of data by applying some transform algorithm, then pass the
+  transformed data further along the pipeline.  For example, we might have an
+  ROT-13 object which accepts data, twiddles its bits around, and passes it on.
+
+  An object which is both a producer and a consumer is called an adapter.  Just
+  as with producers and consumers, there are separate adapter classes for in-
+  and out-flowing pipelines.  Each adapter class inherits from both the
+  producer and consumer class of its direction of flow.
+
+  However, the direction of flow is indpendent of the transform algorithm
+  itself.  For example, the ROT-13 transform might apply equally to well to
+  data being streamed in or out.
+
+  We therefore separate the adapter from the transformer.  The transformer
+  represents the data-tranforming algorithm itself (such as ROT-13) and is
+  independent of the direction of data flow.  The adpater takes its place in
+  the pipeline and feeds data through its associated transformer.
+
+  When we construct an adapter, we must provide it a transformer object.  We
+  must also provide it a passive pipeline object to attach to.  We then attach
+  the active object to the adapter.  For example, you might construct a disk
+  writer (as a pasive out-flowing consumer) and a ROT-13 transformer, then
+  construct an out-flowing adapter which uses the transformer and which
+  attaches to the disk writer, then construct a binary encoder attached to the
+  ROT-13 transformer.  To read the data back, you would need a disk reader, an
+  ROT-13 transformer, an in-flowing adapter, and a binary decoder.
+
+  It possible to chain as many transformers together as you like, as long as
+  the pipeline starts with something fully passive and ends with something
+  fully active.  For example, you might want to compress, encrypt, and MIME-
+  encode the data on the way out, then MIME-decode, decrypt, and decompress
+  the data on the way back in.
+
+  The <strm/adapt> directory contains the in- and out-adpaters in
+  <strm/adapt/in.h> and <strm/adapt/out.h>, respectively.  The base for
+  transformers is in <strm/adapt/xform.h>.  The same directory also contains
+  some basic transformers.  (NOTE: Everything in this section is TODO.)
+
+-----
+
+README (c) by Tagged, Inc.
+
+README is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+
+You should have received a copy of the license along with this work. If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
+
