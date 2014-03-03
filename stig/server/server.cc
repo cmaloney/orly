@@ -231,6 +231,10 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The cores which will be pinned by the disk controllers."
   );
   Param(
+      &TCmd::MemMergeCoreVec, "mem_merge_cores", Required, "mem_merge_cores\0",
+      "The cores which will be pinned by the memory mergers."
+  );
+  Param(
       &TCmd::DiskMergeCoreVec, "disk_merge_cores", Required, "disk_merge_cores\0",
       "The cores which will be pinned by the disk mergers."
   );
@@ -693,6 +697,8 @@ void TServer::Init() {
                                                                             Cmd.MaxRepoCacheSize,
                                                                             Cmd.WalkerLocalCacheSize,
                                                                             Cmd.TempFileConsolidationThreshold,
+                                                                            Cmd.MemMergeCoreVec,
+                                                                            Cmd.DiskMergeCoreVec,
                                                                             Cmd.Create));
     auto global_ttl = TTtl::max();
     GlobalRepo = RepoManager->GetRepo(TSession::GlobalPovId, global_ttl, *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, true, Cmd.Create);

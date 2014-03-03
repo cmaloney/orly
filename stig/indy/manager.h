@@ -74,6 +74,8 @@ namespace Stig {
                size_t max_repo_cache_size,
                size_t walker_local_cache_size,
                size_t temp_file_consol_thresh,
+               const std::vector<size_t> &merge_mem_cores,
+               const std::vector<size_t> &merge_disk_cores,
                bool create_new);
 
       /* TODO */

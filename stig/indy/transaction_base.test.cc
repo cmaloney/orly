@@ -44,13 +44,18 @@ Disk::TBufBlock::TPool Disk::TBufBlock::Pool(Disk::Util::PhysicalBlockSize);
 Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 100UL);
 Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 200UL);
 
+const std::vector<size_t> MemMergeCoreVec{0};
+const std::vector<size_t> DiskMergeCoreVec{0};
+
 class TMyManager
     : public L1::TManager {
   NO_COPY_SEMANTICS(TMyManager);
   public:
 
   TMyManager(Disk::Util::TEngine *engine,
-             Base::TScheduler *scheduler)
+             Base::TScheduler *scheduler,
+             const std::vector<size_t> &mem_merge_cores,
+             const std::vector<size_t> &disk_merge_cores)
       : TManager(engine,
                  10UL,
                  100UL,
@@ -62,6 +67,8 @@ class TMyManager
                  100UL,
                  100UL,
                  20UL,
+                 mem_merge_cores,
+                 disk_merge_cores,
                  true) {}
 
   virtual ~TMyManager() {}
@@ -145,7 +152,7 @@ FIXTURE(Typical) {
                                                  1 /* num page lru */,
                                                  64 /* block cache slots: 4MB */,
                                                  1 /* num block lru */);
-    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler));
+    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec));
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);
     auto repo_1 = manager->GetRepo(repo_1_id, TTtl::max(), *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, false, true);
@@ -278,7 +285,7 @@ FIXTURE(Promoter) {
                                                  1 /* num page lru */,
                                                  64 /* block cache slots: 4MB */,
                                                  1 /* num block lru */);
-    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler));
+    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec));
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid repo_2_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);
@@ -348,7 +355,7 @@ FIXTURE(DiskPromoter) {
                                                  1 /* num page lru */,
                                                  64 /* block cache slots: 4MB */,
                                                  1 /* num block lru */);
-    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler));
+    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec));
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid repo_2_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);

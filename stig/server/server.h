@@ -282,6 +282,9 @@ namespace Stig {
         std::vector<size_t> DiskControllerCoreVec;
 
         /* TODO */
+        std::vector<size_t> MemMergeCoreVec;
+
+        /* TODO */
         std::vector<size_t> DiskMergeCoreVec;
 
         /* The port on which we respond to HTTP by giving a status report. */

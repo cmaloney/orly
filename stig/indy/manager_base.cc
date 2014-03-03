@@ -204,6 +204,8 @@ TManager::TManager(Disk::Util::TEngine *engine,
                    size_t max_repo_cache_size,
                    size_t walker_local_cache_size,
                    size_t temp_file_consol_thresh,
+                   const std::vector<size_t> &merge_mem_cores,
+                   const std::vector<size_t> &merge_disk_cores,
                    bool /*create_new*/)
     :
       Scheduler(scheduler),
@@ -220,6 +222,8 @@ TManager::TManager(Disk::Util::TEngine *engine,
       Engine(engine),
       WalkerLocalCacheSize(walker_local_cache_size),
       TempFileConsolThresh(temp_file_consol_thresh),
+      MergeMemCores(merge_mem_cores),
+      MergeDiskCores(merge_disk_cores),
       TetrisManager(nullptr),
       OnCloseCb(std::bind(&TManager::OnClose, this, std::placeholders::_1)) {}
 
@@ -288,6 +292,13 @@ void TManager::RunLayerCleaner() {
 
 void TManager::RunMergeMem() {
   assert(this);
+  cpu_set_t mask;
+  CPU_ZERO(&mask);
+  assert(MergeMemCores.size());
+  for (size_t core : MergeMemCores) {
+    CPU_SET(core, &mask);
+  }
+  Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
   if (Engine->IsDiskBased()) {
     /* if this is a disk based engine, allocate event pools */
     assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
@@ -362,17 +373,9 @@ void TManager::RunMergeDisk() {
   assert(this);
   cpu_set_t mask;
   CPU_ZERO(&mask);
-  CPU_SET(8, &mask);
-  CPU_SET(9, &mask);
-  CPU_SET(10, &mask);
-  CPU_SET(40, &mask);
-  CPU_SET(41, &mask);
-  CPU_SET(42, &mask);
-  if (CPU_ISSET(8, &mask) == 0) {
-    throw std::runtime_error("CPUSET NOT WORKING");
-  }
-  if (CPU_ISSET(42, &mask) == 0) {
-    throw std::runtime_error("CPUSET NOT WORKING");
+  assert(MergeDiskCores.size());
+  for (size_t core : MergeDiskCores) {
+    CPU_SET(core, &mask);
   }
   Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
   if (Engine->IsDiskBased()) {

@@ -140,6 +140,8 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
                                                    1 /* num block lru */);
     
       Fiber::TRunner bg_runner(runner_cons);
+      std::vector<size_t> merge_mem_cores{0};
+      std::vector<size_t> merge_disk_cores{0};
       unique_ptr<TManager> manager(new TManager(mem_engine.GetEngine(),
                                                 ReplicationSyncBufMB,
                                                 MergeMemInterval,
@@ -163,6 +165,8 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
                                                 MaxRepoCacheSize,
                                                 WalkerLocalCacheSize,
                                                 TempFileConsolidationThreshold,
+                                                merge_mem_cores,
+                                                merge_disk_cores,
                                                 true));
       auto durable_manager = make_shared<Stig::Indy::Disk::TDurableManager>(&scheduler,
                                                                             runner_cons,
