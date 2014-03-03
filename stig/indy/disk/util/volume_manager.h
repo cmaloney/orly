@@ -890,27 +890,6 @@ namespace Stig {
           std::atomic<size_t> Inflight;
 
           /* TODO */
-          Base::TSpinLock CalcLock;
-          Base::TSigmaCalc RTSubmitCalc;
-          Base::TSigmaCalc MediumSubmitCalc;
-          Base::TSigmaCalc LowSubmitCalc;
-          Base::TSigmaCalc RTWaitCalc;
-          Base::TSigmaCalc MediumWaitCalc;
-          Base::TSigmaCalc LowWaitCalc;
-
-          Base::TSigmaCalc RTInQueueCalc;
-          Base::TSigmaCalc MediumInQueueCalc;
-          Base::TSigmaCalc LowInQueueCalc;
-
-          Base::TSigmaCalc RTCompletionCalc;
-          Base::TSigmaCalc MediumCompletionCalc;
-          Base::TSigmaCalc LowCompletionCalc;
-
-          Base::TSigmaCalc IoDequeueCalc;
-          Base::TSigmaCalc IoSelectCalc;
-          Base::TSigmaCalc IoSubmitCalc;
-
-          /* TODO */
           friend class TDiskController;
 
         };  // TPersistentDevice
