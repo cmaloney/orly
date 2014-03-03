@@ -1,15 +1,15 @@
-/* <c14/type_traits.h> 
+/* <c14/type_traits.h>
 
    These will be in <type_traits> header for C++14.
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,10 +53,10 @@ namespace c14 {
   using enable_if_t = typename std::enable_if<B, T>::type;
 
   template <typename T>
-  using make_signed_it = typename std::make_signed<T>::type;
+  using make_signed_t = typename std::make_signed<T>::type;
 
   template <typename T>
-  using make_unsigned_it = typename std::make_unsigned<T>::type;
+  using make_unsigned_t = typename std::make_unsigned<T>::type;
 
   template <typename T>
   using remove_all_extents_t = typename std::remove_all_extents<T>::type;
