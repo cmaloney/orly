@@ -41,6 +41,7 @@ namespace Stig {
                       const std::vector<size_t> &disk_controller_core_vec,
                       const std::string &instance_name,
                       bool discard_on_create,
+                      bool do_fsync,
                       size_t page_cache_size,
                       size_t num_page_lru,
                       size_t block_cache_size,
@@ -124,7 +125,7 @@ namespace Stig {
               }
             };
             DiskController = std::unique_ptr<TDiskController>(new TDiskController());
-            DiskUtil = std::unique_ptr<TDiskUtil>(new TDiskUtil(scheduler, DiskController.get(), instance_name, CacheCb, true));
+            DiskUtil = std::unique_ptr<TDiskUtil>(new TDiskUtil(scheduler, DiskController.get(), instance_name, do_fsync, CacheCb, true));
             VolMan = DiskUtil->GetVolumeManager(instance_name);
             std::vector<std::vector<TPersistentDevice *>> device_vec;
             size_t pos = 0UL;

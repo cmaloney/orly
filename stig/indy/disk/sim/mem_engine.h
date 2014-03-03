@@ -121,10 +121,10 @@ namespace Stig {
               }
             };
             for (size_t i = 0; i < NumFastMemDevice; ++i) {
-              FastMemDeviceArray[i] = std::unique_ptr<Util::TMemoryDevice>(new Util::TMemoryDevice(logical_block_size, physical_block_size, num_fast_logical_block / NumFastMemDevice, true));
+              FastMemDeviceArray[i] = std::unique_ptr<Util::TMemoryDevice>(new Util::TMemoryDevice(logical_block_size, physical_block_size, num_fast_logical_block / NumFastMemDevice, true /* fsync */, true));
             }
             for (size_t i = 0; i < NumSlowMemDevice; ++i) {
-              SlowMemDeviceArray[i] = std::unique_ptr<Util::TMemoryDevice>(new Util::TMemoryDevice(logical_block_size, physical_block_size, num_slow_logical_block / NumSlowMemDevice, true));
+              SlowMemDeviceArray[i] = std::unique_ptr<Util::TMemoryDevice>(new Util::TMemoryDevice(logical_block_size, physical_block_size, num_slow_logical_block / NumSlowMemDevice, true /* fsync */, true));
             }
             FastVolume = std::unique_ptr<Util::TVolume>(new Util::TVolume(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, FastMemDeviceArray[0]->GetDesc(), Util::TVolume::TDesc::Fast, 1UL, NumFastMemDevice, num_logical_block_per_stripe, min_discard_blocks, high_utilization_threshold}, CacheCb, scheduler));
             SlowVolume = std::unique_ptr<Util::TVolume>(new Util::TVolume(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, SlowMemDeviceArray[0]->GetDesc(), Util::TVolume::TDesc::Slow, 1UL, NumSlowMemDevice, num_logical_block_per_stripe, min_discard_blocks, high_utilization_threshold}, CacheCb, scheduler));

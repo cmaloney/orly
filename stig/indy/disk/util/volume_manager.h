@@ -599,9 +599,10 @@ namespace Stig {
           protected:
 
           /* TODO */
-          inline TDevice(TDesc desc, bool do_corruption_check)
+          inline TDevice(TDesc desc, bool fsync_on, bool do_corruption_check)
               : VolumeMembership(this, 0UL),
                 Desc(desc),
+                FsyncOn(fsync_on),
                 DoCorruptionCheck(do_corruption_check) {}
 
           /* TODO */
@@ -622,6 +623,9 @@ namespace Stig {
           /* TODO */
           TDesc Desc;
 
+          /* Controls whether this device actually fsyncs when requested. */
+          bool FsyncOn;
+
           /* TODO */
           const bool DoCorruptionCheck;
 
@@ -640,8 +644,8 @@ namespace Stig {
           public:
 
           /* TODO */
-          TMemoryDevice(size_t logical_block_size, size_t physical_block_size, size_t num_logical_block, bool do_corruption_check)
-              : TDevice(TDesc{TDesc::Mem, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, do_corruption_check), Data(nullptr) {
+          TMemoryDevice(size_t logical_block_size, size_t physical_block_size, size_t num_logical_block, bool fsync_on, bool do_corruption_check)
+              : TDevice(TDesc{TDesc::Mem, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, fsync_on, do_corruption_check), Data(nullptr) {
             assert(Desc.Capacity % getpagesize() == 0);
             Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&Data), getpagesize(), PhysicalBlockSize /* super block */ + Desc.Capacity));
             Base::IfLt0(mlock(Data, PhysicalBlockSize /* super block */ + Desc.Capacity));
@@ -730,8 +734,8 @@ namespace Stig {
           typedef InvCon::UnorderedList::TCollection<TPersistentDevice, TDiskController::TEvent> TEventQueue;
 
           /* TODO */
-          TPersistentDevice(TDiskController *controller, const char *device_path, const char *device_name, size_t logical_block_size, size_t physical_block_size, size_t num_logical_block, bool do_corruption_check)
-              : TDevice(TDesc{TDesc::SSD, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, do_corruption_check),
+          TPersistentDevice(TDiskController *controller, const char *device_path, const char *device_name, size_t logical_block_size, size_t physical_block_size, size_t num_logical_block, bool fsync_on, bool do_corruption_check)
+              : TDevice(TDesc{TDesc::SSD, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, fsync_on, do_corruption_check),
                 ControllerMembership(this, controller->GetDeviceCollection()),
                 IncomingEventQueue(nullptr),
                 RealTimePrioEventQueue(this),

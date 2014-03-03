@@ -2664,8 +2664,10 @@ void TPersistentDevice::AsyncSyncFlush(std::mutex &mut, std::condition_variable 
 }
 
 void TPersistentDevice::Sync() {
-  Base::IfLt0(fsync(DiskFd));
-  Base::IfLt0(ioctl(DiskFd, BLKFLSBUF, 0));
+  if (FsyncOn) {
+    Base::IfLt0(fsync(DiskFd));
+    Base::IfLt0(ioctl(DiskFd, BLKFLSBUF, 0));
+  }
 }
 
 void TMemoryDevice::AsyncSyncFlush(std::mutex &mut, std::condition_variable &cond, size_t &num_finished, size_t &/*num_err*/) {

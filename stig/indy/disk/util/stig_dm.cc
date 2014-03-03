@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
   }
   Util::TCacheCb cache_cb = [](TCacheInstr /*cache_instr*/, const TOffset /*logical_start_offset*/, void */*buf*/, size_t /*count*/) {};
   TDiskController controller;
-  TDiskUtil disk_util(&scheduler, &controller, Base::TOpt<std::string>(), cache_cb, true);
+  TDiskUtil disk_util(&scheduler, &controller, Base::TOpt<std::string>(), false /*fsync*/, cache_cb, true);
   if (cmd.List) {
     stringstream ss;
     //disk_util.List(ss);
@@ -202,6 +202,6 @@ int main(int argc, char *argv[]) {
     } else {
       throw std::runtime_error("device speed must be (fast | slow)");
     }
-    disk_util.CreateVolume(cmd.InstanceName, cmd.NumDevicesInVolume, cmd.DeviceSet, strategy, cmd.ReplicationFactor, cmd.StripeSizeKB, speed);
+    disk_util.CreateVolume(cmd.InstanceName, cmd.NumDevicesInVolume, cmd.DeviceSet, strategy, cmd.ReplicationFactor, cmd.StripeSizeKB, speed, false /* fsync */);
   }
 }

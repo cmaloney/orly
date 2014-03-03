@@ -29,9 +29,14 @@ using namespace chrono;
 using namespace Base;
 using namespace Stig::Indy::Disk::Util;
 
-TDiskUtil::TDiskUtil(Base::TScheduler *scheduler, TDiskController *controller, const Base::TOpt<std::string> &instance_filter, const TCacheCb &cache_cb, bool do_corruption_check)
+TDiskUtil::TDiskUtil(Base::TScheduler *scheduler, 
+                     TDiskController *controller, 
+                     const Base::TOpt<std::string> &instance_filter, 
+                     bool do_fsync,
+                     const TCacheCb &cache_cb, 
+                     bool do_corruption_check)
     : Scheduler(scheduler), Controller(controller), CacheCb(cache_cb) {
-  TDeviceUtil::ForEachDevice([this, &instance_filter, do_corruption_check](const char *path) {
+  TDeviceUtil::ForEachDevice([this, &instance_filter, do_corruption_check, do_fsync](const char *path) {
     TDeviceUtil::TStigDevice device_info;
     string path_to_device = "/dev/";
     path_to_device += path;
@@ -50,6 +55,7 @@ TDiskUtil::TDiskUtil(Base::TScheduler *scheduler, TDiskController *controller, c
                                                                   device_info.LogicalBlockSize, /* logical block size */
                                                                   device_info.PhysicalBlockSize, /* physical block size */
                                                                   device_info.NumLogicalBlockExposed, /* num logical block */
+                                                                  do_fsync,
                                                                   do_corruption_check));
         volume->AddDevice(new_device.get(), device_info.VolumeDeviceNumber);
         PersistentDeviceSet.insert(std::move(new_device));
@@ -88,6 +94,7 @@ TDiskUtil::TDiskUtil(Base::TScheduler *scheduler, TDiskController *controller, c
                                                                   device_info.LogicalBlockSize, /* logical block size */
                                                                   device_info.PhysicalBlockSize, /* physical block size */
                                                                   device_info.NumLogicalBlockExposed, /* num logical block exposed */
+                                                                  do_fsync,
                                                                   do_corruption_check));
         volume->AddDevice(new_device.get(), device_info.VolumeDeviceNumber);
         VolumeById.emplace(device_info.VolumeId, std::move(volume));
@@ -140,7 +147,8 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
                              const TVolume::TDesc::TKind kind,
                              const size_t replication_factor,
                              const size_t stripe_size_in_kb,
-                             const TVolume::TDesc::TStorageSpeed storage_speed) {
+                             const TVolume::TDesc::TStorageSpeed storage_speed,
+                             bool do_fsync) {
   assert(this);
   const size_t logical_block_size = 512; /* TODO */
   const size_t physical_block_size = 512; /* TODO */
@@ -260,6 +268,7 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
                                                               logical_block_size, /* logical block size */
                                                               512, /* physical block size */
                                                               min_logical_blocks, /* num logical block */
+                                                              do_fsync,
                                                               true));
     volume->AddDevice(new_device.get(), device_num);
     ++device_num;

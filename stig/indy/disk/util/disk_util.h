@@ -37,6 +37,7 @@ namespace Stig {
           TDiskUtil(Base::TScheduler *scheduler,
                     TDiskController *controller,
                     const Base::TOpt<std::string> &instance_filter,
+                    bool do_fsync,
                     const TCacheCb &cache_cb,
                     bool do_corruption_check = true);
 
@@ -50,7 +51,8 @@ namespace Stig {
                             const TVolume::TDesc::TKind kind,
                             const size_t replication_factor,
                             const size_t stripe_size_in_kb,
-                            const TVolume::TDesc::TStorageSpeed storage_speed);
+                            const TVolume::TDesc::TStorageSpeed storage_speed,
+                            bool do_fsync);
 
           /* TODO */
           TVolumeManager *GetVolumeManager(const std::string &instance_name) const;

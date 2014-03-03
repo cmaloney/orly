@@ -49,7 +49,7 @@ void TestFileServiceRestart(size_t num_append_log_blocks,
     Base::TThreadLocalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager = Stig::Indy::Fiber::TFrame::LocalFramePool->GetPoolManager();
   
     Util::TCacheCb cache_cb = [](Util::TCacheInstr, const Util::TOffset , void *, size_t ) {};
-    std::unique_ptr<Util::TMemoryDevice> mem_device(new Util::TMemoryDevice(512, 512, 262144, true));
+    std::unique_ptr<Util::TMemoryDevice> mem_device(new Util::TMemoryDevice(512, 512, 262144, true /* fsync */, true));
     std::unique_ptr<Util::TVolume> volume(new Util::TVolume(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, mem_device->GetDesc(), Util::TVolume::TDesc::Fast, 1UL, 1UL, 1024UL, 8UL, 0.85}, cache_cb, &scheduler));
     volume->AddDevice(mem_device.get(), 0UL);
     std::unique_ptr<Util::TVolumeManager> vol_man(new Util::TVolumeManager(&scheduler));

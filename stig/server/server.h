@@ -300,6 +300,9 @@ namespace Stig {
            priorities require root privileges). */
         bool NoRealtime;
 
+        /* Controls whether fsync is used when writing to disk */
+        bool DoFsync;
+
         /* TODO */
         bool LogAssertionFailures;
 

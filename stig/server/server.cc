@@ -271,6 +271,10 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "Do not use realtime thread priorities (realtime priorities require root privileges)."
   );
   Param(
+      &TCmd::DoFsync, "do_fsync", Optional, "do_fsync\0",
+      "Turn on / off use of fsync on disk writes that change server state."
+  );
+  Param(
       &TCmd::LogAssertionFailures, "log_assertion_failures", Optional, "laf\0",
       "Log tetris assertion failures to LOG_INFO."
   );
@@ -399,6 +403,7 @@ TServer::TCmd::TCmd()
       AllowTailing(true),
       AllowFileSync(true),
       NoRealtime(false),
+      DoFsync(true),
       LogAssertionFailures(true),
       DurableMappingPoolSize(1000UL),
       DurableMappingEntryPoolSize(10000UL),
@@ -639,6 +644,7 @@ void TServer::Init() {
                                                                                         Cmd.DiskControllerCoreVec,
                                                                                         Cmd.InstanceName,
                                                                                         Cmd.DiscardOnCreate,
+                                                                                        Cmd.DoFsync,
                                                                                         (Cmd.PageCacheSizeMB * 1024UL * 1024UL) / 4096 /* page cache slots: 1GB */,
                                                                                         8 /* num page lru */,
                                                                                         (Cmd.BlockCacheSizeMB * 1024UL * 1024UL) / (4096 * 16) /* block cache slots: 1GB */,
