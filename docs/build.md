@@ -23,10 +23,14 @@ make test
 ||||||| merged common ancestors
 To build stig in _release_ mode, simply replace the `make` line above with `make release`.
 
+||||||| merged common ancestors
 To build stig in _release_ mode, simply replace the `make` line above with `make release`.
 
 ||||||| merged common ancestors
 The above commands creates a layout like so:
+||||||| merged common ancestors
+The above commands creates a layout like so:
+The above commands create a layout like so:
 ```
 ~
 |-- stig
