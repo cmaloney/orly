@@ -9,8 +9,11 @@ release: tools/starsha
 tools/starsha:
 	./bootstrap.sh
 
-test: tools/starsha
+test: apps
 	starsha --all="*.test" --test
+
+test_build: apps
+	starsha --all="*.test"
 
 test_lang: apps
 	cd stig/lang_tests; ./run_tests.py
