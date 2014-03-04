@@ -1,15 +1,15 @@
-/* <base/stl_utils.test.cc> 
+/* <base/stl_utils.test.cc>
 
    Unit test for <base/stl_utils.h>.
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <string>
+#include <vector>
 
 #include <test/kit.h>
 
@@ -105,3 +107,14 @@ FIXTURE(EqEqMap) {
   rhs[202]=1.23;
   EXPECT_TRUE(eqeq_map(lhs,rhs));
 }
+
+FIXTURE(ForIter) {
+  EXPECT_TRUE((is_same<int, ForIter<vector<int>::iterator>::TVal>::value));
+  EXPECT_TRUE((is_same<int, ForIter<vector<int>::const_iterator>::TVal>::value));
+  EXPECT_TRUE((is_same<string, ForIter<vector<string>::iterator>::TVal>::value));
+  EXPECT_TRUE((is_same<string, ForIter<vector<string>::const_iterator>::TVal>::value));
+  EXPECT_FALSE((is_same<int, ForIter<vector<string>::iterator>::TVal>::value));
+  EXPECT_FALSE((is_same<string, ForIter<vector<int>::iterator>::TVal>::value));
+  EXPECT_TRUE((is_same<int, ForIter<int *>::TVal>::value));
+}
+

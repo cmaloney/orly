@@ -1,15 +1,15 @@
-/* <base/stl_utils.h> 
+/* <base/stl_utils.h>
 
    Some utilities for working with STL containers.
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,8 +20,11 @@
 
 #include <initializer_list>
 #include <limits>
+#include <type_traits>
+
 #include <syslog.h>
 
+#include <base/no_construction.h>
 #include <base/impossible_error.h>
 #include <server/daemonize.h>
 
@@ -171,6 +174,25 @@ namespace Base {
     }
     return result;
   }
+
+  /* A lookup template for properties of std iterators, including native pointers. */
+  template <typename TIter>
+  class ForIter {
+    NO_CONSTRUCTION(ForIter);
+    private:
+
+    /* This is a convenience, used only in decltype() expressions.  We never define
+       this reference. */
+    static TIter &Iter;
+
+    public:
+
+    /* The type returned by deferencing the iterator, decayed into a simple value.
+       This won't have cv-modifiers, so you won't get a reference to an int, for example,
+       you'll just get int. */
+    using TVal = typename std::decay<decltype(*Iter)>::type;
+
+  };  // ForIter<TIter>
 
 }
 
