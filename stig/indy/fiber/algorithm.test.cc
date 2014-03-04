@@ -1,15 +1,15 @@
-/* <stig/indy/fiber/algorithm.test.cc> 
+/* <stig/indy/fiber/algorithm.test.cc>
 
    Unit test for <stig/indy/fiber/algorithm.h>.
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ class TSortRunnable
                 TRunnerPool &work_pool,
                 std::mutex &mut,
                 std::condition_variable &cond,
-                bool &fin) 
+                bool &fin)
     : Data(data),
       WorkPool(work_pool),
       Mut(mut),
@@ -65,7 +65,7 @@ class TSortRunnable
     Base::TTimer parallel_timer;
     usage_meter.Start();
     parallel_timer.Start();
-    Sort<TVal, ParallelThresh>(WorkPool, Data.begin(), Data.end());
+    Sort<ParallelThresh>(WorkPool, Data.begin(), Data.end());
     parallel_timer.Stop();
     usage_meter.Stop();
     printf("parallel sort =[%f], usr=[%f], sys=[%f]\n", parallel_timer.Total(), usage_meter.GetTotalUserCPU(), usage_meter.GetTotalSystemCPU());

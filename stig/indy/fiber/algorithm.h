@@ -1,13 +1,13 @@
-/* <stig/indy/fiber/algorithm.h> 
+/* <stig/indy/fiber/algorithm.h>
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,9 @@
 #pragma once
 
 #include <algorithm>
+#include <type_traits>
 
+#include <base/stl_utils.h>
 #include <stig/indy/fiber/fiber.h>
 
 namespace Stig {
@@ -27,18 +29,21 @@ namespace Stig {
     namespace Fiber {
 
       /* TODO */
-      template <typename TVal, typename TRandomAccessIterator, class TComparator = std::less<TVal>>
-      class TSubSortRunnable 
+      template <
+          typename TRandomAccessIterator,
+          typename TVal = typename Base::ForIter<TRandomAccessIterator>::TVal,
+          typename TComparator = std::less<TVal>>
+      class TSubSortRunnable
           : public TRunnable {
         NO_COPY_SEMANTICS(TSubSortRunnable);
         public:
 
         /* TODO */
-        TSubSortRunnable(TRunnerPool &work_pool, 
-                         const TRandomAccessIterator &begin, 
+        TSubSortRunnable(TRunnerPool &work_pool,
+                         const TRandomAccessIterator &begin,
                          const TRandomAccessIterator &end,
                          TSafeSync &safe_sync,
-                         const TComparator &comp) 
+                         const TComparator &comp)
             : Begin(begin), End(end), SafeSync(safe_sync), Comp(comp) {
           SafeSync.WaitForMore(1UL);
           Frame = TFrame::LocalFramePool->Alloc();
@@ -63,7 +68,7 @@ namespace Stig {
         TFrame *Frame;
 
         /* TODO */
-        const TRandomAccessIterator Begin; 
+        const TRandomAccessIterator Begin;
         const TRandomAccessIterator End;
         TSafeSync &SafeSync;
         const TComparator &Comp;
@@ -71,20 +76,23 @@ namespace Stig {
       };  // TSubSortRunnable
 
       /* TODO */
-      template <typename TVal, typename TRandomAccessIterator, class TComparator = std::less<TVal>>
-      class TInplaceMergeRunnable 
+      template <
+          typename TRandomAccessIterator,
+          typename TVal = typename Base::ForIter<TRandomAccessIterator>::TVal,
+          typename TComparator = std::less<TVal>>
+      class TInplaceMergeRunnable
           : public TRunnable {
         NO_COPY_SEMANTICS(TInplaceMergeRunnable);
         public:
 
         /* TODO */
-        TInplaceMergeRunnable(TRunnerPool &work_pool, 
-                         const TRandomAccessIterator &begin, 
+        TInplaceMergeRunnable(TRunnerPool &work_pool,
+                         const TRandomAccessIterator &begin,
                          const TRandomAccessIterator &middle,
                          const TRandomAccessIterator &end,
                          TSafeSync &wait_on_safe_sync,
                          TSafeSync &trigger_to_safe_sync,
-                         const TComparator &comp) 
+                         const TComparator &comp)
             : Begin(begin), Middle(middle), End(end), WaitOnSafeSync(wait_on_safe_sync), TriggerToSafeSync(trigger_to_safe_sync), Comp(comp) {
           TriggerToSafeSync.WaitForMore(1UL);
           Frame = TFrame::LocalFramePool->Alloc();
@@ -110,8 +118,8 @@ namespace Stig {
         TFrame *Frame;
 
         /* TODO */
-        const TRandomAccessIterator Begin; 
-        const TRandomAccessIterator Middle; 
+        const TRandomAccessIterator Begin;
+        const TRandomAccessIterator Middle;
         const TRandomAccessIterator End;
         TSafeSync &WaitOnSafeSync;
         TSafeSync &TriggerToSafeSync;
@@ -120,13 +128,17 @@ namespace Stig {
       };  // TInplaceMergeRunnable
 
       /* TODO */
-      template <typename TVal, size_t ParallelThreshold, typename TRandomAccessIterator, class TComparator = std::less<TVal>>
+      template <
+          size_t ParallelThreshold,
+          typename TRandomAccessIterator,
+          typename TVal = typename Base::ForIter<TRandomAccessIterator>::TVal,
+          typename TComparator = std::less<TVal>>
       void Sort(TRunnerPool &work_pool,
-                TRandomAccessIterator begin, 
+                TRandomAccessIterator begin,
                 TRandomAccessIterator end,
                 const TComparator &comp = std::less<TVal>()) {
-        using TSubSortRunnable = TSubSortRunnable<TVal, TRandomAccessIterator, TComparator>;
-        using TInplaceMergeRunnable = TInplaceMergeRunnable<TVal, TRandomAccessIterator, TComparator>;
+        using TSubSortRunnable = TSubSortRunnable<TRandomAccessIterator, TVal, TComparator>;
+        using TInplaceMergeRunnable = TInplaceMergeRunnable<TRandomAccessIterator, TVal, TComparator>;
         const size_t num_elem = end - begin;
         if (num_elem >= ParallelThreshold) {
           const size_t worker_count = work_pool.GetWorkerCount();
@@ -143,10 +155,10 @@ namespace Stig {
           size_t safe_sync_idx = 0UL;
           for (size_t i = 0; i < num_shard; ++i) {
             const size_t to_assign = std::min(elem_per_shard, num_elem - num_elem_assigned);
-            new (sub_sort_array + i) TSubSortRunnable(work_pool, 
-                                                      begin + num_elem_assigned, 
-                                                      begin + num_elem_assigned + to_assign, 
-                                                      safe_sync_array[safe_sync_idx], 
+            new (sub_sort_array + i) TSubSortRunnable(work_pool,
+                                                      begin + num_elem_assigned,
+                                                      begin + num_elem_assigned + to_assign,
+                                                      safe_sync_array[safe_sync_idx],
                                                       comp);
             num_elem_assigned += to_assign;
             assert(num_shard > 1);
@@ -158,7 +170,8 @@ namespace Stig {
           size_t elem_per_merge = elem_per_shard * 2UL;
           size_t safe_sync_attachment_idx = 0UL;
           size_t num_in_place_merges = 0UL;
-          TInplaceMergeRunnable *inplace_merge_array = reinterpret_cast<TInplaceMergeRunnable *>(alloca(sizeof(TInplaceMergeRunnable) * (total_syncs_required - 1)));
+          TInplaceMergeRunnable *inplace_merge_array =
+              reinterpret_cast<TInplaceMergeRunnable *>(alloca(sizeof(TInplaceMergeRunnable) * (total_syncs_required - 1)));
           for (; merge_sections > 1;) {
             assert(merge_sections % 2 == 0UL);
             const size_t num_to_launch = merge_sections / 2;
@@ -166,12 +179,12 @@ namespace Stig {
             for (size_t i = 0; i < num_to_launch; ++i) {
               const size_t to_assign = std::min(elem_per_merge, num_elem - num_elem_assigned);
               const size_t sync_to_trigger = safe_sync_idx + i / 2;
-              new (inplace_merge_array + num_in_place_merges) TInplaceMergeRunnable(work_pool, 
-                                                                                    begin + num_elem_assigned, 
-                                                                                    begin + num_elem_assigned + elem_per_merge / 2, 
-                                                                                    begin + num_elem_assigned + to_assign, 
-                                                                                    safe_sync_array[safe_sync_attachment_idx], 
-                                                                                    safe_sync_array[sync_to_trigger], 
+              new (inplace_merge_array + num_in_place_merges) TInplaceMergeRunnable(work_pool,
+                                                                                    begin + num_elem_assigned,
+                                                                                    begin + num_elem_assigned + elem_per_merge / 2,
+                                                                                    begin + num_elem_assigned + to_assign,
+                                                                                    safe_sync_array[safe_sync_attachment_idx],
+                                                                                    safe_sync_array[sync_to_trigger],
                                                                                     comp);
               ++num_in_place_merges;
               num_elem_assigned += to_assign;
