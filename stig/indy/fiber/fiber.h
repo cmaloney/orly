@@ -18,9 +18,11 @@
 
 #include <atomic>
 #include <cassert>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <stdexcept>
+#include <thread>
 
 #include <base/spin_lock.h>
 #include <unordered_set>
@@ -86,6 +88,13 @@ namespace Stig {
       }
 
       /* TODO */
+      inline void free_fiber(fiber_t &fib) {
+        assert(&fib);
+        assert(fib.fib.uc_stack.ss_sp);
+        free(fib.fib.uc_stack.ss_sp);
+      }
+
+      /* TODO */
       inline void switch_to_fiber(fiber_t &fib, fiber_t &prv) {
         if (_setjmp(prv.jmp) == 0) {
           _longjmp(fib.jmp, 1);
@@ -104,6 +113,13 @@ namespace Stig {
         fib.uc_stack.ss_size = stack_size;
         fib.uc_link = 0;
         makecontext(&fib, reinterpret_cast<void (*)()>(ufnc), 1, uctx);
+      }
+
+      /* TODO */
+      inline void free_fiber(fiber_t &fib) {
+        assert(&fib);
+        assert(fib.uc_stack.ss_sp);
+        free(fib.uc_stack.ss_sp);
       }
 
       /* TODO */
@@ -143,7 +159,7 @@ namespace Stig {
           /* TODO */
           ~TRunnerCons() {
             assert(this);
-            delete RunnerArray;
+            delete[] RunnerArray;
           }
 
           private:
@@ -205,7 +221,10 @@ namespace Stig {
         }
 
         /* TODO */
-        ~TRunner() {}
+        ~TRunner() {
+          assert(this);
+          delete[] QueueArray;
+        }
 
         /* TODO */
         void Run();
@@ -297,6 +316,56 @@ namespace Stig {
 
       };  // TRunnable
 
+      /* TODO */
+      class __attribute__((aligned(64))) TRunnerPool {
+        NO_COPY_SEMANTICS(TRunnerPool);
+        public:
+
+        /* TODO */
+        TRunnerPool(TRunner::TRunnerCons &runner_cons,
+                    size_t num_worker) 
+            : WorkerCount(num_worker), AssignPos(0UL) {
+          for (size_t i = 0; i < num_worker; ++i) {
+            RunnerVec.emplace_back(new TRunner(runner_cons));
+            ThreadVec.emplace_back(new std::thread(std::bind([](TRunner *runner) {
+              runner->Run();
+            }, RunnerVec.back().get())));
+          }
+        }
+
+        /* TODO */
+        ~TRunnerPool() {
+          for (auto &runner : RunnerVec) {
+            runner->ShutDown();
+          }
+          for (auto &t : ThreadVec) {
+            t->join();
+          }
+        }
+
+        /* TODO */
+        inline size_t GetWorkerCount() const {
+          assert(this);
+          return WorkerCount;
+        }
+
+        /* TODO */
+        inline void Schedule(TFrame *frame, TRunnable *runnable, const TRunnable::TFunc &func);
+
+        private:
+
+        /* TODO */
+        const size_t WorkerCount;
+
+        /* TODO: use better data structure */
+        std::vector<std::unique_ptr<TRunner>> RunnerVec;
+        std::vector<std::unique_ptr<std::thread>> ThreadVec;
+
+        /* TODO: we can do runner assignment more effectively than iterating through the vector */
+        std::atomic<size_t> AssignPos;
+
+      };  // TRunnerPool
+
       static void StartFrame(void *void_frame);
 
       /* TODO */
@@ -328,6 +397,7 @@ namespace Stig {
           CheckFrameUnwound();
           assert(Runnable == nullptr);
           assert(RunnableFunc == nullptr);
+          free_fiber(MyFiber);
         }
 
         /* TODO */
@@ -734,6 +804,12 @@ namespace Stig {
       /***************
         *** Inline ***
         *************/
+
+      inline void TRunnerPool::Schedule(TFrame *frame, TRunnable *runnable, const TRunnable::TFunc &func) {
+        size_t prev_assignment_count = std::atomic_fetch_add(&AssignPos, 1UL);
+        TRunner *const chosen_runner = RunnerVec[prev_assignment_count % WorkerCount].get();
+        frame->Latch(chosen_runner, runnable, func);
+      }
 
       static inline void Yield() {
         assert(TFrame::LocalFrame);
