@@ -1,15 +1,15 @@
-/* <stig/server/server.cc> 
+/* <stig/server/server.cc>
 
    Implements <stig/server/server.h>.
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,7 +36,6 @@
 #include <io/binary_io_stream.h>
 #include <io/device.h>
 #include <stig/atom/core_vector.h>
-#include <stig/parse_compiled_import.h>
 #include <stig/indy/disk/durable_manager.h>
 #include <stig/protocol.h>
 
