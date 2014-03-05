@@ -1,13 +1,13 @@
-/* <stig/indy/fiber/fiber_test_runner.h> 
+/* <stig/indy/fiber/fiber_test_runner.h>
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,12 +26,12 @@ namespace Stig {
     namespace Fiber {
 
       /* TODO */
-      class TFiberTestRunner 
+      class TFiberTestRunner
           : public Indy::Fiber::TRunnable {
         NO_COPY_SEMANTICS(TFiberTestRunner);
         public:
-      
-        TFiberTestRunner(const std::function<void (std::mutex &, std::condition_variable &, bool &, TRunner::TRunnerCons &)> &test, size_t extra_runners = 0) 
+
+        TFiberTestRunner(const std::function<void (std::mutex &, std::condition_variable &, bool &, TRunner::TRunnerCons &)> &test, size_t extra_runners = 0)
             : Test(test), RunnerCons(1UL + extra_runners), Fin(false) {
           const size_t stack_size = 8 * 1024UL * 1024UL;
           const size_t num_frames = 20UL;
@@ -48,7 +48,7 @@ namespace Stig {
             delete TFrame::LocalFramePool;
             TFrame::LocalFramePool = nullptr;
           };
-        
+
           std::thread t1(std::bind(launch_fiber_sched, num_frames, stack_size, &runner, &frame_pool_manager));
           TFrame *frame = TFrame::LocalFramePool->Alloc();
           try {
@@ -68,20 +68,20 @@ namespace Stig {
             TFrame::LocalFramePool = nullptr;
           }
         }
-      
+
         void Run() {
           Test(Mut, Cond, Fin, RunnerCons);
         }
-      
+
         private:
-      
+
         const std::function<void (std::mutex &, std::condition_variable &, bool &, TRunner::TRunnerCons &)> &Test;
-      
+
          TRunner::TRunnerCons RunnerCons;
         std::mutex Mut;
         std::condition_variable Cond;
         bool Fin;
-      
+
       };
 
     }  // Fiber

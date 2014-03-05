@@ -1,4 +1,4 @@
-/* <visitor/applier.test.cc> 
+/* <visitor/applier.test.cc>
 
    Unit test for <visitor/visitor.h>
 
@@ -7,14 +7,14 @@
    correct one. Also, if we happen to have the final type already, then we get an early binding and dispatch to it
    directly. The usage pattern is demonstrated below.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -459,4 +459,3 @@ FIXTURE(WriteNameDouble) {
   WriteNameDouble(lhs.get(), rhs.get(), strm);
   EXPECT_EQ(strm.str(), "(TSquare, TCircle)");
 }
-

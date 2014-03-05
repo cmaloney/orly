@@ -2,8 +2,16 @@
 
    Implements <stig/indy/disk/util/volume_manager.h>.
 
+<<<<<<< HEAD
    Copyright 2010-2014 Tagged
 
+||||||| merged common ancestors
+   Copyright 2010-2014 Tagged
+   
+=======
+   Copyright 2010-2014 Stig LLC
+
+>>>>>>> Here, have these, then.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at

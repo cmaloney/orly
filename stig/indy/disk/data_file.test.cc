@@ -1,15 +1,15 @@
-/* <stig/indy/disk/data_file.test.cc> 
+/* <stig/indy/disk/data_file.test.cc>
 
    Unit test for <stig/indy/disk/data_file.h>.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,7 +57,7 @@ FIXTURE(Typical) {
     const TScheduler::TPolicy scheduler_policy(4, 10, milliseconds(10));
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
-  
+
     Sim::TMemEngine mem_engine(&scheduler,
                                4 * 1024 /* disk space: 4 GB */,
                                256,
@@ -65,7 +65,7 @@ FIXTURE(Typical) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     Base::TUuid file_id(TUuid::Best);
     TSequenceNumber seq_num = 0U;
     TUuid int_str_int_idx(TUuid::Twister);
@@ -113,7 +113,7 @@ FIXTURE(Deep) {
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
-  
+
     Sim::TMemEngine mem_engine(&scheduler,
                                4 * 1024 /* disk space: 4 GB */,
                                256,
@@ -121,7 +121,7 @@ FIXTURE(Deep) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     Base::TUuid file_id(TUuid::Best);
     TSequenceNumber seq_num = 0U;
     TUuid int_str_decint_decstr_idx(TUuid::Twister);
@@ -293,7 +293,7 @@ FIXTURE(History) {
     scheduler.SetPolicy(scheduler_policy);
     Base::TUuid file_id(TUuid::Best);
     TSequenceNumber seq_num = 0U;
-  
+
     Sim::TMemEngine mem_engine(&scheduler,
                                4 * 1024 /* disk space: 4 GB */,
                                256,
@@ -301,7 +301,7 @@ FIXTURE(History) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     TUuid int_str_int_idx(TUuid::Twister);
     /* Make a data file */ {
       TSuprena arena;
@@ -337,7 +337,7 @@ FIXTURE(BigSingleIndex) {
     const TScheduler::TPolicy scheduler_policy(4, 10, milliseconds(10));
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
-  
+
     Sim::TMemEngine mem_engine(&scheduler,
                                4 * 1024 /* disk space: 4 GB */,
                                256,
@@ -345,7 +345,7 @@ FIXTURE(BigSingleIndex) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     Base::TUuid file_id(TUuid::Best);
     TSequenceNumber seq_num = 0U;
     TUuid int_str_int_idx(TUuid::Twister);
@@ -404,4 +404,3 @@ FIXTURE(BigSingleIndex) {
     cond.notify_one();
   });
 }
-

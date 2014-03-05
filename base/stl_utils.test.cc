@@ -2,7 +2,7 @@
 
    Unit test for <base/stl_utils.h>.
 
-   Copyright 2010-2014 Tagged
+   Copyright 2010-2014 Stig LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -117,4 +117,3 @@ FIXTURE(ForIter) {
   EXPECT_FALSE((is_same<string, ForIter<vector<int>::iterator>::TVal>::value));
   EXPECT_TRUE((is_same<int, ForIter<int *>::TVal>::value));
 }
-

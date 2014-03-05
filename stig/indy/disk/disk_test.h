@@ -1,15 +1,15 @@
-/* <stig/indy/disk/disk_test.h> 
+/* <stig/indy/disk/disk_test.h>
 
    TODO
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,23 +66,23 @@ namespace Stig {
           : public TReadFile<Util::LogicalBlockSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::PageCheckedBlock, true> {
         NO_COPY_SEMANTICS(TReader);
         public:
-      
+
         static constexpr size_t PhysicalCachePageSize = Util::PhysicalBlockSize / (Util::LogicalBlockSize / Util::LogicalBlockSize);
-      
+
         using TArena = TDiskArena<Util::LogicalBlockSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::PageCheckedBlock, 128, true>;
-      
+
         TReader(const Base::TCodeLocation &code_location /* DEBUG */, Util::TEngine *engine, const Base::TUuid &file_id, size_t gen_id)
             : TReadFile(code_location, Source::MergeDataFileOther, engine, file_id, Low, gen_id) {
           Arena = std::unique_ptr<TArena>(new TArena(this, engine->GetCache<PhysicalCachePageSize>(), Low));
         }
-      
+
         virtual ~TReader() {
           assert(this);
           Arena.reset();
         }
-      
+
         using TReadFile::TIndexFile;
-      
+
         using TReadFile::GetNumBytesOfArena;
         using TReadFile::GetNumUpdates;
         using TReadFile::GetNumArenaNotes;
@@ -90,18 +90,18 @@ namespace Stig {
         using TReadFile::GetTypeBoundaryOffsetVec;
         using TReadFile::ForEachIndex;
         using TReadFile::FindInHash;
-      
+
         inline const std::unique_ptr<TArena> &GetArena() const {
           assert(this);
           assert(Arena);
           return Arena;
         }
-      
+
         private:
-      
+
         /* TODO */
         std::unique_ptr<TArena> Arena;
-      
+
       };  // TReader
 
       void GracefullShutdown() {

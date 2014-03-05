@@ -2,7 +2,7 @@
 
    Used as the 'dummy' tool when testing Starsha.
 
-   Copyright 2010-2014 Tagged
+   Copyright 2010-2014 Stig LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -53,4 +53,3 @@ int main(int, char *[]) {
   }
   return result;
 }
-

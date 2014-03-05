@@ -1,15 +1,15 @@
-/* <stig/indy/fiber/fiber.test.cc> 
+/* <stig/indy/fiber/fiber.test.cc>
 
    Unit test for <stig/indy/fiber/fiber.h>.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -413,16 +413,16 @@ class TActorRunnable
   public:
 
   TActorRunnable(TRunner *runner,
-                   TSingleSem &my_push_sem, 
-                   TSingleSem &my_pop_sem, 
-                   std::atomic<size_t> &pos_counter, 
+                   TSingleSem &my_push_sem,
+                   TSingleSem &my_pop_sem,
+                   std::atomic<size_t> &pos_counter,
                    std::atomic<size_t> &accuracy_counter,
                    std::mutex &mut,
                    std::condition_variable &cond,
-                   size_t &finish_count) 
-    : MyPushSem(my_push_sem), 
-      MyPopSem(my_pop_sem), 
-      PosCounter(pos_counter), 
+                   size_t &finish_count)
+    : MyPushSem(my_push_sem),
+      MyPopSem(my_pop_sem),
+      PosCounter(pos_counter),
       AccuracyCounter(accuracy_counter),
       Mut(mut),
       Cond(cond),
@@ -478,16 +478,16 @@ class TTriggerRunnable
   public:
 
   TTriggerRunnable(TRunner *runner,
-                   TSingleSem &my_push_sem, 
-                   TSingleSem &my_pop_sem, 
-                   std::atomic<size_t> &pos_counter, 
+                   TSingleSem &my_push_sem,
+                   TSingleSem &my_pop_sem,
+                   std::atomic<size_t> &pos_counter,
                    std::atomic<size_t> &accuracy_counter,
                    std::mutex &mut,
                    std::condition_variable &cond,
-                   size_t &finish_count) 
-    : MyPushSem(my_push_sem), 
-      MyPopSem(my_pop_sem), 
-      PosCounter(pos_counter), 
+                   size_t &finish_count)
+    : MyPushSem(my_push_sem),
+      MyPopSem(my_pop_sem),
+      PosCounter(pos_counter),
       AccuracyCounter(accuracy_counter),
       Mut(mut),
       Cond(cond),

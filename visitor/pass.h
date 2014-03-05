@@ -1,4 +1,4 @@
-/* <visitor/pass.h> 
+/* <visitor/pass.h>
 
    Typical passing conventions for visitors.
 
@@ -23,14 +23,14 @@
    Since int and double are passed by value since they are POD types and the size is smaller than or equal to a pointer, and
    std::string is passed by const-ref because it's not a POD type.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -100,4 +100,3 @@ namespace Visitor {
   using TPass = typename Pass<T>::type;
 
 }  // Visitor
-

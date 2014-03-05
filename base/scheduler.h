@@ -1,4 +1,4 @@
-/* <base/scheduler.h> 
+/* <base/scheduler.h>
 
    The scheduler runs jobs for you on a background thread.  It manages a pool of worker threads which dynamically grows and shrinks.
    The shceduler can also perform a clean shutdown, blocking new jobs from starting while waiting for existing jobs to finish.
@@ -20,14 +20,14 @@
 
    If a job throws an exception, the worker will log it as an error but keep running.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -274,4 +274,3 @@ namespace Base {
   };  // TScheduler
 
 }  // Base
-

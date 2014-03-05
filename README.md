@@ -27,7 +27,7 @@ Documentation for this is currently minimal. See docs/coding.md and docs/best_pr
 
 -----
 
-README.md (c) by Tagged, Inc.
+README.md Copyright 2010-2014 Stig LLC
 
 README.md is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 

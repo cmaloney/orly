@@ -1,15 +1,15 @@
-/* <stig/server/repo_tetris_manager.h> 
+/* <stig/server/repo_tetris_manager.h>
 
    The manager and players of repo-based tetris.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,14 +42,14 @@ namespace Stig {
 
       /* TODO */
       TRepoTetrisManager(
-          Base::TScheduler *scheduler, 
+          Base::TScheduler *scheduler,
           Indy::Fiber::TRunner::TRunnerCons &runner_cons,
           Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
           const std::function<void (Indy::Fiber::TRunner *)> &runner_setup_cb,
-          bool is_master, 
-          Indy::TManager *repo_manager, 
-          Package::TManager *package_manager, 
-          Durable::TManager *durable_manager, 
+          bool is_master,
+          Indy::TManager *repo_manager,
+          Package::TManager *package_manager,
+          Durable::TManager *durable_manager,
           bool log_assertion_failures);
 
       /* TODO */
@@ -183,4 +183,3 @@ namespace Stig {
   }  // Server
 
 }  // Stig
-

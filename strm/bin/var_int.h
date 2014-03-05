@@ -1,4 +1,4 @@
-/* <strm/bin/var_int.h> 
+/* <strm/bin/var_int.h>
 
    Encode and decode integers such that smaller values take fewer bytes.
 
@@ -9,14 +9,14 @@
    When decoding, read bytes until you find one with the high-order bit off.
    It and the bytes which precede it make up the var-int.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -125,4 +125,3 @@ namespace Strm {
   }  // Bin
 
 }  // Strm
-

@@ -1,15 +1,15 @@
-/* <stig/indy/disk/util/disk_util.cc> 
+/* <stig/indy/disk/util/disk_util.cc>
 
    TODO
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,11 +29,11 @@ using namespace chrono;
 using namespace Base;
 using namespace Stig::Indy::Disk::Util;
 
-TDiskUtil::TDiskUtil(Base::TScheduler *scheduler, 
-                     TDiskController *controller, 
-                     const Base::TOpt<std::string> &instance_filter, 
+TDiskUtil::TDiskUtil(Base::TScheduler *scheduler,
+                     TDiskController *controller,
+                     const Base::TOpt<std::string> &instance_filter,
                      bool do_fsync,
-                     const TCacheCb &cache_cb, 
+                     const TCacheCb &cache_cb,
                      bool do_corruption_check)
     : Scheduler(scheduler), Controller(controller), CacheCb(cache_cb) {
   TDeviceUtil::ForEachDevice([this, &instance_filter, do_corruption_check, do_fsync](const char *path) {

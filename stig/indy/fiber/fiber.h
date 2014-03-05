@@ -1,13 +1,13 @@
-/* <stig/indy/fiber/fiber.h> 
+/* <stig/indy/fiber/fiber.h>
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -323,7 +323,7 @@ namespace Stig {
 
         /* TODO */
         TRunnerPool(TRunner::TRunnerCons &runner_cons,
-                    size_t num_worker) 
+                    size_t num_worker)
             : WorkerCount(num_worker), AssignPos(0UL) {
           for (size_t i = 0; i < num_worker; ++i) {
             RunnerVec.emplace_back(new TRunner(runner_cons));
@@ -1051,4 +1051,3 @@ namespace Stig {
   }  // Indy
 
 }  // Stig
-

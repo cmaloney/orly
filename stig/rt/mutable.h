@@ -1,16 +1,16 @@
-/* <stig/rt/mutable.h> 
+/* <stig/rt/mutable.h>
 
    Mutable values. A mutable may or may not have an address, and will always have a value. People can talk about it
    as just it's value type, or can peer into the address by asking nicely.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -166,4 +166,3 @@ namespace std {
   };  // hash<Stig::Rt::TMutable<TAddr, TVal>>
 
 }  // std
-

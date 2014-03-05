@@ -1,15 +1,15 @@
-/* <stig/indy/disk/present_walk_file.test.cc> 
+/* <stig/indy/disk/present_walk_file.test.cc>
 
    Unit test for <stig/indy/disk/present_walk_file.h>.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -81,7 +81,7 @@ FIXTURE(Typical) {
     const TScheduler::TPolicy scheduler_policy(10, 10, milliseconds(10));
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
-  
+
     Sim::TMemEngine mem_engine(&scheduler,
                                4 * 1024 /* disk space: 4 GB */,
                                256,
@@ -89,7 +89,7 @@ FIXTURE(Typical) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     Base::TUuid data_file_id(TUuid::TimeAndMAC);
     TSuprena arena;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
@@ -166,7 +166,7 @@ FIXTURE(MultiIndex) {
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
-  
+
     Sim::TMemEngine mem_engine(&scheduler,
                                4 * 1024 /* disk space: 4 GB */,
                                256,
@@ -174,7 +174,7 @@ FIXTURE(MultiIndex) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     Base::TUuid data_file_id(TUuid::TimeAndMAC);
     TSuprena arena;
     size_t data_gen_id = 1;
@@ -271,7 +271,7 @@ FIXTURE(Range) {
     const TScheduler::TPolicy scheduler_policy(10, 10, milliseconds(10));
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
-  
+
     Sim::TMemEngine mem_engine(&scheduler,
                                4 * 1024 /* disk space: 4 GB */,
                                256,
@@ -279,7 +279,7 @@ FIXTURE(Range) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     Base::TUuid data_file_id(TUuid::TimeAndMAC);
     TSuprena arena;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
@@ -358,4 +358,3 @@ FIXTURE(Range) {
     GracefullShutdown();
   });
 }
-

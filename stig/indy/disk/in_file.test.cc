@@ -1,15 +1,15 @@
-/* <stig/indy/disk/in_file.test.cc> 
+/* <stig/indy/disk/in_file.test.cc>
 
    Unit test for <stig/indy/disk/in_file.h>.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,7 +59,7 @@ class TMyInFile
   }
 
   private:
- 
+
   const Stig::Indy::Util::TBlockVec &BlockVec;
 
 };
@@ -76,20 +76,20 @@ FIXTURE(Stream) {
                                1 /* num page lru */,
                                16 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     const size_t num_blocks_to_write = 40UL;
-  
+
     Stig::Indy::Util::TBlockVec block_vec;
     mem_engine.GetEngine()->AppendReserveBlocks(TVolume::TDesc::Fast, num_blocks_to_write, block_vec);
     unordered_map<size_t, shared_ptr<const TBufBlock>> collision_map {};
     TCompletionTrigger trigger;
-  
+
     const size_t num_to_write = (num_blocks_to_write * LogicalBlockSize) / sizeof(size_t);
-  
+
     /* stream data out */ {
       std::unordered_set<size_t> written_block_set{};
       TDataOutStream out_stream(HERE, 0UL, mem_engine.GetVolMan(), 0UL, block_vec, collision_map,
-                                trigger, RealTime, true, 
+                                trigger, RealTime, true,
                                 #ifndef NDEBUG
                                 written_block_set,
                                 #endif

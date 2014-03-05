@@ -1,15 +1,15 @@
-/* <stig/indy/disk/util/index_manager.test.cc> 
+/* <stig/indy/disk/util/index_manager.test.cc>
 
    Unit test for <stig/indy/disk/util/index_manager.h>.
 
-   Copyright 2010-2014 Tagged
-   
+   Copyright 2010-2014 Stig LLC
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,7 +48,7 @@ FIXTURE(Typical) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     typedef TIndexManager<size_t, 10000, 1000> TMyManager;
     TMyManager manager(HERE, 0UL, consol_thresh, TVolume::TDesc::Fast, mem_engine.GetEngine(), true /* do cache */);
     for (size_t i = 0; i < num_iter; ++i) {
@@ -80,7 +80,7 @@ FIXTURE(ManySortFiles) {
                                1 /* num page lru */,
                                16384 /* block cache slots: 1GB */,
                                1 /* num block lru */);
-  
+
     typedef TIndexManager<size_t, 100, 100> TMyManager;
     TMyManager manager(HERE, 0UL, consol_thresh, TVolume::TDesc::Fast, mem_engine.GetEngine(), true /* do cache */);
     for (size_t i = 0; i < num_iter; ++i) {
