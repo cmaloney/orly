@@ -132,7 +132,7 @@ TFileService::TFileService(Base::TScheduler *scheduler,
         assert(AppendLogBlockVec.size());
         size_t block_of_first_append_log = AppendLogBlockVec[0];
 
-
+        /* read the head sector of the append log to figure out which version number it has. */
         VolMan->Read(HERE,
                      Util::CheckedSector,
                      Source::FileService,
@@ -177,6 +177,17 @@ TFileService::TFileService(Base::TScheduler *scheduler,
     std::vector<size_t> ring_offset_vec;
     for (auto block_id : AppendLogBlockVec) {
       append_log_buf_vec.emplace_back(new TBufBlock());
+      VolMan->Read(HERE,
+                   Util::SectorCheckedBlock,
+                   Source::FileService,
+                   append_log_buf_vec.back()->GetData(),
+                   (block_id * Util::PhysicalBlockSize),
+                   Util::PhysicalBlockSize,
+                   RealTime,
+                   trigger,
+                   false /* We think of sectors as atomic. If our sector read fails we're favoring abort over recovering an old state. we throw in the
+                   trigger and abort on the wait*/);
+      #if 0
       for (size_t i = 0; i < NumSectorsPerBlock; ++i) {
 
         VolMan->Read(HERE,
@@ -190,6 +201,7 @@ TFileService::TFileService(Base::TScheduler *scheduler,
                      false /* We think of sectors as atomic. If our sector read fails we're favoring abort over recovering an old state. we throw in
                      the trigger and abort on the wait*/);
       }
+      #endif
     }
 
     for (size_t i = 0; i < NumAppendLogSectors; ++i) {
