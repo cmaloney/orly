@@ -1,15 +1,15 @@
-/* <stig/indy/disk/file_service.h> 
+/* <stig/indy/disk/file_service.h>
 
    TODO
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,7 +61,8 @@ namespace Stig {
                      size_t image_2_block_id,
                      const std::vector<size_t> &append_log_block_vec,
                      const TFileInitCb &file_init_cb,
-                     bool create = false);
+                     bool create = false,
+                     bool abort_on_append_log_scan = true);
 
         /* TODO */
         ~TFileService();
@@ -241,6 +242,9 @@ namespace Stig {
         /* TODO */
         Base::TEventSemaphore RunSem;
         bool ShuttingDown;
+
+        /* A flag used to test abort on append log corruption */
+        bool AbortOnAppendLogScan;
 
         /* TODO */
         static constexpr size_t VersionSize = sizeof(uint64_t);

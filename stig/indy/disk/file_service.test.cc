@@ -1,15 +1,15 @@
-/* <stig/indy/disk/file_service.test.cc> 
+/* <stig/indy/disk/file_service.test.cc>
 
    Unit test for <stig/indy/disk/file_service.h>.
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,14 +47,14 @@ void TestFileServiceRestart(size_t num_append_log_blocks,
   Stig::Indy::Fiber::TFiberTestRunner runner([&](std::mutex &mut, std::condition_variable &cond, bool &fin, Stig::Indy::Fiber::TRunner::TRunnerCons &runner_cons) {
     TScheduler scheduler(TScheduler::TPolicy(4, 4, milliseconds(10)));
     Base::TThreadLocalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager = Stig::Indy::Fiber::TFrame::LocalFramePool->GetPoolManager();
-  
+
     Util::TCacheCb cache_cb = [](Util::TCacheInstr, const Util::TOffset , void *, size_t ) {};
     std::unique_ptr<Util::TMemoryDevice> mem_device(new Util::TMemoryDevice(512, 512, 262144, true /* fsync */, true));
     std::unique_ptr<Util::TVolume> volume(new Util::TVolume(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, mem_device->GetDesc(), Util::TVolume::TDesc::Fast, 1UL, 1UL, 1024UL, 8UL, 0.85}, cache_cb, &scheduler));
     volume->AddDevice(mem_device.get(), 0UL);
     std::unique_ptr<Util::TVolumeManager> vol_man(new Util::TVolumeManager(&scheduler));
     vol_man->AddNewVolume(volume.get());
-  
+
     Util::TBlockRange tmp_range;
     vol_man->TryAllocateSequentialBlocks(Util::TVolume::TDesc::TStorageSpeed::Fast, 1UL, [&](const Util::TBlockRange &block_range) {
       tmp_range = block_range;
@@ -84,7 +84,7 @@ void TestFileServiceRestart(size_t num_append_log_blocks,
                                                 size_t /*file_length*/) -> bool {return true;};
     try {
       /* initial clean fs */ {
-        TFileService fs(&scheduler, runner_cons, frame_pool_manager, vol_man.get(), image_1_block_id, image_2_block_id, append_log_block_vec, file_init_cb, true);
+        TFileService fs(&scheduler, runner_cons, frame_pool_manager, vol_man.get(), image_1_block_id, image_2_block_id, append_log_block_vec, file_init_cb, true, false);
         phase = 10;
         clean_image_cb(fs);
       } /* close initial clean fs */
@@ -92,7 +92,7 @@ void TestFileServiceRestart(size_t num_append_log_blocks,
       downtime_cb(vol_man.get(), image_1_block_id, image_2_block_id, append_log_block_vec);
       phase = 30;
       /* re-load existing fs */ {
-        TFileService fs(&scheduler, runner_cons, frame_pool_manager, vol_man.get(), image_1_block_id, image_2_block_id, append_log_block_vec, file_init_cb, false);
+        TFileService fs(&scheduler, runner_cons, frame_pool_manager, vol_man.get(), image_1_block_id, image_2_block_id, append_log_block_vec, file_init_cb, false, false);
         phase = 40;
         cold_image_cb(fs);
       }
