@@ -187,21 +187,6 @@ TFileService::TFileService(Base::TScheduler *scheduler,
                    trigger,
                    false /* We think of sectors as atomic. If our sector read fails we're favoring abort over recovering an old state. we throw in the
                    trigger and abort on the wait*/);
-      #if 0
-      for (size_t i = 0; i < NumSectorsPerBlock; ++i) {
-
-        VolMan->Read(HERE,
-                     Util::CheckedSector,
-                     Source::FileService,
-                     append_log_buf_vec.back()->GetData() + (i * Util::PhysicalSectorSize),
-                     (block_id * Util::PhysicalBlockSize) + (i * Util::PhysicalSectorSize),
-                     Util::PhysicalSectorSize,
-                     RealTime,
-                     trigger,
-                     false /* We think of sectors as atomic. If our sector read fails we're favoring abort over recovering an old state. we throw in
-                     the trigger and abort on the wait*/);
-      }
-      #endif
     }
 
     for (size_t i = 0; i < NumAppendLogSectors; ++i) {
