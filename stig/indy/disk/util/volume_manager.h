@@ -116,6 +116,7 @@ namespace Stig {
 
         /* TODO */
         enum TBufKind {
+          SectorCheckedBlock,
           PageCheckedBlock,
           CheckedSector,
           CheckedPage,
@@ -147,6 +148,9 @@ namespace Stig {
 
         /* TODO */
         constexpr size_t PhysicalBlockSize = PhysicalPageSize * 16UL;
+
+        /* TODO */
+        constexpr size_t SectorsPerBlock = PhysicalBlockSize / PhysicalSectorSize;
 
         /* TODO */
         constexpr size_t PagesPerBlock = PhysicalBlockSize / PhysicalPageSize;
@@ -200,6 +204,9 @@ namespace Stig {
         /* TODO */
         static inline size_t GetPhysicalSize(TBufKind buf_kind) {
           switch (buf_kind) {
+            case SectorCheckedBlock: {
+              return PhysicalBlockSize;
+            }
             case PageCheckedBlock: {
               return PhysicalBlockSize;
             }
@@ -232,6 +239,14 @@ namespace Stig {
           public:
           static constexpr size_t GetLogicalDataChunkSize() { return -1; }
           static constexpr size_t GetPhysicalDataChunkSize() { return -1; }
+        };  // TDataChunkSizeGetter
+
+        template <>
+        class TDataChunkSizeGetter<SectorCheckedBlock> {
+          NO_CONSTRUCTION(TDataChunkSizeGetter);
+          public:
+          static constexpr size_t GetLogicalDataChunkSize() { return LogicalSectorSize; }
+          static constexpr size_t GetPhysicalDataChunkSize() { return PhysicalSectorSize; }
         };  // TDataChunkSizeGetter
 
         template <>

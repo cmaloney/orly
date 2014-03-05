@@ -2246,6 +2246,17 @@ void TDevice::ApplyCorruptionCheck(TBufKind buf_kind, void *buf, const TOffset o
   assert(this);
   assert(offset - Util::PhysicalBlockSize /* super block */ + nbytes <= Desc.Capacity);
   switch (buf_kind) {
+    case SectorCheckedBlock: {
+      assert(nbytes % PhysicalBlockSize == 0);
+      for (size_t num_buf = 0; num_buf < nbytes / PhysicalBlockSize; ++num_buf) {
+        for (size_t i = 0; i < SectorsPerBlock; ++i) {
+          Util::TCorruptionDetector::WriteMurmur(reinterpret_cast<size_t *>(reinterpret_cast<uint8_t *>(buf) + (num_buf * PhysicalBlockSize) + (i * PhysicalSectorSize)),
+                                                 PhysicalSectorSize,
+                                                 offset + (num_buf * PhysicalBlockSize) + (i * PhysicalSectorSize));
+        }
+      }
+      break;
+    }
     case PageCheckedBlock: {
       assert(nbytes % PhysicalBlockSize == 0);
       for (size_t num_buf = 0; num_buf < nbytes / PhysicalBlockSize; ++num_buf) {
@@ -2298,6 +2309,19 @@ bool TDevice::CheckCorruptCheck(TBufKind buf_kind, void *buf, const TOffset offs
   if (likely(DoCorruptionCheck)) {
     bool passed_corruption_check = true;
     switch (buf_kind) {
+      case SectorCheckedBlock: {
+        assert(nbytes % PhysicalBlockSize == 0);
+        for (size_t num_buf = 0; num_buf < nbytes / PhysicalBlockSize; ++num_buf) {
+          for (size_t i = 0; i < SectorsPerBlock; ++i) {
+            if (!Util::TCorruptionDetector::TryReadMurmur(reinterpret_cast<size_t *>(reinterpret_cast<uint8_t *>(buf) + (num_buf * PhysicalBlockSize) + (i * PhysicalSectorSize)),
+                                                          PhysicalSectorSize,
+                                                          offset + (num_buf * PhysicalBlockSize) + (i * PhysicalSectorSize))) {
+              passed_corruption_check = false;
+            }
+          }
+        }
+        break;
+      }
       case PageCheckedBlock: {
         assert(nbytes % PhysicalBlockSize == 0);
         for (size_t num_buf = 0; num_buf < nbytes / PhysicalBlockSize; ++num_buf) {
