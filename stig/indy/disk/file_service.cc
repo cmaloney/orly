@@ -1,15 +1,15 @@
-/* <stig/indy/disk/file_service.cc> 
+/* <stig/indy/disk/file_service.cc>
 
    Implements <stig/indy/disk/file_service.h>.
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,7 +57,8 @@ TFileService::TFileService(Base::TScheduler *scheduler,
     bool both_images_loaded_success = true;
     try {
       TCompletionTrigger trigger;
-      VolMan->ReadBlock(HERE, Util::CheckedBlock, Source::FileService, image_1_buf_block->GetData(), image_1_block_id, RealTime, trigger);
+      VolMan->ReadBlock(HERE, Util::CheckedBlock, Source::FileService, image_1_buf_block->GetData(), image_1_block_id, RealTime, trigger,
+                        false /* don't abort on error since we're trying to build a valid image */);
       trigger.Wait();
       const size_t *buf_1 = reinterpret_cast<const size_t *>(image_1_buf_block->GetData());
       version_1 = buf_1[0];
@@ -66,7 +67,8 @@ TFileService::TFileService(Base::TScheduler *scheduler,
     }
     try {
       TCompletionTrigger trigger;
-      VolMan->ReadBlock(HERE, Util::CheckedBlock, Source::FileService, image_2_buf_block->GetData(), image_2_block_id, RealTime, trigger);
+      VolMan->ReadBlock(HERE, Util::CheckedBlock, Source::FileService, image_2_buf_block->GetData(), image_2_block_id, RealTime, trigger,
+                        false /* don't abort on error since we're trying to build a valid image */);
       trigger.Wait();
       const size_t *buf_2 = reinterpret_cast<const size_t *>(image_2_buf_block->GetData());
       version_2 = buf_2[0];
@@ -136,7 +138,8 @@ TFileService::TFileService(Base::TScheduler *scheduler,
                      (block_of_first_append_log * Util::PhysicalBlockSize),
                      Util::PhysicalSectorSize,
                      RealTime,
-                     trigger);
+                     trigger,
+                     true /* We think of sectors as atomic. If our sector read fails we're favoring abort over recovering an old state. */);
         trigger.Wait();
         const size_t *first_append_log_buf = reinterpret_cast<const size_t *>(append_log_first_buf_block->GetData());
         const size_t first_append_log_version = first_append_log_buf[0];
@@ -172,7 +175,8 @@ TFileService::TFileService(Base::TScheduler *scheduler,
                      (block_id * Util::PhysicalBlockSize) + (i * Util::PhysicalSectorSize),
                      Util::PhysicalSectorSize,
                      RealTime,
-                     trigger);
+                     trigger,
+                     true /* We think of sectors as atomic. If our sector read fails we're favoring abort over recovering an old state. */);
       }
     }
 
@@ -540,22 +544,22 @@ void TFileService::Runner() {
               break;
             }
           }
-        } catch (const TDiskError &err) {
+        } catch (const TDiskFailure &err) {
           for(;;) {
             TOp *op = cur_queue.TryGetFirstMember();
             if (op) {
-              op->Complete(Error, err.what());
+              op->Complete(DiskFailure, nullptr);
               delete op;
             } else {
               break;
             }
           }
           throw;
-        } catch (const TDiskFailure &err) {
+        } catch (const TDiskError &err) {
           for(;;) {
             TOp *op = cur_queue.TryGetFirstMember();
             if (op) {
-              op->Complete(DiskFailure, nullptr);
+              op->Complete(Error, err.what());
               delete op;
             } else {
               break;
@@ -757,7 +761,8 @@ bool TFileService::TryLoadFromBaseImage(size_t base_image_block, const size_t *c
                           cur_buf_block->GetData(),
                           next_block_id,
                           RealTime,
-                          trigger);
+                          trigger,
+                          false /* don't abort on error since we're trying to build a valid image */);
         trigger.Wait();
       }
     }

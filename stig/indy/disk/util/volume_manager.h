@@ -1,15 +1,15 @@
-/* <stig/indy/disk/util/volume_manager.h> 
+/* <stig/indy/disk/util/volume_manager.h>
 
    TODO
 
    Copyright 2010-2014 Tagged
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-   
+
      http://www.apache.org/licenses/LICENSE-2.0
-   
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -356,7 +356,8 @@ namespace Stig {
                       TBufKind buf_kind,
                       void *buf,
                       const TOffset offset,
-                      long long nbytes);
+                      long long nbytes,
+                      bool abort_on_error);
 
             /* TriggeredVOp */
             void Init(TPersistentDevice *device,
@@ -369,7 +370,8 @@ namespace Stig {
                       TBufKind buf_kind,
                       const std::vector<void *> &buf_vec,
                       const TOffset offset,
-                      long long nbytes);
+                      long long nbytes,
+                      bool abort_on_error);
 
             /* CallbackOp */
             void Init(TPersistentDevice *device,
@@ -382,7 +384,8 @@ namespace Stig {
                       TBufKind buf_kind,
                       void *buf,
                       const TOffset offset,
-                      long long nbytes);
+                      long long nbytes,
+                      bool abort_on_error);
 
             /* CallbackVOp */
             void Init(TPersistentDevice *device,
@@ -395,7 +398,8 @@ namespace Stig {
                       TBufKind buf_kind,
                       const std::vector<void *> &buf_vec,
                       const TOffset offset,
-                      long long nbytes);
+                      long long nbytes,
+                      bool abort_on_error);
 
             /* TODO */
             void Reset(bool back_to_pool);
@@ -452,6 +456,9 @@ namespace Stig {
 
             /* TODO */
             TOffset LogicalStartOffset;
+
+            /* TODO */
+            bool AbortOnError;
 
             #ifndef NDEBUG
             /* TODO */
@@ -561,22 +568,32 @@ namespace Stig {
           }
 
           /* TODO */
-          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority, const TOffset logical_start_offset, TCompletionTrigger &trigger) = 0;
+          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                             const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, const TOffset logical_start_offset,
+                             TCompletionTrigger &trigger) = 0;
 
           /* TODO */
-          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority, const TOffset logical_start_offset, const TIOCallback &cb) = 0;
+          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                             const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, const TOffset logical_start_offset,
+                             const TIOCallback &cb) = 0;
 
           /* TODO */
-          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger) = 0;
+          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                            const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, TCompletionTrigger &trigger) = 0;
 
           /* TODO */
-          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority, const TIOCallback &cb) = 0;
+          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                            const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, const TIOCallback &cb) = 0;
 
           /* TODO */
-          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger) = 0;
+          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src,
+                             const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error,
+                             TCompletionTrigger &trigger) = 0;
 
           /* TODO */
-          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, TGroupRequest *group_request) = 0;
+          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src,
+                             const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error,
+                             TGroupRequest *group_request) = 0;
 
           /* TODO */
           virtual void AsyncSyncFlush(std::mutex &mut, std::condition_variable &cond, size_t &num_finished, size_t &num_err) = 0;
@@ -662,22 +679,32 @@ namespace Stig {
           }
 
           /* TODO */
-          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority, const TOffset logical_start_offset, TCompletionTrigger &trigger) override;
+          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                             const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, const TOffset logical_start_offset,
+                             TCompletionTrigger &trigger) override;
 
           /* TODO */
-          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority, const TOffset logical_start_offset, const TIOCallback &cb) override;
+          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                             const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, const TOffset logical_start_offset,
+                             const TIOCallback &cb) override;
 
           /* TODO */
-          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger) override;
+          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                            const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, TCompletionTrigger &trigger) override;
 
           /* TODO */
-          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority, const TIOCallback &cb) override;
+          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                            const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, const TIOCallback &cb) override;
 
           /* TODO */
-          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger) override;
+          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src,
+                             const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority,
+                             bool abort_on_error, TCompletionTrigger &trigger) override;
 
           /* TODO */
-          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, TGroupRequest *group_request) override;
+          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src,
+                             const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error,
+                             TGroupRequest *group_request) override;
 
           /* TODO */
           virtual void AsyncSyncFlush(std::mutex &mut, std::condition_variable &cond, size_t &num_finished, size_t &num_err) override;
@@ -713,10 +740,12 @@ namespace Stig {
           private:
 
           /* TODO */
-          void WriteImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority);
+          void WriteImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset,
+                         long long nbytes, DiskPriority priority, bool abort_on_error);
 
           /* TODO */
-          bool ReadImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset, long long nbytes, DiskPriority priority);
+          bool ReadImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset,
+                        long long nbytes, DiskPriority priority, bool abort_on_error);
 
           /* TODO */
           char *Data;
@@ -818,22 +847,34 @@ namespace Stig {
           }
 
           /* TODO */
-          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind /*buf_kind*/, uint8_t /*util_src*/, void */*buf*/, const TOffset /*offset*/, long long /*nbytes*/, DiskPriority /*priority*/, const TOffset /*logical_start_offset*/, TCompletionTrigger &/*trigger*/) override;
+          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind /*buf_kind*/, uint8_t /*util_src*/, void */*buf*/,
+                             const TOffset /*offset*/, long long /*nbytes*/, DiskPriority /*priority*/, bool abort_on_error,
+                             const TOffset /*logical_start_offset*/, TCompletionTrigger &/*trigger*/) override;
 
           /* TODO */
-          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind /*buf_kind*/, uint8_t /*util_src*/, void */*buf*/, const TOffset /*offset*/, long long /*nbytes*/, DiskPriority /*priority*/, const TOffset /*logical_start_offset*/, const TIOCallback &/*cb*/) override;
+          virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind /*buf_kind*/, uint8_t /*util_src*/, void */*buf*/,
+                             const TOffset /*offset*/, long long /*nbytes*/, DiskPriority /*priority*/, bool abort_on_error,
+                             const TOffset /*logical_start_offset*/, const TIOCallback &/*cb*/) override;
 
           /* TODO */
-          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind /*buf_kind*/, uint8_t /*util_src*/, void */*buf*/, const TOffset /*offset*/, long long /*nbytes*/, DiskPriority /*priority*/, TCompletionTrigger &/*trigger*/) override;
+          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind /*buf_kind*/, uint8_t /*util_src*/, void */*buf*/,
+                            const TOffset /*offset*/, long long /*nbytes*/, DiskPriority /*priority*/, bool abort_on_error,
+                            TCompletionTrigger &/*trigger*/) override;
 
           /* TODO */
-          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind /*buf_kind*/, uint8_t /*util_src*/, void */*buf*/, const TOffset /*offset*/, long long /*nbytes*/, DiskPriority /*priority*/, const TIOCallback &/*cb*/) override;
+          virtual void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind /*buf_kind*/, uint8_t /*util_src*/, void */*buf*/,
+                            const TOffset /*offset*/, long long /*nbytes*/, DiskPriority /*priority*/, bool abort_on_error,
+                            const TIOCallback &/*cb*/) override;
 
           /* TODO */
-          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger) override;
+          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src,
+                             const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error,
+                             TCompletionTrigger &trigger) override;
 
           /* TODO */
-          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, TGroupRequest *group_request) override;
+          virtual void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src,
+                             const std::vector<void *> &buf_vec, const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error,
+                             TGroupRequest *group_request) override;
 
           /* TODO */
           virtual void AsyncSyncFlush(std::mutex &/*mut*/, std::condition_variable &/*cond*/, size_t &/*num_finished*/, size_t &/*num_err*/) override;
@@ -973,15 +1014,18 @@ namespace Stig {
 
           /* TODO */
           template <typename... TArgs>
-          void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TArgs &...args);
+          void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset,
+                     long long nbytes, DiskPriority priority, bool abort_on_error, TCacheInstr cache_instr, TArgs &...args);
 
           /* TODO */
           template <typename... TArgs>
-          void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TArgs &...args);
+          void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset,
+                    long long nbytes, DiskPriority priority, bool abort_on_error, TArgs &...args);
 
           /* TODO */
           template <typename... TArgs>
-          void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TArgs &...args);
+          void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf,
+                     const TOffset start_offset, long long nbytes, DiskPriority priority, bool abort_on_error, TArgs &...args);
 
           /* TODO */
           void TryAllocateSequentialBlocks(size_t num_blocks, const std::function<void (const TBlockRange &block_range)> &cb);
@@ -1068,31 +1112,48 @@ namespace Stig {
           void AddExistingVolume(TVolume *volume, size_t volume_id);
 
           /* TODO */
-          inline void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger);
+          inline void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                            const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger,
+                            bool abort_on_error = true);
 
           /* TODO */
-          inline void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger, const TIOCallback &cb);
+          inline void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                            const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger,
+                            const TIOCallback &cb, bool abort_on_error = true);
 
           /* TODO */
-          inline void WriteAndFlush(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger);
+          inline void WriteAndFlush(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                    const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr,
+                                    TCompletionTrigger &trigger, bool abort_on_error = true);
 
           /* TODO */
-          inline void WriteBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, size_t block_id, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger);
+          inline void WriteBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                 size_t block_id, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger,
+                                 bool abort_on_error = true);
 
           /* TODO */
-          inline void WriteBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, size_t block_id, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger, const TIOCallback &cb);
+          inline void WriteBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                 size_t block_id, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger, const TIOCallback &cb,
+                                 bool abort_on_error = true);
 
           /* TODO */
-          inline void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger);
+          inline void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                           const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger,
+                           bool abort_on_error = true);
 
           /* TODO */
-          inline void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger, const TIOCallback &cb);
+          inline void Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                           const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger, const TIOCallback &cb,
+                           bool abort_on_error = true);
 
           /* TODO */
-          inline void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger, const TIOCallback &cb);
+          inline void ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array,
+                            size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger,
+                            const TIOCallback &cb, bool abort_on_error = true);
 
           /* TODO */
-          inline void ReadBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, size_t block_id, DiskPriority priority, TCompletionTrigger &trigger);
+          inline void ReadBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, size_t block_id,
+                                DiskPriority priority, TCompletionTrigger &trigger, bool abort_on_error = true);
 
           /* TODO */
           void TryAllocateSequentialBlocks(TVolume::TDesc::TStorageSpeed storage_speed, size_t num_blocks, const std::function<void (const TBlockRange &block_range)> &cb);
@@ -1126,15 +1187,19 @@ namespace Stig {
 
           /* TODO */
           template <typename ...TArgs>
-          void WriteImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TArgs &...args);
+          void WriteImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                         const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, bool abort_on_error,
+                         TArgs &...args);
 
           /* TODO */
           template <typename ...TArgs>
-          void ReadImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TArgs &...args);
+          void ReadImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                        const TOffset start_offset, long long nbytes, DiskPriority priority, bool abort_on_error, TArgs &...args);
 
           /* TODO */
           template <typename ...TArgs>
-          void ReadVImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TArgs &...args);
+          void ReadVImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf,
+                         const TOffset start_offset, long long nbytes, DiskPriority priority, bool abort_on_error, TArgs &...args);
 
           /* TODO */
           void AllocateLogicalExtents(TExtentSet &logical_extent_set, size_t num_extent, size_t extent_size, TVolume *volume);
@@ -1160,25 +1225,42 @@ namespace Stig {
         };  // TVolumeManager
 
         template <>
-        void TVolume::Write<TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger);
+        void TVolume::Write<TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                                const TOffset start_offset, long long nbytes, DiskPriority priority, bool abort_on_error,
+                                                TCacheInstr cache_instr, TCompletionTrigger &trigger);
 
         template <>
-        void TVolume::Write<TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger, const TIOCallback &cb);
+        void TVolume::Write<TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
+                                                                   uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes,
+                                                                   DiskPriority priority, bool abort_on_error, TCacheInstr cache_instr,
+                                                                   TCompletionTrigger &trigger, const TIOCallback &cb);
 
         template <>
-        void TVolume::Read<TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger);
+        void TVolume::Read<TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                               const TOffset start_offset, long long nbytes, DiskPriority priority, bool abort_on_error,
+                                               TCompletionTrigger &trigger);
 
         template <>
-        void TVolume::Read<TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger, const TIOCallback &cb);
+        void TVolume::Read<TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
+                                                                  uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes,
+                                                                  DiskPriority priority, bool abort_on_error, TCompletionTrigger &trigger,
+                                                                  const TIOCallback &cb);
 
         template <>
-        void TVolume::ReadV<TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger);
+        void TVolume::ReadV<TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src,
+                                                void **buf_array, size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority,
+                                                bool abort_on_error, TCompletionTrigger &trigger);
 
         template <>
-        void TVolume::ReadV<TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger, const TIOCallback &cb);
+        void TVolume::ReadV<TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
+                                                                   uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset,
+                                                                   long long nbytes, DiskPriority priority, bool abort_on_error,
+                                                                   TCompletionTrigger &trigger, const TIOCallback &cb);
 
         template <typename ...TArgs>
-        void TVolumeManager::WriteImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TArgs &...args) {
+        void TVolumeManager::WriteImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                       const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr,
+                                       bool abort_on_error, TArgs &...args) {
           assert(this);
           const size_t logical_extent_block_start = (start_offset / ExtentAllocationBlockSize) * ExtentAllocationBlockSize;
           const size_t logical_extent_block_end = ((start_offset + nbytes - 1) / ExtentAllocationBlockSize) * ExtentAllocationBlockSize;
@@ -1186,14 +1268,15 @@ namespace Stig {
           TVolume *const end_vol = LogicalExtentStartToVolumeMap[logical_extent_block_end];
           if (likely(start_vol == end_vol)) {
             assert(start_vol);
-            start_vol->Write(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, cache_instr, args...);
+            start_vol->Write(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, abort_on_error, cache_instr, args...);
           } else {
             throw std::logic_error("TODO: implement support for cross-volume writes");
           }
         }
 
         template <typename ...TArgs>
-        void TVolumeManager::ReadImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TArgs &...args) {
+        void TVolumeManager::ReadImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                      const TOffset start_offset, long long nbytes, DiskPriority priority, bool abort_on_error, TArgs &...args) {
           assert(this);
           const size_t logical_extent_block_start = (start_offset / ExtentAllocationBlockSize) * ExtentAllocationBlockSize;
           const size_t logical_extent_block_end = ((start_offset + nbytes - 1) / ExtentAllocationBlockSize) * ExtentAllocationBlockSize;
@@ -1201,14 +1284,16 @@ namespace Stig {
           TVolume *const end_vol = LogicalExtentStartToVolumeMap[logical_extent_block_end];
           if (likely(start_vol == end_vol)) {
             assert(start_vol);
-            start_vol->Read(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, args...);
+            start_vol->Read(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, abort_on_error, args...);
           } else {
             throw std::logic_error("TODO: implement support for cross-volume reads");
           }
         }
 
         template <typename ...TArgs>
-        void TVolumeManager::ReadVImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TArgs &...args) {
+        void TVolumeManager::ReadVImpl(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array,
+                                       size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, bool abort_on_error,
+                                       TArgs &...args) {
           assert(this);
           const size_t logical_extent_block_start = (start_offset / ExtentAllocationBlockSize) * ExtentAllocationBlockSize;
           const size_t logical_extent_block_end = ((start_offset + nbytes - 1) / ExtentAllocationBlockSize) * ExtentAllocationBlockSize;
@@ -1216,7 +1301,7 @@ namespace Stig {
           TVolume *const end_vol = LogicalExtentStartToVolumeMap[logical_extent_block_end];
           if (likely(start_vol == end_vol)) {
             assert(start_vol);
-            start_vol->ReadV(code_location, buf_kind, util_src, buf_array, num_buf, start_offset, nbytes, priority, args...);
+            start_vol->ReadV(code_location, buf_kind, util_src, buf_array, num_buf, start_offset, nbytes, priority, abort_on_error, args...);
           } else {
             throw std::logic_error("TODO: implement support for cross-volume reads");
           }
@@ -1228,44 +1313,63 @@ namespace Stig {
           CacheCb(cache_instr, start_offset, buf, nbytes);
         }
 
-        inline void TVolumeManager::Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger) {
-          WriteImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, cache_instr, trigger);
+        inline void TVolumeManager::Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                          const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr,
+                                          TCompletionTrigger &trigger, bool abort_on_error) {
+          WriteImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, cache_instr, abort_on_error, trigger);
         }
 
-        inline void TVolumeManager::Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger, const TIOCallback &cb) {
-          WriteImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, cache_instr, trigger, cb);
+        inline void TVolumeManager::Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                          const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr,
+                                          TCompletionTrigger &trigger, const TIOCallback &cb, bool abort_on_error) {
+          WriteImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, cache_instr, abort_on_error, trigger, cb);
         }
 
-        inline void TVolumeManager::WriteAndFlush(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger) {
-          WriteImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, cache_instr, trigger);
+        inline void TVolumeManager::WriteAndFlush(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src,
+                                                  void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority,
+                                                  TCacheInstr cache_instr, TCompletionTrigger &trigger, bool abort_on_error) {
+          WriteImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, cache_instr, abort_on_error, trigger);
           std::vector<TBlockRange> block_range_vec;
           const size_t num_consec_blocks = ((start_offset + nbytes - 1) / PhysicalBlockSize) - (start_offset / PhysicalBlockSize) + 1;
           trigger.Wait();
           SyncToDisk(std::vector<TBlockRange>{TBlockRange{start_offset / PhysicalBlockSize, num_consec_blocks}});
         }
 
-        inline void TVolumeManager::Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger) {
-          ReadImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, trigger);
+        inline void TVolumeManager::Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                         const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger,
+                                         bool abort_on_error) {
+          ReadImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, abort_on_error, trigger);
         }
 
-        inline void TVolumeManager::Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger, const TIOCallback &cb) {
-          ReadImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, trigger, cb);
+        inline void TVolumeManager::Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                         const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger,
+                                         const TIOCallback &cb, bool abort_on_error) {
+          ReadImpl(code_location, buf_kind, util_src, buf, start_offset, nbytes, priority, abort_on_error, trigger, cb);
         }
 
-        inline void TVolumeManager::ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority, TCompletionTrigger &trigger, const TIOCallback &cb) {
-          ReadVImpl(code_location, buf_kind, util_src, buf_array, num_buf, start_offset, nbytes, priority, trigger, cb);
+        inline void TVolumeManager::ReadV(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void **buf_array,
+                                          size_t num_buf, const TOffset start_offset, long long nbytes, DiskPriority priority,
+                                          TCompletionTrigger &trigger, const TIOCallback &cb, bool abort_on_error) {
+          ReadVImpl(code_location, buf_kind, util_src, buf_array, num_buf, start_offset, nbytes, priority, abort_on_error, trigger, cb);
         }
 
-        inline void TVolumeManager::WriteBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, size_t block_id, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger) {
-          Write(code_location, buf_kind, util_src, buf, block_id * PhysicalBlockSize, PhysicalBlockSize, priority, cache_instr, trigger);
+        inline void TVolumeManager::WriteBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                               size_t block_id, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger,
+                                               bool abort_on_error) {
+          Write(code_location, buf_kind, util_src, buf, block_id * PhysicalBlockSize, PhysicalBlockSize, priority, cache_instr, trigger,
+                abort_on_error);
         }
 
-        inline void TVolumeManager::WriteBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, size_t block_id, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger, const TIOCallback &cb) {
-          Write(code_location, buf_kind, util_src, buf, block_id * PhysicalBlockSize, PhysicalBlockSize, priority, cache_instr, trigger, cb);
+        inline void TVolumeManager::WriteBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                               size_t block_id, DiskPriority priority, TCacheInstr cache_instr, TCompletionTrigger &trigger,
+                                               const TIOCallback &cb, bool abort_on_error) {
+          Write(code_location, buf_kind, util_src, buf, block_id * PhysicalBlockSize, PhysicalBlockSize, priority, cache_instr, trigger, cb,
+                abort_on_error);
         }
 
-        inline void TVolumeManager::ReadBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, size_t block_id, DiskPriority priority, TCompletionTrigger &trigger) {
-          Read(code_location, buf_kind, util_src, buf, block_id * PhysicalBlockSize, PhysicalBlockSize, priority, trigger);
+        inline void TVolumeManager::ReadBlock(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
+                                              size_t block_id, DiskPriority priority, TCompletionTrigger &trigger, bool abort_on_error) {
+          Read(code_location, buf_kind, util_src, buf, block_id * PhysicalBlockSize, PhysicalBlockSize, priority, trigger, abort_on_error);
         }
 
       }  // Util
