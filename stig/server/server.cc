@@ -98,6 +98,10 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The port on which the server listens for clients."
   );
   Param(
+    &TCmd::MemcachePortNumber, "memcache_port_number", Optional, "memcache_port_number\0mpn\0",
+      "The port on which the server listens for Memcache protocol clients."
+  );
+  Param(
       &TCmd::SlavePortNumber, "slave_port_number", Optional, "slave_port_number\0spn\0",
       "The port on which the server listens for a slave."
   );
@@ -369,6 +373,7 @@ class TIndexIdReader
 
 TServer::TCmd::TCmd()
     : PortNumber(DefaultPortNumber),
+      MemcachePortNumber(11211), // Memcache default port number
       SlavePortNumber(DefaultSlavePortNumber),
       ConnectionBacklog(5000),
       DurableCacheSize(10000),
@@ -892,7 +897,24 @@ void TServer::Init() {
       }
       IfLt0(listen(MainSocket, Cmd.ConnectionBacklog));
     }
-    Scheduler->Schedule(bind(&TServer::AcceptClientConnections, this));
+    Scheduler->Schedule(bind(&TServer::AcceptClientConnections, this, false));
+
+    //TODO: Dedup this code (Exactly the same as just above with one bool different)
+
+    /* open the mynde socket */ {
+      TAddress address(TAddress::IPv4Any, Cmd.MemcachePortNumber);
+      MemcacheSocket = TFd(socket(address.GetFamily(), SOCK_STREAM, 0));
+      int flag = true;
+      IfLt0(setsockopt(MemcacheSocket, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)));
+      try {
+        Bind(MemcacheSocket, address);
+      } catch (const std::exception &ex) {
+        syslog(LOG_ERR, "Server startup caught exception [%s], Can't listen for memcache clients on port [%d]", ex.what(), Cmd.MemcachePortNumber);
+      }
+    }
+    Scheduler->Schedule(bind(&TServer::AcceptClientConnections, this, true));
+
+
     Scheduler->Schedule(bind(&TServer::CleanHouse, this));
     Reporter = std::unique_ptr<TIndyReporter>(new TIndyReporter(this, Scheduler, Cmd.ReportingPortNumber));
     DEBUG_LOG("TServer::Init end");
@@ -1076,7 +1098,7 @@ void TServer::TConnection::OnRelease(TConnection *connection) {
   delete connection;
 }
 
-void TServer::AcceptClientConnections() {
+void TServer::AcceptClientConnections(bool is_memcache) {
   assert(this);
   if (!Fiber::TFrame::LocalFramePool) {
     Fiber::TFrame::LocalFramePool = new TThreadLocalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalRegisteredPool(&FramePoolManager, 100UL, StackSize, SlowRunnerVec[0].get());
@@ -1087,7 +1109,7 @@ void TServer::AcceptClientConnections() {
       TAddress client_address;
       TFd client_socket(Accept(MainSocket, client_address));
       size_t prev_assignment_count = std::atomic_fetch_add(&SlowAssignmentCounter, 1UL);
-      new TServeClientRunnable(this, SlowRunnerVec[prev_assignment_count % SlowRunnerVec.size()].get(), move(client_socket), client_address);
+      new TServeClientRunnable(this, SlowRunnerVec[prev_assignment_count % SlowRunnerVec.size()].get(), move(client_socket), client_address, is_memcache);
       //Scheduler->Schedule(bind(&TServer::ServeClient, this, move(client_socket), client_address));
     } catch (const std::system_error &err) {
       if (WasInterrupted(err)) {
@@ -1617,6 +1639,26 @@ void TServer::ServeClient(TFd &fd, const TAddress &client_address) {
   if (connection) {
     Scheduler->Schedule(std::bind(&TConnection::Run, connection, std::move(fd)));
     //connection->Run(fd);
+  }
+}
+
+void TServer::ServeMemcacheClient(TFd &fd, const TAddress &client_address) {
+  assert(this);
+  assert(&fd);
+  assert(&client_address);
+
+  //TODO: Copied from above.
+  string client_address_str;
+  /* extra */ {
+    ostringstream strm;
+    strm << client_address;
+    client_address_str = strm.str();
+  }
+
+  try {
+    NOT_IMPLEMENTED(); // TODO
+  } catch (const exception &ex) {
+    syslog(LOG_INFO, "server; memcached talking to %s; %s", client_address_str.c_str(), ex.what());
   }
 }
 

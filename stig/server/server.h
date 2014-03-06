@@ -179,6 +179,9 @@ namespace Stig {
         /* The port on which TServer::MainSocket listens for clients. */
         in_port_t PortNumber;
 
+        /* The port on which TServer::MemcacheSocket listens for clients. */
+        in_port_t MemcachePortNumber;
+
         /* The port on which TServer::WaitForSlave listens for a slave. */
         in_port_t SlavePortNumber;
 
@@ -592,14 +595,15 @@ namespace Stig {
         public:
 
         /* TODO */
-        TServeClientRunnable(TServer *server, Indy::Fiber::TRunner *runner, Base::TFd &&fd, const Socket::TAddress &client_address)
+        TServeClientRunnable(TServer *server, Indy::Fiber::TRunner *runner, Base::TFd &&fd, const Socket::TAddress &client_address, bool is_memcache)
             : Server(server),
               Fd(fd),
-              ClientAddress(client_address) {
+              ClientAddress(client_address),
+              IsMemcache(is_memcache) {
           FramePool = Indy::Fiber::TFrame::LocalFramePool;
           Frame = FramePool->Alloc();
           try {
-            Frame->Latch(runner, this, static_cast<Indy::Fiber::TRunnable::TFunc>(&TServeClientRunnable::Serve));
+              Frame->Latch(runner, this, static_cast<Indy::Fiber::TRunnable::TFunc>(&TServeClientRunnable::Serve));
           } catch (...) {
             FramePool->Free(Frame);
             throw;
@@ -614,6 +618,9 @@ namespace Stig {
         /* TODO */
         void Serve() {
           assert(this);
+          if(IsMemcache) {
+            Server->ServeMemcacheClient(Fd, ClientAddress);
+          }
           Server->ServeClient(Fd, ClientAddress);
           Indy::Fiber::FreeMyFrame(FramePool);
           delete this;
@@ -634,10 +641,12 @@ namespace Stig {
         /* TODO */
         const Socket::TAddress ClientAddress;
 
+        bool IsMemcache;
+
       };  // TServeClientRunnable
 
       /* Accepts connections from clients on our main socket.  Launched as a thread by the constructor. */
-      void AcceptClientConnections();
+      void AcceptClientConnections(bool is_memcache);
 
       /* See <stig/protocol.h>. */
       void BeginImport();
@@ -665,6 +674,9 @@ namespace Stig {
 
       /* Serves a client on the given fd.  Launched as a thread by AcceptClientConnections() when a client connects. */
       void ServeClient(Base::TFd &fd, const Socket::TAddress &client_address);
+
+      /* Serves a client which speaks the memcached protocol. */
+      void ServeMemcacheClient(Base::TFd &fd, const Socket::TAddress &client_address);
 
       /* TODO */
       void StateChangeCb(Stig::Indy::TManager::TState state);
@@ -736,6 +748,9 @@ namespace Stig {
 
       /* The socket on which AcceptClientConnections() listens. */
       Base::TFd MainSocket;
+
+      /* The socket on which we listen for memcached clients. */
+      Base::TFd MemcacheSocket;
 
       /* Covers ConnectionBySessionId. */
       std::mutex ConnectionMutex;
