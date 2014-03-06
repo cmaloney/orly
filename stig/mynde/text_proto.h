@@ -1,4 +1,4 @@
-/* <stig/mindy/text_proto.h>
+/* <stig/mynde/text_proto.h>
 
    Readers for the Memcached text protocol
 
@@ -16,12 +16,12 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <stig/mindy/proto.h>
+#include <stig/mynde/proto.h>
 
 #include <string>
 
 namespace Stig {
-  namespace Mindy {
+  namespace Mynde {
 
     class TIn;
 
@@ -42,5 +42,5 @@ namespace Stig {
       std::string Value;
     };
 
-  }  // Mindy
+  }  // Mynde
 }  // Stig

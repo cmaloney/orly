@@ -1,6 +1,6 @@
-/* <stig/mindy/binary_proto.cc>
+/* <stig/mynde/binary_proto.cc>
 
-   Implements <stig/mindy/binary_proto.h>
+   Implements <stig/mynde/binary_proto.h>
 
    Implementation notes:
      We swap in place on input but not output. For output we have a const guarantee to maintain.
@@ -20,15 +20,15 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <stig/mindy/binary_proto.h>
-#include <stig/mindy/proto.h>
+#include <stig/mynde/binary_proto.h>
+#include <stig/mynde/proto.h>
 
 #include <base/not_implemented.h>
 #include <io/endian.h>
 
 using namespace Io;
 using namespace Strm::Bin;
-using namespace Stig::Mindy;
+using namespace Stig::Mynde;
 
 TIn &operator>>(TIn &in, TRequestHeader &that) {
   in.ReadShallow(that);

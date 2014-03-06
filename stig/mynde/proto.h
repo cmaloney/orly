@@ -1,4 +1,4 @@
-/* <stig/mindy/proto.h>
+/* <stig/mynde/proto.h>
 
    Shared bits for all protocols.
 
@@ -25,7 +25,7 @@ namespace Strm {
 }
 
 namespace Stig {
-  namespace Mindy {
+  namespace Mynde {
 
     // TODO: This needs a better name.
     class TBuffer {
@@ -107,5 +107,5 @@ namespace Stig {
       OutOfMemory = 0x0082
     };
 
-  }  // Mindy
+  }  // Mynde
 }  // Stig

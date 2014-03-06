@@ -1,6 +1,6 @@
-/* <stig/mindy/proto.cc>
+/* <stig/mynde/proto.cc>
 
-   Implements <stig/mindy/proto.h>
+   Implements <stig/mynde/proto.h>
 
    Copyright 2010-2014 Stig LLC
 
@@ -16,12 +16,12 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <stig/mindy/proto.h>
+#include <stig/mynde/proto.h>
 
-#include <stig/mindy/binary_proto.h>
+#include <stig/mynde/binary_proto.h>
 #include <strm/bin/in.h>
 
-using namespace Stig::Mindy;
+using namespace Stig::Mynde;
 
 TBuffer::TBuffer() : Size(0), Data(nullptr) {}
 

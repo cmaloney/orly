@@ -1,4 +1,4 @@
-/* <stig/mindy/binary_proto.h>
+/* <stig/mynde/binary_proto.h>
 
    Read and write the memcahced binary protocol.
 
@@ -46,7 +46,7 @@
 #include <strm/bin/out.h>
 
 namespace Stig {
-namespace Mindy {
+namespace Mynde {
 
 // Protocol raw opcodes
 enum class TRawOpcode {
@@ -129,5 +129,5 @@ Strm::Bin::TOut &operator<<(Strm::Bin::TOut &out, const TResponseHeader &that);
 
 static_assert(sizeof(TResponseHeader) == 24, "According to the binary protocol specification");
 
-} // Mindy
+} // Mynde
 } // Stig
