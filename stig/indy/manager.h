@@ -72,7 +72,6 @@ namespace Stig {
                Fiber::TRunner *bg_fast_runner,
                size_t block_slots_available_per_merger,
                size_t max_repo_cache_size,
-               size_t walker_local_cache_size,
                size_t temp_file_consol_thresh,
                const std::vector<size_t> &merge_mem_cores,
                const std::vector<size_t> &merge_disk_cores,

@@ -713,9 +713,6 @@ namespace Stig {
         inline Disk::Util::TEngine *GetEngine() const;
 
         /* TODO */
-        inline size_t GetWalkerLocalCacheSize() const;
-
-        /* TODO */
         inline size_t GetTempFileConsolThresh() const;
 
         /* TODO */
@@ -849,7 +846,6 @@ namespace Stig {
                  Base::TScheduler *scheduler,
                  size_t block_slots_available_per_merger,
                  size_t max_repo_cache_size,
-                 size_t walker_local_cache_size,
                  size_t temp_file_consol_thresh,
                  const std::vector<size_t> &merge_mem_cores,
                  const std::vector<size_t> &merge_disk_cores,
@@ -941,9 +937,6 @@ namespace Stig {
 
         /* TODO */
         Disk::Util::TEngine *Engine;
-
-        /* TODO */
-        size_t WalkerLocalCacheSize;
 
         /* TODO */
         size_t TempFileConsolThresh;
@@ -1079,10 +1072,6 @@ namespace Stig {
 
       inline Disk::Util::TEngine *TManager::GetEngine() const {
         return Engine;
-      }
-
-      inline size_t TManager::GetWalkerLocalCacheSize() const {
-        return WalkerLocalCacheSize;
       }
 
       inline size_t TManager::GetTempFileConsolThresh() const {

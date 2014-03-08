@@ -90,7 +90,6 @@ const bool AllowFileSync = true;
 const bool NoRealtime = true;
 const size_t BlockSlotsAvailablePerMerger = 100UL;
 const size_t MaxRepoCacheSize = 100UL;
-const size_t WalkerLocalCacheSize = 100UL;
 const size_t TempFileConsolidationThreshold = 20UL;
 
 static const char *sample_package = "package #1;"
@@ -163,7 +162,6 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
                                                 &bg_runner,
                                                 BlockSlotsAvailablePerMerger,
                                                 MaxRepoCacheSize,
-                                                WalkerLocalCacheSize,
                                                 TempFileConsolidationThreshold,
                                                 merge_mem_cores,
                                                 merge_disk_cores,

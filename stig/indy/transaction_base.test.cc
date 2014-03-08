@@ -65,7 +65,6 @@ class TMyManager
                  scheduler,
                  100UL,
                  100UL,
-                 100UL,
                  20UL,
                  mem_merge_cores,
                  disk_merge_cores,
