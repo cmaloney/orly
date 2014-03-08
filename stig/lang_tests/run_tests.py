@@ -93,17 +93,18 @@ def Main():
   lil = TPool(out_dir, workers=args.worker_count)
 
 
-  # List of filepaths.
-  filepaths = []
-
   def OnDirectory(none, dirname, filenames):
     stig_filenames = filter(lambda filename: os.path.splitext(filename)[-1] == '.stig', filenames)
     filepaths.extend(map(lambda filename: os.path.join(dirname, filename), stig_filenames))
 
-  if len(args.filepaths) == 0:
+  # List of filepaths.
+  filepaths = args.filepaths
+
+  if len(filepaths) == 0:
+    cwd = os.getcwd()
+    prefix_len = len(cwd) + 1
     os.path.walk(os.getcwd(), OnDirectory, None)
-  else:
-    filepaths = map(lambda filename: os.path.join(os.getcwd(), filename), args.filepaths)
+    filepaths = map(lambda x: x[prefix_len:] if x.startswith(cwd) else x, filepaths)
 
   changed_files = []
   passed_files = []
