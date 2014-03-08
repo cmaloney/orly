@@ -162,10 +162,6 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The maximum number of aio events at a time."
   );
   Param(
-      &TCmd::MinDiscardBlockConsideration, "min_discard_block_consideration", Optional, "min_discard_block_consideration\0",
-      "The minimum number of consecutive aligned blocks required to do a discard."
-  );
-  Param(
       &TCmd::HighDiskUtilizationThreshold, "high_disk_utilization_threshold", Optional, "high_disk_utilization_threshold\0",
       "The percentage of disk space that needs to be used before we start re-routing discard blocks to become ready for allocation."
   );
@@ -384,7 +380,6 @@ TServer::TCmd::TCmd()
       BlockCacheSizeMB(512),
       FileServiceAppendLogMB(4),
       DiskMaxAioNum(65024),
-      MinDiscardBlockConsideration((256 * 1024) / Disk::Util::PhysicalBlockSize),
       HighDiskUtilizationThreshold(0.9),
       DiscardOnCreate(false),
       ReplicationSyncBufMB(32),
