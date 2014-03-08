@@ -294,14 +294,6 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The number of repo mapping entry pool objects."
   );
   Param(
-      &TCmd::WeakRepoPoolSize, "weak_repo_pool_size", Optional, "weak_repo_pool_size\0",
-      "The number of weak repo pool objects."
-  );
-  Param(
-      &TCmd::StrongRepoPoolSize, "strong_repo_pool_size", Optional, "strong_repo_pool_size\0",
-      "The number of strong repo pool objects."
-  );
-  Param(
       &TCmd::RepoDataLayerPoolSize, "repo_data_layer_pool_size", Optional, "repo_data_layer_pool_size\0",
       "The number of repo data layer pool objects."
   );
@@ -395,8 +387,6 @@ TServer::TCmd::TCmd()
       DurableMemEntryPoolSize(500000UL),
       RepoMappingPoolSize(50000UL),
       RepoMappingEntryPoolSize(500000UL),
-      WeakRepoPoolSize(50000UL),
-      StrongRepoPoolSize(50000UL),
       RepoDataLayerPoolSize(50000UL),
       TransactionMutationPoolSize(15000UL),
       TransactionPoolSize(5000UL),
@@ -549,9 +539,7 @@ void TServer::Init() {
     TUpdate::InitUpdatePool(Cmd.UpdatePoolSize);
     TUpdate::InitEntryPool(Cmd.UpdateEntryPoolSize);
 
-    //Disk::TController::InitEventPool(Cmd.ControllerEventPoolSize);
     Disk::TBufBlock::Pool.Init(Cmd.DiskBufferBlockPoolSize);
-    //Disk::TCache::TObj::Pool.Init(Cmd.DiskCacheBlockPoolSize);
 
     /******** End Object Pools ********/
 

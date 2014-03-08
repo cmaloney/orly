@@ -308,8 +308,6 @@ namespace Stig {
         /* TODO */
         size_t RepoMappingPoolSize;
         size_t RepoMappingEntryPoolSize;
-        size_t WeakRepoPoolSize;
-        size_t StrongRepoPoolSize;
         size_t RepoDataLayerPoolSize;
 
         /* TODO */
