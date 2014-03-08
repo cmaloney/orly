@@ -158,10 +158,6 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The size of the file service append log in MB."
   );
   Param(
-      &TCmd::DiskQueueDepth, "disk_queue_depth", Optional, "disk_queue_depth\0",
-      "The depth of the disk block device queue."
-  );
-  Param(
       &TCmd::DiskMaxAioNum, "disk_max_aio_num", Optional, "disk_max_aio_num\0",
       "The maximum number of aio events at a time."
   );
@@ -387,7 +383,6 @@ TServer::TCmd::TCmd()
       PageCacheSizeMB(2048),
       BlockCacheSizeMB(512),
       FileServiceAppendLogMB(4),
-      DiskQueueDepth(128),
       DiskMaxAioNum(65024),
       MinDiscardBlockConsideration((256 * 1024) / Disk::Util::PhysicalBlockSize),
       HighDiskUtilizationThreshold(0.9),

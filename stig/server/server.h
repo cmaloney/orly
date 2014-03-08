@@ -225,9 +225,6 @@ namespace Stig {
         size_t FileServiceAppendLogMB;
 
         /* TODO */
-        size_t DiskQueueDepth;
-
-        /* TODO */
         size_t DiskMaxAioNum;
 
         /* TODO */
