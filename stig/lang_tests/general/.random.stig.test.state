@@ -1,0 +1,14 @@
+(I1
+(lp1
+(lp2
+a(lp3
+S'Synth + Symbols'
+p4
+aS'Errors in: general/random.stig'
+p5
+aS'5:14-5:18 syntax error, unexpected IntLiteral, expecting IsKwd or InKwd or Eq'
+p6
+aS'compile failure: [stig/compiler.cc, 208], Stig::Compiler::TCompileFailure, Compiling Stig language'
+p7
+aatp8
+.
