@@ -198,10 +198,6 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The starting state of this server. Either SOLO or SLAVE."
   );
   Param(
-      &TCmd::NumDiskWorkerThreads, "num_disk_worker_threads", Optional, "num_disk_worker_threads\0",
-      "The number of threads dedicated to executing disk request completion callbacks."
-  );
-  Param(
       &TCmd::NumMemMergeThreads, "num_mem_threads", Optional, "num_mem_threads\0",
       "The number of threads merging and flushing memory layers in repos."
   );
@@ -388,7 +384,6 @@ TServer::TCmd::TCmd()
       ReplicationInterval(100),
       DurableWriteInterval(40),
       DurableMergeInterval(10),
-      NumDiskWorkerThreads(2),
       NumMemMergeThreads(3),
       NumDiskMergeThreads(8),
       MaxRepoCacheSize(10000),

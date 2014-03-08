@@ -255,9 +255,6 @@ namespace Stig {
         std::string StartingState;
 
         /* TODO */
-        size_t NumDiskWorkerThreads;
-
-        /* TODO */
         size_t NumMemMergeThreads;
 
         /* TODO */
