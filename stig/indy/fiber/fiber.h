@@ -23,9 +23,8 @@
 #include <queue>
 #include <stdexcept>
 #include <thread>
-
-#include <base/spin_lock.h>
 #include <unordered_set>
+
 
 #include <setjmp.h>
 #include <stdlib.h>
@@ -36,7 +35,9 @@
 #include <base/assert_true.h>
 #include <base/likely.h>
 #include <base/no_copy_semantics.h>
+#include <base/spin_lock.h>
 #include <base/thread_local_registered_pool.h>
+#include <base/zero.h>
 #include <inv_con/unordered_list.h>
 
 namespace Stig {
@@ -210,9 +211,9 @@ namespace Stig {
               RunnerArray(runner_array) {
           assert(runner_id < total_num_runners);
           #ifdef FAST_SWITCH
-          memset(&MainFiber.fib, 0, sizeof(MainFiber.fib));
+          Base::Zero(MainFiber.fib);
           #else
-          memset(&MainFiber, 0, sizeof(MainFiber));
+          Base::Zero(MainFiber);
           #endif
           QueueArray = new TOutboundQueue[total_num_runners];
           for (size_t i = 0; i < total_num_runners; ++i) {

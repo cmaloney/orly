@@ -20,6 +20,8 @@
 
 #include <cstdlib>
 
+#include <base/zero.h>
+
 using namespace std;
 using namespace chrono;
 using namespace Base;
@@ -56,7 +58,7 @@ THealthCheck::TReply::TResult THealthCheck::TReply::GetResult() const {
 }
 
 TNewSession::TReply::TReply() {
-  memset(&SessionId, 0, sizeof(SessionId));
+  Zero(SessionId);
 }
 
 TNewSession::TReply::TReply(const TUuid &session_id) {
@@ -80,7 +82,7 @@ TOldSession::TReply::TResult TOldSession::TReply::GetResult() const {
 }
 
 TOldSession::TOldSession() {
-  memset(&SessionId, 0, sizeof(SessionId));
+  Zero(SessionId);
 }
 
 TOldSession::TOldSession(const TUuid &session_id) {
