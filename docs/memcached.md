@@ -75,3 +75,12 @@ The behavior here is TBD. Not currently supported
 
 ## Touch
 Touch is a no-op since we don't do TTLs
+
+## Append / Prepend
+TODO / TBD
+
+## Add
+TODO / TBD
+
+## Replace
+TODO / TBD
