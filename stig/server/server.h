@@ -25,7 +25,6 @@
 #include <netinet/in.h>
 
 #include <base/debug_log.h>
-#include <base/epoll.h>
 #include <base/fd.h>
 #include <base/log.h>
 #include <base/no_copy_semantics.h>
