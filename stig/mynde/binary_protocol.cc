@@ -30,7 +30,7 @@ using namespace Io;
 using namespace Strm::Bin;
 using namespace Stig::Mynde;
 
-TIn &operator>>(TIn &in, TRequestHeader &that) {
+TIn &Stig::Mynde::operator>>(TIn &in, TRequestHeader &that) {
   in.ReadShallow(that);
 
   that.KeyLength = SwapEnds(that.KeyLength);
@@ -42,7 +42,7 @@ TIn &operator>>(TIn &in, TRequestHeader &that) {
   return in;
 }
 
-TOut &operator<<(TOut &out, const TRequestHeader &that) {
+TOut &Stig::Mynde::operator<<(TOut &out, const TRequestHeader &that) {
   //TODO: Should we SwapEnds on ourselves then pass through?
   // The only problem if anyone happens to read our values during that time they'll get the incorrect results
   out << that.Magic
@@ -58,7 +58,7 @@ TOut &operator<<(TOut &out, const TRequestHeader &that) {
   return out;
 }
 
-TIn &operator>>(TIn &in, TResponseHeader &that) {
+TIn &Stig::Mynde::operator>>(TIn &in, TResponseHeader &that) {
   in.ReadShallow(that);
 
   that.KeyLength = SwapEnds(that.KeyLength);
@@ -70,7 +70,7 @@ TIn &operator>>(TIn &in, TResponseHeader &that) {
   return in;
 }
 
-TOut &operator<<(TOut &out, const TResponseHeader &that) {
+TOut &Stig::Mynde::operator<<(TOut &out, const TResponseHeader &that) {
   out << that.Magic
       << that.Opcode
       << SwapEnds(that.KeyLength)
