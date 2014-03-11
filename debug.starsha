@@ -8,6 +8,9 @@
       "flags" {
         "-Wl,--as-needed";
         "-rdynamic";
+        "-Wl,--hash-style=gnu";
+        "-Wl,--no-copy-dt-needed-entries";
+        "-Wl,-z,relro";
       }
       "libs" {
         "-luuid";
@@ -37,6 +40,7 @@
         "-Wno-delete-non-virtual-dtor";
         "-std=c++11";
         "-DSTIG_HOST";
+        "-msse2";
       }
     }
     "gcc" {
@@ -162,25 +166,6 @@
           "-lgmpxx";
           "-lsnappy";
           "-lz";
-        }
-      }
-    }
-    "stig/indy/disk/data_file.cc" {
-      "g++" {
-        "flags" {
-          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
-          "-g";
-          "-Wno-type-limits";
-          "-Werror";
-          "-DDEBUG";
-          "-Wno-parentheses";
-          "-Wold-style-cast";
-          "-Wall";
-          "-Wextra";
-          "-Wno-delete-non-virtual-dtor";
-          "-std=c++11";
-          "-DSTIG_HOST";
-          "-msse2";
         }
       }
     }

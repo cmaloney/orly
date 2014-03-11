@@ -7,10 +7,13 @@
     "ld" {
       "flags" {
         "-Wl,--as-needed";
+        "-rdynamic";
+        "-Wl,--hash-style=gnu";
+        "-Wl,--no-copy-dt-needed-entries";
+        "-Wl,-z,relro";
         "-O3";
         "-flto";
         "-s";
-        "-rdynamic";
       }
       "libs" {
         "-luuid";
@@ -42,6 +45,7 @@
         "-Wno-strict-aliasing";
         "-Wno-delete-non-virtual-dtor";
         "-std=c++11";
+        "-msse2";
       }
     }
     "gcc" {
@@ -112,6 +116,7 @@
           "-Wno-strict-aliasing";
           "-Wno-delete-non-virtual-dtor";
           "-std=c++11";
+          "-msse2";
           "-Wno-invalid-offsetof";
         }
       }
