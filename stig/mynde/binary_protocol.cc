@@ -84,11 +84,11 @@ TOut &Stig::Mynde::operator<<(TOut &out, const TResponseHeader &that) {
   return out;
 }
 
-TRequest::TRequest(TIn &in) : Quiet(false), ReturnKey(false), Opaque(0), Cas(0) {
+TRequest::TRequest(TIn &in) : Flags({false,false}), Opaque(0), Cas(0) {
   TRequestHeader header;
   in >> header;
 
-  if (header.Magic != 0x80) {
+  if (header.Magic != BinaryMagicRequest) {
     throw std::invalid_argument("Invalid magic byte");
   }
 
@@ -124,7 +124,7 @@ TRequest::TRequest(TIn &in) : Quiet(false), ReturnKey(false), Opaque(0), Cas(0) 
       break;
     case 0x09: // GetQ
       Opcode = TOpcode::Get;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x0A: // NoOp
       Opcode = TOpcode::NoOp;
@@ -134,12 +134,12 @@ TRequest::TRequest(TIn &in) : Quiet(false), ReturnKey(false), Opaque(0), Cas(0) 
       break;
     case 0x0C: // GetK
       Opcode = TOpcode::Get;
-      ReturnKey = true;
+      Flags.Key = true;
       break;
     case 0x0D: // GetKQ
       Opcode = TOpcode::Get;
-      ReturnKey = true;
-      Quiet = true;
+      Flags.Key = true;
+      Flags.Quiet = true;
       break;
     case 0x0E: // Append
       Opcode = TOpcode::Append;
@@ -152,43 +152,43 @@ TRequest::TRequest(TIn &in) : Quiet(false), ReturnKey(false), Opaque(0), Cas(0) 
       break;
     case 0x11: // SetQ
       Opcode = TOpcode::Set;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x12: // AddQ
       Opcode = TOpcode::Add;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x13: // ReplaceQ
       Opcode = TOpcode::Replace;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x14: // DeleteQ
       Opcode = TOpcode::Delete;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x15: // IncrementQ
       Opcode = TOpcode::Increment;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x16: // DecrementQ
       Opcode = TOpcode::Decrement;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x17: // QuitQ
       Opcode = TOpcode::Quit;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x18: // FlushQ
       Opcode = TOpcode::Flush;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x19: // AppendQ
       Opcode = TOpcode::Append;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     case 0x1A: // PrependQ
       Opcode = TOpcode::Prepend;
-      Quiet = true;
+      Flags.Quiet = true;
       break;
     default:
       throw std::invalid_argument("Illegal opcode");

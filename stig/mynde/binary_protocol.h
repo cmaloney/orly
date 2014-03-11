@@ -79,6 +79,9 @@ enum class TRawOpcode {
     PrependQ = 0x1A
 };
 
+static constexpr uint8_t BinaryMagicRequest = 0x80;
+static constexpr uint8_t BinaryMagicResponse = 0x81;
+
 /* Memcached binary request header, as specified by the protocol
 
    Can be read from and written to a binary stream. */

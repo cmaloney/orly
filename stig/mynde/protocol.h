@@ -18,6 +18,8 @@
 
 #include <cstdint>
 
+#include <base/uuid.h>
+
 namespace Strm {
   namespace Bin {
     class TIn;
@@ -26,6 +28,10 @@ namespace Strm {
 
 namespace Stig {
   namespace Mynde {
+
+    // TODO: This is the most logical place for this I have atm... Not a great place for it though...
+    static const Base::TUuid MemcachedIndexUuid(uuid_t{'m', 'e', 'm', 'c', 'a', 'c', 'h', 'e',
+                                                       'm', 'e', 'm', 'c', 'a', 'c', 'h', 'e'});
 
     // TODO: This needs a better name.
     class TBuffer {
@@ -71,11 +77,34 @@ namespace Stig {
         State,
       };
 
-      const TBuffer &GetKey() const;
-      const TBuffer &GetValue() const;
-      const TBuffer &GetExtras() const;
-      TOpcode GetOpcode() const;
-      TFlags GetFlags() const;
+      const TBuffer &GetKey() const {
+        assert(this);
+        return Key;
+      }
+      const TBuffer &GetValue() const {
+        assert(this);
+        return Value;
+      }
+      const TBuffer &GetExtras() const {
+        assert(this);
+        return Extras;
+      }
+      uint64_t GetCas() const {
+        assert(this);
+        return Cas;
+      }
+      uint32_t GetOpaque() const {
+        assert(this);
+        return Opaque;
+      }
+      TOpcode GetOpcode() const {
+        assert(this);
+        return Opcode;
+      }
+      TFlags GetFlags() const {
+        assert(this);
+        return Flags;
+      }
 
       TRequest(Strm::Bin::TIn &in);
 
@@ -83,8 +112,7 @@ namespace Stig {
       // Base fields, human readable
       TOpcode Opcode;
       // Flags / response modifiers
-      bool Quiet;
-      bool ReturnKey;
+      TFlags Flags;
       uint32_t Opaque;
       uint64_t Cas;
 

@@ -38,7 +38,13 @@
 #include <io/device.h>
 #include <stig/atom/core_vector.h>
 #include <stig/indy/disk/durable_manager.h>
+#include <stig/mynde/protocol.h>
+#include <stig/mynde/binary_protocol.h>
+#include <strm/past_end.h>
 #include <stig/protocol.h>
+#include <strm/fd.h>
+#include <strm/bin/in.h>
+#include <strm/bin/out.h>
 
 using namespace std;
 using namespace chrono;
@@ -1842,24 +1848,233 @@ void TServer::ServeClient(TFd &fd, const TAddress &client_address) {
   }
 }
 
-void TServer::ServeMemcacheClient(TFd &fd, const TAddress &client_address) {
+template<uint64_t Length>
+constexpr uint64_t GetArrayLen(const char(&)[Length]) { return Length; }
+
+void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_address) {
   assert(this);
-  assert(&fd);
+  assert(&fd_original);
   assert(&client_address);
 
-  //TODO: Copied from above.
-  string client_address_str;
-  /* extra */ {
-    ostringstream strm;
-    strm << client_address;
-    client_address_str = strm.str();
-  }
+  //NOTE: fd_original has it's ownership stolen at this point. Use of it will cause badness.
+  Strm::TFd<> strm(std::move(fd_original));
+
+  const auto zero_ttl = std::chrono::seconds(0);
+
+  // TODO: Convert sessions to be a pooled resource
+  auto session = DurableManager->New<TSession>(Base::TUuid::Twister, zero_ttl);
+
+  // Note: We don't call session->NewFastPrivatePov() because we need the POV handle to keep the POV from vanishing.
+  // TODO: Only make this when needed. Should live with the session as a pooled resource. Recycle only when failed.
+
+  // TODO: Switch to this / the wrapped variant?
+  // auto pov = session->NewFastPrivatePov(this, TOpt<TUuid>::Unknown, zero_ttl);
+  // The problem is then we jump through a lot of uuid objects for no good reason...
+  // TODO: Same as above but not all wrapped up
+  auto pov = DurableManager->New<TPov>(TUuid::Twister,
+                                       zero_ttl,
+                                       session->GetId(),
+                                       TPov::TAudience::Private,
+                                       TPov::TPolicy::Fast,
+                                       TPov::TSharedParents{});
+  // TODO: PrivatePovs shoudl auto-connect to their session via invasive containment...
+  session->AddPov(pov);
+
+  auto repo = pov->GetRepo(this);
+
+
+  // NOTE: Should live the same time as context
+  Atom::TSuprena context_arena;
+
+  // Context for the current series of requests which we need to be consistent.
+  //TODO: Switch to a tri state that lives on the stack
+  //TODO: make_unique
+  std::unique_ptr<Indy::TContext> context(new Indy::TContext(repo, &context_arena));
+
+
+  //TODO: Detect protocol here (binary or text). Currently we only support binary.
+  // Our input and output streams
+  //TODO: We want TRequest to genericize the binary and text streams to one thing.
+  //NOTE: We there should be no virtual calls in doing so.
+  Strm::Bin::TIn in(&strm);
+  Strm::Bin::TOut out(&strm);
 
   try {
-    NOT_IMPLEMENTED(); // TODO
-  } catch (const exception &ex) {
-    syslog(LOG_INFO, "server; memcached talking to %s; %s", client_address_str.c_str(), ex.what());
+    //TODO: Detect and handle eof without an exception?
+    if (in.Peek() != Mynde::BinaryMagicRequest) {
+      const char err_msg[] = "SERVER_ERROR text protocol is not supported.\r\n";
+      out.Write(err_msg, GetArrayLen(err_msg));
+      return;
+    }
+
+    // Loop processing requets until we hit eof or explicitly get an exit command.
+    //TODO: Detect and handle eof without an exception?
+    for(;;) {
+      //TODO: We should probably wait for notifications from indy somewhere...
+      //NOTE: We make this on the heap so that we can pass it to the response generation thread
+      // We do the two threads because the protocol states that pending unread responses shouldn't block requests from
+      // being read / handled
+      Mynde::TRequest req(in);
+
+      // TODO: Build up the response in this. Call 'fire' when the whole response is built.
+      // TResponseBuilder resp(req);
+
+      // We don't support CAS so it should always be null for now.
+      if (req.GetCas()) {
+        NOT_IMPLEMENTED();
+      }
+
+      if (req.GetFlags().Key && req.GetOpcode() != Mynde::TRequest::TOpcode::Get) {
+        // TODO: This needs to be a binary error message....
+        const char err_msg[] = "SERVER_ERROR Only Get is allowed to return the key (GetK, GetKQ).\r\n";
+        out.Write(err_msg, GetArrayLen(err_msg));
+        return;  // Closes the RAII connection
+      }
+
+      if (req.GetFlags().Quiet) {
+        // TODO: This needs to be a binary error message....
+        const char err_msg[] = "SERVER_ERROR Quiet is not yet implemented.\r\n";
+        out.Write(err_msg, GetArrayLen(err_msg));
+        return;
+      }
+
+      Mynde::TResponseHeader hdr;
+      Zero(hdr);
+      hdr.Magic = Mynde::BinaryMagicResponse;
+      hdr.Opcode = req.GetOpcode();
+      hdr.Opaque = req.GetOpaque();
+
+      // TODO: Genericize memcache key -> indy key conversion (Make it a function)
+      switch (req.GetOpcode()) {
+        case Mynde::TRequest::TOpcode::Get: {
+          // TODO: Change keys and values to be start, limit based rather than doing this std::string marshalling
+          Native::TBlob key(req.GetKey().GetData(), req.GetKey().GetSize());
+
+          // Perform the Get
+          // TODO: We don't have any reason to go from atom -> Sabot
+          // TODO: The IndexKey has more stuff in it than we need / care about.
+          void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+          Sabot::State::TAny::TWrapper wrapper(
+              (*context)[Indy::TIndexKey(Mynde::MemcachedIndexUuid,
+                                         Indy::TKey(Atom::TCore(&context_arena,
+                                                                Sabot::State::TAny::TWrapper(Native::State::New(
+                                                                    key, state_alloc)))))].GetState(state_alloc));
+
+          //TODO: This doesn't handle null properly...
+          Native::TBlob value = Sabot::AsNative<Native::TBlob>(*wrapper);
+
+
+          hdr.TotalBodyLength = value.size();
+          out << hdr;
+          out.Write(value.c_str(), value.size());
+          continue;
+        }
+        case Mynde::TRequest::TOpcode::Set: {
+          Native::TBlob key(req.GetKey().GetData(), req.GetKey().GetSize());
+          Native::TBlob value(req.GetValue().GetData(), req.GetValue().GetSize());
+          auto transaction = RepoManager->NewTransaction();
+          TUuid update_id(TUuid::Twister);
+
+          // TODO: The package_fq_name should be a constant somewhere.
+          // TODO: That we have to feed a package name and method name here seems like it might cause trouble later.
+          TMetaRecord meta_record(update_id,
+                                  TMetaRecord::TEntry(session->GetId(),
+                                                      session->GetUserId(),
+                                                      {"memcachememcache"},
+                                                      "set",
+                                                      {},
+                                                      {},
+                                                      Base::Chrono::CreateTimePnt(2014, 3, 23, 0, 0, 0, 0, 0),
+                                                      0));
+
+          void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+          void *state_alloc_1 = alloca(Sabot::State::GetMaxStateSize());
+          void *state_alloc_2 = alloca(Sabot::State::GetMaxStateSize());
+          void *state_alloc_3 = alloca(Sabot::State::GetMaxStateSize());
+          auto update = Indy::TUpdate::NewUpdate(
+              TUpdate::TOpByKey{
+                  {Indy::TIndexKey(
+                       Mynde::MemcachedIndexUuid,
+                       Indy::TKey(Atom::TCore(&context_arena,
+                                              Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc))))),
+                   Indy::TKey(Atom::TCore(&context_arena,
+                                          Sabot::State::TAny::TWrapper(Native::State::New(value, state_alloc_1))))}},
+              Indy::TKey(meta_record, &context_arena, state_alloc_2),
+              Indy::TKey(update_id, &context_arena, state_alloc_3));
+          transaction->Push(repo, update);
+          transaction->Prepare();
+          transaction->CommitAction();
+
+
+          // TODO: This is a horrible place for this to live / refactor massively...
+          hdr.Opcode = 0x02;
+          out << hdr;
+          continue;
+        }
+        default: { NOT_IMPLEMENTED(); }
+      }
+    }
+  } catch (const Strm::TPastEnd &ex) {
+    // eof. Just exit / close sockets / destruct all our RAII things.
+  } catch (const std::exception &ex) {
+    syslog(LOG_INFO, "closing memcache connection on exception; %s", ex.what());
   }
+
+  // Lets just assume the request is a get, and write all the code for that.
+  // TODO: Switch to fast fiber using TSwitchToRunner
+  //  Indy::Fiber::SwitchTo(server->FastRunnerVec[prev_assignment_count % server->FastRunnerVec.size()].get());
+
+  // TODO: Rename some of these contexts or put them into better namespaces so how they function is visible
+  // TODO: Timers / counters / etc?
+  /*
+   auto repo = pov->GetRepo(server);
+
+  Package::TContext::TEffects effects;
+
+
+  // Do the get!
+  void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+  std::string value =
+      Sabot::AsNative<std::string>>
+      (*Sabot::State::TAny::TWrapper(
+            context[Indy::TIndexKey(index_id,
+                                    TIndy::TKey(Atom::TCore(context_arena,
+                                                            Sabot::State::TAny::TWrapper(Native::State::New(
+                                                                addr, state_alloc)))))].GetState(state_alloc)));
+
+  //In the case of a delete
+  transaction = RepoManager->NewTransaction();
+  //Convert native std::string to sabot key
+  Indy::TUpdate::TOpByKey op_by_key = {
+    {key,  Indy::TKey(Native::TTombstone::Tombstone, &context_arena, state_alloc_2)}
+  };
+
+  void *state_alloc_2 = alloca(Sabot::State::GetMaxStateSize());
+
+  //op_by_key[key] = Indy::TKey(Native::TTombstone::Tombstone, &context_arena, state_alloc_2);
+
+  //TODO: Convert native to sabot for value here
+  //op_by_key[key] = Indy::TKey(&my_arena, Sabot::State::TAny::TWrapper(Var::NewSabot(state_alloc_2, val)).get());
+
+  //TODO
+  ///TUuid update_id(TUuid::Twister);
+  //tracker = TTracker(update_id, seconds(0));
+  //const auto &predicate_results = indy_context.GetPredicateResults();
+
+  TMetaRecord meta_record(
+      update_id,
+      TMetaRecord::TEntry(
+          GetId(), GetUserId(), fq_name, closure.GetMethodName(),
+          TMetaRecord::TEntry::TArgByName(meta_args_by_name.begin(), meta_args_by_name.end()),
+          TMetaRecord::TEntry::TExpectedPredicateResults(predicate_results.begin(), predicate_results.end()),
+          run_time, random_seed)
+  );
+  auto update = Indy::TUpdate::NewUpdate(op_by_key, Indy::TKey(meta_record, &my_arena, state_alloc_1),
+  Indy::TKey(update_id, &my_arena, state_alloc_2));
+  transaction->Push(repo, update);
+  transaction->Prepare();
+  transaction->CommitAction();
+  */
 }
 
 void TServer::StateChangeCb(Stig::Indy::TManager::TState state) {

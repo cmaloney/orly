@@ -199,6 +199,10 @@ namespace Stig {
       /* The id of the global point of view. */
       static const Base::TUuid GlobalPovId;
 
+      //TODO: This should be private...
+      /* Add the given pov to the collection of povs we'll keep open. */
+      void AddPov(const Durable::TPtr<TPov> &pov);
+
       private:
 
       /* TODO */
@@ -223,9 +227,6 @@ namespace Stig {
 
       /* Stream out. */
       virtual void Write(Io::TBinaryOutputStream &strm) const override;
-
-      /* Add the given pov to the collection of povs we'll keep open. */
-      void AddPov(const Durable::TPtr<TPov> &pov);
 
       /* TODO */
       void Cleanup();

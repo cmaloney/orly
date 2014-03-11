@@ -610,9 +610,10 @@ namespace Stig {
         void Serve() {
           assert(this);
           if(IsMemcache) {
-            Server->ServeMemcacheClient(Fd, ClientAddress);
+            Server->ServeMemcacheClient(std::move(Fd), ClientAddress);
+          } else {
+            Server->ServeClient(Fd, ClientAddress);
           }
-          Server->ServeClient(Fd, ClientAddress);
           Indy::Fiber::FreeMyFrame(FramePool);
           delete this;
         }
@@ -626,7 +627,7 @@ namespace Stig {
         Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalPool *FramePool;
         Indy::Fiber::TFrame *Frame;
 
-        /* TODO */
+        /* TODO: Push <strm/fd.h> up to here, that should own our Fd and be our common Io library */
         Base::TFd Fd;
 
         /* TODO */
@@ -667,7 +668,7 @@ namespace Stig {
       void ServeClient(Base::TFd &fd, const Socket::TAddress &client_address);
 
       /* Serves a client which speaks the memcached protocol. */
-      void ServeMemcacheClient(Base::TFd &fd, const Socket::TAddress &client_address);
+      void ServeMemcacheClient(Base::TFd &&fd, const Socket::TAddress &client_address);
 
       /* TODO */
       void StateChangeCb(Stig::Indy::TManager::TState state);
