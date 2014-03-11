@@ -16,9 +16,9 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <stig/mynde/proto.h>
+#include <stig/mynde/protocol.h>
 
-#include <stig/mynde/binary_proto.h>
+#include <stig/mynde/binary_protocol.h>
 #include <strm/bin/in.h>
 
 using namespace Stig::Mynde;

@@ -1,4 +1,4 @@
-/* <stig/mynde/binary_proto.h>
+/* <stig/mynde/binary_protocol.h>
 
    Read and write the memcahced binary protocol.
 

@@ -1,4 +1,4 @@
-/* <stig/mynde/proto.h>
+/* <stig/mynde/protocol.h>
 
    Shared bits for all protocols.
 

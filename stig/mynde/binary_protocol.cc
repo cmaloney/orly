@@ -1,6 +1,6 @@
-/* <stig/mynde/binary_proto.cc>
+/* <stig/mynde/binary_protocol.cc>
 
-   Implements <stig/mynde/binary_proto.h>
+   Implements <stig/mynde/binary_protocol.h>
 
    Implementation notes:
      We swap in place on input but not output. For output we have a const guarantee to maintain.
@@ -20,8 +20,8 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <stig/mynde/binary_proto.h>
-#include <stig/mynde/proto.h>
+#include <stig/mynde/binary_protocol.h>
+#include <stig/mynde/protocol.h>
 
 #include <base/not_implemented.h>
 #include <io/endian.h>
