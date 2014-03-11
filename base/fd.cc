@@ -19,6 +19,7 @@
 #include <base/fd.h>
 
 #include <poll.h>
+#include <unistd.h>
 
 using namespace Base;
 
@@ -32,4 +33,4 @@ bool TFd::IsReadable(int timeout) const {
   return result != 0;
 }
 
-const TFd Base::In(0), Base::Out(1), Base::Err(2);
+const TFd Base::In(STDIN_FILENO), Base::Out(STDOUT_FILENO), Base::Err(STDERR_FILENO);

@@ -32,6 +32,10 @@
 
 using namespace std;
 
+bool Base::IsValidFd(int fd) {
+  return fcntl(fd, F_GETFD) >= 0;
+}
+
 size_t Base::ReadAtMost(int fd, void *buf, size_t max_size) {
   return IfLt0(read(fd, buf, max_size));
 }

@@ -18,6 +18,8 @@
 
 #include <base/fd.h>
 
+#include <unistd.h>
+
 #include <cstring>
 
 #include <base/io_utils.h>
@@ -57,8 +59,55 @@ FIXTURE(Pipe) {
 
 FIXTURE(SocketPair) {
   TFd lhs, rhs;
+
+  EXPECT_FALSE(IsValidFd(lhs));
+  EXPECT_FALSE(IsValidFd(rhs));
+
   TFd::SocketPair(lhs, rhs, AF_UNIX, SOCK_STREAM, 0);
+
+  EXPECT_TRUE(IsValidFd(lhs));
+  EXPECT_TRUE(IsValidFd(rhs));
+
   Transact(lhs, rhs);
   Transact(rhs, lhs);
+
+  // Non-system-fds shouldn't be system fds.
+  EXPECT_FALSE(lhs.IsSystemFd());
+  EXPECT_FALSE(rhs.IsSystemFd());
+
   CheckClose(lhs, rhs);
+}
+
+// Handling of stdin, stdout, stderr
+FIXTURE(SystemFd) {
+  {
+    TFd fd(STDIN_FILENO);
+    // We consider it a system fd
+    EXPECT_TRUE(fd.IsSystemFd());
+
+    //We don't dup() system fds.
+    TFd fd2(fd);
+    EXPECT_EQ(int(fd2), STDIN_FILENO);
+  }
+
+  // Checks that we didn't close the fd
+  EXPECT_TRUE(IsValidFd(STDIN_FILENO));
+
+  // Repeat the checks for STDOUT, STDERR
+  {
+    TFd fd(STDOUT_FILENO);
+    EXPECT_TRUE(fd.IsSystemFd());
+    TFd fd2(fd);
+    EXPECT_EQ(int(fd2), STDOUT_FILENO);
+  }
+  EXPECT_TRUE(IsValidFd(STDOUT_FILENO));
+
+  {
+    TFd fd(STDERR_FILENO);
+    EXPECT_TRUE(fd.IsSystemFd());
+    TFd fd2(fd);
+    EXPECT_EQ(int(fd2), STDERR_FILENO);
+  }
+  EXPECT_TRUE(IsValidFd(STDERR_FILENO));
+
 }

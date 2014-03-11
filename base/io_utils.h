@@ -22,6 +22,9 @@
 
 namespace Base {
 
+  /* Returns true iff the fd is valid. */
+  bool IsValidFd(int fd);
+
   /* The 'AtMost' versions of read and write are basically just wrappers around
      the OS functions.  They will transfer as much data as possible, up to the
      given max, and return the number of bytes they tranferred.  They will raise

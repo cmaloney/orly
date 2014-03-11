@@ -63,7 +63,7 @@ namespace Base {
     /* Copy-construct, duplicating the file descriptor with the OS call dup(), if necessary. */
     TFd(const TFd &that) {
       assert(&that);
-      OsHandle = (that.OsHandle >= 3) ? IfLt0(dup(that.OsHandle)) : that.OsHandle;
+      OsHandle = that.IsSystemFd() ? that.OsHandle : IfLt0(dup(that.OsHandle));
     }
 
     /* Construct from a naked file descriptor, which the new instance will own.  Use this constructor to capture the result of an OS function, such as
@@ -76,7 +76,7 @@ namespace Base {
     /* Close the file descriptor we own, if any.  If the descriptor is in the stdio range (0-2), then don't close it. */
     ~TFd() {
       assert(this);
-      if (OsHandle >= 3) {
+      if (!IsSystemFd()) {
         close(OsHandle);
       }
     }
@@ -119,6 +119,12 @@ namespace Base {
        Waits for at most the given number of milliseconds for the descriptor to become readable.
        A negative timeout will wait forever. */
     bool IsReadable(int timeout = 0) const;
+
+    /* True iff this is a system fd (stdin, stdout, stderr) */
+    bool IsSystemFd() const {
+      assert(this);
+      return OsHandle < 3;
+    }
 
     /* Returns the naked file desciptor, which may be -1, and returns to the default-constructed state.  This is how to get the naked file desciptor
        away from the object without the object attempting to close it. */
