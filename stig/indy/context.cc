@@ -81,8 +81,8 @@ Indy::TKey TContext::operator[](const Indy::TIndexKey &index_key) {
     const Indy::TPresentWalker::TItem &item = *walker;
     return Indy::TKey(Atom::TCore(GetArena(), alloca(Sabot::State::GetMaxStateSize()), item.OpArena, item.Op), GetArena());
   }
-  /* We probably shouldn't be returning an empty var here... but that's what spa does */
-  //throw std::runtime_error("Key Not Found");
+  /* We return an empty var here because in the case of an optional type being returned, the result is "empty" not a throw.
+     A wrapper promotes empty -> throw if we need to end up as not an optional. */
   return Indy::TKey(Atom::TCore(), nullptr);
 }
 
