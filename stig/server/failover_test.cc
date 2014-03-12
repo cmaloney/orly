@@ -24,7 +24,7 @@
 #include <stig/balancer/failover_test_balancer.h>
 #include <stig/client/client.h>
 #include <stig/compiler.h>
-#include <stig/honcho.h>
+#include <stig/spa/honcho.h>
 
 #include <test/kit.h>
 
@@ -127,7 +127,7 @@ static const char *sample_package = "package #1;"
                                     "};";
 
 FIXTURE(SmallTypical) {
-  Stig::THoncho Honcho;
+  Stig::Spa::THoncho Honcho;
   /* make the path to the server binary */
   stringstream out_path;
   out_path << SRC_ROOT;
@@ -311,7 +311,7 @@ FIXTURE(SmallTypical) {
 #if 0
 FIXTURE(MediumTypical) {
   const int64_t num_iter = 50000L;
-  Stig::THoncho Honcho;
+  Stig::Spa::THoncho Honcho;
   /* make the path to the server binary */
   stringstream out_path;
   out_path << SRC_ROOT;
@@ -516,7 +516,7 @@ FIXTURE(ResyncTypical) {
   const int64_t num_iter = 500L;
   const size_t max_outstanding = 5000UL;
   #endif
-  Stig::THoncho Honcho;
+  Stig::Spa::THoncho Honcho;
   /* make the path to the server binary */
   stringstream out_path;
   //#if 0

@@ -293,7 +293,6 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
 
   //Include for the flux api, stig Rt environment
   out << Eol
-      << "#include <stig/spa/flux_capacitor/rt.h>" << Eol
       << "#include <stig/var/mutation.h>" << Eol
       << Eol
       << "using namespace Stig;" << Eol

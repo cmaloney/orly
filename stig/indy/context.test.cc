@@ -22,7 +22,7 @@
 
 #include <base/scheduler.h>
 #include <stig/compiler.h>
-#include <stig/honcho.h>
+#include <stig/spa/honcho.h>
 #include <stig/indy/disk/sim/mem_engine.h>
 #include <stig/indy/fiber/fiber_test_runner.h>
 #include <stig/server/repo_tetris_manager.h>
@@ -114,7 +114,7 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
       Disk::TLocalWalkerCache::Cache = new Disk::TLocalWalkerCache();
     }
     /* all our RAII scopes */ {
-      Stig::THoncho Honcho;
+      Stig::Spa::THoncho Honcho;
       /* try to compile the binary */
       ofstream package_file;
       package_file.open("/tmp/context.stig");

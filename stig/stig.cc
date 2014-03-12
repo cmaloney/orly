@@ -21,7 +21,7 @@
 #include <base/cmd.h>
 #include <stig/compiler.h>
 #include <stig/error.h>
-#include <stig/honcho.h>
+#include <stig/spa/honcho.h>
 #include <stig/spa/service.h>
 #include <stig/type.h>
 

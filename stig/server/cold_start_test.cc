@@ -23,7 +23,7 @@
 #include <starsha/runner.h>
 #include <stig/client/client.h>
 #include <stig/compiler.h>
-#include <stig/honcho.h>
+#include <stig/spa/honcho.h>
 
 #include <test/kit.h>
 
@@ -121,7 +121,7 @@ static const char *sample_package = "package #1;"
 
 #if 0
 FIXTURE(SmallTypical) {
-  Stig::THoncho Honcho;
+  Stig::Spa::THoncho Honcho;
   /* make the path to the server binary */
   stringstream out_path;
   out_path << SRC_ROOT;
@@ -287,7 +287,7 @@ FIXTURE(SmallTypical) {
 FIXTURE(MediumTypical) {
   const int64_t num_iter = 5000L;
   const size_t max_outstanding = 500L;
-  Stig::THoncho Honcho;
+  Stig::Spa::THoncho Honcho;
   /* make the path to the server binary */
   stringstream out_path;
   out_path << SRC_ROOT;

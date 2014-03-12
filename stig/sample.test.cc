@@ -22,7 +22,7 @@
 
 #include <base/make_dir.h>
 #include <stig/compiler.h>
-#include <stig/honcho.h>
+#include <stig/spa/honcho.h>
 #include <stig/rt/runtime_error.h>
 #include <stig/spa/service.h>
 #include <stig/stig.package.cst.h>

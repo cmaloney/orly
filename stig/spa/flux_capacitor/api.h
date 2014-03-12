@@ -32,16 +32,16 @@
 #include <inv_con/ordered_list.h>
 #include <inv_con/unordered_multimap.h>
 #include <multi_event/multi_event.h>
-#include <stig/any_honcho.h>
+#include <stig/spa/any_honcho.h>
 #include <stig/spa/flux_capacitor/flux_capacitor.h>
 #include <stig/uuid.h>
 
 namespace Stig {
 
-  /* Forward Declaration. */
-  class THoncho;
-
   namespace Spa {
+
+    /* Forward Declaration. */
+    class THoncho;
 
     /* Forward Decl for friendship */
     class TService;
@@ -278,7 +278,7 @@ namespace Stig {
         /* TODO */
         int Interrupt[2];
 
-        friend class ::Stig::THoncho;
+        friend class ::Stig::Spa::THoncho;
 
       };  // TTetristHandler
 

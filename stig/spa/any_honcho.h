@@ -1,4 +1,4 @@
-/* <stig/any_honcho.h>
+/* <stig/spa/any_honcho.h>
 
    Copyright 2010-2014 Stig LLC
 
@@ -37,38 +37,34 @@ namespace Stig {
 
     }  // FluxCapacitor
 
+    class TAnyHoncho {
+      NO_COPY_SEMANTICS(TAnyHoncho);
+      public:
+
+      static TAnyHoncho *GetAnyHoncho();
+
+      virtual ~TAnyHoncho();
+
+      virtual Spa::FluxCapacitor::TStore<Spa::FluxCapacitor::TSessionObj> &GetSessionObjStore() = 0;
+
+      virtual Spa::FluxCapacitor::TStore<Spa::FluxCapacitor::TSharedPovObj> &GetSharedPovObjStore() = 0;
+
+      virtual Spa::FluxCapacitor::TStore<Spa::FluxCapacitor::TPrivatePovObj> &GetPrivatePovObjStore() = 0;
+
+      virtual Spa::FluxCapacitor::TTetrisHandler &GetTetrisHandler() = 0;
+
+      protected:
+
+      TAnyHoncho();
+
+      private:
+
+      static TAnyHoncho *AnyHoncho;
+
+    };  // TAnyHoncho
+
+
   }  // Spa
 
-  namespace Type {
-
-    class TTypeCzar;
-
-  }  // Type
-
-  class TAnyHoncho {
-    NO_COPY_SEMANTICS(TAnyHoncho);
-    public:
-
-    static TAnyHoncho *GetAnyHoncho();
-
-    virtual ~TAnyHoncho();
-
-    virtual Spa::FluxCapacitor::TStore<Spa::FluxCapacitor::TSessionObj> &GetSessionObjStore() = 0;
-
-    virtual Spa::FluxCapacitor::TStore<Spa::FluxCapacitor::TSharedPovObj> &GetSharedPovObjStore() = 0;
-
-    virtual Spa::FluxCapacitor::TStore<Spa::FluxCapacitor::TPrivatePovObj> &GetPrivatePovObjStore() = 0;
-
-    virtual Spa::FluxCapacitor::TTetrisHandler &GetTetrisHandler() = 0;
-
-    protected:
-
-    TAnyHoncho();
-
-    private:
-
-    static TAnyHoncho *AnyHoncho;
-
-  };  // TAnyHoncho
 
 }  // Stig

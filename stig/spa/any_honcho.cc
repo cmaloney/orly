@@ -1,6 +1,6 @@
-/* <stig/any_honcho.cc>
+/* <stig/spa/any_honcho.cc>
 
-   Implements <stig/any_honcho.h>
+   Implements <stig/spa/any_honcho.h>
 
    Copyright 2010-2014 Stig LLC
 
@@ -16,11 +16,11 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <stig/any_honcho.h>
+#include <stig/spa/any_honcho.h>
 
 #include <cassert>
 
-using namespace Stig;
+using namespace Stig::Spa;
 
 TAnyHoncho *TAnyHoncho::AnyHoncho = nullptr;
 

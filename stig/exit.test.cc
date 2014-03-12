@@ -18,7 +18,7 @@
 
 #include <stig/spa/service.h>
 
-#include <stig/honcho.h>
+#include <stig/spa/honcho.h>
 
 #include <test/kit.h>
 

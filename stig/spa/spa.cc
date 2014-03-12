@@ -34,7 +34,7 @@
 #include <base/dir_iter.h>
 #include <base/os_error.h>
 #include <base/zero.h>
-#include <stig/honcho.h>
+#include <stig/spa/honcho.h>
 #include <stig/spa/flux_capacitor/api.h>
 #include <stig/spa/service.h>
 #include <stig/spa/stig_args.h>

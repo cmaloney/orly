@@ -30,7 +30,7 @@
 #include <base/assert_true.h>
 #include <base/dir_iter.h>
 #include <base/os_error.h>
-#include <stig/any_honcho.h>
+#include <stig/spa/any_honcho.h>
 #include <stig/package/rt.h>
 #include <stig/spa/flux_capacitor/api.h>
 #include <stig/spa/checkpoint.h>
