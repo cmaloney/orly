@@ -24,7 +24,7 @@ using namespace Stig::Indy::Fiber;
 
 __thread TRunner *TRunner::LocalRunner = nullptr;
 __thread TFrame *TFrame::LocalFrame = nullptr;
-__thread Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool *TFrame::LocalFramePool = nullptr;
+__thread Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool *TFrame::LocalFramePool = nullptr;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
