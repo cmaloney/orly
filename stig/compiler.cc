@@ -33,7 +33,6 @@
 #include <base/split.h>
 #include <base/source_root.h>
 #include <base/thrower.h>
-#include <base/tmp_filename.h>
 #include <stig/code_gen/package.h>
 #include <stig/stig.package.cst.h>
 #include <stig/synth/package.h>
