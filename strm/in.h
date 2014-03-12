@@ -20,7 +20,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <stdexcept>
 
 #include <base/no_copy_semantics.h>
 #include <strm/past_end.h>
