@@ -24,7 +24,6 @@
 #include <memory>
 #include <sstream>
 
-#include <stig/spa/error.h>
 #include <base/assert_true.h>
 #include <base/os_error.h>
 #include <base/thrower.h>
