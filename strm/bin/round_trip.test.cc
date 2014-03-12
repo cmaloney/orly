@@ -62,7 +62,7 @@ struct For<TElem[Size]> final {
    true iff. the value comes back intact. */
 template <typename TVal>
 static bool RoundTrip(const TVal &expected) {
-  Mem::TDefStaticOut cons;
+  Mem::TStaticOutDefault cons;
   /* extra */ {
     Bin::TOut strm(&cons);
     strm << expected;
@@ -86,7 +86,7 @@ template <
     >::type
 >
 static bool RoundTripNbo(TVal expected) {
-  Mem::TDefStaticOut cons;
+  Mem::TStaticOutDefault cons;
   /* extra */ {
     Bin::TOut strm(&cons);
     strm << Bin::Nbo(expected);

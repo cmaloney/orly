@@ -30,7 +30,7 @@ namespace Strm {
     /* A static in-memory buffer which acts as a destination for out-flowing
        data.  The object contains the workspace itself.  It doesn't do any
        heap allocation. */
-    template <size_t MaxSize_>
+    template <size_t MaxSize_=0x10000>
     class TStaticOut final
         : public Out::TCons {
       public:
@@ -98,7 +98,7 @@ namespace Strm {
     };  // TStaticOut<MaxSize>
 
     /* The default static output consumer holds up to 64K. */
-    using TDefStaticOut = TStaticOut<0x10000>;
+    using TStaticOutDefault = TStaticOut<>;
 
   }  // Mem
 

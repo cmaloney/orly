@@ -44,7 +44,7 @@ namespace Strm {
          attached.  Destroy the consumer first. */
       virtual ~TProd();
 
-      /* Called by our producer when it wants to get a new workspace and/or
+      /* Called by our consumer when it wants to get a new workspace and/or
          give us back a previous workspace.  The 'release_count' indicates the
          number of workspaces, starting with the oldest, that the consumer is
          now done with.  We are free to reclaim these and the consumer will
@@ -61,7 +61,8 @@ namespace Strm {
          the producer will call Cycle() again in the future, giving us back
          this workspace so we may reclaim it.  If 'start' and 'limit' are null,
          then the consumer doesn't want any additional data and we should just
-         return false.  In this case, we should definitely not throw. */
+         return false, which causes the client to never call back again.  In
+         this case, we should definitely not throw. */
       virtual bool Cycle(
           size_t release_count, const char **start, const char **limit) = 0;
 
