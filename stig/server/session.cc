@@ -144,7 +144,6 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
   Indy::Fiber::SwitchTo(server->FastRunnerVec[prev_assignment_count % server->FastRunnerVec.size()].get());
   //printf("TSession::Try() B cpu[%d]\n", sched_getcpu());
   TCore result_core;
-  bool result_is_error;
   Base::TTimer timer;
   //Base::TCPUTimer cpu_timer;
   //Base::TCPUTimer call_cpu_timer;
@@ -248,7 +247,6 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
       transaction->CommitAction();
     }
     //result_core = TCore(&result_arena, Sabot::State::TAny::TWrapper(Var::NewSabot(state_alloc_1, result)).get());
-    result_is_error = false;
     walker_count = context.GetWalkerCount();
     //cpu_timer.Stop();
     timer.Stop();
@@ -276,7 +274,7 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
     //std::cout << "Result = " << Indy::TKey(result_core, indy_context.GetArena()) << std::endl;
     Indy::Fiber::SwitchTo(return_to_runner);
     //printf("TSession::Try() C cpu[%d]\n", sched_getcpu());
-    return TMethodResult(indy_context.GetArena(), result_core, tracker, result_is_error);
+    return TMethodResult(indy_context.GetArena(), result_core, tracker);
   } catch (const exception &ex) {
     /* if we haven't switched back to the original runner yet, do so now before throwing */
     if (Indy::Fiber::TRunner::LocalRunner != return_to_runner) {
