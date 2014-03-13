@@ -27,6 +27,9 @@
 
 namespace Base {
 
+  /* Deletes the given file (unlink it from the filesystem) */
+  void Delete(const char *path);
+
   /* Ensure that the given directory exists.  If any part of it doesn't exist,
      create it with the given protection mask.  Parts that already exist we
      just leave alone. */

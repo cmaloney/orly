@@ -30,6 +30,10 @@
 using namespace std;
 using namespace Base;
 
+void Base::Delete(const char *path) {
+  IfLt0(unlink(path));
+}
+
 void Base::EnsureDirExists(const char *path, mode_t mode) {
   EnsureDirExists(path, false, mode);
 }
