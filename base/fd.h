@@ -123,7 +123,7 @@ namespace Base {
     /* True iff this is a system fd (stdin, stdout, stderr) */
     bool IsSystemFd() const {
       assert(this);
-      return OsHandle < 3;
+      return OsHandle < 3 && OsHandle >= 0;
     }
 
     /* Returns the naked file desciptor, which may be -1, and returns to the default-constructed state.  This is how to get the naked file desciptor
