@@ -218,8 +218,6 @@ namespace Stig {
       /* Stream out. */
       virtual void Write(Io::TBinaryOutputStream &strm) const override;
 
-      private:
-
       /* Add the given pov to the collection of povs we'll keep open. */
       void AddPov(const Durable::TPtr<TPov> &pov);
 
