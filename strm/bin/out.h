@@ -351,6 +351,8 @@ namespace Strm {
         return *this;
       }
 
+      using TOut::TProd::Write;
+
       /* Write the number of elements in the array as an unsigned var-int,
          followed by the elements themselves, each inserted as per the
          appropriate overload of operator<<. */
