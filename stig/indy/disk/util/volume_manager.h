@@ -433,11 +433,12 @@ namespace Stig {
             }
             #endif
 
-            static inline void InitializeDiskEventPoolManager(size_t num_event_obj) {
+            static inline size_t InitializeDiskEventPoolManager(size_t num_event_obj) {
               if (!DiskEventPoolManager) {
                 DiskEventPoolManager = std::unique_ptr<Base::TThreadLocalGlobalPoolManager<Indy::Disk::Util::TDiskController::TEvent>>(
                   new Base::TThreadLocalGlobalPoolManager<Indy::Disk::Util::TDiskController::TEvent>(num_event_obj));
               }
+              return num_event_obj * sizeof(Indy::Disk::Util::TDiskController::TEvent);
             }
 
             static inline void FinalizeDiskEventPoolManager() {
