@@ -22,6 +22,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstring>
 #include <ostream>
 
 /* Use this macro to represent the current location in the code.
@@ -56,6 +57,11 @@ namespace Base {
         : File(file), LineNumber(line_number) {
       assert(file);
       assert(line_number);
+    }
+
+    /* Return true if these code locations are equal */
+    bool operator==(const TCodeLocation &that) const {
+      return LineNumber == that.LineNumber && strcmp(File, that.File) == 0;
     }
 
     /* Returns the file.  Never returns null. */
@@ -95,3 +101,24 @@ namespace Base {
   }
 
 }  // Base
+
+namespace std {
+
+  template <>
+  struct hash<Base::TCodeLocation> {
+
+    typedef size_t result_type;
+
+    typedef Base::TCodeLocation argument_type;
+
+    result_type operator()(const argument_type &that) const {
+      assert(&that);
+      const char *const file = that.GetFile();
+      const size_t len = strlen(file);
+      return _Hash_impl::hash(file, len) ^ that.GetLineNumber();
+    }
+
+  };  // hash<Base::TCodeLocation>
+
+}  // std
+
