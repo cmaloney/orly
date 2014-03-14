@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <base/thread_local_registered_pool.h>
+#include <base/thread_local_global_pool.h>
 #include <stig/indy/fiber/fiber.h>
 
 namespace Stig {
@@ -34,22 +34,21 @@ namespace Stig {
         TFiberTestRunner(const std::function<void (std::mutex &, std::condition_variable &, bool &, TRunner::TRunnerCons &)> &test, size_t extra_runners = 0)
             : Test(test), RunnerCons(1UL + extra_runners), Fin(false) {
           const size_t stack_size = 8 * 1024UL * 1024UL;
-          const size_t num_frames = 20UL;
-          Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *> frame_pool_manager;
           TRunner runner(RunnerCons);
+          Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> frame_pool_manager(30UL, stack_size, &runner);
           if (!TFrame::LocalFramePool) {
-            TFrame::LocalFramePool = new Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool(&frame_pool_manager, 10UL, stack_size, &runner);
+            TFrame::LocalFramePool = new Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(&frame_pool_manager);
           }
-          auto launch_fiber_sched = [](size_t num_frames, size_t stack_size, TRunner *runner, Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *> *frame_pool_manager) {
+          auto launch_fiber_sched = [](TRunner *runner, Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> *frame_pool_manager) {
             if (!TFrame::LocalFramePool) {
-              TFrame::LocalFramePool = new Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool(frame_pool_manager, num_frames, stack_size, runner);
+              TFrame::LocalFramePool = new Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(frame_pool_manager);
             }
             runner->Run();
             delete TFrame::LocalFramePool;
             TFrame::LocalFramePool = nullptr;
           };
 
-          std::thread t1(std::bind(launch_fiber_sched, num_frames, stack_size, &runner, &frame_pool_manager));
+          std::thread t1(std::bind(launch_fiber_sched, &runner, &frame_pool_manager));
           TFrame *frame = TFrame::LocalFramePool->Alloc();
           try {
             frame->Latch(&runner, this, static_cast<TRunnable::TFunc>(&TFiberTestRunner::Run));
