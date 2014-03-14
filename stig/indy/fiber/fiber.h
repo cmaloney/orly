@@ -234,6 +234,7 @@ namespace Stig {
         /* TODO */
         ~TRunner() {
           assert(this);
+          RunnerArray[RunnerId] = nullptr;
           delete[] QueueArray;
         }
 
