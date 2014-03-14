@@ -43,8 +43,8 @@ using namespace std;
 using namespace Base;
 using namespace Stig::Indy::Disk::Util;
 
-Base::TThreadLocalPoolManager<TDiskController::TEvent> TDiskController::TEvent::DiskEventPoolManager;
-__thread Base::TThreadLocalPoolManager<TDiskController::TEvent>::TThreadLocalRegisteredPool *TDiskController::TEvent::LocalEventPool = nullptr;
+std::unique_ptr<Base::TThreadLocalGlobalPoolManager<TDiskController::TEvent>> TDiskController::TEvent::DiskEventPoolManager;
+__thread Base::TThreadLocalGlobalPoolManager<TDiskController::TEvent>::TThreadLocalPool *TDiskController::TEvent::LocalEventPool = nullptr;
 
 namespace Stig {
 
@@ -552,7 +552,7 @@ void TDiskController::QueueRunner(std::vector<TPersistentDevice *> device_vec, b
 }
 
 void TDiskController::TEvent::Init(TPersistentDevice *device,
-                                   Base::TThreadLocalPoolManager<TEvent>::TThreadLocalRegisteredPool *pool,
+                                   Base::TThreadLocalGlobalPoolManager<TEvent>::TThreadLocalPool *pool,
                                    const Base::TCodeLocation &code_location /* DEBUG */,
                                    TKind kind,
                                    DiskPriority priority,
@@ -593,7 +593,7 @@ void TDiskController::TEvent::Init(TPersistentDevice *device,
 }
 
 void TDiskController::TEvent::Init(TPersistentDevice *device,
-                                   Base::TThreadLocalPoolManager<TEvent>::TThreadLocalRegisteredPool *pool,
+                                   Base::TThreadLocalGlobalPoolManager<TEvent>::TThreadLocalPool *pool,
                                    const Base::TCodeLocation &code_location /* DEBUG */,
                                    TKind kind,
                                    DiskPriority priority,
@@ -642,7 +642,7 @@ void TDiskController::TEvent::Init(TPersistentDevice *device,
 }
 
 void TDiskController::TEvent::Init(TPersistentDevice *device,
-                                   Base::TThreadLocalPoolManager<TEvent>::TThreadLocalRegisteredPool *pool,
+                                   Base::TThreadLocalGlobalPoolManager<TEvent>::TThreadLocalPool *pool,
                                    const Base::TCodeLocation &code_location /* DEBUG */,
                                    TKind kind,
                                    DiskPriority priority,
@@ -683,7 +683,7 @@ void TDiskController::TEvent::Init(TPersistentDevice *device,
 }
 
 void TDiskController::TEvent::Init(TPersistentDevice *device,
-                                   Base::TThreadLocalPoolManager<TEvent>::TThreadLocalRegisteredPool *pool,
+                                   Base::TThreadLocalGlobalPoolManager<TEvent>::TThreadLocalPool *pool,
                                    const Base::TCodeLocation &code_location /* DEBUG */,
                                    TKind kind,
                                    DiskPriority priority,
