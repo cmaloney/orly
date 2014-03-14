@@ -748,13 +748,28 @@ namespace Stig {
         }
 
         /* TODO */
+        static constexpr size_t GetMappingSize() {
+          return sizeof(TRepo::TMapping);
+        }
+
+        /* TODO */
         static void InitMappingEntryPool(size_t num_obj) {
           TRepo::TMapping::TEntry::Pool.Init(num_obj);
         }
 
         /* TODO */
+        static constexpr size_t GetMappingEntrySize() {
+          return sizeof(TRepo::TMapping::TEntry);
+        }
+
+        /* TODO */
         static void InitDataLayerPool(size_t num_obj) {
           TRepo::TDataLayer::Pool.Init(num_obj);
+        }
+
+        /* TODO */
+        static constexpr size_t GetDataLayerSize() {
+          return sizeof(TRepo::TDataLayer);
         }
 
         Base::TSigmaCalc MergeMemAverageKeysCalc;

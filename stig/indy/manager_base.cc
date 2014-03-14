@@ -280,7 +280,7 @@ void TManager::RunLayerCleaner() {
   if (Engine->IsDiskBased()) {
     /* if this is a disk based engine, allocate event pools */
     assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
-    Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalRegisteredPool(&Disk::Util::TDiskController::TEvent::DiskEventPoolManager, 1000UL);
+    Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
   for (;;) {
     LayerCleanerTimer.Pop();
@@ -300,7 +300,7 @@ void TManager::RunMergeMem() {
   if (Engine->IsDiskBased()) {
     /* if this is a disk based engine, allocate event pools */
     assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
-    Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalRegisteredPool(&Disk::Util::TDiskController::TEvent::DiskEventPoolManager, 10000UL);
+    Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
   int timeout = -1;
   Base::TTime deadline;
@@ -379,7 +379,7 @@ void TManager::RunMergeDisk() {
   if (Engine->IsDiskBased()) {
     /* if this is a disk based engine, allocate event pools */
     assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
-    Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalRegisteredPool(&Disk::Util::TDiskController::TEvent::DiskEventPoolManager, 10000UL);
+    Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
   int timeout = -1;
   Base::TTime deadline;
