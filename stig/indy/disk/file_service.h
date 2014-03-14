@@ -63,7 +63,7 @@ namespace Stig {
         /* TODO */
         TFileService(Base::TScheduler *scheduler,
                      Fiber::TRunner::TRunnerCons &runner_cons,
-                     Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
+                     Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
                      Util::TVolumeManager *vol_man,
                      size_t image_1_block_id,
                      size_t image_2_block_id,

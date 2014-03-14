@@ -52,9 +52,10 @@ void TestFileServiceRestart(size_t num_append_log_blocks,
                             const std::function<void (Util::TVolumeManager *vol_man, size_t image_1_block, size_t image_2_block, const std::vector<size_t> &append_log_block_vec)> &downtime_cb,
                             const std::function<void (TFileService &)> &cold_image_cb,
                             const std::function<void (const std::exception &ex, size_t phase)> &err_cb) {
+  Util::TDiskController::TEvent::InitializeDiskEventPoolManager(1000UL);
   Stig::Indy::Fiber::TFiberTestRunner runner([&](std::mutex &mut, std::condition_variable &cond, bool &fin, Stig::Indy::Fiber::TRunner::TRunnerCons &runner_cons) {
     TScheduler scheduler(TScheduler::TPolicy(4, 4, milliseconds(10)));
-    Base::TThreadLocalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager = Stig::Indy::Fiber::TFrame::LocalFramePool->GetPoolManager();
+    Base::TThreadLocalGlobalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager = Stig::Indy::Fiber::TFrame::LocalFramePool->GetPoolManager();
 
     Util::TCacheCb cache_cb = [](Util::TCacheInstr, const Util::TOffset , void *, size_t ) {};
     std::unique_ptr<Util::TMemoryDevice> mem_device(new Util::TMemoryDevice(512, 512, 262144, true /* fsync */, true));
@@ -113,6 +114,7 @@ void TestFileServiceRestart(size_t num_append_log_blocks,
     fin = true;
     cond.notify_one();
   }, 2);
+  Util::TDiskController::TEvent::FinalizeDiskEventPoolManager();
 }
 
 void CleanImageCbInsertOnly(const Base::TUuid &file_uid, size_t num_files, TFileService &fs) {

@@ -33,7 +33,7 @@ using namespace Stig::Indy::Disk;
 
 TFileService::TFileService(Base::TScheduler *scheduler,
                            Fiber::TRunner::TRunnerCons &runner_cons,
-                           Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
+                           Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
                            Util::TVolumeManager *vol_man,
                            size_t image_1_block_id,
                            size_t image_2_block_id,
@@ -416,7 +416,7 @@ void TFileService::Runner() {
   assert(Util::PhysicalBlockSize >= Util::PhysicalSectorSize);
   /* allocate event pools */
   if (!Disk::Util::TDiskController::TEvent::LocalEventPool) {
-    Disk::Util::TDiskController::TEvent::LocalEventPool = new Base::TThreadLocalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalRegisteredPool(&Disk::Util::TDiskController::TEvent::DiskEventPoolManager, 1000UL);
+    Disk::Util::TDiskController::TEvent::LocalEventPool = new Base::TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
   std::vector<size_t> ring_offset_vec;
   for (size_t i = 0; i < NumAppendLogSectors; ++i) {
