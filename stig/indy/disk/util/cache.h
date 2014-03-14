@@ -242,8 +242,10 @@ namespace Stig {
             ReadWait.tv_sec = 0;
             ReadWait.tv_nsec = 25000L;
             SlotArray = new TSlot[NumSlots];
+            Base::IfLt0(mlock(SlotArray, NumSlots * sizeof(TSlot)));
             try {
               LRUArray = new TLRU[NumLRU];
+              Base::IfLt0(mlock(LRUArray, NumLRU * sizeof(TLRU)));
               try {
                 assert(PageSize >= static_cast<size_t>(getpagesize()));
                 assert(PageSize % getpagesize() == 0);
