@@ -166,14 +166,14 @@ namespace Stig {
 
         /* The fiber frame used to run our logic. */
         Indy::Fiber::TFrame *TetrisFrame;
-        Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalRegisteredPool *FramePool;
+        Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalPool *FramePool;
 
       };  // TTetrisManager::TPlayer
 
       /* Caches the pointer to the scheduler. */
       TTetrisManager(Base::TScheduler *scheduler,
                      Indy::Fiber::TRunner::TRunnerCons &runner_cons,
-                     Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
+                     Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
                      const std::function<void (Indy::Fiber::TRunner *)> &runner_setup_cb,
                      bool is_master);
 
@@ -199,7 +199,7 @@ namespace Stig {
       /* The Fiber Runners we use when launching tetris players. */
       Indy::Fiber::TRunner FiberScheduler;
       std::unique_ptr<std::thread> FiberThread;
-      Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalRegisteredPool *FramePool;
+      Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalPool *FramePool;
 
       /* Covers 'Players' and 'PausedSet', below. */
       //mutable std::mutex Mutex;

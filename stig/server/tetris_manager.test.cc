@@ -187,7 +187,7 @@ class TTetrisManager final
   /* Do-little. */
   TTetrisManager(TScheduler *scheduler,
                  Stig::Indy::Fiber::TRunner::TRunnerCons &runner_cons,
-                 Base::TThreadLocalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager,
+                 Base::TThreadLocalGlobalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager,
                  const std::function<void (TRunner *)> &runner_setup_cb,
                  bool is_master = true)
       : Stig::Server::TTetrisManager(scheduler, runner_cons, frame_pool_manager, runner_setup_cb, is_master) {
@@ -316,22 +316,22 @@ class TTetrisManager final
 
 FIXTURE(Typical) {
   const size_t stack_size = 1024UL * 1024UL;
-  const size_t num_frames = 20UL;
-  Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *> frame_pool_manager;
   TRunner::TRunnerCons runner_cons(2);
   TRunner runner(runner_cons);
+  Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> frame_pool_manager(30UL, stack_size, &runner);
   if (!TFrame::LocalFramePool) {
-    TFrame::LocalFramePool = new Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool(&frame_pool_manager, 10UL, stack_size, &runner);
+    TFrame::LocalFramePool = new Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(&frame_pool_manager);
   }
-  auto launch_fiber_sched = [](size_t num_frames, size_t stack_size, TRunner *runner, Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *> *frame_pool_manager) {
+  auto launch_fiber_sched = [](TRunner *runner, Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> *frame_pool_manager) {
     if (!TFrame::LocalFramePool) {
-      TFrame::LocalFramePool = new TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool(frame_pool_manager, num_frames, stack_size, runner);
+      TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(frame_pool_manager);
     }
     runner->Run();
     delete TFrame::LocalFramePool;
+    TFrame::LocalFramePool = nullptr;
   };
 
-  std::thread t1(std::bind(launch_fiber_sched, num_frames, stack_size, &runner, &frame_pool_manager));
+  std::thread t1(std::bind(launch_fiber_sched, &runner, &frame_pool_manager));
 
   class TTest : public TRunnable {
     NO_COPY_SEMANTICS(TTest);
@@ -339,7 +339,7 @@ FIXTURE(Typical) {
 
     TTest(TRunner *runner,
           TRunner::TRunnerCons &runner_cons,
-          Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *> *frame_pool_manager,
+          Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> *frame_pool_manager,
           std::mutex &mut,
           std::condition_variable &cond,
           bool &finished)
@@ -396,12 +396,13 @@ FIXTURE(Typical) {
       assert(!Finished);
       Finished = true;
       Cond.notify_one();
+      Indy::Fiber::FreeMyFrame(TFrame::LocalFramePool);
     }
 
     private:
 
     TRunner::TRunnerCons &RunnerCons;
-    Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *> *FramePoolManager;
+    Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> *FramePoolManager;
 
     std::mutex &Mutex;
     std::condition_variable &Cond;

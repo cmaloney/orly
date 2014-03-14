@@ -254,16 +254,16 @@ void TTetrisManager::TPlayer::BecomeMaster() {
 
 TTetrisManager::TTetrisManager(Base::TScheduler *scheduler,
                                Stig::Indy::Fiber::TRunner::TRunnerCons &runner_cons,
-                               Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
+                               Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
                                const std::function<void (Indy::Fiber::TRunner *)> &runner_setup_cb,
                                bool is_master)
     : Scheduler(scheduler), FiberScheduler(runner_cons), IsMaster(is_master) {
   assert(scheduler);
   Base::TEventSemaphore setup_is_complete;
   auto launch_sched = [this, runner_setup_cb, &setup_is_complete](Fiber::TRunner *runner,
-                                                                  Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager) {
+                                                                  Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager) {
     if (!Fiber::TFrame::LocalFramePool) {
-      Fiber::TFrame::LocalFramePool = new Base::TThreadLocalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalRegisteredPool(frame_pool_manager, 1UL, 8 * 1024 * 1024, runner);
+      Fiber::TFrame::LocalFramePool = new Base::TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(frame_pool_manager);
       FramePool = Fiber::TFrame::LocalFramePool;
     }
     runner_setup_cb(runner);
