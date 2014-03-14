@@ -346,8 +346,18 @@ namespace Stig {
         }
 
         /* TODO */
+        static constexpr size_t GetTransactionSize() {
+          return sizeof(TTransaction);
+        }
+
+        /* TODO */
         static void InitTransactionMutationPool(size_t num_obj) {
           TMutation::Pool.Init(num_obj);
+        }
+
+        /* TODO */
+        static constexpr size_t GetTransactionMutationSize() {
+          return sizeof(TMutation);
         }
 
         private:
