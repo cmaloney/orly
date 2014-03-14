@@ -24,6 +24,7 @@
 
 #include <syslog.h>
 
+#include <base/assert_true.h>
 #include <base/likely.h>
 #include <base/no_copy_semantics.h>
 #include <base/spin_lock.h>
@@ -74,7 +75,7 @@ namespace Base {
 
       /* TODO */
       TThreadLocalPool(TThreadLocalGlobalPoolManager *manager)
-          : FreeQueue(nullptr), AvailableQueue(nullptr), Manager(manager), ManagerMembership(this, &manager->PoolCollection) {
+          : FreeQueue(nullptr), AvailableQueue(nullptr), Manager(manager), ManagerMembership(this, &Base::AssertTrue(manager)->PoolCollection) {
         assert(manager);
       }
 
