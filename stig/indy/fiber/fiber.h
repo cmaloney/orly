@@ -29,10 +29,12 @@
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
 #include <syslog.h>
 #include <ucontext.h>
 
 #include <base/assert_true.h>
+#include <base/error_utils.h>
 #include <base/likely.h>
 #include <base/no_copy_semantics.h>
 #include <base/spin_lock.h>
@@ -79,6 +81,7 @@ namespace Stig {
       inline void create_fiber(fiber_t &fib, void(*ufnc)(void *), void *uctx, size_t stack_size) {
         getcontext(&fib.fib);
         fib.fib.uc_stack.ss_sp = malloc(stack_size);
+        Base::IfLt0(mlock(fib.fib.uc_stack.ss_sp, stack_size));
         //printf("ss_sp=[%p], [%p]\n", fib.fib.uc_stack.ss_sp, reinterpret_cast<uint8_t *>(fib.fib.uc_stack.ss_sp) + stack_size);
         fib.fib.uc_stack.ss_size = stack_size;
         fib.fib.uc_link = 0;
