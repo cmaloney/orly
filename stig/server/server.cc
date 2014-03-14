@@ -58,6 +58,9 @@ static const size_t BlockSize = Disk::Util::PhysicalBlockSize;
 //static const size_t StackSize = 8 * 1024 * 1024;
 static const size_t StackSize = 1 * 1024 * 1024;
 
+std::atomic<size_t> Stig::Indy::Util::TotalSorterBytesAllocated;
+std::atomic<size_t> Stig::Indy::Util::MaxSorterBytesAllocated;
+
 Stig::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::Pool(sizeof(Disk::TDurableManager::TMapping), "Durable Mapping");
 Stig::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::TEntry::Pool(sizeof(Disk::TDurableManager::TMapping::TEntry), "Durable Mapping Entry");
 Stig::Indy::Util::TPool Disk::TDurableManager::TDurableLayer::Pool(std::max(sizeof(Disk::TDurableManager::TMemSlushLayer), sizeof(Disk::TDurableManager::TDiskOrderedLayer)), "Durable Layer");
@@ -210,23 +213,23 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The maximum number of unused repos that can be held in memory."
   );
   Param(
-      &TCmd::FastCoreVec, "fast_cores", Required, "fast_cores\0",
+      &TCmd::FastCoreVec, "fast_cores", Optional, "fast_cores\0",
       "The cores which will be pinned by the fast non-blocking schedulers."
   );
   Param(
-      &TCmd::SlowCoreVec, "slow_cores", Required, "slow_cores\0",
+      &TCmd::SlowCoreVec, "slow_cores", Optional, "slow_cores\0",
       "The cores which will be pinned by the slow blocking schedulers."
   );
   Param(
-      &TCmd::DiskControllerCoreVec, "disk_controller_cores", Required, "disk_controller_cores\0",
+      &TCmd::DiskControllerCoreVec, "disk_controller_cores", Optional, "disk_controller_cores\0",
       "The cores which will be pinned by the disk controllers."
   );
   Param(
-      &TCmd::MemMergeCoreVec, "mem_merge_cores", Required, "mem_merge_cores\0",
+      &TCmd::MemMergeCoreVec, "mem_merge_cores", Optional, "mem_merge_cores\0",
       "The cores which will be pinned by the memory mergers."
   );
   Param(
-      &TCmd::DiskMergeCoreVec, "disk_merge_cores", Required, "disk_merge_cores\0",
+      &TCmd::DiskMergeCoreVec, "disk_merge_cores", Optional, "disk_merge_cores\0",
       "The cores which will be pinned by the disk mergers."
   );
   Param(
@@ -360,8 +363,8 @@ TServer::TCmd::TCmd()
       MemorySimMB(1024),
       MemorySimSlowMB(512),
       TempFileConsolidationThreshold(20),
-      PageCacheSizeMB(2048),
-      BlockCacheSizeMB(512),
+      PageCacheSizeMB(1024),
+      BlockCacheSizeMB(256),
       FileServiceAppendLogMB(4),
       DiskMaxAioNum(65024),
       HighDiskUtilizationThreshold(0.9),
@@ -384,16 +387,209 @@ TServer::TCmd::TCmd()
       DurableMappingPoolSize(1000UL),
       DurableMappingEntryPoolSize(10000UL),
       DurableLayerPoolSize(2000UL),
-      DurableMemEntryPoolSize(500000UL),
-      RepoMappingPoolSize(50000UL),
-      RepoMappingEntryPoolSize(500000UL),
-      RepoDataLayerPoolSize(50000UL),
-      TransactionMutationPoolSize(15000UL),
-      TransactionPoolSize(5000UL),
-      UpdatePoolSize(1000000UL),
-      UpdateEntryPoolSize(2000000UL),
+      DurableMemEntryPoolSize(50000UL),
+      RepoMappingPoolSize(5000UL),
+      RepoMappingEntryPoolSize(50000UL),
+      RepoDataLayerPoolSize(5000UL),
+      TransactionMutationPoolSize(1500UL),
+      TransactionPoolSize(500UL),
+      UpdatePoolSize(100000UL),
+      UpdateEntryPoolSize(200000UL),
       DiskBufferBlockPoolSize(20000UL),
-      PackageDirectory("") {}
+      PackageDirectory("") {
+  /* TEMP DEBUG : computing defaults for settings */ {
+    std::stringstream ss;
+    ss << "============================" << endl
+      << "===== DEFAULT SETTINGS =====" << endl
+      << "============================" << endl;
+    const size_t page_size = getpagesize();
+    constexpr size_t mb = 1024 * 1024;
+    int num_phys_page = sysconf(_SC_PHYS_PAGES);
+    int num_avail_page = sysconf(_SC_AVPHYS_PAGES);
+    int num_conf_proc = sysconf(_SC_NPROCESSORS_CONF);
+    int num_proc = sysconf(_SC_NPROCESSORS_ONLN);
+    /* now we hard-code to a 2 core, 4GB machine for minimum testing purposes */
+    num_avail_page = mb / page_size * 4096;
+    num_proc = 8;
+    ss << "PageSize = [" << page_size << "]" << endl
+      << "MB on system = [" << ((num_phys_page * page_size) / mb) << "]" << endl
+      << "MB available on system = [" << ((num_avail_page * page_size) / mb) << "]" << endl
+      << "num processors on system = [" << num_conf_proc << "]" << endl
+      << "num processors available on system = [" << num_proc << "]" << endl;
+    const size_t bytes_alloted = num_avail_page * page_size;
+    int64_t bytes_available = bytes_alloted;
+    /* now we take a 25% hair-cut for further dynamic allocation */
+    const size_t br_dynamic_alloc = bytes_available * 0.25;
+    bytes_available -= br_dynamic_alloc;
+    /* Disk Buffer Block pool */
+    const size_t br_buffer_block_pool = DiskBufferBlockPoolSize * Disk::Util::PhysicalBlockSize;
+    bytes_available -= br_buffer_block_pool;
+    /* Update Entry pool */
+    const size_t br_update_entry_pool = UpdateEntryPoolSize * sizeof(TUpdate::TEntry);
+    bytes_available -= br_update_entry_pool;
+    /* Update pool */
+    const size_t br_update_pool = UpdatePoolSize * sizeof(TUpdate);
+    bytes_available -= br_update_pool;
+    /* Transaction pool */
+    const size_t br_transaction_pool = TransactionPoolSize * L1::TTransaction::GetTransactionSize();
+    bytes_available -= br_transaction_pool;
+    /* Transaction Mutation pool */
+    const size_t br_transaction_mutation_pool = TransactionMutationPoolSize * L1::TTransaction::GetTransactionMutationSize();
+    bytes_available -= br_transaction_mutation_pool;
+    /* Repo Data Layer pool */
+    const size_t br_repo_data_layer_pool = RepoDataLayerPoolSize * Indy::TManager::GetDataLayerSize();
+    bytes_available -= br_repo_data_layer_pool;
+    /* Repo Mapping Entry pool */
+    const size_t br_repo_mapping_entry_pool = RepoMappingEntryPoolSize * Indy::TManager::GetMappingEntrySize();
+    bytes_available -= br_repo_mapping_entry_pool;
+    /* Repo Mapping pool */
+    const size_t br_repo_mapping_pool = RepoMappingPoolSize * Indy::TManager::GetMappingSize();
+    bytes_available -= br_repo_mapping_pool;
+    /* Durable Mem Entry pool */
+    const size_t br_durable_mem_entry_pool = DurableMemEntryPoolSize * Disk::TDurableManager::GetMemEntrySize();
+    bytes_available -= br_durable_mem_entry_pool;
+    /* Durable Layer pool */
+    const size_t br_durable_layer_pool = DurableLayerPoolSize * Disk::TDurableManager::GetDurableLayerSize();
+    bytes_available -= br_durable_layer_pool;
+    /* Durable Mapping Entry pool */
+    const size_t br_durable_mapping_entry_pool = DurableMappingEntryPoolSize * Disk::TDurableManager::GetMappingEntrySize();
+    bytes_available -= br_durable_mapping_entry_pool;
+    /* Durable Mapping pool */
+    const size_t br_durable_mapping_pool = DurableMappingPoolSize * Disk::TDurableManager::GetMappingSize();
+    bytes_available -= br_durable_mapping_pool;
+    /* Repo Cache */
+    const size_t br_repo_cache = MaxRepoCacheSize * sizeof(Indy::TManager::TRepo);
+    bytes_available -= br_repo_cache;
+    /* File Service Append Log */
+    const size_t br_file_service_append_log = FileServiceAppendLogMB * mb;
+    bytes_available -= br_file_service_append_log;
+    /* Block Cache */
+    const size_t br_block_cache = BlockCacheSizeMB * mb;
+    bytes_available -= br_block_cache;
+    /* Page Cache */
+    const size_t br_page_cache = PageCacheSizeMB * mb;
+    bytes_available -= br_page_cache;
+    /* Durable Cache pool */
+    const size_t br_durable_cache = DurableCacheSize * std::max(sizeof(TPov), sizeof(TSession));
+    bytes_available -= br_durable_cache;
+    /* Fast Memory Sim */
+    const size_t br_fast_memory_sim = MemorySim ? MemorySimMB * mb : 0UL;
+    bytes_available -= br_fast_memory_sim;
+    /* Slow Memory Sim */
+    const size_t br_slow_memory_sim = MemorySim ? MemorySimSlowMB * mb : 0UL;
+    bytes_available -= br_slow_memory_sim;
+
+    /* Fast Core Vector */
+    if (num_proc < 2) {
+      syslog(LOG_ERR, "Indy is not supported on single processor machines");
+    } else if (num_proc >= 64) {
+      for (size_t i = 0; i < 12; ++i) {SlowCoreVec.emplace_back(i);}
+      for (size_t i = 32; i < 44; ++i) {SlowCoreVec.emplace_back(i);}
+      for (size_t i = 12; i < 16; ++i) {
+        MemMergeCoreVec.emplace_back(i);
+        DiskMergeCoreVec.emplace_back(i);
+      }
+      for (size_t i = 44; i < 48; ++i) {
+        MemMergeCoreVec.emplace_back(i);
+        DiskMergeCoreVec.emplace_back(i);
+      }
+
+      DiskControllerCoreVec.emplace_back(16UL);
+      DiskControllerCoreVec.emplace_back(48UL);
+      for (size_t i = 17; i < 32; ++i) {FastCoreVec.emplace_back(i);}
+      for (size_t i = 49; i < 64; ++i) {FastCoreVec.emplace_back(i);}
+    } else if (num_proc >= 32) {
+      for (size_t i = 0; i < 6; ++i) {SlowCoreVec.emplace_back(i);}
+      for (size_t i = 16; i < 24; ++i) {SlowCoreVec.emplace_back(i);}
+      for (size_t i = 6; i < 8; ++i) {
+        MemMergeCoreVec.emplace_back(i);
+        DiskMergeCoreVec.emplace_back(i);
+      }
+      for (size_t i = 22; i < 24; ++i) {
+        MemMergeCoreVec.emplace_back(i);
+        DiskMergeCoreVec.emplace_back(i);
+      }
+
+      DiskControllerCoreVec.emplace_back(8UL);
+      DiskControllerCoreVec.emplace_back(24UL);
+      for (size_t i = 9; i < 16; ++i) {FastCoreVec.emplace_back(i);}
+      for (size_t i = 25; i < 32; ++i) {FastCoreVec.emplace_back(i);}
+    } else if (num_proc >= 16) {
+      for (size_t i = 0; i < 3; ++i) {SlowCoreVec.emplace_back(i);}
+      for (size_t i = 8; i < 11; ++i) {SlowCoreVec.emplace_back(i);}
+      for (size_t i = 3; i < 4; ++i) {
+        MemMergeCoreVec.emplace_back(i);
+        DiskMergeCoreVec.emplace_back(i);
+      }
+      for (size_t i = 11; i < 12; ++i) {
+        MemMergeCoreVec.emplace_back(i);
+        DiskMergeCoreVec.emplace_back(i);
+      }
+
+      DiskControllerCoreVec.emplace_back(4UL);
+      DiskControllerCoreVec.emplace_back(12UL);
+      for (size_t i = 5; i < 8; ++i) {FastCoreVec.emplace_back(i);}
+      for (size_t i = 13; i < 16; ++i) {FastCoreVec.emplace_back(i);}
+    } else if (num_proc >= 8) {
+
+      for (size_t i = 0; i < 2; ++i) {SlowCoreVec.emplace_back(i);}
+      for (size_t i = 4; i < 6; ++i) {
+        SlowCoreVec.emplace_back(i);
+        MemMergeCoreVec.emplace_back(i);
+        DiskMergeCoreVec.emplace_back(i);
+      }
+
+      DiskControllerCoreVec.emplace_back(2UL);
+      FastCoreVec.emplace_back(2UL);
+      #if 0
+      for (size_t i = 2; i < 4; ++i) {FastCoreVec.emplace_back(i);}
+      for (size_t i = 6; i < 8; ++i) {FastCoreVec.emplace_back(i);}
+      #endif
+    } else if (num_proc >= 4) {
+      MemMergeCoreVec.emplace_back(2UL);
+      DiskMergeCoreVec.emplace_back(2UL);
+
+      SlowCoreVec.emplace_back(0UL);
+
+      DiskControllerCoreVec.emplace_back(1UL);
+      FastCoreVec.emplace_back(1UL);
+      FastCoreVec.emplace_back(3UL);
+    } else if (num_proc >= 2) {
+      MemMergeCoreVec.emplace_back(0UL);
+      DiskMergeCoreVec.emplace_back(0UL);
+      SlowCoreVec.emplace_back(0UL);
+      DiskControllerCoreVec.emplace_back(1UL);
+      FastCoreVec.emplace_back(1UL);
+    }
+
+    ss << "bytes_available left = [" << bytes_available << "]" << endl
+      << "[" << (100 * static_cast<double>(br_dynamic_alloc) / bytes_alloted) << "%] br_dynamic_alloc left = [" << br_dynamic_alloc << "]" << endl
+      << "[" << (100 * static_cast<double>(br_buffer_block_pool) / bytes_alloted) << "%] br_buffer_block_pool left = [" << br_buffer_block_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_update_entry_pool) / bytes_alloted) << "%] br_update_entry_pool left = [" << br_update_entry_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_update_pool) / bytes_alloted) << "%] br_update_pool left = [" << br_update_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_transaction_pool) / bytes_alloted) << "%] br_transaction_pool left = [" << br_transaction_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_transaction_mutation_pool) / bytes_alloted) << "%] br_transaction_mutation_pool left = [" << br_transaction_mutation_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_repo_data_layer_pool) / bytes_alloted) << "%] br_repo_data_layer_pool left = [" << br_repo_data_layer_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_repo_mapping_entry_pool) / bytes_alloted) << "%] br_repo_mapping_entry_pool left = [" << br_repo_mapping_entry_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_repo_mapping_pool) / bytes_alloted) << "%] br_repo_mapping_pool left = [" << br_repo_mapping_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_mem_entry_pool) / bytes_alloted) << "%] br_durable_mem_entry_pool left = [" << br_durable_mem_entry_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_layer_pool) / bytes_alloted) << "%] br_durable_layer_pool left = [" << br_durable_layer_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_mapping_entry_pool) / bytes_alloted) << "%] br_durable_mapping_entry_pool left = [" << br_durable_mapping_entry_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_mapping_pool) / bytes_alloted) << "%] br_durable_mapping_pool left = [" << br_durable_mapping_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_repo_cache) / bytes_alloted) << "%] br_repo_cache left = [" << br_repo_cache << "]" << endl
+      << "[" << (100 * static_cast<double>(br_file_service_append_log) / bytes_alloted) << "%] br_file_service_append_log left = [" << br_file_service_append_log << "]" << endl
+      << "[" << (100 * static_cast<double>(br_block_cache) / bytes_alloted) << "%] br_block_cache left = [" << br_block_cache << "]" << endl
+      << "[" << (100 * static_cast<double>(br_page_cache) / bytes_alloted) << "%] br_page_cache left = [" << br_page_cache << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_cache) / bytes_alloted) << "%] br_durable_cache left = [" << br_durable_cache << "]" << endl
+      << "[" << (100 * static_cast<double>(br_fast_memory_sim) / bytes_alloted) << "%] br_fast_memory_sim left = [" << br_fast_memory_sim << "]" << endl
+      << "[" << (100 * static_cast<double>(br_slow_memory_sim) / bytes_alloted) << "%] br_slow_memory_sim left = [" << br_slow_memory_sim << "]" << endl;
+    std::cout << ss.str();
+    printf("FastCoreVec size = [%ld]\n", FastCoreVec.size());
+    for (auto core : FastCoreVec) {
+      printf("Fast Core = [%ld]\n", core);
+    }
+  }
+}
 
 TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
     : TSession::TServer(cmd.SlowCoreVec.size() +
@@ -423,6 +619,15 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
       Scheduler(scheduler),
       Cmd(cmd),
       HousecleaningTimer(cmd.HousecleaningInterval) {
+  const size_t num_frames = 10000UL; /* TEMP DEBUG switch this out with a calculated value. */
+  const size_t num_disk_event_obj = 100000UL; /* TEMP DEBUG switch this out with a calculated value. */
+  InitalizeFramePoolManager(num_frames, StackSize, &BGFastRunner);
+  Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(num_disk_event_obj);
+  //Stig::Indy::Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(num_disk_event_obj);
+  printf("FastCoreVec size = [%ld]\n", Cmd.FastCoreVec.size());
+    for (auto core : Cmd.FastCoreVec) {
+      printf("Fast Core = [%ld]\n", core);
+    }
   using TLocalReadFileCache = Stig::Indy::Disk::TLocalReadFileCache<Stig::Indy::Disk::Util::LogicalPageSize,
     Stig::Indy::Disk::Util::LogicalBlockSize,
     Stig::Indy::Disk::Util::PhysicalBlockSize,
@@ -430,19 +635,19 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
   assert(scheduler);
   assert(&cmd);
   assert(cmd.StartingState.size());
-  auto launch_slow_fiber_sched = [this](size_t core, Fiber::TRunner *runner, size_t i) {
+  auto launch_slow_fiber_sched = [this](size_t core, Fiber::TRunner *runner) {
     cpu_set_t mask;
     CPU_ZERO(&mask);
     CPU_SET(core, &mask);
     Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
     syslog(LOG_INFO, "Slow Scheduler TID=[%ld] on core [%ld]", syscall(SYS_gettid), core); /* TEMP */
     if (!Fiber::TFrame::LocalFramePool) {
-      Fiber::TFrame::LocalFramePool = new TThreadLocalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalRegisteredPool(&FramePoolManager, 1000UL, StackSize, runner);
+      Fiber::TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(FramePoolManager.get());
     }
     if (!Cmd.MemorySim) {
       /* if this is a disk based engine, allocate event pools */
       assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
-      Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalRegisteredPool(&Disk::Util::TDiskController::TEvent::DiskEventPoolManager, i == 0 ? 10000UL : 100UL);
+      Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
     }
     runner->Run();
   };
@@ -452,7 +657,7 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
   for (size_t i = 0; i < cmd.SlowCoreVec.size(); ++i) {
     SlowRunnerVec.emplace_back(new Fiber::TRunner(RunnerCons));
     syslog(LOG_INFO, "SLOW RUNNER [%ld] = [%p]", i, SlowRunnerVec.back().get());
-    SlowRunnerThreadVec.emplace_back(new std::thread(std::bind(launch_slow_fiber_sched, cmd.SlowCoreVec[i], SlowRunnerVec.back().get(), i)));
+    SlowRunnerThreadVec.emplace_back(new std::thread(std::bind(launch_slow_fiber_sched, cmd.SlowCoreVec[i], SlowRunnerVec.back().get())));
   }
 
   auto launch_fast_fiber_sched = [this](size_t core, Fiber::TRunner *runner) {
@@ -461,14 +666,14 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
     CPU_SET(core, &mask);
     Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
     syslog(LOG_INFO, "Fast Scheduler TID=[%ld] on core [%ld]", syscall(SYS_gettid), core); /* TEMP */
-    Base::TBooster booster;
+    //Base::TBooster booster; /* TODO : We can only boost when we are sure we are the only thread assigned to a core! */
     if (!Fiber::TFrame::LocalFramePool) {
-      Fiber::TFrame::LocalFramePool = new TThreadLocalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalRegisteredPool(&FramePoolManager, 100UL, StackSize, runner);
+      Fiber::TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(FramePoolManager.get());
     }
     if (!Cmd.MemorySim) {
       /* if this is a disk based engine, allocate event pools */
       assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
-      Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalRegisteredPool(&Disk::Util::TDiskController::TEvent::DiskEventPoolManager, 10000UL);
+      Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
     }
     assert(!TLocalReadFileCache::Cache);
     TLocalReadFileCache::Cache = new TLocalReadFileCache();
@@ -488,12 +693,12 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
   auto launch_bg_fiber_sched = [this](Fiber::TRunner *runner) {
     syslog(LOG_INFO, "Bg Scheduler TID=[%ld]", syscall(SYS_gettid)); /* TEMP */
     if (!Fiber::TFrame::LocalFramePool) {
-      Fiber::TFrame::LocalFramePool = new TThreadLocalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalRegisteredPool(&FramePoolManager, 100UL, StackSize, runner);
+      Fiber::TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(FramePoolManager.get());
     }
     if (!Cmd.MemorySim) {
       /* if this is a disk based engine, allocate event pools */
       assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
-      Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalRegisteredPool(&Disk::Util::TDiskController::TEvent::DiskEventPoolManager, 1000UL);
+      Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
     }
     assert(!TLocalReadFileCache::Cache);
     TLocalReadFileCache::Cache = new TLocalReadFileCache();
@@ -503,7 +708,7 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
   };
   Scheduler->Schedule(std::bind(launch_bg_fiber_sched, &BGFastRunner));
 
-  Fiber::TFrame::LocalFramePool = new TThreadLocalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalRegisteredPool(&FramePoolManager, 2UL, StackSize, SlowRunnerVec[0].get());
+  Fiber::TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(FramePoolManager.get());
   Frame = Fiber::TFrame::LocalFramePool->Alloc();
   assert(Frame);
   try {
@@ -553,7 +758,7 @@ void TServer::Init() {
     } else {
       throw runtime_error("Server must start as SOLO or SLAVE");
     }
-    Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &WaitForSlaveRunner, &FramePoolManager));
+    Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &WaitForSlaveRunner, FramePoolManager.get()));
     auto slave_bind_cb = [this](const shared_ptr<function<void (const TFd &)>> &cb) {
       WaitForSlaveActionCb = cb;
       Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
@@ -612,7 +817,7 @@ void TServer::Init() {
     } else {
       DiskEngine = std::unique_ptr<Disk::Util::TDiskEngine>(new Disk::Util::TDiskEngine(Scheduler,
                                                                                         RunnerCons,
-                                                                                        &FramePoolManager,
+                                                                                        FramePoolManager.get(),
                                                                                         Cmd.DiskControllerCoreVec,
                                                                                         Cmd.InstanceName,
                                                                                         Cmd.DiscardOnCreate,
@@ -732,7 +937,7 @@ void TServer::Init() {
     /* TODO : durable manager does not support create=false */
     DurableManager = make_shared<Stig::Indy::Disk::TDurableManager>(Scheduler,
                                                                     RunnerCons,
-                                                                    &FramePoolManager,
+                                                                    FramePoolManager.get(),
                                                                     RepoManager.get(),
                                                                     RepoManager->GetEngine(),
                                                                     Cmd.DurableCacheSize,
@@ -743,7 +948,7 @@ void TServer::Init() {
                                                                     Cmd.Create);
     RepoManager->SetDurableManager(DurableManager);
     /* Remove Durable TDurableLayer(s) that are no longer relevant */ {
-      Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &DurableLayerCleanerRunner, &FramePoolManager));
+      Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &DurableLayerCleanerRunner, FramePoolManager.get()));
       Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
       try {
         frame->Latch(&DurableLayerCleanerRunner, DurableManager.get(), static_cast<Fiber::TRunnable::TFunc>(&Durable::TManager::RunLayerCleaner));
@@ -763,7 +968,7 @@ void TServer::Init() {
       if (!Cmd.MemorySim) {
         /* if this is a disk based engine, allocate event pools */
         if (!Disk::Util::TDiskController::TEvent::LocalEventPool) {
-          Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalRegisteredPool(&Disk::Util::TDiskController::TEvent::DiskEventPoolManager, 10000UL);
+          Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
         }
       }
       assert(!TLocalReadFileCache::Cache);
@@ -772,11 +977,11 @@ void TServer::Init() {
       Disk::TLocalWalkerCache::Cache = new Disk::TLocalWalkerCache();
     };
 
-    TetrisManager = new TRepoTetrisManager(Scheduler, RunnerCons, &FramePoolManager, tetris_runner_setup_cb, (RepoState == Stig::Indy::TManager::Solo), RepoManager.get(), &PackageManager, DurableManager.get(), Cmd.LogAssertionFailures);
+    TetrisManager = new TRepoTetrisManager(Scheduler, RunnerCons, FramePoolManager.get(), tetris_runner_setup_cb, (RepoState == Stig::Indy::TManager::Solo), RepoManager.get(), &PackageManager, DurableManager.get(), Cmd.LogAssertionFailures);
     RepoManager->SetTetrisManager(TetrisManager);
     /* schedule everything the repo manager needs */ {
       /* Read() from master / slave */ {
-        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicationQueueRunner, &FramePoolManager));
+        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicationQueueRunner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
           frame->Latch(&RunReplicationQueueRunner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunReplicationQueue));
@@ -787,7 +992,7 @@ void TServer::Init() {
         //Scheduler->Schedule(bind(&Stig::Indy::TManager::RunReplicationQueue, RepoManager.get()));
       }
       /* Execute Job from master / slave */ {
-        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicationWorkRunner, &FramePoolManager));
+        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicationWorkRunner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
           frame->Latch(&RunReplicationWorkRunner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunReplicationWork));
@@ -798,7 +1003,7 @@ void TServer::Init() {
         //Scheduler->Schedule(bind(&Stig::Indy::TManager::RunReplicationWork, RepoManager.get()));
       }
       /* Dequeue from replication queue and transmit to slave if necessary */ {
-        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicateTransactionRunner, &FramePoolManager));
+        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicateTransactionRunner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
           frame->Latch(&RunReplicateTransactionRunner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunReplicateTransaction));
@@ -809,7 +1014,7 @@ void TServer::Init() {
         //Scheduler->Schedule(bind(&Stig::Indy::TManager::RunReplicateTransaction, RepoManager.get()));
       }
       /* Remove Repo TDataLayer(s) that are no longer relevant */ {
-        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RepoLayerCleanerRunner, &FramePoolManager));
+        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RepoLayerCleanerRunner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
           frame->Latch(&RepoLayerCleanerRunner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunLayerCleaner));
@@ -823,7 +1028,7 @@ void TServer::Init() {
       for (size_t i = 0; i < Cmd.NumMemMergeThreads; ++i) {
         MergeMemRunnerVec.emplace_back(new Fiber::TRunner(RunnerCons));
         Fiber::TRunner *cur_runner = MergeMemRunnerVec.back().get();
-        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, cur_runner, &FramePoolManager));
+        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, cur_runner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
           frame->Latch(cur_runner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunMergeMem));
@@ -838,7 +1043,7 @@ void TServer::Init() {
       for (size_t i = 0; i < Cmd.NumDiskMergeThreads; ++i) {
         MergeDiskRunnerVec.emplace_back(new Fiber::TRunner(RunnerCons));
         Fiber::TRunner *cur_runner = MergeDiskRunnerVec.back().get();
-        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, cur_runner, &FramePoolManager));
+        Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, cur_runner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
           frame->Latch(cur_runner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunMergeDisk));
@@ -986,7 +1191,7 @@ void TServer::TConnection::Run(TFd &fd) {
           if (request) {
 
             if (!Fiber::TFrame::LocalFramePool) {
-              Fiber::TFrame::LocalFramePool = new TThreadLocalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalRegisteredPool(&Server->FramePoolManager, 100UL, StackSize, Server->SlowRunnerVec[0].get());
+              Fiber::TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(Server->FramePoolManager.get());
             }
             size_t prev_assignment_count = std::atomic_fetch_add(&Server->SlowAssignmentCounter, 1UL);
             TConnectionRunnable *runnable = new TConnectionRunnable(Server->SlowRunnerVec[prev_assignment_count % Server->SlowRunnerVec.size()].get(), request);
@@ -1068,7 +1273,7 @@ void TServer::TConnection::OnRelease(TConnection *connection) {
 void TServer::AcceptClientConnections(bool is_memcache) {
   assert(this);
   if (!Fiber::TFrame::LocalFramePool) {
-    Fiber::TFrame::LocalFramePool = new TThreadLocalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalRegisteredPool(&FramePoolManager, 100UL, StackSize, SlowRunnerVec[0].get());
+    Fiber::TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(FramePoolManager.get());
   }
   for (;;) {
     try {

@@ -532,7 +532,7 @@ namespace Stig {
 
           private:
 
-          Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalRegisteredPool *FramePool;
+          Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalPool *FramePool;
 
           Indy::Fiber::TFrame *Frame;
 
@@ -617,7 +617,7 @@ namespace Stig {
         TServer *Server;
 
         /* TODO */
-        Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalRegisteredPool *FramePool;
+        Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalPool *FramePool;
         Indy::Fiber::TFrame *Frame;
 
         /* TODO */

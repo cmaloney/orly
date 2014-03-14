@@ -94,11 +94,17 @@ namespace Stig {
         TServer(size_t num_runners) : RunnerCons(num_runners), SlowAssignmentCounter(0UL), FastAssignmentCounter(0UL) {}
 
         /* TODO */
+        void InitalizeFramePoolManager(size_t num_frames, size_t frame_stack_size, Indy::Fiber::TRunner *runner) {
+          FramePoolManager = std::unique_ptr<Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>>(
+            new Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>(num_frames, frame_stack_size, runner));
+        }
+
+        /* TODO */
         Indy::Fiber::TRunner::TRunnerCons RunnerCons;
         std::vector<std::unique_ptr<Indy::Fiber::TRunner>> SlowRunnerVec;
         std::vector<std::unique_ptr<std::thread>> SlowRunnerThreadVec;
         std::atomic<size_t> SlowAssignmentCounter;
-        Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> FramePoolManager;
+        std::unique_ptr<Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>> FramePoolManager;
         std::vector<std::unique_ptr<Indy::Fiber::TRunner>> FastRunnerVec;
         std::atomic<size_t> FastAssignmentCounter;
         std::vector<std::unique_ptr<std::thread>> FastRunnerThreadVec;
