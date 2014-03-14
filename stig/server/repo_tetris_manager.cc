@@ -32,7 +32,7 @@ using namespace Stig::Server;
 TRepoTetrisManager::TRepoTetrisManager(
     TScheduler *scheduler,
     Fiber::TRunner::TRunnerCons &runner_cons,
-    Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
+    Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
     const std::function<void (Indy::Fiber::TRunner *)> &runner_setup_cb,
     bool is_master,
     Indy::TManager *repo_manager,
