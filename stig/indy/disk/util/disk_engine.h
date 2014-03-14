@@ -37,7 +37,7 @@ namespace Stig {
           /* TODO */
           TDiskEngine(Base::TScheduler *scheduler,
                       Fiber::TRunner::TRunnerCons &runner_cons,
-                      Base::TThreadLocalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
+                      Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
                       const std::vector<size_t> &disk_controller_core_vec,
                       const std::string &instance_name,
                       bool discard_on_create,
