@@ -39,7 +39,7 @@ class TCmd final
 
   /* Construct with defaults. */
   TCmd()
-      : MinWorkerCount(200), MaxWorkerCount(50000), IdleWorkerTimeout(30000), Daemon(false) {}
+      : MinWorkerCount(50), MaxWorkerCount(50000), IdleWorkerTimeout(30000), Daemon(false) {}
 
   /* Construct from argc/argv. */
   TCmd(int argc, char *argv[])
