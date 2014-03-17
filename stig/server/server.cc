@@ -422,7 +422,6 @@ TServer::TCmd::TCmd()
     num_avail_page = mb / page_size * 4096;
     num_proc = 8;
     #endif
-    num_proc = 8;
     ss << "PageSize = [" << page_size << "]" << endl
       << "MB on system = [" << ((num_phys_page * page_size) / mb) << "]" << endl
       << "MB available on system = [" << ((num_avail_page * page_size) / mb) << "]" << endl
