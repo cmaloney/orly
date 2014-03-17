@@ -131,14 +131,6 @@ namespace Stig {
             size_t pos = 0UL;
             for (const auto &dev : DiskUtil->GetPersistentDeviceSet()) {
               device_vec.push_back(std::vector<TPersistentDevice *>{dynamic_cast<TPersistentDevice *>(dev.get())});
-              const size_t max_aio_num = 4096 * 16;
-              io_context_t ctxp(0);
-              try {
-                Base::IfWeird(io_setup(max_aio_num, &ctxp));
-              } catch (const std::exception &ex) {
-                syslog(LOG_ERR, "Error in io_setup: [%s]", ex.what());
-                throw;
-              }
               Scheduler->Schedule(std::bind(&TDiskController::QueueRunner, DiskController.get(), device_vec.back(), no_realtime, disk_controller_core_vec[pos % disk_controller_core_vec.size()]));
               syslog(LOG_INFO, "Assigning Device [%s] to core [%ld] because pos [%ld]", device_vec.back().front()->GetDevicePath(), disk_controller_core_vec[pos % disk_controller_core_vec.size()], pos);
               ++pos;
