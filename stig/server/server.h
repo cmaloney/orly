@@ -277,6 +277,12 @@ namespace Stig {
         /* TODO */
         std::vector<size_t> DiskMergeCoreVec;
 
+        /* TODO */
+        size_t NumFiberFrames;
+
+        /* TODO */
+        size_t NumDiskEvents;
+
         /* The port on which we respond to HTTP by giving a status report. */
         in_port_t ReportingPortNumber;
 

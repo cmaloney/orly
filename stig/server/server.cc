@@ -58,9 +58,6 @@ static const size_t BlockSize = Disk::Util::PhysicalBlockSize;
 //static const size_t StackSize = 8 * 1024 * 1024;
 static const size_t StackSize = 1 * 1024 * 1024;
 
-std::atomic<size_t> Stig::Indy::Util::TotalSorterBytesAllocated;
-std::atomic<size_t> Stig::Indy::Util::MaxSorterBytesAllocated;
-
 Stig::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::Pool(sizeof(Disk::TDurableManager::TMapping), "Durable Mapping");
 Stig::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::TEntry::Pool(sizeof(Disk::TDurableManager::TMapping::TEntry), "Durable Mapping Entry");
 Stig::Indy::Util::TPool Disk::TDurableManager::TDurableLayer::Pool(std::max(sizeof(Disk::TDurableManager::TMemSlushLayer), sizeof(Disk::TDurableManager::TDiskOrderedLayer)), "Durable Layer");
@@ -229,6 +226,14 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The cores which will be pinned by the memory mergers."
   );
   Param(
+      &TCmd::NumFiberFrames, "max_parallel_frames", Optional, "max_parallel_frames\0",
+      "The maximum number of stacks allocated to do parallel tasks."
+  );
+  Param(
+      &TCmd::NumDiskEvents, "disk_event_pool_size", Optional, "disk_event_pool_size\0",
+      "The maximum number of disk IO events that can be outstanding at once."
+  );
+  Param(
       &TCmd::DiskMergeCoreVec, "disk_merge_cores", Optional, "disk_merge_cores\0",
       "The cores which will be pinned by the disk mergers."
   );
@@ -378,6 +383,8 @@ TServer::TCmd::TCmd()
       NumMemMergeThreads(3),
       NumDiskMergeThreads(8),
       MaxRepoCacheSize(10000),
+      NumFiberFrames(1000UL),
+      NumDiskEvents(10000UL),
       ReportingPortNumber(19388),
       AllowTailing(true),
       AllowFileSync(true),
@@ -395,12 +402,13 @@ TServer::TCmd::TCmd()
       TransactionPoolSize(500UL),
       UpdatePoolSize(100000UL),
       UpdateEntryPoolSize(200000UL),
-      DiskBufferBlockPoolSize(20000UL),
+      DiskBufferBlockPoolSize(7500UL),
       PackageDirectory("") {
   /* TEMP DEBUG : computing defaults for settings */ {
     std::stringstream ss;
     ss << "============================" << endl
       << "===== DEFAULT SETTINGS =====" << endl
+      << "===== Computed for 4GB =====" << endl
       << "============================" << endl;
     const size_t page_size = getpagesize();
     constexpr size_t mb = 1024 * 1024;
@@ -408,8 +416,12 @@ TServer::TCmd::TCmd()
     int num_avail_page = sysconf(_SC_AVPHYS_PAGES);
     int num_conf_proc = sysconf(_SC_NPROCESSORS_CONF);
     int num_proc = sysconf(_SC_NPROCESSORS_ONLN);
+    /* the defaults are calculated for a 4GB machine. */
+    #if 0
     /* now we hard-code to a 2 core, 4GB machine for minimum testing purposes */
     num_avail_page = mb / page_size * 4096;
+    num_proc = 8;
+    #endif
     num_proc = 8;
     ss << "PageSize = [" << page_size << "]" << endl
       << "MB on system = [" << ((num_phys_page * page_size) / mb) << "]" << endl
@@ -418,8 +430,8 @@ TServer::TCmd::TCmd()
       << "num processors available on system = [" << num_proc << "]" << endl;
     const size_t bytes_alloted = num_avail_page * page_size;
     int64_t bytes_available = bytes_alloted;
-    /* now we take a 25% hair-cut for further dynamic allocation */
-    const size_t br_dynamic_alloc = bytes_available * 0.25;
+    /* now we take a 25%  or 1GB hair-cut for further dynamic allocation, whichever is larger */
+    const size_t br_dynamic_alloc = std::max(static_cast<size_t>(bytes_available * 0.25), 1024 * mb);
     bytes_available -= br_dynamic_alloc;
     /* Disk Buffer Block pool */
     const size_t br_buffer_block_pool = DiskBufferBlockPoolSize * Disk::Util::PhysicalBlockSize;
@@ -478,6 +490,12 @@ TServer::TCmd::TCmd()
     /* Slow Memory Sim */
     const size_t br_slow_memory_sim = MemorySim ? MemorySimSlowMB * mb : 0UL;
     bytes_available -= br_slow_memory_sim;
+    /* Fiber Frames */
+    const size_t br_fiber_frame_stacks = NumFiberFrames * (StackSize + sizeof(Fiber::TFrame));
+    bytes_available -= br_fiber_frame_stacks;
+    /* Disk Events */
+    const size_t br_disk_events = NumDiskEvents * sizeof(Disk::Util::TDiskController::TEvent);
+    bytes_available -= br_disk_events;
 
     /* Fast Core Vector */
     if (num_proc < 2) {
@@ -540,11 +558,8 @@ TServer::TCmd::TCmd()
       }
 
       DiskControllerCoreVec.emplace_back(2UL);
-      FastCoreVec.emplace_back(2UL);
-      #if 0
       for (size_t i = 2; i < 4; ++i) {FastCoreVec.emplace_back(i);}
       for (size_t i = 6; i < 8; ++i) {FastCoreVec.emplace_back(i);}
-      #endif
     } else if (num_proc >= 4) {
       MemMergeCoreVec.emplace_back(2UL);
       DiskMergeCoreVec.emplace_back(2UL);
@@ -564,30 +579,28 @@ TServer::TCmd::TCmd()
 
     ss << "bytes_available left = [" << bytes_available << "]" << endl
       << "[" << (100 * static_cast<double>(br_dynamic_alloc) / bytes_alloted) << "%] br_dynamic_alloc left = [" << br_dynamic_alloc << "]" << endl
-      << "[" << (100 * static_cast<double>(br_buffer_block_pool) / bytes_alloted) << "%] br_buffer_block_pool left = [" << br_buffer_block_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_update_entry_pool) / bytes_alloted) << "%] br_update_entry_pool left = [" << br_update_entry_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_update_pool) / bytes_alloted) << "%] br_update_pool left = [" << br_update_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_transaction_pool) / bytes_alloted) << "%] br_transaction_pool left = [" << br_transaction_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_transaction_mutation_pool) / bytes_alloted) << "%] br_transaction_mutation_pool left = [" << br_transaction_mutation_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_repo_data_layer_pool) / bytes_alloted) << "%] br_repo_data_layer_pool left = [" << br_repo_data_layer_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_repo_mapping_entry_pool) / bytes_alloted) << "%] br_repo_mapping_entry_pool left = [" << br_repo_mapping_entry_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_repo_mapping_pool) / bytes_alloted) << "%] br_repo_mapping_pool left = [" << br_repo_mapping_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_durable_mem_entry_pool) / bytes_alloted) << "%] br_durable_mem_entry_pool left = [" << br_durable_mem_entry_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_durable_layer_pool) / bytes_alloted) << "%] br_durable_layer_pool left = [" << br_durable_layer_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_durable_mapping_entry_pool) / bytes_alloted) << "%] br_durable_mapping_entry_pool left = [" << br_durable_mapping_entry_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_durable_mapping_pool) / bytes_alloted) << "%] br_durable_mapping_pool left = [" << br_durable_mapping_pool << "]" << endl
-      << "[" << (100 * static_cast<double>(br_repo_cache) / bytes_alloted) << "%] br_repo_cache left = [" << br_repo_cache << "]" << endl
-      << "[" << (100 * static_cast<double>(br_file_service_append_log) / bytes_alloted) << "%] br_file_service_append_log left = [" << br_file_service_append_log << "]" << endl
-      << "[" << (100 * static_cast<double>(br_block_cache) / bytes_alloted) << "%] br_block_cache left = [" << br_block_cache << "]" << endl
-      << "[" << (100 * static_cast<double>(br_page_cache) / bytes_alloted) << "%] br_page_cache left = [" << br_page_cache << "]" << endl
-      << "[" << (100 * static_cast<double>(br_durable_cache) / bytes_alloted) << "%] br_durable_cache left = [" << br_durable_cache << "]" << endl
-      << "[" << (100 * static_cast<double>(br_fast_memory_sim) / bytes_alloted) << "%] br_fast_memory_sim left = [" << br_fast_memory_sim << "]" << endl
-      << "[" << (100 * static_cast<double>(br_slow_memory_sim) / bytes_alloted) << "%] br_slow_memory_sim left = [" << br_slow_memory_sim << "]" << endl;
+      << "[" << (100 * static_cast<double>(br_buffer_block_pool) / bytes_alloted) << "%] br_buffer_block_pool = [" << br_buffer_block_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_update_entry_pool) / bytes_alloted) << "%] br_update_entry_pool = [" << br_update_entry_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_update_pool) / bytes_alloted) << "%] br_update_pool = [" << br_update_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_transaction_pool) / bytes_alloted) << "%] br_transaction_pool = [" << br_transaction_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_transaction_mutation_pool) / bytes_alloted) << "%] br_transaction_mutation_pool = [" << br_transaction_mutation_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_repo_data_layer_pool) / bytes_alloted) << "%] br_repo_data_layer_pool = [" << br_repo_data_layer_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_repo_mapping_entry_pool) / bytes_alloted) << "%] br_repo_mapping_entry_pool = [" << br_repo_mapping_entry_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_repo_mapping_pool) / bytes_alloted) << "%] br_repo_mapping_pool = [" << br_repo_mapping_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_mem_entry_pool) / bytes_alloted) << "%] br_durable_mem_entry_pool = [" << br_durable_mem_entry_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_layer_pool) / bytes_alloted) << "%] br_durable_layer_pool = [" << br_durable_layer_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_mapping_entry_pool) / bytes_alloted) << "%] br_durable_mapping_entry_pool = [" << br_durable_mapping_entry_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_mapping_pool) / bytes_alloted) << "%] br_durable_mapping_pool = [" << br_durable_mapping_pool << "]" << endl
+      << "[" << (100 * static_cast<double>(br_repo_cache) / bytes_alloted) << "%] br_repo_cache = [" << br_repo_cache << "]" << endl
+      << "[" << (100 * static_cast<double>(br_file_service_append_log) / bytes_alloted) << "%] br_file_service_append_log = [" << br_file_service_append_log << "]" << endl
+      << "[" << (100 * static_cast<double>(br_block_cache) / bytes_alloted) << "%] br_block_cache = [" << br_block_cache << "]" << endl
+      << "[" << (100 * static_cast<double>(br_page_cache) / bytes_alloted) << "%] br_page_cache = [" << br_page_cache << "]" << endl
+      << "[" << (100 * static_cast<double>(br_durable_cache) / bytes_alloted) << "%] br_durable_cache = [" << br_durable_cache << "]" << endl
+      << "[" << (100 * static_cast<double>(br_fast_memory_sim) / bytes_alloted) << "%] br_fast_memory_sim = [" << br_fast_memory_sim << "]" << endl
+      << "[" << (100 * static_cast<double>(br_slow_memory_sim) / bytes_alloted) << "%] br_slow_memory_sim = [" << br_slow_memory_sim << "]" << endl
+      << "[" << (100 * static_cast<double>(br_fiber_frame_stacks) / bytes_alloted) << "%] br_fiber_frame_stacks = [" << br_fiber_frame_stacks << "]" << endl
+      << "[" << (100 * static_cast<double>(br_disk_events) / bytes_alloted) << "%] br_disk_events = [" << br_disk_events << "]" << endl;
     std::cout << ss.str();
-    printf("FastCoreVec size = [%ld]\n", FastCoreVec.size());
-    for (auto core : FastCoreVec) {
-      printf("Fast Core = [%ld]\n", core);
-    }
   }
 }
 
@@ -619,15 +632,8 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
       Scheduler(scheduler),
       Cmd(cmd),
       HousecleaningTimer(cmd.HousecleaningInterval) {
-  const size_t num_frames = 10000UL; /* TEMP DEBUG switch this out with a calculated value. */
-  const size_t num_disk_event_obj = 100000UL; /* TEMP DEBUG switch this out with a calculated value. */
-  InitalizeFramePoolManager(num_frames, StackSize, &BGFastRunner);
-  Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(num_disk_event_obj);
-  //Stig::Indy::Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(num_disk_event_obj);
-  printf("FastCoreVec size = [%ld]\n", Cmd.FastCoreVec.size());
-    for (auto core : Cmd.FastCoreVec) {
-      printf("Fast Core = [%ld]\n", core);
-    }
+  InitalizeFramePoolManager(Cmd.NumFiberFrames, StackSize, &BGFastRunner);
+  Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(Cmd.NumDiskEvents);
   using TLocalReadFileCache = Stig::Indy::Disk::TLocalReadFileCache<Stig::Indy::Disk::Util::LogicalPageSize,
     Stig::Indy::Disk::Util::LogicalBlockSize,
     Stig::Indy::Disk::Util::PhysicalBlockSize,
