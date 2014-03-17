@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include <sys/mman.h>
 #include <syslog.h>
 
 #include <base/assert_true.h>
@@ -221,6 +222,7 @@ namespace Base {
     TThreadLocalGlobalPoolManager(size_t num_elems, const TArgs &... args)
         : NumElems(num_elems), Alloc(nullptr), PoolCollection(this) {
       Alloc = reinterpret_cast<TObj *>(malloc(sizeof(TObj) * num_elems));
+      Base::IfLt0(mlock(Alloc, sizeof(TObj) * num_elems));
       if (unlikely(!Alloc)) {
         throw std::bad_alloc();
       }
