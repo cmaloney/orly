@@ -26,6 +26,7 @@
 #include <syslog.h>
 
 #include <base/assert_true.h>
+#include <base/error_utils.h>
 #include <base/likely.h>
 #include <base/no_copy_semantics.h>
 #include <base/spin_lock.h>
