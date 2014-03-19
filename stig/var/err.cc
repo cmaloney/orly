@@ -18,7 +18,7 @@
 
 #include <stig/var/err.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/type/err.h>
 
 using namespace Stig;
@@ -35,7 +35,7 @@ Type::TType TErr::GetType() const {
 }
 
 void TErr::Write(std::ostream &) const {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }
 
 TErr::~TErr() {}
@@ -47,7 +47,7 @@ void TErr::Accept(const TVisitor &visitor) const {
 }
 
 TVar TErr::Copy() const {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }
 
 void TErr::SetHash() {

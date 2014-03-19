@@ -24,7 +24,6 @@
 #include <utility>
 
 #include <base/make_dir.h>
-#include <base/not_implemented_error.h>
 #include <base/split.h>
 #include <stig/code_gen/obj.h>
 #include <stig/code_gen/util.h>

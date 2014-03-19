@@ -18,7 +18,6 @@
 
 #include <stig/var/opt.h>
 
-#include <base/not_implemented_error.h>
 #include <stig/type/opt.h>
 
 using namespace Stig;

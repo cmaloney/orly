@@ -18,7 +18,6 @@
 
 #include <stig/spa/flux_capacitor/api.h>
 
-#include <base/not_implemented_error.h>
 #include <stig/spa/error.h>
 
 using namespace std;

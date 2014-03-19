@@ -31,6 +31,7 @@
 #include <base/error_utils.h>
 #include <base/io_utils.h>
 #include <base/glob.h>
+#include <base/not_implemented.h>
 #include <gz/input_producer.h>
 #include <io/binary_input_only_stream.h>
 #include <io/binary_io_stream.h>

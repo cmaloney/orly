@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/error.h>
 #include <stig/rt/containers.h>
 #include <stig/shared_enum.h>
@@ -44,9 +44,9 @@ class TTypeVisitor : public Stig::Checkpoint::Syntax::TType::TVisitor {
 
   TTypeVisitor(Type::TType &type) : Type(type) {}
 
-  //virtual void operator()(const Stig::Checkpoint::Syntax::TTypeOf *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TParenType *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRefType *) const {throw Base::TNotImplementedError(HERE);}
+  //virtual void operator()(const Stig::Checkpoint::Syntax::TTypeOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TParenType *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TRefType *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Stig::Checkpoint::Syntax::TTimeDiffType *) const {
     Type = Type::TTimeDiff::Get();
   }
@@ -133,9 +133,9 @@ class TTypeVisitor : public Stig::Checkpoint::Syntax::TType::TVisitor {
     that->GetType()->Accept(visitor);
     Type = Type::TSet::Get(type);
   }
-  //virtual void operator()(const Stig::Checkpoint::Syntax::TResultOf *) const {throw Base::TNotImplementedError(HERE);}
-  //virtual void operator()(const Stig::Checkpoint::Syntax::TParamsOf *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TFuncType *) const {throw Base::TNotImplementedError(HERE);}
+  //virtual void operator()(const Stig::Checkpoint::Syntax::TResultOf *) const {NOT_IMPLEMENTED();}
+  //virtual void operator()(const Stig::Checkpoint::Syntax::TParamsOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TFuncType *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Stig::Checkpoint::Syntax::TAddrType *that) const;
   virtual void operator()(const Stig::Checkpoint::Syntax::TObjType *) const;
 
@@ -154,85 +154,85 @@ class TExprVisitor : public Stig::Checkpoint::Syntax::TExpr::TVisitor {
   TExprVisitor(Var::TVar &var) : Var(var) {}
 
   /* TODO */
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInCeiling *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInFloor *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog2 *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog10 *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInRandom *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInReplace *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInToLower *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInToUpper *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TCollatedByExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TCollectedByExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseOr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixDiv *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalOr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixExp *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLt *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMinus *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMul *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixGtEq *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixPlus *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseAnd *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalAnd *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixEq *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseXor *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixGt *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalXor *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixIn *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMatch *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMod *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixNeq *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLtEq *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixOrElse *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixAndThen *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixReduce *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSort *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixFilter *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixTake *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSkip *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSplit *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixWhile *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRefExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TParenExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsEmpty *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsKnown *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsKnownExpr *) const { throw Base::TNotImplementedError(HERE); }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsUnknown *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixCast *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixAddrMember *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixSlice *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixObjMember *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixCall *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixExists *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TEffectingExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TAssertExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TWhereExpr *) const {throw Base::TNotImplementedError(HERE);}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInCeiling *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInFloor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog2 *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog10 *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInRandom *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInReplace *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInToLower *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInToUpper *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TCollatedByExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TCollectedByExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseOr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixDiv *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalOr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixExp *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLt *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMinus *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMul *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixGtEq *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixPlus *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseAnd *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalAnd *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixEq *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseXor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixGt *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalXor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixIn *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMatch *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMod *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixNeq *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLtEq *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixOrElse *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixAndThen *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixReduce *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSort *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixFilter *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixTake *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSkip *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSplit *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixWhile *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TRefExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TParenExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsEmpty *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsKnown *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsKnownExpr *) const { NOT_IMPLEMENTED(); }
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsUnknown *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixCast *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixAddrMember *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixSlice *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixObjMember *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixCall *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixExists *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TEffectingExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TAssertExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TWhereExpr *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixMinus *) const;
   virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixPlus *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixLogicalNot *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixKnown *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixLengthOf *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixReverseOf *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixTimeObj *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixAddrOf *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TDbKeysExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixStart *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixSequence *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TUserIdExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TSessionIdExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TNowExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TLhsExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRhsExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TThatExpr *) const {throw Base::TNotImplementedError(HERE);}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixLogicalNot *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixKnown *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixLengthOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixReverseOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixTimeObj *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixAddrOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TDbKeysExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixStart *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixSequence *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TUserIdExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TSessionIdExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TNowExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TLhsExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TRhsExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TThatExpr *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Stig::Checkpoint::Syntax::TLiteralExpr *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TIfExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TReadExpr *) const {throw Base::TNotImplementedError(HERE);}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TGivenExpr *) const {throw Base::TNotImplementedError(HERE);}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TIfExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TReadExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TGivenExpr *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Stig::Checkpoint::Syntax::TEmptyCtor *) const;
   virtual void operator()(const Stig::Checkpoint::Syntax::TListCtor *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRangeCtor *) const {throw Base::TNotImplementedError(HERE);}
+  virtual void operator()(const Stig::Checkpoint::Syntax::TRangeCtor *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Stig::Checkpoint::Syntax::TObjCtor *) const;
   virtual void operator()(const Stig::Checkpoint::Syntax::TUnknownCtor *that) const {
     Type::TType type;
@@ -243,9 +243,9 @@ class TExprVisitor : public Stig::Checkpoint::Syntax::TExpr::TVisitor {
   virtual void operator()(const Stig::Checkpoint::Syntax::TDictCtor *) const;
   virtual void operator()(const Stig::Checkpoint::Syntax::TAddrCtor *) const;
   virtual void operator()(const Stig::Checkpoint::Syntax::TTimeDiffCtor *) const {
-    throw Base::TNotImplementedError(HERE, "time_diff constructor syntax is not allowed"); }
+    NOT_IMPLEMENTED_S("time_diff constructor syntax is not allowed"); }
   virtual void operator()(const Stig::Checkpoint::Syntax::TTimePntCtor  *) const {
-    throw Base::TNotImplementedError(HERE, "time_pnt constructor syntax is not allowed"); }
+    NOT_IMPLEMENTED_S("time_pnt constructor syntax is not allowed"); }
   virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixOptCheckpoint *that) const {
     that->GetExpr()->Accept(*this);
     Var = Var::TVar::Opt(Rt::TOpt<Var::TVar>(Var), Var.GetType());
@@ -761,7 +761,7 @@ void TExprVisitor::operator()(const TEmptyCtor *that) const {
     virtual void operator()(const TAddrType *) const { throw TImpossibleError(HERE, PosRange); }
     virtual void operator()(const TParenType *) const { throw TImpossibleError(HERE, PosRange); }
     virtual void operator()(const TRefType *) const {
-      throw Base::TNotImplementedError(HERE);
+      NOT_IMPLEMENTED();
     }
 
     private:

@@ -18,7 +18,7 @@
 
 #include <stig/var/jsonify.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/type/stigify.h>
 #include <stig/var.h>
 #include <tools/nycr/escape.h>
@@ -74,8 +74,8 @@ void Stig::Var::Jsonify(ostream &strm, const TVar &var) {
       }
       Strm << '}';
     }
-    virtual void operator()(const TErr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const TFree *) const {throw Base::TNotImplementedError(HERE);}
+    virtual void operator()(const TErr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const TFree *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const TId *that) const {
       Strm << '"' << that->GetVal() << '"';
     }

@@ -20,7 +20,7 @@
 
 #include <sstream>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <base/split.h>
 #include <base/time_maps.h>
 #include <stig/code_gen/util.h>
@@ -47,7 +47,7 @@ void TObjCtor::WriteExpr(TCppPrinter &out) const {
 
 
 void Stig::CodeGen::GenObjComparison(const Type::TType &, const Type::TType &, TCppPrinter &) {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }
 
 /* a < that.a || (a == that.a && (b < that.b || (b == that.b && c < that.c)) ) */

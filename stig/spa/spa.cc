@@ -32,6 +32,7 @@
 #include <base/assert_true.h>
 #include <base/cmd.h>
 #include <base/dir_iter.h>
+#include <base/not_implemented.h>
 #include <base/os_error.h>
 #include <base/zero.h>
 #include <stig/spa/honcho.h>
@@ -599,7 +600,7 @@ class TSpa : public Mongoose::TMongoose {
   bool OnDo(const char *, TArgs &, ostream &) {
     assert(this);
 
-    throw Base::TNotImplementedError(HERE);
+    NOT_IMPLEMENTED();
   }
 
   bool OnTry(const char *uri, TArgs &args, ostream &strm) {

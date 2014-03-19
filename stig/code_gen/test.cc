@@ -18,7 +18,7 @@
 
 #include <stig/code_gen/test.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <base/split.h>
 #include <stig/code_gen/builder.h>
 #include <stig/code_gen/context.h>
@@ -81,7 +81,7 @@ const TId<TIdKind::Test> &TTestCase::GetId() const {
 }
 
 string TTestCase::GetName() const {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }
 
 Type::TType TTestCase::GetReturnType() const {

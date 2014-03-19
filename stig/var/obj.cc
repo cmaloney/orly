@@ -20,7 +20,7 @@
 
 #include <stig/var/str.h>
 #include <stig/type/obj.h>
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 
 using namespace std;
 using namespace Stig;
@@ -39,7 +39,7 @@ Type::TType TObj::GetType() const {
 }
 
 void TObj::Write(std::ostream &) const {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }
 
 const TVar TObj::DefaultVar;

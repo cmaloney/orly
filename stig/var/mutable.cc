@@ -18,7 +18,7 @@
 
 #include <stig/var/mutable.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/type/mutable.h>
 
 using namespace Stig;
@@ -35,7 +35,7 @@ Type::TType TMutable::GetType() const {
 }
 
 void TMutable::Write(std::ostream &) const {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }
 
 void TMutable::Accept(const TVisitor &visitor) const {

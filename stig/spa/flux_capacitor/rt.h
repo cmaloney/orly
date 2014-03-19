@@ -19,7 +19,6 @@
 #include <memory>
 #include <utility>
 
-#include <base/not_implemented_error.h>
 #include <stig/rt/error.h>
 #include <stig/rt/generator.h>
 #include <stig/rt/opt.h>

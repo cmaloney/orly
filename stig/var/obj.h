@@ -23,7 +23,6 @@
 #include <unordered_map>
 
 #include <base/no_construction.h>
-#include <base/not_implemented_error.h>
 #include <base/no_copy_semantics.h>
 #include <stig/rt/obj.h>
 #include <stig/rt/runtime_error.h>

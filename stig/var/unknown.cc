@@ -18,7 +18,7 @@
 
 #include <stig/var/unknown.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/rt/runtime_error.h>
 #include <stig/type/unknown.h>
 
@@ -37,7 +37,7 @@ Type::TType TUnknown::GetType() const {
 }
 
 void TUnknown::Write(std::ostream &) const {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }
 
 void TUnknown::Accept(const TVisitor &visitor) const {

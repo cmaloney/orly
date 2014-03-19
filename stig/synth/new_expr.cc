@@ -22,7 +22,6 @@
 #include <map>
 
 #include <base/assert_true.h>
-#include <base/not_implemented_error.h>
 #include <stig/error.h>
 #include <stig/expr.h>
 #include <stig/synth/addr_ctor.h>

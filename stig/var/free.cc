@@ -18,7 +18,7 @@
 
 #include <stig/var/free.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/rt/runtime_error.h>
 
 using namespace std;
@@ -36,7 +36,7 @@ Type::TType TFree::GetType() const {
 }
 
 void TFree::Write(std::ostream &) const {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }
 
 void TFree::Accept(const TVisitor &visitor) const {

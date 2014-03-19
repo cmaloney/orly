@@ -18,7 +18,6 @@
 
 #include <stig/code_gen/reduce.h>
 
-#include <base/not_implemented_error.h>
 #include <stig/code_gen/implicit_func.h>
 
 using namespace Stig::CodeGen;

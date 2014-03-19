@@ -18,7 +18,7 @@
 
 #include <stig/type/gen_code.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <base/split.h>
 
 using namespace std;
@@ -47,7 +47,7 @@ class TCodeGenVisitor : public TType::TVisitor {
     Strm << "})";
   }
 
-  virtual void operator()(const TAny *) const {throw TNotImplementedError(HERE);}
+  virtual void operator()(const TAny *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const TBool *) const {
     Write("TBool");
   }

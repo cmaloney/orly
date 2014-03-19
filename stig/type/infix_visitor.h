@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/pos_range.h>
 #include <stig/type.h>
 #include <stig/type/ensure_empty_object.h>
@@ -196,39 +196,39 @@ namespace Stig {
       /*****************************************************
        ******************** ERR UNWRAP *********************
        *****************************************************/
-      virtual void operator()(const TErr      *, const TAddr     *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TAny      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TBool     *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TDict     *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TFunc     *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TId       *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TInt      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TList     *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TMutable  *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TOpt      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TObj      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TReal     *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TSet      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TSeq      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TStr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TTimeDiff *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TErr      *, const TTimePnt  *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TAddr     *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TAny      *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TBool     *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TDict     *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TFunc     *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TId       *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TInt      *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TList     *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TObj      *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TReal     *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TSet      *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TSeq      *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TStr      *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TTimeDiff *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
-      virtual void operator()(const TTimePnt  *, const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
+      virtual void operator()(const TErr      *, const TAddr     *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TAny      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TBool     *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TDict     *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TFunc     *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TId       *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TInt      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TList     *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TMutable  *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TOpt      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TObj      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TReal     *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TSet      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TSeq      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TStr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TTimeDiff *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TErr      *, const TTimePnt  *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TAddr     *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TAny      *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TBool     *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TDict     *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TFunc     *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TId       *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TInt      *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TList     *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TObj      *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TReal     *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TSet      *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TSeq      *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TStr      *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TTimeDiff *, const TErr      *) const final { NOT_IMPLEMENTED(); }
+      virtual void operator()(const TTimePnt  *, const TErr      *) const final { NOT_IMPLEMENTED(); }
 
       /*****************************************************
        ******************* FUNC UNWRAP *********************
@@ -393,7 +393,7 @@ namespace Stig {
         TType::Accept(lhs->GetElem(), rhs->AsType(), *this);
         Type = TOpt::Get(Type);
       }
-      virtual void operator()(const TOpt *, const TAny *) const final {throw Base::TNotImplementedError(HERE);}
+      virtual void operator()(const TOpt *, const TAny *) const final {NOT_IMPLEMENTED();}
       virtual void operator()(const TOpt *lhs, const TBool *) const final {
         TType::Accept(lhs->GetElem(), TBool::Get(), *this);
         Type = TOpt::Get(Type);
@@ -402,7 +402,7 @@ namespace Stig {
         TType::Accept(lhs->GetElem(), rhs->AsType(), *this);
         Type = TOpt::Get(Type);
       }
-      virtual void operator()(const TOpt *, const TErr *) const final {throw Base::TNotImplementedError(HERE);}
+      virtual void operator()(const TOpt *, const TErr *) const final {NOT_IMPLEMENTED();}
       virtual void operator()(const TOpt *lhs, const TFunc *rhs) const final {
         EnsureEmptyObject(rhs->GetParamObject(), PosRange);
         TType::Accept(lhs->GetElem(), rhs->GetReturnType(), *this);
@@ -457,7 +457,7 @@ namespace Stig {
         TType::Accept(lhs->AsType(), rhs->GetElem(), *this);
         Type = TOpt::Get(Type);
       }
-      virtual void operator()(const TAny *, const TOpt *) const { throw Base::TNotImplementedError(HERE); }
+      virtual void operator()(const TAny *, const TOpt *) const { NOT_IMPLEMENTED(); }
       virtual void operator()(const TBool *, const TOpt *rhs) const {
         TType::Accept(TBool::Get(), rhs->GetElem(), *this);
         Type = TOpt::Get(Type);

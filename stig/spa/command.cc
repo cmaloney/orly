@@ -25,7 +25,7 @@
 #include <thread>
 
 #include <base/impossible_error.h>
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/rt/containers.h>
 #include <stig/stig.command.cst.h>
 #include <stig/type.h>
@@ -54,9 +54,9 @@ namespace FooBar {
 
     TTypeVisitor(Type::TType &type) : Type(type) {}
 
-    //virtual void operator()(const Syntax::TTypeOf *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TParenType *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TRefType *) const {throw Base::TNotImplementedError(HERE);}
+    //virtual void operator()(const Syntax::TTypeOf *) const {throw Base::Flags.KeyError(HERE);}
+    virtual void operator()(const Syntax::TParenType *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TRefType *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TTimeDiffType *) const {
       Type = Type::TTimeDiff::Get();
     }
@@ -144,9 +144,9 @@ namespace FooBar {
       that->GetType()->Accept(visitor);
       Type = Type::TSet::Get(type);
     }
-    //virtual void operator()(const Syntax::TResultOf *) const {throw Base::TNotImplementedError(HERE);}
-    //virtual void operator()(const Syntax::TParamsOf *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TFuncType *) const {throw Base::TNotImplementedError(HERE);}
+    //virtual void operator()(const Syntax::TResultOf *) const {NOT_IMPLEMENTED();}
+    //virtual void operator()(const Syntax::TParamsOf *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TFuncType *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TAddrType *that) const;
     virtual void operator()(const Syntax::TObjType *) const;
 
@@ -164,85 +164,85 @@ namespace FooBar {
     /* TODO */
     TExprVisitor(Var::TVar &var) : Var(var) {}
     /* TODO */
-    virtual void operator()(const Syntax::TBuiltInCeiling *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TBuiltInFloor *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TBuiltInLog *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TBuiltInLog2 *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TBuiltInLog10 *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TBuiltInReplace *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TBuiltInRandom *) const {throw Base::TNotImplementedError(HERE); }
-    virtual void operator()(const Syntax::TBuiltInToLower *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TCollatedByExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TCollectedByExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TBuiltInToUpper *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixBitwiseOr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixDiv *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixLogicalOr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixExp *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixLt *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixMinus *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixMul *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixGtEq *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixPlus *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixBitwiseAnd *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixLogicalAnd *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixEq *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixBitwiseXor *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixGt *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixLogicalXor *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixIn *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixMatch *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixMod *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixNeq *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixLtEq *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixOrElse *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixAndThen *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixReduce *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixSort *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixFilter *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixSkip *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixSplit *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixTake *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TInfixWhile *) const {throw Base::TNotImplementedError(HERE);}
+    virtual void operator()(const Syntax::TBuiltInCeiling *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInFloor *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInLog *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInLog2 *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInLog10 *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInReplace *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInRandom *) const {NOT_IMPLEMENTED(); }
+    virtual void operator()(const Syntax::TBuiltInToLower *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TCollatedByExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TCollectedByExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInToUpper *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixBitwiseOr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixDiv *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixLogicalOr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixExp *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixLt *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixMinus *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixMul *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixGtEq *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixPlus *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixBitwiseAnd *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixLogicalAnd *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixEq *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixBitwiseXor *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixGt *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixLogicalXor *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixIn *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixMatch *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixMod *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixNeq *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixLtEq *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixOrElse *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixAndThen *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixReduce *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixSort *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixFilter *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixSkip *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixSplit *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixTake *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TInfixWhile *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TRefExpr *) const {throw TGeneralCommandError(HERE,"Variable references are not allowed. You probably meant a string literal, in which case, you should add quotes.");}
-    virtual void operator()(const Syntax::TParenExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixIsEmpty *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixIsKnownExpr*) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixIsUnknown *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixCast *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixAddrMember *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixSlice *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixIsKnown *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixObjMember *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPostfixCall *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPrefixExists *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TEffectingExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TAssertExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TWhereExpr *) const {throw Base::TNotImplementedError(HERE);}
+    virtual void operator()(const Syntax::TParenExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixIsEmpty *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixIsKnownExpr*) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixIsUnknown *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixCast *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixAddrMember *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixSlice *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixIsKnown *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixObjMember *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPostfixCall *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPrefixExists *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TEffectingExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TAssertExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TWhereExpr *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TPrefixMinus *) const;
     virtual void operator()(const Syntax::TPrefixPlus *) const;
-    virtual void operator()(const Syntax::TPrefixLogicalNot *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPrefixKnown *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPrefixLengthOf *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPrefixReverseOf *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPrefixTimeObj *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPrefixAddrOf *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TDbKeysExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPrefixStart *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TPrefixSequence *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TUserIdExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TSessionIdExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TNowExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TLhsExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TRhsExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TThatExpr *) const {throw Base::TNotImplementedError(HERE);}
+    virtual void operator()(const Syntax::TPrefixLogicalNot *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPrefixKnown *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPrefixLengthOf *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPrefixReverseOf *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPrefixTimeObj *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPrefixAddrOf *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TDbKeysExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPrefixStart *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TPrefixSequence *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TUserIdExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TSessionIdExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TNowExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TLhsExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TRhsExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TThatExpr *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TLiteralExpr *) const;
-    virtual void operator()(const Syntax::TIfExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TReadExpr *) const {throw Base::TNotImplementedError(HERE);}
-    virtual void operator()(const Syntax::TGivenExpr *) const {throw Base::TNotImplementedError(HERE);}
+    virtual void operator()(const Syntax::TIfExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TReadExpr *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TGivenExpr *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TEmptyCtor *) const;
     virtual void operator()(const Syntax::TListCtor *) const;
-    virtual void operator()(const Syntax::TRangeCtor *) const {throw Base::TNotImplementedError(HERE);}
+    virtual void operator()(const Syntax::TRangeCtor *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TObjCtor *) const;
     virtual void operator()(const Syntax::TUnknownCtor *that) const {
       Type::TType type;
@@ -700,7 +700,7 @@ namespace FooBar {
       virtual void operator()(const TAddrType *) const { throw Base::TImpossibleError(HERE); }
       virtual void operator()(const TParenType *) const { throw Base::TImpossibleError(HERE); }
       virtual void operator()(const TRefType *) const {
-        throw Base::TNotImplementedError(HERE);
+        NOT_IMPLEMENTED();
       }
 
       private:

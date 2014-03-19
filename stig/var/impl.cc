@@ -19,6 +19,7 @@
 #include <stig/var/impl.h>
 #include <stig/var.h>
 
+#include <base/not_implemented.h>
 #include <stig/pos_range.h>
 #include <stig/type/get_prec.h>
 
@@ -338,9 +339,7 @@ namespace Stig {
       virtual void operator()(const TErr *, const TAddr *) const {throw TVarCompareError(HERE);}
       virtual void operator()(const TErr *, const TBool *) const {throw TVarCompareError(HERE);}
       virtual void operator()(const TErr *, const TDict *) const {throw TVarCompareError(HERE);}
-      virtual void operator()(const TErr *, const TErr *) const {
-        throw Base::TNotImplementedError(HERE);;
-      }
+      virtual void operator()(const TErr *, const TErr *) const {NOT_IMPLEMENTED();}
       virtual void operator()(const TErr *, const TFree *) const {throw TVarCompareError(HERE);}
       virtual void operator()(const TErr *, const TId   *) const {throw TVarCompareError(HERE);}
       virtual void operator()(const TErr *, const TInt  *) const {throw TVarCompareError(HERE);}

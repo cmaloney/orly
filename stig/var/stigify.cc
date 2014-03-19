@@ -19,6 +19,7 @@
 #include <stig/var/stigify.h>
 
 #include <base/chrono.h>
+#include <base/not_implemented.h>
 #include <base/split.h>
 #include <stig/type/stigify.h>
 #include <stig/var.h>
@@ -66,7 +67,7 @@ void Stig::Var::Stigify(ostream &strm, const TVar &var) {
         Strm << "}";
       }
     }
-    virtual void operator()(const TErr *) const {throw Base::TNotImplementedError(HERE);}
+    virtual void operator()(const TErr *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const TFree *) const {throw Base::TImpossibleError(HERE);}
     virtual void operator()(const TId *that) const {
       Strm << '{' << that->GetVal() << '}';

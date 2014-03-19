@@ -18,7 +18,7 @@
 
 #include <stig/code_gen/builder.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <base/time_maps.h>
 #include <stig/code_gen/binary_scoped_rhs.h>
 #include <stig/code_gen/collated_by.h>
@@ -214,7 +214,9 @@ void Build(const L0::TPackage *package, const Symbol::Stmt::TStmt::TPtr &stmt) {
       //Build all the if and else_if clauses
       for(auto &it: that->GetIfClauses()) {
         if(it->GetExpr()->GetType().Is<Type::TSeq>()) {
-          throw TNotImplementedError(HERE, that->GetPosRange(), "Sequences in effecting blocks");
+          //TODO: Embed a PosRange in a NOT_IMPLEMENTED
+          //NOT_IMPLEMENTED_S(that->GetPosRange(), "Sequences in effecting blocks")
+          NOT_IMPLEMENTED_S("Sequences in effecting blocks")
         }
         TPtr<TPredicatedBlock> pred_block(new TPredicatedBlock(BuildInline(Package, it->GetExpr(), false)));
         TStmtCtx stmt_ctx(&pred_block->GetStmts());
@@ -233,14 +235,16 @@ void Build(const L0::TPackage *package, const Symbol::Stmt::TStmt::TPtr &stmt) {
     }
     virtual void operator()(const Symbol::Stmt::TMutate *that) const {
       if(that->GetLhs()->GetExpr()->GetType().Is<Type::TSeq>() || that->GetRhs()->GetExpr()->GetType().Is<Type::TSeq>()) {
-        throw TNotImplementedError(HERE, that->GetPosRange(), "Sequences in effecting blocks");
+        //TODO: Embed a PosRange in a NOT_IMPLEMENTED
+        NOT_IMPLEMENTED_S("Sequences in effecting blocks");
       }
       Context::GetStmtBlock()->Add(Package, BuildInline(Package, that->GetLhs()->GetExpr(), true), that->GetMutator(),
           Build(Package, that->GetRhs()->GetExpr(), false));
     }
     virtual void operator()(const Symbol::Stmt::TNew *that) const {
       if(that->GetLhs()->GetExpr()->GetType().Is<Type::TSeq>() || that->GetRhs()->GetExpr()->GetType().Is<Type::TSeq>()) {
-        throw TNotImplementedError(HERE, that->GetPosRange(), "Sequences in effecting blocks");
+        //TODO: Embed a PosRange in a NOT_IMPLEMENTED
+        NOT_IMPLEMENTED_S("Sequences in effecting blocks");
       }
       Context::GetStmtBlock()->AddNew(Package, BuildInline(Package, that->GetLhs()->GetExpr(), true), Build(Package, that->GetRhs()->GetExpr(), false));
     }
@@ -605,7 +609,8 @@ TInline::TPtr Stig::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
     virtual void operator()(const Expr::TSlice       *that) const {
       //TODO: Slice should maintain mutability of container elements.
       if(that->GetType().Is<Type::TMutable>() && (that->HasColon() || that->GetOptRhs())) {
-        throw TNotImplementedError(HERE, that->GetPosRange(), "Maintaining mutability through a range slice");
+        //TODO: Embed a PosRange in a NOT_IMPLEMENTED
+        NOT_IMPLEMENTED_S("Maintaining mutability through a range slice");
       }
       Res = Interner.GetSlice(Package, ReturnType, Build(Package, that->GetContainer(), true),
           BuildOptInline(Package, that->GetOptLhs()), BuildOptInline(Package, that->GetOptRhs()), that->HasColon());
@@ -781,8 +786,9 @@ TInline::TPtr BuildMap(const L0::TPackage *package, const Expr::TExpr::TPtr &exp
 
         TVisitor(TFunction::TNamedArgs &args, Symbol::TAnyFunction::TPtr &func) : Args(args), Func(func) {}
 
-        virtual void operator()(const Symbol::TGivenParamDef *that) const {
-          throw TNotImplementedError(HERE, that->GetPosRange(), "We don't currently support correlated parameter sequences");
+        virtual void operator()(const Symbol::TGivenParamDef *) const {
+          //TODO: Embed a PosRange in a NOT_IMPLEMENTED
+          NOT_IMPLEMENTED_S("We don't currently support correlated parameter sequences");
         }
         virtual void operator()(const Symbol::TResultDef *that) const {
           if (Func) {

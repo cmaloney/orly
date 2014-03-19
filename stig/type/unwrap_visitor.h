@@ -20,7 +20,7 @@
 
 #include <stig/type.h>
 #include <stig/type/ensure_empty_object.h>
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 
 namespace Stig {
 
@@ -57,7 +57,7 @@ namespace Stig {
       virtual void operator()(const TAny      *) const {
         Type = Type::TAny::Get();
       }
-      virtual void operator()(const TErr      *) const final { throw Base::TNotImplementedError(HERE); }
+      virtual void operator()(const TErr      *) const final { NOT_IMPLEMENTED(); }
       virtual void operator()(const TFunc     *that) const final {
         EnsureEmptyObject(that->GetParamObject(), PosRange);
         that->GetReturnType().Accept(*this);

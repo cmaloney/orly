@@ -27,7 +27,6 @@
 #include <unistd.h>
 #include <unordered_map>
 
-#include <base/not_implemented_error.h>
 #include <base/os_error.h>
 #include <base/piece.h>
 #include <base/split.h>

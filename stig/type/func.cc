@@ -18,7 +18,7 @@
 
 #include <stig/type/func.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 
 using namespace Stig::Type;
 
@@ -27,5 +27,5 @@ IMPL_INTERNED_TYPE(TFunc, TType, TType);
 TFunc::~TFunc() {}
 
 void TFunc::Write(std::ostream &) const {
-  throw Base::TNotImplementedError(HERE);
+  NOT_IMPLEMENTED();
 }

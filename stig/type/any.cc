@@ -18,7 +18,7 @@
 
 #include <stig/type/any.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 
 using namespace Stig::Type;
 
@@ -27,5 +27,5 @@ IMPL_SINGLETON_TYPE(TAny);
 TAny::~TAny() {}
 
 void TAny::Write(std::ostream &) const {
-  throw Base::TNotImplementedError(HERE, "Attempted to print out the TAny type.");
+  NOT_IMPLEMENTED_S("Attempted to print out the TAny type.");
 }

@@ -18,7 +18,7 @@
 
 #include <stig/code_gen/map.h>
 
-#include <base/not_implemented_error.h>
+#include <base/not_implemented.h>
 #include <stig/code_gen/implicit_func.h>
 #include <stig/type/unwrap.h>
 
@@ -45,7 +45,7 @@ void TMap::WriteExpr(TCppPrinter &out) const {
   assert(&out);
   if(Seqs.size() != 1) {
     //NOTE: For proper code printing we must take all the correllated sequences as a sequence of objects.
-    throw Base::TNotImplementedError(HERE, "Maps containing more than one sequence do not yet have proper code printing");
+    NOT_IMPLEMENTED_S("Maps containing more than one sequence do not yet have proper code printing");
   }
   out << "TMapGenerator<" << Type::UnwrapSequence(GetReturnType()) << ", "
       << Type::UnwrapSequence((*Seqs.begin())->GetReturnType()) << ">::New(";
