@@ -22,7 +22,6 @@
 #include <stig/rt/collated_by.h>
 #include <stig/rt/collected_by.h>
 #include <stig/rt/desc.h>
-#include <stig/rt/error.h>
 #include <stig/rt/generator.h>
 #include <stig/rt/mutable.h>
 #include <stig/rt/opt.h>

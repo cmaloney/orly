@@ -22,7 +22,6 @@
 
 #include <base/chrono.h>
 #include <stig/rt/containers.h>
-#include <stig/rt/error.h>
 #include <stig/rt/generator.h>
 #include <stig/rt/opt.h>
 #include <stig/rt/unknown.h>
@@ -51,17 +50,6 @@ namespace Stig {
       /* TODO */
       TType static GetType() {
         return TDict::Get(TDt<TKey>::GetType(), TDt<TVal>::GetType());
-      }
-
-    };
-
-    /* TODO */
-    template <typename TVal>
-    struct TDt<Stig::Rt::TError<TVal>> {
-
-      /* TODO */
-      TType static GetType() {
-        return TErr::Get(TDt<TVal>::GetType());
       }
 
     };

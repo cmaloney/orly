@@ -19,7 +19,6 @@
 #include <memory>
 #include <utility>
 
-#include <stig/rt/error.h>
 #include <stig/rt/generator.h>
 #include <stig/rt/opt.h>
 #include <stig/spa/flux_capacitor/flux_capacitor.h>

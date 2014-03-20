@@ -23,7 +23,6 @@
 #include <stig/var/bool.h>
 #include <stig/var/dict.h>
 #include <stig/var/dynamic_cast.h>
-#include <stig/var/err.h>
 #include <stig/var/free.h>
 #include <stig/var/id.h>
 #include <stig/var/int.h>

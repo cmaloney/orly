@@ -31,7 +31,6 @@
 #include <stig/shared_enum.h>
 //NOTE: We would include <stig/rt.h> but that includes <stig/rt/built_in.h> which includes this
 #include <stig/rt/containers.h>
-#include <stig/rt/error.h>
 #include <stig/type/impl.h>
 #include <stig/uuid.h>
 
@@ -227,10 +226,6 @@ namespace Stig {
       TVar(const Rt::TDict<TKey, TVal> &that) {
         *this = Dict(that);
       }
-
-      /* TODO */
-      template <typename TVal>
-      TVar(const Rt::TError<TVal> &that);
 
       /* TODO
       template <typename... TElements>
