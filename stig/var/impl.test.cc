@@ -86,10 +86,6 @@ FIXTURE(Typical) {
   EXPECT_TRUE(dict_int_real.GetType() == Type::TDict::Get(Type::TInt::Get(), Type::TReal::Get()));
   TVar dict_int_dict_int_real(Rt::TDict<int64_t, Rt::TDict<int64_t, double>>{{5, m}});
   EXPECT_TRUE(dict_int_real.GetType() == Type::TDict::Get(Type::TInt::Get(), Type::TReal::Get()));
-  TVar err_int(Rt::TError<int64_t>("Invalid Int"));
-  EXPECT_TRUE(err_int.GetType() == Type::TErr::Get(Type::TInt::Get()));
-  TVar err_err_int(Rt::TError<Rt::TError<int64_t>>("Invalid Int"));
-  EXPECT_TRUE(err_err_int.GetType() == Type::TErr::Get(Type::TErr::Get(Type::TInt::Get())));
   /* TODO
   Rt::TAddr<Rt::TAddrElem<TAddrDir::Asc, int64_t>, Rt::TAddrElem<TAddrDir::Asc, string>, Rt::TAddrElem<TAddrDir::Asc, bool>, Rt::TAddrElem<TAddrDir::Asc, double>> a(5, string("Hello World"), true, 2.2);
   TVar addr_int_str_bool_double(a);
@@ -113,7 +109,6 @@ FIXTURE(Typical) {
     virtual void operator()(const Var::TAddr *) const {}
     virtual void operator()(const Var::TBool *) const {}
     virtual void operator()(const Var::TDict *) const {}
-    virtual void operator()(const Var::TErr *) const {}
     virtual void operator()(const Var::TFree *) const {}
     virtual void operator()(const Var::TId *) const {}
     virtual void operator()(const Var::TInt *) const {}
