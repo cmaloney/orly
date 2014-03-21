@@ -122,7 +122,7 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
       package_file.close();
       Stig::Compiler::Compile(Jhm::TAbsPath(Jhm::TAbsBase("/tmp/"), Jhm::TRelPath("context.stig")), string("/tmp/"), false, false, false);
 
-      Base::TThreadLocalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager = Stig::Indy::Fiber::TFrame::LocalFramePool->GetPoolManager();
+      Base::TThreadLocalGlobalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager = Stig::Indy::Fiber::TFrame::LocalFramePool->GetPoolManager();
       Base::TFd solo_sock;
       auto wait_for_slave = [](const shared_ptr<function<void (const TFd &)>> &/*cb*/) {};
       const TScheduler::TPolicy scheduler_policy(20, 20, milliseconds(10));
