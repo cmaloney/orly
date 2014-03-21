@@ -107,13 +107,13 @@ void TestSort(const std::vector<TVal> &input_data, const size_t num_workers) {
   EXPECT_TRUE(fiber_data != expected_data);
   TRunner::TRunnerCons runner_cons(1UL + num_workers);
   TRunner runner(runner_cons);
-  TThreadLocalPoolManager<TFrame, size_t, TRunner *> *frame_pool_manager = new TThreadLocalPoolManager<TFrame, size_t, TRunner *>();
-  TFrame::LocalFramePool = new TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool(frame_pool_manager, num_frames, stack_size, &runner);
+  TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> *frame_pool_manager = new TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>(num_frames + num_sub_frames, stack_size, &runner);
+  TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(frame_pool_manager);
   TRunnerPool work_pool(runner_cons, num_workers);
   try {
     auto launch_fiber_sched = [&]() {
       if (!TFrame::LocalFramePool) {
-        TFrame::LocalFramePool = new TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool(frame_pool_manager, num_sub_frames, stack_size, &runner);
+        TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(frame_pool_manager);
       }
       runner.Run();
       if (TFrame::LocalFramePool) {
