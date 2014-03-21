@@ -137,27 +137,17 @@ void TSession::SetUserId(TServer */*server*/, const TUuid &user_id) {
 
 TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<string> &fq_name, const TClosure &closure) {
   assert(this);
-  //printf("TSession::Try() A cpu[%d]\n", sched_getcpu());
-  Indy::Fiber::TRunner *return_to_runner = Indy::Fiber::TRunner::LocalRunner;
-  assert(return_to_runner);
+  assert(Indy::Fiber::TRunner::LocalRunner);
   size_t prev_assignment_count = std::atomic_fetch_add(&server->FastAssignmentCounter, 1UL);
-  Indy::Fiber::SwitchTo(server->FastRunnerVec[prev_assignment_count % server->FastRunnerVec.size()].get());
-  //printf("TSession::Try() B cpu[%d]\n", sched_getcpu());
+  Indy::Fiber::TSwitchToRunner RunnerSwitcher(server->FastRunnerVec[prev_assignment_count % server->FastRunnerVec.size()].get());
   TCore result_core;
   Base::TTimer timer;
-  //Base::TCPUTimer cpu_timer;
-  //Base::TCPUTimer call_cpu_timer;
   Base::TTimer call_timer;
   timer.Start();
-  //cpu_timer.Start();
   bool had_effects = false;
   TOpt<TTracker> tracker = TOpt<TTracker>();
   size_t walker_count = 0UL;
-  #if 0
-  Stig::Indy::Disk::TPresentWalkFile::FetchCount = 0UL;
-  #endif
   TSuprena my_arena;
-  //CALLGRIND_START_INSTRUMENTATION;
   try {
     // Convert the args to vars.
     Spa::TArgs::TStigArg prog_args;
@@ -165,7 +155,6 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
     void *state_alloc_2 = reinterpret_cast<uint8_t *>(state_alloc_1) + Sabot::State::GetMaxStateSize();
     auto arena = closure.GetArena().get();
     for (const auto &item: closure.GetCoreByName()) {
-      //auto arg = Var::ToVar(*Sabot::State::TAny::TWrapper(item.second.NewState(arena, state_alloc_1)));
       prog_args.insert(make_pair(item.first, Indy::TKey(item.second, arena)));
     }
     // Open the pov and its repo and prepare the data and package contexts.
@@ -187,11 +176,9 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
     // Func it.
     auto func = server->GetPackageManager().Get(fq_name)->GetFunctionInfo(AsPiece(closure.GetMethodName()));
     Package::TContext::TEffects effects;
-    //call_cpu_timer.Start();
     call_timer.Start();
     result_core = func->Call(indy_context, prog_args);
     call_timer.Stop();
-    //call_cpu_timer.Stop();
     effects = indy_context.MoveEffects();
     if (!effects.empty()) {
       had_effects = true;
@@ -246,44 +233,25 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
       transaction->Prepare();
       transaction->CommitAction();
     }
-    //result_core = TCore(&result_arena, Sabot::State::TAny::TWrapper(Var::NewSabot(state_alloc_1, result)).get());
     walker_count = context.GetWalkerCount();
-    //cpu_timer.Stop();
     timer.Stop();
     /* Acquire TryTime lock */ {
       std::lock_guard<std::mutex> lock(TServer::TryTimeLock);
       if (had_effects) {
         TServer::TryWriteTimeCalc.Push(timer.Total());
         TServer::TryWriteCallTimerCalc.Push(call_timer.Total());
-        //TServer::TryWriteCPUTimeCalc.Push(cpu_timer.Total());
       } else {
         TServer::TryReadTimeCalc.Push(timer.Total());
         TServer::TryReadCallTimerCalc.Push(call_timer.Total());
-        //TServer::TryReadCPUTimeCalc.Push(cpu_timer.Total());
       }
-      //TServer::TryCallCPUTimerCalc.Push(call_cpu_timer.Total());
       TServer::TryWalkerCountCalc.Push(walker_count);
       TServer::TryWalkerConsTimerCalc.Push(context.GetPresentWalkConsTimer().Total());
-      #if 0
-      TServer::TryFetchCountCalc.Push(Stig::Indy::Disk::TPresentWalkFile::FetchCount);
-      #endif
     }
-    //if (timer.Total() > 0.05) {
-      //syslog(LOG_INFO, "Call Time Total=[%f]", timer.Total());
-    //}
-    //std::cout << "Result = " << Indy::TKey(result_core, indy_context.GetArena()) << std::endl;
-    Indy::Fiber::SwitchTo(return_to_runner);
-    //printf("TSession::Try() C cpu[%d]\n", sched_getcpu());
     return TMethodResult(indy_context.GetArena(), result_core, tracker);
   } catch (const exception &ex) {
-    /* if we haven't switched back to the original runner yet, do so now before throwing */
-    if (Indy::Fiber::TRunner::LocalRunner != return_to_runner) {
-      Indy::Fiber::SwitchTo(return_to_runner);
-    }
     syslog(LOG_ERR, "Error in Session::Try : [%s]", ex.what());
     throw;
   }
-  //CALLGRIND_STOP_INSTRUMENTATION;
 }
 
 bool TSession::RunTestSuite(TServer * /*server*/,
