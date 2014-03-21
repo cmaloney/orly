@@ -76,7 +76,7 @@ class TMyRunnable
 
   private:
 
-  Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool *FramePool;
+  Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool *FramePool;
 
   TFrame *Frame;
 
@@ -108,11 +108,11 @@ FIXTURE(Typical) {
     runner_array[i] = runner;
     runner_vec.emplace_back(runner);
   }
-  Base::TThreadLocalPoolManager<TFrame, size_t, TRunner *> frame_pool_manager;
+  Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> frame_pool_manager(num_threads * num_runnable_per_thread, 64 * 1024, runner_vec[0]);
   //TFiberLock lock;
   TLockedQueue lock(runner_vec[0]);
   if (!TFrame::LocalFramePool) {
-    TFrame::LocalFramePool = new TThreadLocalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalRegisteredPool(&frame_pool_manager, num_threads * num_runnable_per_thread, 64 * 1024, runner_vec[0]);
+    TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(&frame_pool_manager);
   }
   std::mutex mut;
   std::condition_variable cond;
