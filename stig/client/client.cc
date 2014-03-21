@@ -194,7 +194,7 @@ void TClient::IoMain() {
     /* Loop here until this client object is being destroyed. */
     for (;;) {
       /* Decide which events will wake us. */
-      int fd_count;
+      int fd_count = 1;
       if (server_socket.IsOpen()) {
         /* We're connected to the server, so we'll wake up if it talks to us. */
         polls[1].fd = server_socket;
