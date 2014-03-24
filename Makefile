@@ -1,3 +1,7 @@
+PREFIX=/usr/local
+BINDIR=$(PREFIX)/bin
+RELEASE_OUT=../out/release
+
 .PHONY: test apps clean
 
 apps: tools/starsha
@@ -22,3 +26,6 @@ clean:
 	rm -f ../.starsha/.notes
 	rm -rf ../out/
 	rm -f tools/starsha
+
+install: release
+	cd $(RELEASE_OUT); install -m755 -t $(BINDIR) stig/stigc stig/server/stigi stig/spa/spa stig/indy/disk/util/stig_dm stig/core_import

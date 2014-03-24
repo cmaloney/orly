@@ -21,6 +21,13 @@ OUT=$SRC/../out/debug
 OUT_BOOTSTRAP=$SRC/../out/bootstrap
 CC=g++
 
+if [ -z "$PREFIX" ]; then
+  PREFIX="/usr/local"
+fi
+
+#Setup install prefix for 'make install'
+sed -i 's@PREFIX=.*@PREFIX='$PREFIX'@g' Makefile
+
 common_flags=(-O2 #Stupid gcc 4.7... -flto
   -Wall -Werror -Wextra
   -Wno-type-limits -Wno-delete-non-virtual-dtor -Wno-parentheses -Wno-unused-result
