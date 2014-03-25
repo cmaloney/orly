@@ -45,8 +45,7 @@ class TCmd final
         DeviceSpeed(""),
         NumDevicesInVolume(0UL),
         ReplicationFactor(1UL),
-        StripeSizeKB(512),
-        ReadTest(false) {}
+        StripeSizeKB(512){}
 
   /* Construct from argc/argv. */
   TCmd(int argc, char *argv[])
@@ -69,9 +68,6 @@ class TCmd final
   size_t ReplicationFactor;
   size_t StripeSizeKB;
 
-  /* If true, perform a read test on the specified instance volume */
-  bool ReadTest;
-
   /* The device set. */
   std::set<std::string> DeviceSet;
 
@@ -88,10 +84,6 @@ class TCmd final
       Param(
           &TCmd::ZeroSuperBlock, "zero-super-block", Optional, "zero-super-block\0",
           "Zero out the super block of the provded devices."
-      );
-      Param(
-          &TCmd::ReadTest, "read-test", Optional, "read-test\0",
-          "Perform a read test on the specified instance volume. (Not Implemented)"
       );
       Param(
           &TCmd::List, "list", Optional, "list\0l\0",
@@ -148,8 +140,6 @@ int main(int argc, char *argv[]) {
       TDeviceUtil::ZeroSuperBlock(device_path.c_str());
     }
     return EXIT_SUCCESS;
-  } else if (cmd.ReadTest) {
-    throw std::logic_error("Read test is not implemented");
   }
   Util::TCacheCb cache_cb = [](TCacheInstr /*cache_instr*/, const TOffset /*logical_start_offset*/, void */*buf*/, size_t /*count*/) {};
   TDiskController controller;
