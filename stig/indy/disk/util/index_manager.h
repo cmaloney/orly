@@ -19,7 +19,6 @@
 #pragma once
 
 #include <cassert>
-#include <parallel/algorithm>
 
 #include <base/no_copy_semantics.h>
 #include <inv_con/ordered_list.h>
