@@ -38,8 +38,6 @@ using namespace Stig::Indy::Disk;
 using namespace Stig::Indy::Util;
 
 static const size_t BlockSize = Disk::Util::PhysicalBlockSize;
-static const size_t CacheSize = 50000UL;
-static const size_t WalkerCacheSize = 128;
 
 Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
 Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");

@@ -46,8 +46,8 @@ class TCoIterRunnable
   NO_COPY_SEMANTICS(TCoIterRunnable);
   public:
 
-  TCoIterRunnable(size_t id, size_t num_iter, TRunner *runner, const std::function<void ()> &start_cb, const std::function<void ()> &completion_cb)
-      : Id(id), NumIter(num_iter), StartCb(start_cb), CompletionCb(completion_cb) {
+  TCoIterRunnable(size_t /*id*/, size_t num_iter, TRunner *runner, const std::function<void ()> &start_cb, const std::function<void ()> &completion_cb)
+      : /*Id(id),*/ NumIter(num_iter), StartCb(start_cb), CompletionCb(completion_cb) {
     Frame = TFrame::LocalFramePool->Alloc();
     try {
       Frame->Latch(runner, this, static_cast<TRunnable::TFunc>(&TCoIterRunnable::Compute));
@@ -76,7 +76,7 @@ class TCoIterRunnable
 
   private:
 
-  size_t Id;
+  //size_t Id;
 
   size_t NumIter;
 

@@ -36,9 +36,6 @@ using namespace chrono;
 using namespace Base;
 using namespace Stig::Indy::Disk;
 
-const bool NoRealTimeMode = true;
-const bool AbortOnError = false;
-
 TBufBlock::TPool TBufBlock::Pool(Util::PhysicalBlockSize, 100);
 
 void IntroduceRandomBitError(size_t *buf, size_t data_size, std::mt19937_64 &engine) {

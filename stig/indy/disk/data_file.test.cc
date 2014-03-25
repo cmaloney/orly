@@ -40,9 +40,6 @@ using namespace Stig::Indy::Disk;
 using namespace Stig::Indy::Disk::Util;
 
 static const size_t BlockSize = Disk::Util::PhysicalBlockSize;
-static const size_t MinDiscard = 512;
-static const double HighUtilization = 0.9;
-static const bool DiscardOnCreate = false;
 
 Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
 Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
