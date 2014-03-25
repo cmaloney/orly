@@ -41,7 +41,7 @@ class TCmd final
         List(false),
         CreateVolume(false),
         InstanceName(""),
-        VolumeKind("Stripe"),
+        VolumeKind("stripe"),
         DeviceSpeed(""),
         NumDevicesInVolume(0UL),
         ReplicationFactor(1UL),
@@ -105,10 +105,12 @@ class TCmd final
           &TCmd::InstanceName, "instance-name", Optional, "instance-name\0iname\0",
           "The instance name used for the newly created volume."
       );
+      /* Disabling Chained for now
       Param(
           &TCmd::VolumeKind, "strategy", Optional, "strategy\0strat\0",
           "(stripe | chain). The strategy used when creating a new volume."
       );
+      */
       Param(
           &TCmd::DeviceSpeed, "device-speed", Optional, "device-speed\0speed\0",
           "(fast | slow). The speed of the devices used in creating a new volume."
@@ -156,7 +158,7 @@ int main(int argc, char *argv[]) {
     stringstream ss;
     //disk_util.List(ss);
     cout << ss.str();
-    cout << "Device\t\tStigFS\tVolumeId\tVolume Device #\t# Devices in Volume\tLogical Extent Start\tLogical Extent Size\tVolume Kind\tInstance Name" << endl;
+    cout << "Device\t\tStigFS\tVolumeId\tVolume Device #\t# Devices in Volume\tLogical Extent Start\tLogical Extent Size\tVolume Kind" << endl;
     TDeviceUtil::ForEachDevice([](const char *path) {
       TDeviceUtil::TStigDevice device_info;
       string path_to_device = "/dev/";
