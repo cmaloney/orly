@@ -407,10 +407,6 @@ TServer::TCmd::TCmd()
       PackageDirectory("") {
   /* TEMP DEBUG : computing defaults for settings */ {
     std::stringstream ss;
-    ss << "============================" << endl
-      << "===== DEFAULT SETTINGS =====" << endl
-      << "===== Computed for 4GB =====" << endl
-      << "============================" << endl;
     const size_t page_size = getpagesize();
     constexpr size_t mb = 1024 * 1024;
     int num_phys_page = sysconf(_SC_PHYS_PAGES);
@@ -423,6 +419,12 @@ TServer::TCmd::TCmd()
     num_avail_page = mb / page_size * 4096;
     num_proc = 8;
     #endif
+    ss << "============================" << endl
+      << "===== DEFAULT SETTINGS =====" << endl
+      << "=== Computed for " << ((num_avail_page * page_size) / mb) << "MB ===" << endl
+      << "============================" << endl;
+    ss << "over-rides will be applied after these defaults." << endl;
+    const double mult_factor = static_cast<double>(num_avail_page) / ((4096 * mb) / page_size);
     ss << "PageSize = [" << page_size << "]" << endl
       << "MB on system = [" << ((num_phys_page * page_size) / mb) << "]" << endl
       << "MB available on system = [" << ((num_avail_page * page_size) / mb) << "]" << endl
@@ -434,66 +436,86 @@ TServer::TCmd::TCmd()
     const size_t br_dynamic_alloc = std::max(static_cast<size_t>(bytes_available * 0.25), 1024 * mb);
     bytes_available -= br_dynamic_alloc;
     /* Disk Buffer Block pool */
+    DiskBufferBlockPoolSize *= mult_factor;
     const size_t br_buffer_block_pool = DiskBufferBlockPoolSize * Disk::Util::PhysicalBlockSize;
     bytes_available -= br_buffer_block_pool;
     /* Update Entry pool */
+    UpdateEntryPoolSize *= mult_factor;
     const size_t br_update_entry_pool = UpdateEntryPoolSize * sizeof(TUpdate::TEntry);
     bytes_available -= br_update_entry_pool;
     /* Update pool */
+    UpdatePoolSize *= mult_factor;
     const size_t br_update_pool = UpdatePoolSize * sizeof(TUpdate);
     bytes_available -= br_update_pool;
     /* Transaction pool */
+    TransactionPoolSize *= mult_factor;
     const size_t br_transaction_pool = TransactionPoolSize * L1::TTransaction::GetTransactionSize();
     bytes_available -= br_transaction_pool;
     /* Transaction Mutation pool */
+    TransactionMutationPoolSize *= mult_factor;
     const size_t br_transaction_mutation_pool = TransactionMutationPoolSize * L1::TTransaction::GetTransactionMutationSize();
     bytes_available -= br_transaction_mutation_pool;
     /* Repo Data Layer pool */
+    RepoDataLayerPoolSize *= mult_factor;
     const size_t br_repo_data_layer_pool = RepoDataLayerPoolSize * Indy::TManager::GetDataLayerSize();
     bytes_available -= br_repo_data_layer_pool;
     /* Repo Mapping Entry pool */
+    RepoMappingEntryPoolSize *= mult_factor;
     const size_t br_repo_mapping_entry_pool = RepoMappingEntryPoolSize * Indy::TManager::GetMappingEntrySize();
     bytes_available -= br_repo_mapping_entry_pool;
     /* Repo Mapping pool */
+    RepoMappingPoolSize *= mult_factor;
     const size_t br_repo_mapping_pool = RepoMappingPoolSize * Indy::TManager::GetMappingSize();
     bytes_available -= br_repo_mapping_pool;
     /* Durable Mem Entry pool */
+    DurableMemEntryPoolSize *= mult_factor;
     const size_t br_durable_mem_entry_pool = DurableMemEntryPoolSize * Disk::TDurableManager::GetMemEntrySize();
     bytes_available -= br_durable_mem_entry_pool;
     /* Durable Layer pool */
+    DurableLayerPoolSize *= mult_factor;
     const size_t br_durable_layer_pool = DurableLayerPoolSize * Disk::TDurableManager::GetDurableLayerSize();
     bytes_available -= br_durable_layer_pool;
     /* Durable Mapping Entry pool */
+    DurableMappingEntryPoolSize *= mult_factor;
     const size_t br_durable_mapping_entry_pool = DurableMappingEntryPoolSize * Disk::TDurableManager::GetMappingEntrySize();
     bytes_available -= br_durable_mapping_entry_pool;
     /* Durable Mapping pool */
+    DurableMappingPoolSize *= mult_factor;
     const size_t br_durable_mapping_pool = DurableMappingPoolSize * Disk::TDurableManager::GetMappingSize();
     bytes_available -= br_durable_mapping_pool;
     /* Repo Cache */
+    MaxRepoCacheSize *= mult_factor;
     const size_t br_repo_cache = MaxRepoCacheSize * sizeof(Indy::TManager::TRepo);
     bytes_available -= br_repo_cache;
     /* File Service Append Log */
     const size_t br_file_service_append_log = FileServiceAppendLogMB * mb;
     bytes_available -= br_file_service_append_log;
     /* Block Cache */
+    BlockCacheSizeMB *= mult_factor;
     const size_t br_block_cache = BlockCacheSizeMB * mb;
     bytes_available -= br_block_cache;
     /* Page Cache */
+    PageCacheSizeMB *= mult_factor;
     const size_t br_page_cache = PageCacheSizeMB * mb;
     bytes_available -= br_page_cache;
     /* Durable Cache pool */
+    DurableCacheSize *= mult_factor;
     const size_t br_durable_cache = DurableCacheSize * std::max(sizeof(TPov), sizeof(TSession));
     bytes_available -= br_durable_cache;
     /* Fast Memory Sim */
+    MemorySimMB *= mult_factor;
     const size_t br_fast_memory_sim = MemorySim ? MemorySimMB * mb : 0UL;
     bytes_available -= br_fast_memory_sim;
     /* Slow Memory Sim */
+    MemorySimSlowMB *= mult_factor;
     const size_t br_slow_memory_sim = MemorySim ? MemorySimSlowMB * mb : 0UL;
     bytes_available -= br_slow_memory_sim;
     /* Fiber Frames */
+    NumFiberFrames *= mult_factor;
     const size_t br_fiber_frame_stacks = NumFiberFrames * (StackSize + sizeof(Fiber::TFrame));
     bytes_available -= br_fiber_frame_stacks;
     /* Disk Events */
+    NumDiskEvents *= mult_factor;
     const size_t br_disk_events = NumDiskEvents * sizeof(Disk::Util::TDiskController::TEvent);
     bytes_available -= br_disk_events;
 
