@@ -111,10 +111,12 @@ class TCmd final
           &TCmd::NumDevicesInVolume, "num-devices", Optional, "num-devices\0nd\0",
           "The number of device names expected when creating a new volume."
       );
+      /* Disabling Replication factor for now
       Param(
           &TCmd::ReplicationFactor, "replication-factor", Optional, "replication-factor\0rf\0",
           "The replication factor used when creating a new volume."
       );
+      */
       Param(
           &TCmd::StripeSizeKB, "stripe-size", Optional, "stripe-size\0",
           "The stripe size (in KB) used when creating a new striped volume."
