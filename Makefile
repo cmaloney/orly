@@ -6,7 +6,7 @@ STIG_APPS=stig/stigc stig/server/stigi stig/spa/spa stig/client/stig_client stig
 #Utils are simply things we like making sure still build
 STIG_UTIL=starsha/starsha starsha/dummy stig/core_import
 
-.PHONY: test apps clean
+.PHONY: apps release test test_build test_lang clean install
 
 apps: tools/starsha
 	starsha $(STIG_APPS) $(STIG_UTIL)
