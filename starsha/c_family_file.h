@@ -43,14 +43,14 @@ namespace Starsha {
     protected:
 
     /* TODO */
-    TCFamilyFile(TCorpus *corpus, const std::string &rel_path, const char *cmd)
-        : TFile(corpus, rel_path), Cmd(cmd) {
+    TCFamilyFile(TCorpus *corpus, const std::string &rel_path, const char *cmd, const char *gnu_cmd)
+        : TFile(corpus, rel_path), Cmd(cmd), GnuCmd(gnu_cmd) {
       Init();
     }
 
     /* TODO */
-    TCFamilyFile(TCorpus *corpus, const std::string &rel_path, time_t mod_time, const char *cmd)
-        : TFile(corpus, rel_path, mod_time), Cmd(cmd) {
+    TCFamilyFile(TCorpus *corpus, const std::string &rel_path, time_t mod_time, const char *cmd, const char *gnu_cmd)
+        : TFile(corpus, rel_path, mod_time), Cmd(cmd), GnuCmd(gnu_cmd) {
       Init();
     }
 
@@ -61,6 +61,7 @@ namespace Starsha {
 
     /* TODO */
     const char *Cmd;
+    const char *GnuCmd;
 
     /* TODO */
     void Init();

@@ -36,11 +36,11 @@ namespace Starsha {
 
     /* TODO */
     TCFile(TCorpus *corpus, const std::string &rel_path)
-        : TCFamilyFile(corpus, rel_path, "gcc") {}
+        : TCFamilyFile(corpus, rel_path, "gcc", "gcc") {}
 
     /* TODO */
     TCFile(TCorpus *corpus, const std::string &rel_path, time_t mod_time)
-        : TCFamilyFile(corpus, rel_path, mod_time, "gcc") {}
+        : TCFamilyFile(corpus, rel_path, mod_time, "gcc", "gcc") {}
 
     /* TODO */
     virtual ~TCFile();

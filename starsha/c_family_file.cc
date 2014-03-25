@@ -145,7 +145,7 @@ void TCFamilyFile::OnExists() {
 void TCFamilyFile::Init() {
   assert(this);
   ObjFile = 0;
-  auto tool = TryGetToolConfigNote(Cmd);
+  auto tool = TryGetToolConfigNote(GnuCmd);
   if (tool) {
     auto flags = tool->TryGetChild("flags");
     if (flags) {
