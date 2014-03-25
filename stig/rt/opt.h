@@ -213,7 +213,7 @@ namespace Stig {
 
       /* The storage space used to hold our known value, if any.  We use in-place new operators
          and explicit destruction to make values come and go from this buffer. */
-      char Storage[sizeof(TVal)] __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
+      alignas(TVal) char Storage[sizeof(TVal)];
 
       /* A pointer to our current value.  If this is null, then our value is unknown.
          If it is non-null, then it points (in a type-safe way) to Storage. */
