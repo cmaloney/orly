@@ -193,7 +193,7 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
   }
   if (((stripe_size_in_kb * 1024) % (Util::PhysicalBlockSize * 8UL) != 0)) {
     stringstream ss;
-    ss << "Stripe size must be a multiple of 8 * PhysicalBlockSize(" << Util::PhysicalBlockSize << ")";
+    ss << "Stripe size must be a multiple of 8 * PhysicalBlockSize(" << Util::PhysicalBlockSize << ") bytes. [" << (8 * Util::PhysicalBlockSize / 1024) << "KB]";
     throw std::runtime_error(ss.str());
   }
   if (replication_factor == 0) {

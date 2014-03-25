@@ -45,7 +45,7 @@ class TCmd final
         DeviceSpeed(""),
         NumDevicesInVolume(0UL),
         ReplicationFactor(1UL),
-        StripeSizeKB(64),
+        StripeSizeKB(512),
         ReadTest(false) {}
 
   /* Construct from argc/argv. */
