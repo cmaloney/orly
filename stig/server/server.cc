@@ -1931,17 +1931,11 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
         return;  // Closes the RAII connection
       }
 
-      if (req.GetFlags().Quiet) {
-        // TODO: This needs to be a binary error message....
-        const char err_msg[] = "SERVER_ERROR Quiet is not yet implemented.\r\n";
-        out.Write(err_msg, GetArrayLen(err_msg));
-        return;
-      }
-
       Mynde::TResponseHeader hdr;
       Zero(hdr);
       hdr.Magic = Mynde::BinaryMagicResponse;
-      hdr.Opcode = req.GetOpcode();
+      hdr.Opcode = static_cast<uint8_t>(req.GetOpcode());
+      assert(req.GetOpcode() == Mynde::TRequest::TOpcode(hdr.Opcode)); // Make sure we round trip properly.
       hdr.Opaque = req.GetOpaque();
 
       // TODO: Genericize memcache key -> indy key conversion (Make it a function)
@@ -1954,20 +1948,25 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           // TODO: We don't have any reason to go from atom -> Sabot
           // TODO: The IndexKey has more stuff in it than we need / care about.
           void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-          Sabot::State::TAny::TWrapper wrapper(
-              (*context)[Indy::TIndexKey(Mynde::MemcachedIndexUuid,
-                                         Indy::TKey(Atom::TCore(&context_arena,
-                                                                Sabot::State::TAny::TWrapper(Native::State::New(
-                                                                    key, state_alloc)))))].GetState(state_alloc));
+          Indy::TKey response_value = (*context)[Indy::TIndexKey(
+              Mynde::MemcachedIndexUuid,
+              Indy::TKey(
+                  Atom::TCore(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc)))))];
 
-          //TODO: This doesn't handle null properly...
-          Native::TBlob value = Sabot::AsNative<Native::TBlob>(*wrapper);
+          Atom::TCore void_comp;
 
+          if (memcmp(&void_comp, &response_value.GetCore(), sizeof(void_comp)) != 0) {
+            Native::TBlob value = Sabot::AsNative<Native::TBlob>(*Sabot::State::TAny::TWrapper(response_value.GetState(state_alloc)));
 
-          hdr.TotalBodyLength = value.size();
-          out << hdr;
-          out.Write(value.c_str(), value.size());
-          continue;
+            hdr.TotalBodyLength = value.size();
+            out << hdr;
+            out.Write(value.c_str(), value.size());
+          } else {
+            if (!req.GetFlags().Quiet) {
+              out << hdr;
+            }
+            continue;
+          }
         }
         case Mynde::TRequest::TOpcode::Set: {
           Native::TBlob key(req.GetKey().GetData(), req.GetKey().GetSize());
@@ -2007,8 +2006,9 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
 
 
           // TODO: This is a horrible place for this to live / refactor massively...
-          hdr.Opcode = 0x02;
-          out << hdr;
+          if (!req.GetFlags().Quiet) {
+            out << hdr;
+          }
           continue;
         }
         default: { NOT_IMPLEMENTED(); }
