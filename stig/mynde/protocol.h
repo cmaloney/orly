@@ -23,6 +23,7 @@
 namespace Strm {
   namespace Bin {
     class TIn;
+    class TOut;
   }
 }
 
@@ -48,6 +49,9 @@ namespace Stig {
       uint32_t Size;
       uint8_t *Data;
     };
+
+
+    Strm::Bin::TOut &operator<<(Strm::Bin::TOut &out, const TBuffer &that);
 
     /* User-friendly request object. Pulls apart the important information for consumption, holds the extra fields. */
     class TRequest {

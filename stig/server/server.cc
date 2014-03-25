@@ -1955,14 +1955,25 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
 
           Atom::TCore void_comp;
 
+          if(req.GetFlags().Key) {
+            hdr.KeyLength = req.GetKey().GetSize();
+          }
+
           if (memcmp(&void_comp, &response_value.GetCore(), sizeof(void_comp)) != 0) {
             Native::TBlob value = Sabot::AsNative<Native::TBlob>(*Sabot::State::TAny::TWrapper(response_value.GetState(state_alloc)));
 
             hdr.TotalBodyLength = value.size();
+            if(req.GetFlags().Key) {
+              out << req.GetKey();
+            }
             out << hdr;
             out.Write(value.c_str(), value.size());
+
           } else {
             if (!req.GetFlags().Quiet) {
+              if(req.GetFlags().Key) {
+                out << req.GetKey();
+              }
               out << hdr;
             }
             continue;

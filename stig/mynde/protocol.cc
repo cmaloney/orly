@@ -18,8 +18,11 @@
 
 #include <stig/mynde/protocol.h>
 
+#include <cassert>
+
 #include <stig/mynde/binary_protocol.h>
 #include <strm/bin/in.h>
+#include <strm/bin/out.h>
 
 using namespace Stig::Mynde;
 
@@ -55,4 +58,12 @@ void TBuffer::Fill(uint32_t size, Strm::Bin::TIn &in) {
   Size = size;
   Data = new uint8_t[Size];
   in.Read(Data, Size);
+}
+
+Strm::Bin::TOut &Stig::Mynde::operator<<(Strm::Bin::TOut &out, const TBuffer &that) {
+  assert(&out);
+  assert(&that);
+  out.Write(that.GetData(), that.GetSize());
+
+  return out;
 }
