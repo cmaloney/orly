@@ -132,7 +132,6 @@ class TTetrisManager final
        A timeout of -1 will never expire. */
     bool WaitUntilEmpty(int timeout = -1) const {
       assert(this);
-      timeout = timeout;
       IsEmpty.Sync();
       return true;
       //return IsEmpty.GetFd().IsReadable(timeout);
