@@ -82,11 +82,14 @@
       "ld" {
         "flags" {
           "-Wl,--as-needed";
+          "-rdynamic";
+          "-Wl,--hash-style=gnu";
+          "-Wl,--no-copy-dt-needed-entries";
+          "-Wl,-z,relro";
           "-O3";
           "-flto";
           "-s";
           "-U_FORTIFY_SOURCE";
-          "-rdynamic";
           "-Wl,-rpath -Wl,/opt/gcc/lib64 -Wl,--enable-new-dtags";
         }
         "libs" {
