@@ -16,6 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
+#include <iomanip>
 #include <iostream>
 
 #include <base/booster.h>
@@ -147,37 +148,45 @@ int main(int argc, char *argv[]) {
   TDiskController controller;
   TDiskUtil disk_util(&scheduler, &controller, Base::TOpt<std::string>(), false /*fsync*/, cache_cb, true);
   if (cmd.List) {
-    stringstream ss;
-    //disk_util.List(ss);
-    cout << ss.str();
-    cout << "Device\t\tStigFS\tVolumeId\tVolume Device #\t# Devices in Volume\tLogical Extent Start\tLogical Extent Size\tVolume Kind" << endl;
-    TDeviceUtil::ForEachDevice([](const char *path) {
+    const char *str_pattern = "|\%12s |%7s |%15s |%5s |%5s |%21s |%20s |%7s |\n";
+    const char *num_pattern = "|\%12s |%7s |%15s |%5ld |%5ld |%21ld |%20ld |%7s |\n";
+    const char *break_line = "|-------------|--------|----------------|------|------|----------------------|---------------------|--------|\n";
+    printf("%s", break_line);
+    printf(str_pattern,
+           "Device",
+           "StigFS",
+           "VolumeId",
+           "Pos",
+           "Tot",
+           "Logical Extent Start",
+           "Logical Exten Size",
+           "Kind");
+    printf("%s", break_line);
+    TDeviceUtil::ForEachDevice([&str_pattern, &num_pattern](const char *path) {
       TDeviceUtil::TStigDevice device_info;
       string path_to_device = "/dev/";
       path_to_device += path;
       bool ret = TDeviceUtil::ProbeDevice(path_to_device.c_str(), device_info);
-      cout << "/dev/" << path << "\t";
+      std::stringstream dev_name;
+      dev_name << "/dev/" << path;
       if (ret) {
-        cout << "YES\t[" << string(device_info.VolumeId.InstanceName) << ", " << device_info.VolumeId.Id << "]"
-          << "\t" << device_info.VolumeDeviceNumber
-          << "\t" << device_info.NumDevicesInVolume
-          << "\t" << device_info.LogicalExtentStart
-          << "\t" << device_info.LogicalExtentSize
-          << "\t";
-        switch (device_info.VolumeStrategy) {
-          case 1UL: {
-            cout << "Stripe";
-            break;
-          }
-          case 2UL: {
-            cout << "Chain";
-            break;
-          }
-        }
+        std::stringstream iname;
+        iname << string(device_info.VolumeId.InstanceName) << ", " << device_info.VolumeId.Id;
+        printf(num_pattern,
+               dev_name.str().c_str(),
+               "YES",
+               iname.str().c_str(),
+               device_info.VolumeDeviceNumber,
+               device_info.NumDevicesInVolume,
+               device_info.LogicalExtentStart,
+               device_info.LogicalExtentSize,
+               device_info.VolumeStrategy == 1UL ? "Stripe" : "Chain");
+      } else {
+        printf(str_pattern, dev_name.str().c_str(), "NO", "", "", "", "", "", "");
       }
-      cout << endl;
       return true;
     });
+    printf("%s", break_line);
     return EXIT_SUCCESS;
   } else if (cmd.CreateVolume) {
     TVolume::TDesc::TKind strategy;
