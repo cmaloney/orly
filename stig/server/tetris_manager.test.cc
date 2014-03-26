@@ -127,10 +127,8 @@ class TTetrisManager final
       return success;
     }
 
-    /* Blocks as long as there are values in this pov's queue or until the timeout expires.
-       Returns true if the queue is empty or false if the timeout expires.
-       A timeout of -1 will never expire. */
-    bool WaitUntilEmpty(int timeout = -1) const {
+    /* Blocks as long as there are values in this pov's queue. */
+    bool WaitUntilEmpty() const {
       assert(this);
       IsEmpty.Sync();
       return true;
