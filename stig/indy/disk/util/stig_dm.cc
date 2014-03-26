@@ -155,25 +155,68 @@ int main(int argc, char *argv[]) {
     printf(str_pattern,
            "Device",
            "StigFS",
-           "VolumeId",
+           "Volume Id",
            "Pos",
            "Tot",
            "Logical Extent Start",
            "Logical Exten Size",
            "Kind");
     printf("%s", break_line);
-    TDeviceUtil::ForEachDevice([&str_pattern, &num_pattern](const char *path) {
+    std::vector<std::tuple<bool, std::string, TDeviceUtil::TStigDevice>> device_vec;
+    TDeviceUtil::ForEachDevice([&str_pattern, &num_pattern, &device_vec](const char *path) {
       TDeviceUtil::TStigDevice device_info;
       string path_to_device = "/dev/";
       path_to_device += path;
       bool ret = TDeviceUtil::ProbeDevice(path_to_device.c_str(), device_info);
       std::stringstream dev_name;
       dev_name << "/dev/" << path;
+      device_vec.emplace_back(ret, dev_name.str(), device_info);
+      return true;
+    });
+    /* sort the device by (whether they have a StigFS), (Instance Name), (Volume ID), (Position in Volume)*/
+    std::sort(device_vec.begin(), device_vec.end(), [](const std::tuple<bool, std::string, TDeviceUtil::TStigDevice> &lhs,
+                                                       const std::tuple<bool, std::string, TDeviceUtil::TStigDevice> &rhs) {
+      bool lhs_ret = std::get<0>(lhs);
+      bool rhs_ret = std::get<0>(rhs);
+      const std::string &lhs_dev_name = std::get<1>(lhs);
+      const std::string &rhs_dev_name = std::get<1>(rhs);
+      const TDeviceUtil::TStigDevice &lhs_device_info = std::get<2>(lhs);
+      const TDeviceUtil::TStigDevice &rhs_device_info = std::get<2>(rhs);
+      if (lhs_ret && ! rhs_ret) {
+        return true;
+      } else if (!lhs_ret && rhs_ret) {
+        return false;
+      } else if (lhs_ret && rhs_ret) {
+        int vol_comp = strcmp(lhs_device_info.VolumeId.InstanceName, rhs_device_info.VolumeId.InstanceName);
+        if (vol_comp == 0) {
+          if (lhs_device_info.VolumeId.Id == rhs_device_info.VolumeId.Id) {
+            assert(lhs_device_info.VolumeDeviceNumber != rhs_device_info.VolumeDeviceNumber);
+            return lhs_device_info.VolumeDeviceNumber < rhs_device_info.VolumeDeviceNumber;
+          }
+          return lhs_device_info.VolumeId.Id < rhs_device_info.VolumeId.Id;
+        }
+        return vol_comp < 0;
+      } else {
+        /* sort by device name if neither is stig fs */
+        return lhs_dev_name < rhs_dev_name;
+      }
+    });
+    Base::TOpt<TDeviceUtil::TStigDevice> prev_dev_info;
+    for (const auto &dev : device_vec) {
+      bool ret = std::get<0>(dev);
+      const std::string &dev_name = std::get<1>(dev);
+      const TDeviceUtil::TStigDevice &device_info = std::get<2>(dev);
+      if ((!ret && prev_dev_info)
+          || (prev_dev_info && ((strcmp(prev_dev_info->VolumeId.InstanceName, device_info.VolumeId.InstanceName) != 0)
+             || (strcmp(prev_dev_info->VolumeId.InstanceName, device_info.VolumeId.InstanceName) == 0 && prev_dev_info->VolumeId.Id != device_info.VolumeId.Id)))) {
+        /* print out a break line if we're on a different volume */
+        printf("%s", break_line);
+      }
       if (ret) {
         std::stringstream iname;
         iname << string(device_info.VolumeId.InstanceName) << ", " << device_info.VolumeId.Id;
         printf(num_pattern,
-               dev_name.str().c_str(),
+               dev_name.c_str(),
                "YES",
                iname.str().c_str(),
                device_info.VolumeDeviceNumber,
@@ -182,10 +225,14 @@ int main(int argc, char *argv[]) {
                device_info.LogicalExtentSize,
                device_info.VolumeStrategy == 1UL ? "Stripe" : "Chain");
       } else {
-        printf(str_pattern, dev_name.str().c_str(), "NO", "", "", "", "", "", "");
+        printf(str_pattern, dev_name.c_str(), "NO", "", "", "", "", "", "");
       }
-      return true;
-    });
+      if (ret) {
+        prev_dev_info = device_info;
+      } else {
+        prev_dev_info.Reset();
+      }
+    }
     printf("%s", break_line);
     return EXIT_SUCCESS;
   } else if (cmd.CreateVolume) {
