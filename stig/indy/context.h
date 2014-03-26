@@ -187,10 +187,8 @@ namespace Stig {
         return PresentWalkConsTimer;
       }
 
-      #if 0
       /* TODO */
-      static __thread TKeyCursorCollection::TImpl *KeyCursorCollection;
-      #endif
+      TKeyCursorCollection::TImpl KeyCursorCollection;
 
       private:
 
