@@ -438,8 +438,8 @@ namespace Strm {
       /* Used by the operator<< overload for tuples. */
       template <typename TSomeTuple, size_t... Idx>
       void WriteTuple(const TSomeTuple &that, IdxIter<Idx...>) {
-        using ignored_t = int[];
-        ignored_t { (*this << std::get<Idx>(that), 0)... };
+        int x[] = { (*this << std::get<Idx>(that), 0)... };
+        (void)x;
       }
 
       /* Used by the operator<< overloads for multi-byte integers. */
