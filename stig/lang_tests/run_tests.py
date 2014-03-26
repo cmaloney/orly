@@ -48,7 +48,7 @@ class TPool(Pool):
         return TProcess(
                  filepath,
                  subprocess.Popen(
-                     '../../../out/debug/stig/stig -m -d ' + filepath + ' -o ' + self.__out_dir,
+                     '../../../out/debug/stig/stigc -m -d ' + filepath + ' -o ' + self.__out_dir,
                      shell=True,
                      stderr=subprocess.STDOUT,
                      stdout=subprocess.PIPE))
