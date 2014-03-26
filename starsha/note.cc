@@ -152,13 +152,13 @@ void TNote::Write(ostream &strm) const {
     strm << " = " << TEsc(Value);
   }
   if (FirstChild) {
-    strm << " {" << endl;
+    strm << " {\n";
     for (auto child = FirstChild; child; child = child->NextSibling) {
       child->Write(strm);
     }
-    strm << indent << '}' << endl;
+    strm << indent << "}\n";
   } else {
-    strm << ';' << endl;
+    strm << ";\n";
   }
 }
 

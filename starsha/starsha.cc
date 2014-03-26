@@ -111,7 +111,7 @@ void InspectFile(TCorpus::TFile *file) {
   if (mod_time) {
     cout << ", mod_time = " << ctime(&*mod_time);
   } else {
-    cout << ", (doesn't exist)" << endl;
+    cout << ", (doesn't exist)\n";
   }
 }
 
@@ -169,17 +169,17 @@ class TStarsha
       bool is_ok = true;
       if (Describe) {
         for (auto target: targets) {
-          cout << target->GetRelPath() << ':' << endl;
+          cout << target->GetRelPath() << ":\n";
           size_t batch_number = 1;
           corpus.DescribeBuild(target, [&batch_number](const vector<TCorpus::TFile *> &files) {
-            cout << "  batch #" << batch_number << ':' << endl;
+            cout << "  batch #" << batch_number << ":\n";
             for (auto file: files) {
               cout << "    " << file->GetRelPath();
               auto producer = file->TryGetProducer();
               if (producer) {
                 cout << " (" << file->TryGetProducer()->GetRelPath() << ')';
               }
-              cout << endl;
+              cout << '\n';
             }
             ++batch_number;
             return true;
@@ -192,7 +192,7 @@ class TStarsha
       } else {
         corpus.Build(targets, [this, &is_ok](TCorpus::TFile *file, const vector<string> &msgs) {
           is_ok = false;
-          cout << file->GetRelPath() << ':' << endl;
+          cout << file->GetRelPath() << ":\n";
           for (const string &msg: msgs) {
             cout << msg << endl;
           }
@@ -208,9 +208,9 @@ class TStarsha
                 TRunner runner(cmd_line);
                 int status = runner.Wait();
                 if (status || Verbose) {
-                  cout << rel_path << ':' << endl;
+                  cout << rel_path << ":\n";
                   runner.ForEachLine([](bool, const char *line) {
-                    cout << line << endl;
+                    cout << line << '\n';
                     return true;
                   });
                 }
@@ -255,7 +255,7 @@ class TStarsha
     virtual void WriteAfterDesc(std::ostream &strm) const {
       assert(this);
       assert(&strm);
-      strm << "Copyright Stig LLC" << endl
+      strm << "Copyright Stig LLC\n"
            << "Licensed under the Apache License, Version 2.0" << endl;
     }
   };

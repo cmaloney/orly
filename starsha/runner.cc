@@ -39,7 +39,7 @@ extern bool PrintCmds;
 TRunner::TRunner(const string &cmd, size_t buffer_size)
     : Poller(EPOLL_CLOEXEC), OutParser(buffer_size), ErrParser(buffer_size) {
   if (PrintCmds) {
-    cout << cmd << endl;
+    cout << cmd << '\n';
   }
   TOsError::IfLt0(HERE, ChildId = fork());
   if (ChildId) {
