@@ -45,9 +45,9 @@ Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMappi
 Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
 Stig::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 1000010UL);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 2000020UL);
-Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 9000UL);
+Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 750010UL);
+Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 1500020UL);
+Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 2000UL);
 
 FIXTURE(Typical) {
   Fiber::TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
@@ -56,11 +56,11 @@ FIXTURE(Typical) {
     scheduler.SetPolicy(scheduler_policy);
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
-                               256,
-                               262144 /* page cache slots: 1GB */,
+                               256 /* disk space: 256MB */,
+                               256 /* slow disk space: 256MB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::Best);
@@ -112,11 +112,11 @@ FIXTURE(Deep) {
     scheduler.SetPolicy(scheduler_policy);
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
-                               256,
-                               262144 /* page cache slots: 1GB */,
+                               256 /* disk space: 256MB */,
+                               256 /* slow disk space: 256MB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::Best);
@@ -292,11 +292,11 @@ FIXTURE(History) {
     TSequenceNumber seq_num = 0U;
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
-                               256,
-                               262144 /* page cache slots: 1GB */,
+                               256 /* disk space: 256MB */,
+                               256 /* slow disk space: 256MB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     TUuid int_str_int_idx(TUuid::Twister);
@@ -330,17 +330,17 @@ FIXTURE(History) {
 
 FIXTURE(BigSingleIndex) {
   Fiber::TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
-    const int64_t num_iter = 1000000L;
+    const int64_t num_iter = 750000L;
     const TScheduler::TPolicy scheduler_policy(4, 10, milliseconds(10));
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
-                               256,
-                               262144 /* page cache slots: 1GB */,
+                               1024 /* disk space: 1GB */,
+                               512 /* slow disk space: 512MB */,
+                               65536 /* page cache slots: 256MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               2048 /* block cache slots: 128MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::Best);
