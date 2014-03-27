@@ -44,7 +44,7 @@ namespace Strm {
 
       /* The limit of the data we contain.
          Always >= GetStart().  Never null. */
-      const char *GetLimit() const noexcept {
+      const uint8_t *GetLimit() const noexcept {
         assert(this);
         return Limit;
       }
@@ -57,7 +57,7 @@ namespace Strm {
 
       /* The start of the data we contain.
          Always <= GetLimit().  Never null. */
-      const char *GetStart() const noexcept {
+      const uint8_t *GetStart() const noexcept {
         assert(this);
         return Workspace;
       }
@@ -71,7 +71,7 @@ namespace Strm {
       private:
 
       /* See Out::TCons. */
-      virtual void Cycle(char *cursor, char **start, char **limit) override {
+      virtual void Cycle(uint8_t *cursor, uint8_t **start, uint8_t **limit) override {
         assert(this);
         if (cursor) {
           assert(cursor >= Limit);
@@ -89,11 +89,11 @@ namespace Strm {
       }
 
       /* Our one and only workspace. */
-      char Workspace[MaxSize];
+      uint8_t Workspace[MaxSize];
 
       /* The limit of the data currently in Workspace.
          Always true: Workspace <= Limit <= (Workspace + MaxSize) */
-      char *Limit;
+      uint8_t *Limit;
 
     };  // TStaticOut<MaxSize>
 

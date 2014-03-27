@@ -404,6 +404,28 @@ namespace Strm {
         Write(data, size);
       }
 
+
+      /* Write the given string an unsigned var-int, followed by bytes. */
+      template <size_t Count>
+      void WriteString(const uint8_t (&that)[Count]) {
+        assert(this);
+        WriteString(that, Count);
+      }
+
+      /* Write the given string an unsigned var-int, followed by bytes. */
+      void WriteString(const uint8_t *start, const uint8_t *limit) {
+        assert(this);
+        assert(start <= limit);
+        WriteString(start, limit - start);
+      }
+
+      /* Write the given string an unsigned var-int, followed by bytes. */
+      void WriteString(const uint8_t *data, size_t size) {
+        assert(this);
+        *this << size;
+        Write(data, size);
+      }
+
       /* A wrapper around an integer value to distingish NBO operations from
          var-int operations. */
       template <

@@ -58,7 +58,7 @@ namespace Strm {
          of bytes in the middle of a var-int and and opeartor* will return a
          null pointer until we get more bytes.  Calling Decode() again with
          more data will case decoding to pick up where it left off. */
-      const char *Decode(const char *start, const char *limit) noexcept;
+      const uint8_t *Decode(const uint8_t *start, const uint8_t *limit) noexcept;
 
       private:
 
@@ -94,7 +94,7 @@ namespace Strm {
       void Encode(uint64_t n) noexcept;
 
       /* The limit of our encoded data.  Always >= GetStart(). */
-      const char *GetLimit() const noexcept {
+      const uint8_t *GetLimit() const noexcept {
         assert(this);
         return Limit;
       }
@@ -107,7 +107,7 @@ namespace Strm {
       }
 
       /* The start of our encoded data.  Always <= GetLimit(). */
-      const char *GetStart() const noexcept {
+      const uint8_t *GetStart() const noexcept {
         assert(this);
         return Buffer;
       }
@@ -115,10 +115,10 @@ namespace Strm {
       private:
 
       /* Our buffer space. */
-      char Buffer[MaxSize];
+      uint8_t Buffer[MaxSize];
 
       /* See accessor. */
-      char *Limit;
+      uint8_t *Limit;
 
     };  // TVarIntEncoder
 

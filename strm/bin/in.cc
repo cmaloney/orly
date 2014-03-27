@@ -58,12 +58,12 @@ TIn &TIn::operator>>(string &that) {
 
 uint64_t TIn::ReadVarInt() {
   assert(this);
-  const char *start, *limit;
+  const uint8_t *start, *limit;
   TVarIntDecoder decoder;
   const uint64_t *val;
   do {
     Peek(start, limit);
-    const char *cursor = decoder.Decode(start, limit);
+    const uint8_t *cursor = decoder.Decode(start, limit);
     Skip(cursor - start);
     val = *decoder;
   } while (!val);

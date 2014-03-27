@@ -47,7 +47,7 @@ namespace Strm {
 
     private:
     /* In::TProd Cycle */
-    bool Cycle(size_t release_count, const char **start, const char **limit) override final {
+    bool Cycle(size_t release_count, const uint8_t **start, const uint8_t **limit) override final {
       assert(this);
 
       // Release our one buffer / reset it if requested.
@@ -83,7 +83,7 @@ namespace Strm {
     }
 
     /* Out::TCons Cycle */
-    void Cycle(char *cursor, char **start, char **limit) override final {
+    void Cycle(uint8_t *cursor, uint8_t **start, uint8_t **limit) override final {
       assert(this);
 
       if (cursor) {
@@ -108,16 +108,16 @@ namespace Strm {
     Base::TFd Fd;
     /* Buffer of data read from Fd
        TODO: Switch to a buffer class which manages start/end. */
-    char InBuffer[MaxInSize];
+    uint8_t InBuffer[MaxInSize];
 
     /* End position inside the buffer */
-    char *InLimit = nullptr;
+    uint8_t *InLimit = nullptr;
 
     /* Workspace to write to Fd
        TODO: Switch to a buffer class which manages start/end. */
-    char OutBuffer[MaxOutSize];
+    uint8_t OutBuffer[MaxOutSize];
 
-    char *OutLimit = nullptr;
+    uint8_t *OutLimit = nullptr;
 
   };
 

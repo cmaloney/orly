@@ -22,7 +22,7 @@ using namespace std;
 using namespace Strm::Mem;
 
 bool TStaticIn::Cycle(
-    size_t release_count, const char **start, const char **limit) {
+    size_t release_count, const uint8_t **start, const uint8_t **limit) {
   assert(this);
   /* If the consumer is releasing a workspace, we must have previously provided
      it.  We have only one workspace, however, so the count being released must

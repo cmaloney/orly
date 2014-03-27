@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 
 #include <base/no_copy_semantics.h>
 
@@ -63,7 +64,7 @@ namespace Strm {
 
          NOTE: It is acceptible (possibly desirable) for the consumer to reuse workspaces, as long as it has handled the
          data previously contained. */
-      virtual void Cycle(char *cursor, char **start, char **limit) = 0;
+      virtual void Cycle(uint8_t *cursor, uint8_t **start, uint8_t **limit) = 0;
 
       private:
 
@@ -122,7 +123,7 @@ namespace Strm {
       /* Our current workspace and our position within it.  If we don't
          have a workspace, then these are all null.  If we do, then none of
          them is null, Start < Limit, and Start <= Cursor <= Limit. */
-      char *Start, *Cursor, *Limit;
+      uint8_t *Start, *Cursor, *Limit;
 
     };  // TProd
 

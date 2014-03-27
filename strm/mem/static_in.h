@@ -49,16 +49,17 @@ namespace Strm {
 
       /* Point at the data in the given static array. */
       template <size_t Size>
-      TStaticIn(const char (&that)[Size])
+      TStaticIn(const uint8_t (&that)[Size])
           : Start(that), Limit(that + Size) {}
 
       /* Point at the data in the given c-string. */
       TStaticIn(const char *that)
-          : Start(that), Limit(that ? (Start + strlen(that)) : that) {}
+          : Start(reinterpret_cast<const uint8_t *>(that)),
+            Limit(reinterpret_cast<const uint8_t *>(that ? (that + strlen(that)) : that)) {}
 
       /* Point at the data in the given std string. */
       TStaticIn(const std::string &that)
-          : Start(that.data()), Limit(Start + that.size()) {}
+          : Start(reinterpret_cast<const uint8_t *>(that.data())), Limit(Start + that.size()) {}
 
       /* Point at the data in the given out-buffer. */
       template <size_t Size>
@@ -67,26 +68,26 @@ namespace Strm {
 
       /* Point at the given arbitrary data. */
       TStaticIn(const void *start, const void *limit)
-          : Start(static_cast<const char *>(start)),
-            Limit(static_cast<const char *>(limit)) {
+          : Start(static_cast<const uint8_t *>(start)),
+            Limit(static_cast<const uint8_t *>(limit)) {
         assert(start <= limit);
       }
 
       /* Point at the given arbitrary data. */
       TStaticIn(const void *data, size_t size)
-          : Start(static_cast<const char *>(data)), Limit(Start + size) {}
+          : Start(static_cast<const uint8_t *>(data)), Limit(Start + size) {}
 
       private:
 
       /* See In::TProd. */
       virtual bool Cycle(
           size_t release_count,
-          const char **start, const char **limit) override;
+          const uint8_t **start, const uint8_t **limit) override;
 
       /* The start and limit of the workspace we will report to the consumer.
          If Start >= Limit (for instance, if both are null), then we have no
          data to report. */
-      const char *Start, *Limit;
+      const uint8_t *Start, *Limit;
 
     };  // TStaticIn
 

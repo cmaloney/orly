@@ -30,7 +30,7 @@ using namespace Strm;
 /* Enumerated types we'll try to round-trip. */
 enum TFlavor { Chocolate, Vanilla };
 enum class TSyrup : int { HotFudge, Butterscotch };
-enum class TTopping : char { Nuts = 'u', Sprinkles = 'k' };
+enum class TTopping : uint8_t { Nuts = 'u', Sprinkles = 'k' };
 
 /* Make a time point from a ticks-since-epoch integer. */
 static steady_clock::time_point GetTimePoint(

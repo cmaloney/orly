@@ -68,17 +68,17 @@ FIXTURE(RoundTrip) {
   );
 }
 
-using TRange = pair<const char *, const char *>;
+using TRange = pair<const uint8_t *, const uint8_t *>;
 
 /* Generates start-limit ranges of a given number of bytes from a given
    buffer.  We use this to break up the buffer into pieces of various
    sizes, to test our ability to decode partial encodings. */
 static bool ForEachRange(
     const function<bool (const TRange &)> &cb,
-    const char *start, const char *limit, size_t range_size) {
+    const uint8_t *start, const uint8_t *limit, size_t range_size) {
   assert(cb);
   while (start < limit) {
-    const char *next = min(start + range_size, limit);
+    const uint8_t *next = min(start + range_size, limit);
     if (!cb(TRange(start, next))) {
       return false;
     }
@@ -99,7 +99,7 @@ static bool ForEachVal(
     /* Pop the next range from the range generator. */
     const TRange &range = *range_gen;
     ++range_gen;
-    const char
+    const uint8_t
         *cursor = range.first,
         *limit = range.second;
     /* Consume bytes. */
@@ -127,8 +127,8 @@ FIXTURE(Piecewise) {
   );
   /* Make a buffer large enough to hold all the encoded var-ints and
      copy them in. */
-  vector<char> buf(size);
-  char
+  vector<uint8_t> buf(size);
+  uint8_t
       *start = &buf[0],
       *limit = start;
   ForEachItem(

@@ -21,8 +21,8 @@
 using namespace std;
 using namespace Strm::Bin;
 
-const char *TVarIntDecoder::Decode(
-    const char *start, const char *limit) noexcept {
+const uint8_t *TVarIntDecoder::Decode(
+    const uint8_t *start, const uint8_t *limit) noexcept {
   assert(this);
   /* If we're starting over at a new value, zero the accumulator. */
   if (!Shift) {

@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 
 #include <base/no_copy_semantics.h>
 #include <strm/past_end.h>
@@ -63,7 +64,7 @@ namespace Strm {
          return false, which causes the client to never call back again.  In
          this case, we should definitely not throw. */
       virtual bool Cycle(
-          size_t release_count, const char **start, const char **limit) = 0;
+          size_t release_count, const uint8_t **start, const uint8_t **limit) = 0;
 
       private:
 
@@ -100,14 +101,14 @@ namespace Strm {
       virtual ~TCons();
 
       /* Peeks at the next byte of data. */
-      char Peek() const {
+      uint8_t Peek() const {
         assert(this);
         Refresh();
         return *Cursor;
       }
 
       /* Peeks at the next bytes of data. */
-      void Peek(const char *&start, const char *&limit) const {
+      void Peek(const uint8_t *&start, const uint8_t *&limit) const {
         assert(this);
         assert(&start);
         assert(&limit);
@@ -117,7 +118,7 @@ namespace Strm {
       }
 
       /* Pops the next byte of data. */
-      char Pop() {
+      uint8_t Pop() {
         assert(this);
         Refresh();
         return *Cursor++;
@@ -162,7 +163,7 @@ namespace Strm {
       /* Our current workspace and our position within it.  If we don't
          have a workspace, then these are all null.  If we do, then none of
          them is null, Start < Limit, and Start <= Cursor <= Limit. */
-      mutable const char *Start, *Cursor, *Limit;
+      mutable const uint8_t *Start, *Cursor, *Limit;
 
       /* Initially false, but becomes true iff. our producer tells us it is
          out of data and we have consumed it all. */

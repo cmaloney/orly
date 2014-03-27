@@ -72,7 +72,7 @@ TProd::~TProd() {
 void TProd::Write(const void *data, size_t size) {
   assert(this);
   assert(data || !size);
-  auto *cursor = static_cast<const char *>(data);
+  auto *cursor = static_cast<const uint8_t *>(data);
   while (size) {
     if (Cursor >= Limit) {
       Cons->Cycle(Cursor, &Start, &Limit);
