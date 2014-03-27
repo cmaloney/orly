@@ -45,9 +45,9 @@ Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMappi
 Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
 Stig::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 2097154UL);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 2097154UL);
-Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 60000UL);
+Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 1048578UL);
+Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 1048578UL);
+Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 2000UL);
 
 FIXTURE(BasicTailing) {
   TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
@@ -55,11 +55,11 @@ FIXTURE(BasicTailing) {
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               1 * 1024 /* disk space: 1 GB */,
-                               128,
-                               65536 /* page cache slots: 1GB */,
+                               256 /* disk space: 256MB */,
+                               256 /* slow disk space: 256MB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               4096 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::Best);
@@ -209,11 +209,11 @@ FIXTURE(BasicTailingDisabled) {
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               1 * 1024 /* disk space: 1 GB */,
-                               128,
-                               65536 /* page cache slots: 1GB */,
+                               256 /* disk space: 256MB */,
+                               256 /* slow disk space: 256MB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               4096 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::Best);
@@ -334,11 +334,11 @@ FIXTURE(Deep) {
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
-                               256,
-                               262144 /* page cache slots: 1GB */,
+                               256 /* disk space: 256MB */,
+                               256 /* slow disk space: 256MB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::Best);
@@ -483,11 +483,11 @@ FIXTURE(BigSingleIndex) {
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
-                               1024,
-                               262144 /* page cache slots: 1GB */,
+                               1024 /* disk space: 1GB */,
+                               512 /* slow disk space: 512MB */,
+                               65536 /* page cache slots: 256MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               2048 /* block cache slots: 128MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::Best);
@@ -596,7 +596,7 @@ FIXTURE(BigSingleIndex) {
 
 FIXTURE(StressSingleIndex) {
   TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
-    const int64_t max_iter = 2097152L;
+    const int64_t max_iter = 1048576L;
     for (int64_t num_iter = 4; num_iter <= max_iter; num_iter *= 2) {
       cout << "\t\t~~~ Testing [" << num_iter << "] ~~~" << endl;
       const int64_t num_merge_files = 4L;
@@ -606,12 +606,12 @@ FIXTURE(StressSingleIndex) {
       TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
 
       Sim::TMemEngine mem_engine(&scheduler,
-                                 4 * 1024 /* disk space: 4 GB */,
-                                 256,
-                                 262144 /* page cache slots: 1GB */,
-                                 1 /* num page lru */,
-                                 16384 /* block cache slots: 1GB */,
-                                 1 /* num block lru */);
+                               1024 /* disk space: 1GB */,
+                               512 /* slow disk space: 512MB */,
+                               65536 /* page cache slots: 256MB */,
+                               1 /* num page lru */,
+                               2048 /* block cache slots: 128MB */,
+                               1 /* num block lru */);
 
       Base::TUuid file_id(TUuid::Best);
       TSequenceNumber seq_num = 0U;
@@ -619,7 +619,6 @@ FIXTURE(StressSingleIndex) {
       const string tagged_str("Tagged");
       const string stig_str("Stig");
       typedef tuple<int64_t, string, int64_t, int64_t> TTup;
-      //void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
       vector<TTup> val_vec;
       vector<size_t> data_gen_vec;
       /* Make the data file */ {
@@ -694,10 +693,6 @@ FIXTURE(StressSingleIndex) {
             TKey expected_val(get<3>(tup), &arena, state_alloc);
             matched_correct += TKey(item.Key, &index_arena) == expected_key ? 1UL : 0UL;
             matched_correct += TKey(item.Value, &main_arena) == expected_val ? 1UL : 0UL;
-            /*
-            EXPECT_EQ(TKey(item.Key, &index_arena), expected_key);
-            EXPECT_EQ(TKey(item.Value, &main_arena), expected_val);
-            */
           }
         }
         walk_timer.Stop();
@@ -718,28 +713,20 @@ FIXTURE(Many) {
   TFiberTestRunner runner([](std::mutex &test_mut, std::condition_variable &test_cond, bool &test_fin, Fiber::TRunner::TRunnerCons &) {
     int num_cpu = sysconf(_SC_NPROCESSORS_ONLN);
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-    int64_t keys_per_file = 1000000UL;
-    //int64_t keys_per_file = 100000UL;
-    const TScheduler::TPolicy job_policy(min(1, num_cpu), min(1, num_cpu), milliseconds(10));
-    //const TScheduler::TPolicy job_policy(num_cpu, num_cpu, milliseconds(10));
+    int64_t keys_per_file = 100000UL;
+    const TScheduler::TPolicy job_policy(min(4, num_cpu), min(4, num_cpu), milliseconds(10));
     TScheduler job_scheduler(job_policy);
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               16 * 1024 /* disk space: 16 GB */,
-                               1 * 1024,
-                               262144 /* page cache slots: 1GB */,
+                               1024 /* disk space: 1GB */,
+                               512 /* slow disk space: 512MB */,
+                               65536 /* page cache slots: 256MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               2048 /* block cache slots: 128MB */,
                                1 /* num block lru */);
 
-    //int64_t num_iter = 256000000L;
-    //int64_t num_iter = 64000000L;
-    //int64_t num_iter = 32000000L;
-    //int64_t num_iter = 16000000L;
-    int64_t num_iter = 8000000L;
-    //int64_t num_iter = 2000000L;
-    //int64_t num_iter = 400000L;
+    int64_t num_iter = 800000L;
     size_t num_data_file = ceil(static_cast<double>(num_iter) / keys_per_file);
     Base::TUuid file_id(TUuid::Best);
 
@@ -778,7 +765,6 @@ FIXTURE(Many) {
         cond.wait(lock);
       }
     }
-    //CALLGRIND_START_INSTRUMENTATION;
     vector<size_t> start_vec;
     vector<size_t> end_vec;
     size_t next_id = num_data_file + 1;
@@ -827,7 +813,6 @@ FIXTURE(Many) {
       end_vec.clear();
     }
 
-    //CALLGRIND_STOP_INSTRUMENTATION;
     /* ensure they exist in the hash */
     assert(end_vec.size() == 1);
     TReader reader(HERE, mem_engine.GetEngine(), file_id, end_vec[0]);
@@ -860,10 +845,6 @@ FIXTURE(Many) {
       TKey expected_val(seen, &arena, state_alloc);
       matched_correct += TKey(item.Key, &index_arena) == expected_key ? 1UL : 0UL;
       matched_correct += TKey(item.Value, &main_arena) == expected_val ? 1UL : 0UL;
-      /*
-      EXPECT_EQ(TKey(item.Key, &index_arena), expected_key);
-      EXPECT_EQ(TKey(item.Value, &main_arena), expected_val);
-      */
     }
     walk_timer.Stop();
     cout << "Walk check [" << walk_timer.Total() << "]\t[" << (walk_timer.Total() / num_iter) << " / key]" << endl;
@@ -882,11 +863,11 @@ FIXTURE(SomeHistory) {
     TScheduler scheduler(TScheduler::TPolicy(10, 10, milliseconds(10)));
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
-                               256,
-                               262144 /* page cache slots: 1GB */,
+                               256 /* disk space: 256MB */,
+                               256 /* slow disk space: 256MB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::TimeAndMAC);
@@ -918,46 +899,6 @@ FIXTURE(SomeHistory) {
   });
 }
 
-FIXTURE(GrowingMainArena) {
-  TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
-    stringstream my_str;
-    const string zello_str("zello World");
-    void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-    Base::TUuid file_id(TUuid::TimeAndMAC);
-    Base::TUuid int_idx(Base::TUuid::Twister);
-    for (size_t i = 96000; i < 4096 * 16 * 32; ++i) {
-      cout << "Trying i = [" << i << "]" << endl;
-      TScheduler scheduler(TScheduler::TPolicy(10, 10, milliseconds(10)));
-
-      Sim::TMemEngine mem_engine(&scheduler,
-                                 4 * 1024 /* disk space: 4 GB */,
-                                 256,
-                                 262144 /* page cache slots: 1GB */,
-                                 1 /* num page lru */,
-                                 16384 /* block cache slots: 1GB */,
-                                 1 /* num block lru */);
-
-      TSuprena arena;
-      TSequenceNumber seq_num = 0U;
-      my_str << (rand() % 10);
-      /* data file 1 */ {
-        TMockMem mem_layer;
-        Insert(mem_layer, ++seq_num, int_idx, TKey(my_str.str(), &arena, state_alloc),
-                 1L);
-        Insert(mem_layer, ++seq_num, int_idx, TKey(zello_str, &arena, state_alloc),
-                 2L);
-        TDataFile data_file(mem_engine.GetEngine(), TVolume::TDesc::Fast, &mem_layer, file_id, 1UL, 20UL, 0U, RealTime);
-      }
-      /* push it through the merger */ {
-        TMergeDataFile merge_file(mem_engine.GetEngine(), TVolume::TDesc::Fast, file_id, vector<size_t>{1UL}, file_id, 3UL, 0U, Low, 16384, 20UL, false, false);
-      }
-    }
-    std::lock_guard<std::mutex> lock(mut);
-    fin = true;
-    cond.notify_one();
-  });
-}
-
 FIXTURE(JumpGrowingMainArena) {
   TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
     stringstream my_str;
@@ -965,19 +906,22 @@ FIXTURE(JumpGrowingMainArena) {
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     Base::TUuid file_id(TUuid::TimeAndMAC);
     Base::TUuid int_idx(Base::TUuid::Twister);
-    for (size_t i = 4096 * 16; i < 4096 * 16 * 32; i += (4096 * 16)) {
-      while (my_str.str().size() < i) {
-        my_str << (rand() % 10);
-      }
+    const size_t start_amt = 4096 * 16;
+    while (my_str.str().size() < start_amt) {
+      my_str << (rand() % 10);
+    }
+    const std::string add_str = my_str.str();
+    for (size_t i = start_amt; i < 4096 * 16 * 32; i += start_amt) {
+      my_str << add_str;
       cout << "Trying i = [" << i << "]" << endl;
       TScheduler scheduler(TScheduler::TPolicy(10, 10, milliseconds(10)));
 
       Sim::TMemEngine mem_engine(&scheduler,
-                                 4 * 1024 /* disk space: 4 GB */,
-                                 256,
-                                 262144 /* page cache slots: 1GB */,
+                                 1024 /* disk space: 1GB */,
+                                 512 /* slow disk space: 512MB */,
+                                 65536 /* page cache slots: 256MB */,
                                  1 /* num page lru */,
-                                 16384 /* block cache slots: 1GB */,
+                                 2048 /* block cache slots: 128MB */,
                                  1 /* num block lru */);
       TSuprena arena;
       TSequenceNumber seq_num = 0U;
@@ -998,65 +942,3 @@ FIXTURE(JumpGrowingMainArena) {
     cond.notify_one();
   });
 }
-
-#if 0
-/* build an arena where a depth ends on a block boundary */
-FIXTURE(TrickyArena) {
-  TBlockDev block_dev("indy_test_disk.bl", 256UL, "loop0");
-
-
-  /* MAKE SURE TO SET TController::MaxOutBlockGroupSize to 1 in order to repro this bug! */
-  /* index 1 */
-  /* file 1: 1981 tuple(str, str, int64, int64, int64) */
-  /* file 2: 67 tuple(str, str, int64, int64, int64) */
-
-  /* index 2 */
-  /* file 1: 1981 desc(int64_t) */
-  /* file 2: 67 desc(int64_t) */
-
-  /* file 1: 1981 tuple(str, str, desc(int64), int64, int64) */
-  /* file 2: 67 tuple(str, str, desc(int64), int64, int64) */
-  const string str_1("Hello");
-  const string str_2("World");
-  //void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-  Base::TUuid file_id(TUuid::TimeAndMAC);
-  Base::TUuid idx_1("a0505406-c957-11e2-b4d4-22000a9e29a2");
-  Base::TUuid idx_2("a04f47c8-c957-11e2-b4d4-22000a9e29a2");
-  const TScheduler::TPolicy scheduler_policy(10, 10, milliseconds(10));
-  TScheduler scheduler;
-  scheduler.SetPolicy(scheduler_policy);
-  auto util_reporter = make_shared<Disk::TIndyUtilReporter>();
-  TService service(DeviceName, DeviceName, BlockSize, CacheSize, QueueDepth, MaxAioNum, util_reporter, bind(ScheduleDiskController, &scheduler, placeholders::_1), &scheduler, true /* no real-time */, true);
-  TSuprena arena;
-  TSequenceNumber seq_num = 0U;
-  int64_t cur_id = 0L;
-  /* data file 1 */ {
-    TMockMem mem_layer;
-    for (int64_t i = 0; i < 1981; ++i) {
-      Insert(mem_layer, ++seq_num, idx_1, i,
-             str_1, str_2, cur_id, cur_id, cur_id);
-      Insert(mem_layer, ++seq_num, idx_2, i,
-             str_1, str_2, TDesc<int64_t>(cur_id), cur_id, cur_id);
-      ++cur_id;
-    }
-    TDataFile data_file(&service, &mem_layer, file_id, 1UL, 20UL, 0U, RealTime);
-  }
-  /* data file 2 */ {
-    TMockMem mem_layer;
-    for (int64_t i = 0; i < 67; ++i) {
-      Insert(mem_layer, ++seq_num, idx_1, i,
-             str_1, str_2, cur_id, cur_id, cur_id);
-      Insert(mem_layer, ++seq_num, idx_2, i,
-             str_1, str_2, TDesc<int64_t>(cur_id), cur_id, cur_id);
-      ++cur_id;
-    }
-    TDataFile data_file(&service, &mem_layer, file_id, 2UL, 20UL, 0U, RealTime);
-  }
-  for (size_t i = 0; i < 1; ++i) {
-  /* push it through the merger */ {
-    cout << "Merging file [" << i << "]" << endl;
-    TMergeDataFile merge_file(&service, file_id, vector<size_t>{1UL, 2UL}, file_id, 3UL + i, 0U, Low, 16384, 20UL, true, true);
-    }
-  }
-}
-#endif
