@@ -49,8 +49,8 @@
 #include <utility>
 #include <vector>
 
+#include <c14/utility.h>
 #include <io/endian.h>
-#include <strm/idx_iter.h>
 #include <strm/out.h>
 #include <strm/bin/var_int.h>
 #include <strm/bin/zig_zag.h>
@@ -216,7 +216,7 @@ namespace Strm {
          that inserting the empty tuple writes nothing at all. */
       template <typename... TElems>
       TOut &operator<<(const std::tuple<TElems...> &that) {
-        WriteTuple(that, MakeIdxIter<sizeof...(TElems)>());
+        WriteTuple(that, c14::make_index_sequence<sizeof...(TElems)>());
         return *this;
       }
 
@@ -437,7 +437,7 @@ namespace Strm {
 
       /* Used by the operator<< overload for tuples. */
       template <typename TSomeTuple, size_t... Idx>
-      void WriteTuple(const TSomeTuple &that, IdxIter<Idx...>) {
+      void WriteTuple(const TSomeTuple &that, c14::index_sequence<Idx...>) {
         int x[] = { (*this << std::get<Idx>(that), 0)... };
         (void)x;
       }

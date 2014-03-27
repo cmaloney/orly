@@ -49,8 +49,8 @@
 #include <utility>
 #include <vector>
 
+#include <c14/utility.h>
 #include <io/endian.h>
-#include <strm/idx_iter.h>
 #include <strm/in.h>
 #include <strm/bin/zig_zag.h>
 
@@ -215,7 +215,7 @@ namespace Strm {
       template <typename... TElems>
       TIn &operator>>(std::tuple<TElems...> &that) {
         assert(this);
-        ReadTuple(that, MakeIdxIter<sizeof...(TElems)>());
+        ReadTuple(that, c14::make_index_sequence<sizeof...(TElems)>());
         return *this;
       }
 
@@ -458,7 +458,7 @@ namespace Strm {
 
       /* Used by the operator>> overload for tuples. */
       template <typename TSomeTuple, size_t... Idx>
-      void ReadTuple(TSomeTuple &that, IdxIter<Idx...>) {
+      void ReadTuple(TSomeTuple &that, c14::index_sequence<Idx...>) {
         int x[] { (*this >> std::get<Idx>(that), 0)... };
         (void)x;
       }
