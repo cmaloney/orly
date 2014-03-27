@@ -1117,6 +1117,7 @@ void TServer::Init() {
       } catch (const std::exception &ex) {
         syslog(LOG_ERR, "Server startup caught exception [%s], Can't listen for memcache clients on port [%d]", ex.what(), Cmd.MemcachePortNumber);
       }
+      IfLt0(listen(MemcacheSocket, Cmd.ConnectionBacklog));
     }
     Scheduler->Schedule(bind(&TServer::AcceptClientConnections, this, true));
 
@@ -1313,7 +1314,7 @@ void TServer::AcceptClientConnections(bool is_memcache) {
     try {
       //DEBUG_LOG("acceptor: waiting");
       TAddress client_address;
-      TFd client_socket(Accept(MainSocket, client_address));
+      TFd client_socket(Accept((is_memcache ? MemcacheSocket : MainSocket), client_address));
       size_t prev_assignment_count = std::atomic_fetch_add(&SlowAssignmentCounter, 1UL);
       new TServeClientRunnable(this, SlowRunnerVec[prev_assignment_count % SlowRunnerVec.size()].get(), move(client_socket), client_address, is_memcache);
       //Scheduler->Schedule(bind(&TServer::ServeClient, this, move(client_socket), client_address));
