@@ -1902,6 +1902,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
 
   try {
     //TODO: Detect and handle eof without an exception?
+
     if (in.Peek() != Mynde::BinaryMagicRequest) {
       const char err_msg[] = "SERVER_ERROR text protocol is not supported.\r\n";
       out.Write(err_msg, GetArrayLen(err_msg));
@@ -1955,30 +1956,26 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
                   Atom::TCore(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc)))))];
 
           Atom::TCore void_comp;
-
           if(req.GetFlags().Key) {
             hdr.KeyLength = req.GetKey().GetSize();
           }
-
-          if (memcmp(&void_comp, &response_value.GetCore(), sizeof(void_comp)) != 0) {
-            Native::TBlob value = Sabot::AsNative<Native::TBlob>(*Sabot::State::TAny::TWrapper(response_value.GetState(state_alloc)));
-
-            hdr.TotalBodyLength = value.size();
-            if(req.GetFlags().Key) {
-              out << req.GetKey();
-            }
-            out << hdr;
-            out.Write(value.c_str(), value.size());
-
-          } else {
+          if (memcmp(&void_comp, &response_value.GetCore(), sizeof(void_comp)) == 0) {
             if (!req.GetFlags().Quiet) {
+              out << hdr;
               if(req.GetFlags().Key) {
                 out << req.GetKey();
               }
-              out << hdr;
             }
-            continue;
+          } else {
+            Native::TBlob value = Sabot::AsNative<Native::TBlob>(*Sabot::State::TAny::TWrapper(response_value.GetState(state_alloc)));
+            hdr.TotalBodyLength = value.size();
+            out << hdr;
+            if(req.GetFlags().Key) {
+              out << req.GetKey();
+            }
+            out.Write(value.c_str(), value.size());
           }
+          break;
         }
         case Mynde::TRequest::TOpcode::Set: {
           Native::TBlob key(req.GetKey().GetData(), req.GetKey().GetSize());
@@ -2021,72 +2018,17 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           if (!req.GetFlags().Quiet) {
             out << hdr;
           }
-          continue;
+          break;
         }
         default: { NOT_IMPLEMENTED(); }
       }
     }
   } catch (const Strm::TPastEnd &ex) {
     // eof. Just exit / close sockets / destruct all our RAII things.
+    syslog(LOG_INFO, "closing memcache connection: End of stream");
   } catch (const std::exception &ex) {
-    syslog(LOG_INFO, "closing memcache connection on exception; %s", ex.what());
+    syslog(LOG_INFO, "closing memcache connection: EXCEPTION: %s", ex.what());
   }
-
-  // Lets just assume the request is a get, and write all the code for that.
-  // TODO: Switch to fast fiber using TSwitchToRunner
-  //  Indy::Fiber::SwitchTo(server->FastRunnerVec[prev_assignment_count % server->FastRunnerVec.size()].get());
-
-  // TODO: Rename some of these contexts or put them into better namespaces so how they function is visible
-  // TODO: Timers / counters / etc?
-  /*
-   auto repo = pov->GetRepo(server);
-
-  Package::TContext::TEffects effects;
-
-
-  // Do the get!
-  void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-  std::string value =
-      Sabot::AsNative<std::string>>
-      (*Sabot::State::TAny::TWrapper(
-            context[Indy::TIndexKey(index_id,
-                                    TIndy::TKey(Atom::TCore(context_arena,
-                                                            Sabot::State::TAny::TWrapper(Native::State::New(
-                                                                addr, state_alloc)))))].GetState(state_alloc)));
-
-  //In the case of a delete
-  transaction = RepoManager->NewTransaction();
-  //Convert native std::string to sabot key
-  Indy::TUpdate::TOpByKey op_by_key = {
-    {key,  Indy::TKey(Native::TTombstone::Tombstone, &context_arena, state_alloc_2)}
-  };
-
-  void *state_alloc_2 = alloca(Sabot::State::GetMaxStateSize());
-
-  //op_by_key[key] = Indy::TKey(Native::TTombstone::Tombstone, &context_arena, state_alloc_2);
-
-  //TODO: Convert native to sabot for value here
-  //op_by_key[key] = Indy::TKey(&my_arena, Sabot::State::TAny::TWrapper(Var::NewSabot(state_alloc_2, val)).get());
-
-  //TODO
-  ///TUuid update_id(TUuid::Twister);
-  //tracker = TTracker(update_id, seconds(0));
-  //const auto &predicate_results = indy_context.GetPredicateResults();
-
-  TMetaRecord meta_record(
-      update_id,
-      TMetaRecord::TEntry(
-          GetId(), GetUserId(), fq_name, closure.GetMethodName(),
-          TMetaRecord::TEntry::TArgByName(meta_args_by_name.begin(), meta_args_by_name.end()),
-          TMetaRecord::TEntry::TExpectedPredicateResults(predicate_results.begin(), predicate_results.end()),
-          run_time, random_seed)
-  );
-  auto update = Indy::TUpdate::NewUpdate(op_by_key, Indy::TKey(meta_record, &my_arena, state_alloc_1),
-  Indy::TKey(update_id, &my_arena, state_alloc_2));
-  transaction->Push(repo, update);
-  transaction->Prepare();
-  transaction->CommitAction();
-  */
 }
 
 void TServer::StateChangeCb(Stig::Indy::TManager::TState state) {

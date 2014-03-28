@@ -87,11 +87,9 @@ TOut &Stig::Mynde::operator<<(TOut &out, const TResponseHeader &that) {
 TRequest::TRequest(TIn &in) : Flags({false,false}), Opaque(0), Cas(0) {
   TRequestHeader header;
   in >> header;
-
   if (header.Magic != BinaryMagicRequest) {
     throw std::invalid_argument("Invalid magic byte");
   }
-
   // Validate fields, one at a time filling in our data representation from the header.
   // NOTE: Everything in header is untrusted.
   switch (header.Opcode) {
