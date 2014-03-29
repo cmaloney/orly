@@ -45,15 +45,15 @@ TIn &Stig::Mynde::operator>>(TIn &in, TRequestHeader &that) {
 TOut &Stig::Mynde::operator<<(TOut &out, const TRequestHeader &that) {
   //TODO: Should we SwapEnds on ourselves then pass through?
   // The only problem if anyone happens to read our values during that time they'll get the incorrect results
-  out << that.Magic
-      << that.Opcode
-      << SwapEnds(that.KeyLength)
-      << that.ExtrasLength
-      << that.DataType
-      << SwapEnds(that.Reserved)
-      << SwapEnds(that.TotalBodyLength)
-      << that.Opaque // Note: Opaque is explicitly passed raw
-      << SwapEnds(that.Cas);
+
+  //TODO: This is a hack. But it works!
+  TRequestHeader tmp(that);
+  tmp.KeyLength = SwapEnds(tmp.KeyLength);
+  tmp.Reserved = SwapEnds(tmp.Reserved);
+  tmp.TotalBodyLength = SwapEnds(tmp.TotalBodyLength);
+  //NOTE: Opaque is explicitly skipped
+  tmp.Cas = SwapEnds(tmp.Cas);
+  out.WriteShallow(tmp);
 
   return out;
 }
@@ -71,15 +71,17 @@ TIn &Stig::Mynde::operator>>(TIn &in, TResponseHeader &that) {
 }
 
 TOut &Stig::Mynde::operator<<(TOut &out, const TResponseHeader &that) {
-  out << that.Magic
-      << that.Opcode
-      << SwapEnds(that.KeyLength)
-      << that.ExtrasLength
-      << that.DataType
-      << SwapEnds(that.Status)
-      << SwapEnds(that.TotalBodyLength)
-      << that.Opaque // NOTE: Opaque is explicitly passed raw
-      << SwapEnds(that.Cas);
+
+  //TODO: This is a hack. But it works!
+  TResponseHeader tmp(that);
+  tmp.KeyLength = SwapEnds(tmp.KeyLength);
+  tmp.Status = SwapEnds(tmp.Status);
+  tmp.TotalBodyLength = SwapEnds(tmp.TotalBodyLength);
+  //NOTE: Opaque is explicitly skipped
+  tmp.Cas = SwapEnds(tmp.Cas);
+
+  out.WriteShallow(tmp);
+  out.Flush();
 
   return out;
 }
