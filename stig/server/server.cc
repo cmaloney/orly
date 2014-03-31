@@ -1858,7 +1858,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
   assert(&fd_original);
   assert(&client_address);
 
-  //NOTE: fd_original has it's ownership stolen at this point. Use of it will cause badness.
+  // NOTE: fd_original has it's ownership stolen at this point. Use of it will cause badness.
   Strm::TFd<> strm(std::move(fd_original));
 
   const auto zero_ttl = std::chrono::seconds(0);
@@ -1884,25 +1884,23 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
 
   auto repo = pov->GetRepo(this);
 
-
   // NOTE: Should live the same time as context
   Atom::TSuprena context_arena;
 
   // Context for the current series of requests which we need to be consistent.
-  //TODO: Switch to a tri state that lives on the stack
-  //TODO: make_unique
+  // TODO: Switch to a tri state that lives on the stack
+  // TODO: make_unique
   std::unique_ptr<Indy::TContext> context(new Indy::TContext(repo, &context_arena));
 
-
-  //TODO: Detect protocol here (binary or text). Currently we only support binary.
+  // TODO: Detect protocol here (binary or text). Currently we only support binary.
   // Our input and output streams
-  //TODO: We want TRequest to genericize the binary and text streams to one thing.
-  //NOTE: We there should be no virtual calls in doing so.
+  // TODO: We want TRequest to genericize the binary and text streams to one thing.
+  // NOTE: We there should be no virtual calls in doing so.
   Strm::Bin::TIn in(&strm);
   Strm::Bin::TOut out(&strm);
 
   try {
-    //TODO: Detect and handle eof without an exception?
+    // TODO: Detect and handle eof without an exception?
 
     if (in.Peek() != Mynde::BinaryMagicRequest) {
       const char err_msg[] = "SERVER_ERROR text protocol is not supported.\r\n";
@@ -1911,10 +1909,10 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
     }
 
     // Loop processing requets until we hit eof or explicitly get an exit command.
-    //TODO: Detect and handle eof without an exception?
-    for(;;) {
-      //TODO: We should probably wait for notifications from indy somewhere...
-      //NOTE: We make this on the heap so that we can pass it to the response generation thread
+    // TODO: Detect and handle eof without an exception?
+    for (;;) {
+      // TODO: We should probably wait for notifications from indy somewhere...
+      // NOTE: We make this on the heap so that we can pass it to the response generation thread
       // We do the two threads because the protocol states that pending unread responses shouldn't block requests from
       // being read / handled
       Mynde::TRequest req(in);
@@ -1938,14 +1936,15 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       Zero(hdr);
       hdr.Magic = Mynde::BinaryMagicResponse;
       hdr.Opcode = static_cast<uint8_t>(req.GetOpcode());
-      assert(req.GetOpcode() == Mynde::TRequest::TOpcode(hdr.Opcode)); // Make sure we round trip properly.
+      assert(req.GetOpcode() == Mynde::TRequest::TOpcode(hdr.Opcode));  // Make sure we round trip properly.
       hdr.Opaque = req.GetOpaque();
 
       // TODO: Genericize memcache key -> indy key conversion (Make it a function)
       switch (req.GetOpcode()) {
         case Mynde::TRequest::TOpcode::Get: {
           // TODO: Change keys and values to be start, limit based rather than doing this std::string marshalling
-          std::tuple<std::string> key(std::string(reinterpret_cast<const char*>(req.GetKey().GetData()), req.GetKey().GetSize()));
+          std::tuple<std::string> key(
+              std::string(reinterpret_cast<const char *>(req.GetKey().GetData()), req.GetKey().GetSize()));
 
           // Perform the Get
           // TODO: We don't have any reason to go from atom -> Sabot
@@ -1957,13 +1956,13 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
                   Atom::TCore(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc)))))];
 
           Atom::TCore void_comp;
-          if(req.GetFlags().Key) {
+          if (req.GetFlags().Key) {
             hdr.KeyLength = req.GetKey().GetSize();
           }
           if (memcmp(&void_comp, &response_value.GetCore(), sizeof(void_comp)) == 0) {
             if (!req.GetFlags().Quiet) {
               out << hdr;
-              if(req.GetFlags().Key) {
+              if (req.GetFlags().Key) {
                 out << req.GetKey();
               }
             }
@@ -1975,7 +1974,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
             hdr.TotalBodyLength = value.Value.size() + 4;
             out << hdr;
             out.WriteShallow(value.Flags);
-            if(req.GetFlags().Key) {
+            if (req.GetFlags().Key) {
               out << req.GetKey();
             }
             out.Write(value.Value.c_str(), value.Value.size());
@@ -1990,10 +1989,10 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           // Second 4 bytes are expiration
           uint32_t Expiration = *(req.GetExtras().GetData() + 4);
 
-          //We currently only allow keys which have no timeout / are persistent
+          // We currently only allow keys which have no timeout / are persistent
           if (Expiration != 0) {
-            //TODO: Return a proper binary error
-            //TODO: Throw an exception to close out the server ina  well logged way
+            // TODO: Return a proper binary error
+            // TODO: Throw an exception to close out the server ina  well logged way
             const char err_msg[] = "SERVER_ERROR Only keys without an expiration are allowed (Expiration = 0)";
             out.Write(err_msg, GetArrayLen(err_msg));
             return;
@@ -2001,7 +2000,9 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
 
           std::tuple<std::string> key(
               std::string(reinterpret_cast<const char *>(req.GetKey().GetData()), req.GetKey().GetSize()));
-          Mynde::TValue value{std::string(reinterpret_cast<const char*>(req.GetValue().GetData()), req.GetValue().GetSize()), Flags};
+          Mynde::TValue value{
+              std::string(reinterpret_cast<const char *>(req.GetValue().GetData()), req.GetValue().GetSize()), Flags};
+
           auto transaction = RepoManager->NewTransaction();
           TUuid update_id(TUuid::Twister);
 
@@ -2026,15 +2027,16 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
                   {Indy::TIndexKey(
                        Mynde::MemcachedIndexUuid,
                        Indy::TKey(Atom::TCore(&context_arena,
-                                              Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc))), &context_arena)),
+                                              Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc))),
+                                  &context_arena)),
                    Indy::TKey(Atom::TCore(&context_arena,
-                                          Sabot::State::TAny::TWrapper(Native::State::New(value, state_alloc_1))), &context_arena)}},
+                                          Sabot::State::TAny::TWrapper(Native::State::New(value, state_alloc_1))),
+                              &context_arena)}},
               Indy::TKey(meta_record, &context_arena, state_alloc_2),
               Indy::TKey(update_id, &context_arena, state_alloc_3));
           transaction->Push(repo, update);
           transaction->Prepare();
           transaction->CommitAction();
-
 
           // TODO: This is a horrible place for this to live / refactor massively...
           if (!req.GetFlags().Quiet) {
