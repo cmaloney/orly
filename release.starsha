@@ -18,7 +18,7 @@
       }
       "libs" {
         "-luuid";
-        "-lpthread"
+        "-pthread";
         "-lrt";
         "-ldl";
         "-laio";
@@ -31,38 +31,47 @@
     }
     "g++" {
       "flags" {
-        "-DSTIG_HOST";
-        "-DTEST_OUTPUT_DIR=\"/tmp/\"";
-        "-O3";
-        "-flto";
-        "-Wno-type-limits";
+        "-std=c++11";
         "-Werror";
-        "-DNDEBUG";
         "-Wall";
         "-Wextra";
+        "-Wold-style-cast";
+        "-Wno-type-limits";
+        "-Wno-parentheses";
+        "-Wno-delete-non-virtual-dtor";
+        "-msse2";
+        "-pthread";
+
+        "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+        "-DSTIG_HOST";
+
+        "-U_FORTIFY_SOURCE";
+        "-O3";
+        "-DNDEBUG";
+        "-flto";
         "-Wno-unused";
+        "-Wno-old-style-cast";
         "-Wno-unused-parameter";
         "-Wno-unused-result";
         "-Wno-strict-aliasing";
-        "-Wno-delete-non-virtual-dtor";
-        "-std=c++11";
-        "-msse2";
-        "-U_FORTIFY_SOURCE";
       }
     }
     "gcc" {
       "flags" {
-        "-DTEST_OUTPUT_DIR=\"/tmp/\"";
-        "-O3";
-        "-flto";
-        "-Wno-type-limits";
+        "-std=c11";
         "-Werror";
-        "-DNDEBUG";
-        "-Wno-parentheses";
         "-Wall";
         "-Wextra";
+        "-Wno-type-limits";
+        "-Wno-parentheses";
+        "-pthread";
+
+        "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+
         "-Wno-unused";
-        "-std=c11";
+        "-O3";
+        "-flto";
+        "-DNDEBUG";
         "-U_FORTIFY_SOURCE";
       }
     }
@@ -75,6 +84,102 @@
           "-flto";
           "-DNDEBUG";
           "-U_FORTIFY_SOURCE";
+          "-pthread";
+        }
+      }
+    }
+    "stig/client/program/program.program.flex.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++11";
+          "-pthread";
+        }
+      }
+    }
+    "stig/client/program/program.program.bison.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++11";
+          "-pthread";
+        }
+      }
+    }
+    "stig/stig.package.flex.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++11";
+          "-pthread";
+        }
+      }
+    }
+    "stig/stig.package.bison.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++11";
+          "-pthread";
+        }
+      }
+    }
+    "stig/stig.checkpoint.flex.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++11";
+          "-pthread";
+        }
+      }
+    }
+    "stig/stig.checkpoint.bison.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++11";
+          "-pthread";
+        }
+      }
+    }
+    "stig/stig.command.flex.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++11";
+          "-pthread";
+        }
+      }
+    }
+    "stig/stig.command.bison.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++11";
+          "-pthread";
         }
       }
     }
@@ -95,7 +200,7 @@
         "libs" {
           "-lgomp";
           "-luuid";
-          "-lpthread";
+          "-pthread";
           "-lrt";
           "-ldl";
           "-laio";
@@ -127,6 +232,7 @@
           "-msse2";
           "-Wno-invalid-offsetof";
           "-U_FORTIFY_SOURCE";
+          "-pthread";
         }
       }
     }
