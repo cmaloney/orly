@@ -273,12 +273,12 @@ namespace Stig {
                   throw;
                 }
               } catch (...) {
-                delete LRUArray;
+                delete[] LRUArray;
                 LRUArray = nullptr;
                 throw;
               }
             } catch (...) {
-              delete SlotArray;
+              delete[] SlotArray;
               SlotArray = nullptr;
               throw;
             }
