@@ -56,7 +56,6 @@ class TSubprocServer final {
     char line[2048];
     do {
       fgets(line, sizeof(line), f);
-      printf(line);  // TODO: Remove this when we're confident.
     } while (!strstr(line, "TServer::Init end"));
     // NOTE: We're leaking f.  Big deal.
   }
