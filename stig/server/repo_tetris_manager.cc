@@ -20,6 +20,7 @@
 
 #include <vector>
 
+#include <stig/mynde/protocol.h> // For Mynde::PackageName
 #include <stig/notification/pov_failure.h>
 #include <stig/notification/update_progress.h>
 
@@ -100,6 +101,14 @@ bool TRepoTetrisManager::TPlayer::TChild::Play(
     ++(Player->RepoTetrisManager->PopCount);
     for (const auto &item: FuncHolderByUpdateId) {
       const auto &entry = MetaRecord.GetEntry(item.first);
+
+      //In the case of Mynde, the notification behavior is special.
+      if (entry.GetPackageFqName() == Mynde::PackageName) {
+        if (entry.GetMethodName() != "set") {
+          throw std::runtime_error("Only memcachememcache.set is supported at this point in time.");
+        }
+        continue;
+      }
       auto session = Player->RepoTetrisManager->DurableManager->Open<TSession>(entry.GetSessionId());
       if (session) {
         session->InsertNotification(Notification::TUpdateProgress::New(Player->Repo->GetId(), item.first, Notification::TUpdateProgress::Accepted));
@@ -112,6 +121,12 @@ bool TRepoTetrisManager::TPlayer::TChild::Play(
       transaction->Fail(Repo);
       for (const auto &item: FuncHolderByUpdateId) {
         const auto &entry = MetaRecord.GetEntry(item.first);
+        if (entry.GetPackageFqName() == Mynde::PackageName) {
+          if (entry.GetMethodName() != "set") {
+            throw std::runtime_error("Only memcachememcache.set is supported at this point in time.");
+          }
+          continue;
+        }
         auto session = Player->RepoTetrisManager->DurableManager->Open<TSession>(entry.GetSessionId());
         if (session) {
           session->InsertNotification(Notification::TPovFailure::New(Repo->GetId()));
@@ -137,8 +152,13 @@ bool TRepoTetrisManager::TPlayer::TChild::Refresh(const unique_ptr<Indy::L1::TTr
       Sabot::ToNative(*Sabot::State::TAny::TWrapper(PeekedUpdate->GetMetadata().NewState(&PeekedUpdate->GetSuprena(), state_alloc)), MetaRecord);
       for (const auto &item: MetaRecord.GetEntryByUpdateId()) {
         const auto &entry = item.second;
-        FuncHolderByUpdateId[item.first] =
-            Player->RepoTetrisManager->PackageManager->Get(entry.GetPackageFqName())->GetFunctionInfo(AsPiece(entry.GetMethodName()));
+        if (entry.GetPackageFqName() != Mynde::PackageName) {
+          FuncHolderByUpdateId[item.first] =
+              Player->RepoTetrisManager->PackageManager->Get(entry.GetPackageFqName())->GetFunctionInfo(AsPiece(entry.GetMethodName()));
+        } else {
+          // Add an entry default constructed for mynde calls (We hard code the assertions and replay)
+          FuncHolderByUpdateId[item.first];
+        }
       }
       Age = 0;
       FailureCount = 0;
@@ -184,6 +204,13 @@ bool TRepoTetrisManager::TPlayer::TChild::TestAssertions(Indy::TContext &context
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   for (const auto &item: FuncHolderByUpdateId) {
     const auto &entry = MetaRecord.GetEntry(item.first);
+    if(entry.GetPackageFqName() == Mynde::PackageName) {
+      if(entry.GetMethodName() != "set") {
+        //TODO: Should probably be a custom exception that inherits from std::runtime_error...
+        throw std::runtime_error("Only memcache set is supported for update assertions at the moment. And that has none.");
+      }
+      return true;
+    }
     const auto &expected_predicate_results = entry.GetExpectedPredicateResults();
     if (expected_predicate_results.size()) {
       Atom::TSuprena my_arena;

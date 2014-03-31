@@ -2010,7 +2010,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           TMetaRecord meta_record(update_id,
                                   TMetaRecord::TEntry(session->GetId(),
                                                       session->GetUserId(),
-                                                      {"memcachememcache"},
+                                                      Stig::Mynde::PackageName,
                                                       "set",
                                                       {},
                                                       {},
