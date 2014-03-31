@@ -38,8 +38,9 @@
 #include <io/device.h>
 #include <stig/atom/core_vector.h>
 #include <stig/indy/disk/durable_manager.h>
-#include <stig/mynde/protocol.h>
 #include <stig/mynde/binary_protocol.h>
+#include <stig/mynde/protocol.h>
+#include <stig/mynde/value.h>
 #include <strm/past_end.h>
 #include <stig/protocol.h>
 #include <strm/fd.h>
@@ -1967,19 +1968,40 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
               }
             }
           } else {
-            Native::TBlob value = Sabot::AsNative<Native::TBlob>(*Sabot::State::TAny::TWrapper(response_value.GetState(state_alloc)));
-            hdr.TotalBodyLength = value.size();
+            Mynde::TValue value;
+            ToNative(*Sabot::State::TAny::TWrapper(response_value.GetState(state_alloc)), value);
+            static_assert(sizeof(value.Flags) == 4, "Sanity check the flags are indeed 4 bytes.");
+            hdr.ExtrasLength = 4;
+            hdr.TotalBodyLength = value.Value.size() + 4;
             out << hdr;
+            out.WriteShallow(value.Flags);
             if(req.GetFlags().Key) {
               out << req.GetKey();
             }
-            out.Write(value.c_str(), value.size());
+            out.Write(value.Value.c_str(), value.Value.size());
           }
           break;
         }
         case Mynde::TRequest::TOpcode::Set: {
-          std::tuple<std::string> key(std::string(reinterpret_cast<const char*>(req.GetKey().GetData()), req.GetKey().GetSize()));
-          Native::TBlob value(req.GetValue().GetData(), req.GetValue().GetSize());
+
+          // First 4 bytes are flags
+          uint32_t Flags = *(req.GetExtras().GetData());
+
+          // Second 4 bytes are expiration
+          uint32_t Expiration = *(req.GetExtras().GetData() + 4);
+
+          //We currently only allow keys which have no timeout / are persistent
+          if (Expiration != 0) {
+            //TODO: Return a proper binary error
+            //TODO: Throw an exception to close out the server ina  well logged way
+            const char err_msg[] = "SERVER_ERROR Only keys without an expiration are allowed (Expiration = 0)";
+            out.Write(err_msg, GetArrayLen(err_msg));
+            return;
+          }
+
+          std::tuple<std::string> key(
+              std::string(reinterpret_cast<const char *>(req.GetKey().GetData()), req.GetKey().GetSize()));
+          Mynde::TValue value{std::string(reinterpret_cast<const char*>(req.GetValue().GetData()), req.GetValue().GetSize()), Flags};
           auto transaction = RepoManager->NewTransaction();
           TUuid update_id(TUuid::Twister);
 

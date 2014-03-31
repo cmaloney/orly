@@ -208,11 +208,7 @@ TRequest::TRequest(TIn &in) : Flags({false,false}), Opaque(0), Cas(0) {
 
 
   // Check extras length (depends on request kind)
-  if (Opcode == TOpcode::Get) {
-    if (header.ExtrasLength != 4) {
-      throw std::invalid_argument("Extras not the correct length (4 bytes)");
-    }
-  } else if (Opcode == TOpcode::Set || Opcode == TOpcode::Add || Opcode == TOpcode::Replace) {
+  if (Opcode == TOpcode::Set || Opcode == TOpcode::Add || Opcode == TOpcode::Replace) {
     if (header.ExtrasLength != 8) {
       throw std::invalid_argument("Extras not the correct length (8 bytes)");
     }
