@@ -1950,16 +1950,17 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           // TODO: We don't have any reason to go from atom -> Sabot
           // TODO: The IndexKey has more stuff in it than we need / care about.
           void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-          Indy::TKey response_value = (*context)[Indy::TIndexKey(
+          Indy::TIndexKey indy_index_key(
               Mynde::MemcachedIndexUuid,
               Indy::TKey(
-                  Atom::TCore(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc)))))];
+                  Atom::TCore(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc)))));
 
           Atom::TCore void_comp;
           if (req.GetFlags().Key) {
             hdr.KeyLength = req.GetKey().GetSize();
           }
-          if (memcmp(&void_comp, &response_value.GetCore(), sizeof(void_comp)) == 0) {
+          if (!context->Exists(indy_index_key)) {
+            syslog(LOG_INFO, "Get of unset key %s", std::get<0>(key).c_str());
             if (!req.GetFlags().Quiet) {
               out << hdr;
               if (req.GetFlags().Key) {
@@ -1967,6 +1968,8 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
               }
             }
           } else {
+            Indy::TKey response_value = (*context)[indy_index_key];
+            syslog(LOG_INFO, "Get of set key %s", std::get<0>(key).c_str());
             Mynde::TValue value;
             ToNative(*Sabot::State::TAny::TWrapper(response_value.GetState(state_alloc)), value);
             static_assert(sizeof(value.Flags) == 4, "Sanity check the flags are indeed 4 bytes.");
@@ -2002,6 +2005,8 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
               std::string(reinterpret_cast<const char *>(req.GetKey().GetData()), req.GetKey().GetSize()));
           Mynde::TValue value{
               std::string(reinterpret_cast<const char *>(req.GetValue().GetData()), req.GetValue().GetSize()), Flags};
+
+          syslog(LOG_INFO, "Set %s: %d %s", std::get<0>(key).c_str(), Flags, value.Value.c_str());
 
           auto transaction = RepoManager->NewTransaction();
           TUuid update_id(TUuid::Twister);
