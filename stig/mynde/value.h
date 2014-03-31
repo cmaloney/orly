@@ -20,13 +20,16 @@
 
 #include <cstdint>
 #include <string>
-/* Contains the value (a std::string), and the flags (a 32 bit uint) */
+
+#include <stig/native/defs.h>
+
+/* Contains the value (a Native::TBlob), and the flags (a 32 bit uint) */
 
 namespace Stig {
    namespace Mynde {
 
       struct TValue {
-         std::string Value;
+         Native::TBlob Value;
          uint32_t Flags;
       };
 

@@ -1948,8 +1948,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       switch (req.GetOpcode()) {
         case Mynde::TRequest::TOpcode::Get: {
           // TODO: Change keys and values to be start, limit based rather than doing this std::string marshalling
-          std::tuple<std::string> key(
-              std::string(reinterpret_cast<const char *>(req.GetKey().GetData()), req.GetKey().GetSize()));
+          std::tuple<Native::TBlob> key{{req.GetKey().GetData(), req.GetKey().GetSize()}};
 
           // Perform the Get
           // TODO: We don't have any reason to go from atom -> Sabot
@@ -2006,10 +2005,8 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
             return;
           }
 
-          std::tuple<std::string> key(
-              std::string(reinterpret_cast<const char *>(req.GetKey().GetData()), req.GetKey().GetSize()));
-          Mynde::TValue value{
-              std::string(reinterpret_cast<const char *>(req.GetValue().GetData()), req.GetValue().GetSize()), Flags};
+          std::tuple<Native::TBlob> key{{req.GetKey().GetData(), req.GetKey().GetSize()}};
+          Mynde::TValue value{{req.GetValue().GetData(), req.GetValue().GetSize()}, Flags};
 
           syslog(LOG_INFO, "Set %s: %d %s", std::get<0>(key).c_str(), Flags, value.Value.c_str());
 
