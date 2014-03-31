@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <string>
+#include <tuple>
 
 #include <stig/native/defs.h>
 
@@ -27,6 +28,8 @@
 
 namespace Stig {
    namespace Mynde {
+
+      using TKey = std::tuple<Native::TBlob>;
 
       struct TValue {
          Native::TBlob Value;

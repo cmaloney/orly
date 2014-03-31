@@ -21,5 +21,5 @@
 #include <stig/native/record.h>
 
 
-RECORD_ELEM(Stig::Mynde::TValue, Native::TBlob, Value);
+RECORD_ELEM(Stig::Mynde::TValue, Stig::Native::TBlob, Value);
 RECORD_ELEM(Stig::Mynde::TValue, uint32_t, Flags);

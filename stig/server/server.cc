@@ -1091,6 +1091,25 @@ void TServer::Init() {
       }
 
     }
+
+    /* Setup mynde indexes */ {
+      std::lock_guard<std::mutex> lock(IndexMapMutex);
+      void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+      void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+      Sabot::Type::TAny::TWrapper key_type_wrapper(Stig::Native::Type::For<Mynde::TKey>::GetType(key_type_alloc));
+      Sabot::Type::TAny::TWrapper val_type_wrapper(Stig::Native::Type::For<Mynde::TValue>::GetType(val_type_alloc));
+      Atom::TCore key_core(&IndexMapArena, *key_type_wrapper);
+      Atom::TCore val_core(&IndexMapArena, *val_type_wrapper);
+      auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)),
+                                          Mynde::MemcachedIndexUuid);
+      if (ret.second) {
+        /* TODO: clean up the index_id_replication obj... refactor this logic into a function */
+        RepoManager->Enqueue(new TIndexIdReplication(
+            Mynde::MemcachedIndexUuid, TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)));
+        IndexIdSet.insert(Mynde::MemcachedIndexUuid);
+      }
+    }
+
     /* open the main socket */ {
       TAddress address(TAddress::IPv4Any, Cmd.PortNumber);
       MainSocket = TFd(socket(address.GetFamily(), SOCK_STREAM, 0));
@@ -1948,7 +1967,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       switch (req.GetOpcode()) {
         case Mynde::TRequest::TOpcode::Get: {
           // TODO: Change keys and values to be start, limit based rather than doing this std::string marshalling
-          std::tuple<Native::TBlob> key{{req.GetKey().GetData(), req.GetKey().GetSize()}};
+          Mynde::TKey key{{req.GetKey().GetData(), req.GetKey().GetSize()}};
 
           // Perform the Get
           // TODO: We don't have any reason to go from atom -> Sabot
@@ -2005,7 +2024,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
             return;
           }
 
-          std::tuple<Native::TBlob> key{{req.GetKey().GetData(), req.GetKey().GetSize()}};
+          Mynde::TKey key{{req.GetKey().GetData(), req.GetKey().GetSize()}};
           Mynde::TValue value{{req.GetValue().GetData(), req.GetValue().GetSize()}, Flags};
 
           syslog(LOG_INFO, "Set %s: %d %s", std::get<0>(key).c_str(), Flags, value.Value.c_str());
