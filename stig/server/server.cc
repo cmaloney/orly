@@ -1944,7 +1944,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       switch (req.GetOpcode()) {
         case Mynde::TRequest::TOpcode::Get: {
           // TODO: Change keys and values to be start, limit based rather than doing this std::string marshalling
-          Native::TBlob key(req.GetKey().GetData(), req.GetKey().GetSize());
+          std::tuple<std::string> key(std::string(reinterpret_cast<const char*>(req.GetKey().GetData()), req.GetKey().GetSize()));
 
           // Perform the Get
           // TODO: We don't have any reason to go from atom -> Sabot
@@ -1978,7 +1978,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           break;
         }
         case Mynde::TRequest::TOpcode::Set: {
-          Native::TBlob key(req.GetKey().GetData(), req.GetKey().GetSize());
+          std::tuple<std::string> key(std::string(reinterpret_cast<const char*>(req.GetKey().GetData()), req.GetKey().GetSize()));
           Native::TBlob value(req.GetValue().GetData(), req.GetValue().GetSize());
           auto transaction = RepoManager->NewTransaction();
           TUuid update_id(TUuid::Twister);
