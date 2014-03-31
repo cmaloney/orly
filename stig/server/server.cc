@@ -1681,6 +1681,11 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
 
 void TServer::InstallPackage(const vector<string> &package_name, uint64_t version) {
   assert(this);
+
+  if (package_name == Mynde::PackageName) {
+    throw std::runtime_error("memcachememcache is a reserved package name.");
+  }
+
   auto post_install_cb = [this](Package::TLoaded::TPtr pckg_ptr) -> void {
     std::lock_guard<std::mutex> lock(IndexMapMutex);
     const auto &type_by_index_map = pckg_ptr->GetTypeByIndexMap();
