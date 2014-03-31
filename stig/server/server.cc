@@ -2004,9 +2004,9 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
                   {Indy::TIndexKey(
                        Mynde::MemcachedIndexUuid,
                        Indy::TKey(Atom::TCore(&context_arena,
-                                              Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc))))),
+                                              Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc))), &context_arena)),
                    Indy::TKey(Atom::TCore(&context_arena,
-                                          Sabot::State::TAny::TWrapper(Native::State::New(value, state_alloc_1))))}},
+                                          Sabot::State::TAny::TWrapper(Native::State::New(value, state_alloc_1))), &context_arena)}},
               Indy::TKey(meta_record, &context_arena, state_alloc_2),
               Indy::TKey(update_id, &context_arena, state_alloc_3));
           transaction->Push(repo, update);
