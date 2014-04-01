@@ -1979,9 +1979,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
           Indy::TIndexKey indy_index_key(
               Mynde::MemcachedIndexUuid,
-              Indy::TKey(
-                  Atom::TCore(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc)))));
-
+              Indy::TKey(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc))));
           if (req.GetFlags().Key) {
             hdr.KeyLength = req.GetKey().GetSize();
           }
@@ -2058,12 +2056,9 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
               TUpdate::TOpByKey{
                   {Indy::TIndexKey(
                        Mynde::MemcachedIndexUuid,
-                       Indy::TKey(Atom::TCore(&context_arena,
-                                              Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc))),
-                                  &context_arena)),
-                   Indy::TKey(Atom::TCore(&context_arena,
-                                          Sabot::State::TAny::TWrapper(Native::State::New(value, state_alloc_1))),
-                              &context_arena)}},
+                       Indy::TKey(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc)))),
+                   Indy::TKey(&context_arena,
+                              Sabot::State::TAny::TWrapper(Native::State::New(value, state_alloc_1))), }},
               Indy::TKey(meta_record, &context_arena, state_alloc_2),
               Indy::TKey(update_id, &context_arena, state_alloc_3));
           transaction->Push(repo, update);
