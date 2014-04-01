@@ -30,7 +30,7 @@ See the mynde docs for details about what is / isn't implemented at this point i
 import pylibmc
 
 #Connect to Mynde
-mc = pylibmc.Client(["127.0.0.1"], binary = True, behaviors={"tcp_nodelay": True})
+mc = pylibmc.Client(["127.0.0.1"], binary = True)
 
 #Set key 'hello' to value 'world'
 mc.set("hello", "world")
