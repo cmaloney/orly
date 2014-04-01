@@ -1885,10 +1885,11 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
   // NOTE: fd_original has it's ownership stolen at this point. Use of it will cause badness.
   Strm::TFd<> strm(std::move(fd_original));
 
-  const auto zero_ttl = std::chrono::seconds(0);
+  //TODO: This really should be a zero ttl
+  const auto non_zero_ttl = std::chrono::seconds(15);
 
   // TODO: Convert sessions to be a pooled resource
-  auto session = DurableManager->New<TSession>(Base::TUuid::Twister, zero_ttl);
+  auto session = DurableManager->New<TSession>(Base::TUuid::Twister, non_zero_ttl);
 
   // Note: We don't call session->NewFastPrivatePov() because we need the POV handle to keep the POV from vanishing.
   // TODO: Only make this when needed. Should live with the session as a pooled resource. Recycle only when failed.
@@ -1898,7 +1899,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
   // The problem is then we jump through a lot of uuid objects for no good reason...
   // TODO: Same as above but not all wrapped up
   auto pov = DurableManager->New<TPov>(TUuid::Twister,
-                                       zero_ttl,
+                                       non_zero_ttl,
                                        session->GetId(),
                                        TPov::TAudience::Private,
                                        TPov::TPolicy::Fast,
