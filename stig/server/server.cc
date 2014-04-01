@@ -1941,6 +1941,9 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       // being read / handled
       Mynde::TRequest req(in);
 
+      //TODO: make_unique
+      size_t prev_assignment_count = std::atomic_fetch_add(&SlowAssignmentCounter, 1UL);
+      std::unique_ptr<Indy::Fiber::TSwitchToRunner> switch_to_runner(new Indy::Fiber::TSwitchToRunner(FastRunnerVec[prev_assignment_count % FastRunnerVec.size()].get()));
       // TODO: Build up the response in this. Call 'fire' when the whole response is built.
       // TResponseBuilder resp(req);
 
@@ -1978,12 +1981,12 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
               Indy::TKey(
                   Atom::TCore(&context_arena, Sabot::State::TAny::TWrapper(Native::State::New(key, state_alloc)))));
 
-          Atom::TCore void_comp;
           if (req.GetFlags().Key) {
             hdr.KeyLength = req.GetKey().GetSize();
           }
           if (!context->Exists(indy_index_key)) {
             syslog(LOG_INFO, "Get of unset key %s", std::get<0>(key).c_str());
+            switch_to_runner.reset();
             if (!req.GetFlags().Quiet) {
               out << hdr;
               if (req.GetFlags().Key) {
@@ -1998,6 +2001,8 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
             static_assert(sizeof(value.Flags) == 4, "Sanity check the flags are indeed 4 bytes.");
             hdr.ExtrasLength = 4;
             hdr.TotalBodyLength = value.Value.size() + 4;
+
+            switch_to_runner.reset();
             out << hdr;
             out.WriteShallow(value.Flags);
             if (req.GetFlags().Key) {
@@ -2063,6 +2068,8 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           transaction->Push(repo, update);
           transaction->Prepare();
           transaction->CommitAction();
+
+          switch_to_runner.reset();
 
           // TODO: This is a horrible place for this to live / refactor massively...
           if (!req.GetFlags().Quiet) {
