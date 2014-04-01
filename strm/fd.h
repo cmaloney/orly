@@ -53,7 +53,6 @@ namespace Strm {
       // Release our one buffer / reset it if requested.
       if (release_count) {
         assert(release_count == 1);
-        assert(InLimit);
         InLimit = nullptr;
       }
 
