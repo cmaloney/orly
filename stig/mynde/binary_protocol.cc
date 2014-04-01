@@ -92,8 +92,13 @@ TRequest::TRequest(TIn &in) : Flags({false,false}), Opaque(0), Cas(0) {
   if (header.Magic != BinaryMagicRequest) {
     throw std::invalid_argument("Invalid magic byte");
   }
+
+  Flags.Quiet = false;
+  Flags.Key = false;
+
   // Validate fields, one at a time filling in our data representation from the header.
   // NOTE: Everything in header is untrusted.
+  BinaryOpcode = header.Opcode;
   switch (header.Opcode) {
     case 0x00: // Get
       Opcode = TOpcode::Get;

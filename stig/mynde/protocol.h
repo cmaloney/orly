@@ -110,6 +110,10 @@ namespace Stig {
         assert(this);
         return Opcode;
       }
+      uint8_t GetBinaryOpcode() const {
+        assert(this);
+        return BinaryOpcode;
+      }
       TFlags GetFlags() const {
         assert(this);
         return Flags;
@@ -119,6 +123,7 @@ namespace Stig {
 
       private:
       // Base fields, human readable
+      uint8_t BinaryOpcode;
       TOpcode Opcode;
       // Flags / response modifiers
       TFlags Flags;
@@ -132,17 +137,6 @@ namespace Stig {
     };
 
     // TODO: User-friendly response object?
-    enum TResponseStatus {
-      NoError = 0x0000,
-      KeyNotFound = 0x0001,
-      KeyExists = 0x0002,
-      ValueTooLarge = 0x0003,
-      InvalidArguments = 0x0004,
-      ItemNotStored = 0x0005,
-      IncrDectNonNumeric = 0x0006,  // Increment and decrement aren't allowed on non-numeric values.
-      UnknownCommand = 0x0081,
-      OutOfMemory = 0x0082
-    };
 
   }  // Mynde
 }  // Stig

@@ -48,6 +48,19 @@
 namespace Stig {
 namespace Mynde {
 
+//Raw response codes
+enum TResponseStatus {
+  NoError = 0x0000,
+  KeyNotFound = 0x0001,
+  KeyExists = 0x0002,
+  ValueTooLarge = 0x0003,
+  InvalidArguments = 0x0004,
+  ItemNotStored = 0x0005,
+  IncrDectNonNumeric = 0x0006,  // Increment and decrement aren't allowed on non-numeric values.
+  UnknownCommand = 0x0081,
+  OutOfMemory = 0x0082
+};
+
 // Protocol raw opcodes
 enum class TRawOpcode {
     Get = 0x00,

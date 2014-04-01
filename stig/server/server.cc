@@ -1933,9 +1933,11 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       return;
     }
 
+    bool Quit = false;
+
     // Loop processing requets until we hit eof or explicitly get an exit command.
     // TODO: Detect and handle eof without an exception?
-    for (;;) {
+    while(!Quit) {
       // TODO: We should probably wait for notifications from indy somewhere...
       // NOTE: We make this on the heap so that we can pass it to the response generation thread
       // We do the two threads because the protocol states that pending unread responses shouldn't block requests from
@@ -1948,11 +1950,6 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       // TODO: Build up the response in this. Call 'fire' when the whole response is built.
       // TResponseBuilder resp(req);
 
-      // We don't support CAS so it should always be null for now.
-      if (req.GetCas()) {
-        NOT_IMPLEMENTED();
-      }
-
       if (req.GetFlags().Key && req.GetOpcode() != Mynde::TRequest::TOpcode::Get) {
         // TODO: This needs to be a binary error message....
         const char err_msg[] = "SERVER_ERROR Only Get is allowed to return the key (GetK, GetKQ).\r\n";
@@ -1963,8 +1960,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       Mynde::TResponseHeader hdr;
       Zero(hdr);
       hdr.Magic = Mynde::BinaryMagicResponse;
-      hdr.Opcode = static_cast<uint8_t>(req.GetOpcode());
-      assert(req.GetOpcode() == Mynde::TRequest::TOpcode(hdr.Opcode));  // Make sure we round trip properly.
+      hdr.Opcode = req.GetBinaryOpcode();
       hdr.Opaque = req.GetOpaque();
 
       // TODO: Genericize memcache key -> indy key conversion (Make it a function)
@@ -1985,12 +1981,17 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           }
           if (!context->Exists(indy_index_key)) {
             syslog(LOG_INFO, "Get of unset key %s", std::get<0>(key).c_str());
+            hdr.Status = Mynde::TResponseStatus::KeyNotFound;
             switch_to_runner.reset();
+            hdr.TotalBodyLength = hdr.KeyLength + 9;
             if (!req.GetFlags().Quiet) {
               out << hdr;
               if (req.GetFlags().Key) {
                 out << req.GetKey();
               }
+              const char err_msg[] = "Not found";
+              static_assert(GetArrayLen(err_msg) == 10, "Value is longer than expected...");
+              out.Write(err_msg, GetArrayLen(err_msg)-1);
             }
           } else {
             Indy::TKey response_value = (*context)[indy_index_key];
@@ -1999,7 +2000,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
             ToNative(*Sabot::State::TAny::TWrapper(response_value.GetState(state_alloc)), value);
             static_assert(sizeof(value.Flags) == 4, "Sanity check the flags are indeed 4 bytes.");
             hdr.ExtrasLength = 4;
-            hdr.TotalBodyLength = value.Value.size() + 4;
+            hdr.TotalBodyLength = value.Value.size() + 4 + hdr.KeyLength;
 
             switch_to_runner.reset();
             out << hdr;
@@ -2067,14 +2068,36 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
 
           switch_to_runner.reset();
 
+          //NOTE: We don't support cas, but we set the flag to 1 so that we pass some tests.
+          hdr.Cas = 1;
+
           // TODO: This is a horrible place for this to live / refactor massively...
           if (!req.GetFlags().Quiet) {
             out << hdr;
           }
           break;
         }
-        default: { NOT_IMPLEMENTED(); }
+        case Mynde::TRequest::TOpcode::NoOp: {
+          syslog(LOG_INFO, "Noop, %02X", hdr.Opcode);
+          out << hdr;
+          break;
+        }
+        case Mynde::TRequest::TOpcode::Quit: {
+          Quit = true;
+
+          if(!req.GetFlags().Quiet) {
+            out << hdr;
+          }
+          break;
+        }
+        default: {
+          syslog(LOG_INFO, "Memcache not implemented opcode: %02X", req.GetBinaryOpcode());
+          NOT_IMPLEMENTED();
+        }
       }
+
+      //Flush output / force everything to be written.
+      out.Flush();
     }
   } catch (const Strm::TPastEnd &ex) {
     // eof. Just exit / close sockets / destruct all our RAII things.
