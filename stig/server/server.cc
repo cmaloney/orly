@@ -1915,7 +1915,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
   // Context for the current series of requests which we need to be consistent.
   // TODO: Switch to a tri state that lives on the stack
   // TODO: make_unique
-  std::unique_ptr<Indy::TContext> context(new Indy::TContext(repo, &context_arena));
+  std::unique_ptr<Indy::TContext> context;
 
   // TODO: Detect protocol here (binary or text). Currently we only support binary.
   // Our input and output streams
@@ -1963,9 +1963,14 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       hdr.Opcode = req.GetBinaryOpcode();
       hdr.Opaque = req.GetOpaque();
 
+
       // TODO: Genericize memcache key -> indy key conversion (Make it a function)
       switch (req.GetOpcode()) {
         case Mynde::TRequest::TOpcode::Get: {
+          if (!context) {
+            context = std::unique_ptr<Indy::TContext>(new Indy::TContext(repo, &context_arena));
+          }
+
           // TODO: Change keys and values to be start, limit based rather than doing this std::string marshalling
           Mynde::TKey key{{req.GetKey().GetData(), req.GetKey().GetSize()}};
 
@@ -2075,10 +2080,12 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           if (!req.GetFlags().Quiet) {
             out << hdr;
           }
+          context.reset();
           break;
         }
         case Mynde::TRequest::TOpcode::NoOp: {
           syslog(LOG_INFO, "Noop, %02X", hdr.Opcode);
+          context.reset();
           out << hdr;
           break;
         }
