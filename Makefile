@@ -2,9 +2,9 @@ PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
 RELEASE_OUT=../out/release
 #Apps get installed on 'make install'
-STIG_APPS=stig/stigc stig/server/stigi stig/spa/spa stig/client/stig_client stig/indy/disk/util/stig_dm
+STIG_APPS=orly/orlyc orly/server/orlyi orly/spa/spa orly/client/orly_client orly/indy/disk/util/orly_dm
 #Utils are simply things we like making sure still build
-STIG_UTIL=starsha/starsha starsha/dummy stig/core_import
+STIG_UTIL=starsha/starsha starsha/dummy orly/core_import
 
 .PHONY: apps release test test_build test_lang clean install
 
@@ -24,7 +24,7 @@ test_build: apps
 	starsha --all="*.test"
 
 test_lang: apps
-	cd stig/lang_tests; ./run_tests.py
+	cd orly/lang_tests; ./run_tests.py
 
 clean:
 	rm -f ../.starsha/.notes

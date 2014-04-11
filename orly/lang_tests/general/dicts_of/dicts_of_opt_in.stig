@@ -1,0 +1,50 @@
+/* <orly/lang_tests/general/dicts_of/dicts_of_opt_in.orly>
+
+   TODO
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+d1 = {(0 as int?):(0 as int?)};
+d2 = {(0 as int?):unknown int};
+d3 = {unknown int:(0 as int?)};
+d4 = {unknown int:unknown int};
+d5 = {(1 as int?):(1 as int?)};
+d6 = {(1 as int?):unknown int};
+d7 = {unknown int:(1 as int?)};
+
+test {
+  tdin1: ((0 as int?) in d1) is known true;
+  tdin2: ((0 as int?) in d2) is known true;
+  tdin3: ((0 as int?) in d3) is unknown;
+  tdin4: ((0 as int?) in d4) is unknown;
+  tdin5: ((0 as int?) in d5) is known false;
+  tdin6: ((0 as int?) in d6) is known false;
+  tdin7: ((0 as int?) in d7) is unknown;
+  tdin8: ((1 as int?) in d1) is known false;
+  tdin9: ((1 as int?) in d2) is known false;
+  tdin10: ((1 as int?) in d3) is unknown;
+  tdin11: ((1 as int?) in d4) is unknown;
+  tdin12: ((1 as int?) in d5) is known true;
+  tdin13: ((1 as int?) in d6) is known true;
+  tdin14: ((1 as int?) in d7) is unknown;
+  tdin15: ((unknown int) in d1) is unknown;
+  tdin16: ((unknown int) in d2) is unknown;
+  tdin17: ((unknown int) in d3) is unknown;
+  tdin18: ((unknown int) in d4) is unknown;
+  tdin19: ((unknown int) in d5) is unknown;
+  tdin20: ((unknown int) in d6) is unknown;
+  tdin21: ((unknown int) in d7) is unknown;
+};

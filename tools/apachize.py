@@ -85,7 +85,7 @@ def NoHandler(rel_path, text): return None
 HANDLERS = {
   '.cc':   CHandler,
   '.h':    CHandler,
-  '.stig': CHandler,
+  '.orly': CHandler,
   '.nycr': CHandler,
   '.sh':   ScriptHandler,
   '.py':   ScriptHandler,

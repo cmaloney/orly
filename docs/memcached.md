@@ -19,7 +19,7 @@ Stig has transactions, meaning it can do both multi-get and multi-set. Exact sem
 All actions within a single connection happen in a consistent point of view of a database. Specifically, when we recognize a multi-get we guarantee that every key in the multi-get is consistent. Exact rules for this with regards to different database operations appear below.
 
 ## Speed
-Some operations are going to be considerably faster when running on Stig than they are in memcached because we have less work to do to calculate the result (No locking for most operations). As stig's dataset grows to not fit purely in Memory, some operations may become slower, but we can give strong guarantees on maximum response time given a particular set of hardware.
+Some operations are going to be considerably faster when running on Stig than they are in memcached because we have less work to do to calculate the result (No locking for most operations). As orly's dataset grows to not fit purely in Memory, some operations may become slower, but we can give strong guarantees on maximum response time given a particular set of hardware.
 
 For writes, generally things will be faster than memcached safe for CAS operations, which will likely be slower.
 
@@ -28,7 +28,7 @@ TODO: Update this section once we have numbers.
 ## Update Visibility
 Stig requires all updates to be put into a private Point of View (TODO: Link to POV Docs) and then promotes the updates to a shared or global point of view.
 
-This maps to memcache in that each connection effectively lives in it's own stig "Session". The session has a single private point of view connected to it. As memcached commands are sent to Stig, the commands are evaluated in that private point of view, and the result (delted, not found, value) is sent back to the user. This all happens without waiting for the result to propogate to a shared point of view.
+This maps to memcache in that each connection effectively lives in it's own orly "Session". The session has a single private point of view connected to it. As memcached commands are sent to Stig, the commands are evaluated in that private point of view, and the result (delted, not found, value) is sent back to the user. This all happens without waiting for the result to propogate to a shared point of view.
 
 This is safe to do because the vast majority of memcached operations (basically everything other than cas) don't actually have any preconditions required for them to pass. They just happen or don't. That someone else in parallel could have caused them to happen or not happen is inconsequential. Stig guarantees that the results of every operation returned to the user is theoretically possible. This doesn't mean someone else will ever see that same state, or that when we get around to resolving conflicting updates that will be chosen. As one example, if a delete and an insert happen in parallel, then which occurs first is non-deterministic / a race. Stig will effectively arbitrarily choose when it resolves the difference, but for the initial client calls, both will seem to work.
 

@@ -17,9 +17,9 @@
 #pragma once
 
 #include <base/safe_global.h>
-#include <stig/type/bool.h>
-#include <stig/type/int.h>
-#include <stig/type/obj.h>
+#include <orly/type/bool.h>
+#include <orly/type/int.h>
+#include <orly/type/obj.h>
 
 namespace Base {
 

@@ -31,7 +31,7 @@
 
 using namespace Strm;
 
-const char *filename = "/tmp/stig_strm_fd.test_tmp_file";
+const char *filename = "/tmp/orly_strm_fd.test_tmp_file";
 
 FIXTURE(Unidirectional) {
   constexpr auto filename_len = 32;

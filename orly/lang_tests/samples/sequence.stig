@@ -1,0 +1,68 @@
+/* <orly/lang_tests/samples/sequence.orly>
+
+   An implementation of sequences in Stig script.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+package #1;
+
+seq1 = [1..15] as [int];
+
+seq2 = (x as [int]) where {
+  x = [1..20);
+};
+
+write_val = ((true) effecting {
+  *<[7, n]>::(int) <- x;
+}) where {
+  n = given::(int);
+  x = given::(int);
+};
+
+seq3 = ((*<[7, x]>::(int)) as [int]) where {
+  x = [1..2];
+};
+
+seq4 = ((x + 5) as [int]) where {
+  x = [1..10];
+};
+
+seq5 = ((x - 5) as [int]) where {
+  x = [1..10];
+};
+
+seq6 = ((x / 5) as [int]) where {
+  x = [1..10];
+};
+
+seq7 = ((x ** 5) as [real]) where {
+  x = [1..10];
+};
+
+seq8 = ((((x + 5) - 2) * 2) as [int]) where {
+  x = [1..10];
+};
+
+seq9 = (([1, x, 5] + [3, x]) as [[int]]) where {
+  x = [1..10];
+};
+
+seq14 = ((y + 5)  as [int]) where {
+  y = [1..5] + m(.n:z);
+  z = given::(int);
+  m = (2 + n) where {
+    n = given::(int);
+  };
+};

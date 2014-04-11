@@ -1,0 +1,13 @@
+{
+   "report_name" : "orly_tetris_cpu_report",
+   "report_type" : "standard",
+   "title" : "Stig Tetris CPU Report",
+   "vertical_label" : "cpu time",
+   "series" : [
+      { "metric": "orly_Tetris_Play_CPU___s", "color": "3333bb", "label": "Play Time", "type": "stack" },
+      { "metric": "orly_Tetris_Snapshot_CPU___s", "color": "dd0000", "label": "Snapshot Time", "type": "stack" },
+      { "metric": "orly_Tetris_Commit_CPU___s", "color": "ffea00", "label": "Commit Time", "type": "stack" },
+      { "metric": "orly_Tetris_Sort_CPU___s", "color": "ff8a60", "label": "Sort Time", "type": "stack" }
+   ]
+}
+

@@ -1,0 +1,90 @@
+/* <orly/lang_tests/general/as.orly>
+
+   This Stig script tests forced type conversions.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+nint = 5;
+nreal = 1.0;
+nbool = true;
+nintstr = "5";
+nrealstr = "1.00000";
+nlist = [1, 2, 3];
+nset = {1, 2, 3};
+/* TODO nullary functions for other types */
+ndic = {1:true, 2:false, 3:true};
+naddr = <[1, "str", true]>;
+seq = [1..3];
+ndicseq = **[<[1, true]>, <[2, false]>, <[3, true]>];
+uuid0 = {12345678-1234-1234-1234-123456789012};
+uuid0str = "12345678-1234-1234-1234-123456789012";
+test {
+  t1: ((5) as int) == 5;
+  t2: ((5) as (int)) == 5;
+  t3: ((1.0) as real) == 1.0;
+  t4: ((1.0) as (real)) == 1.0;
+  tbool1: (true as bool) == true;
+  tbool2: (false as bool) == false;
+  tbool3: ((true) as bool) == true;
+  tbool4: ((false) as (bool)) == false;
+  t5: (("foo") as str) == "foo";
+  t6: (("foo") as (str)) == "foo";
+  t7: ((5) as str) == "5";
+  t8: ((5) as (str)) == "5";
+  t9: ((5.0) as str) == "5.00000";
+  t10: ((5.0) as (str)) == "5.00000";
+  t11: (("5") as int) == 5;
+  t12: (("5") as (int)) == 5;
+  t13: (("5.0") as real) == 5.0;
+  t14: (("5.0") as (real)) == 5.0;
+  t15: (([1..10]) as [int]) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  t16: (([1..10]) as ([int])) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  t17: (([1..10]) as {int}) == {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  t18: (([1..10]) as ({int})) == {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  t19a: uuid0 as str == uuid0str; /* uuid -> str */
+  t19b: uuid0str as id == uuid0; /* str -> uuid */
+  t19c: uuid0 as str as id == uuid0; /* Reversable */
+  t20: ((**[<[1, true]>, <[2, false]>, <[3, true]>]) as {int:bool}) == {1:true, 2:false, 3:true};
+  t21: ((**[<[1, true]>, <[2, false]>, <[3, true]>]) as ({int:bool})) == {1:true, 2:false, 3:true};
+  t22: (({1, 2, 3}) as {int}) == {1, 2, 3};
+  t23: {1:true, 2:false, 3:true} as {int:bool} == {1:true, 2:false, 3:true};
+  t24: naddr as <[int, str, bool]> == naddr;
+  tn1: (nint as int) == nint;
+  tn2: (nreal as real) == nreal;
+  tnbool1: (nbool as bool) == nbool;
+  tn3: (nintstr as str) == nintstr;
+  tn4: (nint as str) == nintstr;
+  tn5: (nreal as str) == nrealstr;
+  tn6: (nintstr as int) == nint;
+  tn7: (nrealstr as real) == nreal;
+  tn8: (nlist as [int]) == nlist;
+  tn9: (nset as {int}) == nset;
+  tn10: (seq as [int]) == nlist;
+  tn11: (seq as {int}) == nset;
+  tn12: (ndicseq as {int:bool}) == ndic;
+
+  toptconv1: (true as bool?) is known true;
+  toptconv2: (false as bool?) is known false;
+  toptconv3: ((1 as int?) == 1) is known true;
+  toptconv4: ((3.14 as real?) == 3.14) is known true;
+  toptconv5: (("foo" as str?) == "foo") is known true;
+  toptconv6: (({00000000-0000-0000-0000-000000000000} as id?) == {00000000-0000-0000-0000-000000000000}) is known true;
+  toptconv7: (([1, 2, 3] as [int]?) == [1, 2, 3]) is known true;
+  toptconv8: (({1, 2, 3} as {int}?) == {1, 2, 3}) is known true;
+  toptconv9: (({1:true, 2:false, 3:true} as {int:bool}?) == {1:true, 2:false, 3:true}) is known true;
+  toptconv10: ((<[1]> as <[int]>?) == <[1]>) is known true;
+  toptconv11: ((<{.a:1, .b:2, .c:3}> as <{.a:int, .b:int, .c:int}>?) == <{.a:1, .b:2, .c:3}>) is known true;
+};

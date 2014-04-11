@@ -1,0 +1,94 @@
+/* <orly/lang_tests/general/conics.orly>
+
+   A useful set of tests for conics.orly.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+circle = ((a ** 2.0 - x ** 2.0) ** 0.5) where {
+  a = (given::(real)) assert {
+    that >= 0.0;
+  };
+  x = given::(real);
+};
+
+ellipse = (b / a * (a ** 2.0 - x ** 2.0) ** 0.5) where {
+  a = (given::(real)) assert {
+    that >= 0.0;
+  };
+  b = (given::(real)) assert {
+    that >= 0.0;
+  };
+  x = given::(real);
+};
+
+hyperbola = (b / a * (x ** 2.0 - a ** 2.0) ** 0.5) where {
+  a = (given::(real)) assert {
+    that >= 0.0;
+  };
+  b = (given::(real)) assert {
+    that >= 0.0;
+  };
+  x = (given::(real));
+};
+
+parabola = (2.0 * (a * x) ** 0.5) where {
+  a = (given::(real)) assert {
+    that >= 0.0;
+  };
+  x = given::(real);
+};
+
+in_range = (val >= lower and val <= upper) where {
+  val = given::(real);
+  lower = given::(real);
+  upper = given::(real);
+};
+
+almost_equal = (in_range(.val: val1, .lower: val2 - delta, .upper: val2 + delta)) where {
+  val1 = given::(real);
+  val2 = given::(real);
+  delta = given::(real);
+};
+
+test {
+  /* circle tests */
+  t1: circle(.a: 1.0, .x: 0.0) == 1.0;
+  t2: circle(.a: 2.0, .x: 2.0) == 0.0;
+  t3: circle(.a: 3.0, .x: -3.0) == 0.0;
+  t4: almost_equal(.val1: circle(.a: 1.0, .x: 0.5), .val2: 0.866, .delta: 0.001);
+  t5: almost_equal(.val1: circle(.a: 1.0, .x: -0.5), .val2: 0.866, .delta: 0.001);
+
+  /* ellipse tests */
+  t6: ellipse(.a: 1.0, .b: 2.0, .x: 0.0) == 2.0;
+  t7: ellipse(.a: 1.0, .b: 2.0, .x: 1.0) == 0.0;
+  t8: ellipse(.a: 1.0, .b: 2.0, .x: -1.0) == 0.0;
+  t9: almost_equal(.val1: ellipse(.a: 1.0, .b: 1.0, .x: 0.5), .val2: 0.866, .delta: 0.001);
+  t10: almost_equal(.val1: ellipse(.a: 1.0, .b: 2.0, .x: 0.5), .val2: 1.732, .delta: 0.001);
+  t11: almost_equal(.val1: ellipse(.a: 1.0, .b: 2.0, .x: -0.5), .val2: 1.732, .delta: 0.001);
+
+  /* hyperbola tests */
+  t12: hyperbola(.a: 1.0, .b: 2.0, .x: 1.0) == 0.0;
+  t13: hyperbola(.a: 1.0, .b: 2.0, .x: -1.0) == 0.0;
+  t14: almost_equal(.val1: hyperbola(.a: 1.0, .b: 2.0, .x: 1.5), .val2: 2.236, .delta: 0.001);
+  t15: almost_equal(.val1: hyperbola(.a: 1.0, .b: 2.0, .x: -1.5), .val2: 2.236, .delta: 0.001);
+
+  /* parabola tests */
+  t16: parabola(.a: 1.0, .x: 0.0) == 0.0;
+  t17: parabola(.a: 1.0, .x: 1.0) == 2.0;
+  t18: parabola(.a: 4.0, .x: 1.0) == 4.0;
+  t19: parabola(.a: 2.0, .x: 2.0) == 4.0;
+  t20: almost_equal(.val1: parabola(.a: 1.0, .x: 2.0), .val2: 2.828, .delta: 0.001);
+  t21: almost_equal(.val1: parabola(.a: 2.0, .x: 3.0), .val2: 4.898, .delta: 0.001);
+};

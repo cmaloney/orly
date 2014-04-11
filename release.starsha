@@ -88,7 +88,7 @@
         }
       }
     }
-    "stig/client/program/program.program.flex.cc" {
+    "orly/client/program/program.program.flex.cc" {
       "g++" {
         "flags" {
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
@@ -99,7 +99,7 @@
         }
       }
     }
-    "stig/client/program/program.program.bison.cc" {
+    "orly/client/program/program.program.bison.cc" {
       "g++" {
         "flags" {
           "-O3";
@@ -111,7 +111,7 @@
         }
       }
     }
-    "stig/stig.package.flex.cc" {
+    "orly/orly.package.flex.cc" {
       "g++" {
         "flags" {
           "-O3";
@@ -123,7 +123,7 @@
         }
       }
     }
-    "stig/stig.package.bison.cc" {
+    "orly/orly.package.bison.cc" {
       "g++" {
         "flags" {
           "-O3";
@@ -135,7 +135,7 @@
         }
       }
     }
-    "stig/stig.checkpoint.flex.cc" {
+    "orly/orly.checkpoint.flex.cc" {
       "g++" {
         "flags" {
           "-O3";
@@ -147,7 +147,7 @@
         }
       }
     }
-    "stig/stig.checkpoint.bison.cc" {
+    "orly/orly.checkpoint.bison.cc" {
       "g++" {
         "flags" {
           "-O3";
@@ -159,7 +159,7 @@
         }
       }
     }
-    "stig/stig.command.flex.cc" {
+    "orly/orly.command.flex.cc" {
       "g++" {
         "flags" {
           "-O3";
@@ -171,7 +171,7 @@
         }
       }
     }
-    "stig/stig.command.bison.cc" {
+    "orly/orly.command.bison.cc" {
       "g++" {
         "flags" {
           "-O3";
@@ -183,7 +183,7 @@
         }
       }
     }
-    "stig/server/stig.o" {
+    "orly/server/orly.o" {
       "ld" {
         "flags" {
           "-Wl,--as-needed";
@@ -211,7 +211,7 @@
         }
       }
     }
-    "stig/indy/fiber/fiber.cc" {
+    "orly/indy/fiber/fiber.cc" {
      "g++" {
         "flags" {
           "-DSTIG_HOST";

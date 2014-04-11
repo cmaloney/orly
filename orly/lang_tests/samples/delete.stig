@@ -1,0 +1,46 @@
+/* <orly/lang_tests/samples/delete.orly>
+
+   This Stig script tests basic delete semantics.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+package #1;
+
+write = ((1) effecting {
+  new <[x]> <- y;
+}) where {
+  x = given::(int);
+  y = given::(int);
+};
+
+exist = (*<[x]>::(int?) is known) where {
+  x = given::(int);
+};
+
+remove = ((1) effecting {
+  delete (int) @ <[x]>;
+}) where {
+  x = given::(int);
+};
+
+test {
+  t1: exist(.x:5) == false;
+  t2: write(.x:5, .y:5) == 1 {
+    t3: exist(.x:5) == true;
+    t4: remove(.x:5) == 1 {
+      t5: exist(.x:5) == false;
+    };
+  };
+};

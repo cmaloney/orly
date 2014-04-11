@@ -16,7 +16,7 @@
   }
 }
 "files" {
-  "stig/server/stig.o" {
+  "orly/server/orly.o" {
     "ld" {
       "flags" {
         "-fsanitize=thread";
@@ -25,7 +25,7 @@
       }
     }
   }
-  "stig/indy/disk/data_file.cc" {
+  "orly/indy/disk/data_file.cc" {
     "g++" {
       "flags" {
         "-fsanitize=thread";

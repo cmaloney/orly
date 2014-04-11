@@ -11,14 +11,14 @@
   }
 }
 "files" {
-  "stig/indy/disk/data_file.cc" {
+  "orly/indy/disk/data_file.cc" {
     "g++" {
       "flags" {
         "--coverage";
       }
     }
   }
-  "stig/svr_tools/installer.test.o" {
+  "orly/svr_tools/installer.test.o" {
     "ld" {
       "flags" {
         "--coverage"

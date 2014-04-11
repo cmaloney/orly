@@ -24,12 +24,12 @@
 using namespace Base;
 
 FIXTURE(Test1) {
-  std::string tmpl("/tmp/stig_general_XXXXXX.tmp");
+  std::string tmpl("/tmp/orly_general_XXXXXX.tmp");
   TTmpFile tmp_file(tmpl.c_str(), true);
   std::string name(tmp_file.GetName());
   EXPECT_EQ(tmpl.size(), name.size());
   EXPECT_NE(tmpl, name);
-  EXPECT_EQ(name.substr(0, 18), std::string("/tmp/stig_general_"));
+  EXPECT_EQ(name.substr(0, 18), std::string("/tmp/orly_general_"));
   EXPECT_NE(name.substr(18, 6), std::string("XXXXXX"));
   EXPECT_EQ(name.substr(24, 4), std::string(".tmp"));
 }

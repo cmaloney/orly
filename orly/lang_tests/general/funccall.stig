@@ -1,0 +1,280 @@
+/* <orly/lang_tests/general/funccall.orly>
+
+   This Stig script tests function calls.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+/* nullary functions */
+ntrue = true;
+nopttrue = true as bool?;
+nfalse = false;
+n0 = 0;
+n2 = 2;
+n5 = 5;
+n10 = 10;
+n5r = 5.0;
+nstr = "foo";
+nlist = [5, 3, 4, 1, 2];
+nset = {1, 2, 3};
+naddr = <["foo", "bar", 5]>;
+ndic = {"foo": "bar"};
+nobj = <{.foo: "foo", .bar: 5}>;
+nrange = [1..10];
+/* TODO function aliases don't work
+nfuncptr = fint;
+*/
+
+/* n-ary functions */
+ftrue = (true) where {
+  a = given::(int);
+};
+fopttrue = (true as bool?) where {
+  a = given::(int);
+};
+ffalse = (false) where {
+  a = given::(int);
+};
+f5 = (5) where {
+  a = given::(int);
+};
+f10 = (10) where {
+  a = given::(int);
+};
+fint = (a) where {
+  a = given::(int);
+};
+f5r = (5.0) where {
+  a = given::(int);
+};
+fstr = ("foo") where {
+  a = given::(int);
+};
+flist = ([5, 3, 4, 1, 2]) where {
+  a = given::(int);
+};
+fset = ({1, 2, 3}) where {
+  a = given::(int);
+};
+faddr = (<["foo", "bar", 5]>) where {
+  a = given::(int);
+};
+fdic = ({"foo": "bar"}) where {
+  a = given::(int);
+};
+fobj = (<{.foo: "foo", .bar: 5}>) where {
+  a = given::(int);
+};
+frange = ([1..10]) where {
+  a = given::(int);
+};
+/* TODO function aliases don't work
+ffuncptr = (fint) where {
+  a = given::(int);
+};
+*/
+
+/* implicit nullary function invocation */
+/* test expressions from the grammar file in top-down order */
+with {
+  /* where clause exprs */
+  naddr <- n5;
+} test {
+  /* collection constructors */
+  t1: [n5, n5] == [5, 5];
+  t2: {n5} == {5};
+  t3: <[nstr, n5, n5r]> == <["foo", 5, 5.0]>;
+  t4: not ({nstr: n5} is empty);
+  t5: <{.foo: nstr, .bar: n5}> == <{.foo: "foo", .bar: 5}>;
+  tnrangector: ([n0, n2..n5] reduce start 0 + that) == 6;
+
+  /* prefix exprs */
+  t6: -n5 == -5;
+  t7: +n5 == +5;
+  t8: not nfalse == true;
+  t9: **nlist reduce start true;
+  t10: **nlist reduce start ntrue;
+
+  /* infix exprs */
+  t11: n5 / n5 == 1;
+  t12: n5 ** n5 == 3125.0;
+  t13: n5 - n5 == 0;
+  t14: n5 % n5 == 0;
+  t15: n5 * n5 == 25;
+  t16: n5 + n5 == 10;
+  t17: n5 == n5;
+  t18: n5 != n10;
+  t19: n5 < n10;
+  t20: n5 <= n10;
+  t21: n10 > n5;
+  t22: n10 >= n5;
+  t23: ntrue and ntrue;
+  t24: ntrue and_then ntrue;
+  t25: ntrue or ntrue;
+  t26: ntrue or_else ntrue;
+  t27: ntrue xor nfalse;
+  /*
+  NOTE: 'bitwise operators' are only valid on sets as a intersection, union and symmetric diff operators
+  t28: n5 & n10 == 0;
+  t29: n5 | n5 == 5;
+  t30: n5 ^ n10 == 15;
+  */
+  t31: n5 in nlist;
+  t32: nrange reduce start ntrue and that > 0;
+
+  /* postfix exprs */
+  t33: nobj.foo == "foo";
+  t34: naddr.0 == "foo";
+  t35: nopttrue is known;
+  t35s1: nopttrue is known true;
+  t36: not ((nopttrue) is unknown);
+  t37: not (ndic is empty);
+  t38: n5 as real > 0.0;
+  /* TODO other function call types (unrolled, etc.) */
+  t40: ndic[nstr] == "bar";
+  t41: nlist[n0:] == nlist;
+  t42: nlist[:n2] == [5, 3];
+  t43: nlist[n0:n2] == [5, 3];
+
+  /* extern expressions */
+  t44: (x(.a: 4) == 4) where {
+    x = (a) where {
+      a = given::(int);
+    };
+  };
+  t45: *naddr::(int) == 5;
+
+  /* other exprs */
+  t46: (ntrue if nfalse else ntrue);
+  t47: (ntrue) where {};
+  t48: (ntrue) assert { ntrue; };
+  t49: (ntrue) effecting {};
+
+  /* naked test expressions */
+  t50: ntrue;
+
+  /* builtins */
+  tnbi1: length_of nlist == 5;
+  tnbi2: length_of nset == 3;
+  tnbi3: length_of ndic == 1;
+  tnbi4: reverse_of nlist == [2, 1, 4, 3, 5];
+  tnbi5: length_of (nlist sorted_by ntrue) == 5;
+
+  /* filtering */
+  tnfilter1: ((nrange if ntrue) reduce start 0 + that) == 55;
+  tnfilter2: (nrange if that <= 5) as [int] == [1, 2, 3, 4, 5];
+
+  /* as */
+  tnas1: length_of (nrange as [int]) == 10;
+};
+
+/* explicit function invocation */
+/* test expressions from the grammar file in top-down order */
+with {
+  /* where clause exprs */
+  faddr(.a: 5) <- f5(.a: 5);
+} test {
+  /* collection constructors */
+  t51: [f5(.a: 5), f5(.a: 5)] == [5, 5];
+  t52: {f5(.a: 5)} == {5};
+  t53: <[fstr(.a: 5), f5(.a: 5), f5r(.a: 5)]> == <["foo", 5, 5.0]>;
+  t54: not ({fstr(.a: 5): f5(.a: 5)} is empty);
+  t55: <{.foo: fstr(.a: 5), .bar: f5(.a: 5)}> == <{.foo: "foo", .bar: 5}>;
+  tfrangector: ([fint(.a: 0), fint(.a: 2)..fint(.a: 5)] reduce start 0 + that) == 6;
+
+  /* prefix exprs */
+  t56: -f5(.a: 5) == -5;
+  t57: +f5(.a: 5) == +5;
+  t58: not (ffalse(.a: 5)) == true;
+  t59: **flist(.a: 5) reduce start true;
+  t60: **flist(.a: 5) reduce start ftrue(.a: 5);
+
+  /* infix exprs */
+  t61: f5(.a: 5) / f5(.a: 5) == 1;
+  t62: f5(.a: 5) ** f5(.a: 5) == 3125.0;
+  t63: f5(.a: 5) - f5(.a: 5) == 0;
+  t64: f5(.a: 5) % f5(.a: 5) == 0;
+  t65: f5(.a: 5) * f5(.a: 5) == 25;
+  t66: f5(.a: 5) + f5(.a: 5) == 10;
+  t67: f5(.a: 5) == f5(.a: 5);
+  t68: f5(.a: 5) != f10(.a: 5);
+  t69: f5(.a: 5) < f10(.a: 5);
+  t70: f5(.a: 5) <= f10(.a: 5);
+  t71: f10(.a: 5) > f5(.a: 5);
+  t72: f10(.a: 5) >= f5(.a: 5);
+  t73: ftrue(.a: 5) and ftrue(.a: 5);
+  t74: ftrue(.a: 5) and_then ftrue(.a: 5);
+  t75: ftrue(.a: 5) or ftrue(.a: 5);
+  t76: ftrue(.a: 5) or_else ftrue(.a: 5);
+  t77: ftrue(.a: 5) xor ffalse(.a: 5);
+  /*
+  NOTE: 'bitwise operators' are only valid on sets as a intersection, union and symmetric diff operators
+  t78: f5(.a: 5) & f10(.a: 5) == 0;
+  t79: f5(.a: 5) | f5(.a: 5) == 5;
+  t80: f5(.a: 5) ^ f10(.a: 5) == 15;
+  */
+  t81: f5(.a: 5) in flist(.a: 5);
+  t82: (frange(.a: 5)) reduce (start ftrue(.a: 5) and that > 0);
+
+  /* postfix exprs */
+  t83: fobj(.a: 5).foo == "foo";
+  t84: faddr(.a: 5).0 == "foo";
+  t85: fopttrue(.a: 5) is known;
+  t85s1: fopttrue(.a: 5) is known true;
+  t86: not ((fopttrue(.a: 5)) is unknown);
+  t87: not (fdic(.a: 5) is empty);
+  t88: f5(.a: 5) as real > 0.0;
+  /* TODO other function call types (unrolled, etc.) */
+  t89: fdic(.a: 5)[fstr(.a: 5)] == "bar";
+  t90: flist(.a: 5)[fint(.a: 0):] == nlist;
+  t91: flist(.a: 5)[:fint(.a: 2)] == [5, 3];
+  t92: flist(.a: 5)[fint(.a: 0):fint(.a: 2)] == [5, 3];
+
+  /* extern expressions */
+  t93: (x(.a: 4) == 4) where {
+    x = (a) where {
+      a = given::(int);
+    };
+  };
+  t94: *faddr(.a: 5)::(int) == 5;
+
+  /* other exprs */
+  t95: (ftrue(.a: 2) if ffalse(.a: 3) else ftrue(.a: 4));
+  t96: (ftrue(.a: 5)) where {};
+  t97: (ftrue(.a: 5)) assert { ftrue(.a: 5); };
+  t98: (ftrue(.a: 5)) effecting {};
+
+  /* naked test expressions */
+  t99: ftrue(.a: 5);
+
+  /* builtins */
+  tfbi1: length_of flist(.a: 5) == 5;
+  tfbi2: length_of fset(.a: 5) == 3;
+  tfbi3: length_of fdic(.a: 5) == 1;
+  tfbi4: reverse_of flist(.a: 5) == [2, 1, 4, 3, 5];
+  tfbi5: length_of (flist(.a: 5) sorted_by ftrue(.a: 5)) == 5;
+
+  /* special test: sorted_by with a function predicate taking lhs and rhs */
+  tfsortedby: ((flist(.a: 5) sorted_by fsortpred(.l: lhs, .r: rhs)) == [1, 2, 3, 4, 5]) where {
+    fsortpred = (l < r) where { l = given::(int); r = given::(int); };
+  };
+
+  /* filtering */
+  tffilter1: ((frange(.a: 5) if ftrue(.a: 5)) reduce start 0 + that) == 55;
+  tffilter2: (frange(.a: 5) if that <= 5) as [int] == [1, 2, 3, 4, 5];
+
+  /* as */
+  tfas1: length_of (frange(.a: 5) as [int]) == 10;
+};

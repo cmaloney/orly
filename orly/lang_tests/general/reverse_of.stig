@@ -1,0 +1,45 @@
+/* <orly/lang_tests/general/reverse_of.orly>
+
+   This Stig script tests the reverse_by operation.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+nlist = [1, 2, 3, 4, 5];
+nreversed = [5, 4, 3, 2, 1];
+freversed = (reverse_of x) where {
+  x = given::([int]);
+};
+
+test {
+  t1: reverse_of [1, 2, 3, 4, 5] == [5, 4, 3, 2, 1];
+  t2: reverse_of [5, 4, 3, 2, 1] == [1, 2, 3, 4, 5];
+  t3: reverse_of [5, 1, 4, 2, 3] == [3, 2, 4, 1, 5];
+  t4: reverse_of nlist == nreversed;
+  t5: reverse_of nreversed == nlist;
+  t6: reverse_of reverse_of nlist == nlist;
+  t7: reverse_of freversed(.x: nlist) == nlist;
+  t8: reverse_of reverse_of freversed(.x: nreversed) == nlist;
+
+  /* reverse_of on strings */
+  tstring1: reverse_of "" == "";
+  tstring2: reverse_of "a" == "a";
+  tstring3: reverse_of "foo" == "oof";
+  tstring4: reverse_of "Satan, oscillate my metallic sonatas!" == "!satanos cillatem ym etallicso ,nataS";
+  tstring5: reverse_of "god saw I was dog" == "god saw I was dog";
+
+  tunknown1: (reverse_of unknown [int]) is unknown;
+  tunknown2: (reverse_of unknown str) is unknown;
+};

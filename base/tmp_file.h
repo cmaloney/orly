@@ -27,7 +27,7 @@ namespace Base {
     NO_COPY_SEMANTICS(TTmpFile);
     public:
 
-    TTmpFile(const char *name_template = "/tmp/stig_general_XXXXXX.tmp",
+    TTmpFile(const char *name_template = "/tmp/orly_general_XXXXXX.tmp",
              bool delete_on_destroy = false);
 
     ~TTmpFile();

@@ -3,28 +3,28 @@
 ## Quick Start
 
 ```
-git clone http://github.com/stigdb/stigdb.git ./src
+git clone http://github.com/orlydb/orlydb.git ./src
 ||||||| merged common ancestors
 cd src
 chmod +x bootstrap.sh
 cd src
 chmod +x bootstrap.sh
 ||||||| merged common ancestors
-git clone https://github.com/tagged/stigdb.git ./src
-mkdir stig
-cd stig
-git clone https://github.com/StigDB/stigdb.git src
-export PATH=$PATH:$HOME/stig/src/tools
+git clone https://github.com/tagged/orlydb.git ./src
+mkdir orly
+cd orly
+git clone https://github.com/StigDB/orlydb.git src
+export PATH=$PATH:$HOME/orly/src/tools
 cd src
 make
 make test
 ```
 
 ||||||| merged common ancestors
-To build stig in _release_ mode, simply replace the `make` line above with `make release`.
+To build orly in _release_ mode, simply replace the `make` line above with `make release`.
 
 ||||||| merged common ancestors
-To build stig in _release_ mode, simply replace the `make` line above with `make release`.
+To build orly in _release_ mode, simply replace the `make` line above with `make release`.
 
 ||||||| merged common ancestors
 The above commands creates a layout like so:
@@ -33,7 +33,7 @@ The above commands creates a layout like so:
 The above commands create a layout like so:
 ```
 ~
-|-- stig
+|-- orly
      |-- .starsha
      |-- out
      |-- src
@@ -154,19 +154,19 @@ pacman -S flex
 
 Currently the build system requires that the Stig source code be located in a directory named `src`.
 
-The Stig source code is located in the [stigdb](http://github.com/stigdb/stigdb) repository on Github. To clone the repository:
+The Stig source code is located in the [orlydb](http://github.com/orlydb/orlydb) repository on Github. To clone the repository:
 ||||||| merged common ancestors
-The Stig source code is located in the [stigdb](https://github.com/tagged/stigdb) repository on Github. To clone the repository:
-The Stig source code is located in the [stigdb](https://github.com/StigDB/stigdb) repository on Github. To clone the repository:
+The Stig source code is located in the [orlydb](https://github.com/tagged/orlydb) repository on Github. To clone the repository:
+The Stig source code is located in the [orlydb](https://github.com/StigDB/orlydb) repository on Github. To clone the repository:
 
 ```
-git clone http://github.com/stigdb/stigdb.git ./src
+git clone http://github.com/orlydb/orlydb.git ./src
 ||||||| merged common ancestors
-git clone git://github.com/stigdb/stigdb.git ./src
-git clone git://github.com/stigdb/stigdb.git ./src
+git clone git://github.com/orlydb/orlydb.git ./src
+git clone git://github.com/orlydb/orlydb.git ./src
 ||||||| merged common ancestors
-git clone https://github.com/tagged/stigdb.git ./src
-git clone https://github.com/StigDB/stigdb.git src
+git clone https://github.com/tagged/orlydb.git ./src
+git clone https://github.com/StigDB/orlydb.git src
 ```
 
 Naturally, adjust the destination path above accordingly for your needs. Just be sure the code ends up in a directory named `src`.
@@ -249,7 +249,7 @@ You should have received a copy of the license along with this work. If not, see
     * [Platform-specific package install command lines](#platform-specific-package-install-command-lines)
         * [Ubuntu](#ubuntu)
         * [CentOS](#centos)
-* [Retrieving the Stig Source Code](#retrieving-the-stig-source-code)
+* [Retrieving the Stig Source Code](#retrieving-the-orly-source-code)
 * [Build Commands](#build-commands)
     * [make](#make)
     * [make test](#make-test)
@@ -270,18 +270,18 @@ The instructions below are for **UBUNTU 13.10**. Please modify them accordingly 
 This is the default build mode for Stig.
 
 ```
-(create a separate stig partition)
+(create a separate orly partition)
 sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
 sudo apt-get update
 sudo apt-get install gcc-4.8
 sudo apt-get install g++
 sudo apt-get install flex bison util-linux git build-essential uuid-dev libaio-dev libgmp-dev libsctp-dev lksctp-tools zlib1g-dev libicu-dev libreadline6-dev libsnappy-dev valgrind
 cd ~
-mkdir stig
-cd stig
-git clone git://github.com/stigdb/stigdb.git ./src
+mkdir orly
+cd orly
+git clone git://github.com/orlydb/orlydb.git ./src
 cd src
-export PATH=${PATH}:${HOME}/stig/src/tools
+export PATH=${PATH}:${HOME}/orly/src/tools
 make
 make test           (optional but recommended)
 make test_lang      (optional but recommended)
@@ -290,18 +290,18 @@ make test_lang      (optional but recommended)
 ### Release Build
 
 ```
-(create a separate stig partition)
+(create a separate orly partition)
 sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
 sudo apt-get update
 sudo apt-get install gcc-4.8
 sudo apt-get install g++
 sudo apt-get install flex bison util-linux git build-essential uuid-dev libaio-dev libgmp-dev libsctp-dev lksctp-tools zlib1g-dev libicu-dev libreadline6-dev libsnappy-dev valgrind
 cd ~
-mkdir stig
-cd stig
-git clone git://github.com/stigdb/stigdb.git ./src
+mkdir orly
+cd orly
+git clone git://github.com/orlydb/orlydb.git ./src
 cd src
-export PATH=${PATH}:${HOME}/stig/src/tools
+export PATH=${PATH}:${HOME}/orly/src/tools
 PREFIX=/installation/path ./bootstrap.sh
 make release
 make test           (optional but recommended)
@@ -331,11 +331,11 @@ Please create the new partition according to the directions for your Linux distr
 
 ### Memory simulation mode
 
-For development purposes, it is possible to start up the `stigi` server in _memory simulation_ mode.
+For development purposes, it is possible to start up the `orlyi` server in _memory simulation_ mode.
 
 Memory simulation mode is the equivalent of having the Stig block device in memory rather than on disk. Running in memory simulation mode removes the requirement to have a separate volume/partition for the Stig databases.
 
-To run in memory simulation mode, start the `stigi` server with the `--mem_sim` flag.
+To run in memory simulation mode, start the `orlyi` server with the `--mem_sim` flag.
 
 > **NOTA BENE!**
 > Data **will not** persist in memory simulation mode. When the server is shut down any data stored in memory will disappear.
@@ -397,10 +397,10 @@ pacman -S flex bison util-linux libaio gmp mpfr libmpc glibc icu lksctp-tools re
 
 Currently the build system requires that the Stig source code be located in a directory named `src`.
 
-The Stig source code is located in the [stigdb](http://github.com/stigdb/stigdb) repository on Github. To clone the repository:
+The Stig source code is located in the [orlydb](http://github.com/orlydb/orlydb) repository on Github. To clone the repository:
 
 ```
-git clone git://github.com/stigdb/stigdb.git ./src
+git clone git://github.com/orlydb/orlydb.git ./src
 ```
 
 Naturally, adjust the destination path above accordingly for your needs. Just be sure the code ends up in a directory named `src`.
@@ -413,13 +413,13 @@ While Stig has a Makefile, it's just a basic wrapper for Stig's `starsha` build 
 
 ```
 ~
-|-- stig
+|-- orly
      |-- .starsha
      |-- out
      |-- src
 ```
 
-After compilation completes, all binaries can be found under the `~/stig/out` directory. If you've run a debug build (the default build type), the binaries will be under `~/stig/out/debug`. If it was a release build (`make release`), the binaries will be under `~/stig/out/release`.
+After compilation completes, all binaries can be found under the `~/orly/out` directory. If you've run a debug build (the default build type), the binaries will be under `~/orly/out/debug`. If it was a release build (`make release`), the binaries will be under `~/orly/out/release`.
 
 ### make
 
@@ -441,7 +441,7 @@ Builds and then runs the Stig C++ unit test suite.
 
 This is an optional step but is recommended.
 
-These tests are built and run in debug mode. If the debug binaries do not yet exist in `~/stig/out/debug`, running `make test` will build these binaries before running the unit tests.
+These tests are built and run in debug mode. If the debug binaries do not yet exist in `~/orly/out/debug`, running `make test` will build these binaries before running the unit tests.
 
 NOTE: A number of the tests require specialized permissions to run.
 
@@ -449,7 +449,7 @@ NOTE: A number of the tests require specialized permissions to run.
 
 Builds the Stig C++ unit test suite but _does not_ run it.
 
-If the debug binaries do not yet exist in `~/stig/out/debug`, running `make test_build` will build these binaries before building the unit tests.
+If the debug binaries do not yet exist in `~/orly/out/debug`, running `make test_build` will build these binaries before building the unit tests.
 
 ### make test_lang
 
@@ -459,7 +459,7 @@ This is an optional step but is recommended.
 
 While these tests do run in parallel for the number of cores available on your system, they still can take quite some time to complete.
 
-If the debug binaries do not yet exist in `~/stig/out/debug`, running `make test_lang` will build these binaries before running the language tests.
+If the debug binaries do not yet exist in `~/orly/out/debug`, running `make test_lang` will build these binaries before running the language tests.
 
 NOTE: Your limit for number of open files must be greater than 4096, or some tests will spuriously fail.
 
@@ -514,10 +514,10 @@ make clean
 
 ### Build appears stuck at `[1] Jobs queued in wave` (or 0 or 2)
 
-This is the [starsha infinite loop bug](https://github.com/StigDB/stigdb/issues/127). A workaround:
+This is the [starsha infinite loop bug](https://github.com/StigDB/orlydb/issues/127). A workaround:
 
 * Hit `ctrl-C` to break out of the build
-* Type `touch stig/stig.nycr`
+* Type `touch orly/orly.nycr`
 * Re-run your make command
 
 ### warning: memset used with constant zero length parameter
@@ -529,8 +529,8 @@ To resolve: Please upgrade to gcc 4.8.2 or newer.
 Example of this error:
 
 ```
-stig/indy/disk/util/stig_dm.o:
-../out/release/stig/indy/disk/util/volume_manager.o (symbol from plugin): warning: memset used with constant zero length parameter; this could be due to transposed parameters
+orly/indy/disk/util/orly_dm.o:
+../out/release/orly/indy/disk/util/volume_manager.o (symbol from plugin): warning: memset used with constant zero length parameter; this could be due to transposed parameters
 make: *** [release] Error 1
 ```
 
@@ -543,7 +543,7 @@ To resolve: Please upgrade to gcc 4.8.2 or newer.
 Exmple of this error:
 
 ```
-stig/core_import.o:
+orly/core_import.o:
 /usr/include/x86_64-linux-gnu/bits/poll2.h: In member function 'IoMain':
 /usr/include/x86_64-linux-gnu/bits/poll2.h:41:60: warning: call to '__poll_chk_warn' declared with attribute warning: poll called with fds buffer too small file nfds entries [enabled by default]
   return __poll_chk (__fds, __nfds, __timeout, __bos (__fds));
@@ -603,7 +603,7 @@ You should have received a copy of the license along with this work. If not, see
     * [Platform-specific package install command lines](#platform-specific-package-install-command-lines)
         * [Ubuntu](#ubuntu)
         * [CentOS](#centos)
-* [Retrieving the Stig Source Code](#retrieving-the-stig-source-code)
+* [Retrieving the Stig Source Code](#retrieving-the-orly-source-code)
 * [Build Commands](#build-commands)
     * [make](#make)
     * [make test](#make-test)
@@ -624,18 +624,18 @@ The instructions below are for **UBUNTU 13.10**. Please modify them accordingly 
 This is the default build mode for Stig.
 
 ```
-(create a separate stig partition)
+(create a separate orly partition)
 sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
 sudo apt-get update
 sudo apt-get install gcc-4.8
 sudo apt-get install g++
 sudo apt-get install flex bison util-linux git build-essential uuid-dev libaio-dev libgmp-dev libsctp-dev lksctp-tools zlib1g-dev libicu-dev libreadline6-dev libsnappy-dev valgrind
 cd ~
-mkdir stig
-cd stig
-git clone git://github.com/stigdb/stigdb.git ./src
+mkdir orly
+cd orly
+git clone git://github.com/orlydb/orlydb.git ./src
 cd src
-export PATH=${PATH}:${HOME}/stig/src/tools
+export PATH=${PATH}:${HOME}/orly/src/tools
 make
 make test           (optional but recommended)
 make test_lang      (optional but recommended)
@@ -644,18 +644,18 @@ make test_lang      (optional but recommended)
 ### Release Build
 
 ```
-(create a separate stig partition)
+(create a separate orly partition)
 sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
 sudo apt-get update
 sudo apt-get install gcc-4.8
 sudo apt-get install g++
 sudo apt-get install flex bison util-linux git build-essential uuid-dev libaio-dev libgmp-dev libsctp-dev lksctp-tools zlib1g-dev libicu-dev libreadline6-dev libsnappy-dev valgrind
 cd ~
-mkdir stig
-cd stig
-git clone git://github.com/stigdb/stigdb.git ./src
+mkdir orly
+cd orly
+git clone git://github.com/orlydb/orlydb.git ./src
 cd src
-export PATH=${PATH}:${HOME}/stig/src/tools
+export PATH=${PATH}:${HOME}/orly/src/tools
 PREFIX=/installation/path ./bootstrap.sh
 make release
 make test           (optional but recommended)
@@ -685,11 +685,11 @@ Please create the new partition according to the directions for your Linux distr
 
 ### Memory simulation mode
 
-For development purposes, it is possible to start up the `stigi` server in _memory simulation_ mode.
+For development purposes, it is possible to start up the `orlyi` server in _memory simulation_ mode.
 
 Memory simulation mode is the equivalent of having the Stig block device in memory rather than on disk. Running in memory simulation mode removes the requirement to have a separate volume/partition for the Stig databases.
 
-To run in memory simulation mode, start the `stigi` server with the `--mem_sim` flag.
+To run in memory simulation mode, start the `orlyi` server with the `--mem_sim` flag.
 
 > **NOTA BENE!**
 > Data **will not** persist in memory simulation mode. When the server is shut down any data stored in memory will disappear.
@@ -751,10 +751,10 @@ pacman -S flex bison util-linux libaio gmp mpfr libmpc glibc icu lksctp-tools re
 
 Currently the build system requires that the Stig source code be located in a directory named `src`.
 
-The Stig source code is located in the [stigdb](http://github.com/stigdb/stigdb) repository on Github. To clone the repository:
+The Stig source code is located in the [orlydb](http://github.com/orlydb/orlydb) repository on Github. To clone the repository:
 
 ```
-git clone git://github.com/stigdb/stigdb.git ./src
+git clone git://github.com/orlydb/orlydb.git ./src
 ```
 
 Naturally, adjust the destination path above accordingly for your needs. Just be sure the code ends up in a directory named `src`.
@@ -767,13 +767,13 @@ While Stig has a Makefile, it's just a basic wrapper for Stig's `starsha` build 
 
 ```
 ~
-|-- stig
+|-- orly
      |-- .starsha
      |-- out
      |-- src
 ```
 
-After compilation completes, all binaries can be found under the `~/stig/out` directory. If you've run a debug build (the default build type), the binaries will be under `~/stig/out/debug`. If it was a release build (`make release`), the binaries will be under `~/stig/out/release`.
+After compilation completes, all binaries can be found under the `~/orly/out` directory. If you've run a debug build (the default build type), the binaries will be under `~/orly/out/debug`. If it was a release build (`make release`), the binaries will be under `~/orly/out/release`.
 
 ### make
 
@@ -795,7 +795,7 @@ Builds and then runs the Stig C++ unit test suite.
 
 This is an optional step but is recommended.
 
-These tests are built and run in debug mode. If the debug binaries do not yet exist in `~/stig/out/debug`, running `make test` will build these binaries before running the unit tests.
+These tests are built and run in debug mode. If the debug binaries do not yet exist in `~/orly/out/debug`, running `make test` will build these binaries before running the unit tests.
 
 NOTE: A number of the tests require specialized permissions to run.
 
@@ -803,7 +803,7 @@ NOTE: A number of the tests require specialized permissions to run.
 
 Builds the Stig C++ unit test suite but _does not_ run it.
 
-If the debug binaries do not yet exist in `~/stig/out/debug`, running `make test_build` will build these binaries before building the unit tests.
+If the debug binaries do not yet exist in `~/orly/out/debug`, running `make test_build` will build these binaries before building the unit tests.
 
 ### make test_lang
 
@@ -813,7 +813,7 @@ This is an optional step but is recommended.
 
 While these tests do run in parallel for the number of cores available on your system, they still can take quite some time to complete.
 
-If the debug binaries do not yet exist in `~/stig/out/debug`, running `make test_lang` will build these binaries before running the language tests.
+If the debug binaries do not yet exist in `~/orly/out/debug`, running `make test_lang` will build these binaries before running the language tests.
 
 NOTE: Your limit for number of open files must be greater than 4096, or some tests will spuriously fail.
 
@@ -868,10 +868,10 @@ make clean
 
 ### Build appears stuck at `[1] Jobs queued in wave` (or 0 or 2)
 
-This is the [starsha infinite loop bug](https://github.com/StigDB/stigdb/issues/127). A workaround:
+This is the [starsha infinite loop bug](https://github.com/StigDB/orlydb/issues/127). A workaround:
 
 * Hit `ctrl-C` to break out of the build
-* Type `touch stig/stig.nycr`
+* Type `touch orly/orly.nycr`
 * Re-run your make command
 
 ### warning: memset used with constant zero length parameter
@@ -883,8 +883,8 @@ To resolve: Please upgrade to gcc 4.8.2 or newer.
 Example of this error:
 
 ```
-stig/indy/disk/util/stig_dm.o:
-../out/release/stig/indy/disk/util/volume_manager.o (symbol from plugin): warning: memset used with constant zero length parameter; this could be due to transposed parameters
+orly/indy/disk/util/orly_dm.o:
+../out/release/orly/indy/disk/util/volume_manager.o (symbol from plugin): warning: memset used with constant zero length parameter; this could be due to transposed parameters
 make: *** [release] Error 1
 ```
 
@@ -897,7 +897,7 @@ To resolve: Please upgrade to gcc 4.8.2 or newer.
 Exmple of this error:
 
 ```
-stig/core_import.o:
+orly/core_import.o:
 /usr/include/x86_64-linux-gnu/bits/poll2.h: In member function 'IoMain':
 /usr/include/x86_64-linux-gnu/bits/poll2.h:41:60: warning: call to '__poll_chk_warn' declared with attribute warning: poll called with fds buffer too small file nfds entries [enabled by default]
   return __poll_chk (__fds, __nfds, __timeout, __bos (__fds));

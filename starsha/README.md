@@ -1,6 +1,6 @@
 ## starsha: The Stig build tool.
 
-Starsha is used for building stig and its related tools and libraries.
+Starsha is used for building orly and its related tools and libraries.
 
 This documentation is a work in progress. As we remember features, usage, etc. we will add them to this doc.
 
@@ -14,7 +14,7 @@ Sometimes your build will fail. Screws fall out. The world's an imperfect place.
 1. Re-run the bootstrap script in order to rebuild nycr (which was in `out`): `./bootstrap.sh`
 1. Rebuild the starsha `.notes` file: `starsha`
 1. Make the necessary changes to fix whatever broke in the build
-1. Build all the things: `starsha /stig/stig /stig/spa/spa /stig/server/stig /bruce/bruce /bruce/kafka_0_8_util/mdrequest /starsha/dummy` (the `/starsha/dummy` is needed for the starsha unit tests to work
+1. Build all the things: `starsha /orly/orly /orly/spa/spa /orly/server/orly /bruce/bruce /bruce/kafka_0_8_util/mdrequest /starsha/dummy` (the `/starsha/dummy` is needed for the starsha unit tests to work
 
 -----
 

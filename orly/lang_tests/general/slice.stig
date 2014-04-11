@@ -1,0 +1,43 @@
+/* <orly/lang_tests/general/slice.orly>
+
+   This Stig script tests primitive list operations.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+package #1;
+
+my_string_list = ["foo", "bar", "baz", "quux", "foo", "bar", "baz", "quux"];
+my_int_list = [1,2,3,4,5,6,7,8,9,10];
+my_message = "Hello world!";
+
+test {
+ strlist1: my_string_list[:2] == ["foo", "bar"];
+ strlist2: my_string_list[2:] == ["baz", "quux", "foo", "bar", "baz", "quux"];
+ strlist3: my_string_list[2:4] == ["baz", "quux"];
+ strlist4: my_string_list[2] == "baz";
+
+ intlist1: my_int_list[:5] == [1,2,3,4,5];
+ intlist2: my_int_list[5:] == [6,7,8,9,10];
+ intlist3: my_int_list[3:6] == [4,5,6];
+ intlist4: my_int_list[8] == 9;
+
+ str1: my_message[:4] == "Hell";
+ str2: my_message[4:] == "o world!";
+ str3: my_message[2:7] == "llo w";
+ str4: my_message[11] == "!";
+
+ lsl1: my_string_list[3][1:] == "uux";
+ lsl2: my_string_list[2][2] == "z";
+};

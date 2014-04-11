@@ -28,7 +28,7 @@ namespace Base {
 
     public:
 
-    TTmpDir(const char *name_template = "/tmp/stig_general_tmpXXXXXX",
+    TTmpDir(const char *name_template = "/tmp/orly_general_tmpXXXXXX",
             bool delete_on_destroy = false);
 
     ~TTmpDir();

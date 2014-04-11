@@ -1,0 +1,112 @@
+/* <orly/lang_tests/general/dicts.orly>
+
+   This Stig script tests primitive dictionary operations.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+dic_1 = (sidious) where { sidious = {1: true, 2: false, 3: true}; };
+dic_2 = (maul) where {
+  maul = {true: 2.71, false: 0.0};
+};
+dic_3 = (tyranus) where {
+  tyranus = {
+    "Foo": "The Phantom Menace",
+    "Bar": "Attack of the Clones",
+    "Baz": "Revenge of the Sith"
+  };
+};
+dic_4 = (vader) where { vader = {1:1, 2:2, 3:1}; };
+empty_dic_1 = empty {int: bool};
+empty_dic_2 = empty {real: {str: {int: {bool: real}}}};
+
+test {
+  /* constructors and equality-based comparisons */
+  t1: {1:"foo", 2:"bar", 3:"baz"} == {1:"foo", 2:"bar", 3:"baz"};
+  t2: {1:"foo", 2:"bar", 3:"baz"} == {1:"foo", 3:"baz", 2:"bar"};
+  t3: {1:"foo", 2:"bar", 3:"baz"} == {3:"baz", 2:"bar", 1:"foo"};
+  t4: {1:"foo", 2:"bar", 3:"baz"} != {1:"foo", 2:"bar", 3:"bar"};
+  t5: {1:"foo", 2:"bar", 3:"baz"} != {1:"foo", 2:"bar", 6:"bar"};
+  t6: {"a":{1:1,2:2,3:3}, "b":{1:4,2:5,3:6}, "c":{1:7}, "d":{1:8,2:9}} == {"a":{1:1,2:2,3:3}, "b":{1:4,2:5,3:6}, "c":{1:7}, "d":{1:8,2:9}};
+  t7: {"a":{1:1,2:2,3:3}, "b":{1:4,2:5,3:6}, "c":{1:7}, "d":{1:8,2:9}} != {"a":{1:1,2:2,3:3}, "b":{4:4,5:5,6:6}, "c":{1:7}, "d":{1:8,2:9}};
+  t8: {"a":{1:1,2:2,3:3}, "b":{1:4,2:5,3:6}, "c":{1:7}, "d":{1:8,2:9}} != {"a":{1:1,2:2,3:3}, "c":{1:7}, "d":{1:8,2:9}};
+  t9: {"a":{1:1,2:2,3:3}, "c":{1:7}, "d":{1:8,2:9}} != {"a":{1:1,2:2,3:3}, "b":{1:4,2:5,3:6}, "c":{1:7}, "d":{1:8,2:9}};
+  t10: {"a":{1:1,2:2,3:3}, "b":{1:4,2:5,3:6}, "c":{1:7}, "d":{1:8,2:9}} != {"a":{1:1,2:2,3:3}, "b":{1:4,2:5,3:6,4:6}, "c":{1:7}, "d":{1:8,2:9}};
+  t11: empty {int:bool} == empty {int:bool};
+  t12: empty {int:bool} != {0:false};
+  t13: empty {int:bool} != {1:true};
+  t14: empty {bool} == empty {bool};
+  t15: empty {bool} != {true};
+  t16: empty {bool} != {false};
+  t17: empty {{{int:{real:bool}}:str}:bool} == empty {{{int:{real:bool}}:str}:bool};
+  t18: empty {{{int:{real:bool}}:str}:bool} != {{{42:{2.0:true,3.0:true}}:"Foo", {22:{2.0:false,5.0:true}}:"Bar"}:true, {{2:{4.0:false}}:"Baz", {3:{10.0:true, 20.0:true}}:"Baz", {5:{-2.0: true, -4.0: true}}:"Foo"}:false};
+
+  /* operations */
+  t19: {1:true} + {2:false} == {1:true, 2:false};
+  t20: {1:true} + {1:false, 2:true} == {1:false, 2:true};
+  t21: {1:true, 2:false} + {2:true} == {1:true, 2:true};
+  t22: {1:true} + {2:true} + {3:false} == {1:true, 2:true, 3:false};
+  t23: {1:true} + {2:false} + {2:true} == {1:true, 2:true};
+  t24: {1:true} + {2:true} + {2:false} == {1:true, 2:false};
+  t25: {1:{true:1}} + {2:{true:2, false:3}} + {3:{true:3}} == {1:{true:1}, 2:{true:2, false:3}, 3:{true:3}};
+  t26: empty {int:bool} + empty {int:bool} == empty {int:bool};
+  t27: empty {int:bool} + {1:true, 2:true, 3:false} == {1:true, 2:true, 3:false};
+  t28: {1:true, 2:true, 3:false} + empty {int:bool} == {1:true, 2:true, 3:false};
+  t29: {1:true, 2:true, 3:false} + {1:true, 2:true, 3:false} == {1:true, 2:true, 3:false};
+
+  t30: {1:true} - {2} == {1:true};
+  t31: {1:true} - {1, 2} == empty {int:bool};
+  t32: {1:true, 2:false} - {2} == {1:true};
+  t33: {1:true} - {2} - {3} == {1:true};
+  t34: {1:true} - {2} - {1} == empty {int:bool};
+  t35: {{1:true}:1} - {{2:true}, {3:true}} - {{3:false}} == {{1:true}:1};
+  t36: {{1:true}:1} - {{2:true}, {1:true}} - {{3:false}} == empty {{int:bool}:int};
+  t37: empty {int:bool} - empty {int} == empty {int:bool};
+  t38: empty {int:bool} - {1, 2, 3} == empty {int:bool};
+  t39: {1:true, 2:true, 3:false} - empty {int} == {1:true, 2:true, 3:false};
+  t40: {1:true, 2:true, 3:false} - {1, 2, 3} == empty {int:bool};
+  t41: {1:true, 2:true, 3:false} - {4, 3, 2} == {1:true};
+  t42: {1:true, 2:true, 3:false} - {2, 3} == {1:true};
+
+  t43: 1 in {3:true, 2:true, 1:false};
+  t44: 1 in {1:true};
+  t45: not (1 in {2:true, 3:false});
+  t46: not (0 in empty {int:bool});
+  t47: -1 in {-2:true, -1:false, 0:true, 1:false, 2:true};
+  t48: {1:true, 2:false} in {{3:true}:true, {1:false}:false, {2:false}:true, {2:false, 1:true}:false};
+  t49: not ({1:true, 2:false} in {{3:true}:true, {1:true}:false, {2:false}:true, {2:true, 1:false}:false});
+  t50: not ({1:true, 2:false} in {{1:true}:true, {2:false}:false});
+
+  t51: empty {int:bool} is empty;
+  t52: not ({1:true} is empty);
+
+  /* access operator */
+  t53: dic_1[1] == true;
+  t54: dic_1[2] == false;
+  t55: dic_1[3] == true;
+  t56: dic_2[true] == 2.71;
+  t57: dic_2[false] == 0.0;
+  t58: dic_3["Foo"] == "The Phantom Menace";
+  t59: dic_3["Bar"] == "Attack of the Clones";
+  t60: dic_3["Baz"] == "Revenge of the Sith";
+  t61: dic_4[1] == 1;
+  t62: dic_4[2] == 2;
+  t63: dic_4[3] == 1;
+  t64: {1:{1, 2, 3}, 2:{2, 3, 4}}[1] == {1, 2, 3};
+  t65: {1:{1, 2, 3}, 2:{2, 3, 4}}[2] == {2, 3, 4};
+  t66: (x[1] == {1, 2, 3} and x[2] == {2, 3, 4}) where {
+    x = {1:{1, 2, 3, 2}, 2:{2, 3, 4, 4}};
+  };
+};

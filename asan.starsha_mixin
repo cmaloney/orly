@@ -12,42 +12,42 @@
   }
 }
 "files" {
-  "stig/stig.o" {
+  "orly/orly.o" {
     "ld" {
       "flags" {
         "-fsanitize=address";
       }
     }
   }
-  "stig/spa/spa.o" {
+  "orly/spa/spa.o" {
     "ld" {
       "flags" {
         "-fsanitize=address";
       }
     }
   }
-  "stig/exit.test.o" {
+  "orly/exit.test.o" {
     "ld" {
       "flags" {
         "-fsanitize=address";
       }
     }
   }
-  "stig/sample.test.o" {
+  "orly/sample.test.o" {
     "ld" {
       "flags" {
         "-fsanitize=address";
       }
     }
   }
-  "stig/server/stig.o" {
+  "orly/server/orly.o" {
     "ld" {
       "flags" {
         "-fsanitize=address";
       }
     }
   }
-  "stig/indy/disk/data_file.cc" {
+  "orly/indy/disk/data_file.cc" {
     "g++" {
       "flags" {
         "-fsanitize=address";

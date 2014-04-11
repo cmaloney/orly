@@ -1,0 +1,93 @@
+/* <orly/lang_tests/general/sequence.orly>
+
+   This Stig script tests sequences and their operations.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+read_range = (*<[n]>::(int) as [int]) where {
+  low = given::(int);
+  high = given::(int);
+  n = [low..high];
+};
+
+test {
+  /* basic conversion tests */
+  t1: ([1..10] as [int]) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  t2: (x as [int] == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) where {
+    x = [1..10];
+  };
+  t3: (x as [int] == [-5, -3, -2, 2, 3, 5]) where {
+    x = **[-5, -3, -2, 2, 3, 5];
+  };
+
+  /* map arithmetic operations onto sequences of ints (result: sets) */
+  t4: ([1..10] + 5) as {int} == {6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+  t5: ([1..10] - 5) as {int} == {-4, -3, -2, -1, 0, 1, 2, 3, 4, 5};
+  t6: ([1..10] / 5) as {int} == {0, 1, 2};
+  t7: ([1..10] ** 2) as {real} == {1.0, 4.0, 9.0, 16.0, 25.0, 36.0, 49.0, 64.0, 81.0, 100.0};
+  t8: ((([1..10] + 5) - 2) * 2) as {int} == {8, 10, 12, 14, 16, 18, 20, 22, 24, 26};
+  t9: ((x + 5) as {int} == {6, 7, 8, 9, 10, 11, 12, 13, 14, 15}) where {
+    x = [1..10];
+  };
+  t10: ((x - 5) as {int} == {-4, -3, -2, -1, 0, 1, 2, 3, 4, 5}) where {
+    x = [1..10];
+  };
+  t11: ((x / 5) as {int} == {0, 1, 2}) where {
+    x = [1..10];
+  };
+  t12: ((x ** 2) as {real} == {1.0, 4.0, 9.0, 16.0, 25.0, 36.0, 49.0, 64.0, 81.0, 100.0}) where {
+    x = [1..10];
+  };
+  t13: ((((x + 5) - 2) * 2) as {int} == {8, 10, 12, 14, 16, 18, 20, 22, 24, 26}) where {
+    x = [1..10];
+  };
+
+  /* map arithmetic operations onto sequences of ints (result: lists) */
+  tlmap1: ([1..10] + 5) as [int] == [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+  tlmap2: ([1..10] - 5) as [int] == [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
+  tlmap3: ([1..10] / 5) as [int] == [0, 0, 0, 0, 1, 1, 1, 1, 1, 2];
+  tlmap4: ([1..10] ** 2) as [real] == [1.0, 4.0, 9.0, 16.0, 25.0, 36.0, 49.0, 64.0, 81.0, 100.0];
+  tlmap5: ((([1..10] + 5) - 2) * 2) as [int] == [8, 10, 12, 14, 16, 18, 20, 22, 24, 26];
+  tlmap6: ((x + 5) as [int] == [6, 7, 8, 9, 10, 11, 12, 13, 14, 15]) where {
+    x = [1..10];
+  };
+  tlmap7: ((x - 5) as [int] == [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5]) where {
+    x = [1..10];
+  };
+  tlmap8: ((x / 5) as [int] == [0, 0, 0, 0, 1, 1, 1, 1, 1, 2]) where {
+    x = [1..10];
+  };
+  tlmap9: ((x ** 2) as [real] == [1.0, 4.0, 9.0, 16.0, 25.0, 36.0, 49.0, 64.0, 81.0, 100.0]) where {
+    x = [1..10];
+  };
+  tlmap10: ((((x + 5) - 2) * 2) as [int] == [8, 10, 12, 14, 16, 18, 20, 22, 24, 26]) where {
+    x = [1..10];
+  };
+};
+
+/* test reading sequences from the database */
+with {
+  <[0]> <- 0;
+  <[1]> <- 1;
+  <[2]> <- 2;
+  <[3]> <- 3;
+  <[4]> <- 4;
+  <[5]> <- 5;
+} test {
+  t28: **read_range(.low: 0, .high: 5) as {int} == {0, 1, 2, 3, 4, 5};
+  t29: **read_range(.low: 0, .high: 4) as {int} == {0, 1, 2, 3, 4};
+  t30: **read_range(.low: 1, .high: 4) as {int} == {1, 2, 3, 4};
+  t31: (**read_range(.low: 0, .high: 5) reduce start 0 + that) == 15;
+};

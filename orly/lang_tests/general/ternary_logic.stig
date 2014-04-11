@@ -1,0 +1,106 @@
+/* <orly/lang_tests/general/ternary_logic.orly>
+
+   This Stig script tests ternary logic.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+makeopt = (value) where {
+  value = given::(bool?);
+};
+
+test {
+  /* logical not */
+  t1: not false == true;
+  t2: not true == false;
+  t3: (not (unknown bool)) is unknown;
+  t4: (not (true as bool?)) is known false;
+  t5: (not (false as bool?)) is known true;
+
+  /* logical and */
+  t7: (false and false) == false;
+  t8: (false and true)  == false;
+  t9: (true  and false) == false;
+  t10: (true  and true)  == true;
+  t11: ((unknown bool) and false) is known false;
+  t12: ((unknown bool) and true) is unknown;
+  t13: (false and (unknown bool)) is known false;
+  t14: (true and (unknown bool)) is unknown;
+  t15: ((unknown bool) and (unknown bool)) is unknown;
+  t16: ((false as bool?) and false) is known false;
+  t17: ((false as bool?) and true) is known false;
+  t18: ((false as bool?) and (false as bool?)) is known false;
+  t19: ((false as bool?) and (true as bool?)) is known false;
+  t32: ((true as bool?) and false) is known false;
+  t33: ((true as bool?) and true) is known true;
+  t34: ((true as bool?) and (false as bool?)) is known false;
+  t35: ((true as bool?) and (true as bool?)) is known true;
+  t50: (false and (false as bool?)) is known false;
+  t51: (true and (false as bool?)) is known false;
+  t52: (false and (true as bool?)) is known false;
+  t53: (true and (true as bool?)) is known true;
+
+  /* logical or */
+  t58: (false or false) == false;
+  t59: (false or true)  == true;
+  t60: (true  or false) == true;
+  t61: (true  or true)  == true;
+  t62: ((unknown bool) or false) is unknown;
+  t63: ((unknown bool) or true) is known true;
+  t64: (false or (unknown bool)) is unknown;
+  t65: (true or (unknown bool)) is known true;
+  t66: ((unknown bool) or (unknown bool)) is unknown;
+  t67: ((false as bool?) or false) is known false;
+  t68: ((false as bool?) or true) is known true;
+  t69: ((false as bool?) or (false as bool?)) is known false;
+  t70: ((false as bool?) or (true as bool?)) is known true;
+  t73: ((true as bool?) or false) is known true;
+  t74: ((true as bool?) or true) is known true;
+  t75: ((true as bool?) or (false as bool?)) is known true;
+  t76: ((true as bool?) or (true as bool?)) is known true;
+  t91: (false or (false as bool?)) is known false;
+  t92: (true or (false as bool?)) is known true;
+  t93: (false or (true as bool?)) is known true;
+  t94: (true or (true as bool?)) is known true;
+
+  /* logical xor */
+  t99: (false xor false) == false;
+  t100: (false xor true)  == true;
+  t101: (true  xor false) == true;
+  t102: (true  xor true)  == false;
+  t103: ((unknown bool) xor false) is unknown;
+  t104: ((unknown bool) xor true) is unknown;
+  t105: (false xor (unknown bool)) is unknown;
+  t106: (true xor (unknown bool)) is unknown;
+  t107: ((unknown bool) xor (unknown bool)) is unknown;
+  t108: ((false as bool?) xor false) is known false;
+  t109: ((false as bool?) xor true) is known true;
+  t110: ((false as bool?) xor (false as bool?)) is known false;
+  t111: ((false as bool?) xor (true as bool?)) is known true;
+  t114: ((true as bool?) xor false) is known true;
+  t115: ((true as bool?) xor true) is known false;
+  t116: ((true as bool?) xor (false as bool?)) is known true;
+  t117: ((true as bool?) xor (true as bool?)) is known false;
+  t132: (false xor (false as bool?)) is known false;
+  t133: (true xor (false as bool?)) is known true;
+  t134: (false xor (true as bool?)) is known true;
+  t135: (true xor (true as bool?)) is known false;
+
+  /* and_then (short-circuit and) */
+  /* TODO Complete this */
+
+  /* or_else (short-circuit or) */
+  /* TODO Complete this */
+};

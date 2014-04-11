@@ -1,0 +1,44 @@
+/* <orly/lang_tests/general/mutable.orly>
+
+   Some simple tests to complement those already existing in other units (such as partial mutations) and ensure
+   little corneres of mutable are tested.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+try_store_mutable = ((true) effecting { new <[1]> <- foo; }) where {
+  foo = *<[0]>::(int);
+};
+
+with {
+  <[0]> <- 1;
+} test {
+  t1: (a == <[0]>) where {
+    a = known &foo;
+    foo = *<[0]>::(int?);
+  };
+  t2: (not a) where {
+    a = &foo is unknown;
+    foo = *<[0]>::(int?);
+  };
+  t3: (a) where {
+    a = &foo is unknown;
+    foo = *<[1]>::(int?);
+  };
+  t4: *<[0]>::(int) + *<[0]>::(int) == 2;
+  t5: try_store_mutable {
+    t6: *<[1]>::(int) == 1;
+  };
+};

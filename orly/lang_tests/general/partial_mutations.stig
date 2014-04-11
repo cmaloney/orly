@@ -1,0 +1,520 @@
+/* <orly/lang_tests/general/partial_mutations.orly>
+
+   This Stig script tests partial mutations (mutating parts of collections).
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+
+ilist is [int];
+idic is {int:int};
+iaddr is <[int, int]>;
+iobj is <{.a: int, .b: int}>;
+
+rdic is {int:real};
+raddr is <[int, real]>;
+robj is <{.a: int, .b: real}>;
+
+blist is [bool];
+bdic is {int:bool};
+baddr is <[int, bool]>;
+bobj is <{.a: int, .b: bool}>;
+
+llist is [[int]];
+ldic is {int:[int]};
+laddr is <[int, [int]]>;
+lobj is <{.a: int, .b: [int]}>;
+
+slist is [{int}];
+sdic is {int:{int}};
+saddr is <[int, {int}]>;
+sobj is <{.a: int, .b: {int}}>;
+
+dlist is [{int:int}];
+ddic is {int:{int:int}};
+daddr is <[int, {int:int}]>;
+dobj is <{.a: int, .b: {int:int}}>;
+
+/* [[int]] */
+with {
+  <[0]> <- [[0], [1], [2]];
+} test {
+  tllm: (true) effecting { *<[0]>::(llist)[1] <- [42]; } {
+    tllms: *<[0]>::(llist) == [[0], [42], [2]];
+   };
+  tlla: (true) effecting { *<[0]>::(llist)[1] += [22, 42]; } {
+    tllas: *<[0]>::(llist) == [[0], [1, 22, 42], [2]];
+   };
+};
+
+/* {int:[int]} */
+with {
+  <[0]> <- {0:[0], 1:[1], 2:[2]};
+} test {
+  tldm: (true) effecting { *<[0]>::(ldic)[1] <- [42]; } {
+    tldms: *<[0]>::(ldic) == {0:[0], 1:[42], 2:[2]};
+   };
+  tlda: (true) effecting { *<[0]>::(ldic)[1] += [22, 42]; } {
+    tldas: *<[0]>::(ldic) == {0:[0], 1:[1, 22, 42], 2:[2]};
+   };
+};
+
+/* <[int, [int]]> */
+with {
+  <[0]> <- <[0, [0]]>;
+} test {
+  tlam: (true) effecting { *<[0]>::(laddr).1 <- [42]; } {
+    tlams: *<[0]>::(laddr) == <[0, [42]]>;
+   };
+  tlaa: (true) effecting { *<[0]>::(laddr).1 += [22, 42]; } {
+    tlaas: *<[0]>::(laddr) == <[0, [0, 22, 42]]>;
+   };
+};
+
+/* <{.a: int, .b: [int]}> */
+with {
+  <[0]> <- <{.a: 0, .b: [0]}>;
+} test {
+  tlom: (true) effecting { *<[0]>::(lobj).b <- [42]; } {
+    tloms: *<[0]>::(lobj) == <{.a: 0, .b: [42]}>;
+   };
+  tloa: (true) effecting { *<[0]>::(lobj).b += [22, 42]; } {
+    tloas: *<[0]>::(lobj) == <{.a: 0, .b: [0, 22, 42]}>;
+   };
+};
+
+
+
+/* [{int}] */
+with {
+  <[0]> <- [{0}, {1}, {2}];
+} test {
+  tslm: (true) effecting { *<[0]>::(slist)[1] <- {42}; } {
+    tslms: *<[0]>::(slist) == [{0}, {42}, {2}];
+   };
+  tslu: (true) effecting { *<[0]>::(slist)[1] |= {1, 42}; } {
+    tslus: *<[0]>::(slist) == [{0}, {1, 42}, {2}];
+   };
+  tslad: (true) effecting { *<[0]>::(slist)[1] -= {1, 42}; } {
+    tslads: *<[0]>::(slist) == [{0}, empty {int}, {2}];
+   };
+  tslsd: (true) effecting { *<[0]>::(slist)[1] ^= {1, 42}; } {
+    tslsds: *<[0]>::(slist) == [{0}, {42}, {2}];
+   };
+};
+
+/* {int:{int}} */
+with {
+  <[0]> <- {0:{0}, 1:{1}, 2:{2}};
+} test {
+  tsdm: (true) effecting { *<[0]>::(sdic)[1] <- {42}; } {
+    tsdms: *<[0]>::(sdic) == {0:{0}, 1:{42}, 2:{2}};
+   };
+  tsdu: (true) effecting { *<[0]>::(sdic)[1] |= {1, 42}; } {
+    tsdus: *<[0]>::(sdic) == {0:{0}, 1:{1, 42}, 2:{2}};
+   };
+  tsdad: (true) effecting { *<[0]>::(sdic)[1] -= {1, 42}; } {
+    tsdads: *<[0]>::(sdic) == {0:{0}, 1:empty {int}, 2:{2}};
+   };
+  tsdsd: (true) effecting { *<[0]>::(sdic)[1] ^= {1, 42}; } {
+    tsdsds: *<[0]>::(sdic) == {0:{0}, 1:{42}, 2:{2}};
+   };
+};
+
+/* <[int, {int}]> */
+with {
+  <[0]> <- <[0, {0}]>;
+} test {
+  tsam: (true) effecting { *<[0]>::(saddr).1 <- {42}; } {
+    tsams: *<[0]>::(saddr) == <[0, {42}]>;
+   };
+  tsau: (true) effecting { *<[0]>::(saddr).1 |= {0, 42}; } {
+    tsaus: *<[0]>::(saddr) == <[0, {0, 42}]>;
+   };
+  tsaad: (true) effecting { *<[0]>::(saddr).1 -= {0, 42}; } {
+    tsaads: *<[0]>::(saddr) == <[0, empty {int}]>;
+   };
+  tsasd: (true) effecting { *<[0]>::(saddr).1 ^= {0, 42}; } {
+    tsasds: *<[0]>::(saddr) == <[0, {42}]>;
+   };
+};
+
+/* <{.a: int, .b: {int}}> */
+with {
+  <[0]> <- <{.a: 0, .b: {0}}>;
+} test {
+  tsom: (true) effecting { *<[0]>::(sobj).b <- {42}; } {
+    tsoms: *<[0]>::(sobj) == <{.a: 0, .b: {42}}>;
+   };
+  tsou: (true) effecting { *<[0]>::(sobj).b |= {0, 42}; } {
+    tsous: *<[0]>::(sobj) == <{.a: 0, .b: {0, 42}}>;
+   };
+  tsoad: (true) effecting { *<[0]>::(sobj).b -= {0, 42}; } {
+    tsoads: *<[0]>::(sobj) == <{.a: 0, .b: empty {int}}>;
+   };
+  tsosd: (true) effecting { *<[0]>::(sobj).b ^= {0, 42}; } {
+    tsosds: *<[0]>::(sobj) == <{.a: 0, .b: {42}}>;
+   };
+};
+
+
+
+/* [{int:int}] */
+with {
+  <[0]> <- [{0:0}, {1:1}, {2:2}];
+} test {
+  tdlm: (true) effecting { *<[0]>::(dlist)[1] <- {42:42}; } {
+    tdlms: *<[0]>::(dlist) == [{0:0}, {42:42}, {2:2}];
+   };
+  tdlu: (true) effecting { *<[0]>::(dlist)[1] += {1:0, 42:42}; } {
+    tdlus: *<[0]>::(dlist) == [{0:0}, {1:0, 42:42}, {2:2}];
+   };
+  tdlr1: (true) effecting { *<[0]>::(dlist)[1] -= {1, 42}; } {
+    tdlr1s: *<[0]>::(dlist) == [{0:0}, empty {int:int}, {2:2}];
+   };
+  tdlr2: (true) effecting { *<[0]>::(dlist)[1] -= {42}; } {
+    tdlr2s: *<[0]>::(dlist) == [{0:0}, {1:1}, {2:2}];
+   };
+};
+
+/* {int:{int:int}} */
+with {
+  <[0]> <- {0:{0:0}, 1:{1:1}, 2:{2:2}};
+} test {
+  tddm: (true) effecting { *<[0]>::(ddic)[1] <- {42:42}; } {
+    tddms: *<[0]>::(ddic) == {0:{0:0}, 1:{42:42}, 2:{2:2}};
+   };
+  tddu: (true) effecting { *<[0]>::(ddic)[1] += {1:0, 42:42}; } {
+    tddus: *<[0]>::(ddic) == {0:{0:0}, 1:{1:0, 42:42}, 2:{2:2}};
+   };
+  tddr1: (true) effecting { *<[0]>::(ddic)[1] -= {1, 42}; } {
+    tddr1s: *<[0]>::(ddic) == {0:{0:0}, 1:empty {int:int}, 2:{2:2}};
+   };
+  tddr2: (true) effecting { *<[0]>::(ddic)[1] -= {42}; } {
+    tddr2s: *<[0]>::(ddic) == {0:{0:0}, 1:{1:1}, 2:{2:2}};
+   };
+};
+
+/* <[int, {int:int}]> */
+with {
+  <[0]> <- <[0, {0:0}]>;
+} test {
+  tdam: (true) effecting { *<[0]>::(daddr).1 <- {42:42}; } {
+    tdams: *<[0]>::(daddr) == <[0, {42:42}]>;
+   };
+  tdau: (true) effecting { *<[0]>::(daddr).1 += {0:1, 42:42}; } {
+    tdaus: *<[0]>::(daddr) == <[0, {0:1, 42:42}]>;
+   };
+  tdar1: (true) effecting { *<[0]>::(daddr).1 -= {0, 42}; } {
+    tdar1s: *<[0]>::(daddr) == <[0, empty {int:int}]>;
+   };
+  tdar2: (true) effecting { *<[0]>::(daddr).1 -= {42}; } {
+    tdar2s: *<[0]>::(daddr) == <[0, {0:0}]>;
+   };
+};
+
+/* <{.a: int, .b: {int:int}}> */
+with {
+  <[0]> <- <{.a: 0, .b: {0:0}}>;
+} test {
+  tdom: (true) effecting { *<[0]>::(dobj).b <- {42:42}; } {
+    tdoms: *<[0]>::(dobj) == <{.a: 0, .b: {42:42}}>;
+   };
+  tdou: (true) effecting { *<[0]>::(dobj).b += {0:1, 42:42}; } {
+    tdous: *<[0]>::(dobj) == <{.a: 0, .b: {0:1, 42:42}}>;
+   };
+  tdor1: (true) effecting { *<[0]>::(dobj).b -= {0, 42}; } {
+    tdor1s: *<[0]>::(dobj) == <{.a: 0, .b: empty {int:int}}>;
+   };
+  tdor2: (true) effecting { *<[0]>::(dobj).b -= {42}; } {
+    tdor2s: *<[0]>::(dobj) == <{.a: 0, .b: {0:0}}>;
+   };
+};
+
+/* [int] */
+with {
+  <[0]> <- [0, 1, 2];
+} test {
+  tilm: (true) effecting { *<[0]>::(ilist)[0] <- 1; } {
+    tilms1: *<[0]>::(ilist) == [1, 1, 2];
+    tilms2: (true) effecting { *<[0]>::(ilist)[2] <- 3; } {
+      tilms2s: *<[0]>::(ilist) == [1, 1, 3];
+     };
+   };
+  tili: (true) effecting { *<[0]>::(ilist)[1] += 2; } {
+    tilis: *<[0]>::(ilist) == [0, 3, 2];
+   };
+  tild: (true) effecting { *<[0]>::(ilist)[1] -= 2; } {
+    tilds: *<[0]>::(ilist) == [0, -1, 2];
+   };
+  tilmul: (true) effecting { *<[0]>::(ilist)[2] *= 2; } {
+    tilmuls: *<[0]>::(ilist) == [0, 1, 4];
+   };
+  tildiv: (true) effecting { *<[0]>::(ilist)[2] /= 2; } {
+    tildivs: *<[0]>::(ilist) == [0, 1, 1];
+   };
+  tilmod: (true) effecting { *<[0]>::(ilist)[2] %= 2; } {
+    tilmods: *<[0]>::(ilist) == [0, 1, 0];
+   };
+  /* TODO Test slice modifications once they're supported. */
+};
+
+/* {int:int} */
+with {
+  <[0]> <- {0:0, 1:1, 2:2};
+} test {
+  tidm1: (true) effecting { *<[0]>::(idic)[1] <- 3; } {
+    tidm1s: *<[0]>::(idic) == {0:0, 1:3, 2:2};
+   };
+  tidi: (true) effecting { *<[0]>::(idic)[1] += 2; } {
+    tidis: *<[0]>::(idic) == {0:0, 1:3, 2:2};
+   };
+  tidd: (true) effecting { *<[0]>::(idic)[1] -= 2; } {
+    tidds: *<[0]>::(idic) == {0:0, 1:-1, 2:2};
+   };
+  tidmul: (true) effecting { *<[0]>::(idic)[2] *= 2; } {
+    tidmuls: *<[0]>::(idic) == {0:0, 1:1, 2:4};
+   };
+  tiddiv: (true) effecting { *<[0]>::(idic)[2] /= 2; } {
+    tiddivs: *<[0]>::(idic) == {0:0, 1:1, 2:1};
+   };
+  tidmod: (true) effecting { *<[0]>::(idic)[2] %= 2; } {
+    tidmods: *<[0]>::(idic) == {0:0, 1:1, 2:0};
+   };
+};
+
+/* <[int, int]> */
+with {
+  <[0]> <- <[0, 2]>;
+} test {
+  tiam: (true) effecting { *<[0]>::(iaddr).1 <- 3; } {
+    tiams: *<[0]>::(iaddr) == <[0, 3]>;
+   };
+  tiai: (true) effecting { *<[0]>::(iaddr).1 += 2; } {
+    tiais: *<[0]>::(iaddr) == <[0, 4]>;
+   };
+  tiad: (true) effecting { *<[0]>::(iaddr).1 -= 2; } {
+    tiads: *<[0]>::(iaddr) == <[0, 0]>;
+   };
+  tiamul: (true) effecting { *<[0]>::(iaddr).1 *= 2; } {
+    tiamuls: *<[0]>::(iaddr) == <[0, 4]>;
+   };
+  tiadiv: (true) effecting { *<[0]>::(iaddr).1 /= 2; } {
+    tiadivs: *<[0]>::(iaddr) == <[0, 1]>;
+   };
+  tiamod: (true) effecting { *<[0]>::(iaddr).1 %= 2; } {
+    tiamods: *<[0]>::(iaddr) == <[0, 0]>;
+   };
+};
+
+/* <{.a: int, .b: int}> */
+with {
+  <[0]> <- <{.a: 0, .b: 2}>;
+} test {
+  tiom: (true) effecting { *<[0]>::(iobj).b <- 3; } {
+    tioms: *<[0]>::(iobj) == <{.a: 0, .b: 3}>;
+   };
+  tioi: (true) effecting { *<[0]>::(iobj).b += 2; } {
+    tiois: *<[0]>::(iobj) == <{.a: 0, .b: 4}>;
+   };
+  tiod: (true) effecting { *<[0]>::(iobj).b -= 2; } {
+    tiods: *<[0]>::(iobj) == <{.a: 0, .b: 0}>;
+   };
+  tiomul: (true) effecting { *<[0]>::(iobj).b *= 2; } {
+    tiomuls: *<[0]>::(iobj) == <{.a: 0, .b: 4}>;
+   };
+  tiodiv: (true) effecting { *<[0]>::(iobj).b /= 2; } {
+    tiodivs: *<[0]>::(iobj) == <{.a: 0, .b: 1}>;
+   };
+  tiomod: (true) effecting { *<[0]>::(iobj).b %= 2; } {
+    tiomods: *<[0]>::(iobj) == <{.a: 0, .b: 0}>;
+   };
+};
+
+/* [real] */
+with {
+  <[0]> <- [0.0, 1.0, 2.0];
+} test {
+  trlm: (true) effecting { *<[0]>::([real])[0] <- 1.0; } {
+    trlms1: *<[0]>::([real]) == [1.0, 1.0, 2.0];
+    trlms2: (true) effecting { *<[0]>::([real])[2] <- 3.14; } {
+      trlms2s: *<[0]>::([real]) == [1.0, 1.0, 3.14];
+     };
+   };
+  trli: (true) effecting { *<[0]>::([real])[1] += 1.5; } {
+    trlis: *<[0]>::([real]) == [0.0, 2.5, 2.0];
+   };
+  trld: (true) effecting { *<[0]>::([real])[1] -= 1.5; } {
+    trlds: *<[0]>::([real]) == [0.0, -0.5, 2.0];
+   };
+  trlmul: (true) effecting { *<[0]>::([real])[2] *= 1.5; } {
+    trlmuls: *<[0]>::([real]) == [0.0, 1.0, 3.0];
+   };
+  trldiv: (true) effecting { *<[0]>::([real])[2] /= 1.5; } {
+    trldivs: *<[0]>::([real]) == [0.0, 1.0, 4.0 / 3.0];
+   };
+  trlexp: (true) effecting { *<[0]>::([real])[2] **= 3.0; } {
+    trlexps: *<[0]>::([real]) == [0.0, 1.0, 8.0];
+   };
+  /* TODO Test slice modifications once they're supported. */
+};
+/* {int:real} */
+with {
+  <[0]> <- {0:0.0, 1:1.0, 2:2.0};
+} test {
+  trdm1: (true) effecting { *<[0]>::(rdic)[1] <- 3.14; } {
+    trdm1s: *<[0]>::(rdic) == {0:0.0, 1:3.14, 2:2.0};
+   };
+  trdi: (true) effecting { *<[0]>::(rdic)[1] += 1.5; } {
+    trdis: *<[0]>::(rdic) == {0:0.0, 1:2.5, 2:2.0};
+   };
+  trdd: (true) effecting { *<[0]>::(rdic)[1] -= 1.5; } {
+    trdds: *<[0]>::(rdic) == {0:0.0, 1:-0.5, 2:2.0};
+   };
+  trdmul: (true) effecting { *<[0]>::(rdic)[2] *= 1.5; } {
+    trdmuls: *<[0]>::(rdic) == {0:0.0, 1:1.0, 2:3.0};
+   };
+  trddiv: (true) effecting { *<[0]>::(rdic)[2] /= 1.5; } {
+    trddivs: *<[0]>::(rdic) == {0:0.0, 1:1.0, 2:4.0 / 3.0};
+   };
+  trdexp: (true) effecting { *<[0]>::(rdic)[2] **= 3.0; } {
+    trdexps: *<[0]>::(rdic) == {0:0.0, 1:1.0, 2:8.0};
+   };
+};
+
+/* <[int, real]> */
+with {
+  <[0]> <- <[0, 2.0]>;
+} test {
+  tram: (true) effecting { *<[0]>::(raddr).1 <- 3.14; } {
+    trams: *<[0]>::(raddr) == <[0, 3.14]>;
+   };
+  trai: (true) effecting { *<[0]>::(raddr).1 += 1.5; } {
+    trais: *<[0]>::(raddr) == <[0, 3.5]>;
+   };
+  trad: (true) effecting { *<[0]>::(raddr).1 -= 1.5; } {
+    trads: *<[0]>::(raddr) == <[0, 0.5]>;
+   };
+  tramul: (true) effecting { *<[0]>::(raddr).1 *= 1.5; } {
+    tramuls: *<[0]>::(raddr) == <[0, 3.0]>;
+   };
+  tradiv: (true) effecting { *<[0]>::(raddr).1 /= 1.5; } {
+    tradivs: *<[0]>::(raddr) == <[0, 4.0 / 3.0]>;
+   };
+  traexp: (true) effecting { *<[0]>::(raddr).1 **= 3.0; } {
+    traexps: *<[0]>::(raddr) == <[0, 8.0]>;
+   };
+};
+
+/* <{.a: int, .b: real}> */
+with {
+  <[0]> <- <{.a: 0, .b: 2.0}>;
+} test {
+  trom: (true) effecting { *<[0]>::(robj).b <- 3.14; } {
+    troms: *<[0]>::(robj) == <{.a: 0, .b: 3.14}>;
+   };
+  troi: (true) effecting { *<[0]>::(robj).b += 1.5; } {
+    trois: *<[0]>::(robj) == <{.a: 0, .b: 3.5}>;
+   };
+  trod: (true) effecting { *<[0]>::(robj).b -= 1.5; } {
+    trods: *<[0]>::(robj) == <{.a: 0, .b: 0.5}>;
+   };
+  tromul: (true) effecting { *<[0]>::(robj).b *= 1.5; } {
+    tromuls: *<[0]>::(robj) == <{.a: 0, .b: 3.0}>;
+   };
+  trodiv: (true) effecting { *<[0]>::(robj).b /= 1.5; } {
+    trodivs: *<[0]>::(robj) == <{.a: 0, .b: 4.0 / 3.0}>;
+   };
+  troexp: (true) effecting { *<[0]>::(robj).b **= 3.0; } {
+    troexps: *<[0]>::(robj) == <{.a: 0, .b: 8.0}>;
+   };
+};
+
+
+
+/* [bool] */
+with {
+  <[0]> <- [true, false, true];
+} test {
+  tblm: (true) effecting { *<[0]>::(blist)[0] <- false; } {
+    tblms1: *<[0]>::(blist) == [false, false, true];
+    tblms2: (true) effecting { *<[0]>::(blist)[2] <- false; } {
+      tblms2s: *<[0]>::(blist) == [false, false, false];
+     };
+   };
+  tblland: (true) effecting { *<[0]>::(blist)[2] and= false; } {
+    tbllands: *<[0]>::(blist) == [true, false, false];
+   };
+  tbllor: (true) effecting { *<[0]>::(blist)[1] or= true; } {
+    tbllors: *<[0]>::(blist) == [true, true, true];
+   };
+  tbllxor: (true) effecting { *<[0]>::(blist)[2] xor= true; } {
+    tbllxors: *<[0]>::(blist) == [true, false, false];
+   };
+  /* TODO Test slice modifications once they're supported. */
+};
+
+/* {int:bool} */
+with {
+  <[0]> <- {0:true, 1:false, 2:true};
+} test {
+  tbdm1: (true) effecting { *<[0]>::(bdic)[1] <- true; } {
+    tbdm1s: *<[0]>::(bdic) == {0:true, 1:true, 2:true};
+   };
+  tbdland: (true) effecting { *<[0]>::(bdic)[2] and= false; } {
+    tbdlands: *<[0]>::(bdic) == {0:true, 1:false, 2:false};
+   };
+  tbdlor: (true) effecting { *<[0]>::(bdic)[1] or= true; } {
+    tbdlors: *<[0]>::(bdic) == {0:true, 1:true, 2:true};
+   };
+  tbdlxor: (true) effecting { *<[0]>::(bdic)[2] xor= true; } {
+    tbdlxors: *<[0]>::(bdic) == {0:true, 1:false, 2:false};
+   };
+};
+
+/* <[int, bool]> */
+with {
+  <[0]> <- <[0, true]>;
+} test {
+  tbam: (true) effecting { *<[0]>::(baddr).1 <- false; } {
+    tbams: *<[0]>::(baddr) == <[0, false]>;
+   };
+  tbaland: (true) effecting { *<[0]>::(baddr).1 and= false; } {
+    tbalands: *<[0]>::(baddr) == <[0, false]>;
+   };
+  tbalor: (true) effecting { *<[0]>::(baddr).1 or= false; } {
+    tbalors: *<[0]>::(baddr) == <[0, true]>;
+   };
+  tbalxor: (true) effecting { *<[0]>::(baddr).1 xor= true; } {
+    tbalxors: *<[0]>::(baddr) == <[0, false]>;
+   };
+};
+
+/* <{.a: int, .b: bool}> */
+with {
+  <[0]> <- <{.a: 0, .b: true}>;
+} test {
+  tbom: (true) effecting { *<[0]>::(bobj).b <- false; } {
+    tboms: *<[0]>::(bobj) == <{.a: 0, .b: false}>;
+   };
+  tboland: (true) effecting { *<[0]>::(bobj).b and= false; } {
+    tbolands: *<[0]>::(bobj) == <{.a: 0, .b: false}>;
+   };
+  tbolor: (true) effecting { *<[0]>::(bobj).b or= false; } {
+    tbolors: *<[0]>::(bobj) == <{.a: 0, .b: true}>;
+   };
+  tbolxor: (true) effecting { *<[0]>::(bobj).b xor= true; } {
+    tbolxors: *<[0]>::(bobj) == <{.a: 0, .b: false}>;
+   };
+};

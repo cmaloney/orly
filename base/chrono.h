@@ -2,7 +2,7 @@
 
    Provides helpful functions to be used with <chrono> library
 
-   NOTE. This should really live as <stig/rt/chrono.h>.
+   NOTE. This should really live as <orly/rt/chrono.h>.
          It's here because <tools/nycr/nycr> uses it.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
