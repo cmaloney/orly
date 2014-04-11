@@ -115,7 +115,7 @@ namespace Orly {
       private:
 
       /* TODO */
-      #if defined(STIG_HOST)
+      #if defined(ORLY_HOST)
       template <typename TVal, typename TKey>
       TDict(const Rt::TDict<TKey, TVal> &that) : KeyType(Type::TDt<TKey>::GetType()), ValType(Type::TDt<TVal>::GetType()) {
         for (auto iter = that.begin(); iter != that.end(); ++iter) {

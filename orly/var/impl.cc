@@ -927,7 +927,7 @@ void TVar::Accept(const TVar &lhs, const TVar &rhs, const TDoubleVisitor &double
   lhs.Accept(TLhsVisitor(rhs, double_visitor));
 }
 
-#if defined(STIG_HOST)
+#if defined(ORLY_HOST)
 
 TVar::~TVar() {/* WE NEED THIS TO BE DEFINED IN THE SERVER / COMPILER */}
 

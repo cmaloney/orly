@@ -46,7 +46,7 @@ class TCompilerConfig : public Base::TCmd {
 
   class TMeta : public TCmd::TMeta {
     public:
-    TMeta() : TCmd::TMeta("STIG Spa Compiler v0.5") {
+    TMeta() : TCmd::TMeta("Orly Compiler v0.5") {
       Param(&TCompilerConfig::DebugOutput, "debug_output", Optional, "debug\0d\0", "Compile the orly package in debug mode.");
       Param(&TCompilerConfig::MachineForm, "machine_form", Optional, "machine-form\0m\0", "Print out machine readable progress.");
       Param(&TCompilerConfig::OutputDir, "output_directory", Optional, "output\0o\0", "The directory to write output to.");

@@ -9,7 +9,7 @@ VERSION=3.4
 SRC_ROOT="$PWD/llvm"
 OBJ_ROOT="$PWD/llvm_build_$VERSION"
 INSTALL_DIR="llvm-$VERSION"
-STIG_BIN="/opt/$INSTALL_DIR"
+ORLY_BIN="/opt/$INSTALL_DIR"
 
 BINUTILS_VERSION=2.23.2
 BINUTILS_HEADERS="/usr/include"
@@ -134,12 +134,12 @@ echo "SanitizerCommon-Unit :: Sanitizer-x86_64-Test/SanitizerCommon.SizeClassAll
 echo "SanitizerCommon-Unit :: Sanitizer-x86_64-Test/SanitizerCommon.SizeClassAllocator64Overflow"
 
 #Install to /opt
-echo "Installing to $STIG_BIN"
-sudo rm -rf $STIG_BIN
-sudo mkdir $STIG_BIN
+echo "Installing to $ORLY_BIN"
+sudo rm -rf $ORLY_BIN
+sudo mkdir $ORLY_BIN
 sudo make install
-ln -s "$STIG_BIN/bin/clang++" tools/clang++
-ln -s "$STIG_BIN/bin/clang" tools/clang
+ln -s "$ORLY_BIN/bin/clang++" tools/clang++
+ln -s "$ORLY_BIN/bin/clang" tools/clang
 
 cd /opt
 sudo tar czf "$INSTALL_DIR.tgz" $INSTALL_DIR
