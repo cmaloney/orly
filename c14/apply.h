@@ -30,7 +30,7 @@
    the indices of the elements to be passed to the function. So we can use this to do things like, pass the same argument multiple
    times, reorder the arguments so that it fits the function signature, pass a slice of the tuple, etc.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

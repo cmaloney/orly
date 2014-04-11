@@ -9,7 +9,7 @@
    When decoding, read bytes until you find one with the high-order bit off.
    It and the bytes which precede it make up the var-int.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

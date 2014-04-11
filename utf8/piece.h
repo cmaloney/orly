@@ -2,7 +2,7 @@
 
    A reference to a UTF-8 string defined by a pair of start/limit pointers.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

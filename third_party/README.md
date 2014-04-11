@@ -4,7 +4,7 @@ Third party libraries and tools which have been or are used with or by Stig.
 
 -----
 
-README.md Copyright 2010-2014 Stig LLC
+README.md Copyright 2010-2014 OrlyAtomics, Inc.
 
 README.md is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 

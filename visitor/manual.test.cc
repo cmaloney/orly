@@ -6,7 +6,7 @@
    <visitor/auto.test.cc>. This file shows what it would look like to manually write out (probably code gen) the
    abstract visitors instead in order to save compile time.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

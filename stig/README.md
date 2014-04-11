@@ -6,7 +6,7 @@ Anyway, this directory contains the code for the Stig Database.
 
 -----
 
-README.md Copyright 2010-2014 Stig LLC
+README.md Copyright 2010-2014 OrlyAtomics, Inc.
 
 README.md is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 

@@ -3,7 +3,7 @@
    Yields each kind reachable from a given kind, in an order appropriate
    for class definitions.  (That is, superclasses before subclasses.)
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

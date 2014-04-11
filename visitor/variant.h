@@ -76,7 +76,7 @@
      * constructing a variant by copying from a family member will throw
        iff. the family member's copy-constructor throws.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

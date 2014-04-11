@@ -5,7 +5,7 @@
    NOTE: This test must run as root.  See the comment at the top of <base/booster.h> for
    more information.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

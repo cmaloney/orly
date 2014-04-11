@@ -23,7 +23,7 @@
    Since int and double are passed by value since they are POD types and the size is smaller than or equal to a pointer, and
    std::string is passed by const-ref because it's not a POD type.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

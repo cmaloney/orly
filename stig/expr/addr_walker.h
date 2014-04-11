@@ -3,7 +3,7 @@
    This is for retrieivng a set of all the Addrs (Tuples) that are being used in the Database,
    that is, all of the <[ ... ]>s used in keys, new, delete, and mutation expressions.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

@@ -5,7 +5,7 @@
    TODO: The group of counters don't provide a consistent snapshot when sampled. Each is sampled independently. Locking
    everything to sample the counters is incredibly painful / massive jitter which we want to avoid.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

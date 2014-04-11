@@ -7,7 +7,7 @@
    to avoid having sign-extension make a signed value which happens to be
    negative appear to be a huge unsigned value.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

@@ -53,7 +53,7 @@
    Accept() will default-construct an object of type TGetAreaVisitor::TResult and construct TGetAreaVisitor with it as an argument
    just like the former case.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

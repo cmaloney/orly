@@ -2,7 +2,7 @@
 
    The controller for the stig compiler. Runs all the phases, exits on first phase failure.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ class TCompilerConfig : public Base::TCmd {
       assert(&strm);
       strm << "Build: Unknown" << endl // TODO: Version from SCM.
            << endl
-           << "Copyright Stig LLC" << endl
+           << "Copyright OrlyAtomics, Inc." << endl
            << "Licensed under the Apache License, Version 2.0" << endl;
     }
 

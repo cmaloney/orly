@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 #
-# Copyright 2010-2014 Stig LLC
+# Copyright 2010-2014 OrlyAtomics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ COPYRIGHT_PATTERN = re.compile(R'copyright[ \t]*\d+(\-\d*)?[ \t]*tagged', re.I)
 APACHE_PATTERN = re.compile(R'Licensed under the Apache License')
 
 APACHE_NOTICE_LINES = [
-  'Copyright 2010-2014 Stig LLC',
+  'Copyright 2010-2014 OrlyAtomics, Inc.',
   '',
   'Licensed under the Apache License, Version 2.0 (the "License");',
   'you may not use this file except in compliance with the License.',

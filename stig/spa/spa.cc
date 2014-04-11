@@ -1,6 +1,6 @@
 /* <stig/spa/spa.cc>
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -270,7 +270,7 @@ class TSpa : public Mongoose::TMongoose {
         assert(&strm);
         strm << "Build: Unknown" << endl // FIXME: Use Version from SCM to tag.
              << endl
-             << "Copyright Stig LLC" << endl
+             << "Copyright OrlyAtomics, Inc." << endl
              << "Licensed under the Apache License, Version 2.0" << endl;
       }
     };

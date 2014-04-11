@@ -3,7 +3,7 @@
    A consumer of output which holds all its data in memory,
    and an input producer which plays back a recording.
 
-   Copyright 2010-2014 Stig LLC
+   Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

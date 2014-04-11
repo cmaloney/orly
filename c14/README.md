@@ -4,7 +4,7 @@ This directory contains implementations of functionality which we'd like to be p
 
 -----
 
-README.md Copyright 2010-2014 Stig LLC
+README.md Copyright 2010-2014 OrlyAtomics, Inc.
 
 README.md is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 

@@ -230,7 +230,7 @@ The [gcc installation docs](http://gcc.gnu.org/install/index.html) and [wiki](ht
 
 -----
 
-build.md Copyright 2010-2014 Stig LLC
+build.md Copyright 2010-2014 OrlyAtomics, Inc.
 
 build.md is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 
@@ -585,7 +585,7 @@ sudo make install
 
 -----
 
-build.md Copyright 2010-2014 Stig LLC
+build.md Copyright 2010-2014 OrlyAtomics, Inc.
 
 build.md is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 
@@ -939,7 +939,7 @@ sudo make install
 
 -----
 
-build.md Copyright 2010-2014 Stig LLC
+build.md Copyright 2010-2014 OrlyAtomics, Inc.
 
 build.md is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 

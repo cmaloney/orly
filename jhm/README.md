@@ -10,7 +10,7 @@ While this build system is no longer in use by the Stig project, its files are s
 
 -----
 
-README.md Copyright 2010-2014 Stig LLC
+README.md Copyright 2010-2014 OrlyAtomics, Inc.
 
 README.md is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 
