@@ -493,7 +493,7 @@ FIXTURE(BigSingleIndex) {
     Base::TUuid file_id(TUuid::Best);
     TSequenceNumber seq_num = 0U;
     TUuid int_str_int_idx(TUuid::Twister);
-    const string orly_str("Orly");
+    const string mofo_str("Mofo");
     const string orly_str("Orly");
     typedef tuple<int64_t, string, int64_t, int64_t> TTup;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
@@ -501,7 +501,7 @@ FIXTURE(BigSingleIndex) {
     vector<size_t> data_gen_vec;
     /* Make the data file */ {
       for (int64_t i = 0; i < num_iter; ++i) {  /* insert data */
-        val_vec.emplace_back(i % 7L, (i % 2 == 0 ? orly_str : orly_str), 1L + i * 2L, 7L * i);
+        val_vec.emplace_back(i % 7L, (i % 2 == 0 ? mofo_str : orly_str), 1L + i * 2L, 7L * i);
       }
       sort(val_vec.begin(), val_vec.end(), [](const TTup &lhs, const TTup &rhs) {
         Atom::TComparison comp = Atom::CompareOrdered(get<0>(lhs), get<0>(rhs));
@@ -555,7 +555,7 @@ FIXTURE(BigSingleIndex) {
       hash_timer.Start();
       //CALLGRIND_START_INSTRUMENTATION;
       for (int64_t i = 0; i < num_iter; ++i) {
-        found_in_hash += idx_file.FindInHash(TKey(make_tuple(i % 7L, (i % 2 == 0 ? orly_str : orly_str), 1L + i * 2L), &arena, state_alloc), out_offset, in_stream, &index_arena) ? 1UL : 0UL;
+        found_in_hash += idx_file.FindInHash(TKey(make_tuple(i % 7L, (i % 2 == 0 ? mofo_str : orly_str), 1L + i * 2L), &arena, state_alloc), out_offset, in_stream, &index_arena) ? 1UL : 0UL;
       }
       //CALLGRIND_STOP_INSTRUMENTATION;
       hash_timer.Stop();
@@ -616,14 +616,14 @@ FIXTURE(StressSingleIndex) {
       Base::TUuid file_id(TUuid::Best);
       TSequenceNumber seq_num = 0U;
       TUuid int_str_int_idx(TUuid::Twister);
-      const string orly_str("Orly");
+      const string mofo_str("Mofo");
       const string orly_str("Orly");
       typedef tuple<int64_t, string, int64_t, int64_t> TTup;
       vector<TTup> val_vec;
       vector<size_t> data_gen_vec;
       /* Make the data file */ {
         for (int64_t i = 0; i < num_iter; ++i) {  /* insert data */
-          val_vec.emplace_back(i % 7L, (i % 2 == 0 ? orly_str : orly_str), 1L + i * 2L, 7L * i);
+          val_vec.emplace_back(i % 7L, (i % 2 == 0 ? mofo_str : orly_str), 1L + i * 2L, 7L * i);
         }
         sort(val_vec.begin(), val_vec.end(), [](const TTup &lhs, const TTup &rhs) {
           Atom::TComparison comp = Atom::CompareOrdered(get<0>(lhs), get<0>(rhs));
@@ -674,7 +674,7 @@ FIXTURE(StressSingleIndex) {
         Base::TTimer hash_timer;
         hash_timer.Start();
         for (int64_t i = 0; i < num_iter; ++i) {
-          found_in_hash += idx_file.FindInHash(TKey(make_tuple(i % 7L, (i % 2 == 0 ? orly_str : orly_str), 1L + i * 2L), &arena, state_alloc), out_offset, in_stream, &index_arena) ? 1UL : 0UL;
+          found_in_hash += idx_file.FindInHash(TKey(make_tuple(i % 7L, (i % 2 == 0 ? mofo_str : orly_str), 1L + i * 2L), &arena, state_alloc), out_offset, in_stream, &index_arena) ? 1UL : 0UL;
         }
         hash_timer.Stop();
         EXPECT_EQ(found_in_hash, num_iter);

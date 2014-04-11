@@ -23,7 +23,7 @@ const std::string &Base::GetSrcRoot() {
 
   if(SrcRoot.size() == 0) {
     //Prevent the SRC_ROOT macro from killing us
-    char *src_env = getenv("STIG_SRC""_ROOT");
+    char *src_env = getenv("ORLY_SRC""_ROOT");
     if(src_env) {
       SrcRoot = src_env;
     } else {

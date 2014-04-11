@@ -108,7 +108,7 @@ TLoaded::TLoaded(const Jhm::TAbsBase &package_dir, const TVersionedName &name) :
 
     //TODO: We can actually link in such a way that we can use a dynamic cast here.
     int32_t api_verno = reinterpret_cast<int32_t (*)()>(TDlError::IfNull(HERE, dlsym(Handle, "GetApiVersion")))();
-    if(STIG_API_VERSION != api_verno) {
+    if(ORLY_API_VERSION != api_verno) {
       throw TLoaderError(HERE, "Package API version doesn't match server API version");
     }
 

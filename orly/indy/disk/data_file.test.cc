@@ -347,7 +347,7 @@ FIXTURE(BigSingleIndex) {
     TSequenceNumber seq_num = 0U;
     TUuid int_str_int_idx(TUuid::Twister);
     const string orly_str("Orly");
-    const string orly_str("Orly");
+    const string mofo_str("Mofo");
     typedef tuple<int64_t, string, int64_t, int64_t> TTup;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     vector<TTup> val_vec;
@@ -355,7 +355,7 @@ FIXTURE(BigSingleIndex) {
       TSuprena arena;
       TMockMem mem_layer;
       for (int64_t i = 0; i < num_iter; ++i) {  /* insert data */
-        val_vec.emplace_back(i % 7L, (i % 2 == 0 ? orly_str : orly_str), 1L + i * 2L, 7L * i);
+        val_vec.emplace_back(i % 7L, (i % 2 == 0 ? orly_str : mofo_str), 1L + i * 2L, 7L * i);
       }
       std::sort(val_vec.begin(), val_vec.end(), [](const TTup &lhs, const TTup &rhs){
         Atom::TComparison comp = Atom::CompareOrdered(std::get<0>(lhs), std::get<0>(rhs));

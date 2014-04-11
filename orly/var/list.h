@@ -105,7 +105,7 @@ namespace Orly {
       private:
 
       /* TODO */
-      #if defined(STIG_HOST)
+      #if defined(ORLY_HOST)
       template <typename TVal>
       TList(const std::vector<TVal> &that) : Type(Type::TDt<TVal>::GetType()) {
         for (auto iter = that.begin(); iter != that.end(); ++iter) {

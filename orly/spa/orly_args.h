@@ -59,7 +59,7 @@ namespace Orly {
 
       /* A collection of HTTP arguments. Builds up a map on a first pass through, and as arguments are requested decodes
          them when asked. It has a method to check that all the arguments it was given have been used, and it will abort
-         on destruction if AssertAllUsed has not been called. We do this to ensure that STIG Developers call the check
+         on destruction if AssertAllUsed has not been called. We do this to ensure that Orly Developers call the check
          function. We could have called AssertAllUsed for you in the destructor, but throwing an error there you could
          have already done something bad to the database. */
       class TArgs {

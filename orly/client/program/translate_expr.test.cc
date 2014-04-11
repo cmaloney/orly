@@ -389,15 +389,15 @@ class TObj {
 
   private:
 
-  STIG__DECL_RECORD(TObj, STIG__BASES(), int, bool, double);
+  ORLY__DECL_RECORD(TObj, ORLY__BASES(), int, bool, double);
 
 };
 
-STIG__IMPL_RECORD(
+ORLY__IMPL_RECORD(
     TObj,
-    STIG__FIELD(TObj, A),
-    STIG__FIELD(TObj, B),
-    STIG__FIELD(TObj, C)
+    ORLY__FIELD(TObj, A),
+    ORLY__FIELD(TObj, B),
+    ORLY__FIELD(TObj, C)
 );
 
 FIXTURE(Obj) {

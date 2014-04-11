@@ -47,7 +47,7 @@ namespace Test {
       private:
       class TMeta : public Base::TCmd::TMeta {
         public:
-        TMeta() : Base::TCmd::TMeta("STIG Unit Test") {
+        TMeta() : Base::TCmd::TMeta("Orly Unit Test") {
           Param(&TCmd::VerboseMember, "verbose", Optional, "verbose\0v\0", "Show the results of unit tests, regardless of whether they pass or fail");
           Param(&TCmd::PrintTiming, "print_timing", Optional, "timing\0t\0", "Print execution time for each fixture");
         }
