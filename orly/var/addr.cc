@@ -22,7 +22,7 @@
 #include <orly/type/addr.h>
 #include <orly/var/int.h>
 
-using namespace Stig;
+using namespace Orly;
 using namespace Var;
 
 size_t TAddr::GetHash() const {

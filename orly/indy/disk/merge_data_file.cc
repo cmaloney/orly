@@ -24,12 +24,12 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
-using namespace Stig::Indy::Util;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
+using namespace Orly::Indy::Util;
 
 /* TODO */
 template <bool CanTail, bool CanTailTombstones>
@@ -282,7 +282,7 @@ class TMergeDataFileImpl {
           std::vector<std::unique_ptr<typename TReader::TIndexFile::TKeyCursor>> cur_key_cursor_vec;
           std::vector<std::unique_ptr<typename TReader::TIndexFile::THistoryKeyCursor>> hist_key_cursor_vec;
           std::vector<size_t> history_key_cur_idx_vec(source_file_vec.size(), 0UL);
-          Stig::Indy::Util::TMinHeap<TSortedKey, size_t> min_heap(source_file_vec.size() * 2);
+          Orly::Indy::Util::TMinHeap<TSortedKey, size_t> min_heap(source_file_vec.size() * 2);
           std::vector<TSortedKey> sorted_key_vec(source_file_vec.size() * 2);
 
           std::vector<std::unique_ptr<TMergeDataFileImpl::TRemapAccessSorter>> key_access_sorter_vec;
@@ -1410,7 +1410,7 @@ class TMergeDataFileImpl {
         }
         std::vector<TTypeNote> type_note_vec;
         type_note_vec.reserve(num_total_types);
-        Stig::Indy::Util::TMinHeap<TTypeNote, size_t> min_heap(num_total_types);
+        Orly::Indy::Util::TMinHeap<TTypeNote, size_t> min_heap(num_total_types);
         for (size_t i = 0; i < disk_arena_vec.size(); ++i) {
           TDataDiskArena<true> *const arena = disk_arena_vec[i].get();
           const std::vector<size_t> &type_boundary_offset_vec = type_boundary_offset_vec_by_file[i];
@@ -1601,7 +1601,7 @@ class TMergeDataFileImpl {
         note_cursor_vec.emplace_back(new typename TDataDiskArena<ScanAheadAllowed>::TCursor(disk_arena, from_offset, to_offset));
       }
       std::vector<TL0MergeNote> merge_note_vec(note_cursor_vec.size());
-      Stig::Indy::Util::TMinHeap<TL0MergeNote, size_t> min_heap(note_cursor_vec.size());
+      Orly::Indy::Util::TMinHeap<TL0MergeNote, size_t> min_heap(note_cursor_vec.size());
       size_t pos = 0UL;
       for (const auto &csr_ptr : note_cursor_vec) {
         typename TDataDiskArena<ScanAheadAllowed>::TCursor &csr = *csr_ptr;
@@ -1799,7 +1799,7 @@ class TMergeDataFileImpl {
       }
       std::vector<TMergeNote> merge_note_vec(note_cursor_vec.size());
       Atom::TCore::TNote::TOrderedArenaCompare note_comp(my_arena);
-      Stig::Indy::Util::TMinHeap<Atom::TCore::TNote, size_t, Atom::TCore::TNote::TOrderedArenaCompare> min_heap(note_cursor_vec.size(), note_comp);
+      Orly::Indy::Util::TMinHeap<Atom::TCore::TNote, size_t, Atom::TCore::TNote::TOrderedArenaCompare> min_heap(note_cursor_vec.size(), note_comp);
       std::vector<std::pair<Atom::TCore::TNote *, size_t>> temp_note_vec(note_cursor_vec.size(), std::make_pair(nullptr, 0UL));
       //std::cout << "=== Create MinHeap ===" << std::endl;
       try {

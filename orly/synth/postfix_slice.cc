@@ -26,8 +26,8 @@
 #include <orly/synth/new_expr.h>
 #include <orly/synth/new_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TPostfixSlice::TPostfixSlice(const TExprFactory *expr_factory, const Package::Syntax::TPostfixSlice *postfix_slice)
     : PostfixSlice(Base::AssertTrue(postfix_slice)), Colon(false), Expr(nullptr), OptLhs(nullptr), OptRhs(nullptr) {

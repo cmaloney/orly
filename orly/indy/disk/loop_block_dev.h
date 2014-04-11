@@ -22,7 +22,7 @@
 
 #include <base/error_utils.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -69,4 +69,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

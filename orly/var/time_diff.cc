@@ -20,8 +20,8 @@
 
 #include <orly/type/time_diff.h>
 
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 size_t TTimeDiff::GetHash() const {
   assert(this);

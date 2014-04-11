@@ -23,17 +23,17 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
 
 
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
-Stig::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 4000004UL);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 4000004UL);
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 4000004UL);
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 4000004UL);
 
 template <typename ...TArgs>
 void Insert(TMemoryLayer &mem_layer, TSequenceNumber seq_num, const Base::TUuid &idx_id, int64_t val, const TArgs &...args) {

@@ -22,8 +22,8 @@
 #include <orly/expr/now.h>
 #include <orly/synth/get_pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TNowExpr::TNowExpr(const Package::Syntax::TNowExpr *now_expr)
     : NowExpr(Base::AssertTrue(now_expr)) {}

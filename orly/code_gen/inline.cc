@@ -20,7 +20,7 @@
 
 #include <orly/type.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 
 /* Writes the common subexpression eliminated variant of this inline. */
@@ -42,7 +42,7 @@ const TId<TIdKind::Var> &TInline::GetId() const {
   return *Id;
 }
 
-Stig::Type::TType TInline::GetReturnType() const {
+Orly::Type::TType TInline::GetReturnType() const {
   assert(this);
 
   return ReturnType;
@@ -63,7 +63,7 @@ void TInline::SetCommonSubexpressionId(TId<TIdKind::Var> &&id) const {
 
 TInline::TInline(const L0::TPackage *package, Type::TType type) : Package(package), ReturnType(type) {}
 
-TCppPrinter &Stig::CodeGen::operator<<(TCppPrinter &out, const std::shared_ptr<const Stig::CodeGen::TInline> &ptr) {
+TCppPrinter &Orly::CodeGen::operator<<(TCppPrinter &out, const std::shared_ptr<const Orly::CodeGen::TInline> &ptr) {
   assert(&ptr);
   assert(ptr);
 

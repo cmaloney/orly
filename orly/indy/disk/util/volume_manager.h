@@ -58,7 +58,7 @@
 #include <orly/indy/disk/result.h>
 #include <orly/indy/disk/util/device_util.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -87,15 +87,15 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Indy::Disk::Util::TLogicalExtent. */
+  /* A standard hasher for Orly::Indy::Disk::Util::TLogicalExtent. */
   template <>
-  struct hash<Stig::Indy::Disk::Util::TLogicalExtent> {
+  struct hash<Orly::Indy::Disk::Util::TLogicalExtent> {
     typedef size_t result_type;
-    typedef Stig::Indy::Disk::Util::TLogicalExtent argument_type;
+    typedef Orly::Indy::Disk::Util::TLogicalExtent argument_type;
     size_t operator()(const argument_type &that) const {
       return that.GetHash();
     }
@@ -103,7 +103,7 @@ namespace std {
 
 }  // std
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -326,7 +326,7 @@ namespace Stig {
         }
 
         /* TODO */
-        typedef std::function<void (Stig::Indy::Disk::TDiskResult, const char *err_str)> TIOCallback;
+        typedef std::function<void (Orly::Indy::Disk::TDiskResult, const char *err_str)> TIOCallback;
 
         /* TODO */
         typedef std::function<void (TCacheInstr cache_instr, const TOffset logical_start_offset, void *buf, size_t count)> TCacheCb;
@@ -1413,4 +1413,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

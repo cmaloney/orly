@@ -22,8 +22,8 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TUnaryType::TUnaryType(TType *type, TGet get)
     : Type(Base::AssertTrue(type)), Get(get) {}

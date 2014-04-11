@@ -1,6 +1,6 @@
 /* <orly/method_result.h>
 
-   The result returned by Stig when a client runs a method.
+   The result returned by Orly when a client runs a method.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -27,9 +27,9 @@
 #include <orly/tracker.h>
 #include <orly/atom/kit2.h>
 
-namespace Stig {
+namespace Orly {
 
-  /* The result returned by Stig when a client runs a method. */
+  /* The result returned by Orly when a client runs a method. */
   class TMethodResult {
     public:
 
@@ -97,18 +97,18 @@ namespace Stig {
 
   };  // TMethodResult
 
-  /* Binary stream extractor for Stig::TMethodResult. */
+  /* Binary stream extractor for Orly::TMethodResult. */
   inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TMethodResult &that) {
     assert(&that);
     that.Read(strm);
     return strm;
   }
 
-  /* Binary stream inserter for Stig::TMethodResult. */
+  /* Binary stream inserter for Orly::TMethodResult. */
   inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TMethodResult &that) {
     assert(&that);
     that.Write(strm);
     return strm;
   }
 
-}  // Stig
+}  // Orly

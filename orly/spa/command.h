@@ -23,7 +23,7 @@
 #include <base/no_copy_semantics.h>
 #include <orly/var.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Spa {
 
@@ -43,4 +43,4 @@ namespace Stig {
 
   }  // Spa
 
-}  // Stig
+}  // Orly

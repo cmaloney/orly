@@ -1,6 +1,6 @@
 /* <orly/uuid.h>
 
-   A Stig uuid, which is a <uuid/uuid.h>.
+   A Orly uuid, which is a <uuid/uuid.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -25,7 +25,7 @@
 
 #include <uuid/uuid.h>
 
-namespace Stig {
+namespace Orly {
 
   /* TODO */
   class TUUID {
@@ -92,25 +92,25 @@ namespace Stig {
 
   };  // TUUID
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::TUUID. */
+  /* A standard hasher for Orly::TUUID. */
   template <>
-  struct hash<Stig::TUUID> {
+  struct hash<Orly::TUUID> {
 
     typedef size_t result_type;
-    typedef Stig::TUUID argument_type;
+    typedef Orly::TUUID argument_type;
 
     result_type operator()(const argument_type &that) const {
       return that.GetHash();
     }
 
-  };  // hash<Stig::TUUID>
+  };  // hash<Orly::TUUID>
 
   /* TODO */
-  inline ostream &operator<<(ostream &stream, const Stig::TUUID &uuid) {
+  inline ostream &operator<<(ostream &stream, const Orly::TUUID &uuid) {
     uuid.Write(stream);
     return stream;
   }

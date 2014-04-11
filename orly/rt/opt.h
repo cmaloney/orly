@@ -25,7 +25,7 @@
 #include <base/safe_global.h>
 #include <orly/rt/runtime_error.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -228,21 +228,21 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
   /* A standard hasher for Rt::TOpt<TVal>. */
   template <typename TVal>
-  struct hash<Stig::Rt::TOpt<TVal>> {
+  struct hash<Orly::Rt::TOpt<TVal>> {
 
     typedef size_t result_type;
-    typedef Stig::Rt::TOpt<TVal> argument_type;
+    typedef Orly::Rt::TOpt<TVal> argument_type;
 
     result_type operator()(const argument_type &that) const {
       return that.GetHash();
     }
 
-  };  // hash<Stig::Rt::TOpt<TVal>>
+  };  // hash<Orly::Rt::TOpt<TVal>>
 
 }  // std

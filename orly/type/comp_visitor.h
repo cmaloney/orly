@@ -23,7 +23,7 @@
 #include <orly/type/has_optional.h>
 #include <orly/type/equal_visitor.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -176,4 +176,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

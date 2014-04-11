@@ -33,20 +33,20 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 static const size_t BlockSize = Disk::Util::PhysicalBlockSize;
 
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
-Stig::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 750010UL);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 1500020UL);
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 750010UL);
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 1500020UL);
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 2000UL);
 
 FIXTURE(Typical) {
@@ -80,7 +80,7 @@ FIXTURE(Typical) {
                1L, string("Tagged"), 2L);
         /* insert <[int64_t, string, string]> */
         Insert(mem_layer, ++seq_num, int_str_str_idx, 14L,
-               1L, string("Tagged"), string("Stig"));
+               1L, string("Tagged"), string("Orly"));
         Insert(mem_layer, ++seq_num, int_str_str_idx, 15L,
                1L, string("Tagged"), string("Stih"));
         /* insert <[int64_t, string]> */
@@ -149,7 +149,7 @@ FIXTURE(Deep) {
       TReader::TArena int_str_decint_decstr_idx_arena(&int_str_decint_decstr_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile int_str_int_str_idx_file(&reader, int_str_int_str_idx, RealTime);
       TReader::TArena int_str_int_str_idx_arena(&int_str_int_str_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
       EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
@@ -198,7 +198,7 @@ FIXTURE(Deep) {
       TReader::TArena int_str_decint_decstr_idx_arena(&int_str_decint_decstr_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile int_str_int_str_idx_file(&reader, int_str_int_str_idx, RealTime);
       TReader::TArena int_str_int_str_idx_arena(&int_str_int_str_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(2L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
       EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(2L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
@@ -249,7 +249,7 @@ FIXTURE(Deep) {
       TReader::TArena int_str_decint_decstr_idx_arena(&int_str_decint_decstr_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile int_str_decint_str_idx_file(&reader, int_str_decint_str_idx, RealTime);
       TReader::TArena int_str_decint_str_idx_arena(&int_str_decint_str_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(5L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
       EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(5L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
@@ -347,7 +347,7 @@ FIXTURE(BigSingleIndex) {
     TSequenceNumber seq_num = 0U;
     TUuid int_str_int_idx(TUuid::Twister);
     const string tagged_str("Tagged");
-    const string orly_str("Stig");
+    const string orly_str("Orly");
     typedef tuple<int64_t, string, int64_t, int64_t> TTup;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     vector<TTup> val_vec;
@@ -381,7 +381,7 @@ FIXTURE(BigSingleIndex) {
       TReader::TArena main_arena(&reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile idx_file(&reader, int_str_int_idx, RealTime);
       TReader::TArena idx_arena(&idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t matched = 0UL;
       for (const auto &tup : val_vec) {
         TSuprena arena;

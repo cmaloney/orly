@@ -41,12 +41,12 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy::Disk::Util;
 
 std::unique_ptr<Base::TThreadLocalGlobalPoolManager<TDiskController::TEvent>> TDiskController::TEvent::DiskEventPoolManager;
 __thread Base::TThreadLocalGlobalPoolManager<TDiskController::TEvent>::TThreadLocalPool *TDiskController::TEvent::LocalEventPool = nullptr;
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -765,7 +765,7 @@ TDiskController::TEvent::~TEvent() {
   Reset(false);
 }
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -1071,14 +1071,14 @@ namespace Stig {
 
         /* TODO */
         template <>
-        TGroupRequest *TVolume::TStrategy::NewGroupRequest<Stig::Indy::Disk::TCompletionTrigger>(size_t /*total_num_request*/,
+        TGroupRequest *TVolume::TStrategy::NewGroupRequest<Orly::Indy::Disk::TCompletionTrigger>(size_t /*total_num_request*/,
                                                                                                  TCompletionTrigger &/*trigger*/) {
           return nullptr;
         }
 
         /* TODO */
         template <>
-        TGroupRequest *TVolume::TStrategy::NewGroupRequest<Stig::Indy::Disk::TCompletionTrigger, const TIOCallback>(size_t total_num_request,
+        TGroupRequest *TVolume::TStrategy::NewGroupRequest<Orly::Indy::Disk::TCompletionTrigger, const TIOCallback>(size_t total_num_request,
                                                                                                                     TCompletionTrigger &trigger,
                                                                                                                     const TIOCallback &cb) {
           trigger.WaitForOneMore();
@@ -1094,7 +1094,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::TStrategy::Write<Stig::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
+        void TVolume::TStrategy::Write<Orly::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
                                                                              uint8_t util_src, void *buf, size_t device_num,
                                                                              const TOffset start_offset, long long nbytes, DiskPriority priority,
                                                                              bool abort_on_error, const TOffset logical_start_offset,
@@ -1111,7 +1111,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::TStrategy::Write<Stig::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
+        void TVolume::TStrategy::Write<Orly::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
                                                                                                 TBufKind buf_kind, uint8_t util_src, void *buf,
                                                                                                 size_t device_num, const TOffset start_offset,
                                                                                                 long long nbytes, DiskPriority priority,
@@ -1137,7 +1137,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::TStrategy::Read<Stig::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
+        void TVolume::TStrategy::Read<Orly::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
                                                                             uint8_t util_src, void *buf, size_t device_num,
                                                                             const TOffset start_offset, long long nbytes, DiskPriority priority,
                                                                             bool abort_on_error, TCompletionTrigger &trigger) {
@@ -1152,7 +1152,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::TStrategy::Read<Stig::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
+        void TVolume::TStrategy::Read<Orly::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
                                                                                                TBufKind buf_kind, uint8_t util_src, void *buf,
                                                                                                size_t device_num, const TOffset start_offset,
                                                                                                long long nbytes, DiskPriority priority,
@@ -1176,7 +1176,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::TStrategy::SubmitRequest<Stig::Indy::Disk::TCompletionTrigger>(size_t device_num, const TDeviceRequest &device_request,
+        void TVolume::TStrategy::SubmitRequest<Orly::Indy::Disk::TCompletionTrigger>(size_t device_num, const TDeviceRequest &device_request,
                                                                                      TGroupRequest */*group_request*/,
                                                                                      const Base::TCodeLocation &code_location /* DEBUG */,
                                                                                      TBufKind buf_kind, uint8_t util_src, DiskPriority priority,
@@ -1199,7 +1199,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::TStrategy::SubmitRequest<Stig::Indy::Disk::TCompletionTrigger, const TIOCallback>(size_t device_num,
+        void TVolume::TStrategy::SubmitRequest<Orly::Indy::Disk::TCompletionTrigger, const TIOCallback>(size_t device_num,
                                                                                                         const TDeviceRequest &device_request,
                                                                                                         TGroupRequest *group_request,
                                                                                                         const Base::TCodeLocation &code_location /* DEBUG */,
@@ -1228,7 +1228,7 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 
 inline size_t TVolume::TStrategy::GetBlock() {
   assert(this);
@@ -1912,7 +1912,7 @@ size_t TVolume::TStripedStrategy::GetBlockMapBytesPerDiscardRange() const {
   const size_t bytes_per_stripe = num_logical_block_per_stripe * logical_block_size;
   const size_t phys_blocks_per_stripe = bytes_per_stripe / PhysicalBlockSize;
   if (unlikely(phys_blocks_per_stripe % 8UL != 0)) {
-    throw std::runtime_error("Stripe factor must be a multiple of 8 Stig blocks.");
+    throw std::runtime_error("Stripe factor must be a multiple of 8 Orly blocks.");
   }
   return phys_blocks_per_stripe / 8UL;
 }
@@ -1920,7 +1920,7 @@ size_t TVolume::TStripedStrategy::GetBlockMapBytesPerDiscardRange() const {
 size_t TVolume::TChainedStrategy::GetBlockMapBytesPerDiscardRange() const {
   assert(this);
   if (unlikely(NumBlocksPerExtent % 8UL != 0)) {
-    throw std::runtime_error("Extent size must be a multiple of 8 Stig blocks.");
+    throw std::runtime_error("Extent size must be a multiple of 8 Orly blocks.");
   }
   return NumBlocksPerExtent / 8UL;
 }
@@ -2717,7 +2717,7 @@ const std::vector<TLogicalExtent> &TVolume::GetLogicalExtentVec() const {
   return Strategy->GetLogicalExtentVec();
 }
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -2735,7 +2735,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::Write<Stig::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
+        void TVolume::Write<Orly::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
                                                                   uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes,
                                                                   DiskPriority priority, bool abort_on_error, TCacheInstr cache_instr,
                                                                   TCompletionTrigger &trigger) {
@@ -2745,7 +2745,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::Write<Stig::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
+        void TVolume::Write<Orly::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
                                                                                      TBufKind buf_kind, uint8_t util_src, void *buf,
                                                                                      const TOffset start_offset, long long nbytes,
                                                                                      DiskPriority priority, bool abort_on_error,
@@ -2764,7 +2764,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::Read<Stig::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
+        void TVolume::Read<Orly::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
                                                                  uint8_t util_src, void *buf, const TOffset start_offset, long long nbytes,
                                                                  DiskPriority priority, bool abort_on_error, TCompletionTrigger &trigger) {
           assert(this);
@@ -2772,7 +2772,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::Read<Stig::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
+        void TVolume::Read<Orly::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
                                                                                     TBufKind buf_kind, uint8_t util_src, void *buf,
                                                                                     const TOffset start_offset, long long nbytes,
                                                                                     DiskPriority priority, bool abort_on_error,
@@ -2790,7 +2790,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::ReadV<Stig::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
+        void TVolume::ReadV<Orly::Indy::Disk::TCompletionTrigger>(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind,
                                                                   uint8_t util_src, void **buf_array, size_t num_buf, const TOffset start_offset,
                                                                   long long nbytes, DiskPriority priority, bool abort_on_error,
                                                                   TCompletionTrigger &trigger) {
@@ -2799,7 +2799,7 @@ namespace Stig {
         }
 
         template <>
-        void TVolume::ReadV<Stig::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
+        void TVolume::ReadV<Orly::Indy::Disk::TCompletionTrigger, const TIOCallback>(const Base::TCodeLocation &code_location /* DEBUG */,
                                                                                      TBufKind buf_kind, uint8_t util_src, void **buf_array,
                                                                                      size_t num_buf, const TOffset start_offset, long long nbytes,
                                                                                      DiskPriority priority, bool abort_on_error,

@@ -31,7 +31,7 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig;
+using namespace Orly;
 
 static Type::TTypeCzar TypeCzar;
 

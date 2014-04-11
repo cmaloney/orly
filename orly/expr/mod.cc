@@ -24,8 +24,8 @@
 #include <orly/type/mod_visitor.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 class TModTypeVisitor
     : public Type::TModVisitor {

@@ -21,8 +21,8 @@
 #include <orly/pos_range.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TThatableBinary::TThatableBinary(const TExpr::TPtr &lhs, const TPosRange &pos_range)
     : TBinary(lhs, pos_range) {}

@@ -1,6 +1,6 @@
 /* <orly/lang_tests/samples/sort.orly>
     intended to be run.  This is more to show what the recursive merge_sort code would
-    look like in Stigscript (for those of you who enjoyed implementing it in Algorithms class.
+    look like in Orlyscript (for those of you who enjoyed implementing it in Algorithms class.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

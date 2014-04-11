@@ -24,8 +24,8 @@
 #include <orly/synth/new_expr.h>
 #include <orly/synth/new_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TPostfixCast::TPostfixCast(const TExprFactory *expr_factory, const Package::Syntax::TPostfixCast *postfix_cast)
     : PostfixCast(Base::AssertTrue(postfix_cast)), Lhs(nullptr), Rhs(nullptr) {

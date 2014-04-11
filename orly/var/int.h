@@ -1,6 +1,6 @@
 /* <orly/var/int.h>
 
-   A Stig integer, which is 64 bits and signed.
+   A Orly integer, which is 64 bits and signed.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -24,7 +24,7 @@
 #include <orly/rt/runtime_error.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -117,7 +117,7 @@ namespace Stig {
 
       /* TODO */
       int64_t static As(const TVar &that) {
-        const Stig::Var::TInt *ptr = dynamic_cast<const TInt *>(that.Impl.get());
+        const Orly::Var::TInt *ptr = dynamic_cast<const TInt *>(that.Impl.get());
         if (ptr) {
           return ptr->GetVal();
         }
@@ -130,4 +130,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

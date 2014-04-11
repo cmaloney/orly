@@ -1,6 +1,6 @@
 /* <orly/var/id.h>
 
-   A Stig id, which is Stig::TUUID.
+   A Orly id, which is Orly::TUUID.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -24,7 +24,7 @@
 #include <orly/uuid.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -129,4 +129,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

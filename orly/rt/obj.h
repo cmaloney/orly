@@ -23,7 +23,7 @@
 #include <orly/indy/key.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -41,4 +41,4 @@ namespace Stig {
 
   } // Rt
 
-} // Stig
+} // Orly

@@ -24,8 +24,8 @@
 #include <orly/var.h>
 #include <tools/nycr/lexeme.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 using namespace Tools::Nycr;
 
 TLiteralExpr::TLiteralExpr(const Package::Syntax::TLiteralExpr *literal_expr)

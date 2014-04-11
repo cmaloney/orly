@@ -26,7 +26,7 @@
 #include <orly/synth/expr.h>
 #include <orly/synth/lhsrhsable_expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -81,4 +81,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

@@ -24,8 +24,8 @@
 #include <orly/var.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 TPtr<TObjChange> TObjChange::New(string key, const TPtr<TChange> &change) {
   return TPtr<TObjChange>(new TObjChange({{key, change}}));
@@ -120,7 +120,7 @@ TPtr<TMutation> TMutation::New(TMutator mutator, const Var::TVar &rhs) {
 void TMutation::Apply(Var::TVar &var) const {
   assert(this);
 
-  var = Stig::Rt::Mutate(var, Mutator, Rhs);
+  var = Orly::Rt::Mutate(var, Mutator, Rhs);
 }
 
 void TMutation::Augment(const TPtr<const TChange> &) {

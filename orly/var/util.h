@@ -20,7 +20,7 @@
 
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -53,4 +53,4 @@ namespace Stig {
 
   } // Var
 
-} // Stig
+} // Orly

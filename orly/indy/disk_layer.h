@@ -23,7 +23,7 @@
 #include <orly/indy/manager_base.h>
 #include <orly/indy/update.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -125,5 +125,5 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 

@@ -38,9 +38,9 @@ using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Socket;
-using namespace Stig;
-using namespace Stig::Client;
-using namespace Stig::Client::Program;
+using namespace Orly;
+using namespace Orly::Client;
+using namespace Orly::Client::Program;
 using namespace Tools;
 
 int TRepl::Main(int argc, char *argv[]) NO_THROW {
@@ -79,10 +79,10 @@ TRepl::TCmd::TCmd(int argc, char *argv[])
 }
 
 TRepl::TCmd::TMeta::TMeta()
-    : TLog::TCmd::TMeta("The Stig client shell.") {
+    : TLog::TCmd::TMeta("The Orly client shell.") {
   Param(
       &TCmd::ServerAddress, "server_address", Optional, "server_address\0sa\0",
-      "The address where the Stig server can be found."
+      "The address where the Orly server can be found."
   );
   Param(
       &TCmd::SessionId, "session_id", Optional, "session_id\0sid\0",

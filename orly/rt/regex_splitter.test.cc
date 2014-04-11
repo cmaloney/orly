@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace Utf8;
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 static void TestPieces(const char *text, const char *delim, initializer_list<const char *> expected_strs) {
   auto

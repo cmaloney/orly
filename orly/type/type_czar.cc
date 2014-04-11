@@ -20,7 +20,7 @@
 
 #include <orly/type.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 TTypeCzar::TTypeCzar() {
   TAddr::New();

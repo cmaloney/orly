@@ -20,8 +20,8 @@
 
 #include <orly/pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 // NOTE: Should only be used by TThatableBinary (TReduce and TFilter) and TSort
 TBinary::TBinary(const TExpr::TPtr &lhs, const TPosRange &pos_range)

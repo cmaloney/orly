@@ -1,7 +1,7 @@
 {
    "report_name" : "orly_merge_cpu_report",
    "report_type" : "standard",
-   "title" : "Stig Merge CPU Report",
+   "title" : "Orly Merge CPU Report",
    "vertical_label" : "cpu time",
    "series" : [
       { "metric": "orly_MergeDisk_Step_CPU", "color": "3333bb", "label": "Merge Disk Time", "type": "stack" },

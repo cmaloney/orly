@@ -24,7 +24,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 struct TTest {
   int X;

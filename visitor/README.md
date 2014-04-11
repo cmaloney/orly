@@ -2,7 +2,7 @@
 
 Code for a generic implementation of the visitor programming pattern.
 
-This code is a very important part of the Stig compiler.
+This code is a very important part of the Orly compiler.
 
 -----
 

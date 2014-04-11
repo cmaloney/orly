@@ -25,7 +25,7 @@
 #include <orly/code_gen/inline.h>
 #include <orly/shared_enum.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -107,4 +107,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

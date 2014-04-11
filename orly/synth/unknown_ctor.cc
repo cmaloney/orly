@@ -26,8 +26,8 @@
 #include <orly/synth/new_type.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TUnknownCtor::TUnknownCtor(const Package::Syntax::TUnknownCtor *unknown_ctor)
     : UnknownCtor(Base::AssertTrue(unknown_ctor)),

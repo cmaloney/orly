@@ -23,7 +23,7 @@
 
 #include <orly/sabot/state.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -85,4 +85,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

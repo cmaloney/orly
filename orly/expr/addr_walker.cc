@@ -30,8 +30,8 @@
 #include <orly/symbol/stmt/new_and_delete.h>
 #include <orly/type/managed_type.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 using namespace std;
 
 /* Similar to walker.cc, for walking through the expressions, but
@@ -519,14 +519,14 @@ class expr_visitor_t
 
 /* For every Addr that is part of a keys, new, delete, or mutation expression,
    add that Addr to addr_set. */
-void Stig::Expr::DatabaseAddrsInExpr(const TExpr::TPtr &root,
+void Orly::Expr::DatabaseAddrsInExpr(const TExpr::TPtr &root,
                                      unordered_set<pair<Type::TType, Type::TType>> &addr_set) {
   expr_visitor_t(addr_set).Yield(root);
 }
 
 /* For every Addr that accesses the db in the statement block,
    add that Addr to the addr set. */
-void Stig::Expr::DatabaseAddrsFromNewStmt(const Stig::Symbol::Stmt::TNew *stmt,
-                              std::unordered_set<std::pair<Stig::Type::TType, Stig::Type::TType>> &addr_set) {
+void Orly::Expr::DatabaseAddrsFromNewStmt(const Orly::Symbol::Stmt::TNew *stmt,
+                              std::unordered_set<std::pair<Orly::Type::TType, Orly::Type::TType>> &addr_set) {
   stmt->Accept(expr_visitor_t::stmt_visitor_t(expr_visitor_t(addr_set), addr_set));
 }

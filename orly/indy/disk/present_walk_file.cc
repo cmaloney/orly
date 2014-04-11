@@ -19,8 +19,8 @@
 #include <orly/indy/disk/present_walk_file.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy::Disk;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy::Disk;
 
 __thread TLocalWalkerCache *TLocalWalkerCache::Cache = nullptr;

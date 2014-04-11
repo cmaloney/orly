@@ -1,6 +1,6 @@
 /* <orly/method_request.h>
 
-   The request sent to Stig when a client wishes to call a method.
+   The request sent to Orly when a client wishes to call a method.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -28,9 +28,9 @@
 #include <io/binary_output_stream.h>
 #include <orly/closure.h>
 
-namespace Stig {
+namespace Orly {
 
-  /* The request sent to Stig when a client wishes to call a method. */
+  /* The request sent to Orly when a client wishes to call a method. */
   class TMethodRequest {
     public:
 
@@ -122,18 +122,18 @@ namespace Stig {
 
   };  // TMethodRequest
 
-  /* Binary stream extractor for Stig::TMethodRequest. */
-  inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, Stig::TMethodRequest &that) {
+  /* Binary stream extractor for Orly::TMethodRequest. */
+  inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, Orly::TMethodRequest &that) {
     assert(&that);
     that.Read(strm);
     return strm;
   }
 
-  /* Binary stream inserter for Stig::TMethodRequest. */
-  inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const Stig::TMethodRequest &that) {
+  /* Binary stream inserter for Orly::TMethodRequest. */
+  inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const Orly::TMethodRequest &that) {
     assert(&that);
     that.Write(strm);
     return strm;
   }
 
-}  // Stig
+}  // Orly

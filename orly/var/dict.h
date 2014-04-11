@@ -1,6 +1,6 @@
 /* <orly/var/dict.h>
 
-   A Stig dict, which is a Rt::TDict.
+   A Orly dict, which is a Rt::TDict.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -25,7 +25,7 @@
 #include <orly/type/rt.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -189,4 +189,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

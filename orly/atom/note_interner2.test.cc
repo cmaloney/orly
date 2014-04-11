@@ -23,7 +23,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 static const TCore::TNote *Propose(TNoteInterner &note_interner, const char *c_str) {
   return note_interner.Propose(TCore::TNote::New(c_str, c_str + strlen(c_str), false));

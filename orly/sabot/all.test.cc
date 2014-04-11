@@ -20,7 +20,7 @@
 
 #include <test/kit.h>
 
-using namespace Stig::Sabot;
+using namespace Orly::Sabot;
 
 FIXTURE(Typical) {
   std::cout << "GetMaxTypePinSize() = " << TSizeChecker::GetMaxTypePinSize() << std::endl;

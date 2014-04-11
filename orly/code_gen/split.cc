@@ -22,8 +22,8 @@
 #include <orly/type/unwrap.h>
 
 using namespace std;
-using namespace Stig::CodeGen;
-using namespace Stig::Type;
+using namespace Orly::CodeGen;
+using namespace Orly::Type;
 
 TSplit::TPtr TSplit::New(
     const L0::TPackage *package,

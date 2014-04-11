@@ -29,7 +29,7 @@
 #include <orly/indy/disk/write_group.h>
 #include <orly/indy/util/block_vec.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -414,4 +414,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

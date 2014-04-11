@@ -21,8 +21,8 @@
 #include <base/assert_true.h>
 #include <orly/symbol/any_function.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TDef::TDef(const std::string &name, const TPosRange &pos_range)
     : Name(name), PosRange(pos_range) {}

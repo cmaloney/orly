@@ -31,8 +31,8 @@
 
 using namespace std;
 using namespace Io;
-using namespace Stig;
-using namespace Stig::Atom;
+using namespace Orly;
+using namespace Orly::Atom;
 
 static const char *LongStr = "This is a very long string.  It has to be long so it will be interned.  And it should be.  So there.";
 

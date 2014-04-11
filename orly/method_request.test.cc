@@ -28,7 +28,7 @@
 using namespace std;
 using namespace Base;
 using namespace Io;
-using namespace Stig;
+using namespace Orly;
 
 void CheckMethodRequest(const TMethodRequest &method_request) {
   assert(&method_request);

@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/short_circuiting.orly>
 
-   This Stig script tests logical operations' short-circuiting behaviors (or
+   This Orly script tests logical operations' short-circuiting behaviors (or
    lack thereof).
 
    Copyright 2010-2014 OrlyAtomics, Inc.

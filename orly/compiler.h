@@ -25,7 +25,7 @@
 #include <jhm/naming.h>
 #include <orly/package/name.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Compiler {
 
@@ -50,4 +50,4 @@ namespace Stig {
 
   }  // Compiler
 
-}  // Stig
+}  // Orly

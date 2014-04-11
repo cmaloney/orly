@@ -20,7 +20,7 @@
 #include <set>
 #include <unistd.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -52,4 +52,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

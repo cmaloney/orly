@@ -38,7 +38,7 @@
 #include <orly/package/manager.h>
 #include <orly/server/pov.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
 
@@ -261,4 +261,4 @@ namespace Stig {
 
   }  // Server
 
-}  // Stig
+}  // Orly

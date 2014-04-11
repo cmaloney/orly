@@ -30,8 +30,8 @@
 #include <orly/var/mutation.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Rt;
+using namespace Orly;
+using namespace Orly::Rt;
 
 /* Our actual function.  Isn't it cute? */
 static int64_t Sum(Package::TContext &ctx, const int64_t &a, const int64_t &b) {

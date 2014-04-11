@@ -23,7 +23,7 @@
 #include <base/no_copy_semantics.h>
 #include <orly/expr/binary.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -143,4 +143,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

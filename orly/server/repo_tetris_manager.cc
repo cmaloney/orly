@@ -27,8 +27,8 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig::Indy;
-using namespace Stig::Server;
+using namespace Orly::Indy;
+using namespace Orly::Server;
 
 TRepoTetrisManager::TRepoTetrisManager(
     TScheduler *scheduler,
@@ -145,7 +145,7 @@ bool TRepoTetrisManager::TPlayer::TChild::Play(
 bool TRepoTetrisManager::TPlayer::TChild::Refresh(const unique_ptr<Indy::L1::TTransaction, function<void (Indy::L1::TTransaction *)>> &transaction) {
   assert(this);
   assert(transaction);
-  if (Repo->GetStatus() == Stig::Indy::Normal && Repo->GetSequenceNumberStart() && !PeekedUpdate) {
+  if (Repo->GetStatus() == Orly::Indy::Normal && Repo->GetSequenceNumberStart() && !PeekedUpdate) {
     PeekedUpdate = transaction->Peek(Repo);
     if (PeekedUpdate) {
       void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
@@ -181,7 +181,7 @@ void TRepoTetrisManager::TPlayer::TChild::Flush() {
   FuncHolderByUpdateId.clear();
 }
 
-namespace Stig {
+namespace Orly {
   namespace Rt {
     template <typename TVal>
     std::ostream &operator<<(std::ostream &out, const TOpt<TVal> &that) {

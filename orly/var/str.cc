@@ -20,7 +20,7 @@
 
 #include <orly/type/str.h>
 
-using namespace Stig;
+using namespace Orly;
 using namespace Var;
 
 size_t TStr::GetHash() const {

@@ -1,6 +1,6 @@
 ## signal
 
-Signal handling code. Because threads and signals don't play nicely together, this code is separated off from the main Stig program in order to keep things a bit more sane.
+Signal handling code. Because threads and signals don't play nicely together, this code is separated off from the main Orly program in order to keep things a bit more sane.
 
 -----
 

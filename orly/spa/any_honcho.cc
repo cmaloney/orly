@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-using namespace Stig::Spa;
+using namespace Orly::Spa;
 
 TAnyHoncho *TAnyHoncho::AnyHoncho = nullptr;
 

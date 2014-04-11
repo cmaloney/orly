@@ -21,8 +21,8 @@
 #include <base/not_implemented.h>
 #include <orly/type/mutable.h>
 
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 size_t TMutable::GetHash() const {
   assert(this);

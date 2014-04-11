@@ -18,7 +18,7 @@
 
 #include <orly/code_gen/binary_scoped_rhs.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TBinaryScopedRhs::TPtr TBinaryScopedRhs::New(const L0::TPackage *package,
                                              const Type::TType &ret_type,

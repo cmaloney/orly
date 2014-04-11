@@ -27,7 +27,7 @@
 #include <orly/indy/disk/read_file.h>
 #include <orly/indy/update_walker.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -47,7 +47,7 @@ namespace Stig {
 
         /* TODO */
         typedef TStream<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage, UpdateWalkerLocalCacheSize> TInStream;
-        typedef Stig::Indy::Disk::TReadFile<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage> TMyReadFile;
+        typedef Orly::Indy::Disk::TReadFile<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage> TMyReadFile;
 
         /* TODO */
         TUpdateWalkFile(Util::TEngine *engine,
@@ -176,4 +176,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

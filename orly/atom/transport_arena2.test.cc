@@ -32,8 +32,8 @@
 
 using namespace std;
 using namespace Io;
-using namespace Stig;
-using namespace Stig::Atom;
+using namespace Orly;
+using namespace Orly::Atom;
 
 template <typename TVal>
 static TCore ToCore(TCore::TExtensibleArena *arena, const TVal &val) {

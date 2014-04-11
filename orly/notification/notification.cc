@@ -19,7 +19,7 @@
 #include <orly/notification/notification.h>
 
 using namespace Io;
-using namespace Stig::Notification;
+using namespace Orly::Notification;
 
 TNotification::~TNotification() {}
 

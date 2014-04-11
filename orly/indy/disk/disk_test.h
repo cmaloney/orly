@@ -27,7 +27,7 @@
 #include <orly/indy/disk/loop_block_dev.h>
 #include <orly/indy/disk/read_file.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -132,4 +132,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

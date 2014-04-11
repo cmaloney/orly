@@ -23,7 +23,7 @@
 using namespace std;
 using namespace Base;
 using namespace Socket;
-using namespace Stig::Balancer;
+using namespace Orly::Balancer;
 
 TBalancer::TBalancer(TScheduler *scheduler, const TCmd &cmd)
     : Scheduler(scheduler) {

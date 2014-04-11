@@ -20,7 +20,7 @@
 
 #include <chrono>
 
-namespace Stig {
+namespace Orly {
 
   /* We characterize time-to-live in seconds. */
   using TTtl = std::chrono::seconds;
@@ -28,5 +28,5 @@ namespace Stig {
   /* We characterize a deadline as a point in time on the system clock. */
   using TDeadline = std::chrono::time_point<std::chrono::system_clock>;
 
-}  // Stig
+}  // Orly
 

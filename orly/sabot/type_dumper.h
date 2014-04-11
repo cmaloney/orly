@@ -23,7 +23,7 @@
 
 #include <orly/sabot/type.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -82,4 +82,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

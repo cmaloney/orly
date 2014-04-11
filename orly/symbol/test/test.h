@@ -26,7 +26,7 @@
 #include <orly/symbol/test/test_case_block.h>
 #include <orly/symbol/test/with_clause.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -85,4 +85,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

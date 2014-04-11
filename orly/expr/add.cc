@@ -23,8 +23,8 @@
 #include <orly/pos_range.h>
 #include <orly/type/add_visitor.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 class TAddTypeVisitor
     : public Type::TAddVisitor {

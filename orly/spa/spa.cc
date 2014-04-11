@@ -51,8 +51,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Spa;
+using namespace Orly;
+using namespace Orly::Spa;
 using namespace Server;
 using namespace Socket;
 using namespace Tools::Nycr;
@@ -637,7 +637,7 @@ class TSpa : public Mongoose::TMongoose {
         ->GetFunctionInfo(AsPiece(dot_pos + 1));
 
     //Get the arguments
-    TArgs::TStigArg prog_args;
+    TArgs::TOrlyArg prog_args;
     Atom::TCore::TExtensibleArena *arena = Service->GetArena();
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     for(auto &it: func->GetParameters()) {
@@ -657,7 +657,7 @@ class TSpa : public Mongoose::TMongoose {
 
     Var::TVar result;
     try {
-      //TODO: It would be nice if try wrapped the function in a Stig TErr if the call failed for us. It probably should...
+      //TODO: It would be nice if try wrapped the function in a Orly TErr if the call failed for us. It probably should...
       void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
       Atom::TSuprena suprena;
       Atom::TCore result_core;
@@ -668,15 +668,15 @@ class TSpa : public Mongoose::TMongoose {
         strm << "{ \"error\": " << Tools::Nycr::TEscape(ex.what()) << "}" << std::endl;
         return true;
       } else {
-        //TODO: Stigify exception result
+        //TODO: Orlyify exception result
         throw;
       }
     }
     if(output == "json") {
       strm << "{ \"type\": \"";
-      Stig::Type::Stigify(strm, result.GetType());
+      Orly::Type::Orlyify(strm, result.GetType());
       strm << "\", \"result\": ";
-      Stig::Var::Jsonify(strm, result);
+      Orly::Var::Jsonify(strm, result);
 
       if(notify_povs.size()) {
         strm << ", \"notifiers\": ";
@@ -700,7 +700,7 @@ class TSpa : public Mongoose::TMongoose {
 
     } else if(output == "orly") {
       strm << "<{ .result: ";
-      Stig::Var::Stigify(strm, result);
+      Orly::Var::Orlyify(strm, result);
 
       if(notify_povs.size()) {
         strm << ", .notifiers: ";
@@ -711,9 +711,9 @@ class TSpa : public Mongoose::TMongoose {
             if(!first) {
               strm << ',';
             }
-            Stig::Var::Stigify(strm, it.first);
+            Orly::Var::Orlyify(strm, it.first);
             strm << ':';
-            Stig::Var::Stigify(strm, it.second);
+            Orly::Var::Orlyify(strm, it.second);
             first = false;
           }
           strm << '}';

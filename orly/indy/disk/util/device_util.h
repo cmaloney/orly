@@ -25,7 +25,7 @@
 #include <base/murmur.h>
 #include <base/no_construction.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -56,15 +56,15 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Indy::Disk::Util::TVolumeId. */
+  /* A standard hasher for Orly::Indy::Disk::Util::TVolumeId. */
   template <>
-  struct hash<Stig::Indy::Disk::Util::TVolumeId> {
+  struct hash<Orly::Indy::Disk::Util::TVolumeId> {
     typedef size_t result_type;
-    typedef Stig::Indy::Disk::Util::TVolumeId argument_type;
+    typedef Orly::Indy::Disk::Util::TVolumeId argument_type;
     size_t operator()(const argument_type &that) const {
       return that.GetHash();
     }
@@ -72,7 +72,7 @@ namespace std {
 
 }  // std
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -85,7 +85,7 @@ namespace Stig {
           NO_CONSTRUCTION(TDeviceUtil);
           public:
 
-          static constexpr uint64_t StigFSMagicNumber = 15684509348693311000UL;
+          static constexpr uint64_t OrlyFSMagicNumber = 15684509348693311000UL;
           static constexpr size_t BlockSize = 4096 * 16;
           static constexpr size_t CorruptionCheckSize = sizeof(uint64_t);
           static_assert(sizeof(TVolumeId) % sizeof(uint64_t) == 0, "TVolumeId size must be a multiple of 8 bytes");
@@ -105,7 +105,7 @@ namespace Stig {
           static constexpr size_t NumLogicalBlockExposedPos = PhysicalBlockSizePos + 1UL;
           static constexpr size_t MinDiscardBlocksPos = NumLogicalBlockExposedPos + 1UL;
 
-          struct TStigDevice {
+          struct TOrlyDevice {
             TVolumeId VolumeId;
             uint64_t VolumeDeviceNumber;
             uint64_t NumDevicesInVolume;
@@ -122,20 +122,20 @@ namespace Stig {
           };
 
           /* TODO */
-          static bool ProbeDevice(const char *path, TStigDevice &out_device) {
+          static bool ProbeDevice(const char *path, TOrlyDevice &out_device) {
             try {
               Base::TFd fd = open(path, O_RDONLY);
               size_t *buf = nullptr;
               Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
               try {
                 Base::IfLt0(pread(fd, buf, BlockSize, 0UL));
-                if (buf[MagicNumberPos] != StigFSMagicNumber) {
+                if (buf[MagicNumberPos] != OrlyFSMagicNumber) {
                   free(buf);
                   return false;
                 }
                 uint64_t check = Base::Murmur(buf, NumDataElem, 0UL);
                 if (check != buf[NumDataElem]) {
-                  throw std::runtime_error("Stig system block corrupt");
+                  throw std::runtime_error("Orly system block corrupt");
                 }
                 memcpy(&(out_device.VolumeId), &buf[VolumeIdPos], sizeof(TVolumeId));
                 out_device.VolumeDeviceNumber = buf[VolumeDeviceNumberPos];
@@ -162,13 +162,13 @@ namespace Stig {
           }
 
           /* TODO */
-          static void ModifyDevice(const char *path, TStigDevice &new_device_info) {
+          static void ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
             Base::TFd fd = open(path, O_RDWR);
             size_t *buf = nullptr;
             Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
             try {
               memset(buf, 0, BlockSize);
-              buf[MagicNumberPos] = StigFSMagicNumber;
+              buf[MagicNumberPos] = OrlyFSMagicNumber;
               memcpy(&buf[VolumeIdPos], &(new_device_info.VolumeId), sizeof(TVolumeId));
               buf[VolumeDeviceNumberPos] = new_device_info.VolumeDeviceNumber;
               buf[NumDevicesInVolumePos] = new_device_info.NumDevicesInVolume;
@@ -296,4 +296,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

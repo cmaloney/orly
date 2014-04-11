@@ -1,6 +1,6 @@
 /* <orly/indy/disk/util/orly_dm.cc>
 
-   The 'main' of the Stig disk manager.
+   The 'main' of the Orly disk manager.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -27,9 +27,9 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig::Indy::Fiber;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy::Fiber;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 /* Command-line arguments. */
 class TCmd final
@@ -81,7 +81,7 @@ class TCmd final
 
     /* Registers our fields. */
     TMeta()
-        : Base::TLog::TCmd::TMeta("Stig disk utility") {
+        : Base::TLog::TCmd::TMeta("Orly disk utility") {
       Param(
           &TCmd::ZeroSuperBlock, "zero-super-block", Optional, "zero-super-block\0",
           "Zero out the super block of the provded devices."
@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
     printf("%s", break_line);
     printf(str_pattern,
            "Device",
-           "StigFS",
+           "OrlyFS",
            "Volume Id",
            "Pos",
            "Tot",
@@ -162,9 +162,9 @@ int main(int argc, char *argv[]) {
            "Logical Exten Size",
            "Kind");
     printf("%s", break_line);
-    std::vector<std::tuple<bool, std::string, TDeviceUtil::TStigDevice>> device_vec;
+    std::vector<std::tuple<bool, std::string, TDeviceUtil::TOrlyDevice>> device_vec;
     TDeviceUtil::ForEachDevice([&str_pattern, &num_pattern, &device_vec](const char *path) {
-      TDeviceUtil::TStigDevice device_info;
+      TDeviceUtil::TOrlyDevice device_info;
       string path_to_device = "/dev/";
       path_to_device += path;
       bool ret = TDeviceUtil::ProbeDevice(path_to_device.c_str(), device_info);
@@ -173,15 +173,15 @@ int main(int argc, char *argv[]) {
       device_vec.emplace_back(ret, dev_name.str(), device_info);
       return true;
     });
-    /* sort the device by (whether they have a StigFS), (Instance Name), (Volume ID), (Position in Volume)*/
-    std::sort(device_vec.begin(), device_vec.end(), [](const std::tuple<bool, std::string, TDeviceUtil::TStigDevice> &lhs,
-                                                       const std::tuple<bool, std::string, TDeviceUtil::TStigDevice> &rhs) {
+    /* sort the device by (whether they have a OrlyFS), (Instance Name), (Volume ID), (Position in Volume)*/
+    std::sort(device_vec.begin(), device_vec.end(), [](const std::tuple<bool, std::string, TDeviceUtil::TOrlyDevice> &lhs,
+                                                       const std::tuple<bool, std::string, TDeviceUtil::TOrlyDevice> &rhs) {
       bool lhs_ret = std::get<0>(lhs);
       bool rhs_ret = std::get<0>(rhs);
       const std::string &lhs_dev_name = std::get<1>(lhs);
       const std::string &rhs_dev_name = std::get<1>(rhs);
-      const TDeviceUtil::TStigDevice &lhs_device_info = std::get<2>(lhs);
-      const TDeviceUtil::TStigDevice &rhs_device_info = std::get<2>(rhs);
+      const TDeviceUtil::TOrlyDevice &lhs_device_info = std::get<2>(lhs);
+      const TDeviceUtil::TOrlyDevice &rhs_device_info = std::get<2>(rhs);
       if (lhs_ret && ! rhs_ret) {
         return true;
       } else if (!lhs_ret && rhs_ret) {
@@ -201,11 +201,11 @@ int main(int argc, char *argv[]) {
         return lhs_dev_name < rhs_dev_name;
       }
     });
-    Base::TOpt<TDeviceUtil::TStigDevice> prev_dev_info;
+    Base::TOpt<TDeviceUtil::TOrlyDevice> prev_dev_info;
     for (const auto &dev : device_vec) {
       bool ret = std::get<0>(dev);
       const std::string &dev_name = std::get<1>(dev);
-      const TDeviceUtil::TStigDevice &device_info = std::get<2>(dev);
+      const TDeviceUtil::TOrlyDevice &device_info = std::get<2>(dev);
       if ((!ret && prev_dev_info)
           || (prev_dev_info && ((strcmp(prev_dev_info->VolumeId.InstanceName, device_info.VolumeId.InstanceName) != 0)
              || (strcmp(prev_dev_info->VolumeId.InstanceName, device_info.VolumeId.InstanceName) == 0 && prev_dev_info->VolumeId.Id != device_info.VolumeId.Id)))) {

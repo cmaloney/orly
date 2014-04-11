@@ -19,7 +19,7 @@
 #include <orly/sabot/get_tuple_size.h>
 
 using namespace std;
-using namespace Stig::Sabot;
+using namespace Orly::Sabot;
 
 /* Return the size of the tuple. */
 class TGetTupleSizeVisitor final
@@ -67,7 +67,7 @@ class TGetTupleSizeVisitor final
 
 };  // TGetTupleSizeVisitor
 
-size_t Stig::Sabot::GetTupleSize(const Type::TAny &type) {
+size_t Orly::Sabot::GetTupleSize(const Type::TAny &type) {
   size_t size;
   type.Accept(TGetTupleSizeVisitor(size));
   return size;

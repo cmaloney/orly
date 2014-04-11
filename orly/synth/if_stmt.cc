@@ -27,8 +27,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/stmt_block.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TIfStmt::TIfClause::~TIfClause() {
   assert(this);

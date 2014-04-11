@@ -22,9 +22,9 @@
 #include <orly/indy/disk/util/hash_util.h>
 
 using namespace std;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy::Disk::Util;
 
-const set<size_t> Stig::Indy::Disk::Util::GenSizeSet {64,
+const set<size_t> Orly::Indy::Disk::Util::GenSizeSet {64,
                                                      4096,
                                                      32768,
                                                      262144,
@@ -44,7 +44,7 @@ const set<size_t> Stig::Indy::Disk::Util::GenSizeSet {64,
                                                      2199023255552};
 
 /* TODO */
-const set<size_t> Stig::Indy::Disk::Util::HashSizeSet {97UL,
+const set<size_t> Orly::Indy::Disk::Util::HashSizeSet {97UL,
                                                       193UL,
                                                       389UL,
                                                       457UL,
@@ -87,7 +87,7 @@ const set<size_t> Stig::Indy::Disk::Util::HashSizeSet {97UL,
 
 
 
-size_t Stig::Indy::Disk::Util::SuggestHashSize(size_t num_keys) {
+size_t Orly::Indy::Disk::Util::SuggestHashSize(size_t num_keys) {
   auto ideal_hash_size = floor(num_keys / MaximumLoadFactor);
 
   /* If the num keys will fit nicely in to one of our precalculated hash sizes, just return that */
@@ -103,7 +103,7 @@ size_t Stig::Indy::Disk::Util::SuggestHashSize(size_t num_keys) {
   return mpz_get_ui(next_prime.get_mpz_t());
 }
 
-size_t Stig::Indy::Disk::Util::SuggestGeneration(size_t num_keys) {
+size_t Orly::Indy::Disk::Util::SuggestGeneration(size_t num_keys) {
   auto upper = GenSizeSet.upper_bound(num_keys);
   return *upper;
 }

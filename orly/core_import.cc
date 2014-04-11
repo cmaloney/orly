@@ -1,6 +1,6 @@
 /* <orly/core_import.cc>
 
-   Stig core_import utility.
+   Orly core_import utility.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -41,11 +41,11 @@ class TCmd final
 
   /* Construct from argc/argv. */
   TCmd(int argc, char *argv[])
-      : ServerAddress(Socket::TAddress::IPv4Loopback, Stig::DefaultPortNumber) {
+      : ServerAddress(Socket::TAddress::IPv4Loopback, Orly::DefaultPortNumber) {
     Parse(argc, argv, TMeta());
   }
 
-  /* The address where the Stig server can be found. */
+  /* The address where the Orly server can be found. */
   Socket::TAddress ServerAddress;
 
   /* The session id to use.  If not given, then we'll start a new session. */
@@ -75,10 +75,10 @@ class TCmd final
 
     /* Registers our fields. */
     TMeta()
-        : Base::TLog::TCmd::TMeta("The Stig import utility.") {
+        : Base::TLog::TCmd::TMeta("The Orly import utility.") {
       Param(
           &TCmd::ServerAddress, "server_address", Optional, "server_address\0sa\0",
-          "The address where the Stig server can be found."
+          "The address where the Orly server can be found."
       );
       Param(
           &TCmd::SessionId, "session_id", Optional, "session_id\0sid\0",
@@ -112,12 +112,12 @@ class TCmd final
 
 /* Client object. */
 class TClient final
-    : public Stig::Client::TClient {
+    : public Orly::Client::TClient {
   public:
 
   /* Construct from command-line arguments. */
   TClient(const TCmd &cmd)
-      : Stig::Client::TClient(cmd.ServerAddress, cmd.SessionId, chrono::seconds(cmd.TimeToLive)) {}
+      : Orly::Client::TClient(cmd.ServerAddress, cmd.SessionId, chrono::seconds(cmd.TimeToLive)) {}
 
   private:
 

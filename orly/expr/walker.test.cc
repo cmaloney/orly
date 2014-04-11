@@ -30,8 +30,8 @@
 
 #include <test/kit.h>
 
-using namespace Stig::Package::Syntax;
-using namespace Stig;
+using namespace Orly::Package::Syntax;
+using namespace Orly;
 using namespace std;
 
 static Type::TTypeCzar type_czar;
@@ -47,10 +47,10 @@ Symbol::TPackage::TPtr MakePackage(const string &orlyscript) {
     //Syntax error!
     Tools::Nycr::TError::PrintSortedErrors(std::cout);
     Tools::Nycr::TError::DeleteEach();
-    throw std::invalid_argument("Stigscript has syntax errors");
+    throw std::invalid_argument("Orlyscript has syntax errors");
   }
   try {
-    auto synth = new Stig::Synth::TPackage(Jhm::TNamespace(""), cst, false);
+    auto synth = new Orly::Synth::TPackage(Jhm::TNamespace(""), cst, false);
 
     return synth->GetSymbol();
   } catch (...) {
@@ -59,14 +59,14 @@ Symbol::TPackage::TPtr MakePackage(const string &orlyscript) {
   }
 }
 
-/* Given a Stigscript string, collects all of the objects used in the script */
-void CollectObjects(const string &orlyscript, unordered_set<Stig::Type::TType> &objects) {
+/* Given a Orlyscript string, collects all of the objects used in the script */
+void CollectObjects(const string &orlyscript, unordered_set<Orly::Type::TType> &objects) {
   Symbol::TPackage::TPtr my_package = MakePackage(orlyscript);
   assert(my_package);
   for (const auto &func: my_package->GetFunctions()) {
-    Stig::Expr::TExpr::TPtr expr = func->GetExpr();
+    Orly::Expr::TExpr::TPtr expr = func->GetExpr();
     Expr::ForEachExpr(expr, [&objects](const Expr::TExpr::TPtr &expr) {
-      Stig::Type::CollectObjects(expr->GetType(), objects);
+      Orly::Type::CollectObjects(expr->GetType(), objects);
       return false;
       }, true);
   };
@@ -83,7 +83,7 @@ FIXTURE(Simple) {
     "read_obj = (*<[name]>::(my_obj)) where {"
     "  name = given::(str);"
     "};";
-  unordered_set<Stig::Type::TType> objects;
+  unordered_set<Orly::Type::TType> objects;
   CollectObjects(simplescript, objects);
   EXPECT_EQ(objects.size(), 2U);
 }
@@ -99,7 +99,7 @@ FIXTURE(EmbeddedObjs) {
     "}) where {"
     "   person = given::(person_obj);"
  "};";
-  unordered_set<Stig::Type::TType> objects;
+  unordered_set<Orly::Type::TType> objects;
   CollectObjects(sscript, objects);
   EXPECT_EQ(objects.size(), 3U);
 }
@@ -118,7 +118,7 @@ FIXTURE(PeopledirHistogram) {
     "      fname = given::(str);"
     "  };"
     "};";
-  unordered_set<Stig::Type::TType> objects;
+  unordered_set<Orly::Type::TType> objects;
   CollectObjects(histogram, objects);
   EXPECT_EQ(objects.size(), 1U);
 }

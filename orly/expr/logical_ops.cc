@@ -25,8 +25,8 @@
 #include <orly/type/unwrap.h>
 #include <orly/type/unwrap_visitor.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 class TLogicalOpsTypeVisitor
     : public Type::TLogicalOpsVisitor {

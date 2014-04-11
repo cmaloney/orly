@@ -17,8 +17,8 @@
 using namespace std;
 using namespace std::chrono;
 using namespace Base;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 FIXTURE(Typical) {
   const size_t cache_size = 4096;

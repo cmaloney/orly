@@ -23,7 +23,7 @@
 #include <orly/expr/visitor.h>
 #include <orly/symbol/stmt/stmt_block.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -54,4 +54,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

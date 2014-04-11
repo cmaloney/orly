@@ -19,8 +19,8 @@
 #include <orly/code_gen/inner_func.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TInnerFunc::TPtr TInnerFunc::New(const L0::TPackage *package, const Symbol::TFunction::TPtr &symbol, const TIdScope::TPtr &id_scope) {
   return TInnerFunc::TPtr(new TInnerFunc(package, symbol, id_scope));

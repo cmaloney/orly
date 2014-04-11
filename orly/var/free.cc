@@ -22,8 +22,8 @@
 #include <orly/rt/runtime_error.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 size_t TFree::GetHash() const {
   assert(this);

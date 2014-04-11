@@ -21,7 +21,7 @@
 #include <orly/type/seq.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TSkip::TPtr TSkip::New(
     const L0::TPackage *package,

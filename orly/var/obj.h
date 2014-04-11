@@ -1,6 +1,6 @@
 /* <orly/var/obj.h>
 
-   A Stig object, which is a dictionary of vars.
+   A Orly object, which is a dictionary of vars.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -30,7 +30,7 @@
 #include <orly/type/obj.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -195,4 +195,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

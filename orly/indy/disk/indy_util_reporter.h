@@ -25,7 +25,7 @@
 #include <base/timer.h>
 #include <orly/indy/disk/utilization_reporter.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -123,4 +123,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

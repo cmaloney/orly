@@ -30,7 +30,7 @@
 #include <orly/synth/scope_and_def.h>
 #include <tools/nycr/lexeme.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -112,4 +112,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

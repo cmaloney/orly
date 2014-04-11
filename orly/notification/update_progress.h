@@ -23,7 +23,7 @@
 #include <base/uuid.h>
 #include <orly/notification/notification.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Notification {
 
@@ -105,4 +105,4 @@ namespace Stig {
 
   }  // Notification
 
-}  // Stig
+}  // Orly

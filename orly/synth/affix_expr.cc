@@ -22,8 +22,8 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TAffixExpr::TAffixExpr(TExpr *expr, TNew new_, const TPosRange &pos_range)
     : Expr(Base::AssertTrue(expr)), New(new_), PosRange(pos_range) {}

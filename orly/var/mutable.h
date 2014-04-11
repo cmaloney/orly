@@ -1,6 +1,6 @@
 /* <orly/var/mutable.h>
 
-   A Stig mutable, which is a Rt::TMutable.
+   A Orly mutable, which is a Rt::TMutable.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -25,7 +25,7 @@
 #include <orly/type/rt.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -156,5 +156,5 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly
 

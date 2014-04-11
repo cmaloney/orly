@@ -20,7 +20,7 @@
 
 #include <orly/code_gen/scope.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 //TODO: The namespace passing around here is ugly and feels very, very backwards. Probably we should just have a pointer
 //      to the package and get the namespace out of it.
@@ -35,7 +35,7 @@ void TExportFunc::WriteCcName(TCppPrinter &out) const {
 }
 
 void TExportFunc::WriteName(TCppPrinter &out) const {
-  out << TStigNamespace(Namespace);
+  out << TOrlyNamespace(Namespace);
   if(Namespace.Get().size() > 0) {
     out << "::";
   }

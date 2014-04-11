@@ -35,7 +35,7 @@
 
 #include <orly/indy/fiber/fiber.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -311,4 +311,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

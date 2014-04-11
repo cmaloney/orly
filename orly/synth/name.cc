@@ -20,11 +20,11 @@
 
 #include <cstring>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 const TName::TLexeme TName::DefaultLexeme(1, 1, 1, 1, "", 0);
 
-Package::Syntax::TName *Stig::Synth::BuildNode(const char *name) {
+Package::Syntax::TName *Orly::Synth::BuildNode(const char *name) {
   return new Package::Syntax::TName(1, 1, 1, strlen(name) + 1, name, strlen(name));
 }

@@ -24,8 +24,8 @@
 #include <orly/type/unwrap.h>
 #include <orly/type/util.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TAssertCase::TPtr TAssertCase::New(
     const TAssert::TPtr &assert,

@@ -18,12 +18,12 @@
 
 #include <orly/type/unknown.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_SINGLETON_TYPE(TUnknown);
 
 TUnknown::~TUnknown() {}
 
 void TUnknown::Write(std::ostream &strm) const {
-  strm << "Stig::Rt::TUnknown";
+  strm << "Orly::Rt::TUnknown";
 }

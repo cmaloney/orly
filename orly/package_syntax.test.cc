@@ -21,7 +21,7 @@
 #include <tools/nycr/test.h>
 #include <test/kit.h>
 
-using namespace Stig::Package::Syntax;
+using namespace Orly::Package::Syntax;
 using namespace Tools::Nycr::Test;
 
 FIXTURE(Take) {

@@ -21,7 +21,7 @@
 #include <cassert>
 
 using namespace std;
-using namespace Stig;
+using namespace Orly;
 
 Type::TSabotToTypeTranslationError::TSabotToTypeTranslationError()
     : logic_error("could not translate from sabot state to orly type") {}

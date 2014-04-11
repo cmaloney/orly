@@ -20,8 +20,8 @@
 
 #include <orly/code_gen/scope.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 bool TTopFunc::IsTopLevel() const {
   return true;
@@ -34,7 +34,7 @@ void TTopFunc::WriteDecl(TCppPrinter &out) const {
   //NOTE: We prefix with 'F' to make the function name never conflict with a C++ builtin.
   out << GetReturnType() << ' ';
   WriteCcName(out);
-  out << "(Stig::Package::TContext &ctx";
+  out << "(Orly::Package::TContext &ctx";
   //TODO: The HasArgs here feels sort of hacky...
   if (HasArgs()) {
     out << ", ";

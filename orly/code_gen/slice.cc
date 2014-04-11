@@ -18,7 +18,7 @@
 
 #include <orly/code_gen/slice.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TSlice::TSlice(const L0::TPackage *package,
                const Type::TType &ret_type,

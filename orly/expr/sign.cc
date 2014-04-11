@@ -27,8 +27,8 @@
 #include <tools/nycr/error.h>
 
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 class TSignTypeVisitor
     : public Type::TUnwrapVisitor {

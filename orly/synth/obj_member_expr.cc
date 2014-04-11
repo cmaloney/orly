@@ -26,8 +26,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TObjMemberExpr::TObjMemberExpr(const TExprFactory *expr_factory, const Package::Syntax::TPostfixObjMember *postfix_obj_member)
     : PostfixObjMember(Base::AssertTrue(postfix_obj_member)),

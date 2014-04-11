@@ -40,7 +40,7 @@
 #include <orly/indy/disk/util/engine.h>
 #include <orly/indy/sequence_number.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -359,4 +359,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

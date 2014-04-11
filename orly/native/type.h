@@ -26,7 +26,7 @@
 #include <orly/sabot/type.h>
 #include <orly/native/defs.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -49,9 +49,9 @@ namespace Stig {
       /* For a native type, you can look up its native sabot type object in this template,
          like this:
 
-           Stig::Native::For<int>::Type.Accept(my_visitor);
-           Stig::Native::For<std::vector<int>>::Type.Accept(my_visitor);
-           Stig::Native::For<std::tuple<bool, int, double>>::Type.Accept(my_visitor);
+           Orly::Native::For<int>::Type.Accept(my_visitor);
+           Orly::Native::For<std::vector<int>>::Type.Accept(my_visitor);
+           Orly::Native::For<std::tuple<bool, int, double>>::Type.Accept(my_visitor);
 
          The definitions of the type object classes (except for the singletons taken from Sabot::Type)
          are declared in this scope, but are private.  You shouldn't try to construct them yourself. */
@@ -276,7 +276,7 @@ namespace Stig {
       };  // TTuple<TElems...>
 
       /* size of our types */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // Type
 
@@ -552,4 +552,4 @@ namespace Stig {
 
   }  // Native
 
-}  // Stig
+}  // Orly

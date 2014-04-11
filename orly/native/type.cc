@@ -18,7 +18,7 @@
 
 #include <orly/native/type.h>
 
-using namespace Stig;
+using namespace Orly;
 
 /*
 #define FOR_NULLARY(val_t, name)  \

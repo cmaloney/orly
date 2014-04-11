@@ -20,15 +20,15 @@
 
 #include <ostream>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
     class TVar;
 
     /* TODO */
-    void Stigify(std::ostream &stream, const TVar &var);
+    void Orlyify(std::ostream &stream, const TVar &var);
 
   }  // Var
 
-}  // Stig
+}  // Orly

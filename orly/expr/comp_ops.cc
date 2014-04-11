@@ -24,8 +24,8 @@
 #include <orly/type/comp_visitor.h>
 #include <orly/type/equal_visitor.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TExpr::TPtr TEqEq::New(const TExpr::TPtr &lhs, const TExpr::TPtr &rhs, const TPosRange &pos_range) {
   return TEqEq::TPtr(new TEqEq(lhs, rhs, pos_range));

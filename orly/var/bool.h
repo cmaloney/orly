@@ -1,6 +1,6 @@
 /* <orly/var/bool.h>
 
-   A Stig bool, which is a bool.
+   A Orly bool, which is a bool.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -23,7 +23,7 @@
 #include <orly/rt/runtime_error.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -128,4 +128,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

@@ -22,8 +22,8 @@
 #include <orly/expr/session_id.h>
 #include <orly/synth/get_pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TSessionIdExpr::TSessionIdExpr(const Package::Syntax::TSessionIdExpr *session_id_expr)
     : SessionIdExpr(Base::AssertTrue(session_id_expr)) {}

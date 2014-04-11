@@ -1,6 +1,6 @@
 /* <orly/spa/flux_capacitor/rt.h>
 
-   a Stig::Rt::TGenerator which generates database keys.
+   a Orly::Rt::TGenerator which generates database keys.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -25,7 +25,7 @@
 #include <orly/var/impl.h>
 
 
-namespace Stig {
+namespace Orly {
 
   namespace Spa {
 
@@ -191,4 +191,4 @@ namespace Stig {
   } // Rt
   #endif
 
-} // Stig
+} // Orly

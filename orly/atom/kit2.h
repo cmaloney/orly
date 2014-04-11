@@ -35,7 +35,7 @@
 #include <orly/sabot/state.h>
 #include <orly/sabot/type.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Atom {
 
@@ -164,7 +164,7 @@ namespace Stig {
       inline bool MatchType(TArena *this_arena, const TCore &that_core, TArena *that_arena) const;
 
       /* TODO */
-      inline Stig::Sabot::TMatchResult PrefixMatch(TArena *this_arena, const TCore &that_core, TArena *that_arena) const;
+      inline Orly::Sabot::TMatchResult PrefixMatch(TArena *this_arena, const TCore &that_core, TArena *that_arena) const;
 
       /* TODO */
       inline const uint32_t *TryGetElemCount() const;
@@ -479,7 +479,7 @@ namespace Stig {
       TTycon Tycon;
 
       /* size of our pins */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore
 
@@ -1271,7 +1271,7 @@ namespace Stig {
       return false;
     }
 
-    inline Stig::Sabot::TMatchResult TCore::PrefixMatch(TArena *this_arena, const TCore &that_core, TArena *that_arena) const {
+    inline Orly::Sabot::TMatchResult TCore::PrefixMatch(TArena *this_arena, const TCore &that_core, TArena *that_arena) const {
       assert(this);
       assert(this_arena);
       assert(&that_core);
@@ -1306,10 +1306,10 @@ namespace Stig {
             Sabot::State::TAny::TWrapper
               lhs_state(NewState(this_arena, lhs_state_alloc)),
               rhs_state(that_core.NewState(that_arena, rhs_state_alloc));
-            comp = Stig::Sabot::OrderStates(*lhs_state, *rhs_state);
+            comp = Orly::Sabot::OrderStates(*lhs_state, *rhs_state);
           }
           if (Atom::IsNe(comp)) {
-            return Stig::Sabot::TMatchResult::NoMatch;
+            return Orly::Sabot::TMatchResult::NoMatch;
           }
         } else {
           assert(lhs_core->Tycon == TTycon::Free);
@@ -1322,12 +1322,12 @@ namespace Stig {
           assert((free_limit - free_start) == 1);
           if (free_start->MatchType(this_arena, *rhs_core, that_arena)) {
           } else {
-            return Stig::Sabot::TMatchResult::PrefixMatch;
+            return Orly::Sabot::TMatchResult::PrefixMatch;
           }
         }
 
       }
-      return lhs_count == rhs_count ? Stig::Sabot::TMatchResult::Unifies : Stig::Sabot::TMatchResult::PrefixMatch;
+      return lhs_count == rhs_count ? Orly::Sabot::TMatchResult::Unifies : Orly::Sabot::TMatchResult::PrefixMatch;
     }
 
     inline const uint32_t *TCore::TryGetElemCount() const {
@@ -1793,7 +1793,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::SS::TBlob
 
@@ -1868,7 +1868,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::SS::TStr
 
@@ -1953,7 +1953,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::ST::TArrayOfTypes
 
@@ -2060,7 +2060,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::SS::TArrayOfStates
 
@@ -2126,7 +2126,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::SS::TFree
 
@@ -2216,7 +2216,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::ST::TArrayOfPairsOfTypes
 
@@ -2324,7 +2324,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::SS::TArrayOfPairsOfStates
 
@@ -2436,7 +2436,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::ST::TRecord
 
@@ -2527,7 +2527,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::SS::TRecord
 
@@ -2613,7 +2613,7 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::ST::TTuple
 
@@ -2706,14 +2706,14 @@ namespace Stig {
       const TCore *Core;
 
       /* Our Pin Size */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // TCore::SS::TTuple
 
-    /* Binary streamers for Stig::Atom::TCore */
+    /* Binary streamers for Orly::Atom::TCore */
     inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TCore &core) { strm.WriteExactly(&core, sizeof(TCore)); return strm; }
     inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TCore &core) { strm.ReadExactly(&core, sizeof(TCore)); return strm; }
 
   }  // Atom
 
-}  // Stig
+}  // Orly

@@ -29,7 +29,7 @@
 #include <orly/type/seq.h>
 #include <orly/type/unwrap.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -164,4 +164,4 @@ namespace Stig {
 
   }  // namespace Expr
 
-}  // namespace Stig
+}  // namespace Orly

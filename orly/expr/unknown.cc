@@ -24,8 +24,8 @@
 #include <orly/type/opt.h>
 #include <orly/type/unwrap_visitor.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TUnknown::TPtr TUnknown::New(const Type::TType &type, const TPosRange &pos_range) {
   return TUnknown::TPtr(new TUnknown(type, pos_range));

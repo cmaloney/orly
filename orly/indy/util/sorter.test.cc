@@ -24,7 +24,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy::Util;
+using namespace Orly::Indy::Util;
 
 FIXTURE(Typical) {
   const size_t max_size = 100;

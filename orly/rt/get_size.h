@@ -24,7 +24,7 @@
 #include <orly/rt/containers.h>
 #include <orly/rt/opt.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -67,7 +67,7 @@ namespace Stig {
 
     /* Call existing GetSize with the element in the optional
        Note: If we have nested optionals we'll loop back into this function,
-             which is invalid in Stigscript */
+             which is invalid in Orlyscript */
     template <typename TVal>
     TOpt<int64_t> GetSize(const TOpt<TVal> &opt_val) {
       assert(&opt_val);
@@ -76,4 +76,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

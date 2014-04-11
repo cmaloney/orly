@@ -19,7 +19,7 @@
 #include <orly/rt/regex_splitter.h>
 
 using namespace std;
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 TRegexSplitter &TRegexSplitter::operator++() {
   assert(this);

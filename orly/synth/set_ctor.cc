@@ -23,8 +23,8 @@
 #include <orly/synth/new_expr.h>
 #include <orly/synth/set_ctor.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TSetCtor::TSetCtor(const TExprFactory *expr_factory, const Package::Syntax::TSetCtor *set_ctor)
     : SetCtor(Base::AssertTrue(set_ctor)) {

@@ -26,7 +26,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
+using namespace Orly;
 
 static Type::TTypeCzar TypeCzar;
 
@@ -107,11 +107,11 @@ FIXTURE(Obj) {
 }
 
 FIXTURE(Free) {
-  EXPECT_EQ(ToString(Var::TVar(Var::TVar::Addr({{Stig::TAddrDir::Asc, Var::TVar(Var::TVar::Free(Stig::Type::TInt::Get()))}}))), "tuple(free(int64))");
+  EXPECT_EQ(ToString(Var::TVar(Var::TVar::Addr({{Orly::TAddrDir::Asc, Var::TVar(Var::TVar::Free(Orly::Type::TInt::Get()))}}))), "tuple(free(int64))");
 }
 
 FIXTURE(FreeDesc) {
-  EXPECT_EQ(ToString(Var::TVar(Var::TVar::Addr({{Stig::TAddrDir::Desc, Var::TVar(Var::TVar::Free(Stig::Type::TInt::Get()))}}))), "tuple(free(desc(int64)))");
+  EXPECT_EQ(ToString(Var::TVar(Var::TVar::Addr({{Orly::TAddrDir::Desc, Var::TVar(Var::TVar::Free(Orly::Type::TInt::Get()))}}))), "tuple(free(desc(int64)))");
 }
 
 #if 0 // TODO

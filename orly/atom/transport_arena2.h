@@ -26,7 +26,7 @@
 #include <orly/atom/kit2.h>
 #include <orly/atom/suprena.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Atom {
 
@@ -98,4 +98,4 @@ namespace Stig {
 
   }  // Atom
 
-}  // Stig
+}  // Orly

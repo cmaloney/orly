@@ -24,8 +24,8 @@
 #include <orly/type/mult_visitor.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 class TMultTypeVisitor
     : public Type::TMultVisitor {

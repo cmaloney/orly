@@ -25,7 +25,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy::L0;
+using namespace Orly::Indy::L0;
 
 TManager::TRepo::~TRepo() {
   assert(this);
@@ -165,20 +165,20 @@ size_t TManager::TRepo::WriteFile(TMemoryLayer */*memory_layer*/,
   throw;
 }
 
-std::unique_ptr<Stig::Indy::TPresentWalker> TManager::TRepo::NewPresentWalkerFile(size_t /*gen_id*/,
+std::unique_ptr<Orly::Indy::TPresentWalker> TManager::TRepo::NewPresentWalkerFile(size_t /*gen_id*/,
                                                                                   const TIndexKey &/*from*/,
                                                                                   const TIndexKey &/*to*/) const {
   assert(false);  /* repo's with files should implement this virtual function; otherwise it should never get called. */
   throw;
 }
 
-std::unique_ptr<Stig::Indy::TPresentWalker> TManager::TRepo::NewPresentWalkerFile(size_t /*gen_id*/,
+std::unique_ptr<Orly::Indy::TPresentWalker> TManager::TRepo::NewPresentWalkerFile(size_t /*gen_id*/,
                                                                                   const TIndexKey &/*key*/) const {
   assert(false);  /* repo's with files should implement this virtual function; otherwise it should never get called. */
   throw;
 }
 
-std::unique_ptr<Stig::Indy::TUpdateWalker> TManager::TRepo::NewUpdateWalkerFile(size_t /*gen_id*/, TSequenceNumber /*from*/) const {
+std::unique_ptr<Orly::Indy::TUpdateWalker> TManager::TRepo::NewUpdateWalkerFile(size_t /*gen_id*/, TSequenceNumber /*from*/) const {
   assert(false);  /* repo's with files should implement this virtual function; otherwise it should never get called. */
   throw;
 }
@@ -260,11 +260,11 @@ bool TManager::PreDtor() {
   return false;
 }
 
-Stig::Server::TTetrisManager *TManager::GetTetrisManager() const {
+Orly::Server::TTetrisManager *TManager::GetTetrisManager() const {
   return TetrisManager;
 }
 
-void TManager::SetTetrisManager(Stig::Server::TTetrisManager *tetris_manager) {
+void TManager::SetTetrisManager(Orly::Server::TTetrisManager *tetris_manager) {
   assert(this);
   assert(TetrisManager == nullptr);
   TetrisManager = tetris_manager;
@@ -724,7 +724,7 @@ TManager::TPtr<TManager::TRepo> TManager::Open(const TId &id) {
     TObj *&openable_obj = ret.first->second;
     if (openable_obj) {
       /* We found an object with the given id. */
-      TPtr<TManager::TRepo> ptr(openable_obj, Stig::Indy::L0::Old);
+      TPtr<TManager::TRepo> ptr(openable_obj, Orly::Indy::L0::Old);
       const auto &deadline = openable_obj->GetDeadline();
       if (deadline) {
         /* The object is being re-opened from a closed state, so remove it from the set of closed objects. */
@@ -747,7 +747,7 @@ TManager::TPtr<TManager::TRepo> TManager::Open(const TId &id) {
     assert(!openable_obj);
     openable_obj = repo;
     DurableCond.notify_all();
-    return TPtr<TManager::TRepo>(repo, Stig::Indy::L0::New);
+    return TPtr<TManager::TRepo>(repo, Orly::Indy::L0::New);
     throw std::logic_error("TODO: implement L0::TManager Load from disk");
   } catch (...) {
     /* We could not find the object on disk or the object's constructor failed.

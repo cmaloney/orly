@@ -19,8 +19,8 @@
 #include <orly/code_gen/unary.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TUnary::TUnary(const L0::TPackage *package,
                const Type::TType &ret_type,
@@ -73,7 +73,7 @@ void TUnary::WriteExpr(TCppPrinter &out) const {
       const Base::TUuid &index_id = Package->GetIndexIdFor(Expr->GetReturnType(), Type::UnwrapOptional(Type::UnwrapMutable(GetReturnType())));
       char uuid[37];
       index_id.FormatUnderscore(uuid);
-      out << "Read<" << Type::UnwrapMutable(GetReturnType()) << ">(ctx.GetFlux(), " << Expr << ", " << TStigNamespace(Package->GetNamespace()) << "::My" << uuid << ")";
+      out << "Read<" << Type::UnwrapMutable(GetReturnType()) << ">(ctx.GetFlux(), " << Expr << ", " << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << ")";
       break;
     }
     case ReverseOf: Call(out, "Reverse");
@@ -84,9 +84,9 @@ void TUnary::WriteExpr(TCppPrinter &out) const {
       break;
     case TimePntObj: Call(out, "Rt::Objects::TObjO8i3dayi4houri6minutei5monthi10nanosecondi6secondi10utc_offseti4year");
       break;
-    case ToLower: Call(out, "Stig::Rt::ToLower");
+    case ToLower: Call(out, "Orly::Rt::ToLower");
       break;
-    case ToUpper: Call(out, "Stig::Rt::ToUpper");
+    case ToUpper: Call(out, "Orly::Rt::ToUpper");
       break;
     case UnwrapMutable: Postfix(out, "GetVal");
       break;

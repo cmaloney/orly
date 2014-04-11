@@ -20,9 +20,9 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Stmt;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Stmt;
 
 TBinary::TBinary(
     const TStmtArg::TPtr &lhs,

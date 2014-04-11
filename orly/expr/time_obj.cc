@@ -28,8 +28,8 @@
 #include <tools/nycr/error.h>
 #include <base/time_maps.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TExpr::TPtr TTimeObj::New(const TExpr::TPtr &expr, const TPosRange &pos_range) {
   return TTimeObj::TPtr(new TTimeObj(expr, pos_range));

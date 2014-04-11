@@ -23,8 +23,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Spa;
+using namespace Orly;
+using namespace Orly::Spa;
 
 FIXTURE(Startup) {
   THoncho honcho;

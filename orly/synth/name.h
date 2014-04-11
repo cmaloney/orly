@@ -28,7 +28,7 @@
 #include <orly/orly.package.cst.h>
 #include <orly/pos_range.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -233,22 +233,22 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* Standard hasher for Stig::Synth::TName. */
+  /* Standard hasher for Orly::Synth::TName. */
   template <>
-  struct hash<Stig::Synth::TName> {
+  struct hash<Orly::Synth::TName> {
 
     typedef size_t result_type;
-    typedef Stig::Synth::TName argument_type;
+    typedef Orly::Synth::TName argument_type;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       return that.GetHash();
     }
 
-  };  // hash<Stig::Synth::TName>
+  };  // hash<Orly::Synth::TName>
 
 }  // std

@@ -18,8 +18,8 @@
 
 #include <orly/symbol/given_param_def.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TGivenParamDef::TPtr TGivenParamDef::New(
     const TFunction::TPtr &function,

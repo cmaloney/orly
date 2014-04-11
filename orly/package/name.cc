@@ -24,7 +24,7 @@
 
 using namespace Base;
 using namespace Jhm;
-using namespace Stig::Package;
+using namespace Orly::Package;
 
 //TODO: This should really live on piece somehow, or as some base algorithm.
 static inline const char *find(char sep, const char *start, const char *limit) {
@@ -69,7 +69,7 @@ TRelPath TVersionedName::GetSoRelPath() const {
   return Name.ToRelPath({ext,"so"});
 }
 
-std::ostream &Stig::Package::operator<<(std::ostream &out, const TVersionedName &that) {
+std::ostream &Orly::Package::operator<<(std::ostream &out, const TVersionedName &that) {
   assert(&out);
   assert(&that);
 

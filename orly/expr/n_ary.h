@@ -28,7 +28,7 @@
 #include <orly/expr/interior.h>
 #include <orly/pos_range.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -130,4 +130,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

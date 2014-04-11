@@ -40,7 +40,7 @@
 #include <orly/code_gen/typed_leaf.h>
 #include <orly/code_gen/unary.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -227,4 +227,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

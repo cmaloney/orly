@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <string>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 

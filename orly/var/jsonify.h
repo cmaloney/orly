@@ -20,7 +20,7 @@
 
 #include <ostream>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -31,4 +31,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

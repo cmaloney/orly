@@ -24,7 +24,7 @@
 
 using namespace std;
 using namespace Io;
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 TCoreVector::TCoreVector(TBinaryInputStream &strm) {
   assert(&strm);

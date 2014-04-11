@@ -24,7 +24,7 @@
 #include <orly/expr/leaf.h>
 #include <orly/shared_enum.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -57,4 +57,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

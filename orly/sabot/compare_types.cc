@@ -21,9 +21,9 @@
 #include <orly/sabot/compare_states.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Sabot;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Sabot;
 
 /* TODO */
 class TCompareTypesVisitor final
@@ -806,7 +806,7 @@ class TCompareTypesVisitor final
 
 };  // TCompareTypesVisitor
 
-Atom::TComparison Stig::Sabot::CompareTypes(const Type::TAny &lhs, const Type::TAny &rhs) {
+Atom::TComparison Orly::Sabot::CompareTypes(const Type::TAny &lhs, const Type::TAny &rhs) {
   Atom::TComparison comp;
   AcceptDouble(lhs, rhs, TCompareTypesVisitor(comp));
   return comp;

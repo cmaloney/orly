@@ -28,7 +28,7 @@
 #include <base/scheduler.h>
 #include <socket/address.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Balancer {
 
@@ -112,4 +112,4 @@ namespace Stig {
 
   }   // Balancer
 
-}  // Stig
+}  // Orly

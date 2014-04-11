@@ -31,10 +31,10 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Compiler;
-using namespace Stig::Package;
-using namespace Stig::Spa;
+using namespace Orly;
+using namespace Orly::Compiler;
+using namespace Orly::Package;
+using namespace Orly::Spa;
 
 bool PrintCmds = false;  // Flag for Starsha's TRunner
 
@@ -70,7 +70,7 @@ class TProgram {
     // unlink(TempFile.c_str());
   }
 
-  void Try(const string &func, TService::TStigArg &args, const Var::TVar &expected) {
+  void Try(const string &func, TService::TOrlyArg &args, const Var::TVar &expected) {
     try {
       Var::TVar var;
       //TODO: Needs notify povs. At least one.
@@ -131,7 +131,7 @@ FIXTURE(Arithmetic) {
                    "x4 = 6 / 3;"
                    "x5 = 5 % 3;"
                    "x6 = 2 ** 5;");
-  TService::TStigArg args;
+  TService::TOrlyArg args;
   program.Try("x1", args, Var::TVar(8));
   program.Try("x2", args, Var::TVar(-2));
   program.Try("x3", args, Var::TVar(15));
@@ -161,7 +161,7 @@ FIXTURE(Equality) {
                    "x16 = 3 != 5;"
                    "x17 = 5 != 5;"
                    "x18 = 5 != 3;");
-  TService::TStigArg args;
+  TService::TOrlyArg args;
   program.Try("x01", args, Var::TVar(false));
   program.Try("x02", args, Var::TVar(true));
   program.Try("x03", args, Var::TVar(false));
@@ -197,7 +197,7 @@ FIXTURE(Logical) {
                    "x10 = true xor false;"
                    "x11 = false xor true;"
                    "x12 = false xor false;");
-  TService::TStigArg args;
+  TService::TOrlyArg args;
   program.Try("x01", args, Var::TVar(true));
   program.Try("x02", args, Var::TVar(false));
   program.Try("x03", args, Var::TVar(false));
@@ -217,7 +217,7 @@ FIXTURE(Logical) {
 FIXTURE(List) {
   TProgram program("x01 = [1, 2, 3, 4];"
                    "x02 = [1, 2, 3, 4] + [5];");
-  TService::TStigArg args;
+  TService::TOrlyArg args;
   program.Try("x01", args, Var::TVar(vector<int64_t>({1,2,3,4})));
   program.Try("x02", args, Var::TVar(vector<int64_t>({1,2,3,4,5})));
 }
@@ -226,7 +226,7 @@ FIXTURE(List) {
 *****************************************/
 FIXTURE(Set) {
   TProgram program("x = {1, 2, 3, 4};");
-  TService::TStigArg args;
+  TService::TOrlyArg args;
   program.Try("x", args, Var::TVar(Rt::TSet<int64_t>({1,2,3,4})));
 }
 /*****************************************
@@ -234,13 +234,13 @@ FIXTURE(Set) {
 *****************************************/
 FIXTURE(Dict) {
   TProgram program("x = {1:1.1, 2:2.2, 3:3.3, 4:4.4};");
-  TService::TStigArg args;
+  TService::TOrlyArg args;
   program.Try("x", args, Var::TVar(Rt::TDict<int64_t, double>({make_pair(1, 1.1), make_pair(2, 2.2), make_pair(3, 3.3), make_pair(4, 4.4)})));
 }
 FIXTURE(DuplicateKeysRuntimeError) {
   TProgram program("key = 1;"
                    "x = {key:true, 1:false, 2:true};");
-  TService::TStigArg args;
+  TService::TOrlyArg args;
   auto func = [&]{ program.Try("x", args, Var::TVar(string("ExpectRuntimeError"))); };
   EXPECT_THROW_FUNC(Rt::TRuntimeError, func);
 }
@@ -279,7 +279,7 @@ FIXTURE(Seq) {
                    "x12 = ([y] + [5] as [[int]]) where {"
                    "  y = [1..5];"
                    "};");
-  TService::TStigArg args;
+  TService::TOrlyArg args;
   program.Try("x1" , args, Var::TVar(vector<int64_t>({1,2,3,4,5})));
   program.Try("x2" , args, Var::TVar(vector<int64_t>({1,2,3,4})));
   program.Try("x3" , args, Var::TVar(vector<int64_t>({2,4,6})));

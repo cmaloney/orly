@@ -19,10 +19,10 @@
 #include <orly/rt/mutate.h>
 #include <orly/var.h>
 
-using namespace Stig;
-using namespace Stig::Rt;
+using namespace Orly;
+using namespace Orly::Rt;
 
-Var::TVar Stig::Rt::Mutate(const Var::TVar &lhs, TMutator mutator, const Var::TVar &rhs) {
+Var::TVar Orly::Rt::Mutate(const Var::TVar &lhs, TMutator mutator, const Var::TVar &rhs) {
   Var::TVar result = lhs.Copy();
   switch (mutator) {
     case TMutator::Add: {

@@ -28,18 +28,18 @@
 
 #define IMPL_INTERNED_TYPE(TFinal, TArgs...) \
     template <> \
-    std::recursive_mutex *::Stig::Type::TInternedType<TFinal, TArgs>::Mutex = nullptr; \
+    std::recursive_mutex *::Orly::Type::TInternedType<TFinal, TArgs>::Mutex = nullptr; \
     template <> \
-    typename ::Stig::Type::TInternedType<TFinal, TArgs>::TTypeByKey *::Stig::Type::TInternedType<TFinal, TArgs>::TypeByKey = nullptr;
+    typename ::Orly::Type::TInternedType<TFinal, TArgs>::TTypeByKey *::Orly::Type::TInternedType<TFinal, TArgs>::TypeByKey = nullptr;
 
 #define IMPL_UNARY_TYPE(TFinal) \
-    IMPL_INTERNED_TYPE(TFinal, ::Stig::Type::TType)
+    IMPL_INTERNED_TYPE(TFinal, ::Orly::Type::TType)
 
 #define IMPL_SINGLETON_TYPE(TFinal) \
     template <> \
-    TFinal::TPtr *::Stig::Type::TSingletonType<TFinal>::Ptr = nullptr;
+    TFinal::TPtr *::Orly::Type::TSingletonType<TFinal>::Ptr = nullptr;
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -154,7 +154,7 @@ namespace Stig {
       // TODO: That we store the key both here and in the map is less than ideal.
       TKey Key;
 
-      friend class ::Stig::Type::TTypeCzar;
+      friend class ::Orly::Type::TTypeCzar;
 
     };  // TInternedType<TFinal, TArgs...>
 
@@ -194,7 +194,7 @@ namespace Stig {
         Ptr = nullptr;
       }
 
-      friend class ::Stig::Type::TTypeCzar;
+      friend class ::Orly::Type::TTypeCzar;
 
     };  // TSingletonType<TFinal>
 
@@ -222,4 +222,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

@@ -22,8 +22,8 @@
 #include <orly/code_gen/implicit_func.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TMap::TPtr TMap::New(const L0::TPackage *package,
                      const Type::TType &ret,

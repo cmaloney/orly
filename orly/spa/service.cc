@@ -40,9 +40,9 @@
 using namespace Base;
 using namespace std;
 using namespace std::placeholders;
-using namespace Stig;
-using namespace Stig::Spa;
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly;
+using namespace Orly::Spa;
+using namespace Orly::Spa::FluxCapacitor;
 using namespace Tools::Nycr;
 
 const char *TService::GetNotifierStateStr(TNotifierState state) {
@@ -120,9 +120,9 @@ void TService::SaveCheckpoint(const string &filename) {
   for(TContext::TKeyCursor it(&ctx, &suprena, Var::TVar(), Base::TUuid(Base::TUuid::Twister) /* this id won't get used because we're leaving TVar default constructed */); it; ++it) {
     //TKV kv = *it;
     Var::TVar var = Var::ToVar(*Sabot::State::TAny::TWrapper(it->GetState(state_alloc)));
-    Var::Stigify(out, var);
+    Var::Orlyify(out, var);
     out << " <- ";
-    Var::Stigify(out, Var::ToVar(*Sabot::State::TAny::TWrapper(ctx[Indy::TIndexKey(SpaIndexId, *it)].GetState(state_alloc))));
+    Var::Orlyify(out, Var::ToVar(*Sabot::State::TAny::TWrapper(ctx[Indy::TIndexKey(SpaIndexId, *it)].GetState(state_alloc))));
     out << ';' << endl;
   }
 }
@@ -170,7 +170,7 @@ void TService::Poll(
 
 }
 
-bool CheckAsserts(Package::TFuncHolder::TPtr func, const TService::TStigArg args, const Base::TOpt<TUUID> acct,
+bool CheckAsserts(Package::TFuncHolder::TPtr func, const TService::TOrlyArg args, const Base::TOpt<TUUID> acct,
       const TUUID session_id,  vector<bool> original_predicte_results, TContext &flux_ctx, Base::TScheduler *scheduler,
       const Rt::TOpt<Base::Chrono::TTimePnt> now, const Rt::TOpt<uint32_t> random_seed) {
 
@@ -189,7 +189,7 @@ void TService::Try(
       const Package::TFuncHolder::TPtr &func,
       const TUUID &private_pov,
       const unordered_set<TUUID> &notify_povs,
-      const TStigArg &args,
+      const TOrlyArg &args,
       Atom::TCore &result_core,
       Atom::TSuprena &result_arena,
       unordered_map<TUUID, TUUID> &notifiers) {

@@ -22,7 +22,7 @@
 #include <orly/expr/leaf.h>
 #include <orly/symbol/def.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -53,4 +53,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

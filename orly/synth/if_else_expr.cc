@@ -24,8 +24,8 @@
 #include <orly/expr/if_else.h>
 #include <orly/synth/get_pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TIfElseExpr::TIfElseExpr(
     TExpr *true_case,

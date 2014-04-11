@@ -1,6 +1,6 @@
 /* <orly/var/addr.h>
 
-   A Stig addr, which is a Stig::Rt::TAddr.
+   A Orly addr, which is a Orly::Rt::TAddr.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -25,7 +25,7 @@
 #include <orly/type/rt.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -204,4 +204,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-using namespace Stig::Sabot;
+using namespace Orly::Sabot;
 
 /*
 #define NULLARY_TYPE(name)  \
@@ -82,7 +82,7 @@ ACCEPT(Record)
 ACCEPT(Tuple)
 #undef ACCEPT
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -187,8 +187,8 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly
 
-void Stig::Sabot::AcceptDouble(const Type::TAny &lhs, const Type::TAny &rhs, const TTypeDoubleVisitor &double_visitor) {
+void Orly::Sabot::AcceptDouble(const Type::TAny &lhs, const Type::TAny &rhs, const TTypeDoubleVisitor &double_visitor) {
   lhs.Accept(TLhsVisitor(rhs, double_visitor));
 }

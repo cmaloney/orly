@@ -17,8 +17,8 @@
 #include <orly/indy/disk/util/snappy.h>
 
 using namespace std;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util::Snappy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util::Snappy;
 
 TBlockSource::TBlockSource(const std::unique_ptr<TBufBlock> &buf)
     : Buf(buf), BytesRead(0UL) {}

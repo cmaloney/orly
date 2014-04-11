@@ -23,8 +23,8 @@
 #include <orly/type/unknown.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 size_t TUnknown::GetHash() const {
   assert(this);

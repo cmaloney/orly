@@ -25,11 +25,11 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 class TIndexFile
     : public TInFile {
@@ -138,8 +138,8 @@ class TIndexFile
 
   };  // THashObj
 
-  typedef Disk::Util::TIndexManager<THashObj, Stig::Indy::Disk::Util::SortBufSize, Stig::Indy::Disk::Util::SortBufMinParallelSize> THashCollector;
-  typedef Disk::Util::TIndexManager<TOrderedNote, Stig::Indy::Disk::Util::SortBufSize, Stig::Indy::Disk::Util::SortBufMinParallelSize> TOrderedNoteIndex;
+  typedef Disk::Util::TIndexManager<THashObj, Orly::Indy::Disk::Util::SortBufSize, Orly::Indy::Disk::Util::SortBufMinParallelSize> THashCollector;
+  typedef Disk::Util::TIndexManager<TOrderedNote, Orly::Indy::Disk::Util::SortBufSize, Orly::Indy::Disk::Util::SortBufMinParallelSize> TOrderedNoteIndex;
 
   static void EmplaceOrderedNotes(TOrderedNoteIndex &note_index, Atom::TSuprena *arena, size_t &total_bytes, Atom::TCore::TOffset offset);
 

@@ -28,7 +28,7 @@
 #include <orly/synth/stmt.h>
 #include <orly/synth/stmt_block.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -111,4 +111,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

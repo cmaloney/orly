@@ -19,9 +19,9 @@
 #include <orly/indy/disk/read_file.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy::Disk;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy::Disk;
 
 template<>
 __thread size_t TReadFile<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage>::HashHitCount;

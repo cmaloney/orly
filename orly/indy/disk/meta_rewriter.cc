@@ -22,14 +22,14 @@
 #include <orly/indy/disk/indy_util_reporter.h>
 
 using namespace std;
-using namespace Stig::Indy::Disk;
+using namespace Orly::Indy::Disk;
 
 class TMetaRewriteInFile
     : public TInFile {
   NO_COPY_SEMANTICS(TMetaRewriteInFile);
   public:
 
-  TMetaRewriteInFile(const Stig::Indy::Util::TBlockVec &block_vec)
+  TMetaRewriteInFile(const Orly::Indy::Util::TBlockVec &block_vec)
       : BlockVec(block_vec) {}
 
   virtual size_t GetFileLength() const override {
@@ -54,7 +54,7 @@ class TMetaRewriteInFile
 
   private:
 
-  const Stig::Indy::Util::TBlockVec &BlockVec;
+  const Orly::Indy::Util::TBlockVec &BlockVec;
 
 };
 

@@ -21,8 +21,8 @@
 #include <orly/synth/cst_utils.h>
 #include <orly/synth/new_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TObjType::TObjType(const Package::Syntax::TObjType *obj_type) {
   assert(obj_type);

@@ -39,7 +39,7 @@
 #include <io/recorder_and_player.h>
 #include <orly/indy/fiber/fiber.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -300,7 +300,7 @@ namespace Stig {
       friend class TObj;
 
       /* for saving replicated durables. */
-      friend class Stig::Indy::TManager;
+      friend class Orly::Indy::TManager;
 
     };  // TManager
 
@@ -602,7 +602,7 @@ namespace Stig {
         }
 
         openable_obj = some_obj;
-        return TPtr<TSomeObj>(some_obj, Stig::Durable::New);
+        return TPtr<TSomeObj>(some_obj, Orly::Durable::New);
       } catch (...) {
         /* We already had the object on disk or the object's constructor failed.
            Either way, we need to dispose of the slot we made before continuing to handle the error. */
@@ -620,7 +620,7 @@ namespace Stig {
       TObj *&openable_obj = iter->second;
       if (openable_obj) {
         /* We found an object with the given id. */
-        TPtr<TSomeObj> ptr(openable_obj, Stig::Durable::Old);
+        TPtr<TSomeObj> ptr(openable_obj, Orly::Durable::Old);
         const auto &deadline = openable_obj->GetDeadline();
         if (deadline) {
           /* The object is being re-opened from a closed state, so remove it from the set of closed objects. */
@@ -639,7 +639,7 @@ namespace Stig {
         Io::TBinaryInputOnlyStream strm(std::make_shared<Io::TPlayer>(std::make_shared<Io::TRecorder>(blob)));
         TSomeObj *some_obj = new TSomeObj(this, id, strm);
         openable_obj = some_obj;
-        return TPtr<TSomeObj>(some_obj, Stig::Durable::New);
+        return TPtr<TSomeObj>(some_obj, Orly::Durable::New);
       } catch (...) {
         /* We could not find the object on disk or the object's constructor failed.
            Either way, we need to dispose of the slot we made before continuing to handle the error. */
@@ -650,17 +650,17 @@ namespace Stig {
 
   }  // Durable
 
-}  // Stig
+}  // Orly
 
 
 namespace std {
 
-  /* A standard hasher for Stig::Durable::TPtr. */
+  /* A standard hasher for Orly::Durable::TPtr. */
   template <typename TSomeObj>
-  struct hash<Stig::Durable::TPtr<TSomeObj>> {
+  struct hash<Orly::Durable::TPtr<TSomeObj>> {
     typedef size_t result_type;
-    typedef Stig::Durable::TPtr<TSomeObj> argument_type;
-    size_t operator()(const Stig::Durable::TPtr<TSomeObj> &that) const {
+    typedef Orly::Durable::TPtr<TSomeObj> argument_type;
+    size_t operator()(const Orly::Durable::TPtr<TSomeObj> &that) const {
       return that.GetHash();
     }
   };

@@ -24,7 +24,7 @@
 #include <orly/indy/key.h>
 #include <orly/indy/sequence_number.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -648,4 +648,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

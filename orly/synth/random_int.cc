@@ -24,8 +24,8 @@
 #include <orly/synth/random_int.h>
 #include <orly/expr/ref.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TRandomInt::TRandomInt(const Package::Syntax::TBuiltInRandom *random_int) :
   RandomInt(Base::AssertTrue(random_int)) {}

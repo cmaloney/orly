@@ -24,8 +24,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TTimePntCtor::TTimePntCtor(const Package::Syntax::TTimePntCtor *time_pnt_ctor)
     : TimePntCtor(Base::AssertTrue(time_pnt_ctor)) {}

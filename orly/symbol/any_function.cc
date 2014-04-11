@@ -22,8 +22,8 @@
 
 #include <orly/symbol/param_def.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TAnyFunction::TAnyFunction(const std::string &name)
     : Name(name) {}

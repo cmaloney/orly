@@ -20,7 +20,7 @@
 
 #include <orly/native/record.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Native {
 
@@ -56,4 +56,4 @@ namespace Stig {
 
   }  // Native
 
-}  // Stig
+}  // Orly

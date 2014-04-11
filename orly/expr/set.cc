@@ -26,8 +26,8 @@
 #include <orly/type/util.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TSet::TPtr TSet::New(const Type::TType &type, const TPosRange &pos_range) {
   return TSet::TPtr(new TSet(type, pos_range));

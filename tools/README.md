@@ -1,11 +1,11 @@
 ## tools
 
-Miscellaneous Stig-related tools.
+Miscellaneous Orly-related tools.
 
 Of paricular interest:
 
 * When it is built, the `starsha` build tool is placed here
-* `nycr` is a tool for writing languages. It is used for Stigscript.
+* `nycr` is a tool for writing languages. It is used for Orlyscript.
 
 Many of the other tools in this directory may no longer be in use.
 

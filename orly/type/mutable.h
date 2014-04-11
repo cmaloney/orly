@@ -24,7 +24,7 @@
 #include <orly/type/managed_type.h>
 #include <orly/type/part.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -57,4 +57,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

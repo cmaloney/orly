@@ -22,8 +22,8 @@
 #include <orly/pos_range.h>
 #include <orly/type/impl.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TWhere::TPtr TWhere::New(const TPosRange &pos_range) {
   return TWhere::TPtr(new TWhere(pos_range));

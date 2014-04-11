@@ -26,7 +26,7 @@
 #include <sys/mman.h>
 
 using namespace std;
-using namespace Stig::Indy::Util;
+using namespace Orly::Indy::Util;
 
 TGrowingPool::TGrowingPool(size_t block_size, const char *name)
     : BlockSize(block_size),

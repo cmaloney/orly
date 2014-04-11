@@ -24,8 +24,8 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TFilter::TPtr TFilter::New(const TExpr::TPtr &lhs, const TPosRange &pos_range) {
   return TFilter::TPtr(new TFilter(lhs, pos_range));

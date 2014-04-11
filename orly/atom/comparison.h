@@ -23,7 +23,7 @@
 
 #include <base/no_default_case.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Atom {
 
@@ -239,4 +239,4 @@ namespace Stig {
 
   }  // Atom
 
-}  // Stig
+}  // Orly

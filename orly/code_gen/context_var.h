@@ -20,7 +20,7 @@
 
 #include <orly/code_gen/inline.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -50,18 +50,18 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly
 
 namespace std {
 
   template <>
-  struct hash<Stig::CodeGen::TContextVar::TOp> {
+  struct hash<Orly::CodeGen::TContextVar::TOp> {
 
-    size_t operator()(const Stig::CodeGen::TContextVar::TOp &op) {
+    size_t operator()(const Orly::CodeGen::TContextVar::TOp &op) {
       return op;
     }
 
     typedef size_t return_type;
-    typedef Stig::CodeGen::TContextVar::TOp argument_type;
+    typedef Orly::CodeGen::TContextVar::TOp argument_type;
   };
 }

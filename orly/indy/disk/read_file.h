@@ -34,7 +34,7 @@
 #include <orly/indy/update.h>
 #include <orly/sabot/match_prefix_state.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -82,23 +82,23 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Indy::Disk::TFileKey. */
+  /* A standard hasher for Orly::Indy::Disk::TFileKey. */
   template <>
-  struct hash<Stig::Indy::Disk::TFileKey> {
+  struct hash<Orly::Indy::Disk::TFileKey> {
     typedef size_t result_type;
-    typedef Stig::Indy::Disk::TFileKey argument_type;
-    size_t operator()(const Stig::Indy::Disk::TFileKey &that) const {
+    typedef Orly::Indy::Disk::TFileKey argument_type;
+    size_t operator()(const Orly::Indy::Disk::TFileKey &that) const {
       return that.GetHash();
     }
   };
 
 }  // std
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -1291,4 +1291,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

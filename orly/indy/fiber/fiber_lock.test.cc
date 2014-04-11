@@ -32,7 +32,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy::Fiber;
+using namespace Orly::Indy::Fiber;
 
 std::mutex Mutex;
 Base::TSpinLock SpinLock;

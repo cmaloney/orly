@@ -30,7 +30,7 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy::Disk::Util;
 
 FIXTURE(Typical) {
   const size_t offset = 512;

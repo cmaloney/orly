@@ -25,7 +25,7 @@
 
 using namespace std;
 using namespace Io;
-using namespace Stig;
+using namespace Orly;
 
 template <typename TVal>
 void CheckArg(const TClosure &closure, const char *name, const TVal &expected) {

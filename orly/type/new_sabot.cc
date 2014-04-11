@@ -21,12 +21,12 @@
 #include <cassert>
 
 using namespace std;
-using namespace Stig;
+using namespace Orly;
 
-Stig::Type::TTypeTranslationError::TTypeTranslationError()
+Orly::Type::TTypeTranslationError::TTypeTranslationError()
     : logic_error("could not translate from orly type to sabot type") {}
 
-Sabot::Type::TAny *Stig::Type::NewSabot(void *buf, const TType &type) {
+Sabot::Type::TAny *Orly::Type::NewSabot(void *buf, const TType &type) {
   auto result = TryNewSabot(buf, type);
   if (!result) {
     throw TTypeTranslationError();
@@ -34,7 +34,7 @@ Sabot::Type::TAny *Stig::Type::NewSabot(void *buf, const TType &type) {
   return result;
 }
 
-Sabot::Type::TAny *Stig::Type::TryNewSabot(void *buf, const Type::TType &type) {
+Sabot::Type::TAny *Orly::Type::TryNewSabot(void *buf, const Type::TType &type) {
   class visitor_t final : public Type::TType::TVisitor {
     public:
     visitor_t(Sabot::Type::TAny *&result, void *buf) : Result(result), Buf(buf) {}

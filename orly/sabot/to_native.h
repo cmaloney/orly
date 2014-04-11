@@ -27,7 +27,7 @@
 #include <orly/sabot/state_dumper.h>
 #include <orly/uuid.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -636,12 +636,12 @@ namespace Stig {
     };  // TToNativeVisitor
 
     template <>
-    class TToNativeVisitor<Stig::TUUID> final
+    class TToNativeVisitor<Orly::TUUID> final
         : public TStateVisitor {
       NO_COPY_SEMANTICS(TToNativeVisitor);
       public:
       /* TODO */
-      TToNativeVisitor(Stig::TUUID &out) : Out(out) {}
+      TToNativeVisitor(Orly::TUUID &out) : Out(out) {}
       /* Overrides. */
       virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
       virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
@@ -660,7 +660,7 @@ namespace Stig {
       virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
       virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
       virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &state) const override           { Out = Stig::TUUID(state.Get().GetRaw()); }
+      virtual void operator()(const State::TUuid &state) const override           { Out = Orly::TUUID(state.Get().GetRaw()); }
       virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
       virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
       virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
@@ -671,7 +671,7 @@ namespace Stig {
       virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
       virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
       private:
-      Stig::TUUID &Out;
+      Orly::TUUID &Out;
     };  // TToNativeVisitor
 
     template <>
@@ -812,12 +812,12 @@ namespace Stig {
     };  // TToNativeVisitor
 
     template <typename TVal>
-    class TToNativeVisitor<Stig::TDesc<TVal>> final
+    class TToNativeVisitor<Orly::TDesc<TVal>> final
         : public TStateVisitor {
       NO_COPY_SEMANTICS(TToNativeVisitor);
       public:
       /* TODO */
-      TToNativeVisitor(Stig::TDesc<TVal> &out) : Out(out) {}
+      TToNativeVisitor(Orly::TDesc<TVal> &out) : Out(out) {}
       /* Overrides. */
       virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
       virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
@@ -853,7 +853,7 @@ namespace Stig {
       virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
       virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
       private:
-      Stig::TDesc<TVal> &Out;
+      Orly::TDesc<TVal> &Out;
     };  // TToNativeVisitor
 
     template <typename TVal>
@@ -1129,4 +1129,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

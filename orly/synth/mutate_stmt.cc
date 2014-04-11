@@ -27,8 +27,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TMutateStmt::TMutateStmt(const TExprFactory *expr_factory, const Package::Syntax::TMutateStmt *mutate_stmt)
     : MutateStmt(Base::AssertTrue(mutate_stmt)), Lhs(nullptr), Rhs(nullptr) {

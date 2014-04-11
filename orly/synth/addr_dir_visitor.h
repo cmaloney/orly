@@ -21,7 +21,7 @@
 #include <orly/orly.package.cst.h>
 #include <orly/shared_enum.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -50,4 +50,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

@@ -20,15 +20,15 @@
 
 #include <ostream>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
     class TType;
 
     /* TODO */
-    void Stigify(std::ostream &stream, const TType &type);
+    void Orlyify(std::ostream &stream, const TType &type);
 
   }  // Type
 
-}  // Stig
+}  // Orly

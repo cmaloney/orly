@@ -27,7 +27,7 @@
 #include <orly/rt/opt.h>
 #include <base/stl_utils.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -171,16 +171,16 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
   /* A standard hasher for Rt::TDict<TKey, TVal>. */
   template <typename TKey, typename TVal>
-  struct hash<Stig::Rt::TDict<TKey, TVal>> {
+  struct hash<Orly::Rt::TDict<TKey, TVal>> {
 
     typedef size_t result_type;
-    typedef Stig::Rt::TDict<TKey, TVal> argument_type;
+    typedef Orly::Rt::TDict<TKey, TVal> argument_type;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
@@ -191,14 +191,14 @@ namespace std {
       return result;
     }
 
-  };  // hash<Stig::Rt::TDict<TKey, TVal>>
+  };  // hash<Orly::Rt::TDict<TKey, TVal>>
 
   /* A standard hasher for Rt::TSet<TVal>. */
   template <typename TVal>
-  struct hash<Stig::Rt::TSet<TVal>> {
+  struct hash<Orly::Rt::TSet<TVal>> {
 
     typedef size_t result_type;
-    typedef Stig::Rt::TSet<TVal> argument_type;
+    typedef Orly::Rt::TSet<TVal> argument_type;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
@@ -209,16 +209,16 @@ namespace std {
       return result;
     }
 
-  };  // hash<Stig::Rt::TSet<TVal>>
+  };  // hash<Orly::Rt::TSet<TVal>>
 
 }  // std
 
 /* Add : dict + dict */
 template <typename TKey, typename TVal>
-Stig::Rt::TDict<TKey, TVal> operator+(
-      const Stig::Rt::TDict<TKey, TVal> &lhs,
-      const Stig::Rt::TDict<TKey, TVal> &rhs) {
-  Stig::Rt::TDict<TKey, TVal> temp(lhs);
+Orly::Rt::TDict<TKey, TVal> operator+(
+      const Orly::Rt::TDict<TKey, TVal> &lhs,
+      const Orly::Rt::TDict<TKey, TVal> &rhs) {
+  Orly::Rt::TDict<TKey, TVal> temp(lhs);
   // We do it this way to over-ride conflicts
   for (auto iter : rhs) {
     auto ret = temp.insert(iter);
@@ -231,10 +231,10 @@ Stig::Rt::TDict<TKey, TVal> operator+(
 
 /* Sub : dict - set */
 template <typename TKey, typename TVal>
-Stig::Rt::TDict<TKey, TVal> operator-(
-      const Stig::Rt::TDict<TKey, TVal> &lhs,
-      const Stig::Rt::TSet<TKey> &rhs) {
-  Stig::Rt::TDict<TKey, TVal> temp(lhs);
+Orly::Rt::TDict<TKey, TVal> operator-(
+      const Orly::Rt::TDict<TKey, TVal> &lhs,
+      const Orly::Rt::TSet<TKey> &rhs) {
+  Orly::Rt::TDict<TKey, TVal> temp(lhs);
   for (auto iter : rhs) {
     temp.erase(iter);
   }
@@ -251,8 +251,8 @@ std::vector<TVal> operator+(const std::vector<TVal> &lhs, const std::vector<TVal
 
 /* Sub : set - set */
 template <typename TVal>
-Stig::Rt::TSet<TVal> operator-(const Stig::Rt::TSet<TVal> &lhs, const Stig::Rt::TSet<TVal> &rhs) {
-  Stig::Rt::TSet<TVal> result(lhs);
+Orly::Rt::TSet<TVal> operator-(const Orly::Rt::TSet<TVal> &lhs, const Orly::Rt::TSet<TVal> &rhs) {
+  Orly::Rt::TSet<TVal> result(lhs);
   for (auto elem : rhs) {
     result.erase(elem);
   }
@@ -261,8 +261,8 @@ Stig::Rt::TSet<TVal> operator-(const Stig::Rt::TSet<TVal> &lhs, const Stig::Rt::
 
 /* Intersection : set & set */
 template <typename TVal>
-Stig::Rt::TSet<TVal> operator&(const Stig::Rt::TSet<TVal> &lhs, const Stig::Rt::TSet<TVal> &rhs) {
-  Stig::Rt::TSet<TVal> result;
+Orly::Rt::TSet<TVal> operator&(const Orly::Rt::TSet<TVal> &lhs, const Orly::Rt::TSet<TVal> &rhs) {
+  Orly::Rt::TSet<TVal> result;
   for (auto elem : lhs) {
     if (Base::Contains(rhs, elem)) {
       result.insert(elem);
@@ -273,8 +273,8 @@ Stig::Rt::TSet<TVal> operator&(const Stig::Rt::TSet<TVal> &lhs, const Stig::Rt::
 
 /* Union : set | set */
 template <typename TVal>
-Stig::Rt::TSet<TVal> operator|(const Stig::Rt::TSet<TVal> &lhs, const Stig::Rt::TSet<TVal> &rhs) {
-  Stig::Rt::TSet<TVal> result(lhs);
+Orly::Rt::TSet<TVal> operator|(const Orly::Rt::TSet<TVal> &lhs, const Orly::Rt::TSet<TVal> &rhs) {
+  Orly::Rt::TSet<TVal> result(lhs);
   // We do it this way to over-ride conflicts
   for (auto elem : rhs) {
     result.insert(elem);
@@ -284,8 +284,8 @@ Stig::Rt::TSet<TVal> operator|(const Stig::Rt::TSet<TVal> &lhs, const Stig::Rt::
 
 /* SymmetricDiff : set ^ set */
 template <typename TVal>
-Stig::Rt::TSet<TVal> operator^(const Stig::Rt::TSet<TVal> &lhs, const Stig::Rt::TSet<TVal> &rhs) {
-  Stig::Rt::TSet<TVal> result;
+Orly::Rt::TSet<TVal> operator^(const Orly::Rt::TSet<TVal> &lhs, const Orly::Rt::TSet<TVal> &rhs) {
+  Orly::Rt::TSet<TVal> result;
   for (auto elem : lhs) {
     if (!Base::Contains(rhs, elem)) {
       result.insert(elem);

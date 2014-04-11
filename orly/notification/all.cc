@@ -23,7 +23,7 @@
 #include <orly/notification/update_progress.h>
 
 using namespace Io;
-using namespace Stig::Notification;
+using namespace Orly::Notification;
 
 void TPovFailure::Accept(const TVisitor &visitor) const {
   assert(this);
@@ -43,7 +43,7 @@ void TUpdateProgress::Accept(const TVisitor &visitor) const {
   visitor(*this);
 }
 
-bool Stig::Notification::Matches(const TNotification &lhs, const TNotification &rhs) {
+bool Orly::Notification::Matches(const TNotification &lhs, const TNotification &rhs) {
   typedef Notification::Double::TComputer<bool> computer_t;
   class visitor_t : public computer_t {
     public:
@@ -79,7 +79,7 @@ bool Stig::Notification::Matches(const TNotification &lhs, const TNotification &
   return Visitor::Double::Accept<visitor_t>(lhs, rhs);
 }
 
-void Stig::Notification::Write(TBinaryOutputStream &strm, const TNotification *that) {
+void Orly::Notification::Write(TBinaryOutputStream &strm, const TNotification *that) {
   class visitor_t : public Notification::Single::TComputer<void> {
     public:
     visitor_t(TBinaryOutputStream &strm) : Strm(strm) {}
@@ -103,7 +103,7 @@ void Stig::Notification::Write(TBinaryOutputStream &strm, const TNotification *t
   that->Accept(visitor_t(strm));
 }
 
-TNotification *Stig::Notification::New(TBinaryInputStream &strm) {
+TNotification *Orly::Notification::New(TBinaryInputStream &strm) {
   assert(&strm);
   TNotification *result;
   char code;

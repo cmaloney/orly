@@ -24,7 +24,7 @@
 #include <base/no_copy_semantics.h>
 #include <orly/code_gen/cpp_printer.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -88,4 +88,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

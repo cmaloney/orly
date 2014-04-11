@@ -23,7 +23,7 @@
 #include <orly/expr/expr.h>
 #include <orly/expr/expr_parent.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 

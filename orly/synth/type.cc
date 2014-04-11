@@ -18,8 +18,8 @@
 
 #include <orly/synth/type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TType::TType() {}
 

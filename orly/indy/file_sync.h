@@ -22,7 +22,7 @@
 #include <orly/indy/disk/util/engine.h>
 #include <orly/indy/util/block_vec.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -99,7 +99,7 @@ namespace Stig {
 
     };  // TFileSync
 
-    /* Binary streamers for Stig::Indy::TFileSync */
+    /* Binary streamers for Orly::Indy::TFileSync */
     inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TFileSync &streamer) { streamer.Write(strm); return strm; }
     inline Io::TBinaryOutputStream &&operator<<(Io::TBinaryOutputStream &&strm, const TFileSync &streamer) { streamer.Write(strm); return std::move(strm); }
     inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TFileSync &streamer) { streamer.Read(strm); return strm; }
@@ -107,4 +107,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

@@ -22,7 +22,7 @@
 #include <orly/code_gen/implicit_func.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TCollatedBy::TPtr TCollatedBy::New(
       const L0::TPackage *package,

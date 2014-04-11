@@ -20,7 +20,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Server;
+using namespace Orly::Server;
 
 /* Metadata for TMetaRecord::TEntry. */
 RECORD_ELEM(TMetaRecord::TEntry, TUuid, SessionId);

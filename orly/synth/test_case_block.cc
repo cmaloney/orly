@@ -24,8 +24,8 @@
 #include <orly/synth/new_expr.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TTestCaseBlock::TTestCase::TTestCase(
     const Base::TOpt<std::string> &opt_name,

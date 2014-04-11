@@ -23,7 +23,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly::Spa::FluxCapacitor;
 
 void TTetrisPiece::PlayTetris(TContext &ctxt, const function<void (const function<void (TTetrisPiece *)> &)> &piece_generator) {
   assert(&piece_generator);

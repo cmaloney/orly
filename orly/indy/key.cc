@@ -18,4 +18,4 @@
 
 #include <orly/indy/key.h>
 
-using namespace Stig::Indy;
+using namespace Orly::Indy;

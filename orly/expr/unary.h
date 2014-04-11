@@ -22,7 +22,7 @@
 #include <orly/expr/expr.h>
 #include <orly/expr/interior.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -52,4 +52,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

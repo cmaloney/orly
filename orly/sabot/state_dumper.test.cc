@@ -28,13 +28,13 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
+using namespace Orly;
 
 template <typename TVal>
 static string ToString(const TVal &val) {
   ostringstream strm;
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-  Sabot::State::TAny::TWrapper(Native::State::New<TVal>(val, state_alloc))->Accept(Stig::Sabot::TStateDumper(strm));
+  Sabot::State::TAny::TWrapper(Native::State::New<TVal>(val, state_alloc))->Accept(Orly::Sabot::TStateDumper(strm));
   return strm.str();
 }
 

@@ -30,7 +30,7 @@
 #include <orly/type/equal_visitor.h>
 #include <orly/type/seq.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -123,4 +123,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

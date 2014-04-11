@@ -19,7 +19,7 @@
 #include <tools/nycr/test.h>
 #include <test/kit.h>
 
-using namespace Stig::Checkpoint::Syntax;
+using namespace Orly::Checkpoint::Syntax;
 using namespace Tools::Nycr::Test;
 
 // installed package

@@ -20,7 +20,7 @@
 
 #include <orly/durable/kit.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Durable {
 
@@ -97,4 +97,4 @@ namespace Stig {
 
   }  // Durable
 
-}  // Stig
+}  // Orly

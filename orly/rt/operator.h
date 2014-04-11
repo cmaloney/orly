@@ -27,7 +27,7 @@
 #include <orly/rt/mutable.h>
 #include <orly/rt/opt.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -1291,4 +1291,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

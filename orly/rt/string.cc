@@ -20,7 +20,7 @@
 #include <cctype>
 #include <string>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 

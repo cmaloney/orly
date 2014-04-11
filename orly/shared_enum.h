@@ -21,7 +21,7 @@
 #include <cassert>
 #include <ostream>
 
-namespace Stig {
+namespace Orly {
 
   //Note: Not an enum class because writing addrs out by hand gets wayyyy to long.
   enum TAddrDir { Asc, Desc };
@@ -42,21 +42,21 @@ namespace Stig {
 
   std::ostream &operator<<(std::ostream &strm, TAddrDir dir);
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
   template <>
-  struct hash<Stig::TAddrDir> {
+  struct hash<Orly::TAddrDir> {
 
     typedef size_t result_type;
-    typedef Stig::TAddrDir argument_type;
+    typedef Orly::TAddrDir argument_type;
 
     result_type operator()(const argument_type &that) {
       assert(&that);
-      return Stig::ToInt(that);
+      return Orly::ToInt(that);
     }
 
-  };  // hash<Stig::TAddrDir>
+  };  // hash<Orly::TAddrDir>
 
 }  // std

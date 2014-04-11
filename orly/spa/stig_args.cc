@@ -25,7 +25,7 @@
 
 using namespace std;
 using namespace Server;
-using namespace Stig::Spa;
+using namespace Orly::Spa;
 
 //TODO: Write a unit test for this bugger.
 TArgs::TArgs(const char *qs) : VerifiedAllUsed(false) {
@@ -230,7 +230,7 @@ void TArgs::Convert(const std::string &str, TUUID &uuid) {
 }
 
 void TArgs::Convert(const std::string &str, Var::TVar &var) {
-  if(!Stig::Spa::ParseCommand(str.c_str(), var)) {
+  if(!Orly::Spa::ParseCommand(str.c_str(), var)) {
     throw TArgValueError(HERE, "orly literal");
   }
 }

@@ -25,12 +25,12 @@
 #include <orly/symbol/stmt/mutate.h>
 #include <orly/symbol/stmt/new_and_delete.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 typedef std::function<bool (const TExpr::TPtr &expr)> TCb;
 
-void Stig::Expr::ForEachExpr(const TExpr::TPtr &root, const TCb &cb, bool include_inner_funcs) {
+void Orly::Expr::ForEachExpr(const TExpr::TPtr &root, const TCb &cb, bool include_inner_funcs) {
   class expr_visitor_t
       : public TExpr::TVisitor {
     NO_COPY_SEMANTICS(expr_visitor_t);

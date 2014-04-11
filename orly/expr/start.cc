@@ -21,8 +21,8 @@
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TStart::TPtr TStart::New(const TExpr::TPtr &expr, const TPosRange &pos_range) {
   return TStart::TPtr(new TStart(expr, pos_range));

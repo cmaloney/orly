@@ -21,8 +21,8 @@
 #include <base/assert_true.h>
 #include <orly/symbol/any_function.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TResultDef::TPtr TResultDef::New(const TAnyFunction::TPtr &function, const std::string &name, const TPosRange &pos_range) {
   assert(function);

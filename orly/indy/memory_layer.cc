@@ -20,7 +20,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy;
+using namespace Orly::Indy;
 
 TMemoryLayer::TMemoryLayer(L0::TManager *manager)
     : TDataLayer(manager),
@@ -63,14 +63,14 @@ std::unique_ptr<TPresentWalker> TMemoryLayer::NewPresentWalker(const TIndexKey &
   return unique_ptr<TMatchPresentWalker>(new TMatchPresentWalker(this, key));
 }
 
-std::unique_ptr<Stig::Indy::TUpdateWalker> TMemoryLayer::NewUpdateWalker(TSequenceNumber from) const {
+std::unique_ptr<Orly::Indy::TUpdateWalker> TMemoryLayer::NewUpdateWalker(TSequenceNumber from) const {
   assert(this);
   return unique_ptr<TUpdateWalker>(new TUpdateWalker(this, from));
 }
 
 TMemoryLayer::TMatchPresentWalker::TMatchPresentWalker(const TMemoryLayer *layer,
                                                        const TIndexKey &key)
-    : Stig::Indy::TPresentWalker(Match),
+    : Orly::Indy::TPresentWalker(Match),
       Layer(layer),
       Key(key),
       Csr(Layer->GetEntryCollection()),
@@ -159,7 +159,7 @@ void TMemoryLayer::TMatchPresentWalker::Refresh() const {
 TMemoryLayer::TRangePresentWalker::TRangePresentWalker(const TMemoryLayer *layer,
                                                        const TIndexKey &from,
                                                        const TIndexKey &to)
-    : Stig::Indy::TPresentWalker(Range),
+    : Orly::Indy::TPresentWalker(Range),
       Layer(layer),
       From(from),
       To(to),

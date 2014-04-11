@@ -1,6 +1,6 @@
 /* <orly/var/real.h>
 
-   A Stig real, which is a double.
+   A Orly real, which is a double.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -23,7 +23,7 @@
 #include <orly/rt/runtime_error.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -128,4 +128,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

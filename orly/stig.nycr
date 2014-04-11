@@ -1,6 +1,6 @@
 /* <orly/orly.nycr>
 
-   Nycr grammar for Stig checkpoint and package files.
+   Nycr grammar for Orly checkpoint and package files.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -595,7 +595,7 @@ mutate_stmt : stmt -> lhs:expr mutation rhs:expr semi;
          * How do we tell the history-eater not to clean up certain keys?
 
       These issues should be addressed and reasonable answers found because access to data history is
-      a great feature.  It's something to distinguish Stig from other databases and it makes some
+      a great feature.  It's something to distinguish Orly from other databases and it makes some
       kinds of analysis (such as how graphs change over time) much more doable.
 
     * THROW AND CATCH

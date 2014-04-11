@@ -27,7 +27,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
+using namespace Orly;
 
 /* SCALAR */
 static const int8_t Int8Val = -8;

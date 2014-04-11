@@ -1,6 +1,6 @@
 /* <orly/var.h>
 
-   A variant value type, limited to the types supported by the Stig
+   A variant value type, limited to the types supported by the Orly
    type system.
 
    Copyright 2010-2014 OrlyAtomics, Inc.

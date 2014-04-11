@@ -18,9 +18,9 @@
 
 #include <orly/symbol/test/with_clause.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Test;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Test;
 
 TWithClause::TPtr TWithClause::New(const TNewStmtSet &new_stmts, const TPosRange &pos_range) {
   return TWithClause::TPtr(new TWithClause(new_stmts, pos_range));

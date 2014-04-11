@@ -1,6 +1,6 @@
 /* <orly/server/server.h>
 
-   The Stig server.
+   The Orly server.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -49,7 +49,7 @@
 #include <orly/server/session.h>
 #include <orly/type/type_czar.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
 
@@ -94,15 +94,15 @@ namespace Stig {
 
   }  // Server
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Server::TIndexType. */
+  /* A standard hasher for Orly::Server::TIndexType. */
   template <>
-  struct hash<Stig::Server::TIndexType> {
+  struct hash<Orly::Server::TIndexType> {
     typedef size_t result_type;
-    typedef Stig::Server::TIndexType argument_type;
+    typedef Orly::Server::TIndexType argument_type;
     size_t operator()(const argument_type &that) const {
       return that.GetHash();
     }
@@ -110,7 +110,7 @@ namespace std {
 
 }  // std
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
 
@@ -382,7 +382,7 @@ namespace Stig {
       }
 
       /* See TPov::TServer. */
-      virtual Stig::Indy::TManager *GetRepoManager() const override {
+      virtual Orly::Indy::TManager *GetRepoManager() const override {
         assert(this);
         return RepoManager.get();
       }
@@ -671,7 +671,7 @@ namespace Stig {
       void ServeMemcacheClient(Base::TFd &&fd, const Socket::TAddress &client_address);
 
       /* TODO */
-      void StateChangeCb(Stig::Indy::TManager::TState state);
+      void StateChangeCb(Orly::Indy::TManager::TState state);
 
       /* See <orly/protocol.h>. */
       void UninstallPackage(const std::vector<std::string> &package_name, uint64_t version);
@@ -709,16 +709,16 @@ namespace Stig {
       std::unique_ptr<Indy::Disk::Util::TDiskEngine> DiskEngine;
 
       /* TODO */
-      std::unique_ptr<Stig::Indy::TManager> RepoManager;
+      std::unique_ptr<Orly::Indy::TManager> RepoManager;
 
       /* TODO */
-      Stig::Indy::L0::TManager::TPtr<Indy::TRepo> GlobalRepo;
+      Orly::Indy::L0::TManager::TPtr<Indy::TRepo> GlobalRepo;
 
       /* TODO */
-      Stig::Indy::TManager::TState RepoState;
+      Orly::Indy::TManager::TState RepoState;
 
       /* TODO */
-      Stig::Package::TManager PackageManager;
+      Orly::Package::TManager PackageManager;
 
       /* This is necessary to make the type singletons and interners visible to the packages being loaded. */
       Type::TTypeCzar TypeCzar;
@@ -754,7 +754,7 @@ namespace Stig {
       std::unique_ptr<TIndyReporter> Reporter;
 
       /* TODO */
-      std::shared_ptr<Stig::Indy::Disk::TIndyUtilReporter> UtilReporter;
+      std::shared_ptr<Orly::Indy::Disk::TIndyUtilReporter> UtilReporter;
 
       /* TODO */
       std::shared_ptr<std::function<void (const Base::TFd &)>> WaitForSlaveActionCb;
@@ -771,4 +771,4 @@ namespace Stig {
 
   }  // Server
 
-}  // Stig
+}  // Orly

@@ -25,8 +25,8 @@
 #include <orly/type/unwrap.h>
 #include <orly/type/unwrap_visitor.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TRead::TPtr TRead::New(const TExpr::TPtr &expr, const Type::TType &type, const TPosRange &pos_range) {
   return TRead::TPtr(new TRead(expr, type, pos_range));

@@ -1,7 +1,7 @@
 {
    "report_name" : "orly_storage_speed_usage",
    "report_type" : "standard",
-   "title" : "Stig Storage Speed Usage",
+   "title" : "Orly Storage Speed Usage",
    "vertical_label" : "bytes",
    "series" : [
       { "metric": "orly_Slow_Usage", "color": "3333bb", "label": "Slow Storage", "type": "stack" },

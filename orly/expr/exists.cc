@@ -27,8 +27,8 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TExpr::TPtr TExists::New(const TExpr::TPtr &expr, const Type::TType &value_type, const TPosRange &pos_range) {
   return TExists::TPtr(new TExists(expr, value_type, pos_range));

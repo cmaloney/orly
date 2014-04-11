@@ -22,8 +22,8 @@
 #include <orly/synth/func_def.h>
 #include <orly/synth/get_pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TGivenExpr::TGivenExpr(const TParamFuncDef *param_func_def, const Package::Syntax::TGivenExpr *given_expr)
     : GivenExpr(Base::AssertTrue(given_expr)), ParamFuncDef(Base::AssertTrue(param_func_def)) {}

@@ -25,7 +25,7 @@
 #include <orly/sabot/type.h>
 #include <orly/var.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -98,4 +98,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

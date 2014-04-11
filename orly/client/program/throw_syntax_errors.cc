@@ -24,9 +24,9 @@
 #include <tools/nycr/error.h>
 
 using namespace std;
-using namespace Stig::Client::Program;
+using namespace Orly::Client::Program;
 
-void Stig::Client::Program::ThrowSyntaxErrors() {
+void Orly::Client::Program::ThrowSyntaxErrors() {
   if (Tools::Nycr::TError::GetFirstError()) {
     ostringstream strm;
     Tools::Nycr::TError::PrintSortedErrors(strm);

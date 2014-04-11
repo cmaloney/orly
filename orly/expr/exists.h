@@ -21,7 +21,7 @@
 #include <base/no_copy_semantics.h>
 #include <orly/expr/unary.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -52,4 +52,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

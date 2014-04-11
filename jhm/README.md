@@ -2,7 +2,7 @@
 
 The JHM(*) build system.
 
-While this build system is no longer in use by the Stig project, its files are still used by the compiler. As well, this directory contains other interesting files. In particular:
+While this build system is no longer in use by the Orly project, its files are still used by the compiler. As well, this directory contains other interesting files. In particular:
 
 * `naming.h`: Contains conventions for how to refer to different parts of a filename.
 

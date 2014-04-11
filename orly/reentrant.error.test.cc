@@ -21,7 +21,7 @@
 #include <tools/nycr/test.h>
 #include <test/kit.h>
 
-using namespace Stig::Command::Syntax;
+using namespace Orly::Command::Syntax;
 using namespace Tools::Nycr::Test;
 
 FIXTURE(Typical) {

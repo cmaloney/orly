@@ -30,7 +30,7 @@
 
 #include <test/kit.h>
 
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 FIXTURE(CollatedBy) {
   auto x = TCollatedByGenerator<std::tuple<int64_t, int64_t>, int64_t, int64_t, int64_t>::New(

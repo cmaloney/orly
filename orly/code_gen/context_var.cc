@@ -23,8 +23,8 @@
 #include <orly/type/time_pnt.h>
 #include <orly/type/unknown.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 Type::TType TContextVar::GetType(TOp Op) {
   switch(Op) {

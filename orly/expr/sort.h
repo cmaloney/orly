@@ -25,7 +25,7 @@
 #include <orly/expr/binary.h>
 #include <orly/expr/lhsrhsable.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -63,4 +63,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

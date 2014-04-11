@@ -1,6 +1,6 @@
 /* <orly/var/set.h>
 
-   A Stig set, which is a Rt::TSet.
+   A Orly set, which is a Rt::TSet.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -25,7 +25,7 @@
 #include <orly/type/rt.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -173,4 +173,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

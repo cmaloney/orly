@@ -22,7 +22,7 @@
 
 #include <orly/shared_enum.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -57,4 +57,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

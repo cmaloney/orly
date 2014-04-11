@@ -19,7 +19,7 @@
 #include <orly/notification/system_shutdown.h>
 
 using namespace Io;
-using namespace Stig::Notification;
+using namespace Orly::Notification;
 
 bool TSystemShutdown::Matches(const TSystemShutdown &that) const {
   assert(this);

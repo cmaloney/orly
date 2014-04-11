@@ -18,7 +18,7 @@
 
 #include <orly/type/obj.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_INTERNED_TYPE(TObj, TObjElems);
 
@@ -27,5 +27,5 @@ TObj::~TObj() {}
 void TObj::Write(std::ostream &out) const {
   assert(this);
   assert(&out);
-  out << "Stig::Rt::Objects::TObj" << AsType().GetMangledName();
+  out << "Orly::Rt::Objects::TObj" << AsType().GetMangledName();
 }

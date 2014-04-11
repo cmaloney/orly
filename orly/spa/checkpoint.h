@@ -21,7 +21,7 @@
 #include <orly/package/name.h>
 #include <orly/spa/flux_capacitor/api.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Spa {
 
@@ -32,4 +32,4 @@ namespace Stig {
 
   }  // Spa
 
-}  // Stig
+}  // Orly

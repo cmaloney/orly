@@ -24,8 +24,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Handshake;
-using namespace Stig::Balancer;
+using namespace Orly::Handshake;
+using namespace Orly::Balancer;
 
 TFailoverTestBalancer::TFailoverTestBalancer(TScheduler *scheduler, const TBalancer::TCmd &cmd, size_t milli_interval)
     : TBalancer(scheduler, cmd), MilliInterval(milli_interval), Running(true) {

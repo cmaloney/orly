@@ -25,7 +25,7 @@
 #include <orly/var/impl.h>
 #include <orly/shared_enum.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -76,7 +76,7 @@ namespace Stig {
           for(const auto &it: that->Changes) {
             if(Changes.count(it.first)) {
               //TODO: Better diagnostic information so people can tell why this happened from their code.
-              throw Stig::Rt::TSystemError(HERE, "Tried to change the same portion of a value twice in one update.");
+              throw Orly::Rt::TSystemError(HERE, "Tried to change the same portion of a value twice in one update.");
             }
 
             Changes.insert(it);
@@ -196,4 +196,4 @@ namespace Stig {
 
   } // Var
 
-} // Stig
+} // Orly

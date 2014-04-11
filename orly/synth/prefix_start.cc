@@ -25,8 +25,8 @@
 #include <orly/synth/startable_expr.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TPrefixStart::TPrefixStart(const TExprFactory *expr_factory, const Package::Syntax::TPrefixStart *prefix_start)
     : PrefixStart(Base::AssertTrue(prefix_start)),

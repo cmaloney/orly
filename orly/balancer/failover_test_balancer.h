@@ -21,7 +21,7 @@
 #include <base/event_semaphore.h>
 #include <orly/balancer/balancer.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Balancer {
 
@@ -73,4 +73,4 @@ namespace Stig {
 
   }  // Balancer
 
-}  // Stig
+}  // Orly

@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/strreplace.orly>
 
-   Tests the "replace" built-in function in Stig.
+   Tests the "replace" built-in function in Orly.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

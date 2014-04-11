@@ -25,7 +25,7 @@
 #include <orly/context_base.h>
 #include <orly/rt/generator.h>
 
-namespace Stig {
+namespace Orly {
 
   /* TODO */
   class TKeyCursor {
@@ -190,7 +190,7 @@ namespace Stig {
       mutable TRet *Item;
 
       /* TODO */
-      mutable std::unique_ptr<Stig::TKeyCursor> Iter;
+      mutable std::unique_ptr<Orly::TKeyCursor> Iter;
 
       /* TODO */
       const TKeyGenerator::TPtr Ptr;
@@ -308,4 +308,4 @@ namespace Stig {
 
   } // Rt
 
-}  // Stig
+}  // Orly

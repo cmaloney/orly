@@ -27,8 +27,8 @@
 #include <orly/type/unwrap.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TAddr::TPtr TAddr::New(const TMemberVec &members, const TPosRange &pos_range) {
   return TAddr::TPtr(new TAddr(members, pos_range));

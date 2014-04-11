@@ -25,7 +25,7 @@
 #include <orly/rt/containers.h>
 #include <orly/rt/generator.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -56,4 +56,4 @@ namespace Stig {
 
   }  // namespace Rt
 
-}  // namespace Stig
+}  // namespace Orly

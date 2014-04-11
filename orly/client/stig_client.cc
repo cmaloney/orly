@@ -1,6 +1,6 @@
 /* <orly/client/orly.cc>
 
-   The Stig command-line client tool.
+   The Orly command-line client tool.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -19,5 +19,5 @@
 #include <orly/client/repl.h>
 
 int main(int argc, char *argv[]) {
-  return Stig::Client::TRepl::Main(argc, argv);
+  return Orly::Client::TRepl::Main(argc, argv);
 }

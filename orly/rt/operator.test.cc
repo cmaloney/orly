@@ -25,8 +25,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Rt;
+using namespace Orly;
+using namespace Orly::Rt;
 
 typedef vector<int64_t> Tili;
 typedef vector<TOpt<int64_t>> Toili;

@@ -23,7 +23,7 @@
 
 #include <orly/sabot/all.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
 
@@ -156,4 +156,4 @@ namespace Stig {
 
   }  // Server
 
-}  // Stig
+}  // Orly

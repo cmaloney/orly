@@ -25,7 +25,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Client::Program;
+using namespace Orly::Client::Program;
 
 static void ForStmt(const TProgram *program, const TForStmt &cb) {
   ThrowSyntaxErrors();
@@ -39,12 +39,12 @@ static void ForStmt(const TProgram *program, const TForStmt &cb) {
   cb(stmt);
 }
 
-void Stig::Client::Program::ParseStmtFile(const char *path, const TForStmt &cb) {
+void Orly::Client::Program::ParseStmtFile(const char *path, const TForStmt &cb) {
   ForStmt(unique_ptr<TProgram>(TProgram::ParseFile(path)).get(), cb);
   Tools::Nycr::TNode::DeleteEach();
 }
 
-void Stig::Client::Program::ParseStmtStr(const char *str, const TForStmt &cb) {
+void Orly::Client::Program::ParseStmtStr(const char *str, const TForStmt &cb) {
   ForStmt(unique_ptr<TProgram>(TProgram::ParseStr(str)).get(), cb);
   Tools::Nycr::TNode::DeleteEach();
 }

@@ -1,6 +1,6 @@
 ## third_party
 
-Third party libraries and tools which have been or are used with or by Stig.
+Third party libraries and tools which have been or are used with or by Orly.
 
 -----
 

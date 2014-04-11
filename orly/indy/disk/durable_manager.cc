@@ -23,8 +23,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy::Util;
-using namespace Stig::Indy::Disk;
+using namespace Orly::Indy::Util;
+using namespace Orly::Indy::Disk;
 
 const Base::TUuid TDurableManager::DurableByIdFileId("20E91BAE-3465-4E9B-918F-C234DF84762A");
 

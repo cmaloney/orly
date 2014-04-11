@@ -29,7 +29,7 @@
 using namespace std;
 using namespace chrono;
 using namespace Io;
-using namespace Stig::Handshake;
+using namespace Orly::Handshake;
 
 FIXTURE(HealthCheck) {
   constexpr size_t size = sizeof(THeader);

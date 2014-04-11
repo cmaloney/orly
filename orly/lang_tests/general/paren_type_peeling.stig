@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/paren_type_peeling.orly>
 
-   This Stig script tests peeling parentheses off of types.
+   This Orly script tests peeling parentheses off of types.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

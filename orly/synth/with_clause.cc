@@ -24,8 +24,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/test_kv_entry.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TWithClause::TWithClause(
     const TExprFactory *expr_factory,

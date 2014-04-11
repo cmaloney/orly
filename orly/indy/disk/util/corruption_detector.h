@@ -27,7 +27,7 @@
 #include <base/murmur.h>
 #include <base/no_construction.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -66,4 +66,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

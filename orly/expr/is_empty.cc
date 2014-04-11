@@ -26,8 +26,8 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TExpr::TPtr TIsEmpty::New(const TExpr::TPtr &expr, const TPosRange &pos_range) {
   return TIsEmpty::TPtr(new TIsEmpty(expr, pos_range));

@@ -22,7 +22,7 @@
 #include <cstdlib>
 
 using namespace std;
-using namespace Stig::Indy::Util;
+using namespace Orly::Indy::Util;
 
 TLocklessPool::TLocklessPool(size_t block_size, const char *name, size_t block_count)
     : BlockSize(block_size),

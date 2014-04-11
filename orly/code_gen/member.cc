@@ -20,7 +20,7 @@
 
 #include <orly/type/mutable.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 void TMutableRewrap::WriteExpr(TCppPrinter &out) const {
   assert(this);

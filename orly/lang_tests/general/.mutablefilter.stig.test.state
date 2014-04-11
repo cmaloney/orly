@@ -14,7 +14,7 @@ aS'22:16-22:18 syntax error, unexpected OpenAddr, expecting OpenParen'
 p8
 aS'28:22-28:24 syntax error, unexpected OpenAddr, expecting OpenParen'
 p9
-aS'compile failure: [orly/compiler.cc, 195], Stig::Compiler::TCompileFailure, Compiling Stig language'
+aS'compile failure: [orly/compiler.cc, 195], Orly::Compiler::TCompileFailure, Compiling Orly language'
 p10
 aatp11
 .

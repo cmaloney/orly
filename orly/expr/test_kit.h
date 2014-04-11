@@ -37,9 +37,9 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Expr;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Expr;
+using namespace Orly::Symbol;
 
 static Type::TTypeCzar type_czar;
 

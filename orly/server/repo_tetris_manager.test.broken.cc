@@ -27,13 +27,13 @@ using namespace std;
 using namespace chrono;
 using namespace placeholders;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Server;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Server;
 
-const Stig::Indy::TMasterContext::TProtocol Stig::Indy::TMasterContext::TProtocol::Protocol;
-const Stig::Indy::TSlaveContext::TProtocol Stig::Indy::TSlaveContext::TProtocol::Protocol;
+const Orly::Indy::TMasterContext::TProtocol Orly::Indy::TMasterContext::TProtocol::Protocol;
+const Orly::Indy::TSlaveContext::TProtocol Orly::Indy::TSlaveContext::TProtocol::Protocol;
 
 static Type::TTypeCzar TypeCzar;
 
@@ -45,20 +45,20 @@ static const size_t LayerCleaningInterval = 100UL;
 static const size_t ReplicationDelay = 100UL;
 static const size_t DefaultRepoCacheSize = 1000UL;
 
-Stig::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::Pool(sizeof(Disk::TDurableManager::TMapping), "Durable Mapping", 100);
-Stig::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::TEntry::Pool(sizeof(Disk::TDurableManager::TMapping::TEntry), "Durable Mapping Entry", 1000);
-Stig::Indy::Util::TPool Disk::TDurableManager::TDurableLayer::Pool(std::max(sizeof(Disk::TDurableManager::TMemSlushLayer), sizeof(Disk::TDurableManager::TDiskOrderedLayer)), "Durable Layer", 1000);
-Stig::Indy::Util::TPool Disk::TDurableManager::TMemSlushLayer::TDurableEntry::Pool(sizeof(Disk::TDurableManager::TMemSlushLayer::TDurableEntry), "Durable Entry", 1000);
+Orly::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::Pool(sizeof(Disk::TDurableManager::TMapping), "Durable Mapping", 100);
+Orly::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::TEntry::Pool(sizeof(Disk::TDurableManager::TMapping::TEntry), "Durable Mapping Entry", 1000);
+Orly::Indy::Util::TPool Disk::TDurableManager::TDurableLayer::Pool(std::max(sizeof(Disk::TDurableManager::TMemSlushLayer), sizeof(Disk::TDurableManager::TDiskOrderedLayer)), "Durable Layer", 1000);
+Orly::Indy::Util::TPool Disk::TDurableManager::TMemSlushLayer::TDurableEntry::Pool(sizeof(Disk::TDurableManager::TMemSlushLayer::TDurableEntry), "Durable Entry", 1000);
 
-Stig::Indy::Util::TPool TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping", 10000);
-Stig::Indy::Util::TPool TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry", 10000);
-Stig::Indy::Util::TPool TRepo::TDataLayer::Pool(max(sizeof(TMemoryLayer), sizeof(TDiskLayer)), "Data Layer", 10000);
+Orly::Indy::Util::TPool TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping", 10000);
+Orly::Indy::Util::TPool TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry", 10000);
+Orly::Indy::Util::TPool TRepo::TDataLayer::Pool(max(sizeof(TMemoryLayer), sizeof(TDiskLayer)), "Data Layer", 10000);
 
-Stig::Indy::Util::TPool L1::TTransaction::TMutation::Pool(max(max(sizeof(L1::TTransaction::TPusher), sizeof(L1::TTransaction::TPopper)), sizeof(L1::TTransaction::TStatusChanger)), "Transaction::TMutation", 10000);
-Stig::Indy::Util::TPool L1::TTransaction::Pool(sizeof(L1::TTransaction), "Transaction", 10000);
+Orly::Indy::Util::TPool L1::TTransaction::TMutation::Pool(max(max(sizeof(L1::TTransaction::TPusher), sizeof(L1::TTransaction::TPopper)), sizeof(L1::TTransaction::TStatusChanger)), "Transaction::TMutation", 10000);
+Orly::Indy::Util::TPool L1::TTransaction::Pool(sizeof(L1::TTransaction), "Transaction", 10000);
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 10000);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 10000);
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 10000);
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 10000);
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 20000);
 
 Base::TSigmaCalc TSession::TServer::TryReadTimeCalc;
@@ -111,7 +111,7 @@ FIXTURE(Typical) {
       v_hello (string("hello"),    &arena, state_alloc),
       k_id    (TUuid(TUuid::Best), &arena, state_alloc);
   TUuid repo_id(TUuid::Best);
-  auto repo = repo_manager.NewFastRepo(repo_id, Stig::Durable::TTtl(100));
+  auto repo = repo_manager.NewFastRepo(repo_id, Orly::Durable::TTtl(100));
   /* extra */ {
     auto transaction = repo_manager.NewTransaction();
     auto update = TUpdate::NewUpdate(

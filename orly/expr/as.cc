@@ -29,8 +29,8 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TAs::TPtr TAs::New(const TExpr::TPtr &expr, const Type::TType &type, const TPosRange &pos_range) {
   return TAs::TPtr(new TAs(expr, type, pos_range));

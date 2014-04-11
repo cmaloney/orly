@@ -27,7 +27,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
+using namespace Orly;
 
 FIXTURE(Nullary) {
   void *type_alloc = alloca(Sabot::Type::GetMaxTypeSize());

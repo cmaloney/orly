@@ -40,7 +40,7 @@
 #include <orly/indy/util/lockless_pool.h>
 #include <orly/indy/util/pool.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
     /* Forward Declarations. */
@@ -1183,4 +1183,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

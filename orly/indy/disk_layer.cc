@@ -20,7 +20,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy;
+using namespace Orly::Indy;
 
 TDiskLayer::TDiskLayer(L0::TManager *manager,
                        L0::TManager::TRepo *repo,

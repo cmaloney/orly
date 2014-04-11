@@ -20,7 +20,7 @@
 
 #include <orly/type/id.h>
 
-using namespace Stig;
+using namespace Orly;
 using namespace Var;
 
 size_t TId::GetHash() const {

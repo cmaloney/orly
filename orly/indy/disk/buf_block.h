@@ -30,7 +30,7 @@
 #include <base/no_copy_semantics.h>
 #include <base/spin_lock.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -219,4 +219,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

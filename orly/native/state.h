@@ -27,7 +27,7 @@
 #include <orly/sabot/state.h>
 #include <orly/uuid.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Native {
 
@@ -49,7 +49,7 @@ namespace Stig {
         return Factory<TVal>::New(val, state_alloc);
       }
 
-      template<typename> friend class Stig::Native::Record;
+      template<typename> friend class Orly::Native::Record;
 
       private:
 
@@ -440,10 +440,10 @@ namespace Stig {
         bool Val;
       };
 
-      class TStigUUID final
+      class TOrlyUUID final
           : public TScalar<Sabot::State::TUuid> {
         public:
-        TStigUUID(const Stig::TUUID &val)
+        TOrlyUUID(const Orly::TUUID &val)
             : TScalar<Sabot::State::TUuid>(Val), Val(val.GetRaw()) {}
         virtual Sabot::Type::TUuid *GetUuidType(void *type_alloc) const override {
           return Type::For<Base::TUuid>::GetType(type_alloc);
@@ -468,19 +468,19 @@ namespace Stig {
       ARRAY_OF_SCALARS(Str)
       #undef ARRAY_OF_SCALARS
 
-      /* State used for Stig::TDesc<TElem>. */
+      /* State used for Orly::TDesc<TElem>. */
       template <typename TElem>
       class TDesc final
           : public TArrayOfSingleStates<Sabot::State::TDesc> {
         public:
 
         /* Do-little. */
-        TDesc(const Stig::TDesc<TElem> &val)
+        TDesc(const Orly::TDesc<TElem> &val)
             : TArrayOfSingleStates<Sabot::State::TDesc>(1), Val(val) {}
 
         /* See Sabot::State::TDesc. */
         virtual Sabot::Type::TDesc *GetDescType(void *type_alloc) const override {
-          return Type::For<Stig::TDesc<TElem>>::GetDescType(type_alloc);
+          return Type::For<Orly::TDesc<TElem>>::GetDescType(type_alloc);
         }
 
         private:
@@ -491,7 +491,7 @@ namespace Stig {
         }
 
         /* Cached reference to the value we are sabot to. */
-        const Stig::TDesc<TElem> &Val;
+        const Orly::TDesc<TElem> &Val;
 
       };  // TDesc<TElem>
 
@@ -703,7 +703,7 @@ namespace Stig {
       };  // TTuple<TElems...>
 
       /* size of our states */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // State
 
@@ -774,11 +774,11 @@ namespace Stig {
     };
 
     template <>
-    class State::Factory<Stig::TUUID> final {
+    class State::Factory<Orly::TUUID> final {
       NO_CONSTRUCTION(Factory);
       public:
-      static TAny *New(const Stig::TUUID &val, void *state_alloc) {
-        return new (state_alloc) TStigUUID(val);
+      static TAny *New(const Orly::TUUID &val, void *state_alloc) {
+        return new (state_alloc) TOrlyUUID(val);
       }
     };
 
@@ -841,18 +841,18 @@ namespace Stig {
 
     };  // State::Factory<char[Size]>
 
-    /* Explicit specialization for Stig::TDesc<TElem>. */
+    /* Explicit specialization for Orly::TDesc<TElem>. */
     template <typename TElem>
-    class State::Factory<Stig::TDesc<TElem>> final {
+    class State::Factory<Orly::TDesc<TElem>> final {
       NO_CONSTRUCTION(Factory);
       public:
 
       /* Construct a new state sabot around the value. */
-      static TAny *New(const Stig::TDesc<TElem> &val, void *state_alloc) {
+      static TAny *New(const Orly::TDesc<TElem> &val, void *state_alloc) {
         return new (state_alloc) TDesc<TElem>(val);
       }
 
-    };  // State::Factory<Stig::TDesc<TElem>>
+    };  // State::Factory<Orly::TDesc<TElem>>
 
     /* Explicit specialization for Base::TOpt<TElem>. */
     template <typename TElem>
@@ -1019,4 +1019,4 @@ namespace Stig {
 
   }  // Native
 
-}  // Stig
+}  // Orly

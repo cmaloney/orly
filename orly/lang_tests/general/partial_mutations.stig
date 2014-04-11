@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/partial_mutations.orly>
 
-   This Stig script tests partial mutations (mutating parts of collections).
+   This Orly script tests partial mutations (mutating parts of collections).
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

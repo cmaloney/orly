@@ -18,8 +18,8 @@
 
 #include <orly/expr/thatable_unary.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TThatableUnary::TThatableUnary(const TExpr::TPtr &expr, const TPosRange &pos_range)
     : TUnary(expr, pos_range) {}

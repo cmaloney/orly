@@ -19,7 +19,7 @@
 #include <orly/notification/update_progress.h>
 
 using namespace Io;
-using namespace Stig::Notification;
+using namespace Orly::Notification;
 
 bool TUpdateProgress::Matches(const TUpdateProgress &that) const {
   assert(this);

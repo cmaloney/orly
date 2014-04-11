@@ -27,7 +27,7 @@
 #include <orly/type/bool.h>
 #include <orly/type/unwrap.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -104,4 +104,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

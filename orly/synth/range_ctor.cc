@@ -27,8 +27,8 @@
 #include <orly/synth/new_expr.h>
 #include <orly/type/impl.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TRangeCtor::TRangeCtor(const TExprFactory *expr_factory, const Package::Syntax::TRangeCtor *range_ctor)
     : RangeCtor(Base::AssertTrue(range_ctor)),

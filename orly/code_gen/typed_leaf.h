@@ -21,7 +21,7 @@
 #include <orly/code_gen/inline.h>
 #include <orly/shared_enum.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -53,20 +53,20 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly
 
 namespace std {
 
   template <>
-  struct hash<Stig::CodeGen::TTypedLeaf::TKind> {
+  struct hash<Orly::CodeGen::TTypedLeaf::TKind> {
 
     typedef size_t result_type;
-    typedef Stig::CodeGen::TTypedLeaf::TKind argument_type;
+    typedef Orly::CodeGen::TTypedLeaf::TKind argument_type;
 
     result_type operator()(const argument_type &that) {
       return static_cast<result_type>(that);
     }
 
-  };  // hash<Stig::CodeGen::TTypedLeaf::TKind>
+  };  // hash<Orly::CodeGen::TTypedLeaf::TKind>
 
 }  // std

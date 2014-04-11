@@ -26,7 +26,7 @@
 #include <utf8/piece.h>
 #include <utf8/regex.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -54,4 +54,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

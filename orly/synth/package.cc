@@ -25,8 +25,8 @@
 #include <orly/synth/new_expr.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TPackage::TPackage(const Jhm::TNamespace &ns, const Package::Syntax::TPackage *root, bool report_version)
     : Namespace(ns), Symbol(nullptr) {

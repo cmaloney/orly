@@ -28,7 +28,7 @@
 #include <orly/indy/memory_layer.h>
 #include <orly/sabot/all.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -79,25 +79,25 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Indy::Disk::TRemapObj. */
+  /* A standard hasher for Orly::Indy::Disk::TRemapObj. */
   template <>
-  struct hash<Stig::Indy::Disk::TRemapObj> {
-    size_t operator()(const Stig::Indy::Disk::TRemapObj &that) const {
+  struct hash<Orly::Indy::Disk::TRemapObj> {
+    size_t operator()(const Orly::Indy::Disk::TRemapObj &that) const {
       return that.GetHash();
     }
 
     typedef size_t result_type;
-    typedef Stig::Indy::Disk::TRemapObj argument_type;
+    typedef Orly::Indy::Disk::TRemapObj argument_type;
   };
 
 }  // std
 
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -263,4 +263,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

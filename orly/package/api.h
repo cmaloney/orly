@@ -1,6 +1,6 @@
 /* <orly/package/api.h>
 
-   API for use by Stig packages. The package loader will call specific functions in a package to get the information.
+   API for use by Orly packages. The package loader will call specific functions in a package to get the information.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -28,7 +28,7 @@
 #include <orly/uuid.h>
 #include <orly/package/api_version.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Package {
 
@@ -45,7 +45,7 @@ namespace Stig {
 
     typedef std::unordered_map<std::string, Type::TType> TParamMap;
     typedef std::unordered_map<std::string, Indy::TKey> TArgMap;
-    typedef std::unordered_map<Base::TUuid, std::pair<Stig::Type::TType, Stig::Type::TType>> TTypeByIndexIdMap;
+    typedef std::unordered_map<Base::TUuid, std::pair<Orly::Type::TType, Orly::Type::TType>> TTypeByIndexIdMap;
     typedef std::unordered_set<Base::TUuid *> TIndexIdSet;
 
     /* Note: We use a vector here rather than an unordered set because we want test execution output to be deterministic.
@@ -87,7 +87,7 @@ namespace Stig {
 
       /* A runner which takes __exactly__ the arguments needed (will assertion fail otherwise) and returns the result
          of the function. The function, when called, may throw. The exceptions should be handled gracefully by the
-         caller, and may indicate things such as Stig program assertion failures, multiple mutations of the same part of
+         caller, and may indicate things such as Orly program assertion failures, multiple mutations of the same part of
          a key, etc. */
       Atom::TCore (*Runner)(TContext &, const TArgMap &);
     }; // TFuncInfo
@@ -110,7 +110,7 @@ namespace Stig {
       TTestBlock SubCases;
     }; // TTestCase
 
-    /* A test section inside a Stig program. A test block contains both a with, and a list of tests to run. */
+    /* A test section inside a Orly program. A test block contains both a with, and a list of tests to run. */
     struct TTest {
       /* A function which, when run, will create all the database effects specified by the with clause. */
       const TFuncInfo *WithBlock;
@@ -119,7 +119,7 @@ namespace Stig {
       TTestBlock SubCases;
     }; // TTest
 
-    /* Information about a single Stig program inside of a package */
+    /* Information about a single Orly program inside of a package */
     struct TInfo {
       /* The name of the package */
       std::string Name;
@@ -139,4 +139,4 @@ namespace Stig {
 
   } // Package
 
-} // Stig
+} // Orly

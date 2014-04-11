@@ -26,8 +26,8 @@
 #include <orly/synth/func_def.h>
 #include <orly/synth/new_expr.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TAssertExpr::TAssertCase::TAssertCase(const Base::TOpt<std::string> &opt_name, TExpr *expr)
     : OptName(opt_name), Expr(Base::AssertTrue(expr)) {}

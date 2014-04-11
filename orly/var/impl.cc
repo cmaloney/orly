@@ -23,7 +23,7 @@
 #include <orly/pos_range.h>
 #include <orly/type/get_prec.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -849,10 +849,10 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly
 
 using namespace std;
-using namespace Stig::Var;
+using namespace Orly::Var;
 
 TVar::TVisitor::~TVisitor() {}
 

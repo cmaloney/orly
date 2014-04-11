@@ -38,7 +38,7 @@
 #include <orly/server/tetris_manager.h>
 #include <orly/time.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
     /* Forward Declarations. */
@@ -698,9 +698,9 @@ namespace Stig {
 
           /* TODO */
           friend class TManager;
-          friend class Stig::Indy::TManager;
-          friend class Stig::Indy::TMemoryLayer;
-          friend class Stig::Indy::TDiskLayer;
+          friend class Orly::Indy::TManager;
+          friend class Orly::Indy::TMemoryLayer;
+          friend class Orly::Indy::TDiskLayer;
           friend class Server::TIndyReporter;
           friend class Server::TServer;
 
@@ -974,7 +974,7 @@ namespace Stig {
         std::mutex MergeThreadCPUMutex;
 
         /* TODO */
-        friend class Stig::Server::TServer;
+        friend class Orly::Server::TServer;
 
       };  // TManager
 
@@ -1245,7 +1245,7 @@ namespace Stig {
           assert(!openable_obj);
           openable_obj = repo;
           DurableCond.notify_all();
-          return TPtr<TManager::TRepo>(repo, Stig::Indy::L0::New);
+          return TPtr<TManager::TRepo>(repo, Orly::Indy::L0::New);
         } catch (...) {
           /* We already had the object on disk or the object's constructor failed.
              Either way, we need to dispose of the slot we made before continuing to handle the error. */
@@ -1265,7 +1265,7 @@ namespace Stig {
           TObj *&openable_obj = ret.first->second;
           if (openable_obj) {
             /* We found an object with the given id. */
-            TPtr<TSomeObj> ptr(openable_obj, Stig::Indy::L0::Old);
+            TPtr<TSomeObj> ptr(openable_obj, Orly::Indy::L0::Old);
             const auto &deadline = openable_obj->GetDeadline();
             if (deadline) {
               /* The object is being re-opened from a closed state, so remove it from the set of closed objects. */
@@ -1290,7 +1290,7 @@ namespace Stig {
           Io::TBinaryInputOnlyStream strm(std::make_shared<Io::TPlayer>(std::make_shared<Io::TRecorder>(blob)));
           TSomeObj *some_obj = new TSomeObj(this, id, strm);
           openable_obj = some_obj;
-          return TPtr<TSomeObj>(some_obj, Stig::Indy::L0::New);
+          return TPtr<TSomeObj>(some_obj, Orly::Indy::L0::New);
           #endif
           throw std::logic_error("TODO: implement L0::TManager Load from disk");
         } catch (...) {
@@ -1318,7 +1318,7 @@ namespace Stig {
           TObj *&openable_obj = ret.first->second;
           if (openable_obj) {
             /* We found an object with the given id. */
-            TPtr<TRepo> ptr(openable_obj, Stig::Indy::L0::Old);
+            TPtr<TRepo> ptr(openable_obj, Orly::Indy::L0::Old);
             const auto &deadline = openable_obj->GetDeadline();
             if (deadline) {
               /* The object is being re-opened from a closed state, so remove it from the set of closed objects. */
@@ -1342,7 +1342,7 @@ namespace Stig {
           assert(!openable_obj);
           openable_obj = repo;
           DurableCond.notify_all();
-          return TPtr<TManager::TRepo>(repo, Stig::Indy::L0::New);
+          return TPtr<TManager::TRepo>(repo, Orly::Indy::L0::New);
         } catch (...) {
           /* We could not find the object on disk or the object's constructor failed.
              Either way, we need to dispose of the slot we made before continuing to handle the error. */
@@ -1361,4 +1361,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

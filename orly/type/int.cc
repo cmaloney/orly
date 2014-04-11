@@ -18,7 +18,7 @@
 
 #include <orly/type/int.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_SINGLETON_TYPE(TInt);
 

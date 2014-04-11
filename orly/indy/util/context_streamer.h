@@ -25,7 +25,7 @@
 #include <orly/indy/update_walker.h>
 #include <io/binary_output_stream.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -275,13 +275,13 @@ namespace Stig {
 
       };  // TContextInputStreamer
 
-      /* Binary streamers for Stig::Indy::Util::TContextInputStreamer */
+      /* Binary streamers for Orly::Indy::Util::TContextInputStreamer */
       inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TContextInputStreamer &context) { context.Write(strm); return strm; }
       inline Io::TBinaryOutputStream &&operator<<(Io::TBinaryOutputStream &&strm, const TContextInputStreamer &context) { context.Write(strm); return std::move(strm); }
       inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TContextInputStreamer &context) { context.Read(strm); return strm; }
       inline Io::TBinaryInputStream &&operator>>(Io::TBinaryInputStream &&strm, TContextInputStreamer &context) { context.Read(strm); return std::move(strm); }
 
-      /* Binary streamers for Stig::Indy::Util::TContextOutputStreamer */
+      /* Binary streamers for Orly::Indy::Util::TContextOutputStreamer */
       inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TContextOutputStreamer &context) { context.Write(strm); return strm; }
       inline Io::TBinaryOutputStream &&operator<<(Io::TBinaryOutputStream &&strm, const TContextOutputStreamer &context) { context.Write(strm); return std::move(strm); }
 
@@ -289,4 +289,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

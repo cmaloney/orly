@@ -18,8 +18,8 @@
 
 #include <orly/expr/interior.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TInterior::TInterior(const TPosRange &pos_range)
     : TExpr(pos_range) {}

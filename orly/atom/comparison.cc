@@ -18,7 +18,7 @@
 
 #include <orly/atom/comparison.h>
 
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 TNotOrdered::TNotOrdered()
     : runtime_error("not ordered") {}

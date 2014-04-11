@@ -25,8 +25,8 @@
 using namespace std;
 using namespace Base;
 using namespace Io;
-using namespace Stig;
-using namespace Stig::Atom;
+using namespace Orly;
+using namespace Orly::Atom;
 
 TMethodRequest::TMethodRequest(const TId &pov_id, const TPackage &package, const TClosure &closure)
     : PovId(pov_id), TimeToLive(0), Package(package), Closure(closure) {

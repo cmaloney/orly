@@ -29,7 +29,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
+using namespace Orly;
 
 template <typename TVal>
 static string ToString() {

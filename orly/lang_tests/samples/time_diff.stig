@@ -1,6 +1,6 @@
 /* <orly/lang_tests/samples/time_diff.orly>
 
-   An implementation of time_diff portion of Stig script.
+   An implementation of time_diff portion of Orly script.
 
    (this is going to go away soon and be absorbed into a general time-stuff sample)
 

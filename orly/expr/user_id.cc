@@ -23,8 +23,8 @@
 #include <orly/type/id.h>
 #include <orly/type/opt.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TUserId::TPtr TUserId::New(const TPosRange &pos_range) {
   return TUserId::TPtr(new TUserId(pos_range));

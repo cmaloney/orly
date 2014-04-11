@@ -21,7 +21,7 @@
 #include <orly/indy/disk/file_service.h>
 #include <orly/indy/disk/read_file.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -315,7 +315,7 @@ namespace Stig {
 
             /* TODO */
             typedef TStream<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage, 0UL> TInStream;
-            typedef Stig::Indy::Disk::TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TMyReadFile;
+            typedef Orly::Indy::Disk::TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TMyReadFile;
 
             /* TODO */
             TDataFileReader(Disk::Util::TPageCache *page_cache,
@@ -387,4 +387,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

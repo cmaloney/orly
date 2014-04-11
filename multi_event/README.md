@@ -2,7 +2,7 @@
 
 Classes for handling multi_events ("wait for N events…").
 
-This was used in the Spa version of the Stig engine.
+This was used in the Spa version of the Orly engine.
 
 -----
 

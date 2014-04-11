@@ -18,7 +18,7 @@
 
 #include <orly/code_gen/binary.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TBinary::TBinary(const L0::TPackage *package, const Type::TType &ret_type, TOp op, const TInline::TPtr &lhs, const TInline::TPtr &rhs)
       : TInline(package, ret_type), Op(op), Lhs(lhs), Rhs(rhs) {

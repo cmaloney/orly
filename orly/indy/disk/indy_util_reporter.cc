@@ -22,7 +22,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy::Disk;
+using namespace Orly::Indy::Disk;
 
 void TIndyUtilReporter::Push(uint8_t source, TUtilizationReporter::TKind kind, size_t num_bytes, DiskPriority /*priority*/) {
   assert(this);

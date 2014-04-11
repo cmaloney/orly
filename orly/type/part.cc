@@ -4,10 +4,10 @@
 
 #include <orly/type/part.h>
 
-using namespace Stig;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Type;
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -17,7 +17,7 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly
 
 Base::TSafeGlobal<Base::TInterner<TAddrMember, size_t>> TAddrMember::Interner(
     []() -> Base::TInterner<TAddrMember, size_t> * {

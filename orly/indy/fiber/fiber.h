@@ -42,7 +42,7 @@
 #include <base/zero.h>
 #include <inv_con/unordered_list.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -1061,4 +1061,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

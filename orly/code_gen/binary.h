@@ -21,7 +21,7 @@
 #include <orly/code_gen/inline.h>
 #include <orly/expr/binary.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -65,21 +65,21 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly
 
 namespace std {
 
   template <>
-  struct hash<Stig::CodeGen::TBinary::TOp> {
+  struct hash<Orly::CodeGen::TBinary::TOp> {
 
     typedef size_t result_type;
-    typedef Stig::CodeGen::TBinary::TOp argument_type;
+    typedef Orly::CodeGen::TBinary::TOp argument_type;
 
     result_type operator()(const argument_type &that) {
       assert(&that);
       return static_cast<result_type>(that);
     }
 
-  };  // hash<Stig::CodeGen::TBinary::TOp>
+  };  // hash<Orly::CodeGen::TBinary::TOp>
 
 }  // std

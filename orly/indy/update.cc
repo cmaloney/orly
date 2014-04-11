@@ -20,8 +20,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
 
 TUpdate::TPersistenceNotification::TPersistenceNotification(const std::function<void (TResult)> &cb)
     : Cb(cb) {}

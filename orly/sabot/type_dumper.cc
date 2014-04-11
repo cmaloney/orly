@@ -19,7 +19,7 @@
 #include <orly/sabot/type_dumper.h>
 
 using namespace std;
-using namespace Stig::Sabot;
+using namespace Orly::Sabot;
 
 void TTypeDumper::operator()(const Type::TInt8 &) const {
   assert(this);

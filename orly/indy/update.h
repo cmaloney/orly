@@ -28,7 +28,7 @@
 #include <orly/sabot/all.h>
 #include <orly/sabot/assert_tuple.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
 
@@ -189,8 +189,8 @@ namespace Stig {
         friend class TMemoryLayer;
         friend class TManager;
         friend class TUpdate;
-        friend class Stig::Server::TServer;
-        friend class Stig::Server::TIndyReporter;
+        friend class Orly::Server::TServer;
+        friend class Orly::Server::TIndyReporter;
 
       };  // TEntry
 
@@ -303,8 +303,8 @@ namespace Stig {
       friend class TMemoryLayer;
       friend class TManager;
       friend class L1::TTransaction;
-      friend class Stig::Server::TServer;
-      friend class Stig::Server::TIndyReporter;
+      friend class Orly::Server::TServer;
+      friend class Orly::Server::TIndyReporter;
 
     };  // TUpdate
 
@@ -443,4 +443,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

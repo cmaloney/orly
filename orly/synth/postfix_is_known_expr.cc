@@ -26,8 +26,8 @@
 #include <orly/synth/new_expr.h>
 #include <orly/synth/new_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TPostfixIsKnownExpr::TPostfixIsKnownExpr(const TExprFactory *expr_factory, const Package::Syntax::TPostfixIsKnownExpr *postfix_is_known_expr)
     : PostfixIsKnownExpr(Base::AssertTrue(postfix_is_known_expr)), Lhs(nullptr), Rhs(nullptr) {

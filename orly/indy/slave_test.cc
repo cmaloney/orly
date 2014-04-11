@@ -30,12 +30,12 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Util;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Util;
 
-const Stig::Indy::TMasterContext::TProtocol Stig::Indy::TMasterContext::TProtocol::Protocol;
-const Stig::Indy::TSlaveContext::TProtocol Stig::Indy::TSlaveContext::TProtocol::Protocol;
+const Orly::Indy::TMasterContext::TProtocol Orly::Indy::TMasterContext::TProtocol::Protocol;
+const Orly::Indy::TSlaveContext::TProtocol Orly::Indy::TSlaveContext::TProtocol::Protocol;
 static const char *SlavePath = "/dev/sdc";
 static const char *SlaveDeviceName = "sdc";
 static const size_t BlockSize = 4096UL * 16;

@@ -23,7 +23,7 @@
 #include <orly/shared_enum.h>
 #include <orly/symbol/stmt/binary.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -64,4 +64,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

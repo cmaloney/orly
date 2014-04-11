@@ -25,7 +25,7 @@
 #include <base/safe_global.h>
 #include <orly/symbol/any_function.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -82,4 +82,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

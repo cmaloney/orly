@@ -24,11 +24,11 @@
 #include <tools/nycr/escape.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 //TODO: This doesn't always output legal JSON.
-void Stig::Var::Jsonify(ostream &strm, const TVar &var) {
+void Orly::Var::Jsonify(ostream &strm, const TVar &var) {
   class TJsonifyVisitor : public TVar::TVisitor {
     NO_COPY_SEMANTICS(TJsonifyVisitor);
     public:

@@ -19,10 +19,10 @@
 #include <orly/sabot/get_hash.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Sabot;
+using namespace Orly;
+using namespace Orly::Sabot;
 
-size_t Stig::Sabot::GetHash(const State::TAny &state) {
+size_t Orly::Sabot::GetHash(const State::TAny &state) {
   size_t ret = 0;
   state.Accept(THashVisitor(ret));
   return ret;

@@ -24,7 +24,7 @@
 #include <orly/type/managed_type.h>
 #include <orly/type/has_optional.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -242,4 +242,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

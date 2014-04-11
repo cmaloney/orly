@@ -26,8 +26,8 @@
 #include <orly/synth/new_type.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TFuncDef::TFuncDef(TScope *scope, const Package::Syntax::TFuncDef *func_def)
     : TDef(scope, Base::AssertTrue(func_def)->GetName()),

@@ -32,7 +32,7 @@ IgnoredExts = []
 def main():
   def ParseArgs():
     global Root, IgnoredRelPaths, IgnoredExts
-    parser = argparse.ArgumentParser(description='Update Stig source files to include Apache license.')
+    parser = argparse.ArgumentParser(description='Update Orly source files to include Apache license.')
     parser.add_argument('root', help='The root of the tree to scan for source files.')
     parser.add_argument('--ignore_rel_path', help='A relative path to ignore while scanning for source files.', action='append')
     parser.add_argument('--ignore_ext', help='A file extension to ignore while scanning for source files.', action='append')

@@ -25,8 +25,8 @@
 
 using namespace std;
 using namespace Io;
-using namespace Stig;
-using namespace Stig::Atom;
+using namespace Orly;
+using namespace Orly::Atom;
 
 Sabot::Type::TAny *TClosure::TType::TPin::NewElem(size_t elem_idx, string &name, void *type_alloc) const {
   assert(this);

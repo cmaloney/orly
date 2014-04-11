@@ -27,8 +27,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly;
+using namespace Orly::Spa::FluxCapacitor;
 
 typedef unordered_map<Var::TVar, Var::TVar> TKvMap;
 
@@ -36,7 +36,7 @@ const TKvMap EmptyKvMap;
 
 const Var::TVar DefaultVar;
 
-namespace Stig { namespace Spa { namespace FluxCapacitor {
+namespace Orly { namespace Spa { namespace FluxCapacitor {
 
   class TContext {
     NO_COPY_SEMANTICS(TContext);

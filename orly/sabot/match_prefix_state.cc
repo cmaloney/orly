@@ -19,8 +19,8 @@
 #include <orly/sabot/match_prefix_state.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Sabot;
+using namespace Orly;
+using namespace Orly::Sabot;
 
 /* TODO */
 class TMatchPrefixStateVisitor final
@@ -821,7 +821,7 @@ class TMatchPrefixStateVisitor final
 
 };  // TMatchPrefixStateVisitor
 
-TMatchResult Stig::Sabot::MatchPrefixState(const State::TAny &lhs_any, const State::TAny &rhs_any) {
+TMatchResult Orly::Sabot::MatchPrefixState(const State::TAny &lhs_any, const State::TAny &rhs_any) {
   void *lhs_type_alloc = alloca(Sabot::Type::GetMaxTypeSize() * 2);
   void *rhs_type_alloc = reinterpret_cast<uint8_t *>(lhs_type_alloc) + Sabot::Type::GetMaxTypeSize();
   TMatchResult comp = MatchPrefixType(*Sabot::Type::TAny::TWrapper(lhs_any.GetType(lhs_type_alloc)),

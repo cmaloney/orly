@@ -22,9 +22,9 @@
 
 #include <base/no_default_case.h>
 
-using namespace Stig;
+using namespace Orly;
 
-std::ostream &Stig::Write(std::ostream &strm, TAddrDir dir) {
+std::ostream &Orly::Write(std::ostream &strm, TAddrDir dir) {
   assert(&strm);
   switch (dir) {
     case TAddrDir::Asc: {
@@ -41,9 +41,9 @@ std::ostream &Stig::Write(std::ostream &strm, TAddrDir dir) {
 }
 
 
-std::ostream &Stig::WriteCppType(std::ostream &strm, TAddrDir dir) {
+std::ostream &Orly::WriteCppType(std::ostream &strm, TAddrDir dir) {
   assert(&strm);
-  strm << "Stig::TAddrDir::";
+  strm << "Orly::TAddrDir::";
   switch (dir) {
     case TAddrDir::Asc: {
       strm << "Asc";
@@ -58,6 +58,6 @@ std::ostream &Stig::WriteCppType(std::ostream &strm, TAddrDir dir) {
   return strm;
 }
 
-std::ostream &Stig::operator<<(std::ostream &strm, TAddrDir dir) {
+std::ostream &Orly::operator<<(std::ostream &strm, TAddrDir dir) {
   return Write(strm, dir);
 }

@@ -24,9 +24,9 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
 
 FIXTURE(CoreFromKey) {
   TSuprena arena;

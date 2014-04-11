@@ -24,8 +24,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <orly/symbol/stmt/stmt_arg.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TTestKvEntry::TTestKvEntry(
     const TExprFactory *expr_factory,

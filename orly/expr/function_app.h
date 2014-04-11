@@ -26,7 +26,7 @@
 #include <orly/symbol/function.h>
 #include <orly/symbol/root.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -93,4 +93,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

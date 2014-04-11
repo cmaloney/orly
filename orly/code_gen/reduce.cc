@@ -20,7 +20,7 @@
 
 #include <orly/code_gen/implicit_func.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 
 TReduce::TPtr TReduce::New(const L0::TPackage *package,

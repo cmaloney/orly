@@ -23,7 +23,7 @@
 
 #include <base/no_copy_semantics.h>
 
-namespace Stig {
+namespace Orly {
   namespace Rt {
     class TLazyRandomList {
       NO_COPY_SEMANTICS(TLazyRandomList);
@@ -59,4 +59,4 @@ namespace Stig {
       mutable std::uniform_int_distribution<int64_t> UniformIntDistribution;
     };
   }
-} // Stig
+} // Orly

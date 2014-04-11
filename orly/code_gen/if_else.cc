@@ -18,8 +18,8 @@
 
 #include <orly/code_gen/if_else.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TIfElse::TPtr TIfElse::New(
     const L0::TPackage *package,

@@ -28,7 +28,7 @@
 #include <orly/desc.h>
 #include <orly/sabot/defs.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Native {
 
@@ -69,4 +69,4 @@ namespace Stig {
 
   }  // Native
 
-}  // Stig
+}  // Orly

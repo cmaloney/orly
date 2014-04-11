@@ -23,7 +23,7 @@
 #include <orly/client/program/program.program.cst.h>
 #include <orly/sabot/state.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Client {
 
@@ -48,4 +48,4 @@ namespace Stig {
 
   }  // Client
 
-}  // Stig
+}  // Orly

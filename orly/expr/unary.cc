@@ -20,8 +20,8 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TUnary::TUnary(const TPosRange &pos_range)
     : TInterior(pos_range), Expr(nullptr) {}

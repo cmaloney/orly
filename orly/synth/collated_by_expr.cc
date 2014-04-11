@@ -24,8 +24,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TCollatedByExpr::TCollatedByExpr(const TExprFactory *expr_factory, const Package::Syntax::TCollatedByExpr *collated_by_expr)
     : CollatedByExpr(Base::AssertTrue(collated_by_expr)),

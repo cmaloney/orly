@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/lhs_rhs_types.orly>
 
-   This Stig script tests the types of the 'lhs' and 'rhs' keywords.
+   This Orly script tests the types of the 'lhs' and 'rhs' keywords.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

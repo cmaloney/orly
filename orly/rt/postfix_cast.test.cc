@@ -29,8 +29,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Rt;
+using namespace Orly;
+using namespace Orly::Rt;
 
 /* typedefs for containers */
 typedef vector<int64_t> TIntList;

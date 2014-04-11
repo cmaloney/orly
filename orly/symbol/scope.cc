@@ -23,8 +23,8 @@
 #include <orly/symbol/function.h>
 #include <orly/symbol/test/test.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TScope::TScope() {}
 

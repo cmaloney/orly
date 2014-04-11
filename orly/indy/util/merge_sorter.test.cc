@@ -26,10 +26,10 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Util;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Util;
 
 FIXTURE(Typical) {
   /*
@@ -54,10 +54,10 @@ FIXTURE(Typical) {
   const Sabot::TStdTimePoint time_point_2(Sabot::TStdDuration(2));
   const Sabot::TStdTimePoint time_point_3(Sabot::TStdDuration(3));
   const Sabot::TStdTimePoint time_point_4(Sabot::TStdDuration(4));
-  TKey key_1(make_tuple(6224472L, Stig::TDesc<Sabot::TStdTimePoint>(time_point_1)), &suprena, state_alloc);
-  TKey key_2(make_tuple(2478538L, Stig::TDesc<Sabot::TStdTimePoint>(time_point_2)), &suprena, state_alloc);
-  TKey key_3(make_tuple(132192934L, Stig::TDesc<Sabot::TStdTimePoint>(time_point_3)), &suprena, state_alloc);
-  TKey key_4(make_tuple(14933990L, Stig::TDesc<Sabot::TStdTimePoint>(time_point_4)), &suprena, state_alloc);
+  TKey key_1(make_tuple(6224472L, Orly::TDesc<Sabot::TStdTimePoint>(time_point_1)), &suprena, state_alloc);
+  TKey key_2(make_tuple(2478538L, Orly::TDesc<Sabot::TStdTimePoint>(time_point_2)), &suprena, state_alloc);
+  TKey key_3(make_tuple(132192934L, Orly::TDesc<Sabot::TStdTimePoint>(time_point_3)), &suprena, state_alloc);
+  TKey key_4(make_tuple(14933990L, Orly::TDesc<Sabot::TStdTimePoint>(time_point_4)), &suprena, state_alloc);
   TKeyCopySorter<size_t>::TMergeElement *key_sorter_alloc = reinterpret_cast<TKeyCopySorter<size_t>::TMergeElement *>(malloc(sizeof(TKeyCopySorter<size_t>::TMergeElement) * 2));
   new (key_sorter_alloc + 0) TKeyCopySorter<size_t>::TMergeElement(&sorter, key_1, 0UL, 0UL);
   new (key_sorter_alloc + 1) TKeyCopySorter<size_t>::TMergeElement(&sorter, key_2, 1UL, 1UL);

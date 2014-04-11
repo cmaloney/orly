@@ -26,7 +26,7 @@
 
 #include <test/kit.h>
 
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly::Spa::FluxCapacitor;
 
 static TSync VecSync;
 static std::vector<int> Vec;

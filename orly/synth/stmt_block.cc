@@ -29,8 +29,8 @@
 #include <orly/synth/new_stmt.h>
 #include <orly/synth/stmt.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TStmtBlock::TStmtBlock(const TExprFactory *expr_factory, const Package::Syntax::TStmtBlock *stmt_block)
     : StmtBlock(Base::AssertTrue(stmt_block)) {

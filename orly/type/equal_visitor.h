@@ -20,7 +20,7 @@
 
 #include <orly/type/assoc_infix_visitor.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -118,4 +118,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

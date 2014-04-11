@@ -28,7 +28,7 @@
 #include <orly/rt/regex_splitter.h>
 #include <orly/rt/runtime_error.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -1042,4 +1042,4 @@ namespace Stig {
 
   } // Rt
 
-} // Stig
+} // Orly

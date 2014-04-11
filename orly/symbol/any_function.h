@@ -30,7 +30,7 @@
 #include <orly/type/func.h>
 #include <orly/type/obj.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -90,4 +90,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

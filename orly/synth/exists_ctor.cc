@@ -36,8 +36,8 @@
 #include <orly/type/set.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TExistsCtor::TExistsCtor(const TExprFactory *expr_factory, const Package::Syntax::TPrefixExists *exists_ctor)
     : ExistsCtor(Base::AssertTrue(exists_ctor)) {

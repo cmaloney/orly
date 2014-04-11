@@ -24,7 +24,7 @@
 #include <orly/sabot/type.h>
 #include <orly/sabot/compare_states.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -82,4 +82,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

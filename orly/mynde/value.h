@@ -26,7 +26,7 @@
 
 /* Contains the value (a Native::TBlob), and the flags (a 32 bit uint) */
 
-namespace Stig {
+namespace Orly {
    namespace Mynde {
 
       using TKey = std::tuple<Native::TBlob>;
@@ -37,4 +37,4 @@ namespace Stig {
       };
 
    } // Mynde
-} // Stig
+} // Orly

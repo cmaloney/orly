@@ -22,10 +22,10 @@
 #include <orly/type.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Type;
 
-void Stig::Type::Stigify(ostream &strm, const TType &type) {
+void Orly::Type::Orlyify(ostream &strm, const TType &type) {
   class TVisitor : public TType::TVisitor {
     NO_COPY_SEMANTICS(TVisitor);
     public:

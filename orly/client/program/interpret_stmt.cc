@@ -31,11 +31,11 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Client::Program;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Client::Program;
 
-bool Stig::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TClient> &client) {
+bool Orly::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TClient> &client) {
   class visitor_t final : public TStmt::TVisitor {
     public:
     visitor_t(bool &result, const shared_ptr<TClient> &client) : Result(result), Client(client) {}

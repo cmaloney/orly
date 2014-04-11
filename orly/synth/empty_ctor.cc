@@ -35,8 +35,8 @@
 #include <orly/type/set.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TEmptyCtor::TEmptyCtor(const Package::Syntax::TEmptyCtor *empty_ctor)
     : EmptyCtor(Base::AssertTrue(empty_ctor)),

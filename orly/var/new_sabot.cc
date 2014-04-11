@@ -23,7 +23,7 @@
 #include <orly/var/util.h>
 
 using namespace std;
-using namespace Stig;
+using namespace Orly;
 
 Var::TStateTranslationError::TStateTranslationError()
     : logic_error("could not translate from orly var to sabot state") {}

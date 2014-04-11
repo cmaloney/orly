@@ -23,7 +23,7 @@
 
 #include <orly/symbol/stmt/new_and_delete.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -59,4 +59,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

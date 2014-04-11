@@ -1,6 +1,6 @@
 ## c14
 
-This directory contains implementations of functionality which we'd like to be part of the standard library in C++14, aren't yet, but which are currently required for Stig (mostly typedefs).
+This directory contains implementations of functionality which we'd like to be part of the standard library in C++14, aren't yet, but which are currently required for Orly (mostly typedefs).
 
 -----
 

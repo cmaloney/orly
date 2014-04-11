@@ -20,8 +20,8 @@
 
 #include <orly/type.h>
 
-using namespace Stig;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Type;
 
 class TUnwrapHelperVisitor
     : public TType::TVisitor {
@@ -60,11 +60,11 @@ class TUnwrapHelperVisitor
 
 };  // TUnwrapHelperVisitor
 
-TType Stig::Type::Unwrap(const TType &type) {
+TType Orly::Type::Unwrap(const TType &type) {
   return UnwrapMutable(UnwrapSequence(type));
 }
 
-TType Stig::Type::UnwrapMutable(const TType &type) {
+TType Orly::Type::UnwrapMutable(const TType &type) {
   class TUnwrapMutableVisitor
       : public TUnwrapHelperVisitor {
     NO_COPY_SEMANTICS(TUnwrapMutableVisitor);
@@ -82,7 +82,7 @@ TType Stig::Type::UnwrapMutable(const TType &type) {
   return ret;
 }
 
-TType Stig::Type::UnwrapOptional(const TType &type) {
+TType Orly::Type::UnwrapOptional(const TType &type) {
   class TUnwrapOptionalVisitor
       : public TUnwrapHelperVisitor {
     NO_COPY_SEMANTICS(TUnwrapOptionalVisitor);
@@ -100,7 +100,7 @@ TType Stig::Type::UnwrapOptional(const TType &type) {
   return ret;
 }
 
-TType Stig::Type::UnwrapSequence(const TType &type) {
+TType Orly::Type::UnwrapSequence(const TType &type) {
   class TUnwrapSequenceVisitor
       : public TUnwrapHelperVisitor {
     NO_COPY_SEMANTICS(TUnwrapSequenceVisitor);

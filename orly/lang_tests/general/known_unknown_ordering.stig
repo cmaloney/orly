@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/known_unknown_ordering.orly>
 
-   This Stig script tests ordering comparison operations between optional and
+   This Orly script tests ordering comparison operations between optional and
    unknown types.
 
    Copyright 2010-2014 OrlyAtomics, Inc.

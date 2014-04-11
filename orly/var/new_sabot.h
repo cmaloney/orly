@@ -27,7 +27,7 @@
 #include <orly/type/new_sabot.h>
 #include <orly/var.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -158,7 +158,7 @@ namespace Stig {
           if (AddrDir == TAddrDir::Desc) {
             return new (buf) TFreeDesc(Type);
           }
-          return new (buf) Stig::Type::ST::TFree(Type);
+          return new (buf) Orly::Type::ST::TFree(Type);
         }
 
         private:
@@ -845,4 +845,4 @@ namespace Stig {
 
   }  // Native
 
-}  // Stig
+}  // Orly

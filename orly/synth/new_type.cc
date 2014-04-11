@@ -27,10 +27,10 @@
 #include <orly/synth/ref_type.h>
 #include <orly/synth/unary_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
-TType *Stig::Synth::NewType(const Package::Syntax::TType *root) {
+TType *Orly::Synth::NewType(const Package::Syntax::TType *root) {
   class TTypeVisitor
       : public Package::Syntax::TType::TVisitor {
     public:

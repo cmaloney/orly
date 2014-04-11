@@ -23,8 +23,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Type;
 
 template <size_t N>
 using TTypeArray = array<TType, N>;
@@ -37,7 +37,7 @@ class TCodeGenVisitor : public TType::TVisitor {
 
   private:
   virtual void operator()(const TAddr *that) const {
-    Strm << "Stig::Type::TAddr::Get(Stig::Type::TAddr::TElems{";
+    Strm << "Orly::Type::TAddr::Get(Orly::Type::TAddr::TElems{";
     Join(", ", that->GetElems(), [this] (const pair<TAddrDir, TType> &elem, ostream &strm) {
       strm << '{';
       WriteCppType(strm, elem.first) << ", ";
@@ -74,7 +74,7 @@ class TCodeGenVisitor : public TType::TVisitor {
   }
   virtual void operator()(const TObj *that) const {
   const TObj::TElems &elem_map = that->GetElems();
-    Strm << "Stig::Type::TObj::Get(std::map<std::string, Stig::Type::TType>{";
+    Strm << "Orly::Type::TObj::Get(std::map<std::string, Orly::Type::TType>{";
     Join(", ", elem_map, [this] (const TObj::TElems::value_type &it, ostream &strm) {
       strm << "{std::string(\"" << it.first << "\"), ";
       it.second.Accept(*this);
@@ -117,7 +117,7 @@ class TCodeGenVisitor : public TType::TVisitor {
 
   template <size_t N>
   void Write(const char *name, const TTypeArray<N> &elems) const {
-    Strm << "Stig::Type::" << name << "::Get(";
+    Strm << "Orly::Type::" << name << "::Get(";
     Join(", ", elems, [this](const TType &type, std::ostream &) {
       type.Accept(*this);
     }, Strm);
@@ -127,6 +127,6 @@ class TCodeGenVisitor : public TType::TVisitor {
   ostream &Strm;
 };
 
-void Stig::Type::GenCode(ostream &strm, const TType &type) {
+void Orly::Type::GenCode(ostream &strm, const TType &type) {
   type.Accept(TCodeGenVisitor(strm));
 }

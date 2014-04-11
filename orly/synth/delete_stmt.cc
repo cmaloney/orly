@@ -28,8 +28,8 @@
 #include <orly/synth/new_expr.h>
 #include <orly/synth/new_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TDeleteStmt::TDeleteStmt(
     const TExprFactory *expr_factory,

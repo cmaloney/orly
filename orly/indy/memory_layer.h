@@ -24,7 +24,7 @@
 #include <orly/indy/update.h>
 #include <orly/sabot/all.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
 
@@ -254,9 +254,9 @@ namespace Stig {
       /* TODO */
       size_t Size;
 
-      friend class Stig::Server::TServer;
-      friend class Stig::Indy::TRepo;
-      friend class Stig::Indy::TManager;
+      friend class Orly::Server::TServer;
+      friend class Orly::Indy::TRepo;
+      friend class Orly::Indy::TManager;
 
     };  // TMemoryLayer
 
@@ -305,5 +305,5 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 

@@ -21,8 +21,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/ref_expr.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TRefExpr::TRefExpr(const Package::Syntax::TRefExpr *ref_expr)
     : RefExpr(Base::AssertTrue(ref_expr)),

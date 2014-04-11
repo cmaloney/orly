@@ -23,7 +23,7 @@
 using namespace std;
 using namespace chrono;
 using namespace Io;
-using namespace Stig::Durable;
+using namespace Orly::Durable;
 
 void TManager::Clean() {
   assert(this);

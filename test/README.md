@@ -1,6 +1,6 @@
 ## test
 
-The Stig test unit framework.
+The Orly test unit framework.
 
 -----
 

@@ -21,8 +21,8 @@
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TLiteral::TPtr TLiteral::New(const Var::TVar &val, const TPosRange &pos_range) {
   return TLiteral::TPtr(new TLiteral(val, pos_range));

@@ -18,7 +18,7 @@
 
 
 #pragma once
-namespace Stig {
+namespace Orly {
   namespace CodeGen {
 
     template <typename TContainer, typename TFunc>
@@ -29,4 +29,4 @@ namespace Stig {
     }
 
   } // CodeGen
-} // Stig
+} // Orly

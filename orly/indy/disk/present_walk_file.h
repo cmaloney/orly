@@ -26,7 +26,7 @@
 #include <orly/indy/present_walker.h>
 #include <orly/sabot/all.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -77,23 +77,23 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Indy::Disk::TWalkerKey. */
+  /* A standard hasher for Orly::Indy::Disk::TWalkerKey. */
   template <>
-  struct hash<Stig::Indy::Disk::TWalkerKey> {
+  struct hash<Orly::Indy::Disk::TWalkerKey> {
     typedef size_t result_type;
-    typedef Stig::Indy::Disk::TWalkerKey argument_type;
-    size_t operator()(const Stig::Indy::Disk::TWalkerKey &that) const {
+    typedef Orly::Indy::Disk::TWalkerKey argument_type;
+    size_t operator()(const Orly::Indy::Disk::TWalkerKey &that) const {
       return that.GetHash();
     }
   };
 
 }  // std
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -124,14 +124,14 @@ namespace Stig {
 
           /* TODO */
           using TInStream = TStream<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage, 0UL>;
-          using TMyReadFile = Stig::Indy::Disk::TReadFile<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage>;
+          using TMyReadFile = Orly::Indy::Disk::TReadFile<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage>;
 
           TPresentWalkFile(Util::TEngine *engine,
                            const Base::TUuid &file_id,
                            size_t gen_id,
                            const Base::TUuid &index_id,
                            TLoaderObj *loader_obj)
-              : Stig::Indy::TPresentWalker(Match),
+              : Orly::Indy::TPresentWalker(Match),
                 IndexId(index_id),
                 MyReadFile(TLocalReadFileCache<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage>::Cache->Get(engine, file_id, gen_id)),
                 IndexFile(nullptr),
@@ -500,4 +500,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

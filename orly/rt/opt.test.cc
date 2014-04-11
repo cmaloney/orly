@@ -25,7 +25,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 /* Opt Bool */
 TOpt<bool> unknown_bool;

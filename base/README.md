@@ -1,6 +1,6 @@
 ## Base
 
-Contains implementations of all of the core C++ classes. This gets Stig out of POSIX Land and makes these standard things easier to use.
+Contains implementations of all of the core C++ classes. This gets Orly out of POSIX Land and makes these standard things easier to use.
 
 This directory also contains a number of miscellaneous utilities. For instance, cmd.[hc] is a command line parser. See the .h files for more information.
 

@@ -1,6 +1,6 @@
 /* <orly/client/program/program.nycr>
 
-   Grammar for Stig client shell.
+   Grammar for Orly client shell.
 
       new private pov (under <id>) ;
       new shared pov (under <id>) ;

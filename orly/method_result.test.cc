@@ -31,8 +31,8 @@ using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Io;
-using namespace Stig;
-using namespace Stig::Atom;
+using namespace Orly;
+using namespace Orly::Atom;
 
 template <typename TValue>
 static void RoundTrip(const TValue &value, const TOpt<TTracker> &actual_tracker = *TOpt<TTracker>::Unknown) {

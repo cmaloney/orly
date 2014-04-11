@@ -26,8 +26,8 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TExpr::TPtr TLengthOf::New(const TExpr::TPtr &container, const TPosRange &pos_range) {
   return TLengthOf::TPtr(new TLengthOf(container, pos_range));

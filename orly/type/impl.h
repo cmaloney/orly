@@ -26,7 +26,7 @@
 #include <base/no_copy_semantics.h>
 #include <orly/pos_range.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -640,28 +640,28 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
   /* TODO */
-  inline ostream &operator<<(ostream &stream, const Stig::Type::TType &that) {
+  inline ostream &operator<<(ostream &stream, const Orly::Type::TType &that) {
     that.Write(stream);
     return stream;
   }
 
-  /* A standard hasher for Stig::Type::TType. */
+  /* A standard hasher for Orly::Type::TType. */
   template <>
-  struct hash<Stig::Type::TType> {
+  struct hash<Orly::Type::TType> {
 
     typedef size_t result_type;
-    typedef Stig::Type::TType argument_type;
+    typedef Orly::Type::TType argument_type;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       return that.GetHash();
     }
 
-  };  // hash<Stig::Type::TType>
+  };  // hash<Orly::Type::TType>
 
 }  // std

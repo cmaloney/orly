@@ -27,8 +27,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Native;
+using namespace Orly;
+using namespace Orly::Native;
 
 static const int8_t Int8_A = -1;
 static const int8_t Int8_B = 1;

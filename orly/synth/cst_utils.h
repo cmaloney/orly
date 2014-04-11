@@ -25,7 +25,7 @@
 #include <orly/orly.checkpoint.cst.h>
 #include <orly/orly.package.cst.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -419,4 +419,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

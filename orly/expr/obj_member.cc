@@ -27,8 +27,8 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TObjMember::TPtr TObjMember::New(const TExpr::TPtr &expr, const std::string &name, const TPosRange &pos_range) {
   return TObjMember::TPtr(new TObjMember(expr, name, pos_range));

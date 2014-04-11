@@ -20,9 +20,9 @@
 
 #include <tools/nycr/pos_range.h>
 
-namespace Stig {
+namespace Orly {
 
   /* Convenience typedef for Tools::Nycr::TPosRange */
   typedef ::Tools::Nycr::TPosRange TPosRange;
 
-}  // Stig
+}  // Orly

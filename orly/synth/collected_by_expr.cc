@@ -24,8 +24,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TCollectedByExpr::TCollectedByExpr(const TExprFactory *expr_factory, const Package::Syntax::TCollectedByExpr *infix_collected_by)
     : CollectedByExpr(Base::AssertTrue(infix_collected_by)), Lhs(nullptr), Rhs(nullptr) {

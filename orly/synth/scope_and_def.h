@@ -41,7 +41,7 @@
 #include <orly/synth/cst_utils.h>
 #include <orly/synth/name.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -409,4 +409,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

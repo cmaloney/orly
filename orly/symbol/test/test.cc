@@ -21,9 +21,9 @@
 #include <base/assert_true.h>
 #include <orly/symbol/scope.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Test;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Test;
 
 TTest::TPtr TTest::New(
     const TScope::TPtr &scope,

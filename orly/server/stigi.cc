@@ -1,6 +1,6 @@
 /* <orly/server/orly.cc>
 
-   The 'main' of the Stig server.
+   The 'main' of the Orly server.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -30,7 +30,7 @@ using namespace std;
 using namespace chrono;
 using namespace placeholders;
 using namespace Base;
-using namespace Stig::Server;
+using namespace Orly::Server;
 
 /* Command-line arguments. */
 class TCmd final
@@ -62,7 +62,7 @@ class TCmd final
 
     /* Registers our fields. */
     TMeta()
-        : TServer::TCmd::TMeta("The Stig server.") {
+        : TServer::TCmd::TMeta("The Orly server.") {
       Param(
           &TCmd::MinWorkerCount, "min_worker_count", Optional, "min_worker_count\0",
           "The minimum number of worker threads to maintain in the thread pool."

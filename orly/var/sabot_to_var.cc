@@ -23,7 +23,7 @@
 #include <cassert>
 
 using namespace std;
-using namespace Stig;
+using namespace Orly;
 
 Var::TVarTranslationError::TVarTranslationError()
     : logic_error("could not translate from sabot state to orly var") {}

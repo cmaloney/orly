@@ -1,13 +1,13 @@
 /* <orly/protocol.h>
 
-   The client/server protocol used by Stig.
+   The client/server protocol used by Orly.
 
    The client and server communicate over a TCP/IP socket.  The client connects, then sends the handshake, requesting either a new
    session or to reconnect to an existing session.  The server replies (or, on error, hangs up), and the handshake is complete.  (The
-   classes in Stig::Handshake, below, describe this process in more detail.)
+   classes in Orly::Handshake, below, describe this process in more detail.)
 
    After the handshake, the protocol becomes full-duplex, meaning that the client and server can request services from each other at
-   any time.  Stig::ServerRpc and Stig::ClientRpc describe the individual entry points provided by the server and client, respectively.
+   any time.  Orly::ServerRpc and Orly::ClientRpc describe the individual entry points provided by the server and client, respectively.
    (See <rpc/rpc.h> for more information about the formats of RPC messages in general.)
 
    Copyright 2010-2014 OrlyAtomics, Inc.
@@ -37,12 +37,12 @@
 #include <base/uuid.h>
 #include <rpc/rpc.h>
 
-namespace Stig {
+namespace Orly {
 
-  /* The port number on which the Stig server listens by default. */
+  /* The port number on which the Orly server listens by default. */
   const in_port_t DefaultPortNumber = 19380;
 
-  /* The port number on which the Stig server listens for a slave connection by default. */
+  /* The port number on which the Orly server listens for a slave connection by default. */
   const in_port_t DefaultSlavePortNumber = 19381;
 
   namespace Handshake {
@@ -52,7 +52,7 @@ namespace Stig {
       public:
 
       /* Thrown by GetRequestKind() when the header is malformed. */
-      DEFINE_ERROR(TBadHeader, std::runtime_error, "Stig handshake started with a bad header");
+      DEFINE_ERROR(TBadHeader, std::runtime_error, "Orly handshake started with a bad header");
 
       /* A code for requesting a new or old session. */
       typedef char TRequestKind;
@@ -95,7 +95,7 @@ namespace Stig {
       /* See accessor. */
       TRequestKind RequestKind;
 
-    };  // Stig::Handshake::THeader
+    };  // Orly::Handshake::THeader
 
     /* Sanity check. */
     static_assert(sizeof(THeader) == 11, "handshake header is insane");
@@ -126,7 +126,7 @@ namespace Stig {
       /* See TNewSession and TOldSession. */
       TRequest Request;
 
-    };  // Stig::Handshake::THandshake<TRequest>
+    };  // Orly::Handshake::THandshake<TRequest>
 
     /* A request for a health check. */
     class PACKED THealthCheck {
@@ -168,13 +168,13 @@ namespace Stig {
         /* See TResult. */
         TResult Result;
 
-      };  // Stig::Handshake::THealthCheck::TReply
+      };  // Orly::Handshake::THealthCheck::TReply
 
       /* Do-nothing constructor, as we currently have no members.  This may change in the future, if we start supporting
          multiple kinds of healthchecks. */
       THealthCheck() {}
 
-    };  // Stig::Handshake::THealthCheck
+    };  // Orly::Handshake::THealthCheck
 
     /* Sanity check. */
     static_assert(sizeof(THandshake<THealthCheck>) == 12, "health-check handshake is insane");
@@ -204,13 +204,13 @@ namespace Stig {
         /* See accessor. */
         uuid_t SessionId;
 
-      };  // Stig::Handshake::TOldSession::TReply
+      };  // Orly::Handshake::TOldSession::TReply
 
       /* Do-nothing constructor, as we currently have no members.  This may change in the future, if we start supporting
          multiple kinds of sessions. */
       TNewSession() {}
 
-    };  // Stig::Handshake::TNewSession
+    };  // Orly::Handshake::TNewSession
 
     /* Sanity check. */
     static_assert(sizeof(THandshake<TNewSession>) == 12, "new session handshake is insane");
@@ -257,7 +257,7 @@ namespace Stig {
         /* See TResult. */
         TResult Result;
 
-      };  // Stig::Handshake::TOldSession::TReply
+      };  // Orly::Handshake::TOldSession::TReply
 
       /* Default-constructs a bad request.  This is meant to be used as a read buffer and overwritten with a valid request. */
       TOldSession();
@@ -273,12 +273,12 @@ namespace Stig {
       /* See accessor. */
       uuid_t SessionId;
 
-    };  // Stig::Handshake::TOldSession
+    };  // Orly::Handshake::TOldSession
 
     /* Sanity check. */
     static_assert(sizeof(THandshake<TOldSession>) == 27, "old session handshake is insane");
 
-  }  // Stig::Handshake
+  }  // Orly::Handshake
 
   namespace ServerRpc {
 
@@ -362,7 +362,7 @@ namespace Stig {
          Tail the global pov. */
       TailGlobalPov = 1018;
 
-  }  // Stig::ServerRpc
+  }  // Orly::ServerRpc
 
   namespace ClientRpc {
 
@@ -397,6 +397,6 @@ namespace Stig {
          if there is a slave, the server sends UpdateDurable() instead. */
       UpdateSemiDurable = 2005;
 
-  }  // Stig::ClientRpc
+  }  // Orly::ClientRpc
 
-}  // Stig
+}  // Orly

@@ -22,7 +22,7 @@
 #include <orly/indy/key.h>
 #include <orly/spa/flux_capacitor/kv.h>
 
-namespace Stig {
+namespace Orly {
 
   /* TODO */
   class TContextBase {
@@ -57,4 +57,4 @@ namespace Stig {
 
   };  // TContextBase
 
-}  // Stig
+}  // Orly

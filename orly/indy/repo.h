@@ -34,7 +34,7 @@
 #include <orly/indy/util/merge_sorter.h>
 #include <orly/indy/util/min_heap.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -294,7 +294,7 @@ namespace Stig {
           }
 
           /* TODO */
-          TRunnablePrep(Stig::Indy::TRepo::TPresentWalker::TRunnablePrep &&) {
+          TRunnablePrep(Orly::Indy::TRepo::TPresentWalker::TRunnablePrep &&) {
             throw std::logic_error("Moving TRunnablePrep is not allowed. This means you did not pre-allocate enough space to hold them.");
           }
 
@@ -458,7 +458,7 @@ namespace Stig {
 
     /* TODO */
     class TFastRepo
-        : public Stig::Indy::TRepo {
+        : public Orly::Indy::TRepo {
       NO_COPY_SEMANTICS(TFastRepo);
       public:
 
@@ -504,7 +504,7 @@ namespace Stig {
 
     /* TODO */
     class TSafeRepo
-        : public Stig::Indy::TRepo {
+        : public Orly::Indy::TRepo {
       NO_COPY_SEMANTICS(TSafeRepo);
       public:
 
@@ -580,16 +580,16 @@ namespace Stig {
                                          size_t num_keys) override;
 
       /* TODO */
-      virtual std::unique_ptr<Stig::Indy::TPresentWalker> NewPresentWalkerFile(size_t /*gen_id*/,
+      virtual std::unique_ptr<Orly::Indy::TPresentWalker> NewPresentWalkerFile(size_t /*gen_id*/,
                                                                                const TIndexKey &/*from*/,
                                                                                const TIndexKey &/*to*/) const override;
 
       /* TODO */
-      virtual std::unique_ptr<Stig::Indy::TPresentWalker> NewPresentWalkerFile(size_t /*gen_id*/,
+      virtual std::unique_ptr<Orly::Indy::TPresentWalker> NewPresentWalkerFile(size_t /*gen_id*/,
                                                                                const TIndexKey &/*key*/) const override;
 
       /* TODO */
-      virtual std::unique_ptr<Stig::Indy::TUpdateWalker> NewUpdateWalkerFile(size_t /*gen_id*/, TSequenceNumber /*from*/) const override;
+      virtual std::unique_ptr<Orly::Indy::TUpdateWalker> NewUpdateWalkerFile(size_t /*gen_id*/, TSequenceNumber /*from*/) const override;
 
       /* TODO */
       std::atomic<size_t> NextGenId;
@@ -750,4 +750,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

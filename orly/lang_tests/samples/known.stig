@@ -1,6 +1,6 @@
 /* <orly/lang_tests/samples/known.orly>
 
-   An implementation of 'known', 'unknown', 'is_known' in Stig script.
+   An implementation of 'known', 'unknown', 'is_known' in Orly script.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

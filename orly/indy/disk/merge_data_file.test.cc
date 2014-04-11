@@ -32,21 +32,21 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
-using namespace Stig::Indy::Fiber;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
+using namespace Orly::Indy::Fiber;
 
 static const size_t BlockSize = Disk::Util::PhysicalBlockSize;
 
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
-Stig::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 1048578UL);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 1048578UL);
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 1048578UL);
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 1048578UL);
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 2000UL);
 
 FIXTURE(BasicTailing) {
@@ -106,7 +106,7 @@ FIXTURE(BasicTailing) {
       TReader::TArena main_arena(&reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile idx_file(&reader, index_id, RealTime);
       TReader::TArena index_arena(&idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       /* what came from file 1 but got overriden in 2 */
       EXPECT_TRUE(idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &index_arena));
@@ -139,7 +139,7 @@ FIXTURE(BasicTailing) {
       TReader::TArena main_arena(&reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile idx_file(&reader, index_id, RealTime);
       TReader::TArena index_arena(&idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       /* what came from file 1 but got overriden in 2 */
       EXPECT_TRUE(idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &index_arena));
@@ -172,7 +172,7 @@ FIXTURE(BasicTailing) {
       TReader::TArena main_arena(&reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile idx_file(&reader, index_id, RealTime);
       TReader::TArena index_arena(&idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       /* what came from file 1 but got overriden in 2 */
       EXPECT_TRUE(idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &index_arena));
@@ -260,7 +260,7 @@ FIXTURE(BasicTailingDisabled) {
       TReader::TArena main_arena(&reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile idx_file(&reader, index_id, RealTime);
       TReader::TArena index_arena(&idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       /* what came from file 1 but got overriden in 2 */
       EXPECT_TRUE(idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &index_arena));
@@ -294,7 +294,7 @@ FIXTURE(BasicTailingDisabled) {
         TReader::TArena main_arena(&reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
         TReader::TIndexFile idx_file(&reader, index_id, RealTime);
         TReader::TArena index_arena(&idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-        TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+        TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
         size_t out_offset;
         /* what came from file 1 but got overriden in 2 */
         EXPECT_TRUE(idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &index_arena));
@@ -417,7 +417,7 @@ FIXTURE(Deep) {
       TReader::TArena int_str_int_str_idx_arena(&int_str_int_str_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile int_str_decint_str_idx_file(&reader, int_str_decint_str_idx, RealTime);
       TReader::TArena int_str_decint_str_idx_arena(&int_str_decint_str_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       /* what came from file 1 */
       EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
@@ -494,7 +494,7 @@ FIXTURE(BigSingleIndex) {
     TSequenceNumber seq_num = 0U;
     TUuid int_str_int_idx(TUuid::Twister);
     const string tagged_str("Tagged");
-    const string orly_str("Stig");
+    const string orly_str("Orly");
     typedef tuple<int64_t, string, int64_t, int64_t> TTup;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     vector<TTup> val_vec;
@@ -547,7 +547,7 @@ FIXTURE(BigSingleIndex) {
       TReader::TArena main_arena(&reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TReader::TIndexFile idx_file(&reader, int_str_int_idx, RealTime);
       TReader::TArena index_arena(&idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-      TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+      TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
       /* ensure they exist in the hash */
       int64_t found_in_hash = 0UL;
@@ -617,7 +617,7 @@ FIXTURE(StressSingleIndex) {
       TSequenceNumber seq_num = 0U;
       TUuid int_str_int_idx(TUuid::Twister);
       const string tagged_str("Tagged");
-      const string orly_str("Stig");
+      const string orly_str("Orly");
       typedef tuple<int64_t, string, int64_t, int64_t> TTup;
       vector<TTup> val_vec;
       vector<size_t> data_gen_vec;
@@ -667,7 +667,7 @@ FIXTURE(StressSingleIndex) {
         TReader::TArena main_arena(&reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
         TReader::TIndexFile idx_file(&reader, int_str_int_idx, RealTime);
         TReader::TArena index_arena(&idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
-        TStream<Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::LogicalBlockSize, Stig::Indy::Disk::Util::PhysicalBlockSize, Stig::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
+        TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
         size_t out_offset;
         /* ensure they exist in the hash */
         int64_t found_in_hash = 0UL;

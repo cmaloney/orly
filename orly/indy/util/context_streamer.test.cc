@@ -33,12 +33,12 @@
 using namespace std;
 using namespace Base;
 using namespace Io;
-using namespace Stig;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Util;
+using namespace Orly;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Util;
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 100UL);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Update Entry", 200UL);
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 100UL);
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Update Entry", 200UL);
 
 FIXTURE(InputToInput) {
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());

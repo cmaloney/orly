@@ -25,8 +25,8 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TSort::TPtr TSort::New(const TExpr::TPtr &lhs, const TPosRange &pos_range) {
   return TSort::TPtr(new TSort(lhs, pos_range));

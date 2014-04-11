@@ -21,7 +21,7 @@
 #include <orly/type/dict.h>
 #include <orly/var/set.h>
 
-using namespace Stig;
+using namespace Orly;
 using namespace Var;
 
 void TDict::Insert(const TDictType::const_iterator &begin, const TDictType::const_iterator &end) {

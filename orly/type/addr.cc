@@ -20,7 +20,7 @@
 
 #include <base/split.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_INTERNED_TYPE(TAddr, TAddrElems);
 
@@ -31,9 +31,9 @@ void TAddr::Write(std::ostream &strm) const {
   assert(&strm);
 
   #if 0
-  strm << "Stig::Rt::TAddr<";
+  strm << "Orly::Rt::TAddr<";
   Base::Join(", ", GetElems(), [](const std::pair<TAddrDir, TType> &elem, std::ostream &strm) {
-    strm << "Stig::Rt::TAddrElem<";
+    strm << "Orly::Rt::TAddrElem<";
     WriteCppType(strm, elem.first);
     strm << ", " << elem.second << '>';
   }, strm);
@@ -42,12 +42,12 @@ void TAddr::Write(std::ostream &strm) const {
   strm << "std::tuple<";
   Base::Join(", ", GetElems(), [](const std::pair<TAddrDir, TType> &elem, std::ostream &strm) {
     switch (elem.first) {
-      case Stig::TAddrDir::Asc: {
+      case Orly::TAddrDir::Asc: {
         strm << elem.second;
         break;
       }
-      case Stig::TAddrDir::Desc: {
-        strm << "Stig::TDesc<" << elem.second << ">";
+      case Orly::TAddrDir::Desc: {
+        strm << "Orly::TDesc<" << elem.second << ">";
         break;
       }
     }

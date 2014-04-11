@@ -22,8 +22,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Indy;
+using namespace Orly;
+using namespace Orly::Indy;
 
 #if 0
 __thread TContext::TKeyCursorCollection::TImpl *TContext::KeyCursorCollection;
@@ -160,7 +160,7 @@ void TContext::TPresentWalker::Refresh() {
 }
 
 TContext::TKeyCursor::TKeyCursor(TContext *context, const Indy::TIndexKey &pattern)
-    : Stig::TKeyCursor(context->Arena),
+    : Orly::TKeyCursor(context->Arena),
       Key(pattern),
       Valid(true),
       Cached(false),
@@ -170,7 +170,7 @@ TContext::TKeyCursor::TKeyCursor(TContext *context, const Indy::TIndexKey &patte
 }
 
 TContext::TKeyCursor::TKeyCursor(TContext *context, const Indy::TIndexKey &from, const Indy::TIndexKey &to)
-    : Stig::TKeyCursor(context->Arena),
+    : Orly::TKeyCursor(context->Arena),
       Key(from),
       To(to),
       Valid(true),

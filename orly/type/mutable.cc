@@ -21,7 +21,7 @@
 #include <orly/type/util.h>
 
 using namespace std;
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_INTERNED_TYPE(TMutable, TType, TMutable::TParts, TType, TType);
 
@@ -64,7 +64,7 @@ TType TMutable::GetSrcAtAddr() const {
 
 void TMutable::Write(ostream &strm) const {
   assert(this);
-  strm << "Stig::Rt::TMutable<" << GetAddr() << ", " << GetVal() << '>';
+  strm << "Orly::Rt::TMutable<" << GetAddr() << ", " << GetVal() << '>';
 }
 
 TMutable::TMutable(const TType &addr, const TParts &parts, const TType &val, const TType &src_at_addr)

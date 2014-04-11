@@ -18,7 +18,7 @@
 
 #include <base/no_copy_semantics.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Spa {
 
@@ -67,4 +67,4 @@ namespace Stig {
   }  // Spa
 
 
-}  // Stig
+}  // Orly

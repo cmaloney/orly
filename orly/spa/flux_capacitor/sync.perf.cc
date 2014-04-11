@@ -31,7 +31,7 @@ min = 19.992, max = 20.7677, mean = 20.4054, dev = 0.131617, total = 2040.54
 #include <vector>
 
 using namespace std;
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly::Spa::FluxCapacitor;
 
 class TActor {
   NO_COPY_SEMANTICS(TActor);

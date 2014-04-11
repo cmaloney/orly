@@ -47,7 +47,7 @@
 #include <orly/var/new_sabot.h>
 #include <orly/var/sabot_to_var.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Spa {
 
@@ -1816,13 +1816,13 @@ namespace Stig {
 
         /* TODO */
         class TKeyCursor
-            : public Stig::TKeyCursor {
+            : public Orly::TKeyCursor {
           NO_COPY_SEMANTICS(TKeyCursor);
           public:
 
           /* TODO */
           TKeyCursor(TContext *context, Atom::TCore::TExtensibleArena *arena, const Var::TVar &pattern, const Base::TUuid &index_id)
-              : Stig::TKeyCursor(arena),
+              : Orly::TKeyCursor(arena),
                 Cached(false),
                 Context(context),
                 IndexId(index_id),
@@ -2135,4 +2135,4 @@ namespace Stig {
 
   }  // Spa
 
-}  // Stig
+}  // Orly

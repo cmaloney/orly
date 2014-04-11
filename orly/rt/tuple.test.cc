@@ -23,7 +23,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 /* Addr */
 //TAddr<> empty_addr;
@@ -31,15 +31,15 @@ std::tuple<> empty_addr;
 //TAddr<TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Asc, int64_t>> addr_1(5, 2, 1);
 std::tuple<int64_t, int64_t, int64_t> addr_1(5, 2, 1);
 //TAddr<TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Desc, int64_t>> addr_1d(6, 2, 1);
-std::tuple<int64_t, int64_t, Stig::TDesc<int64_t>> addr_1d(6, 2, 1);
+std::tuple<int64_t, int64_t, Orly::TDesc<int64_t>> addr_1d(6, 2, 1);
 //TAddr<TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Asc, int64_t>> addr_2(6, 2, 1);
 std::tuple<int64_t, int64_t, int64_t> addr_2(6, 2, 1);
 //TAddr<TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Desc, int64_t>, TAddrElem<TDir::Asc, int64_t>> addr_2d(6, 2, 1);
-std::tuple<int64_t, Stig::TDesc<int64_t>, int64_t> addr_2d(6, 2, 1);
+std::tuple<int64_t, Orly::TDesc<int64_t>, int64_t> addr_2d(6, 2, 1);
 //TAddr<TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Asc, double>,  TAddrElem<TDir::Asc, int64_t>> addr_3(5, 2.0, 1);
 std::tuple<int64_t, double,  int64_t> addr_3(5, 2.0, 1);
 //TAddr<TAddrElem<TDir::Desc, int64_t>, TAddrElem<TDir::Asc, double>,  TAddrElem<TDir::Asc, int64_t>> addr_3d(5, 2.0, 1);
-std::tuple<Stig::TDesc<int64_t>, double,  int64_t> addr_3d(5, 2.0, 1);
+std::tuple<Orly::TDesc<int64_t>, double,  int64_t> addr_3d(5, 2.0, 1);
 //TAddr<TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Asc, double>,  TAddrElem<TDir::Asc, int64_t>> addr_4(5, 2.1, 1);
 std::tuple<int64_t, double,  int64_t> addr_4(5, 2.1, 1);
 //TAddr<TAddrElem<TDir::Asc, int64_t>, TAddrElem<TDir::Asc, int64_t>> addr_5(5, 2);
@@ -82,8 +82,8 @@ FIXTURE(SomeToSomeComp) {
 
 
 FIXTURE(Size) {
-  EXPECT_EQ(Stig::Rt::GetTupleSize(empty_addr), 0U);
-  EXPECT_EQ(Stig::Rt::GetTupleSize(addr_1), 3U);
+  EXPECT_EQ(Orly::Rt::GetTupleSize(empty_addr), 0U);
+  EXPECT_EQ(Orly::Rt::GetTupleSize(addr_1), 3U);
 }
 
 

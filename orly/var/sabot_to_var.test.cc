@@ -29,8 +29,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 static Type::TTypeCzar TypeCzar;
 

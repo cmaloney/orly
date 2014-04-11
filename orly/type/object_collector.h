@@ -23,7 +23,7 @@
 
 #include <orly/pos_range.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -34,4 +34,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

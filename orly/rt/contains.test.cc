@@ -24,7 +24,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 typedef vector<int64_t> TListInt;
 typedef TSet<bool> TSetBool;

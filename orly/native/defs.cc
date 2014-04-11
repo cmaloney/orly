@@ -18,6 +18,6 @@
 
 #include <orly/native/defs.h>
 
-using namespace Stig::Native;
+using namespace Orly::Native;
 
 const TTombstone TTombstone::Tombstone;

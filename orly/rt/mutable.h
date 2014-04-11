@@ -24,7 +24,7 @@
 
 #include <orly/rt/opt.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -149,20 +149,20 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
   template <typename TAddr, typename TVal>
-  struct hash<Stig::Rt::TMutable<TAddr, TVal>> {
+  struct hash<Orly::Rt::TMutable<TAddr, TVal>> {
 
     typedef size_t result_type;
-    typedef Stig::Rt::TMutable<TAddr, TVal> argument_type;
+    typedef Orly::Rt::TMutable<TAddr, TVal> argument_type;
 
     result_type operator()(const argument_type &that) const {
       return that.GetHash();
     }
 
-  };  // hash<Stig::Rt::TMutable<TAddr, TVal>>
+  };  // hash<Orly::Rt::TMutable<TAddr, TVal>>
 
 }  // std

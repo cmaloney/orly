@@ -27,8 +27,8 @@
 #include <orly/symbol/result_def.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TFunctionAppArg::TPtr TFunctionAppArg::New(const TExpr::TPtr &expr) {
   return TFunctionAppArg::TPtr(new TFunctionAppArg(expr));

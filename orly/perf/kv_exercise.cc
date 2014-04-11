@@ -32,7 +32,7 @@ using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Socket;
-using namespace Stig;
+using namespace Orly;
 using namespace Client;
 
 class TExerciseClient final

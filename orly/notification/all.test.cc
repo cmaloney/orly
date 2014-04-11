@@ -30,7 +30,7 @@ using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Io;
-using namespace Stig::Notification;
+using namespace Orly::Notification;
 
 static TNotification *Copy(const TNotification *expected) {
   auto recorder = make_shared<TRecorder>();

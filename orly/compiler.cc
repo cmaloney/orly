@@ -39,8 +39,8 @@
 #include <tools/nycr/error.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Compiler;
+using namespace Orly;
+using namespace Orly::Compiler;
 using namespace Jhm;
 
 /* Compiles a orlyscript package. On construction it builds to the symbolic layer. It can be asked to emit the
@@ -120,7 +120,7 @@ class TPackageBuilder {
 //Note: This should probably be promted to a compile management class.
 //TODO: Reintroduce machine mode, not saving cc. Also reintroduce syntax check only and semantic check only compilation.
 /* Returns the versioned package name of the final build target. */
-Package::TVersionedName Stig::Compiler::Compile(
+Package::TVersionedName Orly::Compiler::Compile(
       const TAbsPath &core_file,
       const TAbsBase &out_tree,
       bool /*found_root*/, //Only if we found the root can we look at sub scopes.
@@ -180,7 +180,7 @@ Package::TVersionedName Stig::Compiler::Compile(
           break;
         }
         if (!found_root) {
-          throw TCompileFailure(HERE, "Unless you're in a Stig package tree (Has a __orly__ file in the tld), you can not use scopes")
+          throw TCompileFailure(HERE, "Unless you're in a Orly package tree (Has a __orly__ file in the tld), you can not use scopes")
         }
         packages.insert(make_pair(dep, unique_ptr<TPackageBuilder>(new TPackageBuilder(dep))));
         todo.push(dep);
@@ -203,7 +203,7 @@ Package::TVersionedName Stig::Compiler::Compile(
   }
 
   if(failed) {
-    throw TCompileFailure(HERE, "Compiling Stig language");
+    throw TCompileFailure(HERE, "Compiling Orly language");
   }
 
   /* extra */ {
@@ -242,7 +242,7 @@ Package::TVersionedName Stig::Compiler::Compile(
     auto status = runner.Wait();
     if (status || failed) {
       //NOTE: use '-d' to get the error messages.
-      cout << "Error while compiling an Intermediate Representation. See a Stig team member with your Stig code for support" << endl;
+      cout << "Error while compiling an Intermediate Representation. See a Orly team member with your Orly code for support" << endl;
       throw TCompileFailure(HERE, "Compiling C++ and linking");
     }
   }

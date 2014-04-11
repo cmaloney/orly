@@ -31,13 +31,13 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Indy::Fiber;
+using namespace Orly;
+using namespace Orly::Indy::Fiber;
 
 /* Our tetris manager for testing purposes.
    This does more work than a real tetris manager because it manages the pov objects as well. */
 class TTetrisManager final
-    : public Stig::Server::TTetrisManager {
+    : public Orly::Server::TTetrisManager {
   public:
 
   /* TODO */
@@ -183,11 +183,11 @@ class TTetrisManager final
 
   /* Do-little. */
   TTetrisManager(TScheduler *scheduler,
-                 Stig::Indy::Fiber::TRunner::TRunnerCons &runner_cons,
-                 Base::TThreadLocalGlobalPoolManager<Stig::Indy::Fiber::TFrame, size_t, Stig::Indy::Fiber::TRunner *> *frame_pool_manager,
+                 Orly::Indy::Fiber::TRunner::TRunnerCons &runner_cons,
+                 Base::TThreadLocalGlobalPoolManager<Orly::Indy::Fiber::TFrame, size_t, Orly::Indy::Fiber::TRunner *> *frame_pool_manager,
                  const std::function<void (TRunner *)> &runner_setup_cb,
                  bool is_master = true)
-      : Stig::Server::TTetrisManager(scheduler, runner_cons, frame_pool_manager, runner_setup_cb, is_master) {
+      : Orly::Server::TTetrisManager(scheduler, runner_cons, frame_pool_manager, runner_setup_cb, is_master) {
     GlobalPov = new TPov(this);
   }
 
@@ -219,12 +219,12 @@ class TTetrisManager final
 
   /* Our tetris player for testing purposes. */
   class TPlayer final
-      : public Stig::Server::TTetrisManager::TPlayer {
+      : public Orly::Server::TTetrisManager::TPlayer {
     public:
 
     /* Caches the pointer to the tetris manager, sets the initial parent and child points of view, and starts playing. */
     TPlayer(TTetrisManager *tetris_manager, const TUuid &parent_pov_id, const TUuid &child_pov_id, bool is_paused, bool is_master)
-        : Stig::Server::TTetrisManager::TPlayer(tetris_manager), TetrisManager(tetris_manager),
+        : Orly::Server::TTetrisManager::TPlayer(tetris_manager), TetrisManager(tetris_manager),
           ParentPov(tetris_manager->GetPov(parent_pov_id)), ChildPovs({ tetris_manager->GetPov(child_pov_id) }) {
       Start(is_paused, is_master);  // This call is mandatory!
     }
@@ -297,7 +297,7 @@ class TTetrisManager final
   };  // TTetrisManager::TPlayer
 
   /* See our base class.  We construct one of our players. */
-  virtual Stig::Server::TTetrisManager::TPlayer *NewPlayer(const TUuid &parent_pov_id, const TUuid &child_pov_id, bool is_paused, bool is_master) override {
+  virtual Orly::Server::TTetrisManager::TPlayer *NewPlayer(const TUuid &parent_pov_id, const TUuid &child_pov_id, bool is_paused, bool is_master) override {
     assert(&parent_pov_id);
     assert(&child_pov_id);
     return new TPlayer(this, parent_pov_id, child_pov_id, is_paused, is_master);

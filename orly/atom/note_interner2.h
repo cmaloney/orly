@@ -26,7 +26,7 @@
 #include <orly/sabot/compare_states.h>
 #include <orly/sabot/get_depth.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Atom {
 
@@ -107,4 +107,4 @@ namespace Stig {
 
   }  // Atom
 
-}  // Stig
+}  // Orly

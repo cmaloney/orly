@@ -21,7 +21,7 @@
 #include <test/kit.h>
 
 using namespace Base;
-using namespace Stig::Package;
+using namespace Orly::Package;
 
 /* Expected kinds of input:
    "scope/A.1"

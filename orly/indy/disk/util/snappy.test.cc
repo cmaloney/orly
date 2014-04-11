@@ -23,8 +23,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 static const size_t BlockSize = 4096UL * 16;
 

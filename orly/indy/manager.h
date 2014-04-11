@@ -26,7 +26,7 @@
 #include <orly/indy/transaction_base.h>
 #include <orly/indy/util/block_vec.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -479,7 +479,7 @@ namespace Stig {
         std::vector<TToSync> ToSyncQueue;
 
         /* A core-vec slush buffer representing the updates we've accumulated */
-        std::unique_ptr<Stig::Atom::TCoreVectorBuilder> SlushCoreVec;
+        std::unique_ptr<Orly::Atom::TCoreVectorBuilder> SlushCoreVec;
 
         /* TODO */
         std::shared_ptr<TFlusher> Flusher;
@@ -643,7 +643,7 @@ namespace Stig {
       /* TODO */
       std::unordered_map<Base::TUuid, std::unique_ptr<Indy::TRepo::TView>> SlaveSyncViewMap;
 
-      friend class Stig::Server::TServer;
+      friend class Orly::Server::TServer;
 
     };  // TManager
 
@@ -712,4 +712,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

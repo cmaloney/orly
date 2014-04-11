@@ -22,7 +22,7 @@
 #include <orly/code_gen/inline_scope.h>
 #include <orly/expr/expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -59,21 +59,21 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly
 
 namespace std {
 
   template <>
-  struct hash<Stig::CodeGen::TBinaryScopedRhs::TOp> {
+  struct hash<Orly::CodeGen::TBinaryScopedRhs::TOp> {
 
     typedef size_t result_type;
-    typedef Stig::CodeGen::TBinaryScopedRhs::TOp argument_type;
+    typedef Orly::CodeGen::TBinaryScopedRhs::TOp argument_type;
 
     result_type operator()(const argument_type &that) {
       assert(&that);
       return static_cast<result_type>(that);
     }
 
-  };  // hash<Stig::CodeGen::TBinaryScopedRhs::TOp>
+  };  // hash<Orly::CodeGen::TBinaryScopedRhs::TOp>
 
 }  // std

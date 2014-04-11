@@ -23,7 +23,7 @@
 #include <memory>
 
 using namespace std;
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 /*
  *    TCore's public members.
@@ -228,7 +228,7 @@ TCore::TCore(TOffset offset, const TNote *note) {
 }
 
 TCore::TCore(TExtensibleArena *arena, const Type::TAny &type) {
-  class visitor_t final : public Stig::Sabot::TTypeVisitor {
+  class visitor_t final : public Orly::Sabot::TTypeVisitor {
     public:
     visitor_t(TExtensibleArena *arena, TCore *core) : Arena(arena), Core(core) {}
     virtual void operator()(const Type::TInt8      &    ) const override { Core->InitInt8     (); }
@@ -267,7 +267,7 @@ TCore::TCore(TExtensibleArena *arena, const Type::TAny &type) {
 }
 
 TCore::TCore(TExtensibleArena *arena, const State::TAny *state) {
-  class visitor_t final : public Stig::Sabot::TStateVisitor {
+  class visitor_t final : public Orly::Sabot::TStateVisitor {
     public:
     visitor_t(TExtensibleArena *arena, TCore *core) : Arena(arena), Core(core) {}
     virtual void operator()(const State::TInt8      &state) const override { Core->InitInt8     (state.Get()); }

@@ -120,7 +120,7 @@ class TApp : public TCmd {
     NO_COPY_SEMANTICS(TMeta);
     public:
 
-    TMeta() : TCmd::TMeta("Stig C++ Perf Test") {
+    TMeta() : TCmd::TMeta("Orly C++ Perf Test") {
       Param(&TApp::Describe, "describe_tests", Optional, "describe\0", "Describe the tests and their max runtimes, but don't run them.");
     }
   };

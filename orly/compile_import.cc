@@ -1,6 +1,6 @@
 /* <orly/compile_import.cc>
 
-   Compile a Stig import file.
+   Compile a Orly import file.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -34,7 +34,7 @@
 #include <orly/var/sabot_to_var.h>
 
 using namespace std;
-using namespace Stig;
+using namespace Orly;
 
 static Type::TTypeCzar TypeCzar;
 
@@ -63,7 +63,7 @@ class TCmd final
 
     /* Registers our fields. */
     TMeta()
-        : Base::TLog::TCmd::TMeta("The Stig import file compiler.") {
+        : Base::TLog::TCmd::TMeta("The Orly import file compiler.") {
       Param(&TCmd::ImportFiles, "import_file", Required, "A an import file to compile.");
     }
 
@@ -75,9 +75,9 @@ class TCmd final
 static size_t Count(const string &input_file) {
   syslog(LOG_INFO, "counting transactions in \"%s\"", input_file.c_str());
   size_t result = 0;
-  Stig::Client::Program::ParseImageFile(
+  Orly::Client::Program::ParseImageFile(
       input_file.c_str(),
-      [&result](const Stig::Client::Program::TXact *) {
+      [&result](const Orly::Client::Program::TXact *) {
         ++result;
         return true;
       }
@@ -92,9 +92,9 @@ static void Compile(const string &input_file) {
   syslog(LOG_INFO, "compiling %ld transactions(s) from \"%s\" to \"%s\"", xact_count, input_file.c_str(), output_file.c_str());
   Io::TBinaryOutputOnlyStream strm(make_shared<Io::TDevice>(open(output_file.c_str(), O_WRONLY | O_CREAT, 0777)));
   strm << xact_count;
-  Stig::Client::Program::ParseImageFile(
+  Orly::Client::Program::ParseImageFile(
       input_file.c_str(),
-      [&strm](const Stig::Client::Program::TXact *xact) {
+      [&strm](const Orly::Client::Program::TXact *xact) {
         std::vector<Var::TVar> kv;
         TranslateXact(
             xact,

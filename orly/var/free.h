@@ -1,6 +1,6 @@
 /* <orly/var/free.h>
 
-   The 'free' value, which is Stig's way of searching.
+   The 'free' value, which is Orly's way of searching.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -20,7 +20,7 @@
 
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -106,4 +106,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

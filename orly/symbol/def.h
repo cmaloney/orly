@@ -24,7 +24,7 @@
 #include <base/no_copy_semantics.h>
 #include <orly/pos_range.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -81,4 +81,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

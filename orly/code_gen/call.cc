@@ -20,7 +20,7 @@
 
 #include <base/split.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TCall::TCall(const L0::TPackage *package,
              const TFunction::TPtr &func,

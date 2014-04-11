@@ -20,8 +20,8 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TParamDef::TParamDef(
     const TFunction::TPtr &function,

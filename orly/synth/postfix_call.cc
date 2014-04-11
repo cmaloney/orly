@@ -27,8 +27,8 @@
 #include <orly/synth/new_expr.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TPostfixCall::TPostfixCall(const TExprFactory *expr_factory, const Package::Syntax::TPostfixCall *postfix_call)
     : PostfixCall(Base::AssertTrue(postfix_call)) {

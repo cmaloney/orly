@@ -24,7 +24,7 @@
 #include <orly/sabot/match_prefix_type.h>
 #include <orly/sabot/state.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -33,4 +33,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

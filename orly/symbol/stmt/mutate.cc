@@ -30,9 +30,9 @@
 #include <orly/type/set_ops_visitor.h>
 #include <orly/type/sub_visitor.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Stmt;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Stmt;
 
 template <typename TDoubleVisitor>
 class TMutateTypeVisitor

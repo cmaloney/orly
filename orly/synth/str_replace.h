@@ -1,6 +1,6 @@
 /* <orly/synth/str_replace.h>
 
-   Interface for the replace() built-in function in the Stig language.
+   Interface for the replace() built-in function in the Orly language.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -27,7 +27,7 @@
 #include <orly/synth/type.h>
 #include <orly/synth/scope_and_def.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -52,4 +52,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

@@ -38,9 +38,9 @@ using namespace Base;
 using namespace Io;
 using namespace Rpc;
 using namespace Socket;
-using namespace Stig;
-using namespace Stig::Client;
-using namespace Stig::Handshake;
+using namespace Orly;
+using namespace Orly::Client;
+using namespace Orly::Handshake;
 
 TClient::TClient(const TAddress &server_address, const TOpt<TUuid> &session_id, const seconds &time_to_live)
     : Rpc::TContext(TProtocol::Protocol),

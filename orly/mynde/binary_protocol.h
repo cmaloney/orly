@@ -45,7 +45,7 @@
 #include <strm/bin/in.h>
 #include <strm/bin/out.h>
 
-namespace Stig {
+namespace Orly {
 namespace Mynde {
 
 //Raw response codes
@@ -146,4 +146,4 @@ Strm::Bin::TOut &operator<<(Strm::Bin::TOut &out, const TResponseHeader &that);
 static_assert(sizeof(TResponseHeader) == 24, "According to the binary protocol specification");
 
 } // Mynde
-} // Stig
+} // Orly

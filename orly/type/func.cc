@@ -20,7 +20,7 @@
 
 #include <base/not_implemented.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_INTERNED_TYPE(TFunc, TType, TType);
 

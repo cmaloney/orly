@@ -23,7 +23,7 @@
 #include <base/error.h>
 #include <orly/pos_range.h>
 
-namespace Stig {
+namespace Orly {
 
   class TSourceError
       : public virtual Base::TError {
@@ -101,4 +101,4 @@ namespace Stig {
 
   };  // TExprError
 
-}  // Stig
+}  // Orly

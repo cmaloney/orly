@@ -29,8 +29,8 @@
 #include <orly/synth/with_clause.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 unsigned int TTestDef::TestId = 0;
 

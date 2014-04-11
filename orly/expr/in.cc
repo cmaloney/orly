@@ -24,8 +24,8 @@
 #include <orly/type/infix_visitor.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TExpr::TPtr TIn::New(const TExpr::TPtr &lhs, const TExpr::TPtr &rhs, const TPosRange &pos_range) {
   return TIn::TPtr(new TIn(lhs, rhs, pos_range));

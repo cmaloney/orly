@@ -26,7 +26,7 @@
 #include <orly/symbol/package.h>
 #include <orly/type.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -39,8 +39,8 @@ namespace Stig {
         public:
 
         /* TODO */
-        typedef std::unordered_map<Base::TUuid, std::pair<Stig::Type::TType, Stig::Type::TType>> TAddrMap;
-        typedef std::unordered_map<std::pair<Stig::Type::TType, Stig::Type::TType>, Base::TUuid> TRevAddrMap;
+        typedef std::unordered_map<Base::TUuid, std::pair<Orly::Type::TType, Orly::Type::TType>> TAddrMap;
+        typedef std::unordered_map<std::pair<Orly::Type::TType, Orly::Type::TType>, Base::TUuid> TRevAddrMap;
 
         /* TODO */
         virtual ~TPackage() {}
@@ -92,4 +92,4 @@ namespace Stig {
 
   }  // CodeGen
 
-}  // Stig
+}  // Orly

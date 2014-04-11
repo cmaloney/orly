@@ -22,7 +22,7 @@
 #include <orly/desc.h>
 #include <orly/rt/operator.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -87,20 +87,20 @@ namespace Stig {
       using TPartialTuple = std::_Tuple_impl<Idx, TElem, TRest...>;
 
       static auto EqEq(const TPartialTuple &lhs, const TPartialTuple &rhs)
-        DECLTYPE_AUTO(And(Stig::Rt::EqEq(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), TupleHelper<Idx + 1, TRest...>::EqEq(TPartialTuple::_M_tail(lhs), TPartialTuple::_M_tail(rhs))));
+        DECLTYPE_AUTO(And(Orly::Rt::EqEq(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), TupleHelper<Idx + 1, TRest...>::EqEq(TPartialTuple::_M_tail(lhs), TPartialTuple::_M_tail(rhs))));
 
       static auto Neq(const TPartialTuple &lhs, const TPartialTuple &rhs)
-        DECLTYPE_AUTO((Stig::Rt::Neq(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), TupleHelper<Idx + 1, TRest...>::Neq(TPartialTuple::_M_tail(lhs), TPartialTuple::_M_tail(rhs))));
+        DECLTYPE_AUTO((Orly::Rt::Neq(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), TupleHelper<Idx + 1, TRest...>::Neq(TPartialTuple::_M_tail(lhs), TPartialTuple::_M_tail(rhs))));
 
       /* a < that.a || (a == that.a && (b < that.b || (b == that.b && c < that.c)) ) */
       static auto Lt(const TPartialTuple &lhs, const TPartialTuple &rhs)
-        DECLTYPE_AUTO(Or(Stig::Rt::Lt(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), And(Stig::Rt::EqEq(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), TupleHelper<Idx + 1, TRest...>::Lt(TPartialTuple::_M_tail(lhs), TPartialTuple::_M_tail(rhs)))));
+        DECLTYPE_AUTO(Or(Orly::Rt::Lt(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), And(Orly::Rt::EqEq(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), TupleHelper<Idx + 1, TRest...>::Lt(TPartialTuple::_M_tail(lhs), TPartialTuple::_M_tail(rhs)))));
 
       static auto LtEq(const TPartialTuple &lhs, const TPartialTuple &rhs)
         DECLTYPE_AUTO(Or(Lt(lhs, rhs), EqEq(lhs, rhs)));
 
       static auto Gt(const TPartialTuple &lhs, const TPartialTuple &rhs)
-        DECLTYPE_AUTO(Or(Stig::Rt::Gt(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), And(Stig::Rt::EqEq(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), TupleHelper<Idx + 1, TRest...>::Gt(TPartialTuple::_M_tail(lhs), TPartialTuple::_M_tail(rhs)))));
+        DECLTYPE_AUTO(Or(Orly::Rt::Gt(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), And(Orly::Rt::EqEq(TPartialTuple::_M_head(lhs), TPartialTuple::_M_head(rhs)), TupleHelper<Idx + 1, TRest...>::Gt(TPartialTuple::_M_tail(lhs), TPartialTuple::_M_tail(rhs)))));
 
       static auto GtEq(const TPartialTuple &lhs, const TPartialTuple &rhs)
         DECLTYPE_AUTO(Or(Gt(lhs, rhs), EqEq(lhs, rhs)));
@@ -118,14 +118,14 @@ namespace Stig {
     struct NeqStruct<std::tuple<TArgs...>, std::tuple<TArgs...>> {
       NO_CONSTRUCTION(NeqStruct);
       static auto Do(const std::tuple<TArgs...> &lhs, const std::tuple<TArgs...> &rhs)
-        DECLTYPE_AUTO((Stig::Rt::TupleHelper<0, TArgs...>::Neq(lhs, rhs)));
+        DECLTYPE_AUTO((Orly::Rt::TupleHelper<0, TArgs...>::Neq(lhs, rhs)));
     };
 
     template <typename... TArgs>
     struct LtStruct<std::tuple<TArgs...>, std::tuple<TArgs...>> {
       NO_CONSTRUCTION(LtStruct);
       static auto Do(const std::tuple<TArgs...> &lhs, const std::tuple<TArgs...> &rhs)
-        DECLTYPE_AUTO((Stig::Rt::TupleHelper<0, TArgs...>::Lt(lhs, rhs)));
+        DECLTYPE_AUTO((Orly::Rt::TupleHelper<0, TArgs...>::Lt(lhs, rhs)));
     };
 
     template <typename... TArgs>
@@ -140,14 +140,14 @@ namespace Stig {
     struct GtStruct<std::tuple<TArgs...>, std::tuple<TArgs...>> {
       NO_CONSTRUCTION(GtStruct);
       static auto Do(const std::tuple<TArgs...> &lhs, const std::tuple<TArgs...> &rhs)
-        DECLTYPE_AUTO((Stig::Rt::TupleHelper<0, TArgs...>::Gt(lhs, rhs)));
+        DECLTYPE_AUTO((Orly::Rt::TupleHelper<0, TArgs...>::Gt(lhs, rhs)));
     };
 
     template <typename... TArgs>
     struct GtEqStruct<std::tuple<TArgs...>, std::tuple<TArgs...>> {
       NO_CONSTRUCTION(GtEqStruct);
       static auto Do(const std::tuple<TArgs...> &lhs, const std::tuple<TArgs...> &rhs)
-        DECLTYPE_AUTO((Stig::Rt::TupleHelper<0, TArgs...>::GtEq(lhs, rhs)));
+        DECLTYPE_AUTO((Orly::Rt::TupleHelper<0, TArgs...>::GtEq(lhs, rhs)));
     };
 
     template <>
@@ -207,4 +207,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

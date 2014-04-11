@@ -31,7 +31,7 @@
 #include <orly/server/session.h>
 #include <orly/server/tetris_manager.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
 
@@ -182,4 +182,4 @@ namespace Stig {
 
   }  // Server
 
-}  // Stig
+}  // Orly

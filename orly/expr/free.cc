@@ -20,8 +20,8 @@
 
 #include <orly/expr/visitor.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TFree::TPtr TFree::New(const Type::TType &type, const TPosRange &pos_range, TAddrDir addr_dir) {
   return TFree::TPtr(new TFree(type, pos_range, addr_dir));

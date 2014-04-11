@@ -25,10 +25,10 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Client::Program;
+using namespace Orly;
+using namespace Orly::Client::Program;
 
-void Stig::Client::Program::TranslatePackage(vector<string> &package_name, uint64_t &version_number, const TPackageName *root) {
+void Orly::Client::Program::TranslatePackage(vector<string> &package_name, uint64_t &version_number, const TPackageName *root) {
   assert(&package_name);
   assert(&version_number);
   assert(root);
@@ -36,7 +36,7 @@ void Stig::Client::Program::TranslatePackage(vector<string> &package_name, uint6
   version_number = root->GetIntExpr()->GetLexeme().AsInt();
 }
 
-void Stig::Client::Program::TranslatePathName(vector<string> &path_name, const TNameList *root) {
+void Orly::Client::Program::TranslatePathName(vector<string> &path_name, const TNameList *root) {
   assert(&path_name);
   assert(root);
   path_name.clear();
@@ -47,7 +47,7 @@ void Stig::Client::Program::TranslatePathName(vector<string> &path_name, const T
   } while (root);
 }
 
-Sabot::Type::TAny *Stig::Client::Program::NewTypeSabot(const TType *type, void *alloc) {
+Sabot::Type::TAny *Orly::Client::Program::NewTypeSabot(const TType *type, void *alloc) {
   class visitor_t final : public TType::TVisitor {
     public:
     visitor_t(void *alloc, Sabot::Type::TAny *&result) : Alloc(alloc), Result(result) {}
@@ -105,7 +105,7 @@ Sabot::Type::TAny *Stig::Client::Program::NewTypeSabot(const TType *type, void *
   return result;
 }
 
-Sabot::Type::TAny *Stig::Client::Program::NewTypeSabot(const TExpr *expr, void *alloc) {
+Sabot::Type::TAny *Orly::Client::Program::NewTypeSabot(const TExpr *expr, void *alloc) {
   class visitor_t final : public TExpr::TVisitor {
     public:
     visitor_t(void *alloc, Sabot::Type::TAny *&result) : Alloc(alloc), Result(result) {}
@@ -182,7 +182,7 @@ Sabot::Type::TAny *Stig::Client::Program::NewTypeSabot(const TExpr *expr, void *
   return result;
 }
 
-Sabot::State::TAny *Stig::Client::Program::NewStateSabot(const TExpr *expr, void *alloc) {
+Sabot::State::TAny *Orly::Client::Program::NewStateSabot(const TExpr *expr, void *alloc) {
   class visitor_t final : public TExpr::TVisitor {
     public:
     visitor_t(void *alloc, Sabot::State::TAny *&result) : Alloc(alloc), Result(result) {}
@@ -291,7 +291,7 @@ Sabot::State::TAny *Stig::Client::Program::NewStateSabot(const TExpr *expr, void
   return result;
 }
 
-Atom::TCore *Stig::Client::Program::TranslateExpr(Atom::TCore::TExtensibleArena *arena, void *core_alloc, const TExpr *expr) {
+Atom::TCore *Orly::Client::Program::TranslateExpr(Atom::TCore::TExtensibleArena *arena, void *core_alloc, const TExpr *expr) {
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   return new (core_alloc) Atom::TCore(arena, Sabot::State::TAny::TWrapper(NewStateSabot(expr, state_alloc)).get());
 }

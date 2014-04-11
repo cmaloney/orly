@@ -2,7 +2,7 @@
 
 Welcome to the world's most inadequate README file. To describe it as a "work in progress" is an understatement.
 
-Anyway, this directory contains the code for the Stig Database.
+Anyway, this directory contains the code for the Orly Database.
 
 -----
 

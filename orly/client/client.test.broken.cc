@@ -34,8 +34,8 @@ using namespace chrono;
 using namespace Base;
 using namespace Socket;
 
-/* Stig namespaces. */
-using namespace Stig;
+/* Orly namespaces. */
+using namespace Orly;
 using namespace BinProto;
 using namespace Client;
 

@@ -20,8 +20,8 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TInfixExpr::TInfixExpr(TExpr *lhs, TExpr *rhs, TNew new_, const TPosRange &pos_range)
     : Lhs(Base::AssertTrue(lhs)), New(new_), Rhs(Base::AssertTrue(rhs)), PosRange(pos_range) {}

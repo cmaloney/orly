@@ -1,36 +1,36 @@
-Memcached on Stig
+Memcached on Orly
 =================
 
-In addition to it's own custom protocol, Stig speaks Memcached to be more easily accessible from arbitrary languages/hosts/etc. Memcached is literally available everywhere at this point.
+In addition to it's own custom protocol, Orly speaks Memcached to be more easily accessible from arbitrary languages/hosts/etc. Memcached is literally available everywhere at this point.
 
 # Overview
 
 We aim to implement all of the memcached protocol with the same general guarantees that memcached gives, however because we utilize Points of View (TODO: Link) and tetris (TODO: Link) to resolve conflicting updates to the database rather than locks some operations may appear to produce different results (Multiple clients incr the same key won't all get different result values. All their increments will be counted though, and all will get one 'possible' value of the key).
 
-Since Stig is a durable database rather than a cache, we only allow the TTL 0 meaning that keys live forever until deleted. We never cull keys to reclaim space under any circumstance. Once written to the database, things stay in the database until explicitly deleted.
+Since Orly is a durable database rather than a cache, we only allow the TTL 0 meaning that keys live forever until deleted. We never cull keys to reclaim space under any circumstance. Once written to the database, things stay in the database until explicitly deleted.
 
 ## Durability / Persistence
-In general, Stig is a database, not a cache. So items put into it will be persisted. You need to explicitly delete keys for them to go away. TTL must always be specified as '0' which means never expires. Stig will never cull keys under any circumstance. It will stop eventually if it runs out of disk space, but all data will be kept.
+In general, Orly is a database, not a cache. So items put into it will be persisted. You need to explicitly delete keys for them to go away. TTL must always be specified as '0' which means never expires. Orly will never cull keys under any circumstance. It will stop eventually if it runs out of disk space, but all data will be kept.
 
 ## Transactionality
-Stig has transactions, meaning it can do both multi-get and multi-set. Exact semantics around this are documented below.
+Orly has transactions, meaning it can do both multi-get and multi-set. Exact semantics around this are documented below.
 
 ## Consistency
 All actions within a single connection happen in a consistent point of view of a database. Specifically, when we recognize a multi-get we guarantee that every key in the multi-get is consistent. Exact rules for this with regards to different database operations appear below.
 
 ## Speed
-Some operations are going to be considerably faster when running on Stig than they are in memcached because we have less work to do to calculate the result (No locking for most operations). As orly's dataset grows to not fit purely in Memory, some operations may become slower, but we can give strong guarantees on maximum response time given a particular set of hardware.
+Some operations are going to be considerably faster when running on Orly than they are in memcached because we have less work to do to calculate the result (No locking for most operations). As orly's dataset grows to not fit purely in Memory, some operations may become slower, but we can give strong guarantees on maximum response time given a particular set of hardware.
 
 For writes, generally things will be faster than memcached safe for CAS operations, which will likely be slower.
 
 TODO: Update this section once we have numbers.
 
 ## Update Visibility
-Stig requires all updates to be put into a private Point of View (TODO: Link to POV Docs) and then promotes the updates to a shared or global point of view.
+Orly requires all updates to be put into a private Point of View (TODO: Link to POV Docs) and then promotes the updates to a shared or global point of view.
 
-This maps to memcache in that each connection effectively lives in it's own orly "Session". The session has a single private point of view connected to it. As memcached commands are sent to Stig, the commands are evaluated in that private point of view, and the result (delted, not found, value) is sent back to the user. This all happens without waiting for the result to propogate to a shared point of view.
+This maps to memcache in that each connection effectively lives in it's own orly "Session". The session has a single private point of view connected to it. As memcached commands are sent to Orly, the commands are evaluated in that private point of view, and the result (delted, not found, value) is sent back to the user. This all happens without waiting for the result to propogate to a shared point of view.
 
-This is safe to do because the vast majority of memcached operations (basically everything other than cas) don't actually have any preconditions required for them to pass. They just happen or don't. That someone else in parallel could have caused them to happen or not happen is inconsequential. Stig guarantees that the results of every operation returned to the user is theoretically possible. This doesn't mean someone else will ever see that same state, or that when we get around to resolving conflicting updates that will be chosen. As one example, if a delete and an insert happen in parallel, then which occurs first is non-deterministic / a race. Stig will effectively arbitrarily choose when it resolves the difference, but for the initial client calls, both will seem to work.
+This is safe to do because the vast majority of memcached operations (basically everything other than cas) don't actually have any preconditions required for them to pass. They just happen or don't. That someone else in parallel could have caused them to happen or not happen is inconsequential. Orly guarantees that the results of every operation returned to the user is theoretically possible. This doesn't mean someone else will ever see that same state, or that when we get around to resolving conflicting updates that will be chosen. As one example, if a delete and an insert happen in parallel, then which occurs first is non-deterministic / a race. Orly will effectively arbitrarily choose when it resolves the difference, but for the initial client calls, both will seem to work.
 
 Every update though will always be seen by the same connection though will see every update which has happened. Over time other connections will see them (Unless the updates get written over, there is no ordering of things that happen simultaneously).
 
@@ -45,7 +45,7 @@ returning. This is because the semantics defined in the protocol spec require th
 externally visible results.
 
 ## Multi-Get, Multi-Set
-These are both transactional in Stig. How we recognize / start / end these varies on which protocol variant you're speaking.
+These are both transactional in Orly. How we recognize / start / end these varies on which protocol variant you're speaking.
 
 TODO: At present there is no way to do a round of gets and sets together which are guaranteed to be consistent. All the gets will be in one consistent point of view. All the sets will apply to a wholly independent consistent state of the daabase.
 

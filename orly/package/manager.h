@@ -27,7 +27,7 @@
 #include <orly/package/loaded.h>
 #include <orly/package/name.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Package {
 
@@ -105,4 +105,4 @@ namespace Stig {
 
   }  // Package
 
-}  // Stig
+}  // Orly

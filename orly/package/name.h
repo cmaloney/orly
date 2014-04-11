@@ -25,7 +25,7 @@
 #include <base/piece.h>
 #include <jhm/naming.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Package {
 
@@ -45,21 +45,21 @@ namespace Stig {
 
   } // Package
 
-} // Stig
+} // Orly
 
 namespace std {
 
   template <>
-  struct hash<Stig::Package::TVersionedName> {
+  struct hash<Orly::Package::TVersionedName> {
 
     typedef size_t result_type;
-    typedef Stig::Package::TVersionedName argument_type;
+    typedef Orly::Package::TVersionedName argument_type;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       return that.Name.GetHash() ^ that.Version;
     }
 
-  };  // hash<Stig::Package::TVersionedName>
+  };  // hash<Orly::Package::TVersionedName>
 
 }  // std

@@ -18,8 +18,8 @@
 
 #include <orly/expr/expr_parent.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TExprParent::TExprParent() {}
 

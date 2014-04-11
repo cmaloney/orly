@@ -20,7 +20,7 @@
 
 #include <orly/type/set.h>
 
-using namespace Stig;
+using namespace Orly;
 using namespace Var;
 
 size_t TSet::GetHash() const {

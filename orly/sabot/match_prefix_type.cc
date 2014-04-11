@@ -19,8 +19,8 @@
 #include <orly/sabot/match_prefix_type.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Sabot;
+using namespace Orly;
+using namespace Orly::Sabot;
 
 /* TODO */
 class TMatchPrefixTypeVisitor final
@@ -1755,7 +1755,7 @@ void TMatchPrefixTypeVisitor::operator()(const Type::TTuple &lhs,     const Type
   }
 }
 
-TMatchResult Stig::Sabot::MatchPrefixType(const Type::TAny &lhs_any, const Type::TAny &rhs_any) {
+TMatchResult Orly::Sabot::MatchPrefixType(const Type::TAny &lhs_any, const Type::TAny &rhs_any) {
   TMatchResult result = TMatchResult::Unifies;
   TMatchPrefixTypeVisitor visitor(result);
   //const Type::TTuple *lhs_ptr = dynamic_cast<const Type::TTuple *>(&lhs_any);

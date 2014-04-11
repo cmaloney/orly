@@ -21,8 +21,8 @@
 #include <orly/error.h>
 #include <orly/type/obj.h>
 
-using namespace Stig;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Type;
 
 class TIsEmptyObjVisitor
     : public TType::TVisitor {
@@ -61,7 +61,7 @@ class TIsEmptyObjVisitor
 
 };  // TIsEmptyObjVisitor
 
-void Stig::Type::EnsureEmptyObject(const Type::TType &type, const TPosRange &pos_range) {
+void Orly::Type::EnsureEmptyObject(const Type::TType &type, const TPosRange &pos_range) {
   bool is_empty = false;
   type.Accept(TIsEmptyObjVisitor(is_empty, pos_range));
   if (!is_empty) {

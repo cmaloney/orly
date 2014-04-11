@@ -1,6 +1,6 @@
 /* <orly/tracker.h>
 
-   A value returned by Stig which allows users to track thre result of a method call.
+   A value returned by Orly which allows users to track thre result of a method call.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -25,9 +25,9 @@
 #include <io/binary_input_stream.h>
 #include <io/binary_output_stream.h>
 
-namespace Stig {
+namespace Orly {
 
-  /* A value returned by Stig which allows users to track thre result of a method call. */
+  /* A value returned by Orly which allows users to track thre result of a method call. */
   class TTracker {
     public:
 
@@ -45,18 +45,18 @@ namespace Stig {
 
   };  // TTracker
 
-  /* Binary stream extractor for Stig::TTracker. */
+  /* Binary stream extractor for Orly::TTracker. */
   inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TTracker &that) {
     assert(&strm);
     assert(&that);
     return strm >> that.Id >> that.TimeToLive;
   }
 
-  /* Binary stream inserter for Stig::TTracker. */
+  /* Binary stream inserter for Orly::TTracker. */
   inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TTracker &that) {
     assert(&strm);
     assert(&that);
     return strm << that.Id << that.TimeToLive;
   }
 
-}  // Stig
+}  // Orly

@@ -21,7 +21,7 @@
 #include <base/no_copy_semantics.h>
 #include <orly/indy/disk/priority.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -58,4 +58,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace Io;
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 TCoreVectorBuilder::TCoreVectorBuilder() {
   Arena = new TDirtyArena(this);

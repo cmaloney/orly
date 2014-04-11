@@ -24,7 +24,7 @@
 #include <base/error.h>
 #include <base/syntax_error.h>
 
-using namespace Stig;
+using namespace Orly;
 
 TUUID::TUUID() {
   uuid_generate_time(UUID);

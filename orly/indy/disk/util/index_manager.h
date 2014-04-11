@@ -27,7 +27,7 @@
 #include <orly/indy/util/min_heap.h>
 #include <orly/indy/util/sorter.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -281,4 +281,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

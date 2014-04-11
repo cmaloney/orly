@@ -25,7 +25,7 @@
 #include <orly/pos_range.h>
 #include <orly/symbol/stmt/stmt.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -63,4 +63,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

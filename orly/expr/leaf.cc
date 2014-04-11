@@ -20,8 +20,8 @@
 
 #include <orly/pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TLeaf::TLeaf(const TPosRange &pos_range)
     : TExpr(pos_range) {}

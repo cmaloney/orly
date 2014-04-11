@@ -26,11 +26,11 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Util;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Util;
 
 class TReader
     : public TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> {
@@ -39,7 +39,7 @@ class TReader
 
   /* TODO */
   typedef TStream<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage, 0UL> TInStream;
-  typedef Stig::Indy::Disk::TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TMyReadFile;
+  typedef Orly::Indy::Disk::TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TMyReadFile;
 
   TReader(Disk::Util::TEngine *engine, const Base::TUuid &file_id, DiskPriority priority, size_t gen_id)
       : TMyReadFile(HERE, Source::FileRemoval, engine, file_id, priority, gen_id) {}
@@ -692,7 +692,7 @@ TRepo::TPresentWalker::TPresentWalker(const unique_ptr<TView> &view,
                                       const TIndexKey &from,
                                       const TIndexKey &to,
                                       bool ignore_tombstone)
-    : Stig::Indy::TPresentWalker(Range),
+    : Orly::Indy::TPresentWalker(Range),
       From(from),
       To(to),
       View(view),
@@ -724,7 +724,7 @@ TRepo::TPresentWalker::TPresentWalker(const unique_ptr<TView> &view,
 TRepo::TPresentWalker::TPresentWalker(const unique_ptr<TView> &view,
                                       const TIndexKey &key,
                                       bool ignore_tombstone)
-    : Stig::Indy::TPresentWalker(Match),
+    : Orly::Indy::TPresentWalker(Match),
       From(key),
       View(view),
       Lower(View->GetLower() ? *View->GetLower() : 0UL),
@@ -1414,7 +1414,7 @@ size_t TSafeRepo::WriteFile(TMemoryLayer *memory_layer,
   return gen_id;
 }
 
-std::unique_ptr<Stig::Indy::TPresentWalker> TSafeRepo::NewPresentWalkerFile(size_t gen_id,
+std::unique_ptr<Orly::Indy::TPresentWalker> TSafeRepo::NewPresentWalkerFile(size_t gen_id,
                                                                             const TIndexKey &index_from,
                                                                             const TIndexKey &index_to) const {
   assert(this);
@@ -1426,7 +1426,7 @@ std::unique_ptr<Stig::Indy::TPresentWalker> TSafeRepo::NewPresentWalkerFile(size
                                                                                      index_to.GetKey()));
 }
 
-std::unique_ptr<Stig::Indy::TPresentWalker> TSafeRepo::NewPresentWalkerFile(size_t gen_id,
+std::unique_ptr<Orly::Indy::TPresentWalker> TSafeRepo::NewPresentWalkerFile(size_t gen_id,
                                                                             const TIndexKey &index_key) const {
   assert(this);
   return unique_ptr<Disk::TPresentWalkFileWrapper>(new Disk::TPresentWalkFileWrapper(Manager->GetEngine(),
@@ -1436,7 +1436,7 @@ std::unique_ptr<Stig::Indy::TPresentWalker> TSafeRepo::NewPresentWalkerFile(size
                                                                                      index_key.GetKey()));
 }
 
-std::unique_ptr<Stig::Indy::TUpdateWalker> TSafeRepo::NewUpdateWalkerFile(size_t gen_id, TSequenceNumber from) const {
+std::unique_ptr<Orly::Indy::TUpdateWalker> TSafeRepo::NewUpdateWalkerFile(size_t gen_id, TSequenceNumber from) const {
   assert(this);
   return unique_ptr<Disk::TUpdateWalkFile>(new Disk::TUpdateWalkFile(Manager->GetEngine(), GetId(), gen_id, from));
 }

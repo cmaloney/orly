@@ -22,8 +22,8 @@
 #include <base/no_default_case.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TScope::~TScope() {
   assert(this);

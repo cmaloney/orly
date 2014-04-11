@@ -20,7 +20,7 @@
 
 #include <xmmintrin.h>
 
-using namespace Stig::Indy::Fiber;
+using namespace Orly::Indy::Fiber;
 
 __thread TRunner *TRunner::LocalRunner = nullptr;
 __thread TFrame *TFrame::LocalFrame = nullptr;

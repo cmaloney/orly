@@ -21,10 +21,10 @@
 #include <orly/type.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Type;
 
-bool Stig::Type::HasOptional(const TType &type) {
+bool Orly::Type::HasOptional(const TType &type) {
   class THasOptionalVisitor
       : public TType::TVisitor {
     NO_COPY_SEMANTICS(THasOptionalVisitor);

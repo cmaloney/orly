@@ -18,8 +18,8 @@
 
 #include <orly/symbol/root.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TRoot::TRoot()  // Should only be used by TFunction
     : Expr(nullptr) {}

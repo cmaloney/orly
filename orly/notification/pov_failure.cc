@@ -19,7 +19,7 @@
 #include <orly/notification/pov_failure.h>
 
 using namespace Io;
-using namespace Stig::Notification;
+using namespace Orly::Notification;
 
 bool TPovFailure::Matches(const TPovFailure &that) const {
   assert(this);

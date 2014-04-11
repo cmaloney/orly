@@ -27,10 +27,10 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Notification;
-using namespace Stig::Server;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Notification;
+using namespace Orly::Server;
 
 TMethodResult TSession::DoInPast(
     TServer */*server*/, const TUuid &/*pov_id*/, const vector<string> &/*fq_name*/, const TClosure &/*closure*/, const TUuid &/*tracking_id*/) {
@@ -150,7 +150,7 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
   TSuprena my_arena;
   try {
     // Convert the args to vars.
-    Spa::TArgs::TStigArg prog_args;
+    Spa::TArgs::TOrlyArg prog_args;
     void *state_alloc_1 = alloca(Sabot::State::GetMaxStateSize() * 2);
     void *state_alloc_2 = reinterpret_cast<uint8_t *>(state_alloc_1) + Sabot::State::GetMaxStateSize();
     auto arena = closure.GetArena().get();
@@ -307,7 +307,7 @@ void TSession::UnpausePov(TServer *server, const TUuid &pov_id) {
   AddPov(pov);
 }
 
-const TUuid TSession::GlobalPovId = Stig::Indy::GlobalPovId;
+const TUuid TSession::GlobalPovId = Orly::Indy::GlobalPovId;
 
 TSession::TSession(Durable::TManager *manager, const Base::TUuid &id, const Durable::TTtl &ttl)
     : TObj(manager, id, ttl), NextSeqNumber(1) {}

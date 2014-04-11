@@ -28,12 +28,12 @@ namespace Base {
     /* These maps are used for checking the structural type of objects later in the compiler.
        For use with implementing time_obj, which converts time_pnts AND time_diffs into objects. */
 
-    extern const TSafeGlobal<Stig::Type::TObj::TElems> TimeDiffMap;
+    extern const TSafeGlobal<Orly::Type::TObj::TElems> TimeDiffMap;
 
-    extern const TSafeGlobal<Stig::Type::TObj::TElems> TimePntMap;
+    extern const TSafeGlobal<Orly::Type::TObj::TElems> TimePntMap;
 
     /* Helper function to check if an object is a time object */
-    extern bool IsTimeObj(const Stig::Type::TObj *type);
+    extern bool IsTimeObj(const Orly::Type::TObj *type);
 
   }  // Chrono
 

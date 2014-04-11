@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/mutablefilter.orly>
 
-   This Stig script contains an error case where you cannot filter values
+   This Orly script contains an error case where you cannot filter values
    returned from dereferencing a set of keys directly.
 
    Copyright 2010-2014 OrlyAtomics, Inc.

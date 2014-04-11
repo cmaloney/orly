@@ -22,7 +22,7 @@
 #include <cstddef>
 #include <unordered_map>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -61,21 +61,21 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Rt::TUnknown. */
+  /* A standard hasher for Orly::Rt::TUnknown. */
   template <>
-  struct hash<Stig::Rt::TUnknown> {
+  struct hash<Orly::Rt::TUnknown> {
 
     typedef size_t result_type;
-    typedef Stig::Rt::TUnknown argument_type;
+    typedef Orly::Rt::TUnknown argument_type;
 
     result_type operator()(const argument_type &that) const {
       return that.GetHash();
     }
 
-  };  // hash<Stig::Rt::TUnknown
+  };  // hash<Orly::Rt::TUnknown
 
 }  // std

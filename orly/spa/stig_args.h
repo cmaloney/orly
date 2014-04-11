@@ -31,7 +31,7 @@
 #include <orly/var.h>
 
 /* TODO: The argument parsing here should probably share a decent amount of code with <base/cmd.h>*/
-namespace Stig {
+namespace Orly {
 
   namespace Spa {
 
@@ -69,7 +69,7 @@ namespace Stig {
         public:
 
         /* A map of strings to Atom::TCore which serves as arguments to a orly program. */
-        typedef std::unordered_map<std::string, Indy::TKey> TStigArg;
+        typedef std::unordered_map<std::string, Indy::TKey> TOrlyArg;
 
         /* For Utility */
         typedef Base::TPiece<const char> TStrPiece;
@@ -317,4 +317,4 @@ namespace Stig {
 
   } // Spa
 
-} // Stig
+} // Orly

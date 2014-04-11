@@ -22,7 +22,7 @@
 #include <orly/code_gen/function.h>
 #include <orly/expr/expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -37,7 +37,7 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly
 
 
 

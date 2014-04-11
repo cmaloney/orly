@@ -24,8 +24,8 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TAddrMember::TPtr TAddrMember::New(const TExpr::TPtr &expr, size_t index, const TPosRange &pos_range) {
   return TAddrMember::TPtr(new TAddrMember(expr, index, pos_range));

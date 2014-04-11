@@ -28,7 +28,7 @@
 #include <orly/sabot/state.h>
 #include <orly/sabot/type.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Client {
 
@@ -981,4 +981,4 @@ namespace Stig {
 
   }  // Client
 
-}  // Stig
+}  // Orly

@@ -25,7 +25,7 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig::Handshake;
+using namespace Orly::Handshake;
 
 THeader::THeader()
     : Intro(0), Version(0), TimeToLive(0), RequestKind('\0') {}

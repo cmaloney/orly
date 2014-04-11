@@ -26,8 +26,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TTimeDiffCtor::TTimeDiffCtor(const Package::Syntax::TTimeDiffCtor *time_diff_ctor)
     : TimeDiffCtor(Base::AssertTrue(time_diff_ctor)) {}

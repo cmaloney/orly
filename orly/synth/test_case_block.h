@@ -24,7 +24,7 @@
 #include <orly/symbol/test/test_case_block.h>
 #include <orly/synth/expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -92,4 +92,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

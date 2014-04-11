@@ -18,12 +18,12 @@
 
 #include <orly/type/id.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_SINGLETON_TYPE(TId);
 
 TId::~TId() {}
 
 void TId::Write(std::ostream &strm) const {
-  strm << "Stig::TUUID";
+  strm << "Orly::TUUID";
 }

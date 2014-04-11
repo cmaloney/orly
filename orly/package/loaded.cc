@@ -27,7 +27,7 @@
 using namespace Base;
 using namespace Jhm;
 using namespace std;
-using namespace Stig::Package;
+using namespace Orly::Package;
 
 void *TDlError::IfNull(const Base::TCodeLocation &code_location, void *handle) {
   if(!handle) {
@@ -117,12 +117,12 @@ TLoaded::TLoaded(const Jhm::TAbsBase &package_dir, const TVersionedName &name) :
     assert(LinkInfo);
     if(LinkInfo->PrimaryName != name.Name.AsStr()) {
       std::ostringstream oss;
-      oss << "Package name inside the package doesn't match the filename. It is illegal to rename Stig package '.so' files. Named '" << LinkInfo->PrimaryName << "' in package, expected '" << name.Name.AsStr() << "'.";
+      oss << "Package name inside the package doesn't match the filename. It is illegal to rename Orly package '.so' files. Named '" << LinkInfo->PrimaryName << "' in package, expected '" << name.Name.AsStr() << "'.";
       throw TLoaderError(HERE, oss.str().c_str());
     }
 
     if(LinkInfo->PrimaryVersion != name.Version) {
-      throw TLoaderError(HERE, "Package version inside the package doesn't match the filename. It is illegal to rename Stig package '.so' files.");
+      throw TLoaderError(HERE, "Package version inside the package doesn't match the filename. It is illegal to rename Orly package '.so' files.");
     }
 
   } catch (...) {
@@ -137,13 +137,13 @@ const TParamMap &TFuncHolder::GetParameters() const {
   return Func->Parameters;
 }
 
-const Stig::Type::TType &TFuncHolder::GetReturnType() const {
+const Orly::Type::TType &TFuncHolder::GetReturnType() const {
   assert(this);
 
   return Func->ReturnType;
 }
 
-Stig::Atom::TCore TFuncHolder::Call(TContext &ctx, const TArgMap &args) const {
+Orly::Atom::TCore TFuncHolder::Call(TContext &ctx, const TArgMap &args) const {
   assert(this);
   assert(&ctx);
   assert(&args);

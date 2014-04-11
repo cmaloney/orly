@@ -23,7 +23,7 @@
 #include <orly/type/equal_visitor.h>
 #include <orly/type/unwrap.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -59,4 +59,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

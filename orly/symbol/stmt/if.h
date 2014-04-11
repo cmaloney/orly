@@ -24,7 +24,7 @@
 #include <orly/symbol/root.h>
 #include <orly/symbol/stmt/stmt_block.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -108,4 +108,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

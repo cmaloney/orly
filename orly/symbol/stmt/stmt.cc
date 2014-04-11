@@ -20,9 +20,9 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Stmt;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Stmt;
 
 TStmt::TStmt(const TPosRange &pos_range)
     : PosRange(pos_range), StmtBlock(nullptr) {}

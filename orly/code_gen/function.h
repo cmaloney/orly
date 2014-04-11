@@ -28,7 +28,7 @@
 #include <orly/code_gen/package_base.h>
 #include <orly/symbol/function.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -157,4 +157,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

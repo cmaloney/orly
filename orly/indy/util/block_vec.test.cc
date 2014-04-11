@@ -21,7 +21,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Indy::Util;
+using namespace Orly::Indy::Util;
 
 void ValidateVector(const std::vector<size_t> &expected_block_vec) {
   const size_t num_elems = expected_block_vec.size();

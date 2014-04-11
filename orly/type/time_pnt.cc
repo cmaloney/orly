@@ -18,7 +18,7 @@
 
 #include <orly/type/time_pnt.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_SINGLETON_TYPE(TTimePnt);
 

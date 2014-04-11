@@ -20,7 +20,7 @@
 
 #include <orly/type/real.h>
 
-using namespace Stig;
+using namespace Orly;
 using namespace Var;
 
 size_t TReal::GetHash() const {

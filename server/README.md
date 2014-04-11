@@ -1,6 +1,6 @@
 ## server
 
-Various Stig-related server utilities.
+Various Orly-related server utilities.
 
 -----
 

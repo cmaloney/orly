@@ -22,7 +22,7 @@
 #include <orly/expr/unary.h>
 #include <orly/symbol/scope.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -47,4 +47,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

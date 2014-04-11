@@ -26,10 +26,10 @@
 #include <tools/nycr/escape.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
-void Stig::Var::Stigify(ostream &strm, const TVar &var) {
+void Orly::Var::Orlyify(ostream &strm, const TVar &var) {
   class TVisitor : public TVar::TVisitor {
     NO_COPY_SEMANTICS(TVisitor);
     public:
@@ -51,7 +51,7 @@ void Stig::Var::Stigify(ostream &strm, const TVar &var) {
     virtual void operator()(const TDict *that) const {
       if(that->GetVal().empty()) {
         Strm << "empty ";
-        Stig::Type::Stigify(Strm, that->GetType());
+        Orly::Type::Orlyify(Strm, that->GetType());
       } else {
         Strm << "{";
         size_t num_args = 0;
@@ -78,7 +78,7 @@ void Stig::Var::Stigify(ostream &strm, const TVar &var) {
     virtual void operator()(const TList *that) const {
       if(that->GetVal().empty()) {
         Strm << "empty ";
-        Stig::Type::Stigify(Strm, that->GetType());
+        Orly::Type::Orlyify(Strm, that->GetType());
       } else {
         Strm << "[";
         size_t num_args = 0;
@@ -114,7 +114,7 @@ void Stig::Var::Stigify(ostream &strm, const TVar &var) {
         Strm << '?';
       } else {
         Strm << "unknown ";
-        Type::Stigify(Strm, that->GetInnerType());
+        Type::Orlyify(Strm, that->GetInnerType());
       }
     }
     virtual void operator()(const TReal *that) const {
@@ -123,7 +123,7 @@ void Stig::Var::Stigify(ostream &strm, const TVar &var) {
     virtual void operator()(const TSet *that) const {
       if (that->GetVal().empty()) {
         Strm << "empty ";
-        Stig::Type::Stigify(Strm, that->GetType());
+        Orly::Type::Orlyify(Strm, that->GetType());
       } else {
         Strm << "{";
         size_t num_args = 0;

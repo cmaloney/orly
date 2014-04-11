@@ -1,6 +1,6 @@
 /* <orly/var/time_diff.h>
 
-   A Stig time_diff, which is Stig::Base::Chrono::TTimeDiff.
+   A Orly time_diff, which is Orly::Base::Chrono::TTimeDiff.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -24,7 +24,7 @@
 #include <orly/rt/runtime_error.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -129,4 +129,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

@@ -20,7 +20,7 @@
 
 #include <orly/desc.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -32,11 +32,11 @@ namespace Stig {
 
     /* TODO */
     template <typename TVal>
-    TVal UnwrapDesc(const Stig::TDesc<TVal> &val) {
+    TVal UnwrapDesc(const Orly::TDesc<TVal> &val) {
       return *val;
     }
 
 
   }  // Rt
 
-}  // Stig
+}  // Orly

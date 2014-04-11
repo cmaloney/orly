@@ -28,9 +28,9 @@
 
 using namespace Io;
 using namespace Strm::Bin;
-using namespace Stig::Mynde;
+using namespace Orly::Mynde;
 
-TIn &Stig::Mynde::operator>>(TIn &in, TRequestHeader &that) {
+TIn &Orly::Mynde::operator>>(TIn &in, TRequestHeader &that) {
   in.ReadShallow(that);
 
   that.KeyLength = SwapEnds(that.KeyLength);
@@ -42,7 +42,7 @@ TIn &Stig::Mynde::operator>>(TIn &in, TRequestHeader &that) {
   return in;
 }
 
-TOut &Stig::Mynde::operator<<(TOut &out, const TRequestHeader &that) {
+TOut &Orly::Mynde::operator<<(TOut &out, const TRequestHeader &that) {
   //TODO: Should we SwapEnds on ourselves then pass through?
   // The only problem if anyone happens to read our values during that time they'll get the incorrect results
 
@@ -58,7 +58,7 @@ TOut &Stig::Mynde::operator<<(TOut &out, const TRequestHeader &that) {
   return out;
 }
 
-TIn &Stig::Mynde::operator>>(TIn &in, TResponseHeader &that) {
+TIn &Orly::Mynde::operator>>(TIn &in, TResponseHeader &that) {
   in.ReadShallow(that);
 
   that.KeyLength = SwapEnds(that.KeyLength);
@@ -70,7 +70,7 @@ TIn &Stig::Mynde::operator>>(TIn &in, TResponseHeader &that) {
   return in;
 }
 
-TOut &Stig::Mynde::operator<<(TOut &out, const TResponseHeader &that) {
+TOut &Orly::Mynde::operator<<(TOut &out, const TResponseHeader &that) {
 
   //TODO: This is a hack. But it works!
   TResponseHeader tmp(that);

@@ -19,8 +19,8 @@
 #include <orly/code_gen/exists.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TExists::TExists(const L0::TPackage *package,
                  const Type::TType &ret_type,
@@ -34,5 +34,5 @@ void TExists::WriteExpr(TCppPrinter &out) const {
   const Base::TUuid &index_id = Package->GetIndexIdFor(Expr->GetReturnType(), ValType);
   char uuid[37];
   index_id.FormatUnderscore(uuid);
-  out << "Exists(ctx.GetFlux(), " << Expr << ", " << TStigNamespace(Package->GetNamespace()) << "::My" << uuid << ")";
+  out << "Exists(ctx.GetFlux(), " << Expr << ", " << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << ")";
 }

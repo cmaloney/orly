@@ -30,8 +30,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Atom;
+using namespace Orly;
+using namespace Orly::Atom;
 
 /* An extensible arena that does no interning and enforces no ordering. */
 class TTestArena final

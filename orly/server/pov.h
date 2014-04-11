@@ -24,7 +24,7 @@
 #include <orly/durable/kit.h>
 #include <orly/indy/manager.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Server {
 
@@ -43,7 +43,7 @@ namespace Stig {
         virtual const Indy::L0::TManager::TPtr<Indy::TRepo> &GetGlobalRepo() const = 0;
 
         /* TODO */
-        virtual Stig::Indy::TManager *GetRepoManager() const = 0;
+        virtual Orly::Indy::TManager *GetRepoManager() const = 0;
 
         protected:
 
@@ -155,4 +155,4 @@ namespace Stig {
 
   }  // Server
 
-}  // Stig
+}  // Orly

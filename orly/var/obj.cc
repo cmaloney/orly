@@ -23,8 +23,8 @@
 #include <base/not_implemented.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 /* TODO */
 size_t TObj::GetHash() const {

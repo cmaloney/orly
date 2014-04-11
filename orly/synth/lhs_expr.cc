@@ -26,8 +26,8 @@
 #include <orly/synth/sort_expr.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TLhsExpr::TLhsExpr(const TExprFactory *expr_factory, const Package::Syntax::TLhsExpr *lhs_expr)
     : LhsExpr(Base::AssertTrue(lhs_expr)), LhsRhsableExpr(Base::AssertTrue(expr_factory)->LhsRhsableExpr) {

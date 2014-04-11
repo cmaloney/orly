@@ -18,9 +18,9 @@
 
 #include <orly/symbol/stmt/stmt_arg.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Stmt;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Stmt;
 
 TStmtArg::TPtr TStmtArg::New(const Expr::TExpr::TPtr &expr) {
   return TStmtArg::TPtr(new TStmtArg(expr));

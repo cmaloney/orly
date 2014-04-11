@@ -23,7 +23,7 @@
 #include <orly/type.h>
 #include <orly/type/ensure_empty_object.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -722,4 +722,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

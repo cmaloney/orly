@@ -18,8 +18,8 @@
 
 #include <orly/synth/atomic_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TAtomicType::TAtomicType(TGet get)
     : Get(get) {}

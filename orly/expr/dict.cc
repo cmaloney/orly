@@ -28,8 +28,8 @@
 #include <orly/type/util.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TDict::TPtr TDict::New(const Type::TType &type, const TPosRange &pos_range) {
   return TDict::TPtr(new TDict(type, pos_range));

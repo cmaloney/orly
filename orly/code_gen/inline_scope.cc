@@ -22,8 +22,8 @@
 #include <orly/code_gen/builder.h>
 #include <orly/code_gen/context.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TInlineScope::TPtr TInlineScope::New(const L0::TPackage *package, const Expr::TExpr::TPtr &expr, bool keep_mutable) {
   TCodeScope *cs = new TCodeScope(Context::GetScope()->GetIdScope());
@@ -57,7 +57,7 @@ void TInlineScope::WriteExpr(TCppPrinter &out) const {
 TInlineScope::TInlineScope(const L0::TPackage *package, TCodeScope *scope, const TInline::TPtr &body) : TInline(package, body->GetReturnType()), Body(body),
     Scope(Base::AssertTrue(scope)) {}
 
-TCppPrinter &Stig::CodeGen::operator<<(TCppPrinter &out, const Stig::CodeGen::TInlineScope::TPtr &that) {
+TCppPrinter &Orly::CodeGen::operator<<(TCppPrinter &out, const Orly::CodeGen::TInlineScope::TPtr &that) {
   that->Write(out);
 
   return out;

@@ -26,7 +26,7 @@
 #include <orly/rt/mutable.h>
 #include <orly/rt/opt.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -63,7 +63,7 @@ namespace Stig {
 
     /* Call existing IsEmpty with the element in the optional
        Note: If we have nested optionals we'll loop back into this function,
-             which is invalid in Stigscript */
+             which is invalid in Orlyscript */
     template <typename TVal>
     TOpt<bool> IsEmpty(const TOpt<TVal> &opt) {
       assert(&opt);
@@ -72,11 +72,11 @@ namespace Stig {
 
     /* Call existing IsEmpty with the element in the optional
        Note: If we have nested optionals we'll loop back into this function,
-             which is invalid in Stigscript */
+             which is invalid in Orlyscript */
     template <typename TAddr, typename TVal>
     auto IsEmpty(const TMutable<TAddr, TVal> &mutable_)
       DECLTYPE_AUTO(IsEmpty(mutable_.GetVal()));
 
   }  // Rt
 
-}  // Stig
+}  // Orly

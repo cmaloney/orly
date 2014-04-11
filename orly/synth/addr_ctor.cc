@@ -25,8 +25,8 @@
 #include <orly/synth/cst_utils.h>
 #include <orly/synth/get_pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TAddrCtor::TAddrCtor(const TExprFactory *expr_factory, const Package::Syntax::TAddrCtor *addr_ctor)
     : AddrCtor(Base::AssertTrue(addr_ctor)) {

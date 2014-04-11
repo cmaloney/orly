@@ -26,8 +26,8 @@
 #include <orly/type.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Spa; // Sort of ug. Would be nice to remove. Not strictly necessary for running tests...
+using namespace Orly;
+using namespace Orly::Spa; // Sort of ug. Would be nice to remove. Not strictly necessary for running tests...
 
 //For the starsha runner.
 bool PrintCmds = false;
@@ -55,7 +55,7 @@ class TCompilerConfig : public Base::TCmd {
       Param(&TCompilerConfig::VerboseTests, "verbose_tests", Optional, "v\0",
           "Run tests in 'verbose' mode, printing out the result of every test, rather than just failing tests.");
       //TODO: It would be nice if we could make this "Required"...
-      Param(&TCompilerConfig::Source, "source", Required, "The Stig source file to compile.");
+      Param(&TCompilerConfig::Source, "source", Required, "The Orly source file to compile.");
     }
 
     private:

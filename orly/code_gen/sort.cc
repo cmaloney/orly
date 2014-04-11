@@ -20,7 +20,7 @@
 
 #include <orly/code_gen/implicit_func.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TSort::TPtr TSort::New(const L0::TPackage *package,
                        const Type::TType &ret_type,

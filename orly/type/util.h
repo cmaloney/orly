@@ -22,7 +22,7 @@
 
 #include <orly/type.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -55,4 +55,4 @@ namespace Stig {
 
   } // Type
 
-} // Stig
+} // Orly

@@ -34,7 +34,7 @@
 #include <orly/closure.h>
 #include <orly/method_result.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Client {
 
@@ -180,4 +180,4 @@ namespace Stig {
 
   }  // Client
 
-}  // Stig
+}  // Orly

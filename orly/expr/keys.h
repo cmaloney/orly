@@ -26,7 +26,7 @@
 #include <orly/expr/addr.h>
 #include <orly/expr/n_ary.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -67,4 +67,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

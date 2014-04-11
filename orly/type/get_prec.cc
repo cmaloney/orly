@@ -22,10 +22,10 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
+using namespace Orly;
 using namespace Type;
 
-TPrec Stig::Type::GetPrec(const Type::TType &type) {
+TPrec Orly::Type::GetPrec(const Type::TType &type) {
   class TPrecVisitor : public TType::TVisitor {
     NO_COPY_SEMANTICS(TPrecVisitor);
     public:

@@ -30,8 +30,8 @@
 #include <orly/symbol/result_def.h>
 #include <orly/type/util.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TRef::TPtr TRef::New(const Symbol::TDef::TPtr &def, const TPosRange &pos_range) {
   return TRef::TPtr(new TRef(def.get(), pos_range));

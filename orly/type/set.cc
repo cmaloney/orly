@@ -18,12 +18,12 @@
 
 #include <orly/type/set.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_UNARY_TYPE(TSet);
 
 TSet::~TSet() {}
 
 void TSet::Write(std::ostream &strm) const {
-  strm << "Stig::Rt::TSet<" << GetElem() << ">";
+  strm << "Orly::Rt::TSet<" << GetElem() << ">";
 }

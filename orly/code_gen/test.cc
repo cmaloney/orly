@@ -30,8 +30,8 @@
 #include <tools/nycr/pos_range.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 template <>
 void TCppPrinter::Write(const Tools::Nycr::TPos &pos) {
@@ -111,7 +111,7 @@ void TTestCase::Write(TCppPrinter &out) const {
   /* indent */ {
     TIndent indent(out);
     out << "Package::TParamMap{}," << Eol
-        << "/* ret */ Stig::Type::TBool::Get()," << Eol
+        << "/* ret */ Orly::Type::TBool::Get()," << Eol
         << "RT_" << Id << Eol;
   }
   out << "};" << Eol << Eol;
@@ -228,7 +228,7 @@ void TWith::Write(TCppPrinter &out) const {
     const Base::TUuid &index_id = Package->GetIndexIdFor(it.first->GetReturnType(), it.second->GetReturnType());
     char uuid[37];
     index_id.FormatUnderscore(uuid);
-    out << "ctx.AddEffect(" << it.first << ", " << TStigNamespace(Package->GetNamespace()) << "::My" << uuid << ", Var::TNew::New(Var::ToVar(*Sabot::State::TAny::TWrapper(Native::State::New(" << it.second << ", state_alloc)))));" << Eol;
+    out << "ctx.AddEffect(" << it.first << ", " << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << ", Var::TNew::New(Var::ToVar(*Sabot::State::TAny::TWrapper(Native::State::New(" << it.second << ", state_alloc)))));" << Eol;
   }
   out << "return true;" << Eol;
 }
@@ -299,7 +299,7 @@ void TTest::Write(TCppPrinter &out) const {
     /* indent */ {
       TIndent indent(out);
       out << "Package::TParamMap{}," << Eol
-          << "/* ret */ Stig::Type::TBool::Get()," << Eol
+          << "/* ret */ Orly::Type::TBool::Get()," << Eol
           << "RW_" << Id << Eol;
     }
     out << "};" << Eol

@@ -21,7 +21,7 @@
 #include <orly/indy/disk/util/engine.h>
 #include <orly/indy/disk/test_file_service.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -194,4 +194,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

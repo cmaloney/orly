@@ -34,7 +34,7 @@
 #include <orly/sabot/all.h>
 #include <orly/var/sabot_to_var.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -61,7 +61,7 @@ namespace Stig {
         public:
 
         /* TODO */
-        using TItem = Stig::Indy::TPresentWalker::TItem;
+        using TItem = Orly::Indy::TPresentWalker::TItem;
 
         /* TODO */
         TPresentWalker(TContext *context, const TRepoTree &repo_tree, const TIndexKey &key);
@@ -104,7 +104,7 @@ namespace Stig {
 
       /* TODO */
       class TKeyCursor
-          : public Stig::TKeyCursor {
+          : public Orly::TKeyCursor {
         NO_COPY_SEMANTICS(TKeyCursor);
         public:
 
@@ -208,7 +208,7 @@ namespace Stig {
 
     /* TODO */
     class TIndyContext
-          : public Stig::Package::TContext {
+          : public Orly::Package::TContext {
       NO_COPY_SEMANTICS(TIndyContext);
       public:
 
@@ -221,10 +221,10 @@ namespace Stig {
           Base::TScheduler *scheduler,
           Rt::TOpt<Base::Chrono::TTimePnt> now,
           Rt::TOpt<uint32_t> seed)
-          : Stig::Package::TContext(user_id, session_id, arena, scheduler, now, seed), DataContext(context) {}
+          : Orly::Package::TContext(user_id, session_id, arena, scheduler, now, seed), DataContext(context) {}
 
       /* TODO */
-      virtual Stig::TContextBase &GetFlux() override{
+      virtual Orly::TContextBase &GetFlux() override{
         return DataContext;
       }
 
@@ -286,4 +286,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

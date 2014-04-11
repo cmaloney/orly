@@ -32,7 +32,7 @@
 #include <orly/indy/disk/out_stream.h>
 #include <orly/indy/disk/util/volume_manager.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -257,4 +257,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

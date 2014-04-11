@@ -27,7 +27,7 @@
 #include <orly/shared_enum.h>
 #include <orly/type/part.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -47,22 +47,22 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly
 
 namespace std {
   template <>
-  struct hash<Stig::CodeGen::TMutablePart> {
+  struct hash<Orly::CodeGen::TMutablePart> {
     typedef size_t result_type;
-    typedef Stig::CodeGen::TMutablePart argument_type;
+    typedef Orly::CodeGen::TMutablePart argument_type;
 
     result_type operator()(const argument_type &that) const {
       //TODO: Use a better hash
-      return std::hash<Stig::CodeGen::TPtrC<Stig::CodeGen::TInline>>()(that.Mutable) ^ that.Index;
+      return std::hash<Orly::CodeGen::TPtrC<Orly::CodeGen::TInline>>()(that.Mutable) ^ that.Index;
     }
-  }; //hash<Stig::CodeGen::TMutablePart>
+  }; //hash<Orly::CodeGen::TMutablePart>
 }
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -207,4 +207,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

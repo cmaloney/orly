@@ -27,7 +27,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy::Fiber;
+using namespace Orly::Indy::Fiber;
 
 FIXTURE(Typical) {
   TRunner::TRunnerCons runner_cons(1);

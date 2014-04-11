@@ -1,6 +1,6 @@
 /* <orly/lang_tests/samples/fizzbuzz.orly>
 
-   Because if it can be done in LOLCode, it better be doable in Stig.
+   Because if it can be done in LOLCode, it better be doable in Orly.
 
    And since we don't have loops, this is kinda what it looks like (a function applied
    to a sequence).

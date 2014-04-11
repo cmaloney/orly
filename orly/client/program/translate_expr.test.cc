@@ -28,8 +28,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Client::Program;
+using namespace Orly;
+using namespace Orly::Client::Program;
 
 static void ParseExprStr(const char *str, const function<void (const TExpr *)> &cb) {
   ostringstream strm;
@@ -244,8 +244,8 @@ FIXTURE(Parens) {
 #if 0
 using namespace std;
 using namespace Base;
-using namespace Stig::Atom;
-using namespace Stig::Client::Program;
+using namespace Orly::Atom;
+using namespace Orly::Client::Program;
 
 class TStmtVisitor final : public TStmt::TVisitor {
   public:

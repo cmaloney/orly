@@ -23,7 +23,7 @@
 #include <orly/var/impl.h>
 #include <orly/var/mutation.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Spa {
 
@@ -166,21 +166,21 @@ namespace Stig {
 
   }  // Spa
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Spa::FluxCapacitor::TKV. */
+  /* A standard hasher for Orly::Spa::FluxCapacitor::TKV. */
   template <>
-  struct hash<Stig::Spa::FluxCapacitor::TKV> {
+  struct hash<Orly::Spa::FluxCapacitor::TKV> {
 
     typedef size_t result_type;
-    typedef Stig::Spa::FluxCapacitor::TKV argument_type;
+    typedef Orly::Spa::FluxCapacitor::TKV argument_type;
 
     result_type operator()(const argument_type &that) const {
       return that.GetHash();
     }
 
-  };  // hash<Stig::Spa::FluxCapacitor::TKV>
+  };  // hash<Orly::Spa::FluxCapacitor::TKV>
 
 }  // std

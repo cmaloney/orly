@@ -19,9 +19,9 @@
 #include <orly/sabot/compare_states.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Sabot;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Sabot;
 
 void TCompareStatesVisitor::operator()(const State::TFree &/*lhs*/, const State::TFree &/*rhs*/      ) const { Comparison = TComparison::Eq; }
 void TCompareStatesVisitor::operator()(const State::TFree &/*lhs*/, const State::TTombstone &/*rhs*/ ) const { throw TUnreachable(); }

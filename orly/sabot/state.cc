@@ -21,7 +21,7 @@
 #include <cassert>
 
 using namespace std;
-using namespace Stig::Sabot;
+using namespace Orly::Sabot;
 
 size_t State::GetStaticElemCount(const Sabot::Type::TAny &type) {
   class visitor_t final : public TTypeVisitor {
@@ -101,7 +101,7 @@ ACCEPT_AND_GET_TYPE(Record)
 ACCEPT_AND_GET_TYPE(Tuple)
 #undef ACCEPT_AND_GET_TYPE
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -206,8 +206,8 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly
 
-void Stig::Sabot::AcceptDouble(const State::TAny &lhs, const State::TAny &rhs, const TStateDoubleVisitor &double_visitor) {
+void Orly::Sabot::AcceptDouble(const State::TAny &lhs, const State::TAny &rhs, const TStateDoubleVisitor &double_visitor) {
   lhs.Accept(TLhsVisitor(rhs, double_visitor));
 }

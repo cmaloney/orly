@@ -26,8 +26,8 @@
 #include <orly/synth/get_pos_range.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TDictCtor::TDictCtor(const TExprFactory *expr_factory, const Package::Syntax::TDictCtor *dict_ctor)
     : DictCtor(Base::AssertTrue(dict_ctor)) {

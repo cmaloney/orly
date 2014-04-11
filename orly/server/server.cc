@@ -53,33 +53,33 @@ using namespace Base;
 using namespace Io;
 using namespace Socket;
 using namespace Rpc;
-using namespace Stig;
-using namespace Stig::Handshake;
-using namespace Stig::Indy;
-using namespace Stig::Server;
+using namespace Orly;
+using namespace Orly::Handshake;
+using namespace Orly::Indy;
+using namespace Orly::Server;
 
-const Stig::Indy::TMasterContext::TProtocol Stig::Indy::TMasterContext::TProtocol::Protocol;
-const Stig::Indy::TSlaveContext::TProtocol Stig::Indy::TSlaveContext::TProtocol::Protocol;
+const Orly::Indy::TMasterContext::TProtocol Orly::Indy::TMasterContext::TProtocol::Protocol;
+const Orly::Indy::TSlaveContext::TProtocol Orly::Indy::TSlaveContext::TProtocol::Protocol;
 
 static const size_t BlockSize = Disk::Util::PhysicalBlockSize;
 
 //static const size_t StackSize = 8 * 1024 * 1024;
 static const size_t StackSize = 1 * 1024 * 1024;
 
-Stig::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::Pool(sizeof(Disk::TDurableManager::TMapping), "Durable Mapping");
-Stig::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::TEntry::Pool(sizeof(Disk::TDurableManager::TMapping::TEntry), "Durable Mapping Entry");
-Stig::Indy::Util::TPool Disk::TDurableManager::TDurableLayer::Pool(std::max(sizeof(Disk::TDurableManager::TMemSlushLayer), sizeof(Disk::TDurableManager::TDiskOrderedLayer)), "Durable Layer");
-Stig::Indy::Util::TPool Disk::TDurableManager::TMemSlushLayer::TDurableEntry::Pool(sizeof(Disk::TDurableManager::TMemSlushLayer::TDurableEntry), "Durable Entry");
+Orly::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::Pool(sizeof(Disk::TDurableManager::TMapping), "Durable Mapping");
+Orly::Indy::Util::TLocklessPool Disk::TDurableManager::TMapping::TEntry::Pool(sizeof(Disk::TDurableManager::TMapping::TEntry), "Durable Mapping Entry");
+Orly::Indy::Util::TPool Disk::TDurableManager::TDurableLayer::Pool(std::max(sizeof(Disk::TDurableManager::TMemSlushLayer), sizeof(Disk::TDurableManager::TDiskOrderedLayer)), "Durable Layer");
+Orly::Indy::Util::TPool Disk::TDurableManager::TMemSlushLayer::TDurableEntry::Pool(sizeof(Disk::TDurableManager::TMemSlushLayer::TDurableEntry), "Durable Entry");
 
-Stig::Indy::Util::TPool TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
-Stig::Indy::Util::TPool TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
-Stig::Indy::Util::TPool TRepo::TDataLayer::Pool(max(sizeof(TMemoryLayer), sizeof(TDiskLayer)), "Data Layer");
+Orly::Indy::Util::TPool TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
+Orly::Indy::Util::TPool TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
+Orly::Indy::Util::TPool TRepo::TDataLayer::Pool(max(sizeof(TMemoryLayer), sizeof(TDiskLayer)), "Data Layer");
 
-Stig::Indy::Util::TPool L1::TTransaction::TMutation::Pool(max(max(sizeof(L1::TTransaction::TPusher), sizeof(L1::TTransaction::TPopper)), sizeof(L1::TTransaction::TStatusChanger)), "Transaction::TMutation");
-Stig::Indy::Util::TPool L1::TTransaction::Pool(sizeof(L1::TTransaction), "Transaction");
+Orly::Indy::Util::TPool L1::TTransaction::TMutation::Pool(max(max(sizeof(L1::TTransaction::TPusher), sizeof(L1::TTransaction::TPopper)), sizeof(L1::TTransaction::TStatusChanger)), "Transaction::TMutation");
+Orly::Indy::Util::TPool L1::TTransaction::Pool(sizeof(L1::TTransaction), "Transaction");
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update");
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry");
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update");
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry");
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize);
 
 Base::TSigmaCalc TSession::TServer::TryReadTimeCalc;
@@ -347,11 +347,11 @@ class TIndexIdReader
 
   static constexpr size_t PhysicalCachePageSize = Indy::Disk::Util::PhysicalBlockSize / (Indy::Disk::Util::LogicalBlockSize / Indy::Disk::Util::LogicalPageSize);
 
-  using TArena = Stig::Indy::Disk::TDiskArena<Indy::Disk::Util::LogicalPageSize, Indy::Disk::Util::LogicalBlockSize, Indy::Disk::Util::PhysicalBlockSize, Indy::Disk::Util::CheckedPage, 128, true>;
+  using TArena = Orly::Indy::Disk::TDiskArena<Indy::Disk::Util::LogicalPageSize, Indy::Disk::Util::LogicalBlockSize, Indy::Disk::Util::PhysicalBlockSize, Indy::Disk::Util::CheckedPage, 128, true>;
 
   /* TODO */
   //typedef Indy::Disk::TStream<Indy::Disk::Util::LogicalPageSize, Indy::Disk::Util::LogicalBlockSize, Indy::Disk::Util::PhysicalBlockSize, Indy::Disk::Util::CheckedPage> TInStream;
-  typedef Stig::Indy::Disk::TReadFile<Indy::Disk::Util::LogicalPageSize, Indy::Disk::Util::LogicalBlockSize, Indy::Disk::Util::PhysicalBlockSize, Indy::Disk::Util::CheckedPage> TMyReadFile;
+  typedef Orly::Indy::Disk::TReadFile<Indy::Disk::Util::LogicalPageSize, Indy::Disk::Util::LogicalBlockSize, Indy::Disk::Util::PhysicalBlockSize, Indy::Disk::Util::CheckedPage> TMyReadFile;
 
   TIndexIdReader(Disk::Util::TEngine *engine, const Base::TUuid &file_id, Indy::Disk::DiskPriority priority, size_t gen_id, size_t starting_block_id, size_t starting_block_offset, size_t file_length)
       : TMyReadFile(HERE, Indy::Disk::Source::System, engine->GetPageCache(), file_id, priority, gen_id, starting_block_id, starting_block_offset, file_length) {}
@@ -663,10 +663,10 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
       HousecleaningTimer(cmd.HousecleaningInterval) {
   InitalizeFramePoolManager(Cmd.NumFiberFrames, StackSize, &BGFastRunner);
   Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(Cmd.NumDiskEvents);
-  using TLocalReadFileCache = Stig::Indy::Disk::TLocalReadFileCache<Stig::Indy::Disk::Util::LogicalPageSize,
-    Stig::Indy::Disk::Util::LogicalBlockSize,
-    Stig::Indy::Disk::Util::PhysicalBlockSize,
-    Stig::Indy::Disk::Util::CheckedPage, true>;
+  using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,
+    Orly::Indy::Disk::Util::LogicalBlockSize,
+    Orly::Indy::Disk::Util::PhysicalBlockSize,
+    Orly::Indy::Disk::Util::CheckedPage, true>;
   assert(scheduler);
   assert(&cmd);
   assert(cmd.StartingState.size());
@@ -785,9 +785,9 @@ void TServer::Init() {
 
     TFd starting_sock;
     if (Cmd.StartingState == "SOLO") {
-      RepoState = Stig::Indy::TManager::Solo;
+      RepoState = Orly::Indy::TManager::Solo;
     } else if (Cmd.StartingState == "SLAVE") {
-      RepoState = Stig::Indy::TManager::SyncSlave;
+      RepoState = Orly::Indy::TManager::SyncSlave;
       starting_sock = TFd(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
       Connect(starting_sock, Cmd.AddressOfMaster);
     } else {
@@ -892,7 +892,7 @@ void TServer::Init() {
       }
       */
     };
-    RepoManager = unique_ptr<Stig::Indy::TManager>(new Stig::Indy::TManager(engine_ptr,
+    RepoManager = unique_ptr<Orly::Indy::TManager>(new Orly::Indy::TManager(engine_ptr,
                                                                             Cmd.ReplicationSyncBufMB,
                                                                             Cmd.MergeMemInterval,
                                                                             Cmd.MergeDiskInterval,
@@ -930,11 +930,11 @@ void TServer::Init() {
           switch (file_obj.Kind) {
             case Indy::Disk::TFileObj::TKind::DataFile: {
               TIndexIdReader reader(engine_ptr, file_uid, Indy::Disk::RealTime, file_obj.GenId, file_obj.StartingBlockId, file_obj.StartingBlockOffset, file_obj.FileSize);
-              std::unique_ptr<TIndexIdReader::TArena> main_arena(new TIndexIdReader::TArena(&reader, engine_ptr->GetCache<TIndexIdReader::PhysicalCachePageSize>(), Stig::Indy::Disk::RealTime));
+              std::unique_ptr<TIndexIdReader::TArena> main_arena(new TIndexIdReader::TArena(&reader, engine_ptr->GetCache<TIndexIdReader::PhysicalCachePageSize>(), Orly::Indy::Disk::RealTime));
               const auto &index_map = reader.GetIndexByIdMap();
               for (const auto &idx_pair : index_map) {
                 const auto &idx_file = idx_pair.second;
-                std::unique_ptr<TIndexIdReader::TArena> index_arena(new TIndexIdReader::TArena(idx_file.get(), engine_ptr->GetCache<TIndexIdReader::PhysicalCachePageSize>(), Stig::Indy::Disk::RealTime));
+                std::unique_ptr<TIndexIdReader::TArena> index_arena(new TIndexIdReader::TArena(idx_file.get(), engine_ptr->GetCache<TIndexIdReader::PhysicalCachePageSize>(), Orly::Indy::Disk::RealTime));
                 TIndexIdReader::TIndexFile::TKeyCursor csr(idx_file.get());
                 if (csr) {
                   TKey key((*csr).Key, index_arena.get());
@@ -970,7 +970,7 @@ void TServer::Init() {
     }
 
     /* TODO : durable manager does not support create=false */
-    DurableManager = make_shared<Stig::Indy::Disk::TDurableManager>(Scheduler,
+    DurableManager = make_shared<Orly::Indy::Disk::TDurableManager>(Scheduler,
                                                                     RunnerCons,
                                                                     FramePoolManager.get(),
                                                                     RepoManager.get(),
@@ -996,10 +996,10 @@ void TServer::Init() {
 
     auto tetris_runner_setup_cb = [this](Indy::Fiber::TRunner *runner) {
       ForEachSchedCallbackExtraSet.insert(runner);
-      using TLocalReadFileCache = Stig::Indy::Disk::TLocalReadFileCache<Stig::Indy::Disk::Util::LogicalPageSize,
-                                                                        Stig::Indy::Disk::Util::LogicalBlockSize,
-                                                                        Stig::Indy::Disk::Util::PhysicalBlockSize,
-                                                                        Stig::Indy::Disk::Util::CheckedPage, true>;
+      using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,
+                                                                        Orly::Indy::Disk::Util::LogicalBlockSize,
+                                                                        Orly::Indy::Disk::Util::PhysicalBlockSize,
+                                                                        Orly::Indy::Disk::Util::CheckedPage, true>;
       if (!Cmd.MemorySim) {
         /* if this is a disk based engine, allocate event pools */
         if (!Disk::Util::TDiskController::TEvent::LocalEventPool) {
@@ -1012,52 +1012,52 @@ void TServer::Init() {
       Disk::TLocalWalkerCache::Cache = new Disk::TLocalWalkerCache();
     };
 
-    TetrisManager = new TRepoTetrisManager(Scheduler, RunnerCons, FramePoolManager.get(), tetris_runner_setup_cb, (RepoState == Stig::Indy::TManager::Solo), RepoManager.get(), &PackageManager, DurableManager.get(), Cmd.LogAssertionFailures);
+    TetrisManager = new TRepoTetrisManager(Scheduler, RunnerCons, FramePoolManager.get(), tetris_runner_setup_cb, (RepoState == Orly::Indy::TManager::Solo), RepoManager.get(), &PackageManager, DurableManager.get(), Cmd.LogAssertionFailures);
     RepoManager->SetTetrisManager(TetrisManager);
     /* schedule everything the repo manager needs */ {
       /* Read() from master / slave */ {
         Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicationQueueRunner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
-          frame->Latch(&RunReplicationQueueRunner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunReplicationQueue));
+          frame->Latch(&RunReplicationQueueRunner, static_cast<Orly::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Orly::Indy::L0::TManager::RunReplicationQueue));
         } catch (...) {
           Fiber::TFrame::LocalFramePool->Free(frame);
           throw;
         }
-        //Scheduler->Schedule(bind(&Stig::Indy::TManager::RunReplicationQueue, RepoManager.get()));
+        //Scheduler->Schedule(bind(&Orly::Indy::TManager::RunReplicationQueue, RepoManager.get()));
       }
       /* Execute Job from master / slave */ {
         Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicationWorkRunner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
-          frame->Latch(&RunReplicationWorkRunner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunReplicationWork));
+          frame->Latch(&RunReplicationWorkRunner, static_cast<Orly::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Orly::Indy::L0::TManager::RunReplicationWork));
         } catch (...) {
           Fiber::TFrame::LocalFramePool->Free(frame);
           throw;
         }
-        //Scheduler->Schedule(bind(&Stig::Indy::TManager::RunReplicationWork, RepoManager.get()));
+        //Scheduler->Schedule(bind(&Orly::Indy::TManager::RunReplicationWork, RepoManager.get()));
       }
       /* Dequeue from replication queue and transmit to slave if necessary */ {
         Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RunReplicateTransactionRunner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
-          frame->Latch(&RunReplicateTransactionRunner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunReplicateTransaction));
+          frame->Latch(&RunReplicateTransactionRunner, static_cast<Orly::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Orly::Indy::L0::TManager::RunReplicateTransaction));
         } catch (...) {
           Fiber::TFrame::LocalFramePool->Free(frame);
           throw;
         }
-        //Scheduler->Schedule(bind(&Stig::Indy::TManager::RunReplicateTransaction, RepoManager.get()));
+        //Scheduler->Schedule(bind(&Orly::Indy::TManager::RunReplicateTransaction, RepoManager.get()));
       }
       /* Remove Repo TDataLayer(s) that are no longer relevant */ {
         Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, &RepoLayerCleanerRunner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
-          frame->Latch(&RepoLayerCleanerRunner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunLayerCleaner));
+          frame->Latch(&RepoLayerCleanerRunner, static_cast<Orly::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Orly::Indy::L0::TManager::RunLayerCleaner));
         } catch (...) {
           Fiber::TFrame::LocalFramePool->Free(frame);
           throw;
         }
-        //Scheduler->Schedule(bind(&Stig::Indy::L0::TManager::RunLayerCleaner, RepoManager.get()));
+        //Scheduler->Schedule(bind(&Orly::Indy::L0::TManager::RunLayerCleaner, RepoManager.get()));
       }
       /* Merge memory layers in a repo. */
       for (size_t i = 0; i < Cmd.NumMemMergeThreads; ++i) {
@@ -1066,13 +1066,13 @@ void TServer::Init() {
         Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, cur_runner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
-          frame->Latch(cur_runner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunMergeMem));
+          frame->Latch(cur_runner, static_cast<Orly::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Orly::Indy::L0::TManager::RunMergeMem));
         } catch (...) {
           Fiber::TFrame::LocalFramePool->Free(frame);
           throw;
         }
         MergeMemFrameVec.emplace_back(frame);
-        //Scheduler->Schedule(bind(&Stig::Indy::L0::TManager::RunMergeMem, RepoManager.get()));
+        //Scheduler->Schedule(bind(&Orly::Indy::L0::TManager::RunMergeMem, RepoManager.get()));
       }
       /* Merge multiple disk files of a specific size category, in the same safe repo. */
       for (size_t i = 0; i < Cmd.NumDiskMergeThreads; ++i) {
@@ -1081,13 +1081,13 @@ void TServer::Init() {
         Scheduler->Schedule(std::bind(Fiber::LaunchSlowFiberSched, cur_runner, FramePoolManager.get()));
         Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
         try {
-          frame->Latch(cur_runner, static_cast<Stig::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::L0::TManager::RunMergeDisk));
+          frame->Latch(cur_runner, static_cast<Orly::Indy::L0::TManager *>(RepoManager.get()), static_cast<Fiber::TRunnable::TFunc>(&Orly::Indy::L0::TManager::RunMergeDisk));
         } catch (...) {
           Fiber::TFrame::LocalFramePool->Free(frame);
           throw;
         }
         MergeDiskFrameVec.emplace_back(frame);
-        //Scheduler->Schedule(bind(&Stig::Indy::L0::TManager::RunMergeDisk, RepoManager.get(), block_slots_available_per_merger));
+        //Scheduler->Schedule(bind(&Orly::Indy::L0::TManager::RunMergeDisk, RepoManager.get(), block_slots_available_per_merger));
       }
 
     }
@@ -1096,8 +1096,8 @@ void TServer::Init() {
       std::lock_guard<std::mutex> lock(IndexMapMutex);
       void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
       void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
-      Sabot::Type::TAny::TWrapper key_type_wrapper(Stig::Native::Type::For<Mynde::TKey>::GetType(key_type_alloc));
-      Sabot::Type::TAny::TWrapper val_type_wrapper(Stig::Native::Type::For<Mynde::TValue>::GetType(val_type_alloc));
+      Sabot::Type::TAny::TWrapper key_type_wrapper(Orly::Native::Type::For<Mynde::TKey>::GetType(key_type_alloc));
+      Sabot::Type::TAny::TWrapper val_type_wrapper(Orly::Native::Type::For<Mynde::TValue>::GetType(val_type_alloc));
       Atom::TCore key_core(&IndexMapArena, *key_type_wrapper);
       Atom::TCore val_core(&IndexMapArena, *val_type_wrapper);
       auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)),
@@ -1789,7 +1789,7 @@ void TServer::ServeClient(TFd &fd, const TAddress &client_address) {
       }
       if (memcmp(&header, "HEALTHCHECK", 11) == 0) {
         DEBUG_LOG("server; ASCII health-check from %s", client_address_str.c_str());
-        char reply = (RepoState == Stig::Indy::TManager::Solo || RepoState == Stig::Indy::TManager::Master) ? 'R' : 'U';
+        char reply = (RepoState == Orly::Indy::TManager::Solo || RepoState == Orly::Indy::TManager::Master) ? 'R' : 'U';
         WriteExactly(fd, &reply, sizeof(reply));
         break;
       }
@@ -1798,13 +1798,13 @@ void TServer::ServeClient(TFd &fd, const TAddress &client_address) {
           //DEBUG_LOG("server; binary health-check from %s", client_address_str.c_str());
           THealthCheck::TReply reply;
           switch (RepoState) {
-            case Stig::Indy::TManager::Solo:
-            case Stig::Indy::TManager::Master: {
+            case Orly::Indy::TManager::Solo:
+            case Orly::Indy::TManager::Master: {
               reply = THealthCheck::TReply(THealthCheck::TReply::TResult::Ready);
               break;
             }
-            case Stig::Indy::TManager::SyncSlave:
-            case Stig::Indy::TManager::Slave: {
+            case Orly::Indy::TManager::SyncSlave:
+            case Orly::Indy::TManager::Slave: {
               reply = THealthCheck::TReply(THealthCheck::TReply::TResult::Unready);
               break;
             }
@@ -2047,7 +2047,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
           TMetaRecord meta_record(update_id,
                                   TMetaRecord::TEntry(session->GetId(),
                                                       session->GetUserId(),
-                                                      Stig::Mynde::PackageName,
+                                                      Orly::Mynde::PackageName,
                                                       "set",
                                                       {},
                                                       {},
@@ -2114,51 +2114,51 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
   }
 }
 
-void TServer::StateChangeCb(Stig::Indy::TManager::TState state) {
+void TServer::StateChangeCb(Orly::Indy::TManager::TState state) {
   assert(this);
   string from;
   string to;
   switch (RepoState) {
-    case Stig::Indy::TManager::TState::Solo: {
+    case Orly::Indy::TManager::TState::Solo: {
       from = "SOLO";
       break;
     }
-    case Stig::Indy::TManager::TState::Master: {
+    case Orly::Indy::TManager::TState::Master: {
       from = "Master";
       break;
     }
-    case Stig::Indy::TManager::TState::SyncSlave: {
+    case Orly::Indy::TManager::TState::SyncSlave: {
       from = "SyncSlave";
       break;
     }
-    case Stig::Indy::TManager::TState::Slave: {
+    case Orly::Indy::TManager::TState::Slave: {
       from = "Slave";
       break;
     }
   }
   switch (state) {
-    case Stig::Indy::TManager::TState::Solo: {
+    case Orly::Indy::TManager::TState::Solo: {
       to = "SOLO";
       break;
     }
-    case Stig::Indy::TManager::TState::Master: {
+    case Orly::Indy::TManager::TState::Master: {
       to = "Master";
       break;
     }
-    case Stig::Indy::TManager::TState::SyncSlave: {
+    case Orly::Indy::TManager::TState::SyncSlave: {
       to = "SyncSlave";
       break;
     }
-    case Stig::Indy::TManager::TState::Slave: {
+    case Orly::Indy::TManager::TState::Slave: {
       to = "Slave";
       break;
     }
   }
   syslog(LOG_INFO, "StateChangeCB from [%s] to [%s]", from.c_str(), to.c_str());
   switch (RepoState) {
-    case Stig::Indy::TManager::TState::Slave: {
+    case Orly::Indy::TManager::TState::Slave: {
       switch (state) {
-        case Stig::Indy::TManager::TState::Solo: {
+        case Orly::Indy::TManager::TState::Solo: {
           std::cout << "StateChangeCb:: BecomeMaster" << std::endl;
           Indy::Fiber::TSwitchToRunner run_on_bg_runner(&BGFastRunner);
           TetrisManager->BecomeMaster();
@@ -2184,10 +2184,10 @@ void TServer::UninstallPackage(const vector<string> &package_name, uint64_t vers
 
 void TServer::WaitForSlave() {
   assert(this);
-  using TLocalReadFileCache = Stig::Indy::Disk::TLocalReadFileCache<Stig::Indy::Disk::Util::LogicalPageSize,
-    Stig::Indy::Disk::Util::LogicalBlockSize,
-    Stig::Indy::Disk::Util::PhysicalBlockSize,
-    Stig::Indy::Disk::Util::CheckedPage, true>;
+  using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,
+    Orly::Indy::Disk::Util::LogicalBlockSize,
+    Orly::Indy::Disk::Util::PhysicalBlockSize,
+    Orly::Indy::Disk::Util::CheckedPage, true>;
   if (!TLocalReadFileCache::Cache) {
     TLocalReadFileCache::Cache = new TLocalReadFileCache();
   }

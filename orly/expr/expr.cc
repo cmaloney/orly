@@ -18,8 +18,8 @@
 
 #include <orly/expr/expr.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TExpr::TExpr(const TPosRange &pos_range)
     : ExprParent(nullptr), PosRange(pos_range) {}

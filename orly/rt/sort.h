@@ -24,7 +24,7 @@
 #include <base/no_construction.h>
 #include <orly/rt/opt.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -51,4 +51,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

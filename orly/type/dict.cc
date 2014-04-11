@@ -18,12 +18,12 @@
 
 #include <orly/type/dict.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_INTERNED_TYPE(TDict, TType, TType);
 
 TDict::~TDict() {}
 
 void TDict::Write(std::ostream &strm) const {
-  strm << "Stig::Rt::TDict<" << GetKey() << ", " << GetVal() << ">";
+  strm << "Orly::Rt::TDict<" << GetKey() << ", " << GetVal() << ">";
 }

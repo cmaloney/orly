@@ -40,8 +40,8 @@ using namespace Base;
 using namespace Signal;
 using namespace Socket;
 
-/* Stig namespaces. */
-using namespace Stig;
+/* Orly namespaces. */
+using namespace Orly;
 using namespace BinProto;
 using namespace Client;
 
@@ -59,7 +59,7 @@ TTestServer::TCmd::TCmd(int argc, char *argv[])
 }
 
 TTestServer::TCmd::TMeta::TMeta()
-    : TLog::TCmd::TMeta("The Stig test server.") {
+    : TLog::TCmd::TMeta("The Orly test server.") {
   Param(
       &TCmd::PortNumber, "port_number", Optional, "port_number\0pn\0",
       "The port on which we listen clients."

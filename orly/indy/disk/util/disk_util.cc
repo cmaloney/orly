@@ -27,7 +27,7 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy::Disk::Util;
 
 TDiskUtil::TDiskUtil(Base::TScheduler *scheduler,
                      TDiskController *controller,
@@ -37,13 +37,13 @@ TDiskUtil::TDiskUtil(Base::TScheduler *scheduler,
                      bool do_corruption_check)
     : Scheduler(scheduler), Controller(controller), CacheCb(cache_cb) {
   TDeviceUtil::ForEachDevice([this, &instance_filter, do_corruption_check, do_fsync](const char *path) {
-    TDeviceUtil::TStigDevice device_info;
+    TDeviceUtil::TOrlyDevice device_info;
     string path_to_device = "/dev/";
     path_to_device += path;
     bool ret = TDeviceUtil::ProbeDevice(path_to_device.c_str(), device_info);
     AllDeviceSet.emplace(path_to_device);
     if (ret && (!instance_filter || device_info.VolumeId.GetInstanceName() == *instance_filter)) {
-      StigDeviceMap.emplace(path_to_device, device_info);
+      OrlyDeviceMap.emplace(path_to_device, device_info);
       auto ret = VolumeById.find(device_info.VolumeId);
       if (ret != VolumeById.end()) {
         auto &volume = ret->second;
@@ -111,8 +111,8 @@ TDiskUtil::TDiskUtil(Base::TScheduler *scheduler,
     for (TVolume::TDeviceCollection::TCursor csr(vol.second->GetDeviceCollection()); csr; ++csr) {
       const TPersistentDevice *device = dynamic_cast<TPersistentDevice *>(&*csr);
       assert(device);
-      auto ret = StigDeviceMap.find(std::string(device->GetDevicePath()));
-      assert(ret != StigDeviceMap.end());
+      auto ret = OrlyDeviceMap.find(std::string(device->GetDevicePath()));
+      assert(ret != OrlyDeviceMap.end());
       const auto &device_info = ret->second;
       /* this is where we check that the description of the volume stored in the device matches what we've collected */
       if (device_info.NumDevicesInVolume != num_devices) {
@@ -175,7 +175,7 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
   if (discard_support_count > 0) {
     const size_t num_bytes_required_for_discard = num_blocks_required_for_discard * Util::PhysicalBlockSize;
     if ((stripe_size_in_kb * 1024) % num_bytes_required_for_discard != 0) {
-      throw std::runtime_error("Stripe size must be a multiple of ceil(discard_granularity / StigBlockSize) * StigBlockSize");
+      throw std::runtime_error("Stripe size must be a multiple of ceil(discard_granularity / OrlyBlockSize) * OrlyBlockSize");
     }
   }
 
@@ -236,7 +236,7 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
   }
 
   auto device_iter = device_set.begin();
-  TDeviceUtil::TStigDevice new_device_info;
+  TDeviceUtil::TOrlyDevice new_device_info;
   std::unique_ptr<TVolume> volume(new TVolume(TVolume::TDesc{
     kind,
     TDevice::TDesc {

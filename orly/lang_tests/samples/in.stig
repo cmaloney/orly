@@ -1,6 +1,6 @@
 /* <orly/in.orly>
 
-   An implementation of "in" (contains) in Stig script. */
+   An implementation of "in" (contains) in Orly script. */
 
 package #1;
 

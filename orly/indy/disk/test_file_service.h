@@ -20,7 +20,7 @@
 
 #include <orly/indy/disk/file_service_base.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -104,4 +104,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

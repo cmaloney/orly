@@ -18,8 +18,8 @@
 
 #include <orly/code_gen/symbol_func.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 //TODO: Should really return a TSymbolFuncPtr...
 TFunction::TPtr TSymbolFunc::Find(const Symbol::TFunction *symbol) {

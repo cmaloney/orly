@@ -20,7 +20,7 @@
 
 #include <orly/code_gen/inline.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -57,21 +57,21 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly
 
 namespace std {
 
   template <>
-  struct hash<Stig::CodeGen::TUnary::TOp> {
+  struct hash<Orly::CodeGen::TUnary::TOp> {
 
     typedef size_t result_type;
-    typedef Stig::CodeGen::TUnary::TOp argument_type;
+    typedef Orly::CodeGen::TUnary::TOp argument_type;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       return static_cast<result_type>(that);
     }
 
-  };  // hash<Stig::CodeGen::TUnary::TOp>
+  };  // hash<Orly::CodeGen::TUnary::TOp>
 
 }  // std

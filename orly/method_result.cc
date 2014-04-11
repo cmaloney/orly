@@ -24,8 +24,8 @@
 using namespace std;
 using namespace Base;
 using namespace Io;
-using namespace Stig;
-using namespace Stig::Atom;
+using namespace Orly;
+using namespace Orly::Atom;
 
 TMethodResult::TMethodResult(const shared_ptr<TArena> &arena, const TCore &value, const TOpt<TTracker> &tracker, bool is_error)
     : Arena(arena), Value(value), Tracker(tracker), Error(is_error) {}

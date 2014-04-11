@@ -21,9 +21,9 @@
 #include <orly/error.h>
 #include <orly/type/unwrap_visitor.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Stmt;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Stmt;
 
 class TAddressTypeVisitor
     : public Type::TUnwrapVisitor {

@@ -25,8 +25,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 struct TSomeObj : public Rt::TObj {
   TSomeObj(int64_t int_, double double_, bool bool_) : Int(int_), Real(double_), Bool(bool_) {}

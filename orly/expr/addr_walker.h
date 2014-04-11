@@ -25,20 +25,20 @@
 #include <orly/expr/expr.h>
 #include <orly/symbol/stmt/stmt_block.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
     /* For every Addr that is part of a keys, new, delete, or mutation expression,
        add that Addr to addr_set. */
     void DatabaseAddrsInExpr(const TExpr::TPtr &root,
-                             std::unordered_set<std::pair<Stig::Type::TType, Stig::Type::TType>> &addr_set);
+                             std::unordered_set<std::pair<Orly::Type::TType, Orly::Type::TType>> &addr_set);
 
     /* For every Addr that accesses the db in the statement block,
        add that Addr to the addr set. */
-    void DatabaseAddrsFromNewStmt(const Stig::Symbol::Stmt::TNew *stmt,
-                                  std::unordered_set<std::pair<Stig::Type::TType, Stig::Type::TType>> &addr_set);
+    void DatabaseAddrsFromNewStmt(const Orly::Symbol::Stmt::TNew *stmt,
+                                  std::unordered_set<std::pair<Orly::Type::TType, Orly::Type::TType>> &addr_set);
 
   } // Expr
 
-} // Stig
+} // Orly

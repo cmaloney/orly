@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -32,5 +32,5 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 

@@ -25,7 +25,7 @@
 #include <orly/indy/disk/util/volume_manager.h>
 #include <orly/indy/util/block_vec.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -240,4 +240,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

@@ -36,7 +36,7 @@
 #include <orly/spa/flux_capacitor/flux_capacitor.h>
 #include <orly/uuid.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Spa {
 
@@ -278,7 +278,7 @@ namespace Stig {
         /* TODO */
         int Interrupt[2];
 
-        friend class ::Stig::Spa::THoncho;
+        friend class ::Orly::Spa::THoncho;
 
       };  // TTetristHandler
 
@@ -838,7 +838,7 @@ namespace Stig {
         static TStore<TSessionObj> Store;
 
         /* Access to the Store for drainage. */
-        friend class Stig::Spa::TService;
+        friend class Orly::Spa::TService;
 
       };  // TSessionObj
 
@@ -967,7 +967,7 @@ namespace Stig {
         static TStore<TSharedPovObj> Store;
 
         /* Access to the Store for drainage. */
-        friend class Stig::Spa::TService;
+        friend class Orly::Spa::TService;
 
       };  // TSharedPovObj
 
@@ -1120,7 +1120,7 @@ namespace Stig {
         static TStore<TPrivatePovObj> Store;
 
         /* Access to the Store for drainage. */
-        friend class Stig::Spa::TService;
+        friend class Orly::Spa::TService;
 
       };  // TPrivatePovObj
 
@@ -1128,4 +1128,4 @@ namespace Stig {
 
   }  // Spa
 
-}  // Stig
+}  // Orly

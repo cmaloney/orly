@@ -27,8 +27,8 @@
 #include <orly/type/util.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TList::TPtr TList::New(const Type::TType &type, const TPosRange &pos_range) {
   return TList::TPtr(new TList(type, pos_range));

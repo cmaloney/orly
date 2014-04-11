@@ -1,4 +1,4 @@
-## starsha: The Stig build tool.
+## starsha: The Orly build tool.
 
 Starsha is used for building orly and its related tools and libraries.
 

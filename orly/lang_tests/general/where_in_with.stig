@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/where_in_with.orly>
 
-   This Stig script tests "where" blocks within "with" blocks.
+   This Orly script tests "where" blocks within "with" blocks.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

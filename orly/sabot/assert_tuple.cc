@@ -19,7 +19,7 @@
 #include <orly/sabot/assert_tuple.h>
 
 using namespace std;
-using namespace Stig::Sabot;
+using namespace Orly::Sabot;
 
 /* Assert the type is a tuple. */
 class TAssertTupleVisitor final
@@ -60,7 +60,7 @@ class TAssertTupleVisitor final
 
 };  // TAssertTupleVisitor
 
-const Type::TAny &Stig::Sabot::AssertTuple(const Type::TAny &type) {
+const Type::TAny &Orly::Sabot::AssertTuple(const Type::TAny &type) {
   type.Accept(TAssertTupleVisitor());
   return type;
 }

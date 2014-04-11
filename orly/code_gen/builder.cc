@@ -55,8 +55,8 @@
 #include <orly/type/unwrap.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 bool IsCoreSeq(const Expr::TExpr::TPtr &expr) {
   class TVisitor : public Expr::TExpr::TVisitor {
@@ -274,7 +274,7 @@ void Build(const L0::TPackage *package, const Symbol::Stmt::TStmtBlock::TPtr &st
    it is valid to introduce a sequence, such as in filter's sequence argument, then the function BuildInline should be
    used. This allows us to use the same visitor to generate code for the implicit function needed for a map as well
    as code for general use with only a single expr visitor. */
-TInline::TPtr Stig::CodeGen::Build(const L0::TPackage *package, const Expr::TExpr::TPtr &expr, bool keep_mutable, bool keep_sequence) {
+TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExpr::TPtr &expr, bool keep_mutable, bool keep_sequence) {
   assert(&expr);
   assert(expr);
 
@@ -848,7 +848,7 @@ TInline::TPtr BuildMap(const L0::TPackage *package, const Expr::TExpr::TPtr &exp
 
 /* NOTE: Use this function when it is okay to introduce a sequence from scratch. This means at roots as well as
          builtins such as reduce in the sequence argument. */
-TInline::TPtr Stig::CodeGen::BuildInline(const L0::TPackage *package, const Expr::TExpr::TPtr &expr, bool keep_mutable) {
+TInline::TPtr Orly::CodeGen::BuildInline(const L0::TPackage *package, const Expr::TExpr::TPtr &expr, bool keep_mutable) {
   /* If we're a map, then switch to the map building logic. Otherwise, continue as we were. We only handle maps special
      and not the "core" sequences because we have to collect their source sequences and generate a function which likely
      captures multiple expression tree nodes. */

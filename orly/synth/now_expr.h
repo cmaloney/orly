@@ -22,7 +22,7 @@
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -47,4 +47,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

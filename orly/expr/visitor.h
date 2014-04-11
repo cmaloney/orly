@@ -20,7 +20,7 @@
 
 #include <orly/expr/expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
 
@@ -199,4 +199,4 @@ namespace Stig {
 
   }  // Expr
 
-}  // Stig
+}  // Orly

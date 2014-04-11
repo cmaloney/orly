@@ -22,7 +22,7 @@
 #include <orly/synth/type.h>
 #include <orly/synth/type_def.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -50,4 +50,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

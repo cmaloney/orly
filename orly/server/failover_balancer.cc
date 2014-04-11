@@ -20,7 +20,7 @@
 
 using namespace std;
 using namespace chrono;
-using namespace Stig::Balancer;
+using namespace Orly::Balancer;
 
 /* Command-line arguments. */
 class TCmd final

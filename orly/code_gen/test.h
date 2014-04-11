@@ -23,7 +23,7 @@
 #include <orly/code_gen/top_func.h>
 #include <orly/symbol/test/test.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -115,4 +115,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

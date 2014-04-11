@@ -23,7 +23,7 @@
 #include <orly/code_gen/scope.h>
 #include <orly/expr/expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -53,9 +53,9 @@ namespace Stig {
       TCodeScope *Scope;
     }; // TInlineScope
 
-    Stig::CodeGen::TCppPrinter &operator<<(Stig::CodeGen::TCppPrinter &out,
-        const Stig::CodeGen::TInlineScope::TPtr &ptr);
+    Orly::CodeGen::TCppPrinter &operator<<(Orly::CodeGen::TCppPrinter &out,
+        const Orly::CodeGen::TInlineScope::TPtr &ptr);
 
   } // CodeGen
 
-} // Stig
+} // Orly

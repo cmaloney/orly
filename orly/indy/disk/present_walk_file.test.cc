@@ -31,31 +31,31 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
-using namespace Stig::Indy::Util;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
+using namespace Orly::Indy::Util;
 
 static const size_t BlockSize = Disk::Util::PhysicalBlockSize;
 
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
-Stig::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
+Orly::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 4000004UL);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 4000004UL);
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 4000004UL);
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 4000004UL);
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 60000UL);
 
 class TRAIITest {
   NO_COPY_SEMANTICS(TRAIITest);
   public:
 
-  using TLocalReadFileCache = Stig::Indy::Disk::TLocalReadFileCache<Stig::Indy::Disk::Util::LogicalPageSize,
-    Stig::Indy::Disk::Util::LogicalBlockSize,
-    Stig::Indy::Disk::Util::PhysicalBlockSize,
-    Stig::Indy::Disk::Util::CheckedPage, true>;
+  using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,
+    Orly::Indy::Disk::Util::LogicalBlockSize,
+    Orly::Indy::Disk::Util::PhysicalBlockSize,
+    Orly::Indy::Disk::Util::CheckedPage, true>;
 
   TRAIITest() {
     assert(!TLocalReadFileCache::Cache);

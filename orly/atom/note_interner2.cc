@@ -19,7 +19,7 @@
 #include <orly/atom/note_interner2.h>
 
 using namespace std;
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 TNoteInterner::~TNoteInterner() {
   assert(this);
@@ -55,7 +55,7 @@ const TCore::TNote *TNoteInterner::Propose(TCore::TNote *proposed_note) {
   return interned_note;
 }
 
-void Stig::Atom::OrderNotes(std::vector<const TCore::TNote *> &out_vec, const TNoteInterner::TNotes &notes, TCore::TArena *arena) {
+void Orly::Atom::OrderNotes(std::vector<const TCore::TNote *> &out_vec, const TNoteInterner::TNotes &notes, TCore::TArena *arena) {
   assert(out_vec.empty());
   out_vec.assign(notes.begin(), notes.end());
   void *lhs_state_alloc = alloca(Sabot::State::GetMaxStateSize() * 2);

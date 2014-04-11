@@ -1,6 +1,6 @@
 /* <orly/var/unknown.h>
 
-   The 'unknown' value, which is Stig's equivalent of null, none, nil, etc.
+   The 'unknown' value, which is Orly's equivalent of null, none, nil, etc.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -20,7 +20,7 @@
 
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -103,4 +103,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

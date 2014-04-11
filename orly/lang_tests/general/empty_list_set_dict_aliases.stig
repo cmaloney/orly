@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/empty_list_set_dict_aliases.orly>
 
-   This Stig script tests creating simple empty lists, dictionaries, and
+   This Orly script tests creating simple empty lists, dictionaries, and
    sets and expanding them via concatenation, updating, and set union,
    respsectively.  This isn't meant to be comprehensive: It merely tests
    whether creating empty collections via type aliases works properly.

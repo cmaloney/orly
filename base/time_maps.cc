@@ -17,7 +17,7 @@
 #include <base/time_maps.h>
 
 using namespace Base;
-using namespace Stig;
+using namespace Orly;
 
 static Type::TObj::TElems *TimeDiffMapFactory() {
   return new Type::TObj::TElems(
@@ -46,7 +46,7 @@ static Type::TObj::TElems *TimePntMapFactory() {
 
 const TSafeGlobal<Type::TObj::TElems> Base::Chrono::TimePntMap(TimePntMapFactory);
 
-bool Base::Chrono::IsTimeObj(const Stig::Type::TObj *type) {
+bool Base::Chrono::IsTimeObj(const Orly::Type::TObj *type) {
   assert(type);
   return (type->GetElems() == *TimeDiffMap || type->GetElems() == *TimePntMap);
 }

@@ -21,7 +21,7 @@
 #include <orly/indy/transaction_base.h>
 #include <orly/time.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -658,13 +658,13 @@ namespace Stig {
       Replica = std::move(replica);
     }
 
-    /* Binary streamers for Stig::Indy::TReplicationStreamer */
+    /* Binary streamers for Orly::Indy::TReplicationStreamer */
     inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TReplicationStreamer &streamer) { streamer.Write(strm); return strm; }
     inline Io::TBinaryOutputStream &&operator<<(Io::TBinaryOutputStream &&strm, const TReplicationStreamer &streamer) { streamer.Write(strm); return std::move(strm); }
     inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TReplicationStreamer &streamer) { streamer.Read(strm); return strm; }
     inline Io::TBinaryInputStream &&operator>>(Io::TBinaryInputStream &&strm, TReplicationStreamer &streamer) { streamer.Read(strm); return std::move(strm); }
 
-    /* Binary streamers for Stig::Indy::TIndexMapReplica */
+    /* Binary streamers for Orly::Indy::TIndexMapReplica */
     inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TIndexMapReplica &streamer) { streamer.Write(strm); return strm; }
     inline Io::TBinaryOutputStream &&operator<<(Io::TBinaryOutputStream &&strm, const TIndexMapReplica &streamer) { streamer.Write(strm); return std::move(strm); }
     inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TIndexMapReplica &streamer) { streamer.Read(strm); return strm; }
@@ -672,4 +672,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

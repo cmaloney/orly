@@ -22,8 +22,8 @@
 #include <base/no_default_case.h>
 #include <orly/synth/new_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TTypeDef::TTypeDef(TScope *scope, const Package::Syntax::TTypeDef *type_def)
     : TDef(scope, Base::AssertTrue(type_def)->GetName()),

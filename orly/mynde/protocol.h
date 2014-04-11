@@ -27,7 +27,7 @@ namespace Strm {
   }
 }
 
-namespace Stig {
+namespace Orly {
   namespace Mynde {
 
     // TODO: This is the most logical place for this I have atm... Not a great place for it though...
@@ -139,4 +139,4 @@ namespace Stig {
     // TODO: User-friendly response object?
 
   }  // Mynde
-}  // Stig
+}  // Orly

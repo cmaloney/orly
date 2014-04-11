@@ -21,8 +21,8 @@
 #include <orly/synth/cst_utils.h>
 #include <orly/synth/new_type.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TAddrType::TAddrType(const Package::Syntax::TAddrType *addr_type) {
   assert(addr_type);

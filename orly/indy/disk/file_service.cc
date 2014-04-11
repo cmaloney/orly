@@ -29,7 +29,7 @@
 #include <orly/indy/disk/indy_util_reporter.h>
 
 using namespace std;
-using namespace Stig::Indy::Disk;
+using namespace Orly::Indy::Disk;
 
 TFileService::TFileService(Base::TScheduler *scheduler,
                            Fiber::TRunner::TRunnerCons &runner_cons,

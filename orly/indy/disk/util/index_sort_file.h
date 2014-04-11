@@ -29,7 +29,7 @@
 #include <orly/indy/util/min_heap.h>
 #include <orly/indy/util/sorter.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -61,7 +61,7 @@ namespace Stig {
 
           /* TODO */
           class TCursor
-              : public Stig::Indy::Util::TSorter<TVal, MemSize>::TCursor {
+              : public Orly::Indy::Util::TSorter<TVal, MemSize>::TCursor {
             NO_COPY_SEMANTICS(TCursor);
             public:
 
@@ -159,7 +159,7 @@ namespace Stig {
                          TVolumeManager *vol_man,
                          TBlockCache *block_cache,
                          size_t generation_num,
-                         const Stig::Indy::Util::TSorter<TVal, MemSize> &sorter,
+                         const Orly::Indy::Util::TSorter<TVal, MemSize> &sorter,
                          typename TOwnerCollection::TImpl &collection,
                          TCacheInstr cache_instr)
               : StorageSpeed(storage_speed),
@@ -520,4 +520,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

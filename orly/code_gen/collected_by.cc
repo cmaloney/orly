@@ -22,7 +22,7 @@
 
 #include <orly/type/seq.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TCollectedBy::TPtr TCollectedBy::New(
       const L0::TPackage *package,

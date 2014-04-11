@@ -22,7 +22,7 @@
 #include <orly/rt/runtime_error.h>
 #include <orly/rt/operator.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -60,4 +60,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

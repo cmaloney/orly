@@ -25,8 +25,8 @@
 
 #include <test/kit.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 FIXTURE(Typical) {
   Type::TTypeCzar type_czar;

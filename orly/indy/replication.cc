@@ -22,10 +22,10 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Util;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Util;
 
 TReplicationQueue::TReplicationItem::TReplicationItem()
     : QueueMembership(this) {}

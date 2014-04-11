@@ -23,8 +23,8 @@
 #include <orly/type/seq.h>
 #include <orly/type/util.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TKeys::TPtr TKeys::New(const TAddr::TMemberVec &members, const Type::TType &value_type, const TPosRange &pos_range) {
   return TKeys::TPtr(new TKeys(members, value_type, pos_range));

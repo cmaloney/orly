@@ -21,7 +21,7 @@
 #include <orly/type/seq.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TFilter::TPtr TFilter::New(
     const L0::TPackage *package,

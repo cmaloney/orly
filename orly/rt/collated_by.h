@@ -26,7 +26,7 @@
 #include <orly/rt/opt.h>
 #include <orly/rt/runtime_error.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -170,4 +170,4 @@ namespace Stig {
 
   }  // namespace Rt
 
-}  // namespace Stig
+}  // namespace Orly

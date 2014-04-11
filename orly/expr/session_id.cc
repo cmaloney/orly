@@ -22,8 +22,8 @@
 #include <orly/pos_range.h>
 #include <orly/type/id.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TSessionId::TPtr TSessionId::New(const TPosRange &pos_range) {
   return TSessionId::TPtr(new TSessionId(pos_range));

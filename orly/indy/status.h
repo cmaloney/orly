@@ -18,7 +18,7 @@
 
 #pragma once
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -39,4 +39,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

@@ -24,7 +24,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 TOpt<int64_t> unknown_int;
 

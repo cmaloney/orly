@@ -25,8 +25,8 @@
 #include <orly/synth/thatable_expr.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TThatExpr::TThatExpr(const TExprFactory *expr_factory, const Package::Syntax::TThatExpr *that_expr)
     : ThatExpr(Base::AssertTrue(that_expr)),

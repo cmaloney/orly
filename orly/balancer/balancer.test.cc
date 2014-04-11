@@ -33,7 +33,7 @@ using namespace chrono;
 using namespace Base;
 using namespace Io;
 using namespace Socket;
-using namespace Stig::Balancer;
+using namespace Orly::Balancer;
 
 class TRouter : public TBalancer {
   NO_COPY_SEMANTICS(TRouter);

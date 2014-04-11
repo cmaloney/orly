@@ -20,7 +20,7 @@
 
 #include <orly/type/util.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_UNARY_TYPE(TOpt);
 
@@ -32,5 +32,5 @@ TType TOpt::Get(const Type::TType &type) {
 TOpt::~TOpt() {}
 
 void TOpt::Write(std::ostream &strm) const {
-  strm << "Stig::Rt::TOpt<" << GetElem() << '>';
+  strm << "Orly::Rt::TOpt<" << GetElem() << '>';
 }

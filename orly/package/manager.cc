@@ -34,7 +34,7 @@
 
 using namespace Base;
 using namespace std;
-using namespace Stig::Package;
+using namespace Orly::Package;
 
 TManager::TManager(const Jhm::TAbsBase &package_dir) : PackageDir(package_dir),
     InstallLock(TPotato::New()) {}

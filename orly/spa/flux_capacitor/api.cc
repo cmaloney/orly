@@ -21,8 +21,8 @@
 #include <orly/spa/error.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly;
+using namespace Orly::Spa::FluxCapacitor;
 
 TSessionObj::~TSessionObj() {
   std::lock_guard<std::recursive_mutex> lock(NotifierLock);

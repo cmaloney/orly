@@ -28,7 +28,7 @@
 
 #include <test/kit.h>
 
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 FIXTURE(Range) {
   int expected = 14;

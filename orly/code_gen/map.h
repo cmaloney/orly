@@ -22,7 +22,7 @@
 
 #include <unordered_set>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -51,4 +51,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

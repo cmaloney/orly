@@ -27,7 +27,7 @@
 #include <orly/synth/startable_expr.h>
 #include <orly/synth/thatable_expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Synth {
 
@@ -85,4 +85,4 @@ namespace Stig {
 
   }  // Synth
 
-}  // Stig
+}  // Orly

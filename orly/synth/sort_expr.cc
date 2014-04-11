@@ -25,8 +25,8 @@
 #include <orly/synth/func_def.h>
 #include <orly/synth/new_expr.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TSortExpr::TSortExpr(const TExprFactory *expr_factory, const Package::Syntax::TInfixSort *infix_sort)
     : InfixSort(Base::AssertTrue(infix_sort)), Lhs(nullptr), Rhs(nullptr) {

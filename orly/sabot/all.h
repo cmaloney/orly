@@ -33,7 +33,7 @@
 #include <orly/var/sabot_to_var.h>
 #include <orly/client/program/translate_expr.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -97,15 +97,15 @@ namespace Stig {
           sizeof(Atom::TCore::ST::TRecord::TPin),
           sizeof(Atom::TCore::ST::TTuple::TPin),
 
-          sizeof(Stig::Type::ST::TFree::TPin),
-          sizeof(Stig::Type::ST::TOpt::TPin),
-          sizeof(Stig::Type::ST::TSet::TPin),
-          sizeof(Stig::Type::ST::TVector::TPin),
-          sizeof(Stig::Type::ST::TMap::TPin),
-          sizeof(Stig::Type::ST::TRecord::TPin),
-          sizeof(Stig::Type::ST::TTuple::TPin),
+          sizeof(Orly::Type::ST::TFree::TPin),
+          sizeof(Orly::Type::ST::TOpt::TPin),
+          sizeof(Orly::Type::ST::TSet::TPin),
+          sizeof(Orly::Type::ST::TVector::TPin),
+          sizeof(Orly::Type::ST::TMap::TPin),
+          sizeof(Orly::Type::ST::TRecord::TPin),
+          sizeof(Orly::Type::ST::TTuple::TPin),
 
-          sizeof(Stig::TClosure::TType::TPin),
+          sizeof(Orly::TClosure::TType::TPin),
 
           sizeof(Client::Program::Type::TUnaryType<Sabot::Type::TOpt>::TPin),
           sizeof(Client::Program::Type::TUnaryExpr<Sabot::Type::TOpt>::TPin),
@@ -150,7 +150,7 @@ namespace Stig {
           sizeof(Var::SS::TAddr::TPin),
           sizeof(Var::SS::TObj ::TPin),
 
-          sizeof(Stig::TClosure::TState::TPin),
+          sizeof(Orly::TClosure::TState::TPin),
 
           sizeof(Client::Program::State::TStr::TPin),
           sizeof(Client::Program::State::TOpt::TPin),
@@ -202,15 +202,15 @@ namespace Stig {
           sizeof(Atom::TCore::ST::TRecord),
           sizeof(Atom::TCore::ST::TTuple),
 
-          sizeof(Stig::Type::ST::TFree),
-          sizeof(Stig::Type::ST::TOpt),
-          sizeof(Stig::Type::ST::TSet),
-          sizeof(Stig::Type::ST::TVector),
-          sizeof(Stig::Type::ST::TMap),
-          sizeof(Stig::Type::ST::TRecord),
-          sizeof(Stig::Type::ST::TTuple),
+          sizeof(Orly::Type::ST::TFree),
+          sizeof(Orly::Type::ST::TOpt),
+          sizeof(Orly::Type::ST::TSet),
+          sizeof(Orly::Type::ST::TVector),
+          sizeof(Orly::Type::ST::TMap),
+          sizeof(Orly::Type::ST::TRecord),
+          sizeof(Orly::Type::ST::TTuple),
 
-          sizeof(Stig::TClosure::TType),
+          sizeof(Orly::TClosure::TType),
 
           sizeof(Client::Program::Type::TUnaryType<Sabot::Type::TOpt>),
           sizeof(Client::Program::Type::TUnaryExpr<Sabot::Type::TOpt>),
@@ -297,7 +297,7 @@ namespace Stig {
           sizeof(Var::SS::TAddr    ),
           sizeof(Var::SS::TObj     ),
 
-          sizeof(Stig::TClosure::TState),
+          sizeof(Orly::TClosure::TState),
 
           sizeof(Client::Program::State::TBool),
           sizeof(Client::Program::State::TInt),
@@ -324,4 +324,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

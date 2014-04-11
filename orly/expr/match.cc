@@ -25,9 +25,9 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Expr;
+using namespace Orly::Type;
 using namespace std;
 
 TExpr::TPtr TMatch::New(const TExpr::TPtr &lhs, const TExpr::TPtr &rhs, const TPosRange &pos_range) {

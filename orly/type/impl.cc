@@ -33,7 +33,7 @@
 #include <orly/type/set.h>
 #include <orly/type/unknown.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -198,9 +198,9 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 TType::TVisitor::TVisitor() {}
 

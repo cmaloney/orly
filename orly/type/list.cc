@@ -18,7 +18,7 @@
 
 #include <orly/type/list.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_UNARY_TYPE(TList);
 

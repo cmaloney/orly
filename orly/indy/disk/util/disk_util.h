@@ -20,7 +20,7 @@
 #include <orly/indy/disk/util/device_util.h>
 #include <orly/indy/disk/util/volume_manager.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -81,7 +81,7 @@ namespace Stig {
           std::unordered_set<std::string> AllDeviceSet;
 
           /* TODO */
-          std::unordered_map<std::string, TDeviceUtil::TStigDevice> StigDeviceMap;
+          std::unordered_map<std::string, TDeviceUtil::TOrlyDevice> OrlyDeviceMap;
 
           /* TODO */
           const TCacheCb &CacheCb;
@@ -94,4 +94,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

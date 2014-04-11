@@ -20,8 +20,8 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TBinaryType::TBinaryType(TType *lhs, TType *rhs, TGet get)
     : Get(get), Lhs(Base::AssertTrue(lhs)), Rhs(Base::AssertTrue(rhs)) {}

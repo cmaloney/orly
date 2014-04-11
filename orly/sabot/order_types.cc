@@ -20,9 +20,9 @@
 #include <orly/sabot/order_states.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Sabot;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Sabot;
 
 /* TODO */
 class TOrderTypesVisitor final
@@ -815,7 +815,7 @@ class TOrderTypesVisitor final
 };  // TOrderTypesVisitor
 
 /* TODO */
-Atom::TComparison Stig::Sabot::OrderTypes(const Type::TAny &lhs, const Type::TAny &rhs) {
+Atom::TComparison Orly::Sabot::OrderTypes(const Type::TAny &lhs, const Type::TAny &rhs) {
   Atom::TComparison comp;
   AcceptDouble(lhs, rhs, TOrderTypesVisitor(comp));
   return comp;

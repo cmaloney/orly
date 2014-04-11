@@ -22,8 +22,8 @@
 #include <orly/expr/user_id.h>
 #include <orly/synth/get_pos_range.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TUserIdExpr::TUserIdExpr(const Package::Syntax::TUserIdExpr *user_id_expr)
     : UserIdExpr(Base::AssertTrue(user_id_expr)) {}

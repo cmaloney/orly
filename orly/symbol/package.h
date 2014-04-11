@@ -24,7 +24,7 @@
 #include <jhm/naming.h>
 #include <orly/symbol/scope.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -61,4 +61,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

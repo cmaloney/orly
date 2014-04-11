@@ -1,7 +1,7 @@
 {
    "report_name" : "orly_tetris_cpu_report",
    "report_type" : "standard",
-   "title" : "Stig Tetris CPU Report",
+   "title" : "Orly Tetris CPU Report",
    "vertical_label" : "cpu time",
    "series" : [
       { "metric": "orly_Tetris_Play_CPU___s", "color": "3333bb", "label": "Play Time", "type": "stack" },

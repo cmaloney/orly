@@ -26,8 +26,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Indy;
-using namespace Stig::Server;
+using namespace Orly::Indy;
+using namespace Orly::Server;
 
 bool TTetrisManager::IsPlayerPaused(const TUuid &parent_pov_id) const {
   assert(this);
@@ -253,7 +253,7 @@ void TTetrisManager::TPlayer::BecomeMaster() {
 }
 
 TTetrisManager::TTetrisManager(Base::TScheduler *scheduler,
-                               Stig::Indy::Fiber::TRunner::TRunnerCons &runner_cons,
+                               Orly::Indy::Fiber::TRunner::TRunnerCons &runner_cons,
                                Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *> *frame_pool_manager,
                                const std::function<void (Indy::Fiber::TRunner *)> &runner_setup_cb,
                                bool is_master)

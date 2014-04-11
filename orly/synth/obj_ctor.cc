@@ -27,8 +27,8 @@
 #include <orly/expr/obj.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TObjCtor::TObjCtor(const TExprFactory *expr_factory, const Package::Syntax::TObjCtor *obj_ctor)
     : ObjCtor(Base::AssertTrue(obj_ctor)) {

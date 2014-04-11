@@ -26,8 +26,8 @@
 #include <orly/type/time_diff.h>
 #include <orly/type/time_pnt.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 // NOTE: For built in functions, we shouldn't have a pos range for result defs.
 //       For now there is an invalid value to satisfy the current restrictions,

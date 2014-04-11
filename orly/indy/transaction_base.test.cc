@@ -28,21 +28,21 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
 
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping", 100UL);
-Stig::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry", 100UL);
-Stig::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer", 100UL);
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMapping), "Repo Mapping", 100UL);
+Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry", 100UL);
+Orly::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer", 100UL);
 
-Stig::Indy::Util::TPool L1::TTransaction::TMutation::Pool(max(max(sizeof(L1::TTransaction::TPusher), sizeof(L1::TTransaction::TPopper)), sizeof(L1::TTransaction::TStatusChanger)), "Transaction::TMutation", 100UL);
-Stig::Indy::Util::TPool L1::TTransaction::Pool(sizeof(L1::TTransaction), "Transaction", 100UL);
+Orly::Indy::Util::TPool L1::TTransaction::TMutation::Pool(max(max(sizeof(L1::TTransaction::TPusher), sizeof(L1::TTransaction::TPopper)), sizeof(L1::TTransaction::TStatusChanger)), "Transaction::TMutation", 100UL);
+Orly::Indy::Util::TPool L1::TTransaction::Pool(sizeof(L1::TTransaction), "Transaction", 100UL);
 
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(Disk::Util::PhysicalBlockSize);
 
-Stig::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 100UL);
-Stig::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 200UL);
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 100UL);
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 200UL);
 
 const std::vector<size_t> MemMergeCoreVec{0};
 const std::vector<size_t> DiskMergeCoreVec{0};
@@ -82,15 +82,15 @@ class TMyManager
     : static_cast<TRepo *>(new TFastRepo(this, repo_id, *ttl, parent_repo));
   }
 
-  virtual void SaveRepo(Stig::Indy::L0::TManager::TRepo *) override {}
+  virtual void SaveRepo(Orly::Indy::L0::TManager::TRepo *) override {}
 
-  virtual void Enqueue(Stig::Indy::TTransactionReplication *, Stig::Indy::L1::TTransaction::TReplica &&) NO_THROW override {}
+  virtual void Enqueue(Orly::Indy::TTransactionReplication *, Orly::Indy::L1::TTransaction::TReplica &&) NO_THROW override {}
 
-  virtual Stig::Indy::TTransactionReplication* NewTransactionReplication() override {
+  virtual Orly::Indy::TTransactionReplication* NewTransactionReplication() override {
     return nullptr;
   }
 
-  virtual void DeleteTransactionReplication(Stig::Indy::TTransactionReplication*) NO_THROW override {}
+  virtual void DeleteTransactionReplication(Orly::Indy::TTransactionReplication*) NO_THROW override {}
 
   virtual void ForEachScheduler(const std::function<bool (Fiber::TRunner *)> &/*cb*/) const override {}
 
@@ -144,7 +144,7 @@ FIXTURE(Typical) {
     const TScheduler::TPolicy scheduler_policy(10, 10, milliseconds(10));
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
-    Stig::Indy::Disk::Sim::TMemEngine mem_engine(&scheduler,
+    Orly::Indy::Disk::Sim::TMemEngine mem_engine(&scheduler,
                                                  256 /* fast disk space: 256MB */,
                                                  64 /* slow disk space: 64MB */,
                                                  128 /* page cache slots: 8MB */,
@@ -277,7 +277,7 @@ FIXTURE(Promoter) {
     const TScheduler::TPolicy scheduler_policy(10, 10, milliseconds(10));
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
-    Stig::Indy::Disk::Sim::TMemEngine mem_engine(&scheduler,
+    Orly::Indy::Disk::Sim::TMemEngine mem_engine(&scheduler,
                                                  256 /* fast disk space: 256MB */,
                                                  64 /* slow disk space: 64MB */,
                                                  128 /* page cache slots: 8MB */,
@@ -347,7 +347,7 @@ FIXTURE(DiskPromoter) {
     scheduler.SetPolicy(scheduler_policy);
 
 
-    Stig::Indy::Disk::Sim::TMemEngine mem_engine(&scheduler,
+    Orly::Indy::Disk::Sim::TMemEngine mem_engine(&scheduler,
                                                  256 /* fast disk space: 256MB */,
                                                  64 /* slow disk space: 64MB */,
                                                  128 /* page cache slots: 8MB */,

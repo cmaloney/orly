@@ -20,7 +20,7 @@
 #include <orly/sabot/type_dumper.h>
 
 using namespace std;
-using namespace Stig::Sabot;
+using namespace Orly::Sabot;
 
 void TStateDumper::operator()(const State::TFree &state) const {
   assert(this);

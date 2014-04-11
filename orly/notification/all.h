@@ -25,7 +25,7 @@
 #include <orly/notification/update_progress.h>
 #include <visitor/visitor.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Notification {
 
@@ -46,4 +46,4 @@ namespace Stig {
 
   }  // Notification
 
-}  // Stig
+}  // Orly

@@ -27,8 +27,8 @@
 #include <orly/synth/type_def.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TDefFactory::TDefFactory(const TExprFactory *expr_factory)
     : ExprFactory(Base::AssertTrue(expr_factory)) {}

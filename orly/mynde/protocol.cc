@@ -24,7 +24,7 @@
 #include <strm/bin/in.h>
 #include <strm/bin/out.h>
 
-using namespace Stig::Mynde;
+using namespace Orly::Mynde;
 
 TBuffer::TBuffer() : Size(0), Data(nullptr) {}
 
@@ -60,7 +60,7 @@ void TBuffer::Fill(uint32_t size, Strm::Bin::TIn &in) {
   in.Read(Data, Size);
 }
 
-Strm::Bin::TOut &Stig::Mynde::operator<<(Strm::Bin::TOut &out, const TBuffer &that) {
+Strm::Bin::TOut &Orly::Mynde::operator<<(Strm::Bin::TOut &out, const TBuffer &that) {
   assert(&out);
   assert(&that);
   out.Write(that.GetData(), that.GetSize());

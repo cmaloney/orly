@@ -1,6 +1,6 @@
 /* <orly/var/opt.h>
 
-   A Stig opt, which is a Rt::TOpt.
+   A Orly opt, which is a Rt::TOpt.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -24,7 +24,7 @@
 #include <orly/type/rt.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -169,5 +169,5 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly
 

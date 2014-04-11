@@ -18,8 +18,8 @@
 
 #include <orly/indy/disk/in_file.h>
 
-using namespace Stig::Atom;
-using namespace Stig::Indy::Disk;
+using namespace Orly::Atom;
+using namespace Orly::Indy::Disk;
 
 static_assert(sizeof(TCore) == 24, "NullCore must be set to right number of zero'd out bytes");
 const uint8_t TData::NullCore[sizeof(TCore)] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

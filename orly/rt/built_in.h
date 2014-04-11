@@ -32,7 +32,7 @@
 #include <orly/rt/slice.h>
 #include <orly/rt/sort.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -68,4 +68,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

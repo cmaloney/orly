@@ -24,8 +24,8 @@
 #include <orly/type/obj.h>
 #include <orly/type/util.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TImplicitFunc::TPtr TImplicitFunc::New(const L0::TPackage *package, TCause cause, const Type::TType &ret_type, const TNamedArgs &args,
       const Expr::TExpr::TPtr &expr, bool keep_mutable) {

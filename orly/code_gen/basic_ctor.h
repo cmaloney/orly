@@ -27,7 +27,7 @@
 #include <orly/code_gen/cpp_printer.h>
 #include <orly/code_gen/inline.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -119,7 +119,7 @@ namespace Stig {
 
       /* Dependency graph */
       virtual void AppendDependsOn(std::unordered_set<TInline::TPtr> &dependency_set) const override {
-        Stig::CodeGen::AppendDependsOn(dependency_set, Elements);
+        Orly::CodeGen::AppendDependsOn(dependency_set, Elements);
       }
 
       size_t GetNumElements() const {
@@ -140,4 +140,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

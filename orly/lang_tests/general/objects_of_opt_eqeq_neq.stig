@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/objects_of_opt_eqeq_neq.orly>
 
-   This Stig script tests comparisons between collections of optional types.
+   This Orly script tests comparisons between collections of optional types.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

@@ -24,7 +24,7 @@
 #include <orly/code_gen/package_base.h>
 #include <orly/type/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -71,9 +71,9 @@ namespace Stig {
 
     }; // TInline
 
-    Stig::CodeGen::TCppPrinter &operator<<(Stig::CodeGen::TCppPrinter &out,
-        const Stig::CodeGen::TInline::TPtr &ptr);
+    Orly::CodeGen::TCppPrinter &operator<<(Orly::CodeGen::TCppPrinter &out,
+        const Orly::CodeGen::TInline::TPtr &ptr);
 
   } // CodeGen
 
-} // Stig
+} // Orly

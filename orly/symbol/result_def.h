@@ -23,7 +23,7 @@
 #include <base/no_copy_semantics.h>
 #include <orly/symbol/def.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Symbol {
 
@@ -61,4 +61,4 @@ namespace Stig {
 
   }  // Symbol
 
-}  // Stig
+}  // Orly

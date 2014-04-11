@@ -26,11 +26,11 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig::Indy;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
-using namespace Stig::Indy::Fiber;
-using namespace Stig::Indy::Util;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
+using namespace Orly::Indy::Fiber;
+using namespace Orly::Indy::Util;
 
 static const size_t BlockSize = 4096UL * 16;
 

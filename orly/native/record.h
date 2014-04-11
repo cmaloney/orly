@@ -34,23 +34,23 @@
 
 /* Declare a record element. */
 #define RECORD_ELEM(record_t, val_t, name)  \
-  RECORD_ELEM_PASTER(record_t, val_t, name, UNIQUE_TOKEN(StigNativeRecordElem));
+  RECORD_ELEM_PASTER(record_t, val_t, name, UNIQUE_TOKEN(OrlyNativeRecordElem));
 
 /* Declare a record element with a different field name than object type name. */
 #define RECORD_ELEM_WITH_FIELD_NAME(record_t, val_t, field_name, name)  \
-  RECORD_ELEM_PASTER_WITH_FIELD_NAME(record_t, val_t, field_name, name, UNIQUE_TOKEN(StigNativeRecordElem));
+  RECORD_ELEM_PASTER_WITH_FIELD_NAME(record_t, val_t, field_name, name, UNIQUE_TOKEN(OrlyNativeRecordElem));
 
 /* Pastes a unique name into the record element declaration.  Don't use this directly. */
 #define RECORD_ELEM_PASTER(record_t, val_t, name, unique_name)  \
   static constexpr char unique_name[] = #name;  \
-  template class ::Stig::Native::Record<record_t>::TElem<val_t, unique_name, &record_t::name>;
+  template class ::Orly::Native::Record<record_t>::TElem<val_t, unique_name, &record_t::name>;
 
   /* Pastes a unique name into the record element declaration.  Don't use this directly. */
 #define RECORD_ELEM_PASTER_WITH_FIELD_NAME(record_t, val_t, field_name, name, unique_name)  \
   static constexpr char unique_name[] = #name;  \
-  template class ::Stig::Native::Record<record_t>::TElem<val_t, unique_name, &record_t::field_name>;
+  template class ::Orly::Native::Record<record_t>::TElem<val_t, unique_name, &record_t::field_name>;
 
-namespace Stig {
+namespace Orly {
 
   namespace Native {
 
@@ -259,7 +259,7 @@ namespace Stig {
       static TAnyElem **Elems;
 
       /* size of TState */
-      friend class Stig::Sabot::TSizeChecker;
+      friend class Orly::Sabot::TSizeChecker;
 
     };  // Record<TRec>
 
@@ -361,4 +361,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

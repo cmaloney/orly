@@ -22,7 +22,7 @@
 #include <orly/code_gen/interner.h>
 #include <orly/code_gen/effect.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 
 TIdScope::TPtr TIdScope::New() {

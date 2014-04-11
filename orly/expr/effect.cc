@@ -18,8 +18,8 @@
 
 #include <orly/expr/effect.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TEffect::TPtr TEffect::New(const TExpr::TPtr &expr, const TPosRange &pos_range) {
   return TEffect::TPtr(new TEffect(expr, pos_range));

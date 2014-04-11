@@ -73,9 +73,9 @@
 #include <orly/synth/while_expr.h>
 
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Package;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Package;
+using namespace Orly::Synth;
 
 /* TODO */
 TExprFactory::TExprFactory(

@@ -25,8 +25,8 @@
 #include <orly/type/obj.h>
 #include <orly/type/time_pnt.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TThat::TPtr TThat::New(const TThatable::TPtr &thatable, const TPosRange &pos_range) {
   return TThat::TPtr(new TThat(Base::AssertTrue(thatable.get()), pos_range));

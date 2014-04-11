@@ -21,7 +21,7 @@
 #include <orly/var/impl.h>
 #include <orly/shared_enum.h>
 
-namespace Stig {
+namespace Orly {
 
   /* Forward declaration */
   namespace Var {
@@ -36,4 +36,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

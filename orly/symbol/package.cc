@@ -18,8 +18,8 @@
 
 #include <orly/symbol/package.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TPackage::TPtr TPackage::New(const Jhm::TNamespace &ns, unsigned int version) {
   return TPackage::TPtr(new TPackage(ns, version));

@@ -23,7 +23,7 @@
 #include <orly/sabot/order_states.h>
 #include <orly/sabot/state_dumper.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -206,7 +206,7 @@ namespace Stig {
 
     };  // TIndexKey
 
-    /* A standard stream inserter for Stig::Indy::TKey. */
+    /* A standard stream inserter for Orly::Indy::TKey. */
     inline std::ostream &operator<<(std::ostream &strm, const TKey &that) {
       assert(&that);
       that.Dump(strm);
@@ -215,33 +215,33 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Indy::TKey. */
+  /* A standard hasher for Orly::Indy::TKey. */
   template <>
-  struct hash<Stig::Indy::TKey> {
+  struct hash<Orly::Indy::TKey> {
     typedef size_t result_type;
-    typedef Stig::Indy::TKey argument_type;
-    size_t operator()(const Stig::Indy::TKey &that) const {
+    typedef Orly::Indy::TKey argument_type;
+    size_t operator()(const Orly::Indy::TKey &that) const {
       return that.GetHash();
     }
   };
 
-  /* A standard hasher for Stig::Indy::TIndexKey. */
+  /* A standard hasher for Orly::Indy::TIndexKey. */
   template <>
-  struct hash<Stig::Indy::TIndexKey> {
+  struct hash<Orly::Indy::TIndexKey> {
     typedef size_t result_type;
-    typedef Stig::Indy::TIndexKey argument_type;
-    size_t operator()(const Stig::Indy::TIndexKey &that) const {
+    typedef Orly::Indy::TIndexKey argument_type;
+    size_t operator()(const Orly::Indy::TIndexKey &that) const {
       return that.GetHash();
     }
   };
 
 }  // std
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -429,4 +429,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

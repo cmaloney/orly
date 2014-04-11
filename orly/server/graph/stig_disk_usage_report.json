@@ -1,7 +1,7 @@
 {
    "report_name" : "orly_disk_usage_report_report",
    "report_type" : "standard",
-   "title" : "Stig Disk Usage Report",
+   "title" : "Orly Disk Usage Report",
    "vertical_label" : "bytes",
    "series" : [
       { "metric": "orly_Disk_Usage_max", "color": "33cc33", "label": "Disk Max", "type": "stack" },

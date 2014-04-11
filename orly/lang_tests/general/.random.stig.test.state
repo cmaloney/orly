@@ -8,7 +8,7 @@ aS'Errors in: general/random.orly'
 p5
 aS'5:14-5:18 syntax error, unexpected IntLiteral, expecting IsKwd or InKwd or Eq'
 p6
-aS'compile failure: [orly/compiler.cc, 208], Stig::Compiler::TCompileFailure, Compiling Stig language'
+aS'compile failure: [orly/compiler.cc, 208], Orly::Compiler::TCompileFailure, Compiling Orly language'
 p7
 aatp8
 .

@@ -23,7 +23,7 @@
 #include <base/safe_global.h>
 #include <orly/type/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -189,4 +189,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

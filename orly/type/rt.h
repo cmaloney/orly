@@ -28,7 +28,7 @@
 #include <orly/type.h>
 #include <orly/uuid.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -182,7 +182,7 @@ namespace Stig {
 
     /* TODO */
     template <>
-    struct TDt<Stig::Rt::TUnknown> {
+    struct TDt<Orly::Rt::TUnknown> {
 
       /* TODO */
       TType static GetType() {
@@ -204,4 +204,4 @@ namespace Stig {
 
   } // Type
 
-} // Stig
+} // Orly

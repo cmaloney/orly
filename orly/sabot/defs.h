@@ -27,7 +27,7 @@
 #include <base/opt.h>
 #include <base/uuid.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -67,4 +67,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

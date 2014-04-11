@@ -22,7 +22,7 @@
 #include <orly/pos_range.h>
 #include <orly/type/equal_visitor.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -57,4 +57,4 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly

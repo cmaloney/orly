@@ -21,7 +21,7 @@
 #include <orly/code_gen/inline.h>
 #include <orly/symbol/built_in_function.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -54,4 +54,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

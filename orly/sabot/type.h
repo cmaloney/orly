@@ -24,7 +24,7 @@
 #include <base/no_construction.h>
 #include <orly/sabot/defs.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Sabot {
 
@@ -1269,4 +1269,4 @@ namespace Stig {
 
   }  // Sabot
 
-}  // Stig
+}  // Orly

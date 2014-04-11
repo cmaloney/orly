@@ -22,11 +22,11 @@
 #include <orly/type/infix_visitor.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Type;
 
 //TODO: Move to new families of visitors.
-void Stig::Type::CollectObjects(const TType &type, unordered_set<TType> &object_set) {
+void Orly::Type::CollectObjects(const TType &type, unordered_set<TType> &object_set) {
   class TObjectCollectorVisitor : public TType::TVisitor {
     NO_COPY_SEMANTICS(TObjectCollectorVisitor);
     public:

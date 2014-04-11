@@ -26,7 +26,7 @@
 #include <orly/code_gen/inline.h>
 #include <orly/type/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -70,4 +70,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

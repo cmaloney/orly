@@ -19,7 +19,7 @@
 #include <orly/indy/disk/test_file_service.h>
 
 using namespace std;
-using namespace Stig::Indy::Disk;
+using namespace Orly::Indy::Disk;
 
 bool TTestFileService::FindFile(const Base::TUuid &file_uid,
                                 size_t gen_id,

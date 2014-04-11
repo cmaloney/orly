@@ -1,6 +1,6 @@
 /* <orly/var/list.h>
 
-   A Stig list, which is a std::vector.
+   A Orly list, which is a std::vector.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -24,7 +24,7 @@
 #include <orly/type/rt.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -177,4 +177,4 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly

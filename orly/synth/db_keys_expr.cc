@@ -30,8 +30,8 @@
 #include <orly/synth/new_type.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TDbKeysExpr::TMember::TMember(TAddrDir addr_dir)
     : AddrDir(addr_dir) {}

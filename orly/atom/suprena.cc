@@ -21,7 +21,7 @@
 #include <orly/atom/comparison.h>
 
 using namespace std;
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 TCore::TOffset TSuprena::Propose(TCore::TNote *proposed_note) {
   assert(this);

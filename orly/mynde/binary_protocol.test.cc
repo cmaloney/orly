@@ -38,11 +38,11 @@ using namespace std;
 using namespace std::chrono;
 using namespace Base;
 using namespace Socket;
-using namespace Stig;
-using namespace Stig::Mynde;
-using namespace Stig::Server;
+using namespace Orly;
+using namespace Orly::Mynde;
+using namespace Orly::Server;
 
-/* Runs a Stig server in a child process. */
+/* Runs a Orly server in a child process. */
 class TSubprocServer final {
   public:
 

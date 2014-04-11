@@ -28,8 +28,8 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Type;
 
 static Type::TTypeCzar TypeCzar;
 

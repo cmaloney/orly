@@ -20,7 +20,7 @@
 #include <orly/indy/repo.h>
 #include <orly/indy/status.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -162,7 +162,7 @@ namespace Stig {
               TUpdate(const TUpdate &update);
 
               /* TODO */
-              TUpdate(const Stig::Indy::TUpdate *update);
+              TUpdate(const Orly::Indy::TUpdate *update);
 
               /* TODO */
               ~TUpdate();
@@ -209,7 +209,7 @@ namespace Stig {
               TOpByKey OpByKey;
 
               /* TODO */
-              friend class Stig::Indy::TReplicationStreamer;
+              friend class Orly::Indy::TReplicationStreamer;
 
             };  // TUpdate
 
@@ -223,7 +223,7 @@ namespace Stig {
             TMutation(TKind kind, const Base::TUuid &repo_id, const Base::TOpt<TSequenceNumber> &seq_num);
 
             /* TODO */
-            TMutation(TKind kind, const Base::TUuid &repo_id, const Stig::Indy::TUpdate *update, const Base::TOpt<TSequenceNumber> &seq_num);
+            TMutation(TKind kind, const Base::TUuid &repo_id, const Orly::Indy::TUpdate *update, const Base::TOpt<TSequenceNumber> &seq_num);
 
             /* TODO */
             TMutation(TKind kind, const Base::TUuid &repo_id, TUpdate &&update, const Base::TOpt<TSequenceNumber> &seq_num);
@@ -326,7 +326,7 @@ namespace Stig {
 
           /* TODO */
           friend class TManager;
-          friend class Stig::Indy::TReplicationStreamer;
+          friend class Orly::Indy::TReplicationStreamer;
 
         };  // TReplica
 
@@ -802,4 +802,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

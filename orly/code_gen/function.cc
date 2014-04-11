@@ -31,8 +31,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 void TFunction::TArg::TRef::WriteExpr(TCppPrinter &out) const {
   out << Arg->GetId();

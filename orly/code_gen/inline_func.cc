@@ -18,7 +18,7 @@
 
 #include <orly/code_gen/inline_func.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 const TId<TIdKind::Func> &TInlineFunc::GetId() const {
   assert(this);

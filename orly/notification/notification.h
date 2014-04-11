@@ -21,7 +21,7 @@
 #include <io/binary_input_stream.h>
 #include <io/binary_output_stream.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Notification {
 
@@ -58,4 +58,4 @@ namespace Stig {
 
   }  // Notification
 
-}  // Stig
+}  // Orly

@@ -20,8 +20,8 @@
 
 #include <orly/type/opt.h>
 
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 size_t TOpt::GetHash() const {
   assert(this);
@@ -38,7 +38,7 @@ Type::TType TOpt::GetInnerType() const {
 }
 
 void TOpt::Write(std::ostream &strm) const {
-  strm << "Stig::Rt::TOpt<" << Type << ">(";
+  strm << "Orly::Rt::TOpt<" << Type << ">(";
   if (Val.IsKnown()) {
     strm << Val.GetVal();
   }

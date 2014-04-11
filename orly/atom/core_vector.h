@@ -26,7 +26,7 @@
 #include <io/binary_input_stream.h>
 #include <orly/atom/kit2.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Atom {
 
@@ -104,4 +104,4 @@ namespace Stig {
 
   }  // Atom
 
-}  // Stig
+}  // Orly

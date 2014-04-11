@@ -31,9 +31,9 @@ using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Socket;
-using namespace Stig;
-using namespace Stig::Client;
-using namespace Stig::Server;
+using namespace Orly;
+using namespace Orly::Client;
+using namespace Orly::Server;
 
 const char *ServerBlockDevice = "sdb";
 
@@ -121,7 +121,7 @@ static const char *sample_package = "package #1;"
 
 #if 0
 FIXTURE(SmallTypical) {
-  Stig::Spa::THoncho Honcho;
+  Orly::Spa::THoncho Honcho;
   /* make the path to the server binary */
   stringstream out_path;
   out_path << SRC_ROOT;
@@ -146,7 +146,7 @@ FIXTURE(SmallTypical) {
   package_file.open("/tmp/sample.orly");
   package_file << sample_package;
   package_file.close();
-  Stig::Compiler::Compile(Jhm::TAbsPath(Jhm::TAbsBase("/tmp/"), Jhm::TRelPath("sample.orly")), string("/tmp/"), false, false, false);
+  Orly::Compiler::Compile(Jhm::TAbsPath(Jhm::TAbsBase("/tmp/"), Jhm::TRelPath("sample.orly")), string("/tmp/"), false, false, false);
   #endif
 
   TAddress server_addr(TAddress::IPv4Any, 19281);
@@ -201,7 +201,7 @@ FIXTURE(SmallTypical) {
       Sabot::ToNative(*Sabot::State::TAny::TWrapper((*push_result)->GetValue().NewState((*push_result)->GetArena().get(), state_alloc)), out);
       const Base::TOpt<TTracker> tracker = (*push_result)->GetTracker();
       assert(tracker);
-      client->WaitForTetris(tracker->Id, Stig::Indy::GlobalPovId);
+      client->WaitForTetris(tracker->Id, Orly::Indy::GlobalPovId);
       std::cout << "Done insert" << std::endl;
     }
     /* connect a client to the server and get the key to see if it's there. */
@@ -287,7 +287,7 @@ FIXTURE(SmallTypical) {
 FIXTURE(MediumTypical) {
   const int64_t num_iter = 5000L;
   const size_t max_outstanding = 500L;
-  Stig::Spa::THoncho Honcho;
+  Orly::Spa::THoncho Honcho;
   /* make the path to the server binary */
   stringstream out_path;
   out_path << SRC_ROOT;
@@ -312,7 +312,7 @@ FIXTURE(MediumTypical) {
   package_file.open("/tmp/sample.orly");
   package_file << sample_package;
   package_file.close();
-  Stig::Compiler::Compile(Jhm::TAbsPath(Jhm::TAbsBase("/tmp/"), Jhm::TRelPath("sample.orly")), string("/tmp/"), false, false, false);
+  Orly::Compiler::Compile(Jhm::TAbsPath(Jhm::TAbsBase("/tmp/"), Jhm::TRelPath("sample.orly")), string("/tmp/"), false, false, false);
   #endif
 
   TAddress server_addr(TAddress::IPv4Any, 19281);
@@ -375,12 +375,12 @@ FIXTURE(MediumTypical) {
         trackers.push_back(tracker->Id);
         if (trackers.size() > max_outstanding) {
           Base::TUuid id = *trackers.begin();
-          client->WaitForTetris(id, Stig::Indy::GlobalPovId);
+          client->WaitForTetris(id, Orly::Indy::GlobalPovId);
           trackers.erase(trackers.begin());
         }
       }
       for (const auto &id : trackers) {
-        client->WaitForTetris(id, Stig::Indy::GlobalPovId);
+        client->WaitForTetris(id, Orly::Indy::GlobalPovId);
       }
       std::cout << "Done insert" << std::endl;
     }

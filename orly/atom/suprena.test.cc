@@ -26,7 +26,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Atom;
+using namespace Orly::Atom;
 
 FIXTURE(Uniqueness) {
   const size_t str_count = 4;

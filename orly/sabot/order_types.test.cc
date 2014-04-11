@@ -29,10 +29,10 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Atom;
-using namespace Stig::Native;
-using namespace Stig::Sabot;
+using namespace Orly;
+using namespace Orly::Atom;
+using namespace Orly::Native;
+using namespace Orly::Sabot;
 
 template <typename TLhs, typename TRhs>
 TComparison CheckTypes() {

@@ -31,38 +31,38 @@
 #include <tools/nycr/pos_range.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Checkpoint::Syntax;
-using namespace Stig::Spa;
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly;
+using namespace Orly::Checkpoint::Syntax;
+using namespace Orly::Spa;
+using namespace Orly::Spa::FluxCapacitor;
 using namespace Tools::Nycr;
 
 /* TODO */
-class TTypeVisitor : public Stig::Checkpoint::Syntax::TType::TVisitor {
+class TTypeVisitor : public Orly::Checkpoint::Syntax::TType::TVisitor {
   NO_COPY_SEMANTICS(TTypeVisitor);
   public:
 
   TTypeVisitor(Type::TType &type) : Type(type) {}
 
-  //virtual void operator()(const Stig::Checkpoint::Syntax::TTypeOf *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TParenType *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRefType *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TTimeDiffType *) const {
+  //virtual void operator()(const Orly::Checkpoint::Syntax::TTypeOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TParenType *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TRefType *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TTimeDiffType *) const {
     Type = Type::TTimeDiff::Get();
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TTimePntType *) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TTimePntType *) const {
     Type = Type::TTimePnt::Get();
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TIntType *) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TIntType *) const {
     Type = Type::TInt::Get();
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TStrType *) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TStrType *) const {
     Type = Type::TStr::Get();
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBoolType *) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBoolType *) const {
     Type = Type::TBool::Get();
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TMutableType *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TMutableType *that) const {
     Type::TType val_type;
     that->GetType()->Accept(TTypeVisitor(val_type));
     //TODO: Assert here and give a nice warning if someone tries to make a mutable of a mutable.
@@ -88,37 +88,37 @@ class TTypeVisitor : public Stig::Checkpoint::Syntax::TType::TVisitor {
     that->GetOptMutableTypeAt()->Accept(TOptMutableTypeAtVisitor(addr_type));
     Type = Type::TMutable::Get(addr_type, val_type, val_type);
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRealType *) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TRealType *) const {
     Type = Type::TReal::Get();
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TIdType *) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TIdType *) const {
     Type = Type::TId::Get();
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TErrType *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TErrType *that) const {
     Type::TType type;
     TTypeVisitor visitor(type);
     that->GetType()->Accept(visitor);
     Type = Type::TErr::Get(type);
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TSeqType *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TSeqType *that) const {
     Type::TType type;
     TTypeVisitor visitor(type);
     that->GetType()->Accept(visitor);
     Type = Type::TSeq::Get(type);
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TOptType *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TOptType *that) const {
     Type::TType type;
     TTypeVisitor visitor(type);
     that->GetType()->Accept(visitor);
     Type = Type::TOpt::Get(type);
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TListType *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TListType *that) const {
     Type::TType type;
     TTypeVisitor visitor(type);
     that->GetType()->Accept(visitor);
     Type = Type::TList::Get(type);
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TDictType *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TDictType *that) const {
     Type::TType key_type;
     Type::TType value_type;
     TTypeVisitor key_visitor(key_type);
@@ -127,17 +127,17 @@ class TTypeVisitor : public Stig::Checkpoint::Syntax::TType::TVisitor {
     that->GetValue()->Accept(value_visitor);
     Type = Type::TDict::Get(key_type, value_type);
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TSetType *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TSetType *that) const {
     Type::TType type;
     TTypeVisitor visitor(type);
     that->GetType()->Accept(visitor);
     Type = Type::TSet::Get(type);
   }
-  //virtual void operator()(const Stig::Checkpoint::Syntax::TResultOf *) const {NOT_IMPLEMENTED();}
-  //virtual void operator()(const Stig::Checkpoint::Syntax::TParamsOf *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TFuncType *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TAddrType *that) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TObjType *) const;
+  //virtual void operator()(const Orly::Checkpoint::Syntax::TResultOf *) const {NOT_IMPLEMENTED();}
+  //virtual void operator()(const Orly::Checkpoint::Syntax::TParamsOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TFuncType *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TAddrType *that) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TObjType *) const;
 
   private:
 
@@ -146,7 +146,7 @@ class TTypeVisitor : public Stig::Checkpoint::Syntax::TType::TVisitor {
 };  // TTypeVisitor
 
 /* TODO */
-class TExprVisitor : public Stig::Checkpoint::Syntax::TExpr::TVisitor {
+class TExprVisitor : public Orly::Checkpoint::Syntax::TExpr::TVisitor {
   NO_COPY_SEMANTICS(TExprVisitor);
   public:
 
@@ -154,99 +154,99 @@ class TExprVisitor : public Stig::Checkpoint::Syntax::TExpr::TVisitor {
   TExprVisitor(Var::TVar &var) : Var(var) {}
 
   /* TODO */
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInCeiling *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInFloor *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog2 *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInLog10 *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInRandom *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInReplace *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInToLower *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TBuiltInToUpper *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TCollatedByExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TCollectedByExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseOr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixDiv *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalOr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixExp *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLt *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMinus *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMul *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixGtEq *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixPlus *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseAnd *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalAnd *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixEq *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixBitwiseXor *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixGt *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLogicalXor *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixIn *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMatch *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixMod *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixNeq *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixLtEq *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixOrElse *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixAndThen *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixReduce *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSort *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixFilter *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixTake *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSkip *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixSplit *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TInfixWhile *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRefExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TParenExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsEmpty *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsKnown *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsKnownExpr *) const { NOT_IMPLEMENTED(); }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixIsUnknown *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixCast *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixAddrMember *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixSlice *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixObjMember *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixCall *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixExists *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TEffectingExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TAssertExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TWhereExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixMinus *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixPlus *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixLogicalNot *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixKnown *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixLengthOf *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixReverseOf *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixTimeObj *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixAddrOf *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TDbKeysExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixStart *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPrefixSequence *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TUserIdExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TSessionIdExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TNowExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TLhsExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRhsExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TThatExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TLiteralExpr *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TIfExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TReadExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TGivenExpr *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TEmptyCtor *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TListCtor *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TRangeCtor *) const {NOT_IMPLEMENTED();}
-  virtual void operator()(const Stig::Checkpoint::Syntax::TObjCtor *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TUnknownCtor *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInCeiling *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInFloor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog2 *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog10 *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInRandom *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInReplace *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInToLower *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInToUpper *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TCollatedByExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TCollectedByExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixBitwiseOr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixDiv *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixLogicalOr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixExp *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixLt *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixMinus *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixMul *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixGtEq *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixPlus *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixBitwiseAnd *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixLogicalAnd *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixEq *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixBitwiseXor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixGt *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixLogicalXor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixIn *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixMatch *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixMod *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixNeq *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixLtEq *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixOrElse *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixAndThen *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixReduce *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixSort *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixFilter *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixTake *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixSkip *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixSplit *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TInfixWhile *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TRefExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TParenExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixIsEmpty *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixIsKnown *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixIsKnownExpr *) const { NOT_IMPLEMENTED(); }
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixIsUnknown *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixCast *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixAddrMember *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixSlice *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixObjMember *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixCall *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixExists *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TEffectingExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TAssertExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TWhereExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixMinus *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixPlus *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixLogicalNot *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixKnown *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixLengthOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixReverseOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixTimeObj *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixAddrOf *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TDbKeysExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixStart *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPrefixSequence *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TUserIdExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TSessionIdExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TNowExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TLhsExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TRhsExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TThatExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TLiteralExpr *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TIfExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TReadExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TGivenExpr *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TEmptyCtor *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TListCtor *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TRangeCtor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TObjCtor *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TUnknownCtor *that) const {
     Type::TType type;
     that->GetType()->Accept(TTypeVisitor(type));
     Var = Var::TVar::Opt(Rt::TOpt<Var::TVar>(), type);
   }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TSetCtor *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TDictCtor *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TAddrCtor *) const;
-  virtual void operator()(const Stig::Checkpoint::Syntax::TTimeDiffCtor *) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TSetCtor *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TDictCtor *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TAddrCtor *) const;
+  virtual void operator()(const Orly::Checkpoint::Syntax::TTimeDiffCtor *) const {
     NOT_IMPLEMENTED_S("time_diff constructor syntax is not allowed"); }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TTimePntCtor  *) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TTimePntCtor  *) const {
     NOT_IMPLEMENTED_S("time_pnt constructor syntax is not allowed"); }
-  virtual void operator()(const Stig::Checkpoint::Syntax::TPostfixOptCheckpoint *that) const {
+  virtual void operator()(const Orly::Checkpoint::Syntax::TPostfixOptCheckpoint *that) const {
     that->GetExpr()->Accept(*this);
     Var = Var::TVar::Opt(Rt::TOpt<Var::TVar>(Var), Var.GetType());
   }

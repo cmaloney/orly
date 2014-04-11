@@ -37,7 +37,7 @@
 class TCompiler;
 class TSpa;
 
-namespace Stig {
+namespace Orly {
 
   namespace Package {
 
@@ -56,7 +56,7 @@ namespace Stig {
       public:
 
       typedef Base::TPiece<const char> TStrPiece;
-      using TStigArg = TArgs::TStigArg;
+      using TOrlyArg = TArgs::TOrlyArg;
 
       /* TODO */
       static const char *GetNotifierStateStr(FluxCapacitor::TNotifierState state);
@@ -96,7 +96,7 @@ namespace Stig {
       void Do(
           const std::shared_ptr<Package::TFuncHolder> &func,
           const TUUID &private_pov,
-          TStigArg &orly_args,
+          TOrlyArg &orly_args,
           Var::TVar &var
         );
 
@@ -117,7 +117,7 @@ namespace Stig {
           const Package::TFuncHolder::TPtr &func,
           const TUUID &private_pov,
           const std::unordered_set<TUUID> &notify_povs,
-          const TStigArg &orly_args,
+          const TOrlyArg &orly_args,
           Atom::TCore &result_core,
           Atom::TSuprena &result_arena,
           std::unordered_map<TUUID, TUUID> &notifiers
@@ -143,7 +143,7 @@ namespace Stig {
       Package::TManager PackageManager;
 
       /* TODO */
-      Stig::Spa::FluxCapacitor::TGlobalPov GlobalPov;
+      Orly::Spa::FluxCapacitor::TGlobalPov GlobalPov;
 
       /* TODO */
       Atom::TSuprena Arena;
@@ -155,4 +155,4 @@ namespace Stig {
 
   }  // Spa
 
-}  // Stig
+}  // Orly

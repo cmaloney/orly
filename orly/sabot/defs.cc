@@ -18,7 +18,7 @@
 
 #include <orly/sabot/defs.h>
 
-using namespace Stig::Sabot;
+using namespace Orly::Sabot;
 
 TIdxTooBig::TIdxTooBig()
     : runtime_error("idx too big") {}

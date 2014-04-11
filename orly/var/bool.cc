@@ -21,8 +21,8 @@
 #include <orly/type/bool.h>
 #include <orly/var/dynamic_cast.h>
 
-using namespace Stig;
-using namespace Stig::Var;
+using namespace Orly;
+using namespace Orly::Var;
 
 size_t TBool::GetHash() const {
   assert(this);

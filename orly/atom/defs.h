@@ -1,6 +1,6 @@
 /* <orly/atom/defs.h>
 
-   Typedefs used to standardize the mapping between Stig tycons and C++ types and templates.
+   Typedefs used to standardize the mapping between Orly tycons and C++ types and templates.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -31,7 +31,7 @@
 #include <orly/asc.h>
 #include <orly/desc.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Atom {
 
@@ -70,11 +70,11 @@ namespace Stig {
 
     /* asc */
     template <typename TChild>
-    using TAsc = Stig::TAsc<TChild>;
+    using TAsc = Orly::TAsc<TChild>;
 
     /* desc */
     template <typename TChild>
-    using TDesc = Stig::TDesc<TChild>;
+    using TDesc = Orly::TDesc<TChild>;
 
     /* dict */
     template <typename TLhs, typename TRhs>
@@ -88,4 +88,4 @@ namespace Stig {
 
   }  // Atom
 
-}  // Stig
+}  // Orly

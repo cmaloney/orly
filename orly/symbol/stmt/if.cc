@@ -22,9 +22,9 @@
 #include <orly/type/unwrap.h>
 #include <orly/type/util.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Stmt;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Stmt;
 
 TIfClause::TPtr TIfClause::New(const Expr::TExpr::TPtr &expr, const TStmtBlock::TPtr &stmt_block) {
   return TIfClause::TPtr(new TIfClause(expr, stmt_block));

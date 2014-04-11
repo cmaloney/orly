@@ -1,6 +1,6 @@
 /* <test/perf.h>
 
-   Stig perf testing kit. Contains primitives for perf testing code, and a wrapper which gives us a nice environment
+   Orly perf testing kit. Contains primitives for perf testing code, and a wrapper which gives us a nice environment
    for executing them.
 
    Usage

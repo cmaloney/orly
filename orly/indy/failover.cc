@@ -23,7 +23,7 @@
 using namespace std;
 using namespace Base;
 using namespace Io;
-using namespace Stig::Indy;
+using namespace Orly::Indy;
 using namespace Rpc;
 
 TConnectionFailed::TConnectionFailed(const string &error_msg)

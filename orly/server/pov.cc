@@ -20,8 +20,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Server;
+using namespace Orly;
+using namespace Orly::Server;
 
 const Indy::L0::TManager::TPtr<Indy::TRepo> &TPov::GetRepo(const TServer *server) const {
   assert(this);

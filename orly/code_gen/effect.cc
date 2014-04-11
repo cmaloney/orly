@@ -27,8 +27,8 @@
 #include <orly/type/unwrap.h>
 #include <orly/type/util.h>
 
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TPtrC<TMutation> TMutation::New(const TPtrC<TInline> &mutable_, TMutator mutation, const TPtrC<TInline> &rhs) {
   return TPtrC<TMutation>(new TMutation(mutable_, mutation, rhs));
@@ -137,7 +137,7 @@ void TMutate::Write(TCppPrinter &out) const {
     const Base::TUuid &index_id = Package->GetIndexIdFor(addr_type, val_type);
     char uuid[37];
     index_id.FormatUnderscore(uuid);
-    out << TStigNamespace(Package->GetNamespace()) << "::My" << uuid << " ,";
+    out << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << " ,";
   }
 
   /* mutable */
@@ -173,7 +173,7 @@ void TMutate::Write(TCppPrinter &out) const {
       }
 
       void Write(const char *name, const Type::TType &type) const {
-        Out << "Var::T" << name << "::New(Stig::Var::TVar::TDt<" << type << ">::As(" << Mutable << ".GetParts().at("
+        Out << "Var::T" << name << "::New(Orly::Var::TVar::TDt<" << type << ">::As(" << Mutable << ".GetParts().at("
             << MutableVarCount << ")), ";
         ++MutableVarCount;
       }

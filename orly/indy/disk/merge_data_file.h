@@ -27,7 +27,7 @@
 #include <orly/indy/memory_layer.h>
 #include <orly/sabot/all.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -86,4 +86,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

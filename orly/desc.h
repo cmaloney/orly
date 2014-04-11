@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-namespace Stig {
+namespace Orly {
 
   /* A wrapper providing descending ordering. */
   template <typename TVal>
@@ -110,4 +110,4 @@ namespace Stig {
 
   };  // TDesc
 
-}  // Stig
+}  // Orly

@@ -18,9 +18,9 @@
 
 #include <orly/symbol/stmt/stmt_block.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Stmt;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Stmt;
 
 TStmtBlock::TPtr TStmtBlock::New(const TStmtVec &stmts, const TPosRange &pos_range) {
   return TPtr(new TStmtBlock(stmts, pos_range));

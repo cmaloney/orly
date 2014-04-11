@@ -19,8 +19,8 @@
 #include <orly/sabot/get_depth.h>
 
 using namespace std;
-using namespace Stig;
-using namespace Stig::Sabot;
+using namespace Orly;
+using namespace Orly::Sabot;
 
 /* Return the depth of a sabot. */
 class TDepthVisitor final
@@ -75,7 +75,7 @@ class TDepthVisitor final
 
 };  // TDepthVisitor
 
-size_t Stig::Sabot::GetDepth(const Type::TAny &type) {
+size_t Orly::Sabot::GetDepth(const Type::TAny &type) {
   size_t ret = 0;
   type.Accept(TDepthVisitor(ret));
   return ret;

@@ -27,7 +27,7 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
+using namespace Orly;
 
 FIXTURE(Int8) {
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());

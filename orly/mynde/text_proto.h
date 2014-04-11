@@ -20,7 +20,7 @@
 
 #include <string>
 
-namespace Stig {
+namespace Orly {
   namespace Mynde {
 
     class TIn;
@@ -43,4 +43,4 @@ namespace Stig {
     };
 
   }  // Mynde
-}  // Stig
+}  // Orly

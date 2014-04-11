@@ -27,8 +27,8 @@
 using namespace std;
 using namespace chrono;
 using namespace Base;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 typedef TStream<LogicalPageSize, LogicalBlockSize, PhysicalBlockSize, CheckedPage, 0UL> TDataInStream;
 typedef TOutStream<LogicalPageSize, LogicalBlockSize, PhysicalBlockSize, PageCheckedBlock> TDataOutStream;
@@ -40,7 +40,7 @@ class TMyInFile
   NO_COPY_SEMANTICS(TMyInFile);
   public:
 
-  TMyInFile(const Stig::Indy::Util::TBlockVec &block_vec) : BlockVec(block_vec) {}
+  TMyInFile(const Orly::Indy::Util::TBlockVec &block_vec) : BlockVec(block_vec) {}
 
   virtual size_t GetFileLength() const override {
     return BlockVec.Size() * LogicalBlockSize;
@@ -60,12 +60,12 @@ class TMyInFile
 
   private:
 
-  const Stig::Indy::Util::TBlockVec &BlockVec;
+  const Orly::Indy::Util::TBlockVec &BlockVec;
 
 };
 
 FIXTURE(Stream) {
-  Stig::Indy::Fiber::TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Stig::Indy::Fiber::TRunner::TRunnerCons &) {
+  Orly::Indy::Fiber::TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Orly::Indy::Fiber::TRunner::TRunnerCons &) {
     const TScheduler::TPolicy scheduler_policy(4, 10, milliseconds(10));
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
@@ -79,7 +79,7 @@ FIXTURE(Stream) {
 
     const size_t num_blocks_to_write = 40UL;
 
-    Stig::Indy::Util::TBlockVec block_vec;
+    Orly::Indy::Util::TBlockVec block_vec;
     mem_engine.GetEngine()->AppendReserveBlocks(TVolume::TDesc::Fast, num_blocks_to_write, block_vec);
     unordered_map<size_t, shared_ptr<const TBufBlock>> collision_map {};
     TCompletionTrigger trigger;

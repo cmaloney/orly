@@ -24,7 +24,7 @@
 
 //TODO: Dependency inject scope and function?
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 std::stack<TInline::TPtr> Context::Lhs, Context::Rhs, Context::Start, Context::That;
 std::stack<TFunction*> Context::NearestFunc;

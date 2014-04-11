@@ -28,7 +28,7 @@
 #include <test/kit.h>
 
 using namespace Base;
-using namespace Stig::Indy::Fiber;
+using namespace Orly::Indy::Fiber;
 
 template <typename TVal, size_t ParallelThresh>
 class TSortRunnable

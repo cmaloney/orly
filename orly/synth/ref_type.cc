@@ -20,8 +20,8 @@
 
 #include <base/assert_true.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TRefType::TRefType(const Package::Syntax::TRefType *ref_type)
     : TypeDef(Base::AssertTrue(ref_type)->GetName()) {}

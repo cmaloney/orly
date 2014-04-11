@@ -32,10 +32,10 @@
 #include <tools/nycr/error.h>
 
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Command;
-using namespace Stig::Command::Syntax;
-using namespace Stig::Spa;
+using namespace Orly;
+using namespace Orly::Command;
+using namespace Orly::Command::Syntax;
+using namespace Orly::Spa;
 
 // TODO: This mutex isn't pretty, but it is necessary to keep bison from going KABOOOOM"
 static std::mutex CommandParserLock;
@@ -757,7 +757,7 @@ namespace FooBar {
 
 }  // FooBar
 
-bool Stig::Spa::ParseCommand(const char *text, Var::TVar &var) {
+bool Orly::Spa::ParseCommand(const char *text, Var::TVar &var) {
   std::lock_guard<std::mutex> Lock(CommandParserLock);
   //Parse the text
   std::unique_ptr<TCommand> cst(TCommand::ParseStr(text));

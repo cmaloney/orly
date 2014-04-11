@@ -21,7 +21,7 @@
 #include <orly/type/gen_code.h>
 #include <orly/type/unwrap.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TTypedLeaf::TTypedLeaf(const L0::TPackage *package,
                        TKind kind,

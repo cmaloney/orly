@@ -20,7 +20,7 @@
 
 #include <test/kit.h>
 
-using namespace Stig::Client::Program;
+using namespace Orly::Client::Program;
 
 FIXTURE(Typical) {
   int xact_count = 0;

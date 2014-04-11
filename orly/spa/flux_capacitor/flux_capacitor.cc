@@ -27,8 +27,8 @@
 using namespace std;
 using namespace placeholders;
 using namespace Base;
-using namespace Stig::Spa;
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly::Spa;
+using namespace Orly::Spa::FluxCapacitor;
 
 /* These are used in the ForEachTour() functions in TNodeIndex and TEdgeIndex. */
 static const string EmptyString;

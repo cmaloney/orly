@@ -28,7 +28,7 @@
 #include <orly/uuid.h>
 #include <orly/var/impl.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Package {
 
@@ -110,4 +110,4 @@ namespace Stig {
     };
   }  // Package
 
-}  // Stig
+}  // Orly

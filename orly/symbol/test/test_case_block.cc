@@ -23,9 +23,9 @@
 #include <orly/type/unwrap.h>
 #include <orly/type/util.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
-using namespace Stig::Symbol::Test;
+using namespace Orly;
+using namespace Orly::Symbol;
+using namespace Orly::Symbol::Test;
 
 TTestCase::TPtr TTestCase::New(
     const Expr::TExpr::TPtr &expr,

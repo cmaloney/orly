@@ -39,7 +39,7 @@
 #include <signal/handler_installer.h>
 #include <socket/address.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace BinProto {
 
@@ -330,4 +330,4 @@ namespace Stig {
 
   }  // Client
 
-}  // Stig
+}  // Orly

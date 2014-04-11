@@ -30,7 +30,7 @@
 #include <orly/rt/opt.h>
 #include <orly/var/mutation.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Package {
 
@@ -102,7 +102,7 @@ namespace Stig {
       }
 
       /* Get the FluxCapacitor::TContext. Used by things like KeyGenerators and reading values out of the database. */
-      virtual Stig::TContextBase &GetFlux() = 0;
+      virtual Orly::TContextBase &GetFlux() = 0;
 
       /* TODO */
       virtual TKeyCursor *NewKeyCursor(TContextBase *context, const Indy::TIndexKey &pattern) const = 0;
@@ -164,7 +164,7 @@ namespace Stig {
       }
 
       /* Get the current time. Note that this function will always return the __same__ time. This is because within a
-         single program execution in Stig the time is assumed to be constant.
+         single program execution in Orly the time is assumed to be constant.
 
          TODO: If the time is used, it should really be rolled into the CheckAsserts function capture... */
       inline Base::Chrono::TTimePnt Now() const {
@@ -250,7 +250,7 @@ namespace Stig {
           : TContext(user_id, session_id, arena, scheduler, now, random_seed), FluxContext(context) {}
 
       /* TODO */
-      virtual Stig::TContextBase &GetFlux() override {
+      virtual Orly::TContextBase &GetFlux() override {
         assert(this);
         return FluxContext;
       }
@@ -301,4 +301,4 @@ namespace Stig {
 
   } // Rt
 
-} // Stig
+} // Orly

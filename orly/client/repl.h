@@ -1,6 +1,6 @@
 /* <orly/client/repl.h>
 
-   Runs the Read-Execute-Print Loop for the Stig client.
+   Runs the Read-Execute-Print Loop for the Orly client.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -35,11 +35,11 @@
 #include <orly/client/client.h>
 #include <socket/address.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Client {
 
-    /* Runs the Read-Execute-Print Loop for the Stig client. */
+    /* Runs the Read-Execute-Print Loop for the Orly client. */
     class TRepl {
       NO_COPY_SEMANTICS(TRepl);
       public:
@@ -88,7 +88,7 @@ namespace Stig {
         /* Construct from argc/argv. */
         TCmd(int argc, char *argv[]);
 
-        /* The address where the Stig server can be found. */
+        /* The address where the Orly server can be found. */
         Socket::TAddress ServerAddress;
 
         /* The session id to use.  If not given, then we'll start a new session. */
@@ -138,4 +138,4 @@ namespace Stig {
 
   }  // Client
 
-}  // Stig
+}  // Orly

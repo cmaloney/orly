@@ -23,9 +23,9 @@
 #include <orly/synth/get_pos_range.h>
 #include <test/kit.h>
 
-using namespace Stig;
-using namespace Stig::Package;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Package;
+using namespace Orly::Synth;
 
 FIXTURE(Typical) {
   Syntax::TOptDefSeq *root =

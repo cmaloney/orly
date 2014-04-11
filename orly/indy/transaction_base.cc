@@ -24,8 +24,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig::Atom;
-using namespace Stig::Indy::L1;
+using namespace Orly::Atom;
+using namespace Orly::Indy::L1;
 
 bool TTransaction::Push(const L0::TManager::TPtr<TRepo> &repo, const shared_ptr<TUpdate> &update, const Base::TOpt<TSequenceNumber> &ensure_or_discard) {
   assert(this);
@@ -210,7 +210,7 @@ bool TTransaction::UnPause(const L0::TManager::TPtr<TRepo> &repo, const Base::TO
   return false;
 }
 
-const std::shared_ptr<Stig::Indy::TUpdate> &TTransaction::Peek(const L0::TManager::TPtr<TRepo> &repo) {
+const std::shared_ptr<Orly::Indy::TUpdate> &TTransaction::Peek(const L0::TManager::TPtr<TRepo> &repo) {
   assert(this);
   TMutation *mutation = MutationCollection.TryGetFirstMember(repo->GetId());
   TPopper *popper = nullptr;
@@ -479,12 +479,12 @@ TTransaction::TReplica::TMutation::TUpdate::TUpdate(const TUpdate &that)
   }
 }
 
-TTransaction::TReplica::TMutation::TUpdate::TUpdate(const Stig::Indy::TUpdate *that)
+TTransaction::TReplica::TMutation::TUpdate::TUpdate(const Orly::Indy::TUpdate *that)
     : Suprena(make_shared<TSuprena>()) {
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   Metadata = TCore(Suprena.get(), state_alloc, &that->GetSuprena(), that->GetMetadata());
   Id = TCore(Suprena.get(), state_alloc, &that->GetSuprena(), that->GetId());
-  for (Stig::Indy::TUpdate::TEntryCollection::TCursor csr(that->GetEntryCollection()); csr; ++csr) {
+  for (Orly::Indy::TUpdate::TEntryCollection::TCursor csr(that->GetEntryCollection()); csr; ++csr) {
     OpByKey.push_back(make_pair(TIndexKey(csr->GetIndexKey().GetIndexId(), TKey(TCore(Suprena.get(), state_alloc, &csr->GetSuprena(), csr->GetKey().GetCore()), Suprena.get())),
                                 TCore(Suprena.get(), state_alloc, &csr->GetSuprena(), csr->GetOp())));
   }
@@ -569,7 +569,7 @@ TTransaction::TReplica::TMutation::TMutation(TKind kind, const Base::TUuid &repo
   assert(Kind != Pusher);
 }
 
-TTransaction::TReplica::TMutation::TMutation(TKind kind, const Base::TUuid &repo_id, const Stig::Indy::TUpdate *update, const Base::TOpt<TSequenceNumber> &seq_num)
+TTransaction::TReplica::TMutation::TMutation(TKind kind, const Base::TUuid &repo_id, const Orly::Indy::TUpdate *update, const Base::TOpt<TSequenceNumber> &seq_num)
     : Kind(kind),
       RepoId(repo_id),
       Update(update),

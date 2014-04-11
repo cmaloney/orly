@@ -25,9 +25,9 @@
 #include <orly/type/unwrap_visitor.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
-using namespace Stig::Type;
+using namespace Orly;
+using namespace Orly::Expr;
+using namespace Orly::Type;
 using namespace std;
 
 TExpr::TPtr TSplit::New(const TExpr::TPtr &lhs, const TExpr::TPtr &rhs, const TPosRange &pos_range) {
@@ -62,7 +62,7 @@ Type::TType TSplit::GetType() const {
     virtual void operator()(const Type::TSet      *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TStr      *) const {
       /* sequence of <[str, str?]> tuples */
-      Type = TSeq::Get(Stig::Type::TAddr::Get(vector<pair<TAddrDir, TType>>{{TAddrDir::Asc, TStr::Get()}, {TAddrDir::Asc, TOpt::Get(TStr::Get())}}));
+      Type = TSeq::Get(Orly::Type::TAddr::Get(vector<pair<TAddrDir, TType>>{{TAddrDir::Asc, TStr::Get()}, {TAddrDir::Asc, TOpt::Get(TStr::Get())}}));
     }
     virtual void operator()(const Type::TTimeDiff *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TTimePnt  *) const { throw TExprError(HERE, PosRange); }

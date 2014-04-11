@@ -25,9 +25,9 @@
 #include <orly/indy/disk/read_file.h>
 #include <orly/indy/disk/util/snappy.h>
 
-using namespace Stig::Indy;
-using namespace Stig::Indy::Disk;
-using namespace Stig::Indy::Disk::Util;
+using namespace Orly::Indy;
+using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 class TFileSyncReadFile
     : public TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> {
@@ -38,7 +38,7 @@ class TFileSyncReadFile
   typedef Snappy::TStreamSource<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TSnappyInStream;
   typedef TOutStream<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TDataOutStream;
   typedef Snappy::TBlockSink<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TSnappyOutStream;
-  typedef Stig::Indy::Disk::TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TMyReadFile;
+  typedef Orly::Indy::Disk::TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> TMyReadFile;
 
   TFileSyncReadFile(Disk::Util::TEngine *engine, const Base::TUuid &file_id, size_t gen_id)
     : TMyReadFile(HERE, Source::FileSync, engine, file_id, Low, gen_id) {}

@@ -21,7 +21,7 @@
 #include <orly/shared_enum.h>
 #include <orly/type/managed_type.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Type {
 
@@ -55,25 +55,25 @@ namespace Stig {
 
   }  // Type
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
   template<>
-  struct hash<Stig::Type::TAddrElems> {
+  struct hash<Orly::Type::TAddrElems> {
 
-    size_t operator()(const Stig::Type::TAddrElems &that) const {
+    size_t operator()(const Orly::Type::TAddrElems &that) const {
       assert(&that);
       size_t result = 0;
       for (const auto &elem: that) {
         //TODO: Find a better hash
-        result ^= Base::RotatedLeft(elem.second.GetHash(), 5 + (elem.first == Stig::TAddrDir::Asc ? 1 : 0));
+        result ^= Base::RotatedLeft(elem.second.GetHash(), 5 + (elem.first == Orly::TAddrDir::Asc ? 1 : 0));
       }
       return result;
     }
 
     typedef size_t result_type;
-    typedef Stig::Type::TAddrElems argument_type;
-  }; // hash<Stig::Type::TAddrElems>
+    typedef Orly::Type::TAddrElems argument_type;
+  }; // hash<Orly::Type::TAddrElems>
 
 } // std

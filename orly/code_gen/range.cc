@@ -21,7 +21,7 @@
 #include <orly/type/int.h>
 #include <orly/type/seq.h>
 
-using namespace Stig::CodeGen;
+using namespace Orly::CodeGen;
 
 TRange::TRange(const L0::TPackage *package,
                const TInline::TPtr &start,

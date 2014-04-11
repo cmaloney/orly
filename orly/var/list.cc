@@ -22,7 +22,7 @@
 #include <orly/type/orlyify.h>
 #include <orly/var/int.h>
 
-using namespace Stig;
+using namespace Orly;
 using namespace Var;
 
 size_t TList::GetHash() const {
@@ -149,9 +149,9 @@ TList::TList(const std::vector<TVar> &that, const Type::TType &type) : Val(that)
     if (iter->GetType() != Type) {
       std::ostringstream oss;
       oss << "List constructor requires homogenous element type. List type '";
-      Stig::Type::Stigify(oss, Type);
+      Orly::Type::Orlyify(oss, Type);
       oss << "' got element of type '";
-      Stig::Type::Stigify(oss, iter->GetType());
+      Orly::Type::Orlyify(oss, iter->GetType());
       oss << "'.";
       throw Rt::TSystemError(HERE, oss.str().c_str());
     }

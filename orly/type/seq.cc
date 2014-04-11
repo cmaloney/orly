@@ -18,7 +18,7 @@
 
 #include <orly/type/seq.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_UNARY_TYPE(TSeq);
 
@@ -27,5 +27,5 @@ TSeq::~TSeq() {}
 void TSeq::Write(std::ostream &out) const {
   assert(this);
   assert(&out);
-  out << "Stig::Rt::TGenerator<" << GetElem() << ">::TPtr";
+  out << "Orly::Rt::TGenerator<" << GetElem() << ">::TPtr";
 }

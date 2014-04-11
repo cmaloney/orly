@@ -22,8 +22,8 @@
 #include <orly/symbol/scope.h>
 #include <orly/type/any.h>
 
-using namespace Stig;
-using namespace Stig::Symbol;
+using namespace Orly;
+using namespace Orly::Symbol;
 
 TFunction::TParamDef::TParamDef(const std::string &name, const TPosRange &pos_range)
     : TDef(name, pos_range) {}

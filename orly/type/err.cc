@@ -18,7 +18,7 @@
 
 #include <orly/type/err.h>
 
-using namespace Stig::Type;
+using namespace Orly::Type;
 
 IMPL_UNARY_TYPE(TErr);
 
@@ -27,5 +27,5 @@ TErr::~TErr() {}
 void TErr::Write(std::ostream &strm) const {
   assert(this);
   assert(&strm);
-  strm << "Stig::Rt::TUserError<" << GetElem() << '>';
+  strm << "Orly::Rt::TUserError<" << GetElem() << '>';
 }

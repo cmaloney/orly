@@ -27,8 +27,8 @@
 #include <orly/synth/new_type.h>
 #include <tools/nycr/error.h>
 
-using namespace Stig;
-using namespace Stig::Synth;
+using namespace Orly;
+using namespace Orly::Synth;
 
 TReadExpr::TReadExpr(const TExprFactory *expr_factory, const Package::Syntax::TReadExpr *read_expr)
     : ReadExpr(Base::AssertTrue(read_expr)), Expr(nullptr), Type(nullptr) {

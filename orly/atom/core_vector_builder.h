@@ -31,7 +31,7 @@
 #include <orly/sabot/state.h>
 #include <orly/sabot/type.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Atom {
 
@@ -162,4 +162,4 @@ namespace Stig {
 
   }  // Atom
 
-}  // Stig
+}  // Orly

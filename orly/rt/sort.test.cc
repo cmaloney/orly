@@ -26,7 +26,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
 /* Empty */
 vector<int64_t> empty_li;

@@ -26,8 +26,8 @@
 
 using namespace std;
 using namespace Base;
-using namespace Stig;
-using namespace Stig::Client::Program;
+using namespace Orly;
+using namespace Orly::Client::Program;
 
 static bool ForEachXact(const TProgram *program, const TForXact &cb) {
   ThrowSyntaxErrors();
@@ -52,19 +52,19 @@ static bool ForEachXact(const TProgram *program, const TForXact &cb) {
   return true;
 }
 
-bool Stig::Client::Program::ParseImageFile(const char *path, const TForXact &cb) {
+bool Orly::Client::Program::ParseImageFile(const char *path, const TForXact &cb) {
   bool result = ForEachXact(unique_ptr<TProgram>(TProgram::ParseFile(path)).get(), cb);
   Tools::Nycr::TNode::DeleteEach();
   return result;
 }
 
-bool Stig::Client::Program::ParseImageStr(const char *str, const TForXact &cb) {
+bool Orly::Client::Program::ParseImageStr(const char *str, const TForXact &cb) {
   bool result = ForEachXact(unique_ptr<TProgram>(TProgram::ParseStr(str)).get(), cb);
   Tools::Nycr::TNode::DeleteEach();
   return result;
 }
 
-bool Stig::Client::Program::TranslateXact(const TXact *xact, const TForKv &cb) {
+bool Orly::Client::Program::TranslateXact(const TXact *xact, const TForKv &cb) {
   assert(xact);
   assert(&cb);
   void

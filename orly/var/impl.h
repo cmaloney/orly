@@ -34,7 +34,7 @@
 #include <orly/type/impl.h>
 #include <orly/uuid.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Var {
 
@@ -862,21 +862,21 @@ namespace Stig {
 
   }  // Var
 
-}  // Stig
+}  // Orly
 
 namespace std {
 
-  /* A standard hasher for Stig::Var::TVar. */
+  /* A standard hasher for Orly::Var::TVar. */
   template <>
-  struct hash<Stig::Var::TVar> {
+  struct hash<Orly::Var::TVar> {
 
     typedef size_t result_type;
-    typedef Stig::Var::TVar argument_type;
+    typedef Orly::Var::TVar argument_type;
 
     result_type operator()(const argument_type &that) const {
       return that.GetHash();
     }
 
-  };  // hash<Stig::Var::TVar>
+  };  // hash<Orly::Var::TVar>
 
 }  // std

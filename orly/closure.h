@@ -30,7 +30,7 @@
 #include <orly/atom/suprena.h>
 #include <orly/sabot/to_native.h>
 
-namespace Stig {
+namespace Orly {
 
   /* TODO */
   class TClosure {
@@ -311,18 +311,18 @@ namespace Stig {
 
   };  // TClosure::ArgsAdder<std::string, TVal, TMorePairs...>
 
-  /* Binary stream extractor for Stig::TClosure. */
+  /* Binary stream extractor for Orly::TClosure. */
   inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TClosure &that) {
     assert(&that);
     that.Read(strm);
     return strm;
   }
 
-  /* Binary stream inserter for Stig::TClosure. */
+  /* Binary stream inserter for Orly::TClosure. */
   inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TClosure &that) {
     assert(&that);
     that.Write(strm);
     return strm;
   }
 
-}  // Stig
+}  // Orly

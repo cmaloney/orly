@@ -29,7 +29,7 @@
 #include <orly/indy/sequence_number.h>
 #include <orly/indy/util/context_streamer.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -263,7 +263,7 @@ namespace Stig {
 
     };  // TSlaveContext
 
-    /* Binary streamers for Stig::Indy::TUpdateContext */
+    /* Binary streamers for Orly::Indy::TUpdateContext */
     inline Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const TUpdateContext &context) { context.Write(strm); return strm; }
     inline Io::TBinaryOutputStream &&operator<<(Io::TBinaryOutputStream &&strm, const TUpdateContext &context) { context.Write(strm); return std::move(strm); }
     inline Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, TUpdateContext &context) { context.Read(strm); return strm; }
@@ -271,4 +271,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

@@ -20,7 +20,7 @@
 
 #include <base/error.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -36,4 +36,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

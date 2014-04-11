@@ -21,7 +21,7 @@
 #include <base/os_error.h>
 
 using namespace Base;
-using namespace Stig::Spa::FluxCapacitor;
+using namespace Orly::Spa::FluxCapacitor;
 
 #ifndef NDEBUG
 TSyncException TSyncExcept;

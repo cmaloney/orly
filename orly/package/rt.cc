@@ -18,8 +18,8 @@
 
 #include <orly/package/rt.h>
 
-using namespace Stig;
-using namespace Stig::Package;
+using namespace Orly;
+using namespace Orly::Package;
 
 #if 0
 void TContext::AddEffect(const Var::TVar &addr, const Var::TPtr<Var::TChange> &change) {

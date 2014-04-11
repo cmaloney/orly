@@ -24,8 +24,8 @@
 #include <orly/type/unwrap.h>
 #include <orly/type/util.h>
 
-using namespace Stig;
-using namespace Stig::Expr;
+using namespace Orly;
+using namespace Orly::Expr;
 
 TObj::TPtr TObj::New(const TMemberMap &members, const TPosRange &pos_range) {
   return TObj::TPtr(new TObj(members, pos_range));

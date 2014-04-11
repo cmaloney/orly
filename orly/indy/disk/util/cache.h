@@ -33,7 +33,7 @@
 #include <orly/indy/disk/util/hash_util.h>
 #include <orly/indy/disk/util/volume_manager.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Indy {
 
@@ -967,4 +967,4 @@ namespace Stig {
 
   }  // Indy
 
-}  // Stig
+}  // Orly

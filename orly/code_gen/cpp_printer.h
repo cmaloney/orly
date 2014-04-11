@@ -27,7 +27,7 @@
 #include <orly/code_gen/error.h>
 #include <orly/code_gen/util.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace CodeGen {
 
@@ -78,7 +78,7 @@ namespace Stig {
 
       friend class TIndent;
       friend class TNamespacePrinter;
-      friend class TStigNamespacePrinter;
+      friend class TOrlyNamespacePrinter;
     }; // TCppPrinter
 
     //TODO: Move all the func defs to cc_printer.cc
@@ -141,10 +141,10 @@ namespace Stig {
     }; // TNamespacePrinter
 
     //TODO: Move implementation details to CC
-    class TStigNamespacePrinter {
+    class TOrlyNamespacePrinter {
       public:
-      TStigNamespacePrinter(const Jhm::TNamespace &ns, TCppPrinter &out) : Namespace(ns), Out(out) {
-        All(Namespace.Get(), bind(&TStigNamespacePrinter::Start, this, std::placeholders::_1));
+      TOrlyNamespacePrinter(const Jhm::TNamespace &ns, TCppPrinter &out) : Namespace(ns), Out(out) {
+        All(Namespace.Get(), bind(&TOrlyNamespacePrinter::Start, this, std::placeholders::_1));
       }
 
       void Start(const std::string &str) const {
@@ -157,7 +157,7 @@ namespace Stig {
         Out << Eol << "} // NS" << str << Eol;
       }
 
-      ~TStigNamespacePrinter() {
+      ~TOrlyNamespacePrinter() {
         for(auto it = Namespace.Get().begin(); it != Namespace.Get().end(); ++it) {
           End(*it);
         }
@@ -166,11 +166,11 @@ namespace Stig {
       private:
       const Jhm::TNamespace Namespace;
       TCppPrinter &Out;
-    }; // TStigNamespacePrinter
+    }; // TOrlyNamespacePrinter
 
-    class TStigNamespace {
+    class TOrlyNamespace {
       public:
-      TStigNamespace(const Jhm::TNamespace &ns) : Namespace(ns) {}
+      TOrlyNamespace(const Jhm::TNamespace &ns) : Namespace(ns) {}
 
       const Jhm::TNamespace &GetNamespace() const {
         return Namespace;
@@ -181,7 +181,7 @@ namespace Stig {
     };
 
     template <>
-    inline void TCppPrinter::Write(const TStigNamespace &sns) {
+    inline void TCppPrinter::Write(const TOrlyNamespace &sns) {
       Base::Join("::", sns.GetNamespace().Get(), [](const std::string &str, TCppPrinter &out) {
         out << "NS" << str;
       }, *this);
@@ -189,4 +189,4 @@ namespace Stig {
 
   } // Codegen
 
-} // Stig
+} // Orly

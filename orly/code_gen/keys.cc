@@ -23,8 +23,8 @@
 #include <orly/type/unwrap.h>
 
 using namespace Base;
-using namespace Stig;
-using namespace Stig::CodeGen;
+using namespace Orly;
+using namespace Orly::CodeGen;
 
 TKeys::TKeys(const L0::TPackage *package,
              const Type::TType &ret_type,
@@ -57,30 +57,30 @@ void TKeys::WriteExpr(TCppPrinter &out) const {
     const Base::TUuid &index_id = Package->GetIndexIdFor(addr_type, ValType);
     char uuid[37];
     index_id.FormatUnderscore(uuid);
-    out << TStigNamespace(Package->GetNamespace()) << "::My" << uuid << " ,";
+    out << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << " ,";
   }
   out << "std::tuple<";
   Join(", ", AddrElems, [](TAddrElems::const_reference it, TCppPrinter &out) {
 
     if (!it.second->IsFree()) {
       switch (it.first) {
-        case Stig::TAddrDir::Asc: {
+        case Orly::TAddrDir::Asc: {
           out << it.second->GetReturnType();
           break;
         }
-        case Stig::TAddrDir::Desc: {
-          out << "Stig::TDesc<" << it.second->GetReturnType() << ">";
+        case Orly::TAddrDir::Desc: {
+          out << "Orly::TDesc<" << it.second->GetReturnType() << ">";
           break;
         }
       }
     } else {
       switch (it.first) {
-        case Stig::TAddrDir::Asc: {
+        case Orly::TAddrDir::Asc: {
           out << "Native::TFree<" << it.second->GetReturnType() << ">";
           break;
         }
-        case Stig::TAddrDir::Desc: {
-          out << "Native::TFree<Stig::TDesc<" << it.second->GetReturnType() << ">>";
+        case Orly::TAddrDir::Desc: {
+          out << "Native::TFree<Orly::TDesc<" << it.second->GetReturnType() << ">>";
           break;
         }
       }
@@ -93,23 +93,23 @@ void TKeys::WriteExpr(TCppPrinter &out) const {
 
     if (!it.second->IsFree()) {
       switch (it.first) {
-        case Stig::TAddrDir::Asc: {
+        case Orly::TAddrDir::Asc: {
           out << it.second->GetReturnType();
           break;
         }
-        case Stig::TAddrDir::Desc: {
-          out << "Stig::TDesc<" << it.second->GetReturnType() << ">";
+        case Orly::TAddrDir::Desc: {
+          out << "Orly::TDesc<" << it.second->GetReturnType() << ">";
           break;
         }
       }
     } else {
       switch (it.first) {
-        case Stig::TAddrDir::Asc: {
+        case Orly::TAddrDir::Asc: {
           out << "Native::TFree<" << it.second->GetReturnType() << ">";
           break;
         }
-        case Stig::TAddrDir::Desc: {
-          out << "Native::TFree<Stig::TDesc<" << it.second->GetReturnType() << ">>";
+        case Orly::TAddrDir::Desc: {
+          out << "Native::TFree<Orly::TDesc<" << it.second->GetReturnType() << ">>";
           break;
         }
       }

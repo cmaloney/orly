@@ -28,8 +28,8 @@
 using namespace std;
 using namespace Base;
 using namespace Io;
-using namespace Stig::Atom;
-using namespace Stig::Indy;
+using namespace Orly::Atom;
+using namespace Orly::Indy;
 
 const int TManager::SavedRepoMagicNumber = 8754321;
 
@@ -587,7 +587,7 @@ void TManager::TSlave::ScheduleSyncInventory() {
   std::cout << "Scheduling SyncInventory()" << std::endl;
   Fiber::TFrame *frame = Fiber::TFrame::LocalFramePool->Alloc();
   try {
-    frame->Latch(Manager->BGFastRunner, this, static_cast<Fiber::TRunnable::TFunc>(&Stig::Indy::TManager::TSlave::SyncInventory));
+    frame->Latch(Manager->BGFastRunner, this, static_cast<Fiber::TRunnable::TFunc>(&Orly::Indy::TManager::TSlave::SyncInventory));
   } catch (...) {
     Fiber::TFrame::LocalFramePool->Free(frame);
     throw;
@@ -1246,7 +1246,7 @@ void TManager::SaveRepo(TRepo *base_repo) {
   assert(this);
   if (base_repo->GetId() != SystemRepoId) {
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-    Stig::Indy::TRepo *repo = dynamic_cast<Stig::Indy::TRepo *>(base_repo);
+    Orly::Indy::TRepo *repo = dynamic_cast<Orly::Indy::TRepo *>(base_repo);
     assert(repo);
     /* Perform transaction on System repo to save this repo */ {
       TSuprena arena;

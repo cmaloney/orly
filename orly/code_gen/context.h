@@ -24,7 +24,7 @@
 #include <base/no_construction.h>
 #include <orly/code_gen/inline.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Expr {
     class TExpr;
@@ -169,4 +169,4 @@ namespace Stig {
 
   } // CodeGen
 
-} // Stig
+} // Orly

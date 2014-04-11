@@ -21,7 +21,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Stig::Indy::Disk;
+using namespace Orly::Indy::Disk;
 
 const size_t NumBlocks = 167772160UL; /* 10 TB */
 const size_t BlockSize = 4096 * 16; /* 64K */

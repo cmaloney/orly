@@ -23,7 +23,7 @@
 #include <orly/rt/mutable.h>
 #include <orly/var.h>
 
-namespace Stig {
+namespace Orly {
 
   namespace Rt {
 
@@ -128,4 +128,4 @@ namespace Stig {
 
   }  // Rt
 
-}  // Stig
+}  // Orly

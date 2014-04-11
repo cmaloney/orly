@@ -1,6 +1,6 @@
 /* <orly/client/test_orly.cc>
 
-   A runnable server that implements Stig's client-server protocol, but doesn't actually do much work.
+   A runnable server that implements Orly's client-server protocol, but doesn't actually do much work.
    Use this to test your clients.
    The server runs until it receives a ctrl-c.
 
@@ -27,7 +27,7 @@
 
 using namespace std;
 using namespace Signal;
-using namespace Stig::Client;
+using namespace Orly::Client;
 
 int main(int argc, char *argv[]) {
   /* Mask out all signals and install a do-nothing handler for ctrl-c. */

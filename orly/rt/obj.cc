@@ -20,9 +20,9 @@
 
 #include <orly/var/obj.h>
 
-using namespace Stig::Rt;
+using namespace Orly::Rt;
 
-Stig::Var::TVar TObj::AsVar() const {
+Orly::Var::TVar TObj::AsVar() const {
   assert(this);
-  return Stig::Var::TVar::Obj(std::unordered_map<std::string, Var::TVar>{});
+  return Orly::Var::TVar::Obj(std::unordered_map<std::string, Var::TVar>{});
 }
