@@ -75,17 +75,17 @@ FIXTURE(Typical) {
       /* insert data */ {
         /* insert <[int64_t, string, int64_t]> */
         Insert(mem_layer, ++seq_num, int_str_int_idx, 7L,
-               1L, string("Tagged"), 1L);
+               1L, string("Orly"), 1L);
         Insert(mem_layer, ++seq_num, int_str_int_idx, 8L,
-               1L, string("Tagged"), 2L);
+               1L, string("Orly"), 2L);
         /* insert <[int64_t, string, string]> */
         Insert(mem_layer, ++seq_num, int_str_str_idx, 14L,
-               1L, string("Tagged"), string("Orly"));
+               1L, string("Orly"), string("Orly"));
         Insert(mem_layer, ++seq_num, int_str_str_idx, 15L,
-               1L, string("Tagged"), string("Stih"));
+               1L, string("Orly"), string("Stih"));
         /* insert <[int64_t, string]> */
         Insert(mem_layer, ++seq_num, int_str_idx, 21L,
-               1L, string("Tagged"));
+               1L, string("Orly"));
         Insert(mem_layer, ++seq_num, int_str_idx, 22L,
                1L, string("Taggef"));
         /* insert <[int64_t]> */
@@ -132,14 +132,14 @@ FIXTURE(Deep) {
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
         /* insert <[int64_t, string, desc<int64_t>, desc<string>]> */
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hello")}, {TDesc<int64_t>(9L), string("This is also a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short"));
+               1L, string("Orly"), TDesc<int64_t>(1L), TDesc<string>("short"));
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(20L), string("Some form of a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core"));
+               1L, string("Orly"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core"));
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(27L), string("This is also a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core"));
+               1L, string("Orly"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core"));
         /* insert <[int64_t, string, int64_t, string]> */
         Insert(mem_layer, ++seq_num, int_str_int_str_idx, TKey(std::set<int64_t>{1, 3, 9}, &suprena, state_alloc),
-               1L, string("Tagged"), 1L, string("short"));
+               1L, string("Orly"), 1L, string("short"));
       }
       size_t data_gen_id = 1;
       TDataFile data_file(mem_engine.GetEngine(), TVolume::TDesc::Fast, &mem_layer, file_id, data_gen_id, 20UL, 0U, Medium);
@@ -151,15 +151,15 @@ FIXTURE(Deep) {
       TReader::TArena int_str_int_str_idx_arena(&int_str_int_str_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
-      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
-      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
-      EXPECT_TRUE(int_str_int_str_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), 1L, string("short")), &arena, state_alloc), out_offset, in_stream, &int_str_int_str_idx_arena));
+      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
+      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
+      EXPECT_TRUE(int_str_int_str_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), 1L, string("short")), &arena, state_alloc), out_offset, in_stream, &int_str_int_str_idx_arena));
       /* check the <[int64_t, string, desc<int64_t>, desc<string>]> index */ {
         //TReader::TIndexFile idx_file(&reader, int_str_decint_decstr_idx, RealTime);
         std::vector<std::pair<TKey, TKey>> expected_vec;
-        expected_vec.emplace_back(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc),
+        expected_vec.emplace_back(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(1L), TDesc<string>("short")), &arena, state_alloc),
                                   TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hello")}, {TDesc<int64_t>(9L), string("This is also a longer string")}}, &arena, state_alloc));
-        expected_vec.emplace_back(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
+        expected_vec.emplace_back(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(1L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
                                   TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(27L), string("This is also a longer string")}}, &arena, state_alloc));
         size_t seen = 0UL;
         for (TReader::TIndexFile::TKeyCursor cur_key_csr(&int_str_decint_decstr_idx_file); cur_key_csr; ++cur_key_csr, ++seen) {
@@ -181,14 +181,14 @@ FIXTURE(Deep) {
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
         /* insert <[int64_t, string, desc<int64_t>, desc<string>]> */
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hello")}, {TDesc<int64_t>(9L), string("This is also a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(2L), TDesc<string>("short"));
+               1L, string("Orly"), TDesc<int64_t>(2L), TDesc<string>("short"));
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(20L), string("Some form of a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(2L), TDesc<string>("This string should be too long to fit in a core"));
+               1L, string("Orly"), TDesc<int64_t>(2L), TDesc<string>("This string should be too long to fit in a core"));
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(27L), string("This is also a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(4L), TDesc<string>("This string should be too long to fit in a core"));
+               1L, string("Orly"), TDesc<int64_t>(4L), TDesc<string>("This string should be too long to fit in a core"));
         /* insert <[int64_t, string, int64_t, string]> */
         Insert(mem_layer, ++seq_num, int_str_int_str_idx, TKey(std::set<int64_t>{1, 3, 9}, &suprena, state_alloc),
-               1L, string("Tagged"), 2L, string("short"));
+               1L, string("Orly"), 2L, string("short"));
       }
       size_t data_gen_id = 2;
       TDataFile data_file(mem_engine.GetEngine(), TVolume::TDesc::Fast, &mem_layer, file_id, data_gen_id, 20UL, 0U, Medium);
@@ -200,17 +200,17 @@ FIXTURE(Deep) {
       TReader::TArena int_str_int_str_idx_arena(&int_str_int_str_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
-      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(2L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
-      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(2L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
-      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(4L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
-      EXPECT_TRUE(int_str_int_str_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), 2L, string("short")), &arena, state_alloc), out_offset, in_stream, &int_str_int_str_idx_arena));
+      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(2L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
+      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(2L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
+      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(4L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
+      EXPECT_TRUE(int_str_int_str_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), 2L, string("short")), &arena, state_alloc), out_offset, in_stream, &int_str_int_str_idx_arena));
       /* check the <[int64_t, string, desc<int64_t>, desc<string>]> index */ {
         std::vector<std::pair<TKey, TKey>> expected_vec;
-        expected_vec.emplace_back(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(4L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
+        expected_vec.emplace_back(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(4L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
                                   TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(27L), string("This is also a longer string")}}, &arena, state_alloc));
-        expected_vec.emplace_back(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(2L), TDesc<string>("short")), &arena, state_alloc),
+        expected_vec.emplace_back(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(2L), TDesc<string>("short")), &arena, state_alloc),
                                   TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hello")}, {TDesc<int64_t>(9L), string("This is also a longer string")}}, &arena, state_alloc));
-        expected_vec.emplace_back(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(2L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
+        expected_vec.emplace_back(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(2L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
                                   TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(20L), string("Some form of a longer string")}}, &arena, state_alloc));
         size_t seen = 0UL;
         for (TReader::TIndexFile::TKeyCursor cur_key_csr(&int_str_decint_decstr_idx_file); cur_key_csr; ++cur_key_csr, ++seen) {
@@ -232,14 +232,14 @@ FIXTURE(Deep) {
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
         /* insert <[int64_t, string, desc<int64_t>, desc<string>]> */
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hello")}, {TDesc<int64_t>(9L), string("This is also a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(5L), TDesc<string>("short"));
+               1L, string("Orly"), TDesc<int64_t>(5L), TDesc<string>("short"));
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(20L), string("Some form of a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(5L), TDesc<string>("This string should be too long to fit in a core"));
+               1L, string("Orly"), TDesc<int64_t>(5L), TDesc<string>("This string should be too long to fit in a core"));
         Insert(mem_layer, ++seq_num, int_str_decint_decstr_idx, TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(27L), string("This is also a longer string")}}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(6L), TDesc<string>("This string should be too long to fit in a core"));
+               1L, string("Orly"), TDesc<int64_t>(6L), TDesc<string>("This string should be too long to fit in a core"));
         /* insert <[int64_t, string, desc<int64_t>, string]> */
         Insert(mem_layer, ++seq_num, int_str_decint_str_idx, TKey(std::set<TDesc<int64_t>>{TDesc<int64_t>(1), TDesc<int64_t>(7), TDesc<int64_t>(20)}, &suprena, state_alloc),
-               1L, string("Tagged"), TDesc<int64_t>(2L), string("short"));
+               1L, string("Orly"), TDesc<int64_t>(2L), string("short"));
       }
       size_t data_gen_id = 3;
       TDataFile data_file(mem_engine.GetEngine(), TVolume::TDesc::Fast, &mem_layer, file_id, data_gen_id, 20UL, 0U, Medium);
@@ -251,18 +251,18 @@ FIXTURE(Deep) {
       TReader::TArena int_str_decint_str_idx_arena(&int_str_decint_str_idx_file, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), RealTime);
       TStream<Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::LogicalBlockSize, Orly::Indy::Disk::Util::PhysicalBlockSize, Orly::Indy::Disk::Util::PageCheckedBlock, 0UL> in_stream(HERE, Source::PresentWalk, RealTime, &reader, mem_engine.GetEngine()->GetCache<TReader::PhysicalCachePageSize>(), 0);
       size_t out_offset;
-      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(5L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
-      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(5L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
-      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(6L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
-      EXPECT_TRUE(int_str_decint_str_idx_file.FindInHash(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(2L), string("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_str_idx_arena));
+      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(5L), TDesc<string>("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
+      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(5L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
+      EXPECT_TRUE(int_str_decint_decstr_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(6L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_decstr_idx_arena));
+      EXPECT_TRUE(int_str_decint_str_idx_file.FindInHash(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(2L), string("short")), &arena, state_alloc), out_offset, in_stream, &int_str_decint_str_idx_arena));
       /* check the <[int64_t, string, desc<int64_t>, desc<string>]> index */ {
         //TReader::TIndexFile idx_file(&reader, int_str_decint_decstr_idx, RealTime);
         std::vector<std::pair<TKey, TKey>> expected_vec;
-        expected_vec.emplace_back(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(6L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
+        expected_vec.emplace_back(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(6L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
                                   TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(27L), string("This is also a longer string")}}, &arena, state_alloc));
-        expected_vec.emplace_back(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(5L), TDesc<string>("short")), &arena, state_alloc),
+        expected_vec.emplace_back(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(5L), TDesc<string>("short")), &arena, state_alloc),
                                   TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hello")}, {TDesc<int64_t>(9L), string("This is also a longer string")}}, &arena, state_alloc));
-        expected_vec.emplace_back(TKey(make_tuple(1L, string("Tagged"), TDesc<int64_t>(5L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
+        expected_vec.emplace_back(TKey(make_tuple(1L, string("Orly"), TDesc<int64_t>(5L), TDesc<string>("This string should be too long to fit in a core")), &arena, state_alloc),
                                   TKey(std::map<TDesc<int64_t>, string>{{TDesc<int64_t>(30L), string("Hey yo")}, {TDesc<int64_t>(20L), string("Some form of a longer string")}}, &arena, state_alloc));
         size_t seen = 0UL;
         for (TReader::TIndexFile::TKeyCursor cur_key_csr(&int_str_decint_decstr_idx_file); cur_key_csr; ++cur_key_csr, ++seen) {
@@ -306,17 +306,17 @@ FIXTURE(History) {
       /* insert data */ {
         /* insert <[int64_t, string, int64_t]> */
         Insert(mem_layer, ++seq_num, int_str_int_idx, 7L,
-               1L, string("Tagged"), 1L);
+               1L, string("Orly"), 1L);
         Insert(mem_layer, ++seq_num, int_str_int_idx, 8L,
-               1L, string("Tagged"), 2L);
+               1L, string("Orly"), 2L);
         Insert(mem_layer, ++seq_num, int_str_int_idx, 9L,
-               1L, string("Tagged"), 3L);
+               1L, string("Orly"), 3L);
         Insert(mem_layer, ++seq_num, int_str_int_idx, 10L,
-               1L, string("Tagged"), 4L);
+               1L, string("Orly"), 4L);
         Insert(mem_layer, ++seq_num, int_str_int_idx, 11L,
-               1L, string("Tagged"), 2L);
+               1L, string("Orly"), 2L);
         Insert(mem_layer, ++seq_num, int_str_int_idx, 12L,
-               1L, string("Tagged"), 3L);
+               1L, string("Orly"), 3L);
       }
       size_t data_gen_id = 1;
       TDataFile data_file(mem_engine.GetEngine(), TVolume::TDesc::Fast, &mem_layer, file_id, data_gen_id, 20UL, 0U, Medium);
@@ -346,7 +346,7 @@ FIXTURE(BigSingleIndex) {
     Base::TUuid file_id(TUuid::Best);
     TSequenceNumber seq_num = 0U;
     TUuid int_str_int_idx(TUuid::Twister);
-    const string tagged_str("Tagged");
+    const string orly_str("Orly");
     const string orly_str("Orly");
     typedef tuple<int64_t, string, int64_t, int64_t> TTup;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
@@ -355,7 +355,7 @@ FIXTURE(BigSingleIndex) {
       TSuprena arena;
       TMockMem mem_layer;
       for (int64_t i = 0; i < num_iter; ++i) {  /* insert data */
-        val_vec.emplace_back(i % 7L, (i % 2 == 0 ? tagged_str : orly_str), 1L + i * 2L, 7L * i);
+        val_vec.emplace_back(i % 7L, (i % 2 == 0 ? orly_str : orly_str), 1L + i * 2L, 7L * i);
       }
       std::sort(val_vec.begin(), val_vec.end(), [](const TTup &lhs, const TTup &rhs){
         Atom::TComparison comp = Atom::CompareOrdered(std::get<0>(lhs), std::get<0>(rhs));

@@ -20,7 +20,7 @@ from __future__ import print_function
 import argparse, os, re, sys
 
 
-OLD_COPYRIGHT_PATTERN = re.compile(R'copyright[ \t]*\d+(\-\d*)?[ \t]*tagged', re.I)
+OLD_COPYRIGHT_PATTERN = re.compile(R'copyright[ \t]*\d+(\-\d*)?[ \t]*orly', re.I)
 
 NEW_COPYRIGHT = 'Copyright 2010-2014 OrlyAtomics, Inc.'
 

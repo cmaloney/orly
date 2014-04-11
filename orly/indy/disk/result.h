@@ -3,10 +3,10 @@
    The result of a disk controller action.
 
 <<<<<<< HEAD
-   Copyright 2010-2014 Tagged
+   Copyright 2010-2014 Orly
 
 ||||||| merged common ancestors
-   Copyright 2010-2014 Tagged
+   Copyright 2010-2014 Orly
    
 =======
    Copyright 2010-2014 OrlyAtomics, Inc.

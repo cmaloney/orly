@@ -20,7 +20,7 @@ from __future__ import print_function
 import argparse, os, re, sys
 
 
-COPYRIGHT_PATTERN = re.compile(R'copyright[ \t]*\d+(\-\d*)?[ \t]*tagged', re.I)
+COPYRIGHT_PATTERN = re.compile(R'copyright[ \t]*\d+(\-\d*)?[ \t]*orly', re.I)
 
 APACHE_PATTERN = re.compile(R'Licensed under the Apache License')
 

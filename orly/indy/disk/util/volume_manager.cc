@@ -3,10 +3,10 @@
    Implements <orly/indy/disk/util/volume_manager.h>.
 
 <<<<<<< HEAD
-   Copyright 2010-2014 Tagged
+   Copyright 2010-2014 Orly
 
 ||||||| merged common ancestors
-   Copyright 2010-2014 Tagged
+   Copyright 2010-2014 Orly
    
 =======
    Copyright 2010-2014 OrlyAtomics, Inc.
