@@ -19,4 +19,4 @@
 #pragma once
 
 //NOTE: Could we use a constexpr here?
-#define STIG_API_VERSION 1
+#define ORLY_API_VERSION 1

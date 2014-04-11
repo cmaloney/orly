@@ -99,7 +99,7 @@ namespace Orly {
       private:
 
       /* TODO */
-      #if defined(STIG_HOST)
+      #if defined(ORLY_HOST)
       template <typename TVal>
       TOpt(const Rt::TOpt<TVal> &that) : Type(Type::TDt<TVal>::GetType()) {
         if (that) {

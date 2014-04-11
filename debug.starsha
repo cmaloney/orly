@@ -39,7 +39,7 @@
         "-pthread";
 
         "-DTEST_OUTPUT_DIR=\"/tmp/\"";
-        "-DSTIG_HOST";
+        "-DORLY_HOST";
 
         "-DDEBUG";
         "-g";

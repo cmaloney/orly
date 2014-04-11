@@ -253,7 +253,7 @@ class TSpa : public Mongoose::TMongoose {
     private:
     class TMeta : public Base::TCmd::TMeta {
       public:
-      TMeta() : Base::TCmd::TMeta("STIG Spa Development Server") {
+      TMeta() : Base::TCmd::TMeta("Orly Spa Development Server") {
         //TODO: Change to handler func
         Param(&TCmd::CheckpointArg, "checkpoint", Optional, "checkpoint\0c\0",
             "File to use as input checkpoint file, or directory in which checkpoints should be searched for.");

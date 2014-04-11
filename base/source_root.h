@@ -1,6 +1,6 @@
 /* <base/source_root.h>
 
-   Get a string which is the directory where the STIG Source tree is located
+   Get a string which is the directory where the Orly Source tree is located
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -21,7 +21,7 @@
 
 namespace Base {
 
-  /* Inspects the environment to see if a STIG_SRC_ROOT is provided. If none is
-     it falls back to STIG_SRC_ROOT defined at compilation time. */
+  /* Inspects the environment to see if a ORLY_SRC_ROOT is provided. If none is
+     it falls back to ORLY_SRC_ROOT defined at compilation time. */
   const std::string &GetSrcRoot();
 }

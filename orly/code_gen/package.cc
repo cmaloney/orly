@@ -568,7 +568,7 @@ void TPackage::WriteLink(TCppPrinter &out, const TRelPath &path) const {
       << '}' << Eol
       << Eol
       << "extern \"C\" int32_t GetApiVersion() {" << Eol
-      << "  return " << STIG_API_VERSION << ";" << Eol
+      << "  return " << ORLY_API_VERSION << ";" << Eol
       << '}' << Eol;
   out << Eol;
 }
