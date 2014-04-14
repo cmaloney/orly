@@ -32,6 +32,7 @@
 #include <starsha/corpus.h>
 #include <starsha/exe_file.h>
 #include <starsha/runner.h>
+#include <starsha/status_line.h>
 #include <starsha/string_builder.h>
 
 using namespace std;
@@ -203,6 +204,7 @@ class TStarsha
             if (target->GetKind() == &TExeFile::Kind) {
               const string &rel_path = target->GetRelPath();
               if (rel_path.compare(rel_path.size() - TestExtLen, TestExtLen, TestExt) == 0) {
+                TStatusLine() << "Running test: " << target->GetRelPath();
                 string cmd_line;
                 TStringBuilder(cmd_line) << target->GetAbsPath() << (Verbose ? " -v" : "");
                 TRunner runner(cmd_line);
