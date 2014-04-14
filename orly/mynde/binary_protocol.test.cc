@@ -116,17 +116,15 @@ FIXTURE(Typical) {
   Strm::TFd<> fd(ConnectToServer());
   /* extra */ {
     uint8_t
-        extras[4] = { 0, 0, 0, 0 },
         key[4]    = { 'M', 'O', 'F', 'O' };
     TRequestHeader hdr;
     Zero(hdr);
     hdr.Magic = BinaryMagicRequest;
     hdr.Opcode = static_cast<uint8_t>(TRawOpcode::Get);
-    hdr.ExtrasLength = sizeof(extras);
     hdr.KeyLength = sizeof(key);
     hdr.TotalBodyLength = hdr.KeyLength + hdr.ExtrasLength;
     Strm::Bin::TOut strm(&fd);
-    strm << hdr << extras << key;
+    strm << hdr << key;
   }
   /* extra */ {
     TResponseHeader hdr;
