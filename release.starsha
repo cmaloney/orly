@@ -6,7 +6,6 @@
   "tools" {
     "ld" {
       "flags" {
-        "-Wl,--as-needed";
         "-rdynamic";
         "-Wl,--hash-style=gnu";
         "-Wl,--no-copy-dt-needed-entries";
@@ -186,7 +185,6 @@
     "orly/server/orly.o" {
       "ld" {
         "flags" {
-          "-Wl,--as-needed";
           "-rdynamic";
           "-Wl,--hash-style=gnu";
           "-Wl,--no-copy-dt-needed-entries";

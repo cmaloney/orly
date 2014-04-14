@@ -25,6 +25,8 @@
 #include <exception>
 #include <iostream>
 
+#include <starsha/status_line.h>
+
 using namespace std;
 using namespace Starsha;
 
@@ -103,22 +105,13 @@ void TThreadPool::Stop() {
 void TThreadPool::WaitUntilIdle() {
   assert(this);
   unique_lock<mutex> lock(Mutex);
-  static bool is_real_tty = isatty(STDOUT_FILENO);
   static size_t last_size = 0;
   chrono::milliseconds wait_time{100};
   while (!JobQueue.empty() || IdleWorkerCount < Workers.size()) {
     size_t new_size = JobQueue.size();
     if(last_size != new_size) {
       last_size = new_size;
-      if(is_real_tty) {
-        cout<<"\r\e[K";
-      }
-      cout<<'['<<JobQueue.size()<<"] Jobs queued in wave";
-      if(is_real_tty) {
-        cout<<flush;
-      } else {
-        cout<<'\n';
-      }
+      TStatusLine()<<'['<<JobQueue.size()<<"] Jobs queued in wave";
     }
     WorkerIsIdle.wait_for(lock, wait_time);
   }

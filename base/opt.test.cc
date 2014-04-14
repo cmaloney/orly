@@ -140,3 +140,7 @@ FIXTURE(MoveAndCopy) {
   EXPECT_EQ(TToken::LatchOps(), string("D"));
   EXPECT_TRUE(c);
 }
+
+FIXTURE(UnknownGlobal) {
+  EXPECT_TRUE(TOpt<int>::Unknown->IsUnknown());
+}

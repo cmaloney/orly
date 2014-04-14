@@ -202,6 +202,7 @@ namespace Test {
         TPrefixOp op, const char *arg_str, const TArg &arg)
         : CodeLocation(code_location) {
       assert(arg_str);
+      assert(&arg);
       const char *op_str;
       std::ostringstream strm;
       switch (op) {

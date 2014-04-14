@@ -222,13 +222,21 @@ void TPump::TPipe::StopReading() {
 
 void TPump::BackgroundMain() {
   assert(this);
+  //TODO: Should block all signals in this background thread.
+
   /* Loop forever, servicing pipes, until the foreground tells us to stop. */
   for (;;) {
     /* Wait for some events. */
     static const int max_event_count = 64;
     epoll_event_t events[max_event_count];
-    int event_count;
-    IfLt0(event_count = epoll_wait(Epoll, events, max_event_count, -1));
+    int event_count = epoll_wait(Epoll, events, max_event_count, -1);
+    if (event_count < 0) {
+      if(errno == EINTR) {
+        continue;
+      } else {
+        ThrowSystemError(errno);
+      }
+    }
     /* Handle the events. */
     TPipe
         *dead_pipes[max_event_count],

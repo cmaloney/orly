@@ -1,6 +1,6 @@
-/* <base/subprocess.exercise.cc>
+/* <starsha/status_line.cc>
 
-   Exercises <base/subprocess.h>.
+   Implements <starsha/status_line.h>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,28 +16,36 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/subprocess.h>
+#include <starsha/status_line.h>
 
-#include <iostream>
+#include <unistd.h>
 
 using namespace std;
-using namespace Base;
+using namespace Starsha;
 
-int main(int, char *[]) {
-  TPump pump;
-  auto subprocess = TSubprocess::New(pump);
-  if (!subprocess) {
-    cout << "Hello, world!";
-    exit(111);
-  }
-  char buf[1024];
-  ssize_t size = read(subprocess->GetStdOutFromChild(), buf, sizeof(buf));
-  if (size >= 0) {
-    buf[size] = '\0';
-    cout << "I got: " << buf << endl;
-  } else {
-    cout << "<error>" << endl;
-  }
-  cout << "exit: " << subprocess->Wait() << endl;
-  return 0;
+bool IsRealTty() {
+  static bool is_real_tty = isatty(STDOUT_FILENO);
+  return is_real_tty;
 }
+
+TStatusLine::TStatusLine() {
+   static bool first = true;
+   if(first) {
+      first = false;
+      return;
+   }
+
+   if (IsRealTty()) {
+     cout << "\r\e[K";
+   } else {
+      cout << "\n";
+   }
+}
+TStatusLine::~TStatusLine() {
+   if (IsRealTty()) {
+      cout<<std::flush;
+   } else {
+      cout<<'\n';
+   }
+}
+

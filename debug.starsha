@@ -6,7 +6,6 @@
   "tools" {
     "ld" {
       "flags" {
-        "-Wl,--as-needed";
         "-rdynamic";
         "-Wl,--hash-style=gnu";
         "-Wl,--no-copy-dt-needed-entries";
@@ -167,7 +166,6 @@
         "flags" {
           "-rdynamic";
           "-Wl,-rpath -Wl,/opt/gcc/lib64 --enable-new-dtags";
-          "-Wl,--as-needed";
         }
         "libs" {
           "-luuid";
