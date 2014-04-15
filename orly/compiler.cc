@@ -225,23 +225,19 @@ Package::TVersionedName Orly::Compiler::Compile(
     stringstream args;
     /* extra */ {
       //Take all the packages needed directly or indirectly by the compilation and link  them together in one swoop.
-      ;
-
       TPath out_path =
           out_tree.GetAbsPath(SwapExtension(TPath(core_rel.Path), {to_string(packages[core_rel]->GetVersion()), "so"}));
       // TODO: Check these compile flags.
-      args << "g++ -std=c++1y -x c++ -I" << GetSrcRoot() << " -fPIC -shared -o"<< out_path << " -iquote " << out_tree << ' '
-           << out_tree.GetAbsPath(SwapExtension(TPath(core_rel.Path), {"link","cc"}))
-           << Join(packages,
-                         ' ',
-                         [&out_tree](ostream &strm, const TPackageMap::value_type &that) {
+      args << "clang++ -std=c++1y -x c++ -I" << GetSrcRoot() << " -fPIC -shared -ftemplate-depth=1024 -o" << out_path
+           << " -iquote " << out_tree << ' ' << out_tree.GetAbsPath(SwapExtension(TPath(core_rel.Path), {"link", "cc"}))
+           << Join(packages, ' ', [&out_tree](ostream &strm, const TPackageMap::value_type &that) {
                            strm << ' ' << out_tree.GetAbsPath(SwapExtension(TPath(that.first.Path), {"cc"}));
-                         });
+              });
       if (debug_cc) {
-        args << " -g -Wno-unused-variable -Wno-type-limits -Werror -Wno-parentheses -Wall -Wextra -Wno-unused-parameter";
+        args << " -g -Werror -Wall -Wextra  -Wno-unused-variable -Wno-type-limits -Wno-parentheses -Wno-unused-parameter";
       } else {
         //TODO: Better optimization flags.
-        args << " -O2 -DNDEBUG";
+        args << " -O2 -DNDEBUG -Wno-unused-variables";
       }
     }
 
