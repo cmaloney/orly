@@ -275,6 +275,9 @@ std::tm &TTimePntInfo::AsTmObj(std::tm &out) const {
   return out;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-compare"
+
 /* TODO */
 void TTimePntInfo::Validate(const TCodeLocation &here) const {
   assert(this);
@@ -303,6 +306,7 @@ void TTimePntInfo::Validate(const TCodeLocation &here) const {
     throw TChronoError(here, "UtcOffset must be between -720 and 840");
   }
 }
+#pragma GCC diagnostic pop
 
 /* TODO */
 void TTimePntInfo::Write(std::ostream &strm) const {
