@@ -817,6 +817,9 @@ FIXTURE(Map) {
   EXPECT_TRUE(IsLt(CheckTypes<map<bool, char>, tuple<bool>>()));
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+
 class TObjL {
   private:
 
@@ -851,6 +854,8 @@ class T3DPoint {
 RECORD_ELEM(T3DPoint, double, X);
 RECORD_ELEM(T3DPoint, double, Y);
 RECORD_ELEM(T3DPoint, double, Z);
+
+#pragma GCC diagnostic pop
 
 FIXTURE(Record) {
   EXPECT_TRUE(IsGt(CheckTypes<TPoint, int8_t>()));

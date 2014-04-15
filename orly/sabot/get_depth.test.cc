@@ -68,6 +68,9 @@ FIXTURE(Binary) {
   EXPECT_EQ(Sabot::GetDepth(*Sabot::Type::TAny::TWrapper(Native::Type::For<map<bool, set<char>>>::GetType(type_alloc))), 2UL);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+
 class TObjL {
   private:
 
@@ -86,6 +89,8 @@ class TObjG {
   double Y;
 
 };
+
+#pragma GCC diagnostic pop
 
 RECORD_ELEM(TObjG, set<bool>, X);
 RECORD_ELEM(TObjG, double, Y);
