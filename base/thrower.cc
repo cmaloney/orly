@@ -18,6 +18,6 @@
 
 #include <base/thrower.h>
 
-const Base::TEndOfPart Base::EndOfPart;
+const Base::TEndOfPart Base::EndOfPart{};
 
 const char *Base::PartDelimiter = "; ";

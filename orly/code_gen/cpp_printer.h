@@ -35,7 +35,7 @@ namespace Orly {
     class TEol {};
 
 
-    static const TEol Eol;
+    static const TEol Eol{};
 
     class TCppPrinter {
       NO_COPY_SEMANTICS(TCppPrinter);
