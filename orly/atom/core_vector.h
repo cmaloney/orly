@@ -43,13 +43,10 @@ namespace Orly {
       /* Read from the given stream and hold the entire vector in memory. */
       explicit TCoreVector(Io::TBinaryInputStream &strm);
 
-      /* Frees the cores and the arena. */
-      virtual ~TCoreVector();
-
       /* The arena to which the cores in the vector refer.  Never null. */
       TArena *GetArena() const {
         assert(this);
-        return Arena;
+        return &Arena;
       }
 
       /* The cores we streamed in. */
@@ -95,7 +92,7 @@ namespace Orly {
       };  // TCoreVector::TPackedArena
 
       /* See accessor. */
-      TArena *Arena;
+      mutable TPackedArena Arena;
 
       /* See accessor. */
       std::vector<TCore> Cores;
