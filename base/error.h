@@ -80,7 +80,7 @@ namespace Base {
     virtual const std::type_info &GetTypeInfo() const = 0;
 
     /* Aborts the program, sending an error message to stderr. */
-    static void Abort(const TCodeLocation &code_location) __attribute__((noreturn));
+    [[noreturn]] static void Abort(const TCodeLocation &code_location);
 
     protected:
 

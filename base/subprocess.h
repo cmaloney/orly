@@ -61,7 +61,7 @@ namespace Base {
 
     /* Execute the given command in a shell.  This will replace the calling process
        entirely with the shell process, so don't expect this function to return. */
-    static void Exec(const char *cmd) __attribute__((noreturn));
+    [[noreturn]] static void Exec(const char *cmd);
 
     /* Fork a new child process.  If we are the parent, return a pointer to a newly
        allocated TSubprocess instance.  If we are the child, return null. */
