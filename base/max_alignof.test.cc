@@ -27,7 +27,7 @@ using namespace std;
 using namespace Base;
 
 FIXTURE(Typical) {
-  EXPECT_EQ((MaxAlignof<>::Get()), __alignof__(char));
+  EXPECT_EQ((MaxAlignof<>::Get()), alignof(char));
   EXPECT_EQ((MaxAlignof<int>::Get()), alignof(int));
-  EXPECT_EQ((MaxAlignof<char, int, string>::Get()), max(max(__alignof__(char), __alignof__(double)), __alignof__(string)));
+  EXPECT_EQ((MaxAlignof<char, int, string>::Get()), max(max(alignof(char), alignof(double)), alignof(string)));
 }

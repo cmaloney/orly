@@ -36,7 +36,7 @@ namespace Base {
 
     /* Return the least restrictive alignment. */
     static constexpr size_t Get() {
-      return __alignof__(char);
+      return alignof(char);
     }
 
   };  // MaxAlignof<>
@@ -55,7 +55,7 @@ namespace Base {
     private:
 
     /* Conveniences. */
-    static constexpr size_t ThisValue  = __alignof__(TSomeElem);
+    static constexpr size_t ThisValue  = alignof(TSomeElem);
     static constexpr size_t RecurValue = MaxAlignof<TMoreElems...>::Get();
 
   };  // MaxAlignof<TSomeElem, TMoreElems...>
