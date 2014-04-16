@@ -657,11 +657,13 @@ namespace Orly {
             assert(this);
             TSlot *main_slots[num_consec_pages];
             TSlot *data_slots[num_consec_pages];
+            TSlot **main_slots_ptr = main_slots;
+            TSlot **data_slots_ptr = data_slots;
             for (size_t i = 0; i < num_consec_pages; ++i) {
               main_slots[i] = Get(page_id + i, data_slots[i]);
             }
 
-            auto load_range_func = [&data_slots, &main_slots, page_id, cache, &async_trigger, &code_location, buf_kind, util_src, can_release, priority](size_t from_page_id, size_t num_pages) {
+            auto load_range_func = [data_slots_ptr, main_slots_ptr, page_id, cache, &async_trigger, &code_location, buf_kind, util_src, can_release, priority](size_t from_page_id, size_t num_pages) {
               //std::cout << "Load Range [" << from_page_id << "] for " << num_pages << std::endl;
               //#if 0
               void *buf_array[num_pages];
@@ -670,8 +672,8 @@ namespace Orly {
               std::vector<TSlot *> my_data_slots(num_pages);
               for (size_t i = 0; i < num_pages; ++i) {
                 const size_t this_page_id = from_page_id + i;
-                my_main_slots[i] = main_slots[this_page_id - page_id];
-                my_data_slots[i] = data_slots[this_page_id - page_id];
+                my_main_slots[i] = main_slots_ptr[this_page_id - page_id];
+                my_data_slots[i] = data_slots_ptr[this_page_id - page_id];
                 TSlot *const data_slot = my_data_slots[i];
                 size_t new_val = std::atomic_load(&(data_slot->BufAddr));
                 const size_t page_offset = new_val & All1But3HighestBits;

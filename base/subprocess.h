@@ -81,6 +81,7 @@ namespace Base {
       if (!subprocess) {
         Exec(cmd);
       }
+      return subprocess;
     }
 
     private:

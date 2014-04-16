@@ -36,10 +36,10 @@ typedef TMutable<TIntBoolTuple, TOpt<int64_t>> Tmiboi;
 typedef TOpt<int64_t> Toi;
 
 /* List of known values */
-Tili li1{{1}};
+Tili li1({1});
 Tili li12{1, 2};
 Tili li123{1, 2, 3};
-Tili li3{{3}};
+Tili li3({3});
 Tili li32{3, 2};
 Tili li321{3, 2, 1};
 
