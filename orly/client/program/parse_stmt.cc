@@ -40,11 +40,11 @@ static void ForStmt(const TProgram *program, const TForStmt &cb) {
 }
 
 void Orly::Client::Program::ParseStmtFile(const char *path, const TForStmt &cb) {
-  ForStmt(unique_ptr<TProgram>(TProgram::ParseFile(path)).get(), cb);
+  ForStmt(TProgram::ParseFile(path).get(), cb);
   Tools::Nycr::TNode::DeleteEach();
 }
 
 void Orly::Client::Program::ParseStmtStr(const char *str, const TForStmt &cb) {
-  ForStmt(unique_ptr<TProgram>(TProgram::ParseStr(str)).get(), cb);
+  ForStmt(TProgram::ParseStr(str).get(), cb);
   Tools::Nycr::TNode::DeleteEach();
 }
