@@ -22,7 +22,7 @@
    The ISO standard requires that the alignment of any given struct or union type to be at least a perfect multiple of the lowest common
    multiple of the alignments of all of the members of the struct or union in question.  This attribute can increase that alignment, but cannot
    decrease it.  To decrease alignment, use PACKED. */
-#define ALIGNED(size) __attribute__((__aligned__(size)))
+#define ALIGNED(size) alignas(size)
 
 /* This attribute, attached to a struct, class, or union, specifies that the type's alignment be the maximum useful for the host machine.  This can
    often make copy operations more efficient. */

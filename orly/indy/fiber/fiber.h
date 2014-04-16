@@ -305,8 +305,8 @@ namespace Orly {
         TFrame *FrameToMoveToForeignRunner;
 
         /* TODO */
-        size_t ALIGNED(64) TotalNumRunners;
-        size_t ALIGNED(64) RunnerId;
+        size_t TotalNumRunners ALIGNED(64);
+        size_t RunnerId ALIGNED(64);
         size_t blank_buf[7];
 
         TRunner **RunnerArray;
