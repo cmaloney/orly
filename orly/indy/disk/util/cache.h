@@ -27,6 +27,7 @@
 #include <iostream> /* TODO: GET RID OF */
 
 #include <base/error_utils.h>
+#include <base/layout.h>
 #include <base/likely.h>
 #include <base/no_copy_semantics.h>
 #include <inv_con/atomic_unordered_list.h>
@@ -783,7 +784,7 @@ namespace Orly {
           private:
 
           /* TODO */
-          class __attribute__((aligned(64))) TLRU {
+          class ALIGNED(64) TLRU {
             NO_COPY_SEMANTICS(TLRU);
             public:
 
