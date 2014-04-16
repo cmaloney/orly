@@ -35,6 +35,7 @@
 
 #include <base/assert_true.h>
 #include <base/error_utils.h>
+#include <base/layout.h>
 #include <base/likely.h>
 #include <base/no_copy_semantics.h>
 #include <base/spin_lock.h>
@@ -146,7 +147,7 @@ namespace Orly {
       class TFrame;
 
       /* TODO */
-      class __attribute__((aligned(64))) TRunner {
+      class ALIGNED(64) TRunner {
         NO_COPY_SEMANTICS(TRunner);
         public:
 
@@ -294,7 +295,7 @@ namespace Orly {
 
         /* TODO */
         TFrame *InboundFrameQueue;
-        struct __attribute__((aligned(64))) TOutboundQueue {
+        struct ALIGNED(64) TOutboundQueue {
           TFrame *Ptr;
         };
         TOutboundQueue *QueueArray;
@@ -304,8 +305,8 @@ namespace Orly {
         TFrame *FrameToMoveToForeignRunner;
 
         /* TODO */
-        size_t __attribute__((aligned(64))) TotalNumRunners;
-        size_t __attribute__((aligned(64))) RunnerId;
+        size_t ALIGNED(64) TotalNumRunners;
+        size_t ALIGNED(64) RunnerId;
         size_t blank_buf[7];
 
         TRunner **RunnerArray;
@@ -332,7 +333,7 @@ namespace Orly {
       };  // TRunnable
 
       /* TODO */
-      class __attribute__((aligned(64))) TRunnerPool {
+      class ALIGNED(64) TRunnerPool {
         NO_COPY_SEMANTICS(TRunnerPool);
         public:
 
@@ -670,7 +671,7 @@ namespace Orly {
       /* Use this locking mechanism when you want to lock and run the critical section on your current scheduler (core). This is usefull if you intend
          to use thread local or fiber local storage. It is also beneficial if you want to stay with the same cpu cache. The total throughput using
          this lock is less than a Queued lock as the lock bounces between schedulers. */
-      class __attribute__((aligned(64))) TFiberLock {
+      class ALIGNED(64) TFiberLock {
         NO_COPY_SEMANTICS(TFiberLock);
         public:
 
@@ -679,7 +680,7 @@ namespace Orly {
             : Taken(false), RootLock(nullptr) {}
 
         /* TODO */
-        class __attribute__((aligned(64))) TLock {
+        class ALIGNED(64) TLock {
           NO_COPY_SEMANTICS(TLock);
           public:
 
@@ -763,7 +764,7 @@ namespace Orly {
          when tied to the scheduler that uses it the most. (the fewest moves to a different scheduler). The major difference with this lock versus the
          fiber lock is that the critical sections move to a single lock scheduler, as opposed to the critical sections determining which scheduler
          should run them next. */
-      class __attribute__((aligned(64))) TLockedQueue {
+      class ALIGNED(64) TLockedQueue {
         NO_COPY_SEMANTICS(TLockedQueue);
         public:
 
@@ -772,7 +773,7 @@ namespace Orly {
             : Runner(runner) {}
 
         /* TODO */
-        class __attribute__((aligned(64))) TLock {
+        class ALIGNED(64) TLock {
           NO_COPY_SEMANTICS(TLock);
           public:
 
