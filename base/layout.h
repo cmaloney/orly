@@ -45,4 +45,4 @@
       static_assert(sizeof(TBar) == 5);
 
    Note that you will pay a performance price when accessing TBar::Y, as it is out of alignment. */
-#define PACKED __attribute__((__packed__))
+#define PACKED [[gnu::packed]]
