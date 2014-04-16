@@ -55,9 +55,8 @@ FIXTURE(InstalledPackage) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // literal
@@ -81,9 +80,8 @@ FIXTURE(IdLiteral) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(IntLiteral) {
@@ -105,9 +103,8 @@ FIXTURE(IntLiteral) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(RealLiteral) {
@@ -129,9 +126,8 @@ FIXTURE(RealLiteral) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(StrLiteral) {
@@ -153,9 +149,8 @@ FIXTURE(StrLiteral) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(BoolLiteral) {
@@ -177,9 +172,8 @@ FIXTURE(BoolLiteral) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // type
@@ -210,9 +204,8 @@ FIXTURE(ParenType) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(RefType) {
@@ -239,9 +232,8 @@ FIXTURE(RefType) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(SeqType) {
@@ -295,9 +287,8 @@ FIXTURE(SeqType) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // expr
@@ -337,9 +328,8 @@ FIXTURE(ParenExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(RefExpr) {
@@ -361,9 +351,8 @@ FIXTURE(RefExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(ThatExpr) {
@@ -385,9 +374,8 @@ FIXTURE(ThatExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // list constructor
@@ -418,9 +406,8 @@ FIXTURE(EmptyList) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(NonEmptyList) {
@@ -465,9 +452,8 @@ FIXTURE(NonEmptyList) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // set constructor
@@ -498,9 +484,8 @@ FIXTURE(EmptySet) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(NonEmptySet) {
@@ -545,9 +530,8 @@ FIXTURE(NonEmptySet) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // dictionary constructor
@@ -582,9 +566,8 @@ FIXTURE(EmptyDict) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(NonEmptyDict) {
@@ -647,9 +630,8 @@ FIXTURE(NonEmptyDict) {
     "  }\n"
     "}\n";
     auto tt = ParseNode(ts);
-    EXPECT_TRUE(cst->Test(tt, 0));
+    EXPECT_TRUE(cst->Test(tt.get(), 0));
     delete cst;
-    delete tt;
 }
 
 // empty addr
@@ -675,9 +657,8 @@ FIXTURE(EmptyAddr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(NonEmptyAddr) {
@@ -722,9 +703,8 @@ FIXTURE(NonEmptyAddr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // object constructor
@@ -750,9 +730,8 @@ FIXTURE(EmptyObj) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(NonEmptyObj) {
@@ -799,9 +778,8 @@ FIXTURE(NonEmptyObj) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // range constructor
@@ -836,9 +814,8 @@ FIXTURE(Range) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(RangeWithStrideAndUndefinedEnd) {
@@ -873,9 +850,8 @@ FIXTURE(RangeWithStrideAndUndefinedEnd) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PrefixMinus) {
@@ -900,9 +876,8 @@ FIXTURE(PrefixMinus) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PrefixPlus) {
@@ -927,9 +902,8 @@ FIXTURE(PrefixPlus) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PrefixLogicalNot) {
@@ -954,9 +928,8 @@ FIXTURE(PrefixLogicalNot) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixDiv) {
@@ -984,9 +957,8 @@ FIXTURE(InfixDiv) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixExp) {
@@ -1014,9 +986,8 @@ FIXTURE(InfixExp) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixMinus) {
@@ -1044,10 +1015,8 @@ FIXTURE(InfixMinus) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
-
 }
 FIXTURE(InfixMod) {
   auto cst = TCheckpoint::ParseStr("x <- y % z;");
@@ -1074,9 +1043,8 @@ FIXTURE(InfixMod) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixMul) {
@@ -1104,9 +1072,8 @@ FIXTURE(InfixMul) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixPlus) {
@@ -1134,9 +1101,8 @@ FIXTURE(InfixPlus) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixEq) {
@@ -1164,9 +1130,8 @@ FIXTURE(InfixEq) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixNeq) {
@@ -1194,9 +1159,8 @@ FIXTURE(InfixNeq) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixLt) {
@@ -1224,9 +1188,8 @@ FIXTURE(InfixLt) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixLtEq) {
@@ -1254,9 +1217,8 @@ FIXTURE(InfixLtEq) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixGt) {
@@ -1284,9 +1246,8 @@ FIXTURE(InfixGt) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixGtEq) {
@@ -1314,9 +1275,8 @@ FIXTURE(InfixGtEq) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixLogicalAnd) {
@@ -1344,9 +1304,8 @@ FIXTURE(InfixLogicalAnd) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixLogicalOr) {
@@ -1374,9 +1333,8 @@ FIXTURE(InfixLogicalOr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixLogicalXor) {
@@ -1404,9 +1362,8 @@ FIXTURE(InfixLogicalXor) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InfixIn) {
@@ -1434,9 +1391,8 @@ FIXTURE(InfixIn) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PostFixObjMember) {
@@ -1462,9 +1418,8 @@ FIXTURE(PostFixObjMember) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PostFixIsKnown) {
@@ -1491,9 +1446,8 @@ FIXTURE(PostFixIsKnown) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PostFixIsKnownBoolLiteral) {
@@ -1522,9 +1476,8 @@ FIXTURE(PostFixIsKnownBoolLiteral) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PostFixIsUnknown) {
@@ -1551,9 +1504,8 @@ FIXTURE(PostFixIsUnknown) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PostfixCast) {
@@ -1591,9 +1543,8 @@ FIXTURE(PostfixCast) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(PostfixSlice) {
@@ -1624,9 +1575,8 @@ FIXTURE(PostfixSlice) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(ReadExpr) {
@@ -1678,9 +1628,8 @@ FIXTURE(ReadExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(AssertExpr) {
@@ -1724,9 +1673,8 @@ FIXTURE(AssertExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(IfExpr) {
@@ -1766,9 +1714,8 @@ FIXTURE(IfExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(GivenExpr) {
@@ -1796,9 +1743,8 @@ FIXTURE(GivenExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(WhereExpr) {
@@ -1854,9 +1800,8 @@ FIXTURE(WhereExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(GivenOptDefault) {
@@ -1889,9 +1834,8 @@ FIXTURE(GivenOptDefault) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(EffectingExpr) {
@@ -1960,9 +1904,8 @@ FIXTURE(EffectingExpr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  //delete tt;
 }
 
 // precedence
@@ -1998,9 +1941,8 @@ FIXTURE(LogicalOrLogicalXor) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(LogicalXorLogicalAnd) {
@@ -2034,9 +1976,8 @@ FIXTURE(LogicalXorLogicalAnd) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(LogicalAndEquality) {
@@ -2070,9 +2011,8 @@ FIXTURE(LogicalAndEquality) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(EqualityInequality) {
@@ -2106,9 +2046,8 @@ FIXTURE(EqualityInequality) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(InequalityBitwiseOr) {
@@ -2142,9 +2081,8 @@ FIXTURE(InequalityBitwiseOr) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(BitwiseOrBitwiseXor) {
@@ -2178,9 +2116,8 @@ FIXTURE(BitwiseOrBitwiseXor) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(BitwiseXorBitwiseAnd) {
@@ -2214,9 +2151,8 @@ FIXTURE(BitwiseXorBitwiseAnd) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 // TODO: Currently there are no shift_and_rotate operators
@@ -2254,9 +2190,8 @@ FIXTURE(BitwiseAndAddAndSub) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(AddAndSubMulAndDiv) {
@@ -2290,9 +2225,8 @@ FIXTURE(AddAndSubMulAndDiv) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(MulAndDivExp) {
@@ -2326,9 +2260,8 @@ FIXTURE(MulAndDivExp) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(ExpUnary) {
@@ -2359,9 +2292,8 @@ FIXTURE(ExpUnary) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
 
 FIXTURE(UnaryFuncAndMember) {
@@ -2390,7 +2322,6 @@ FIXTURE(UnaryFuncAndMember) {
     "  }\n"
     "}\n";
   auto tt = ParseNode(ts);
-  EXPECT_TRUE(cst->Test(tt, 0));
+  EXPECT_TRUE(cst->Test(tt.get(), 0));
   delete cst;
-  delete tt;
 }
