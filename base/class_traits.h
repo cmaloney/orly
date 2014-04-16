@@ -1,12 +1,18 @@
 /* <base/class_traits.h>
 
-   Defines numerous macros which should be used to manage the general behaviors of a class.
+   Defines numerous macros which should be used to manage the general behaviors
+  of a class.
 
-   This is achieved by defaulting/deleting/defining constructors and member functions of the type in accordance with the
+   This is achieved by defaulting/deleting/defining constructors and member
+  functions of the type in accordance with the
    general rules for dealing with a particular class of types.
 
-   Most of these are fairly simple / straight forward. We provide these aliases to make it easy for someone glancing at
-   the code to tell what the overarching behavior of a class is (NO_CONSTRUCTION, NO_COPY, etc.)
+   Most of these are fairly simple / straight forward. We provide these aliases
+  to make it easy for someone glancing at
+   the code to tell what the overarching behavior of a class is
+  (NO_CONSTRUCTION, NO_COPY, etc.)
+
+  TODO: Generic blurb about how to insert/use these in classes (Just after the '{')
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -23,6 +29,26 @@
    limitations under the License. */
 
 #pragma once
+
+/* Forces the compiler to emit the default move constructor*/
+#define DEFAULT_MOVE(cls) \
+  cls(cls &&) = default;  \
+  cls &operator=(cls &&) = default;
+
+/* Forces the compiler to emit the default copy constructor*/
+#define DEFAULT_COPY(cls)     \
+  cls(const cls &) = default; \
+  cls &operator=(const cls &) = default;
+
+/* Use this macro to make a class copyable only / not movable */
+#define COPY_ONLY(cls) \
+  NO_MOVE(cls);        \
+  DEFAULT_COPY(cls);
+
+/* Use this macro to make a class movable only / not copyable */
+#define MOVE_ONLY(cls) \
+  NO_COPY(cls);        \
+  DEFAULT_MOVE(cls);
 
 /* Use this macro to disable construction of a class, struct, or union,
    essentially turning the type into a namespace with accessibility
@@ -58,8 +84,8 @@
    friendly to the type, you'll get a link-time error telling you the function
    is undefined. */
 #define NO_CONSTRUCTION(cls) \
-  cls() = delete; \
-  ~cls() = delete; \
+  cls() = delete;            \
+  ~cls() = delete;           \
   cls(const cls &) = delete; \
   cls &operator=(const cls &) = delete;
 
@@ -80,6 +106,11 @@
    attempt is made from within a scope friendly to the class, you'll get
    a link-time error telling you the copy constructor or assignment
    operator is undefined. */
-#define NO_COPY(cls) \
+#define NO_COPY(cls)         \
   cls(const cls &) = delete; \
   cls &operator=(const cls &) = delete;
+
+/* Use this macro to disable the compiler-provided move semantics in any class. */
+#define NO_MOVE(cls)    \
+  cls(cls &&) = delete; \
+  cls &operator=(const cls &&) = delete;
