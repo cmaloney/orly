@@ -21,7 +21,7 @@
 #include <cassert>
 #include <cstring>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/native/type.h>
 #include <orly/rt/mutable.h>
 #include <orly/sabot/state.h>
@@ -149,7 +149,7 @@ namespace Orly {
         /* Keeps the array in memory. */
         class TPin final
             : public TArrayOfScalarsSabotState::TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* Do little. */
@@ -199,7 +199,7 @@ namespace Orly {
         /* Keeps the array in memory. */
         class TPin final
             : public TArrayOfSingleStatesSabotState::TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* Do little. */
@@ -264,7 +264,7 @@ namespace Orly {
         /* Keeps the array in memory. */
         class TPin final
             : public TArrayOfPairsOfStatesSabotState::TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* Do little. */
@@ -324,7 +324,7 @@ namespace Orly {
         /* Keeps the array in memory. */
         class TPin final
             : public TStaticArrayOfSingleStatesSabotState::TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* Do little. */

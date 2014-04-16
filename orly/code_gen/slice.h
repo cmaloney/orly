@@ -26,7 +26,7 @@ namespace Orly {
 
     //TODO: Seems to be moderately similar to range.
     class TSlice : public TInline {
-      NO_COPY_SEMANTICS(TSlice);
+      NO_COPY(TSlice);
 
       public:
 

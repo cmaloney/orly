@@ -29,7 +29,7 @@ namespace Orly {
     class TImplicitFunc;
 
     class TMap : public TInline {
-      NO_COPY_SEMANTICS(TMap);
+      NO_COPY(TMap);
       public:
 
       typedef std::shared_ptr<TImplicitFunc> TFuncPtr;

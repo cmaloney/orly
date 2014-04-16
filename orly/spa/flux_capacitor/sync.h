@@ -22,7 +22,7 @@
 #include <exception>
 #include <pthread.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Orly {
 
@@ -58,7 +58,7 @@ namespace Orly {
          subsequent locks will be treated as exclusive (regardless of what kind of lock the thread actually requests).  If the first lock is shared, however,
          then all subsequent locks must also be shared.  Requesting an exclusive lock after already gaining one or more exclusive locks is an error. */
       class TSync {
-        NO_COPY_SEMANTICS(TSync);
+        NO_COPY(TSync);
         private:
 
         /* This forward-declaration of a private type is necessary because the lock classes refer to it.  Ugly but oh well. */
@@ -69,7 +69,7 @@ namespace Orly {
         /* Construct an instance of this class to gain an exclusive lock on a target.
            The thread must not already have a shared lock on the target. */
         class TExclusiveLock {
-          NO_COPY_SEMANTICS(TExclusiveLock);
+          NO_COPY(TExclusiveLock);
           public:
 
           /* Does not return until the lock is granted. */
@@ -94,7 +94,7 @@ namespace Orly {
         /* Construct an instance of this class to gain a shared lock on a target.
            If the thread already has an exclusive lock on the target, this class increases the exclusive lock count instead. */
         class TSharedLock {
-          NO_COPY_SEMANTICS(TSharedLock);
+          NO_COPY(TSharedLock);
           public:
 
           /* Does not return until the lock is granted. */
@@ -132,7 +132,7 @@ namespace Orly {
 
         /* Each thread has a local instance of this class.  It tracks the kind and number of locks the thread currently holds on this target. */
         class TLocal {
-          NO_COPY_SEMANTICS(TLocal);
+          NO_COPY(TLocal);
           public:
 
           /* When the count reaches zero, the lock is released. */

@@ -30,7 +30,7 @@ namespace Orly {
     /* Type visitor for == and !=. This is also used for type checking assign mutation. */
     class TEqCompVisitor
         : public TEqualVisitor {
-      NO_COPY_SEMANTICS(TEqCompVisitor);
+      NO_COPY(TEqCompVisitor);
       public:
 
       TEqCompVisitor(TType &type, const TPosRange &pos_range)
@@ -113,7 +113,7 @@ namespace Orly {
     /* Type visitor for <, <=, >, >= */
     class TIneqCompVisitor
         : public TEqualVisitor {
-      NO_COPY_SEMANTICS(TIneqCompVisitor);
+      NO_COPY(TIneqCompVisitor);
       public:
 
       TIneqCompVisitor(TType &type, const TPosRange &pos_range)

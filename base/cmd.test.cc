@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 #include <test/kit.h>
 
@@ -84,7 +84,7 @@ class TCircle
 };
 
 class TArgs {
-  NO_COPY_SEMANTICS(TArgs);
+  NO_COPY(TArgs);
   public:
 
   TArgs(initializer_list<const char *> strs) {

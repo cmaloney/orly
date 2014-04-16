@@ -28,7 +28,7 @@ namespace Orly {
 
     class TModVisitor
         : public TInfixVisitor {
-      NO_COPY_SEMANTICS(TModVisitor);
+      NO_COPY(TModVisitor);
       protected:
 
       TModVisitor(TType &type, const TPosRange &pos_range)

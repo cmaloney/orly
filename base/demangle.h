@@ -20,12 +20,12 @@
 
 #include <typeinfo>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
   class TDemangle {
-    NO_COPY_SEMANTICS(TDemangle);
+    NO_COPY(TDemangle);
   public:
 
 

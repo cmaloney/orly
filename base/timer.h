@@ -21,13 +21,13 @@
 
 #include <time.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
   /* TODO */
   class TTimer {
-    NO_COPY_SEMANTICS(TTimer);
+    NO_COPY(TTimer);
     public:
 
     /* TODO */
@@ -90,7 +90,7 @@ namespace Base {
 
   /* TODO */
   class TCPUTimer : public TTimer {
-    NO_COPY_SEMANTICS(TCPUTimer);
+    NO_COPY(TCPUTimer);
     public:
 
     /* TODO */

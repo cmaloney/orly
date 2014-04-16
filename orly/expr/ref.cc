@@ -69,7 +69,7 @@ void TRef::ImplicitFunctionAppCheck() const {
   assert(this);
   class TDefVisitor
       : public Symbol::TDef::TVisitor {
-    NO_COPY_SEMANTICS(TDefVisitor);
+    NO_COPY(TDefVisitor);
     public:
     TDefVisitor(const TPosRange &pos_range)
         : PosRange(pos_range) {}

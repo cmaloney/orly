@@ -30,7 +30,7 @@ using namespace Orly::Var;
 //TODO: This doesn't always output legal JSON.
 void Orly::Var::Jsonify(ostream &strm, const TVar &var) {
   class TJsonifyVisitor : public TVar::TVisitor {
-    NO_COPY_SEMANTICS(TJsonifyVisitor);
+    NO_COPY(TJsonifyVisitor);
     public:
     TJsonifyVisitor(ostream &strm) : Strm(strm) {}
     private:

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
@@ -30,7 +30,7 @@ namespace Orly {
 
     class TAddrMember
         : public TUnary {
-      NO_COPY_SEMANTICS(TAddrMember);
+      NO_COPY(TAddrMember);
       public:
 
       typedef std::shared_ptr<TAddrMember> TPtr;

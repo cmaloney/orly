@@ -69,7 +69,7 @@ FIXTURE(InputToInput) {
 
 class TApi
     : public Rpc::TContext {
-  NO_COPY_SEMANTICS(TApi);
+  NO_COPY(TApi);
   public:
 
   static const Rpc::TEntryId
@@ -104,7 +104,7 @@ class TApi
 
   class TProtocol
       : public Rpc::TProtocol {
-    NO_COPY_SEMANTICS(TProtocol);
+    NO_COPY(TProtocol);
     public:
 
     static const TProtocol Protocol;

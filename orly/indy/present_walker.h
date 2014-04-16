@@ -20,7 +20,7 @@
 
 #include <unordered_set>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/no_throw.h>
 #include <base/uuid.h>
 #include <orly/atom/kit2.h>
@@ -34,7 +34,7 @@ namespace Orly {
     /* Walk the keys in a given line and, for each which exists or is tombstoned, return its most recent op.
        Ignore any updates which occur on or after a given limiting sequence number. */
     class TPresentWalker {
-      NO_COPY_SEMANTICS(TPresentWalker);
+      NO_COPY(TPresentWalker);
       public:
 
       /* An item returned by a walker, describing the relevant portions an update which was previously pushed to the repo. */

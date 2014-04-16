@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/collected_by.h>
 #include <orly/expr/lhsrhsable.h>
 #include <orly/orly.package.cst.h>
@@ -36,7 +36,7 @@ namespace Orly {
     /* TODO */
     class TCollectedByExpr
         : public TLhsRhsableExpr {
-      NO_COPY_SEMANTICS(TCollectedByExpr);
+      NO_COPY(TCollectedByExpr);
       public:
 
       /* TODO */

@@ -39,7 +39,7 @@ using namespace std;
    in to the TEffectingExprVisitor. */
 class expr_visitor_t
     : public TExpr::TVisitor {
-  NO_COPY_SEMANTICS(expr_visitor_t);
+  NO_COPY(expr_visitor_t);
   public:
   expr_visitor_t(unordered_set<pair<Type::TType, Type::TType>> &addr_set)
       : Addrs(addr_set) {}
@@ -224,7 +224,7 @@ class expr_visitor_t
   /* used by StmtBlock, but need access to it for DatabaseAddrsInStmtBlock */
   class effecting_expr_visitor_t
         : public TExpr::TVisitor {
-    NO_COPY_SEMANTICS(effecting_expr_visitor_t);
+    NO_COPY(effecting_expr_visitor_t);
     public:
     effecting_expr_visitor_t(const expr_visitor_t &visitor, unordered_set<pair<Type::TType, Type::TType>> &addr_set, Type::TType rhs_type)
         : ExprVisitor(visitor), Addrs(addr_set), RhsType(rhs_type) {}

@@ -24,7 +24,7 @@
 #include <tuple>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/desc.h>
 #include <orly/sabot/defs.h>
 
@@ -54,7 +54,7 @@ namespace Orly {
 
     /* A tombstone where once a value lived.  This is a stateless singleton. */
     class TTombstone {
-      NO_COPY_SEMANTICS(TTombstone);
+      NO_COPY(TTombstone);
       public:
 
       /* Our single instance. */

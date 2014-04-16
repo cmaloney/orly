@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/expr.h>
 #include <orly/expr/expr_parent.h>
 
@@ -28,7 +28,7 @@ namespace Orly {
 
     class TInterior
         : public TExpr, public TExprParent {
-      NO_COPY_SEMANTICS(TInterior);
+      NO_COPY(TInterior);
       public:
 
       protected:

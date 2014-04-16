@@ -7,7 +7,7 @@
 #include <cassert>
 #include <ostream>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/indent.h>
 #include <tools/nycr/lexeme.h>
 #include <tools/nycr/test.h>
@@ -88,7 +88,7 @@ class TBadDecl;
 
 // nycr -> opt_decl_seq <tools/nycr/syntax> sr 0 rr 0;
 class TNycr {
-  NO_COPY_SEMANTICS(TNycr);
+  NO_COPY(TNycr);
   public:
   TNycr(TOptDeclSeq *opt_decl_seq)
       : OptDeclSeq(opt_decl_seq) {
@@ -109,9 +109,9 @@ class TNycr {
 
 // opt_decl_seq;
 class TOptDeclSeq {
-  NO_COPY_SEMANTICS(TOptDeclSeq);
+  NO_COPY(TOptDeclSeq);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TNoDeclSeq *that) const = 0;
@@ -129,7 +129,7 @@ class TOptDeclSeq {
 
 // no_decl_seq : opt_decl_seq -> empty;
 class TNoDeclSeq : public TOptDeclSeq {
-  NO_COPY_SEMANTICS(TNoDeclSeq);
+  NO_COPY(TNoDeclSeq);
   public:
   TNoDeclSeq() {}
   virtual void Accept(const TOptDeclSeq::TVisitor &visitor) const {
@@ -143,7 +143,7 @@ class TNoDeclSeq : public TOptDeclSeq {
 
 // decl_seq : opt_decl_seq -> decl opt_decl_seq;
 class TDeclSeq : public TOptDeclSeq {
-  NO_COPY_SEMANTICS(TDeclSeq);
+  NO_COPY(TDeclSeq);
   public:
   TDeclSeq(TDecl *decl, TOptDeclSeq *opt_decl_seq)
       : Decl(decl), OptDeclSeq(opt_decl_seq) {
@@ -173,9 +173,9 @@ class TDeclSeq : public TOptDeclSeq {
 
 // decl;
 class TDecl {
-  NO_COPY_SEMANTICS(TDecl);
+  NO_COPY(TDecl);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TPrecLevel *that) const = 0;
@@ -198,7 +198,7 @@ class TDecl {
 
 // prec_level : decl -> prec_kwd name semi;
 class TPrecLevel : public TDecl {
-  NO_COPY_SEMANTICS(TPrecLevel);
+  NO_COPY(TPrecLevel);
   public:
   TPrecLevel(TPrecKwd *prec_kwd, TName *name, TSemi *semi)
       : PrecKwd(prec_kwd), Name(name), Semi(semi) {
@@ -234,7 +234,7 @@ class TPrecLevel : public TDecl {
 
 // prec_kwd = "prec" pri 0;
 class TPrecKwd {
-  NO_COPY_SEMANTICS(TPrecKwd);
+  NO_COPY(TPrecKwd);
   public:
   TPrecKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -250,7 +250,7 @@ class TPrecKwd {
 
 // name = "[a-zA-Z]+[a-zA-Z0-9_]*" pri 2;
 class TName {
-  NO_COPY_SEMANTICS(TName);
+  NO_COPY(TName);
   public:
   TName(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -266,7 +266,7 @@ class TName {
 
 // semi = "\";\"" pri 0;
 class TSemi {
-  NO_COPY_SEMANTICS(TSemi);
+  NO_COPY(TSemi);
   public:
   TSemi(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -282,9 +282,9 @@ class TSemi {
 
 // kind : decl;
 class TKind : public TDecl {
-  NO_COPY_SEMANTICS(TKind);
+  NO_COPY(TKind);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TBase *that) const = 0;
@@ -305,7 +305,7 @@ class TKind : public TDecl {
 
 // base : kind -> name opt_super semi;
 class TBase : public TKind {
-  NO_COPY_SEMANTICS(TBase);
+  NO_COPY(TBase);
   public:
   TBase(TName *name, TOptSuper *opt_super, TSemi *semi)
       : Name(name), OptSuper(opt_super), Semi(semi) {
@@ -346,9 +346,9 @@ class TBase : public TKind {
 
 // opt_super;
 class TOptSuper {
-  NO_COPY_SEMANTICS(TOptSuper);
+  NO_COPY(TOptSuper);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TSuper *that) const = 0;
@@ -366,7 +366,7 @@ class TOptSuper {
 
 // super : opt_super -> colon name;
 class TSuper : public TOptSuper {
-  NO_COPY_SEMANTICS(TSuper);
+  NO_COPY(TSuper);
   public:
   TSuper(TColon *colon, TName *name)
       : Colon(colon), Name(name) {
@@ -396,7 +396,7 @@ class TSuper : public TOptSuper {
 
 // colon = "\":\"" pri 0;
 class TColon {
-  NO_COPY_SEMANTICS(TColon);
+  NO_COPY(TColon);
   public:
   TColon(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -412,7 +412,7 @@ class TColon {
 
 // no_super : opt_super -> empty;
 class TNoSuper : public TOptSuper {
-  NO_COPY_SEMANTICS(TNoSuper);
+  NO_COPY(TNoSuper);
   public:
   TNoSuper() {}
   virtual void Accept(const TOptSuper::TVisitor &visitor) const {
@@ -426,7 +426,7 @@ class TNoSuper : public TOptSuper {
 
 // rule : kind -> name opt_super opt_rhs semi;
 class TRule : public TKind {
-  NO_COPY_SEMANTICS(TRule);
+  NO_COPY(TRule);
   public:
   TRule(TName *name, TOptSuper *opt_super, TOptRhs *opt_rhs, TSemi *semi)
       : Name(name), OptSuper(opt_super), OptRhs(opt_rhs), Semi(semi) {
@@ -473,9 +473,9 @@ class TRule : public TKind {
 
 // opt_rhs;
 class TOptRhs {
-  NO_COPY_SEMANTICS(TOptRhs);
+  NO_COPY(TOptRhs);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TRhs *that) const = 0;
@@ -493,7 +493,7 @@ class TOptRhs {
 
 // rhs : opt_rhs -> arrow member_seq opt_oper_ref;
 class TRhs : public TOptRhs {
-  NO_COPY_SEMANTICS(TRhs);
+  NO_COPY(TRhs);
   public:
   TRhs(TArrow *arrow, TMemberSeq *member_seq, TOptOperRef *opt_oper_ref)
       : Arrow(arrow), MemberSeq(member_seq), OptOperRef(opt_oper_ref) {
@@ -529,7 +529,7 @@ class TRhs : public TOptRhs {
 
 // arrow = "\"->\"" pri 0;
 class TArrow {
-  NO_COPY_SEMANTICS(TArrow);
+  NO_COPY(TArrow);
   public:
   TArrow(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -545,9 +545,9 @@ class TArrow {
 
 // opt_member_seq;
 class TOptMemberSeq {
-  NO_COPY_SEMANTICS(TOptMemberSeq);
+  NO_COPY(TOptMemberSeq);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TNoMemberSeq *that) const = 0;
@@ -565,7 +565,7 @@ class TOptMemberSeq {
 
 // no_member_seq : opt_member_seq -> empty;
 class TNoMemberSeq : public TOptMemberSeq {
-  NO_COPY_SEMANTICS(TNoMemberSeq);
+  NO_COPY(TNoMemberSeq);
   public:
   TNoMemberSeq() {}
   virtual void Accept(const TOptMemberSeq::TVisitor &visitor) const {
@@ -579,7 +579,7 @@ class TNoMemberSeq : public TOptMemberSeq {
 
 // member_seq : opt_member_seq -> member opt_member_seq;
 class TMemberSeq : public TOptMemberSeq {
-  NO_COPY_SEMANTICS(TMemberSeq);
+  NO_COPY(TMemberSeq);
   public:
   TMemberSeq(TMember *member, TOptMemberSeq *opt_member_seq)
       : Member(member), OptMemberSeq(opt_member_seq) {
@@ -609,9 +609,9 @@ class TMemberSeq : public TOptMemberSeq {
 
 // member;
 class TMember {
-  NO_COPY_SEMANTICS(TMember);
+  NO_COPY(TMember);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TAnonymousMember *that) const = 0;
@@ -630,7 +630,7 @@ class TMember {
 
 // anonymous_member : member -> name;
 class TAnonymousMember : public TMember {
-  NO_COPY_SEMANTICS(TAnonymousMember);
+  NO_COPY(TAnonymousMember);
   public:
   TAnonymousMember(TName *name)
       : Name(name) {
@@ -654,7 +654,7 @@ class TAnonymousMember : public TMember {
 
 // error_member : member -> error_kwd;
 class TErrorMember : public TMember {
-  NO_COPY_SEMANTICS(TErrorMember);
+  NO_COPY(TErrorMember);
   public:
   TErrorMember(TErrorKwd *error_kwd)
       : ErrorKwd(error_kwd) {
@@ -678,7 +678,7 @@ class TErrorMember : public TMember {
 
 // error_kwd = "error" pri 0;
 class TErrorKwd {
-  NO_COPY_SEMANTICS(TErrorKwd);
+  NO_COPY(TErrorKwd);
   public:
   TErrorKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -694,7 +694,7 @@ class TErrorKwd {
 
 // named_member : member -> name:name colon kind:name;
 class TNamedMember : public TMember {
-  NO_COPY_SEMANTICS(TNamedMember);
+  NO_COPY(TNamedMember);
   public:
   TNamedMember(TName *name, TColon *colon, TName *kind)
       : Name(name), Colon(colon), Kind(kind) {
@@ -730,9 +730,9 @@ class TNamedMember : public TMember {
 
 // opt_oper_ref;
 class TOptOperRef {
-  NO_COPY_SEMANTICS(TOptOperRef);
+  NO_COPY(TOptOperRef);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TOperRef *that) const = 0;
@@ -750,7 +750,7 @@ class TOptOperRef {
 
 // oper_ref : opt_oper_ref -> prec_kwd name;
 class TOperRef : public TOptOperRef {
-  NO_COPY_SEMANTICS(TOperRef);
+  NO_COPY(TOperRef);
   public:
   TOperRef(TPrecKwd *prec_kwd, TName *name)
       : PrecKwd(prec_kwd), Name(name) {
@@ -780,7 +780,7 @@ class TOperRef : public TOptOperRef {
 
 // no_oper_ref : opt_oper_ref -> empty;
 class TNoOperRef : public TOptOperRef {
-  NO_COPY_SEMANTICS(TNoOperRef);
+  NO_COPY(TNoOperRef);
   public:
   TNoOperRef() {}
   virtual void Accept(const TOptOperRef::TVisitor &visitor) const {
@@ -794,7 +794,7 @@ class TNoOperRef : public TOptOperRef {
 
 // no_rhs : opt_rhs -> arrow empty_kwd;
 class TNoRhs : public TOptRhs {
-  NO_COPY_SEMANTICS(TNoRhs);
+  NO_COPY(TNoRhs);
   public:
   TNoRhs(TArrow *arrow, TEmptyKwd *empty_kwd)
       : Arrow(arrow), EmptyKwd(empty_kwd) {
@@ -824,7 +824,7 @@ class TNoRhs : public TOptRhs {
 
 // empty_kwd = "empty" pri 0;
 class TEmptyKwd {
-  NO_COPY_SEMANTICS(TEmptyKwd);
+  NO_COPY(TEmptyKwd);
   public:
   TEmptyKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -840,7 +840,7 @@ class TEmptyKwd {
 
 // language : kind -> name opt_super opt_rhs open_angle opt_path close_angle opt_expected_sr opt_expected_rr semi;
 class TLanguage : public TKind {
-  NO_COPY_SEMANTICS(TLanguage);
+  NO_COPY(TLanguage);
   public:
   TLanguage(TName *name, TOptSuper *opt_super, TOptRhs *opt_rhs, TOpenAngle *open_angle, TOptPath *opt_path, TCloseAngle *close_angle, TOptExpectedSr *opt_expected_sr, TOptExpectedRr *opt_expected_rr, TSemi *semi)
       : Name(name), OptSuper(opt_super), OptRhs(opt_rhs), OpenAngle(open_angle), OptPath(opt_path), CloseAngle(close_angle), OptExpectedSr(opt_expected_sr), OptExpectedRr(opt_expected_rr), Semi(semi) {
@@ -917,7 +917,7 @@ class TLanguage : public TKind {
 
 // open_angle = "\"<\"" pri 0;
 class TOpenAngle {
-  NO_COPY_SEMANTICS(TOpenAngle);
+  NO_COPY(TOpenAngle);
   public:
   TOpenAngle(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -933,9 +933,9 @@ class TOpenAngle {
 
 // opt_path;
 class TOptPath {
-  NO_COPY_SEMANTICS(TOptPath);
+  NO_COPY(TOptPath);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TPath *that) const = 0;
@@ -953,7 +953,7 @@ class TOptPath {
 
 // path : opt_path -> name opt_path_tail;
 class TPath : public TOptPath {
-  NO_COPY_SEMANTICS(TPath);
+  NO_COPY(TPath);
   public:
   TPath(TName *name, TOptPathTail *opt_path_tail)
       : Name(name), OptPathTail(opt_path_tail) {
@@ -983,9 +983,9 @@ class TPath : public TOptPath {
 
 // opt_path_tail;
 class TOptPathTail {
-  NO_COPY_SEMANTICS(TOptPathTail);
+  NO_COPY(TOptPathTail);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TNoPathTail *that) const = 0;
@@ -1003,7 +1003,7 @@ class TOptPathTail {
 
 // no_path_tail : opt_path_tail -> empty;
 class TNoPathTail : public TOptPathTail {
-  NO_COPY_SEMANTICS(TNoPathTail);
+  NO_COPY(TNoPathTail);
   public:
   TNoPathTail() {}
   virtual void Accept(const TOptPathTail::TVisitor &visitor) const {
@@ -1017,7 +1017,7 @@ class TNoPathTail : public TOptPathTail {
 
 // path_tail : opt_path_tail -> slash path;
 class TPathTail : public TOptPathTail {
-  NO_COPY_SEMANTICS(TPathTail);
+  NO_COPY(TPathTail);
   public:
   TPathTail(TSlash *slash, TPath *path)
       : Slash(slash), Path(path) {
@@ -1047,7 +1047,7 @@ class TPathTail : public TOptPathTail {
 
 // slash = "\"/\"" pri 0;
 class TSlash {
-  NO_COPY_SEMANTICS(TSlash);
+  NO_COPY(TSlash);
   public:
   TSlash(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1063,7 +1063,7 @@ class TSlash {
 
 // no_path : opt_path -> empty;
 class TNoPath : public TOptPath {
-  NO_COPY_SEMANTICS(TNoPath);
+  NO_COPY(TNoPath);
   public:
   TNoPath() {}
   virtual void Accept(const TOptPath::TVisitor &visitor) const {
@@ -1077,7 +1077,7 @@ class TNoPath : public TOptPath {
 
 // close_angle = "\">\"" pri 0;
 class TCloseAngle {
-  NO_COPY_SEMANTICS(TCloseAngle);
+  NO_COPY(TCloseAngle);
   public:
   TCloseAngle(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1093,9 +1093,9 @@ class TCloseAngle {
 
 // opt_expected_sr;
 class TOptExpectedSr {
-  NO_COPY_SEMANTICS(TOptExpectedSr);
+  NO_COPY(TOptExpectedSr);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TNoExpectedSr *that) const = 0;
@@ -1113,7 +1113,7 @@ class TOptExpectedSr {
 
 // no_expected_sr : opt_expected_sr -> empty;
 class TNoExpectedSr : public TOptExpectedSr {
-  NO_COPY_SEMANTICS(TNoExpectedSr);
+  NO_COPY(TNoExpectedSr);
   public:
   TNoExpectedSr() {}
   virtual void Accept(const TOptExpectedSr::TVisitor &visitor) const {
@@ -1127,7 +1127,7 @@ class TNoExpectedSr : public TOptExpectedSr {
 
 // expected_sr : opt_expected_sr -> sr_kwd int_literal;
 class TExpectedSr : public TOptExpectedSr {
-  NO_COPY_SEMANTICS(TExpectedSr);
+  NO_COPY(TExpectedSr);
   public:
   TExpectedSr(TSrKwd *sr_kwd, TIntLiteral *int_literal)
       : SrKwd(sr_kwd), IntLiteral(int_literal) {
@@ -1157,7 +1157,7 @@ class TExpectedSr : public TOptExpectedSr {
 
 // sr_kwd = "sr" pri 0;
 class TSrKwd {
-  NO_COPY_SEMANTICS(TSrKwd);
+  NO_COPY(TSrKwd);
   public:
   TSrKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1173,7 +1173,7 @@ class TSrKwd {
 
 // int_literal = "(\\+|\\-)?[[:digit:]]+" pri 0;
 class TIntLiteral {
-  NO_COPY_SEMANTICS(TIntLiteral);
+  NO_COPY(TIntLiteral);
   public:
   TIntLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1189,9 +1189,9 @@ class TIntLiteral {
 
 // opt_expected_rr;
 class TOptExpectedRr {
-  NO_COPY_SEMANTICS(TOptExpectedRr);
+  NO_COPY(TOptExpectedRr);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TNoExpectedRr *that) const = 0;
@@ -1209,7 +1209,7 @@ class TOptExpectedRr {
 
 // no_expected_rr : opt_expected_rr -> empty;
 class TNoExpectedRr : public TOptExpectedRr {
-  NO_COPY_SEMANTICS(TNoExpectedRr);
+  NO_COPY(TNoExpectedRr);
   public:
   TNoExpectedRr() {}
   virtual void Accept(const TOptExpectedRr::TVisitor &visitor) const {
@@ -1223,7 +1223,7 @@ class TNoExpectedRr : public TOptExpectedRr {
 
 // expected_rr : opt_expected_rr -> rr_kwd int_literal;
 class TExpectedRr : public TOptExpectedRr {
-  NO_COPY_SEMANTICS(TExpectedRr);
+  NO_COPY(TExpectedRr);
   public:
   TExpectedRr(TRrKwd *rr_kwd, TIntLiteral *int_literal)
       : RrKwd(rr_kwd), IntLiteral(int_literal) {
@@ -1253,7 +1253,7 @@ class TExpectedRr : public TOptExpectedRr {
 
 // rr_kwd = "rr" pri 0;
 class TRrKwd {
-  NO_COPY_SEMANTICS(TRrKwd);
+  NO_COPY(TRrKwd);
   public:
   TRrKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1269,7 +1269,7 @@ class TRrKwd {
 
 // oper : kind -> name opt_super pattern prec_level_ref:name assoc semi;
 class TOper : public TKind {
-  NO_COPY_SEMANTICS(TOper);
+  NO_COPY(TOper);
   public:
   TOper(TName *name, TOptSuper *opt_super, TPattern *pattern, TName *prec_level_ref, TAssoc *assoc, TSemi *semi)
       : Name(name), OptSuper(opt_super), Pattern(pattern), PrecLevelRef(prec_level_ref), Assoc(assoc), Semi(semi) {
@@ -1328,7 +1328,7 @@ class TOper : public TKind {
 
 // pattern -> eq str_literal opt_pri_level;
 class TPattern {
-  NO_COPY_SEMANTICS(TPattern);
+  NO_COPY(TPattern);
   public:
   TPattern(TEq *eq, TStrLiteral *str_literal, TOptPriLevel *opt_pri_level)
       : Eq(eq), StrLiteral(str_literal), OptPriLevel(opt_pri_level) {
@@ -1359,7 +1359,7 @@ class TPattern {
 
 // eq = "\"=\"" pri 0;
 class TEq {
-  NO_COPY_SEMANTICS(TEq);
+  NO_COPY(TEq);
   public:
   TEq(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1375,9 +1375,9 @@ class TEq {
 
 // str_literal;
 class TStrLiteral {
-  NO_COPY_SEMANTICS(TStrLiteral);
+  NO_COPY(TStrLiteral);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TSingleQuotedRawStrLiteral *that) const = 0;
@@ -1397,7 +1397,7 @@ class TStrLiteral {
 
 // single_quoted_raw_str_literal : str_literal = "{SINGLE_QUOTED_RAW_STRING}" pri 1;
 class TSingleQuotedRawStrLiteral : public TStrLiteral {
-  NO_COPY_SEMANTICS(TSingleQuotedRawStrLiteral);
+  NO_COPY(TSingleQuotedRawStrLiteral);
   public:
   TSingleQuotedRawStrLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1418,7 +1418,7 @@ class TSingleQuotedRawStrLiteral : public TStrLiteral {
 
 // double_quoted_str_literal : str_literal = "{DOUBLE_QUOTED_STRING}" pri 0;
 class TDoubleQuotedStrLiteral : public TStrLiteral {
-  NO_COPY_SEMANTICS(TDoubleQuotedStrLiteral);
+  NO_COPY(TDoubleQuotedStrLiteral);
   public:
   TDoubleQuotedStrLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1439,7 +1439,7 @@ class TDoubleQuotedStrLiteral : public TStrLiteral {
 
 // single_quoted_str_literal : str_literal = "{SINGLE_QUOTED_STRING}" pri 0;
 class TSingleQuotedStrLiteral : public TStrLiteral {
-  NO_COPY_SEMANTICS(TSingleQuotedStrLiteral);
+  NO_COPY(TSingleQuotedStrLiteral);
   public:
   TSingleQuotedStrLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1460,7 +1460,7 @@ class TSingleQuotedStrLiteral : public TStrLiteral {
 
 // double_quoted_raw_str_literal : str_literal = "{DOUBLE_QUOTED_RAW_STRING}" pri 1;
 class TDoubleQuotedRawStrLiteral : public TStrLiteral {
-  NO_COPY_SEMANTICS(TDoubleQuotedRawStrLiteral);
+  NO_COPY(TDoubleQuotedRawStrLiteral);
   public:
   TDoubleQuotedRawStrLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1481,9 +1481,9 @@ class TDoubleQuotedRawStrLiteral : public TStrLiteral {
 
 // opt_pri_level;
 class TOptPriLevel {
-  NO_COPY_SEMANTICS(TOptPriLevel);
+  NO_COPY(TOptPriLevel);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TPriLevel *that) const = 0;
@@ -1501,7 +1501,7 @@ class TOptPriLevel {
 
 // pri_level : opt_pri_level -> pri_kwd int_literal;
 class TPriLevel : public TOptPriLevel {
-  NO_COPY_SEMANTICS(TPriLevel);
+  NO_COPY(TPriLevel);
   public:
   TPriLevel(TPriKwd *pri_kwd, TIntLiteral *int_literal)
       : PriKwd(pri_kwd), IntLiteral(int_literal) {
@@ -1531,7 +1531,7 @@ class TPriLevel : public TOptPriLevel {
 
 // pri_kwd = "pri" pri 0;
 class TPriKwd {
-  NO_COPY_SEMANTICS(TPriKwd);
+  NO_COPY(TPriKwd);
   public:
   TPriKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1547,7 +1547,7 @@ class TPriKwd {
 
 // no_pri_level : opt_pri_level -> empty;
 class TNoPriLevel : public TOptPriLevel {
-  NO_COPY_SEMANTICS(TNoPriLevel);
+  NO_COPY(TNoPriLevel);
   public:
   TNoPriLevel() {}
   virtual void Accept(const TOptPriLevel::TVisitor &visitor) const {
@@ -1561,9 +1561,9 @@ class TNoPriLevel : public TOptPriLevel {
 
 // assoc;
 class TAssoc {
-  NO_COPY_SEMANTICS(TAssoc);
+  NO_COPY(TAssoc);
   public:
-  class TVisitor { 
+  class TVisitor {
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TNonassocKwd *that) const = 0;
@@ -1582,7 +1582,7 @@ class TAssoc {
 
 // nonassoc_kwd : assoc = "nonassoc" pri 0;
 class TNonassocKwd : public TAssoc {
-  NO_COPY_SEMANTICS(TNonassocKwd);
+  NO_COPY(TNonassocKwd);
   public:
   TNonassocKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1603,7 +1603,7 @@ class TNonassocKwd : public TAssoc {
 
 // left_kwd : assoc = "left" pri 0;
 class TLeftKwd : public TAssoc {
-  NO_COPY_SEMANTICS(TLeftKwd);
+  NO_COPY(TLeftKwd);
   public:
   TLeftKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1624,7 +1624,7 @@ class TLeftKwd : public TAssoc {
 
 // right_kwd : assoc = "right" pri 0;
 class TRightKwd : public TAssoc {
-  NO_COPY_SEMANTICS(TRightKwd);
+  NO_COPY(TRightKwd);
   public:
   TRightKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
       : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
@@ -1645,7 +1645,7 @@ class TRightKwd : public TAssoc {
 
 // keyword : kind -> name opt_super pattern semi;
 class TKeyword : public TKind {
-  NO_COPY_SEMANTICS(TKeyword);
+  NO_COPY(TKeyword);
   public:
   TKeyword(TName *name, TOptSuper *opt_super, TPattern *pattern, TSemi *semi)
       : Name(name), OptSuper(opt_super), Pattern(pattern), Semi(semi) {
@@ -1692,7 +1692,7 @@ class TKeyword : public TKind {
 
 // bad_decl : decl -> error semi;
 class TBadDecl : public TDecl {
-  NO_COPY_SEMANTICS(TBadDecl);
+  NO_COPY(TBadDecl);
   public:
   TBadDecl(TSemi *semi)
       : Semi(semi) {

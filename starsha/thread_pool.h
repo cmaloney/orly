@@ -27,13 +27,13 @@
 #include <thread>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Starsha {
 
   /* TODO */
   class TThreadPool {
-    NO_COPY_SEMANTICS(TThreadPool);
+    NO_COPY(TThreadPool);
     public:
 
     /* TODO */

@@ -32,7 +32,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/past_end_error.h>
 #include <base/peekable.h>
 #include <base/stl_utils.h>
@@ -108,12 +108,12 @@ namespace Orly {
          This is the base class for all classes in the pov tree.
          The tree, as a whole, contains the causality graph. */
       class TPov {
-        NO_COPY_SEMANTICS(TPov);
+        NO_COPY(TPov);
         public:
 
         /* Iterates forward through the trailing updates in a pov. */
         class TTrailingUpdateCursor {
-          NO_COPY_SEMANTICS(TTrailingUpdateCursor);
+          NO_COPY(TTrailingUpdateCursor);
           public:
 
           /* The type of thing we iterate. */
@@ -268,12 +268,12 @@ namespace Orly {
       /* The base class of all points-of-view which can have children. */
       class TParentPov
           : public virtual TPov {
-        NO_COPY_SEMANTICS(TParentPov);
+        NO_COPY(TParentPov);
         public:
 
         /* Iterates forward through the children of a parent pov. */
         class TChildPovCursor {
-          NO_COPY_SEMANTICS(TChildPovCursor);
+          NO_COPY(TChildPovCursor);
           public:
 
           /* The type of thing we iterate. */
@@ -364,7 +364,7 @@ namespace Orly {
       /* The base class of all points-of-view which have parents. */
       class TChildPov
           : public virtual TPov {
-        NO_COPY_SEMANTICS(TChildPov);
+        NO_COPY(TChildPov);
         public:
 
         /* Describes the flow of updates from this child pov toward its parent.  You may
@@ -471,7 +471,7 @@ namespace Orly {
          The causality graph has exactly one of these. */
       class TGlobalPov
           : public TParentPov {
-        NO_COPY_SEMANTICS(TGlobalPov);
+        NO_COPY(TGlobalPov);
         public:
 
         /* Also constructs the root of the causality graph. */
@@ -501,7 +501,7 @@ namespace Orly {
          leaf of the causality graph. */
       class TPrivatePov
           : public TChildPov {
-        NO_COPY_SEMANTICS(TPrivatePov);
+        NO_COPY(TPrivatePov);
         public:
 
         /* Also constructs a leaf of the causality graph. */
@@ -532,7 +532,7 @@ namespace Orly {
          these. */
       class TSharedPov
           : public TParentPov, public TChildPov {
-        NO_COPY_SEMANTICS(TSharedPov);
+        NO_COPY(TSharedPov);
         public:
 
         /* Do-nothing. */
@@ -555,7 +555,7 @@ namespace Orly {
          Every event is owned by exactly one pov, but which
          pov owns which event can change over time. */
       class TEvent {
-        NO_COPY_SEMANTICS(TEvent);
+        NO_COPY(TEvent);
         public:
 
         /* The pov which owns this event.  Never null. */
@@ -587,12 +587,12 @@ namespace Orly {
          The inheritance here is virtual to support the diamond at TUpdate. */
       class TCause
           : public virtual TEvent {
-        NO_COPY_SEMANTICS(TCause);
+        NO_COPY(TCause);
         public:
 
         /* Iterates forward through the effects of a cause. */
         class TEffectCursor {
-          NO_COPY_SEMANTICS(TEffectCursor);
+          NO_COPY(TEffectCursor);
           public:
 
           /* The type of thing we iterate. */
@@ -687,12 +687,12 @@ namespace Orly {
          The inheritance here is virtual to support the diamond at TUpdate. */
       class TEffect
           : public virtual TEvent {
-        NO_COPY_SEMANTICS(TEffect);
+        NO_COPY(TEffect);
         public:
 
         /* Iterates forward through the causes of a effect. */
         class TCauseCursor {
-          NO_COPY_SEMANTICS(TCauseCursor);
+          NO_COPY(TCauseCursor);
           public:
 
           /* The type of thing we iterate. */
@@ -811,7 +811,7 @@ namespace Orly {
          updates elsewhere in the graph, we should insert a checks against cycles in the
          SetCause() and SetEffect() functions. */
       class TLink {
-        NO_COPY_SEMANTICS(TLink);
+        NO_COPY(TLink);
         public:
 
         /* The cause to which we link.  Never null. */
@@ -954,7 +954,7 @@ namespace Orly {
          There is exactly one instance of this class in the whole graph, and it's owned by TGlobalPov. */
       class TRoot
           : public TCause {
-        NO_COPY_SEMANTICS(TRoot);
+        NO_COPY(TRoot);
         public:
 
         /* See TCause::IsLocal().
@@ -987,7 +987,7 @@ namespace Orly {
          There is exactly one instance of this class per private point-of-view. */
       class TLeaf
           : public TEffect {
-        NO_COPY_SEMANTICS(TLeaf);
+        NO_COPY(TLeaf);
         public:
 
         /* See TEffect::AugmentEffectsRecursively(). */
@@ -1030,7 +1030,7 @@ namespace Orly {
          and will also be the cause of later events (ultimately the leaf of one or more private psov). */
       class TUpdate
           : public TCause, public TEffect, public TTetrisPiece {
-        NO_COPY_SEMANTICS(TUpdate);
+        NO_COPY(TUpdate);
         public:
 
         typedef std::function<void (const TPov *pov)> TOnPromote;
@@ -1185,7 +1185,7 @@ namespace Orly {
          key-type-specific ways. */
       template <typename TKey>
       class TIndex {
-        NO_COPY_SEMANTICS(TIndex);
+        NO_COPY(TIndex);
         public:
 
         /* A mapping of keys to their tours. */
@@ -1298,7 +1298,7 @@ namespace Orly {
       /* The KV-specific descendant of TIndex<>. */
       class TKVIndex
           : public TIndex<TKV> {
-        NO_COPY_SEMANTICS(TKVIndex);
+        NO_COPY(TKVIndex);
         public:
 
         /* A mapping of KVs to their tours using the K comparator. */
@@ -1308,7 +1308,7 @@ namespace Orly {
 
         /* TODO */
         class TKeyIndexCursor {
-          NO_COPY_SEMANTICS(TKeyIndexCursor);
+          NO_COPY(TKeyIndexCursor);
           public:
 
           /* TODO */
@@ -1436,7 +1436,7 @@ namespace Orly {
          The tour is in chronological order, relative to the pov. */
       template <typename TKey>
       class TTour {
-        NO_COPY_SEMANTICS(TTour);
+        NO_COPY(TTour);
         public:
 
         /* The index of our key type within the pov.  Never null. */
@@ -1567,7 +1567,7 @@ namespace Orly {
          This is an associative entity, joining a cluster to a tour. */
       template <typename TKey>
       class TVersion {
-        NO_COPY_SEMANTICS(TVersion);
+        NO_COPY(TVersion);
         public:
 
         /* Each type of key as associated with it a kind of operation which
@@ -1697,7 +1697,7 @@ namespace Orly {
          We will belong to an update in which clusters of updates to other key types may also reside. */
       template <typename TKey>
       class TCluster {
-        NO_COPY_SEMANTICS(TCluster);
+        NO_COPY(TCluster);
         public:
 
         /* See TVersion<TKey>::TOp. */
@@ -1811,13 +1811,13 @@ namespace Orly {
          in which to evaluate expressions.  This is a value type. */
       class TContext
           : public TContextBase {
-        NO_COPY_SEMANTICS(TContext);
+        NO_COPY(TContext);
         public:
 
         /* TODO */
         class TKeyCursor
             : public Orly::TKeyCursor {
-          NO_COPY_SEMANTICS(TKeyCursor);
+          NO_COPY(TKeyCursor);
           public:
 
           /* TODO */

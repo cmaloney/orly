@@ -49,7 +49,7 @@ namespace FooBar {
 
   /* TODO */
   class TTypeVisitor : public Syntax::TType::TVisitor {
-    NO_COPY_SEMANTICS(TTypeVisitor);
+    NO_COPY(TTypeVisitor);
     public:
 
     TTypeVisitor(Type::TType &type) : Type(type) {}
@@ -78,7 +78,7 @@ namespace FooBar {
       //TODO: Assert here and give a nice warning if someone tries to make a mutable of a mutable.
 
       class TOptMutableTypeAtVisitor : public TOptMutableTypeAt::TVisitor {
-        NO_COPY_SEMANTICS(TOptMutableTypeAtVisitor);
+        NO_COPY(TOptMutableTypeAtVisitor);
         public:
         TOptMutableTypeAtVisitor(Type::TType &type) : Type(type) {}
 
@@ -158,7 +158,7 @@ namespace FooBar {
 
   /* TODO */
   class TExprVisitor : public Syntax::TExpr::TVisitor {
-    NO_COPY_SEMANTICS(TExprVisitor);
+    NO_COPY(TExprVisitor);
     public:
 
     /* TODO */
@@ -268,7 +268,7 @@ namespace FooBar {
   };  // TExprVisitor
 
   class TOptOrderingVisitor : public TOptOrdering::TVisitor {
-    NO_COPY_SEMANTICS(TOptOrderingVisitor);
+    NO_COPY(TOptOrderingVisitor);
     public:
     TOptOrderingVisitor(TAddrDir &dir) : Dir(dir) {}
 
@@ -287,7 +287,7 @@ namespace FooBar {
   };
 
   class TOptAddrMemberListTailVisitor : public TOptAddrMemberListTail::TVisitor {
-    NO_COPY_SEMANTICS(TOptAddrMemberListTailVisitor);
+    NO_COPY(TOptAddrMemberListTailVisitor);
     public:
 
     TOptAddrMemberListTailVisitor(Var::TAddr::TAddrType &addr) : Addr(addr) {}
@@ -316,7 +316,7 @@ namespace FooBar {
   };
 
   class TOptAddrMemberListVisitor : public TOptAddrMemberList::TVisitor {
-    NO_COPY_SEMANTICS(TOptAddrMemberListVisitor);
+    NO_COPY(TOptAddrMemberListVisitor);
     public:
 
     TOptAddrMemberListVisitor(Var::TAddr::TAddrType &addr) : Addr(addr) {}
@@ -346,7 +346,7 @@ namespace FooBar {
   };
 
   class TOptExprListTailVisitor : public Syntax::TOptExprListTail::TVisitor {
-    NO_COPY_SEMANTICS(TOptExprListTailVisitor);
+    NO_COPY(TOptExprListTailVisitor);
     public:
 
     TOptExprListTailVisitor(std::vector<Var::TVar> &list_) : List(list_) {}
@@ -367,7 +367,7 @@ namespace FooBar {
   };
 
   class TSetOptExprListTailVisitor : public Syntax::TOptExprListTail::TVisitor {
-    NO_COPY_SEMANTICS(TSetOptExprListTailVisitor);
+    NO_COPY(TSetOptExprListTailVisitor);
     public:
 
     TSetOptExprListTailVisitor(Rt::TSet<Var::TVar> &set_) : Set(set_) {}
@@ -389,7 +389,7 @@ namespace FooBar {
   };
 
   class TOptDictMemberListTailVisitor : public Syntax::TOptDictMemberListTail::TVisitor {
-    NO_COPY_SEMANTICS(TOptDictMemberListTailVisitor);
+    NO_COPY(TOptDictMemberListTailVisitor);
     public:
 
     TOptDictMemberListTailVisitor(Rt::TDict<Var::TVar, Var::TVar> &map_) : Map(map_) {}
@@ -413,7 +413,7 @@ namespace FooBar {
   };
 
   class TLiteralVisitor : public Syntax::TLiteral::TVisitor {
-    NO_COPY_SEMANTICS(TLiteralVisitor);
+    NO_COPY(TLiteralVisitor);
     public:
 
     TLiteralVisitor(Var::TVar &var) : Var(var) {}
@@ -461,7 +461,7 @@ namespace FooBar {
   };
 
   class TOptAddrTypeMemberListTailVisitor : public TOptAddrTypeMemberListTail::TVisitor {
-    NO_COPY_SEMANTICS(TOptAddrTypeMemberListTailVisitor);
+    NO_COPY(TOptAddrTypeMemberListTailVisitor);
     public:
 
     TOptAddrTypeMemberListTailVisitor(Type::TAddr::TElems &type_list) : TypeList(type_list) {}
@@ -490,7 +490,7 @@ namespace FooBar {
   };  //TOptAddrTypeMemberListTailVisitor
 
   class TOptAddrTypeMemberListVisitor : public TOptAddrTypeMemberList::TVisitor {
-    NO_COPY_SEMANTICS(TOptAddrTypeMemberListVisitor);
+    NO_COPY(TOptAddrTypeMemberListVisitor);
     public:
 
     TOptAddrTypeMemberListVisitor(Type::TAddr::TElems &type_list) : TypeList(type_list) {}
@@ -521,7 +521,7 @@ namespace FooBar {
   };  // TOptAddrTypeMemberListVisitor
 
   class TOptObjTypeMemberListTailVisitor : public Syntax::TOptObjTypeMemberListTail::TVisitor {
-    NO_COPY_SEMANTICS(TOptObjTypeMemberListTailVisitor);
+    NO_COPY(TOptObjTypeMemberListTailVisitor);
     public:
 
     TOptObjTypeMemberListTailVisitor(std::map<std::string, Type::TType> &type_map) : TypeMap(type_map) {}
@@ -543,7 +543,7 @@ namespace FooBar {
   };  // TOptObjTypeMemberListTailVisitor
 
   class TOptObjTypeMemberListVisitor : public Syntax::TOptObjTypeMemberList::TVisitor {
-    NO_COPY_SEMANTICS(TOptObjTypeMemberListVisitor);
+    NO_COPY(TOptObjTypeMemberListVisitor);
     public:
 
     TOptObjTypeMemberListVisitor(std::map<std::string, Type::TType> &type_map) : TypeMap(type_map) {}
@@ -565,7 +565,7 @@ namespace FooBar {
   };  // TOptObjTypeMemberListVisitor
 
   class TOptObjMemberListTailVisitor : public Syntax::TOptObjMemberListTail::TVisitor {
-    NO_COPY_SEMANTICS(TOptObjMemberListTailVisitor);
+    NO_COPY(TOptObjMemberListTailVisitor);
     public:
 
     TOptObjMemberListTailVisitor(std::unordered_map<std::string, Var::TVar> &map_) : Map(map_) {}
@@ -586,7 +586,7 @@ namespace FooBar {
   };
 
   class TOptObjMemberListVisitor : public Syntax::TOptObjMemberList::TVisitor {
-    NO_COPY_SEMANTICS(TOptObjMemberListVisitor);
+    NO_COPY(TOptObjMemberListVisitor);
     public:
 
     TOptObjMemberListVisitor(std::unordered_map<std::string, Var::TVar> &map_) : Map(map_) {}
@@ -655,7 +655,7 @@ namespace FooBar {
 
   void TExprVisitor::operator()(const TEmptyCtor *that) const {
     class TConsEmptyTypeVisitor : public TType::TVisitor {
-      NO_COPY_SEMANTICS(TConsEmptyTypeVisitor);
+      NO_COPY(TConsEmptyTypeVisitor);
       public:
 
       TConsEmptyTypeVisitor(Var::TVar &var) : Var(var) {}

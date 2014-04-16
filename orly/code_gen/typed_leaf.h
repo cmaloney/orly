@@ -26,7 +26,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TTypedLeaf : public TInline {
-      NO_COPY_SEMANTICS(TTypedLeaf);
+      NO_COPY(TTypedLeaf);
       public:
 
       typedef std::shared_ptr<const TTypedLeaf> TPtr;

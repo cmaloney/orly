@@ -45,7 +45,7 @@ void TReverseOf::Accept(const TVisitor &visitor) const {
 Type::TType TReverseOf::GetType() const {
   class TReverseOfTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TReverseOfTypeVisitor);
+    NO_COPY(TReverseOfTypeVisitor);
     public:
     TReverseOfTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
 
@@ -25,7 +25,7 @@ namespace Orly {
   namespace Synth {
 
     class TRandomInt : public TExpr {
-      NO_COPY_SEMANTICS(TRandomInt);
+      NO_COPY(TRandomInt);
       public:
 
       TRandomInt(const Package::Syntax::TBuiltInRandom *random_int);

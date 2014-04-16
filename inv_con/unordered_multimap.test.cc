@@ -18,14 +18,14 @@
 
 #include <inv_con/unordered_multimap.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <test/kit.h>
 
 class TTeam;
 class TPlayer;
 
 class TTeam {
-  NO_COPY_SEMANTICS(TTeam);
+  NO_COPY(TTeam);
   public:
 
   typedef InvCon::UnorderedMultimap::TCollection<TTeam, TPlayer, int> TPlayerCollection;
@@ -50,7 +50,7 @@ class TTeam {
 };  // TTeam
 
 class TPlayer {
-  NO_COPY_SEMANTICS(TPlayer);
+  NO_COPY(TPlayer);
   public:
 
   typedef InvCon::UnorderedMultimap::TMembership<TPlayer, TTeam, int> TTeamMembership;

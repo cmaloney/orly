@@ -43,7 +43,7 @@ void TFilter::Accept(const TVisitor &visitor) const {
 Type::TType TFilter::GetType() const {
   class TFilterTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TFilterTypeVisitor);
+    NO_COPY(TFilterTypeVisitor);
     public:
     TFilterTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

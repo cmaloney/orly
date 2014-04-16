@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/unordered_list.h>
 #include <orly/indy/disk/buf_block.h>
 #include <orly/indy/disk/result.h>
@@ -45,7 +45,7 @@ namespace Orly {
 
       /* TODO */
       class TWriteGroup {
-        NO_COPY_SEMANTICS(TWriteGroup);
+        NO_COPY(TWriteGroup);
         protected:
 
         /* Forward Declarations. */
@@ -56,7 +56,7 @@ namespace Orly {
 
         /* TODO */
         class TBufferedWrite {
-          NO_COPY_SEMANTICS(TBufferedWrite);
+          NO_COPY(TBufferedWrite);
           public:
 
           /* TODO */

@@ -25,7 +25,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TImplicitFunc : public TInlineFunc {
-      NO_COPY_SEMANTICS(TImplicitFunc);
+      NO_COPY(TImplicitFunc);
       public:
 
       typedef std::shared_ptr<TImplicitFunc> TPtr;

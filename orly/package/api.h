@@ -20,8 +20,8 @@
 
 #include <unordered_map>
 
+#include <base/class_traits.h>
 #include <base/chrono.h>
-#include <base/no_copy_semantics.h>
 #include <orly/indy/key.h>
 #include <orly/type.h>
 #include <orly/var.h>

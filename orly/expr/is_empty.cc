@@ -45,7 +45,7 @@ void TIsEmpty::Accept(const TVisitor &visitor) const {
 Type::TType TIsEmpty::GetType() const {
   class TIsEmptyTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TIsEmptyTypeVisitor);
+    NO_COPY(TIsEmptyTypeVisitor);
     public:
     TIsEmptyTypeVisitor(Type::TType &type, const TPosRange &pos_range)
       : Type::TUnwrapVisitor(type, pos_range) {}

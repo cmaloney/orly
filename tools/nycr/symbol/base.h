@@ -31,7 +31,7 @@ namespace Tools {
       /* TODO */
       class TBase
           : public TKind, public TKind::TAnyBase {
-        NO_COPY_SEMANTICS(TBase);
+        NO_COPY(TBase);
         public:
 
         /* TODO */

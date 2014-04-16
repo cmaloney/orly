@@ -61,7 +61,7 @@ static void WriteCstH(const char *root, const char *branch, const char *atom, co
       << "#pragma once" << endl << endl
       << "#include <cassert>" << endl
       << "#include <ostream>" << endl << endl
-      << "#include <base/no_copy_semantics.h>" << endl
+      << "#include <base/class_traits.h>" << endl
       << "#include <tools/nycr/indent.h>" << endl
       << "#include <tools/nycr/lexeme.h>" << endl
       << "#include <tools/nycr/node.h>" << endl
@@ -95,7 +95,7 @@ static void WriteCstCc(const char *root, const char *branch, const char *atom, c
   strm
       << "#include <" << TPath(branch, atom, language) << ".cst.h>" << endl << endl
       << "#include <cstdio>" << endl << endl
-      << "#include <base/no_copy_semantics.h>" << endl
+      << "#include <base/class_traits.h>" << endl
       << "#include <base/thrower.h>" << endl
       << "#include <tools/nycr/error.h>" << endl
       << "#include <tools/nycr/test.h>" << endl
@@ -302,7 +302,7 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
         Strm << "::Tools::Nycr::TNode";
       }
       Strm << " {" << endl
-           << "  NO_COPY_SEMANTICS(" << TType(that->GetName()) << ");" << endl
+           << "  NO_COPY(" << TType(that->GetName()) << ");" << endl
            << "  public:" << endl;
     }
     ostream &Strm;

@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 
 namespace Base {
 

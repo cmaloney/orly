@@ -6,7 +6,7 @@
 
 #include <cstdio>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/thrower.h>
 #include <tools/nycr/error.h>
 #include <tools/nycr/test.h>

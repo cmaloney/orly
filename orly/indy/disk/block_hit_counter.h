@@ -26,8 +26,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <base/class_traits.h>
 #include <base/error_utils.h>
-#include <base/no_copy_semantics.h>
 
 namespace Orly {
 
@@ -37,7 +37,7 @@ namespace Orly {
 
       /* TODO */
       class TBlockHitCounter {
-        NO_COPY_SEMANTICS(TBlockHitCounter);
+        NO_COPY(TBlockHitCounter);
         public:
 
         /* TODO */

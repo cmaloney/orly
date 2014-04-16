@@ -22,7 +22,7 @@
 #include <cassert>
 #include <vector>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/rt/containers.h>
 #include <orly/rt/mutable.h>
 #include <orly/rt/opt.h>

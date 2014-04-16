@@ -44,7 +44,7 @@
 
       class TMathService
           : public Rpc::TContext {
-        NO_COPY_SEMANTICS(TMathService);
+        NO_COPY(TMathService);
         public:
 
         static const Rpc::TEntryId AddId = 1001;
@@ -62,7 +62,7 @@
 
         class TProtocol
             : public Rpc::TProtocol {
-          NO_COPY_SEMANTICS(TProtocol);
+          NO_COPY(TProtocol);
           public:
 
           static const TProtocol Protocol;
@@ -105,8 +105,8 @@
 
 #include <sys/eventfd.h>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 #include <io/binary_io_stream.h>
 #include <rpc/unpack.h>
 
@@ -145,7 +145,7 @@ namespace Rpc {
      This is a base class of shared reference types. */
   class TContext
       : public std::enable_shared_from_this<TContext> {
-    NO_COPY_SEMANTICS(TContext);
+    NO_COPY(TContext);
     public:
 
     /* Thrown when we read a message containing a result that we weren't expecting. */
@@ -251,7 +251,7 @@ namespace Rpc {
 
   /* The base class of all futures, finalized by TFuture<>. */
   class TAnyFuture {
-    NO_COPY_SEMANTICS(TAnyFuture);
+    NO_COPY(TAnyFuture);
     public:
 
     /* Thrown when an error arises in our partner while servicing a request. */
@@ -334,7 +334,7 @@ namespace Rpc {
   template <typename TVal>
   class TFuture
       : public TAnyFuture {
-    NO_COPY_SEMANTICS(TFuture);
+    NO_COPY(TFuture);
     public:
 
     /* Do-little. */
@@ -376,7 +376,7 @@ namespace Rpc {
   template <>
   class TFuture<void>
       : public TAnyFuture {
-    NO_COPY_SEMANTICS(TFuture);
+    NO_COPY(TFuture);
     public:
 
     /* Do-little. */
@@ -423,7 +423,7 @@ namespace Rpc {
 
   /* The base class of all futures, finalized by TRequest<>. */
   class TAnyRequest {
-    NO_COPY_SEMANTICS(TAnyRequest);
+    NO_COPY(TAnyRequest);
     public:
 
     /* Do-little. */
@@ -504,7 +504,7 @@ namespace Rpc {
   template <typename TSomeContext, typename TRet, typename... TArgs>
   class TRequest
       : public TAnyRequest {
-    NO_COPY_SEMANTICS(TRequest);
+    NO_COPY(TRequest);
     public:
 
     /* The type of the handler function in TSomeContext which we will call. */
@@ -542,7 +542,7 @@ namespace Rpc {
 
   /* The base class of all entries, finalized by TEntry<>. */
   class TAnyEntry {
-    NO_COPY_SEMANTICS(TAnyEntry);
+    NO_COPY(TAnyEntry);
     public:
 
     /* Do-little. */
@@ -563,7 +563,7 @@ namespace Rpc {
   template <typename TSomeContext, typename TRet, typename... TArgs>
   class TEntry
       : public TAnyEntry {
-    NO_COPY_SEMANTICS(TEntry);
+    NO_COPY(TEntry);
     public:
 
     /* The type of request we manufacture. */
@@ -595,7 +595,7 @@ namespace Rpc {
 
   /* A collection of API entries. */
   class TProtocol {
-    NO_COPY_SEMANTICS(TProtocol);
+    NO_COPY(TProtocol);
     public:
 
     /* Thrown when FindEntry() can't find what you're looking for. */

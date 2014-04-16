@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/expr.h>
 #include <orly/expr/interior.h>
 
@@ -28,7 +28,7 @@ namespace Orly {
 
     class TUnary
         : public TInterior {
-      NO_COPY_SEMANTICS(TUnary);
+      NO_COPY(TUnary);
       public:
 
       ~TUnary();

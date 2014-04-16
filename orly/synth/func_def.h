@@ -41,7 +41,7 @@ namespace Orly {
     /* TODO */
     class TFuncDef
         : public TDef {
-      NO_COPY_SEMANTICS(TFuncDef);
+      NO_COPY(TFuncDef);
       public:
 
       /* TODO */
@@ -101,7 +101,7 @@ namespace Orly {
     /* TODO */
     class TParamFuncDef
         : public TFuncDef {
-      NO_COPY_SEMANTICS(TParamFuncDef);
+      NO_COPY(TParamFuncDef);
       public:
 
       /* TODO */
@@ -143,7 +143,7 @@ namespace Orly {
     /* TODO */
     class TPureFuncDef
         : public TFuncDef {
-      NO_COPY_SEMANTICS(TPureFuncDef);
+      NO_COPY(TPureFuncDef);
       public:
 
       /* TODO */

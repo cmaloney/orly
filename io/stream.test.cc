@@ -45,7 +45,7 @@ const int
 
 class TMyStream
     : public TStream<TMyFormat> {
-  NO_COPY_SEMANTICS(TMyStream);
+  NO_COPY(TMyStream);
   public:
 
   TMyStream() {}

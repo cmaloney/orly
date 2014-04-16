@@ -33,7 +33,7 @@ using namespace Orly::Indy::Fiber;
 template <typename TVal, size_t ParallelThresh>
 class TSortRunnable
     : public TRunnable {
-  NO_COPY_SEMANTICS(TSortRunnable);
+  NO_COPY(TSortRunnable);
   public:
 
   TSortRunnable(TRunner *runner,

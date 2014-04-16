@@ -43,7 +43,7 @@ FIXTURE(Typical) {
 
 class TCoIterRunnable
     : public TRunnable {
-  NO_COPY_SEMANTICS(TCoIterRunnable);
+  NO_COPY(TCoIterRunnable);
   public:
 
   TCoIterRunnable(size_t /*id*/, size_t num_iter, TRunner *runner, const std::function<void ()> &start_cb, const std::function<void ()> &completion_cb)
@@ -133,7 +133,7 @@ FIXTURE(CoIterate) {
 
 class TSpawnRunnable
     : public TRunnable {
-  NO_COPY_SEMANTICS(TSpawnRunnable);
+  NO_COPY(TSpawnRunnable);
   public:
 
   TSpawnRunnable(TRunner *runner)
@@ -179,7 +179,7 @@ class TSpawnRunnable
 
   class TSubProc
       : public TRunnable {
-    NO_COPY_SEMANTICS(TSubProc);
+    NO_COPY(TSubProc);
     public:
 
     TSubProc(TSpawnRunnable *spawner, size_t my_val)
@@ -265,7 +265,7 @@ FIXTURE(SpawnAndSync) {
 
 class TLeakRunnable
     : public TRunnable {
-  NO_COPY_SEMANTICS(TLeakRunnable);
+  NO_COPY(TLeakRunnable);
   public:
 
   TLeakRunnable(TRunner *runner, bool &caught_exception) : CaughtException(caught_exception) {
@@ -334,7 +334,7 @@ FIXTURE(CatchLeakedFrame) {
 
 class TSimpleRunnable
     : public TRunnable {
-  NO_COPY_SEMANTICS(TSimpleRunnable);
+  NO_COPY(TSimpleRunnable);
   public:
 
   TSimpleRunnable(TRunner *runner, TRunner *other_runner, bool &did_run) : OtherRunner(other_runner), DidRun(did_run) {
@@ -408,7 +408,7 @@ FIXTURE(SwitchRunnerToRunnerRAII) {
 
 class TActorRunnable
     : public TRunnable {
-  NO_COPY_SEMANTICS(TActorRunnable);
+  NO_COPY(TActorRunnable);
   public:
 
   TActorRunnable(TRunner *runner,
@@ -473,7 +473,7 @@ class TActorRunnable
 
 class TTriggerRunnable
     : public TRunnable {
-  NO_COPY_SEMANTICS(TTriggerRunnable);
+  NO_COPY(TTriggerRunnable);
   public:
 
   TTriggerRunnable(TRunner *runner,

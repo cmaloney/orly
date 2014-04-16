@@ -30,7 +30,7 @@ namespace Orly {
     namespace Test {
 
       class TWithClause {
-        NO_COPY_SEMANTICS(TWithClause);
+        NO_COPY(TWithClause);
         public:
 
         typedef std::shared_ptr<TWithClause> TPtr;

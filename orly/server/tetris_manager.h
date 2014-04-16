@@ -23,8 +23,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <base/class_traits.h>
 #include <base/event_semaphore.h>
-#include <base/no_copy_semantics.h>
 #include <base/scheduler.h>
 #include <base/uuid.h>
 #include <orly/indy/fiber/fiber.h>
@@ -35,7 +35,7 @@ namespace Orly {
 
     /* The base for all managers of tetris players. */
     class TTetrisManager {
-      NO_COPY_SEMANTICS(TTetrisManager);
+      NO_COPY(TTetrisManager);
       public:
 
       /* True iff. the given player is paused. */
@@ -68,7 +68,7 @@ namespace Orly {
       /* The base class for all players of the tetris. */
       class TPlayer
           : public Indy::Fiber::TRunnable {
-        NO_COPY_SEMANTICS(TPlayer);
+        NO_COPY(TPlayer);
         public:
 
         /* Increments the child count and calls OnJoin(). */

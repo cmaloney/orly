@@ -20,14 +20,14 @@
 
 #include <cassert>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 
 namespace Server {
 
   /* TODO */
   class THalfLatch {
-    NO_COPY_SEMANTICS(THalfLatch);
+    NO_COPY(THalfLatch);
     public:
 
     /* TODO */

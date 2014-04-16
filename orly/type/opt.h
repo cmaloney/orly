@@ -25,7 +25,7 @@ namespace Orly {
   namespace Type {
 
     class TOpt : public TUnaryType<TOpt> {
-      NO_COPY_SEMANTICS(TOpt);
+      NO_COPY(TOpt);
       public:
 
       static TType Get(const TType &type);

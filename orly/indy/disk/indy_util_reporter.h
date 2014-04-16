@@ -81,7 +81,7 @@ namespace Orly {
 
       /* TODO */
       class TIndyUtilReporter : public TUtilizationReporter {
-        NO_COPY_SEMANTICS(TIndyUtilReporter);
+        NO_COPY(TIndyUtilReporter);
         public:
 
         /* TODO */

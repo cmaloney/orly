@@ -22,7 +22,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <tools/nycr/symbol/compound.h>
 

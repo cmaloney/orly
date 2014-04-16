@@ -56,7 +56,7 @@ int GetTotal() {
 
 /* Primarily used to append values to the vector. We walk in lock step with the getter and force race conditions as well as lock promotion */
 class TAppender {
-  NO_COPY_SEMANTICS(TAppender);
+  NO_COPY(TAppender);
   public:
 
   /* Launch a thread to represent us */
@@ -194,7 +194,7 @@ class TAppender {
 
 /* Primarily used to walk in lock step with the appender and force race conditions and test the recursive nature of TSync */
 class TGetter {
-  NO_COPY_SEMANTICS(TGetter);
+  NO_COPY(TGetter);
 
   public:
 

@@ -22,7 +22,7 @@
 #include <cstddef>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/symbol/name.h>
 
 namespace Tools {
@@ -33,7 +33,7 @@ namespace Tools {
 
       /* TODO */
       class TPrecLevel {
-        NO_COPY_SEMANTICS(TPrecLevel);
+        NO_COPY(TPrecLevel);
         public:
 
         /* TODO */

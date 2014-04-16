@@ -32,7 +32,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TPackage : public L0::TPackage {
-      NO_COPY_SEMANTICS(TPackage);
+      NO_COPY(TPackage);
 
       public:
       typedef std::unordered_set<Type::TType> TTypes;

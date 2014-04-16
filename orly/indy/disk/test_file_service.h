@@ -29,7 +29,7 @@ namespace Orly {
       /* TODO */
       class TTestFileService
           : public TFileServiceBase {
-        NO_COPY_SEMANTICS(TTestFileService);
+        NO_COPY(TTestFileService);
         public:
 
         /* TODO */

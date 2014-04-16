@@ -20,8 +20,8 @@
 
 #include <cassert>
 
+#include <base/class_traits.h>
 #include <base/code_location.h>
-#include <base/no_copy_semantics.h>
 
 #define FIXTURE(name) \
   static void name##_(); \
@@ -32,7 +32,7 @@ namespace Test {
 
   /* TODO */
   class TFixture {
-    NO_COPY_SEMANTICS(TFixture);
+    NO_COPY(TFixture);
     public:
 
     /* TODO */

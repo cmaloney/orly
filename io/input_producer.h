@@ -20,14 +20,14 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/chunk_and_pool.h>
 
 namespace Io {
 
   /* A producer of in-bound data. */
   class TInputProducer {
-    NO_COPY_SEMANTICS(TInputProducer);
+    NO_COPY(TInputProducer);
     public:
 
     /* Produce the next chunk of data.

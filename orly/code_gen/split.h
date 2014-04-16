@@ -25,7 +25,7 @@ namespace Orly {
 
     class TSplit
         : public TInline {
-      NO_COPY_SEMANTICS(TSplit);
+      NO_COPY(TSplit);
       public:
 
       typedef std::shared_ptr<TSplit> TPtr;

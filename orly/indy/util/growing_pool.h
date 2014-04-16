@@ -25,7 +25,7 @@
 #include <time.h>
 #include <syslog.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Orly {
 
@@ -35,7 +35,7 @@ namespace Orly {
 
       /* TODO */
       class TGrowingPool {
-        NO_COPY_SEMANTICS(TGrowingPool);
+        NO_COPY(TGrowingPool);
         public:
 
         /* TODO */
@@ -74,7 +74,7 @@ namespace Orly {
 
         /* TODO */
         class TBlock {
-          NO_COPY_SEMANTICS(TBlock);
+          NO_COPY(TBlock);
           public:
 
           /* TODO */

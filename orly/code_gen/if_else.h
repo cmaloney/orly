@@ -27,7 +27,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TIfElse : public TInline {
-      NO_COPY_SEMANTICS(TIfElse);
+      NO_COPY(TIfElse);
       public:
 
       typedef std::shared_ptr<const TIfElse> TPtr;

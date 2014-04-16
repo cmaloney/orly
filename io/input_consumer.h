@@ -25,7 +25,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/input_producer.h>
 
 namespace Io {
@@ -35,7 +35,7 @@ namespace Io {
 
   /* A consumer of in-bound data, such as a reader or adapter. */
   class TInputConsumer {
-    NO_COPY_SEMANTICS(TInputConsumer);
+    NO_COPY(TInputConsumer);
     public:
 
     /* Thrown when an operation requires more data, but there is no more in the input stream. */
@@ -198,7 +198,7 @@ namespace Io {
   /* Create a local instance of this class to mark a position in the input stream.
      You can then Rewind() to this mark if you need to backtrack. */
   class TMark {
-    NO_COPY_SEMANTICS(TMark);
+    NO_COPY(TMark);
     public:
 
     /* Mark the current position.

@@ -34,10 +34,10 @@
 #include <ucontext.h>
 
 #include <base/assert_true.h>
+#include <base/class_traits.h>
 #include <base/error_utils.h>
 #include <base/layout.h>
 #include <base/likely.h>
-#include <base/no_copy_semantics.h>
 #include <base/spin_lock.h>
 #include <base/thread_local_global_pool.h>
 #include <base/zero.h>
@@ -148,7 +148,7 @@ namespace Orly {
 
       /* TODO */
       class ALIGNED(64) TRunner {
-        NO_COPY_SEMANTICS(TRunner);
+        NO_COPY(TRunner);
         public:
 
         /* TODO */
@@ -156,7 +156,7 @@ namespace Orly {
 
         /* TODO */
         class TRunnerCons {
-          NO_COPY_SEMANTICS(TRunnerCons);
+          NO_COPY(TRunnerCons);
           public:
 
           /* TODO */
@@ -319,7 +319,7 @@ namespace Orly {
 
       /* TODO */
       class TRunnable {
-        NO_COPY_SEMANTICS(TRunnable);
+        NO_COPY(TRunnable);
         public:
 
         /* TODO */
@@ -334,7 +334,7 @@ namespace Orly {
 
       /* TODO */
       class ALIGNED(64) TRunnerPool {
-        NO_COPY_SEMANTICS(TRunnerPool);
+        NO_COPY(TRunnerPool);
         public:
 
         /* TODO */
@@ -387,7 +387,7 @@ namespace Orly {
       /* TODO */
       class TFrame
           : public Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TObjBase {
-        NO_COPY_SEMANTICS(TFrame);
+        NO_COPY(TFrame);
         public:
 
         /* TODO */
@@ -570,7 +570,7 @@ namespace Orly {
 
       /* This should only be used within the same scheduler. It is not safe to use between schedulers. */
       class TSync {
-        NO_COPY_SEMANTICS(TSync);
+        NO_COPY(TSync);
         public:
 
         TSync(size_t waiting_for = 0UL) : Frame(nullptr), WaitingFor(waiting_for), Finished(0UL) {
@@ -606,7 +606,7 @@ namespace Orly {
       /* This is a multi-scheduler safe version of TSync. There is more synchronization involved, so use this when you are actually parallelizing
          tasks as opposed to scheduling multiple fibers on the same scheduler. */
       class TSafeSync {
-        NO_COPY_SEMANTICS(TSafeSync);
+        NO_COPY(TSafeSync);
         public:
 
         TSafeSync(size_t waiting_for = 0UL)
@@ -641,7 +641,7 @@ namespace Orly {
 
       /* TODO */
       class TSingleSem {
-        NO_COPY_SEMANTICS(TSingleSem);
+        NO_COPY(TSingleSem);
         public:
 
         /* TODO */
@@ -672,7 +672,7 @@ namespace Orly {
          to use thread local or fiber local storage. It is also beneficial if you want to stay with the same cpu cache. The total throughput using
          this lock is less than a Queued lock as the lock bounces between schedulers. */
       class ALIGNED(64) TFiberLock {
-        NO_COPY_SEMANTICS(TFiberLock);
+        NO_COPY(TFiberLock);
         public:
 
         /* TODO */
@@ -681,7 +681,7 @@ namespace Orly {
 
         /* TODO */
         class ALIGNED(64) TLock {
-          NO_COPY_SEMANTICS(TLock);
+          NO_COPY(TLock);
           public:
 
           /* TODO */
@@ -765,7 +765,7 @@ namespace Orly {
          fiber lock is that the critical sections move to a single lock scheduler, as opposed to the critical sections determining which scheduler
          should run them next. */
       class ALIGNED(64) TLockedQueue {
-        NO_COPY_SEMANTICS(TLockedQueue);
+        NO_COPY(TLockedQueue);
         public:
 
         /* TODO */
@@ -774,7 +774,7 @@ namespace Orly {
 
         /* TODO */
         class ALIGNED(64) TLock {
-          NO_COPY_SEMANTICS(TLock);
+          NO_COPY(TLock);
           public:
 
           /* TODO */
@@ -853,7 +853,7 @@ namespace Orly {
 
       /* TODO */
       class TSwitchToRunner {
-        NO_COPY_SEMANTICS(TSwitchToRunner);
+        NO_COPY(TSwitchToRunner);
         public:
 
         /* TODO */

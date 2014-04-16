@@ -19,7 +19,7 @@
 #pragma once
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <test/app.h>
 
 namespace Test {
@@ -29,12 +29,12 @@ namespace Test {
 
   /* TODO */
   class TRunner : public TApp::TRunner {
-    NO_COPY_SEMANTICS(TRunner);
+    NO_COPY(TRunner);
     public:
 
     /* TODO */
     class TExpect {
-      NO_COPY_SEMANTICS(TExpect);
+      NO_COPY(TExpect);
       public:
 
       /* TODO */

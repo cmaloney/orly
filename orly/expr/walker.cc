@@ -33,7 +33,7 @@ typedef std::function<bool (const TExpr::TPtr &expr)> TCb;
 void Orly::Expr::ForEachExpr(const TExpr::TPtr &root, const TCb &cb, bool include_inner_funcs) {
   class expr_visitor_t
       : public TExpr::TVisitor {
-    NO_COPY_SEMANTICS(expr_visitor_t);
+    NO_COPY(expr_visitor_t);
     public:
     expr_visitor_t(const TCb &cb, bool include_inner_funcs)
         : Cb(cb), IncludeInnerFuncs(include_inner_funcs) {}

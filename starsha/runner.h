@@ -25,14 +25,14 @@
 #include <string>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <starsha/pipe.h>
 
 namespace Starsha {
 
   /* TODO */
   class TRunner {
-    NO_COPY_SEMANTICS(TRunner);
+    NO_COPY(TRunner);
     public:
 
     /* TODO */
@@ -68,7 +68,7 @@ namespace Starsha {
 
     /* TODO */
     class TParser {
-      NO_COPY_SEMANTICS(TParser);
+      NO_COPY(TParser);
       public:
 
       /* TODO */

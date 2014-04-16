@@ -30,7 +30,7 @@ namespace Orly {
     /* Defines basic behaviours for add. */
     class TAddVisitor
         : public TAssocInfixVisitor {
-      NO_COPY_SEMANTICS(TAddVisitor);
+      NO_COPY(TAddVisitor);
       protected:
 
       TAddVisitor(TType &type, const TPosRange &pos_range)

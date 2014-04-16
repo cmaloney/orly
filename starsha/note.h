@@ -25,13 +25,13 @@
 #include <sstream>
 #include <string>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Starsha {
 
   /* TODO */
   class TNote {
-    NO_COPY_SEMANTICS(TNote);
+    NO_COPY(TNote);
     public:
 
     /* TODO */

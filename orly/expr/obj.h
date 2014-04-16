@@ -22,7 +22,7 @@
 #include <memory>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/ctor.h>
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
@@ -33,7 +33,7 @@ namespace Orly {
 
     class TObj
         : public TCtor<std::map<std::string, TExpr::TPtr>> {
-      NO_COPY_SEMANTICS(TObj);
+      NO_COPY(TObj);
       public:
 
       typedef std::shared_ptr<TObj> TPtr;

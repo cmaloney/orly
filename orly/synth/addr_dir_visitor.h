@@ -27,7 +27,7 @@ namespace Orly {
 
       class TAddrDirVisitor
           : public Package::Syntax::TOptOrdering::TVisitor {
-        NO_COPY_SEMANTICS(TAddrDirVisitor);
+        NO_COPY(TAddrDirVisitor);
         public:
 
         TAddrDirVisitor(TAddrDir &addr_dir)

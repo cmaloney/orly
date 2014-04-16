@@ -31,7 +31,7 @@ namespace Orly {
     /* TODO */
     class TAddrType
         : public TType {
-      NO_COPY_SEMANTICS(TAddrType);
+      NO_COPY(TAddrType);
       public:
 
       /* TODO */

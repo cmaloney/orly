@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/ordered_list.h>
 #include <inv_con/unordered_list.h>
 #include <orly/indy/disk/util/engine.h>
@@ -41,7 +41,7 @@ namespace Orly {
         template <typename TOwner, typename TVal, size_t MemSize, class TComparator>
         class TIndexSortFile
             : public TInFile {
-          NO_COPY_SEMANTICS(TIndexSortFile);
+          NO_COPY(TIndexSortFile);
           public:
 
           /* TODO */
@@ -62,7 +62,7 @@ namespace Orly {
           /* TODO */
           class TCursor
               : public Orly::Indy::Util::TSorter<TVal, MemSize>::TCursor {
-            NO_COPY_SEMANTICS(TCursor);
+            NO_COPY(TCursor);
             public:
 
             /* TODO */

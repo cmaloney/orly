@@ -23,7 +23,7 @@
 #include <new>
 #include <syslog.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Orly {
 
@@ -33,7 +33,7 @@ namespace Orly {
 
       /* TODO */
       class TLocklessPool {
-        NO_COPY_SEMANTICS(TLocklessPool);
+        NO_COPY(TLocklessPool);
         public:
 
         /* TODO */
@@ -76,7 +76,7 @@ namespace Orly {
 
         /* TODO */
         class TBlock {
-          NO_COPY_SEMANTICS(TBlock);
+          NO_COPY(TBlock);
           public:
 
           /* TODO */

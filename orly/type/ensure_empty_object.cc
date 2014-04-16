@@ -26,7 +26,7 @@ using namespace Orly::Type;
 
 class TIsEmptyObjVisitor
     : public TType::TVisitor {
-  NO_COPY_SEMANTICS(TIsEmptyObjVisitor);
+  NO_COPY(TIsEmptyObjVisitor);
   public:
 
   TIsEmptyObjVisitor(bool &is_empty, const TPosRange &pos_range)

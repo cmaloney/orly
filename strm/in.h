@@ -22,7 +22,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <strm/past_end.h>
 
 namespace Strm {
@@ -34,7 +34,7 @@ namespace Strm {
 
     /* A producer of in-flowing data. */
     class TProd {
-      NO_COPY_SEMANTICS(TProd);
+      NO_COPY(TProd);
       protected:
 
       /* Start with no consumer attached. */
@@ -79,7 +79,7 @@ namespace Strm {
 
     /* A consumer of in-flowing data. */
     class TCons {
-      NO_COPY_SEMANTICS(TCons);
+      NO_COPY(TCons);
       public:
 
       /* True iff. there is data to be consumed.  If the producer is open-

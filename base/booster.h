@@ -31,13 +31,13 @@
 
 #include <sched.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
   /* Construct an instance of this class to boost your thread to high-priority, real-time scheduling. */
   class TBooster {
-    NO_COPY_SEMANTICS(TBooster);
+    NO_COPY(TBooster);
     public:
 
     /* Thrown during construction when the boost fails to happen.

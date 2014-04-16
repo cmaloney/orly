@@ -29,7 +29,7 @@ using namespace Io;
 
 class TMyConsumer
     : public TOutputConsumer {
-  NO_COPY_SEMANTICS(TMyConsumer);
+  NO_COPY(TMyConsumer);
   public:
 
   typedef vector<shared_ptr<const TChunk>> TChunks;
@@ -52,7 +52,7 @@ class TMyConsumer
 
 class TMyProducer
     : public TOutputProducer {
-  NO_COPY_SEMANTICS(TMyProducer);
+  NO_COPY(TMyProducer);
   public:
 
   TMyProducer(const shared_ptr<TOutputConsumer> &consumer)

@@ -27,7 +27,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TBinaryScopedRhs : public TInline {
-      NO_COPY_SEMANTICS(TBinaryScopedRhs);
+      NO_COPY(TBinaryScopedRhs);
       public:
 
       typedef std::shared_ptr<const TBinaryScopedRhs> TPtr;

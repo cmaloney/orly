@@ -26,7 +26,7 @@ namespace Orly {
   namespace Type {
 
     class TFunc : public TInternedType<TFunc, TType, TType> {
-      NO_COPY_SEMANTICS(TFunc);
+      NO_COPY(TFunc);
       public:
 
       const TType &GetParamObject() const {

@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/start.h>
 #include <orly/type/impl.h>
 
@@ -29,7 +29,7 @@ namespace Orly {
   namespace Expr {
 
     class TStartable {
-      NO_COPY_SEMANTICS(TStartable);
+      NO_COPY(TStartable);
       public:
 
       using TPtr = std::shared_ptr<TStartable>;

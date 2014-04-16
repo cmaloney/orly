@@ -20,7 +20,7 @@
 
 #include <functional>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/expr.h>
 #include <orly/synth/scope_and_def.h>
 
@@ -30,7 +30,7 @@ namespace Orly {
 
     /* TODO */
     class TExpr {
-      NO_COPY_SEMANTICS(TExpr);
+      NO_COPY(TExpr);
       public:
 
       /* TODO */

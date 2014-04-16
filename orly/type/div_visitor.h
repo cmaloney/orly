@@ -28,7 +28,7 @@ namespace Orly {
 
     class TDivVisitor
         : public Type::TEqualVisitor {
-      NO_COPY_SEMANTICS(TDivVisitor);
+      NO_COPY(TDivVisitor);
       protected:
 
       TDivVisitor(Type::TType &type, const TPosRange &pos_range)

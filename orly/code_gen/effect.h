@@ -69,7 +69,7 @@ namespace Orly {
     //NOTE: There is a class hierarchy in <orly/var/mutation.h> which is almost identical to this and should be changed
     //      in parallel.
     class TChange {
-      NO_COPY_SEMANTICS(TChange);
+      NO_COPY(TChange);
       public:
 
       virtual ~TChange() {}
@@ -83,7 +83,7 @@ namespace Orly {
     }; // TChange
 
     class TMutation : public TChange {
-      NO_COPY_SEMANTICS(TMutation);
+      NO_COPY(TMutation);
       public:
 
       static TPtrC<TMutation> New(const TPtrC<TInline> &mutable_, TMutator mutation, const TPtrC<TInline> &rhs);
@@ -132,7 +132,7 @@ namespace Orly {
     }; // TNew
 
     class TStmt {
-      NO_COPY_SEMANTICS(TStmt);
+      NO_COPY(TStmt);
       public:
 
       virtual ~TStmt() {}
@@ -155,7 +155,7 @@ namespace Orly {
     }; // TMutate
 
     class TStmtBlock {
-      NO_COPY_SEMANTICS(TStmtBlock);
+      NO_COPY(TStmtBlock);
       public:
       TStmtBlock();
 
@@ -173,7 +173,7 @@ namespace Orly {
     }; // TStmtBlock
 
     class TPredicatedBlock {
-      NO_COPY_SEMANTICS(TPredicatedBlock);
+      NO_COPY(TPredicatedBlock);
       public:
 
       TPredicatedBlock(const TPtrC<TInline> &condition);
@@ -188,7 +188,7 @@ namespace Orly {
     }; // TPredicatedBlock
 
     class TIf : public TStmt {
-      NO_COPY_SEMANTICS(TIf);
+      NO_COPY(TIf);
       public:
 
       typedef std::vector<TPtrC<TPredicatedBlock>> TPredicatedBlocks;

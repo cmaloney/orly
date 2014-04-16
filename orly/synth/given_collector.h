@@ -90,7 +90,7 @@ namespace Orly {
       virtual void operator()(const Package::Syntax::TDbKeysExpr *that) const {
         class TDbKeysMemberVisitor
             : public Package::Syntax::TDbKeysMember::TVisitor {
-          NO_COPY_SEMANTICS(TDbKeysMemberVisitor);
+          NO_COPY(TDbKeysMemberVisitor);
           public:
           TDbKeysMemberVisitor(const TGivenCollector *given_collector)
               : GivenCollector(given_collector) {}
@@ -183,7 +183,7 @@ namespace Orly {
       virtual void operator()(const Package::Syntax::TRangeCtor *that) const {
         class TRangeEndVisitor
             : public Package::Syntax::TRangeEnd::TVisitor {
-          NO_COPY_SEMANTICS(TRangeEndVisitor);
+          NO_COPY(TRangeEndVisitor);
           public:
           TRangeEndVisitor(const TGivenCollector *given_collector)
               : GivenCollector(given_collector) {}

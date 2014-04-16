@@ -1,6 +1,12 @@
-/* <base/no_construction.h>
+/* <base/class_traits.h>
 
-   Defines a macro to disable construction of an aggregate type.
+   Defines numerous macros which should be used to manage the general behaviors of a class.
+
+   This is achieved by defaulting/deleting/defining constructors and member functions of the type in accordance with the
+   general rules for dealing with a particular class of types.
+
+   Most of these are fairly simple / straight forward. We provide these aliases to make it easy for someone glancing at
+   the code to tell what the overarching behavior of a class is (NO_CONSTRUCTION, NO_COPY, etc.)
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -54,5 +60,26 @@
 #define NO_CONSTRUCTION(cls) \
   cls() = delete; \
   ~cls() = delete; \
+  cls(const cls &) = delete; \
+  cls &operator=(const cls &) = delete;
+
+/* Use this macro to disable compiler-provided copy semantics in any
+   class you intend to operate as a reference type.  Convention is to
+   have this macro appear as the first thing in the class, before the
+   first accessability declaration, like this:
+
+      class TFoo {
+        NO_COPY(TFoo);
+        public:
+        ...
+      }
+
+   If you attempt to copy-construct or assign an instance of a class
+   declared with this macro, you'll get a compile-time error telling you
+   that the copy constructor or assignment operator is private.  If the
+   attempt is made from within a scope friendly to the class, you'll get
+   a link-time error telling you the copy constructor or assignment
+   operator is undefined. */
+#define NO_COPY(cls) \
   cls(const cls &) = delete; \
   cls &operator=(const cls &) = delete;

@@ -18,13 +18,13 @@
 
 #include <cassert>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 
 namespace Base {
 
   class TTmpFile final {
-    NO_COPY_SEMANTICS(TTmpFile);
+    NO_COPY(TTmpFile);
     public:
 
     TTmpFile(const char *name_template = "/tmp/orly_general_XXXXXX.tmp",

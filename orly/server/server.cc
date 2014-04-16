@@ -342,7 +342,7 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
 
 class TIndexIdReader
   : public Indy::Disk::TReadFile<Indy::Disk::Util::LogicalPageSize, Indy::Disk::Util::LogicalBlockSize, Indy::Disk::Util::PhysicalBlockSize, Indy::Disk::Util::CheckedPage> {
-  NO_COPY_SEMANTICS(TIndexIdReader);
+  NO_COPY(TIndexIdReader);
   public:
 
   static constexpr size_t PhysicalCachePageSize = Indy::Disk::Util::PhysicalBlockSize / (Indy::Disk::Util::LogicalBlockSize / Indy::Disk::Util::LogicalPageSize);

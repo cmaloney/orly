@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 #include <cassert>
 #include <functional>
@@ -38,7 +38,7 @@ namespace Orly {
 
       /* TODO */
       class TTetrisPiece {
-        NO_COPY_SEMANTICS(TTetrisPiece);
+        NO_COPY(TTetrisPiece);
         public:
 
         /* TODO */

@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/symbol/def.h>
 
 namespace Orly {
@@ -32,7 +32,7 @@ namespace Orly {
     class TResultDef
         : public TDef,
           public std::enable_shared_from_this<TResultDef> {
-      NO_COPY_SEMANTICS(TResultDef);
+      NO_COPY(TResultDef);
       public:
 
       typedef std::shared_ptr<TResultDef> TPtr;

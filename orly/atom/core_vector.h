@@ -22,7 +22,7 @@
 #include <set>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/binary_input_stream.h>
 #include <orly/atom/kit2.h>
 
@@ -32,7 +32,7 @@ namespace Orly {
 
     /* Streams in a vector of cores. */
     class TCoreVector final {
-      NO_COPY_SEMANTICS(TCoreVector);
+      NO_COPY(TCoreVector);
       public:
 
       /* Conveniences. */
@@ -63,7 +63,7 @@ namespace Orly {
       /* The arena we stream in.  It contains all the notes, packed together. */
       class TPackedArena final
           : public TCore::TArena {
-        NO_COPY_SEMANTICS(TPackedArena);
+        NO_COPY(TPackedArena);
         public:
 
         /* Read the nodes from the given stream. */

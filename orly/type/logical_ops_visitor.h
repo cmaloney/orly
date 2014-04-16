@@ -28,7 +28,7 @@ namespace Orly {
 
     class TLogicalOpsVisitor
         : public Type::TEqualVisitor {
-      NO_COPY_SEMANTICS(TLogicalOpsVisitor);
+      NO_COPY(TLogicalOpsVisitor);
       protected:
 
       TLogicalOpsVisitor(Type::TType &type, const TPosRange &pos_range)

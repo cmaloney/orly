@@ -23,9 +23,9 @@
 #include <memory>
 #include <thread>
 
+#include <base/class_traits.h>
 #include <base/event_semaphore.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 #include <base/opt.h>
 #include <base/uuid.h>
 #include <io/device.h>
@@ -41,7 +41,7 @@ namespace Orly {
     /* The client end of the full-duplex RPC connection. */
     class TClient
         : public Rpc::TContext {
-      NO_COPY_SEMANTICS(TClient);
+      NO_COPY(TClient);
       public:
 
       /* TODO */
@@ -136,7 +136,7 @@ namespace Orly {
       /* TODO */
       class TProtocol
           : public Rpc::TProtocol {
-        NO_COPY_SEMANTICS(TProtocol);
+        NO_COPY(TProtocol);
         public:
 
         /* TODO */

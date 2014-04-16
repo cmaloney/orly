@@ -18,7 +18,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/ordered_list.h>
 #include <orly/indy/manager_base.h>
 #include <orly/indy/update.h>
@@ -30,7 +30,7 @@ namespace Orly {
     /* TODO */
     class TDiskLayer
         : public L0::TManager::TRepo::TDataLayer {
-      NO_COPY_SEMANTICS(TDiskLayer);
+      NO_COPY(TDiskLayer);
       public:
 
       /* TODO */

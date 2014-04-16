@@ -24,7 +24,7 @@
 
 #include <xmmintrin.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/no_default_case.h>
 
 namespace InvCon {
@@ -49,7 +49,7 @@ namespace InvCon {
     /* The 'one' side of the one-to-many. */
     template <typename TCollector, typename TMember>
     class TCollection {
-      NO_COPY_SEMANTICS(TCollection);
+      NO_COPY(TCollection);
       public:
 
       /* Our corresponding 'many' class. */
@@ -181,7 +181,7 @@ namespace InvCon {
     /* The 'many' side of the one-to-many. */
     template <typename TMember, typename TCollector>
     class TMembership {
-      NO_COPY_SEMANTICS(TMembership);
+      NO_COPY(TMembership);
       public:
 
       /* Our corresponding 'one' class. */

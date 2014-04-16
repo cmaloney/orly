@@ -23,13 +23,13 @@
 
 #include <sys/epoll.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Starsha {
 
   /* TODO */
   class TPipe {
-    NO_COPY_SEMANTICS(TPipe);
+    NO_COPY(TPipe);
     public:
 
     /* TODO */
@@ -37,7 +37,7 @@ namespace Starsha {
 
     /* TODO */
     class TPoller {
-      NO_COPY_SEMANTICS(TPoller);
+      NO_COPY(TPoller);
       public:
 
       /* TODO */

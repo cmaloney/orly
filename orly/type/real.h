@@ -26,7 +26,7 @@ namespace Orly {
 
     /* TODO */
     class TReal : public TSingletonType<TReal> {
-      NO_COPY_SEMANTICS(TReal);
+      NO_COPY(TReal);
       public:
 
       virtual ~TReal();

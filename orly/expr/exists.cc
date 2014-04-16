@@ -46,7 +46,7 @@ void TExists::Accept(const TVisitor &visitor) const {
 Type::TType TExists::GetType() const {
   class TExistsTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TExistsTypeVisitor);
+    NO_COPY(TExistsTypeVisitor);
     public:
     TExistsTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

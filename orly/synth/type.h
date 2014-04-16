@@ -21,7 +21,7 @@
 #include <cassert>
 #include <functional>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/type.h>
 #include <orly/synth/scope_and_def.h>
 
@@ -31,7 +31,7 @@ namespace Orly {
 
     /* TODO */
     class TType {
-      NO_COPY_SEMANTICS(TType);
+      NO_COPY(TType);
       public:
 
       /* TODO */

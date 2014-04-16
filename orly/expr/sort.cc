@@ -44,7 +44,7 @@ void TSort::Accept(const TVisitor &visitor) const {
 Type::TType TSort::GetLhsRhsType() const {
   class TSortElemTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TSortElemTypeVisitor);
+    NO_COPY(TSortElemTypeVisitor);
     public:
     TSortElemTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}
@@ -72,7 +72,7 @@ Type::TType TSort::GetLhsRhsType() const {
 Type::TType TSort::GetType() const {
   class TSortTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TSortTypeVisitor);
+    NO_COPY(TSortTypeVisitor);
     public:
     TSortTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

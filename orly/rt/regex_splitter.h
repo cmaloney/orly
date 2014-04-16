@@ -22,7 +22,7 @@
 #include <tuple>
 #include <utility>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/rt/opt.h>
 #include <utf8/piece.h>
 #include <utf8/regex.h>
@@ -33,7 +33,7 @@ namespace Orly {
 
     /* Split a text into pieces based on regex delimiters.. */
     class TRegexSplitter final {
-      NO_COPY_SEMANTICS(TRegexSplitter);
+      NO_COPY(TRegexSplitter);
       public:
 
       /* Conveniences. */
@@ -86,7 +86,7 @@ namespace Orly {
     };  // TRegexSplitter
 
     class TRegexMatcher final {
-      NO_COPY_SEMANTICS(TRegexMatcher);
+      NO_COPY(TRegexMatcher);
       public:
 
       using TRegex = Utf8::TRegex;

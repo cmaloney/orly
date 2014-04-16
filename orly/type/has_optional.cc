@@ -27,7 +27,7 @@ using namespace Orly::Type;
 bool Orly::Type::HasOptional(const TType &type) {
   class THasOptionalVisitor
       : public TType::TVisitor {
-    NO_COPY_SEMANTICS(THasOptionalVisitor);
+    NO_COPY(THasOptionalVisitor);
     public:
     THasOptionalVisitor(bool &has_optional)
         : HasOptional(has_optional) {}

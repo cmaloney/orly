@@ -29,13 +29,13 @@
 #include <regex.h>
 #include <sys/types.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/thrower.h>
 
 namespace Base {
 
   class TRegexMatcher final {
-    NO_COPY_SEMANTICS(TRegexMatcher);
+    NO_COPY(TRegexMatcher);
 
     public:
 
@@ -44,7 +44,7 @@ namespace Base {
 
     /* This represents a compiled pattern produced by regcomp(). */
     class TPattern final {
-      NO_COPY_SEMANTICS(TPattern);
+      NO_COPY(TPattern);
 
       friend class TRegexMatcher;  // for access to 'Regex' member
 

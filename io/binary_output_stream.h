@@ -33,8 +33,7 @@
 
 #include <uuid/uuid.h>
 
-#include <base/no_copy_semantics.h>
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <io/binary_stream.h>
 #include <io/output_producer.h>
 
@@ -44,8 +43,7 @@ namespace Io {
   class TBinaryOutputStream
       : public virtual TBinaryStream,
         public TOutputProducer {
-    NO_COPY_SEMANTICS(TBinaryOutputStream);
-    public:
+    NO_COPY(TBinaryOutputStream); public:
 
     /* Flushing is publicly available. */
     using TOutputProducer::Flush;

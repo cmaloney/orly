@@ -27,7 +27,7 @@ using namespace Orly::Type;
 
 void Orly::Type::Orlyify(ostream &strm, const TType &type) {
   class TVisitor : public TType::TVisitor {
-    NO_COPY_SEMANTICS(TVisitor);
+    NO_COPY(TVisitor);
     public:
     TVisitor(ostream &strm) : Strm(strm) {}
     virtual void operator()(const TAddr *that) const {

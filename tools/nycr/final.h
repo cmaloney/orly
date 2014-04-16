@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/kind.h>
 
 namespace Tools {
@@ -31,7 +31,7 @@ namespace Tools {
     /* TODO */
     class TFinal
         : public TKind {
-      NO_COPY_SEMANTICS(TFinal);
+      NO_COPY(TFinal);
       protected:
 
       /* TODO */

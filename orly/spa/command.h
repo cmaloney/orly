@@ -18,9 +18,9 @@
 
 #pragma once
 
+#include <base/class_traits.h>
 #include <base/code_location.h>
 #include <base/error.h>
-#include <base/no_copy_semantics.h>
 #include <orly/var.h>
 
 namespace Orly {

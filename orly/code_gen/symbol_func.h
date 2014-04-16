@@ -26,7 +26,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TSymbolFunc : public virtual TFunction {
-      NO_COPY_SEMANTICS(TSymbolFunc);
+      NO_COPY(TSymbolFunc);
       public:
 
       static TFunction::TPtr Find(const Symbol::TFunction *symbol);

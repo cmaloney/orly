@@ -18,7 +18,7 @@
 
 #include <inv_con/cursor.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/ordered_list.h>
 #include <test/kit.h>
 
@@ -26,7 +26,7 @@ class TTeam;
 class TPlayer;
 
 class TTeam {
-  NO_COPY_SEMANTICS(TTeam);
+  NO_COPY(TTeam);
   public:
 
   typedef InvCon::OrderedList::TCollection<TTeam, TPlayer, int> TPlayerCollection;
@@ -64,7 +64,7 @@ class TTeam {
 };  // TTeam
 
 class TPlayer {
-  NO_COPY_SEMANTICS(TPlayer);
+  NO_COPY(TPlayer);
   public:
 
   typedef InvCon::OrderedList::TMembership<TPlayer, TTeam, int> TTeamMembership;

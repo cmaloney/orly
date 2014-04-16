@@ -34,7 +34,7 @@ using namespace std;
 using namespace Orly::Spa::FluxCapacitor;
 
 class TActor {
-  NO_COPY_SEMANTICS(TActor);
+  NO_COPY(TActor);
   public:
 
   TActor(size_t spin_count)

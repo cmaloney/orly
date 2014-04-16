@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/binary.h>
 
 namespace Orly {
@@ -29,7 +29,7 @@ namespace Orly {
 
     class TIntersection
         : public TBinary {
-      NO_COPY_SEMANTICS(TIntersection);
+      NO_COPY(TIntersection);
       public:
 
       typedef std::shared_ptr<TIntersection> TPtr;
@@ -48,7 +48,7 @@ namespace Orly {
 
     class TSymmetricDiff
         : public TBinary {
-      NO_COPY_SEMANTICS(TSymmetricDiff);
+      NO_COPY(TSymmetricDiff);
       public:
 
       typedef std::shared_ptr<TSymmetricDiff> TPtr;
@@ -67,7 +67,7 @@ namespace Orly {
 
     class TUnion
         : public TBinary {
-      NO_COPY_SEMANTICS(TUnion);
+      NO_COPY(TUnion);
       public:
 
       typedef std::shared_ptr<TUnion> TPtr;

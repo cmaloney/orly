@@ -72,7 +72,7 @@ TTestCaseBlock::TTestCaseBlock(const TExprFactory *expr_factory, const Package::
     : TestCaseBlock(Base::AssertTrue(test_case_block)) {
   class TTestCaseVisitor
       : public Package::Syntax::TTestCase::TVisitor {
-    NO_COPY_SEMANTICS(TTestCaseVisitor);
+    NO_COPY(TTestCaseVisitor);
     public:
     TTestCaseVisitor(const TExprFactory *expr_factory, TTestCases &test_cases, TTestCaseNames &test_case_names)
         : ExprFactory(expr_factory), TestCases(test_cases), TestCaseNames(test_case_names) {}

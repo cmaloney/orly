@@ -21,8 +21,8 @@
 #include <cassert>
 #include <stdexcept>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 #include <io/chunk_and_pool.h>
 #include <io/input_producer.h>
 #include <io/output_consumer.h>
@@ -33,7 +33,7 @@ namespace Io {
   class TDevice
       : public TInputProducer,
         public TOutputConsumer {
-    NO_COPY_SEMANTICS(TDevice);
+    NO_COPY(TDevice);
     public:
 
     /* Thrown when TryProduceInput() times out while trying to read. */

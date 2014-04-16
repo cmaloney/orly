@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/atom/kit2.h>
 #include <orly/indy/sequence_number.h>
 
@@ -28,7 +28,7 @@ namespace Orly {
 
     /* TODO */
     class TUpdateWalker {
-      NO_COPY_SEMANTICS(TUpdateWalker);
+      NO_COPY(TUpdateWalker);
       public:
 
       /* TODO */

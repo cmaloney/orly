@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/atom/kit2.h>
 #include <orly/atom/suprena.h>
 #include <orly/indy/disk/util/engine.h>
@@ -100,7 +100,7 @@ namespace Orly {
 
       /* TODO */
       class TInFile {
-        NO_COPY_SEMANTICS(TInFile);
+        NO_COPY(TInFile);
         public:
 
         /* TODO */
@@ -128,7 +128,7 @@ namespace Orly {
       /* TODO */
       template <size_t CachePageSize, size_t BlockSize, size_t PhysicalBlockSize, Util::TBufKind BufKind, size_t MaxLocalCacheSize, bool ScanAheadAllowed = true>
       class TStream {
-        NO_COPY_SEMANTICS(TStream);
+        NO_COPY(TStream);
         public:
 
         /* TODO */

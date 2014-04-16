@@ -21,7 +21,7 @@
 #include <cassert>
 #include <functional>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/where.h>
 #include <orly/orly.package.cst.h>
 #include <orly/symbol/scope.h>
@@ -40,7 +40,7 @@ namespace Orly {
     /* TODO */
     class TWhereExpr
         : public TExpr, public TScope {
-      NO_COPY_SEMANTICS(TWhereExpr);
+      NO_COPY(TWhereExpr);
       public:
 
       /* TODO */
@@ -69,7 +69,7 @@ namespace Orly {
       /* TODO */
       class TLocalDefFactory
           : public TDefFactory {
-        NO_COPY_SEMANTICS(TLocalDefFactory);
+        NO_COPY(TLocalDefFactory);
         public:
 
         /* TODO */

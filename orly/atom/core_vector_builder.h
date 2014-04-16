@@ -24,7 +24,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/binary_output_stream.h>
 #include <orly/atom/kit2.h>
 #include <orly/native/all.h>
@@ -37,7 +37,7 @@ namespace Orly {
 
     /* Builds a vector of cores to be streamed out. */
     class TCoreVectorBuilder final {
-      NO_COPY_SEMANTICS(TCoreVectorBuilder);
+      NO_COPY(TCoreVectorBuilder);
       public:
 
       /* Conveniences. */

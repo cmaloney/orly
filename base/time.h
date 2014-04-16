@@ -20,7 +20,7 @@
 
 #include <time.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 

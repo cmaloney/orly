@@ -22,7 +22,7 @@
 #define  MONGOOSE_HEADER_INCLUDED
 
 #ifdef __cplusplus
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/os_error.h>
 extern "C" {
 #endif // __cplusplus
@@ -224,7 +224,7 @@ namespace Mongoose {
 
   /* TODO */
   class TMongoose {
-    NO_COPY_SEMANTICS(TMongoose);
+    NO_COPY(TMongoose);
     protected:
 
     /* TODO */

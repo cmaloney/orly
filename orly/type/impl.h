@@ -22,8 +22,8 @@
 #include <memory>
 #include <ostream>
 
+#include <base/class_traits.h>
 #include <base/impossible_error.h>
-#include <base/no_copy_semantics.h>
 #include <orly/pos_range.h>
 
 namespace Orly {
@@ -63,7 +63,7 @@ namespace Orly {
 
       /* TODO */
       class TImpl : public std::enable_shared_from_this<TImpl> {
-        NO_COPY_SEMANTICS(TImpl);
+        NO_COPY(TImpl);
 
 
         public:

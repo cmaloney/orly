@@ -20,7 +20,7 @@
 
 #include <unordered_set>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
 
@@ -33,7 +33,7 @@ namespace Orly {
     /* TODO */
     class TSetCtor
         : public TExpr {
-      NO_COPY_SEMANTICS(TSetCtor);
+      NO_COPY(TSetCtor);
       public:
 
       /* TODO */

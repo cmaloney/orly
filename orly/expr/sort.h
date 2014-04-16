@@ -21,7 +21,7 @@
 #include <memory>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/binary.h>
 #include <orly/expr/lhsrhsable.h>
 
@@ -32,7 +32,7 @@ namespace Orly {
     class TSort
         : public TBinary,
           public TLhsRhsable {
-      NO_COPY_SEMANTICS(TSort);
+      NO_COPY(TSort);
       public:
 
       typedef std::shared_ptr<TSort> TPtr;

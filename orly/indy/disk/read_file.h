@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <ostream>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/unordered_multimap.h>
 #include <server/daemonize.h>
 #include <orly/atom/kit2.h>
@@ -107,7 +107,7 @@ namespace Orly {
       /* TODO */
       class TArenaInFile
           : public TInFile {
-        NO_COPY_SEMANTICS(TArenaInFile);
+        NO_COPY(TArenaInFile);
         public:
 
         /* TODO */
@@ -136,7 +136,7 @@ namespace Orly {
       template <size_t CachePageSize, size_t BlockSize, size_t PhysicalBlockSize, Util::TBufKind BufKind, size_t StreamLocalCacheSize, bool ScanAheadAllowed>
       class TDiskArena
           : public Atom::TCore::TArena {
-        NO_COPY_SEMANTICS(TDiskArena);
+        NO_COPY(TDiskArena);
         private:
 
         public:
@@ -148,7 +148,7 @@ namespace Orly {
 
         /* TODO */
         class TCursor {
-          NO_COPY_SEMANTICS(TCursor);
+          NO_COPY(TCursor);
           public:
 
           /* TODO */
@@ -318,7 +318,7 @@ namespace Orly {
       template <size_t CachePageSize, size_t BlockSize, size_t PhysicalBlockSize, Util::TBufKind BufKind, bool ScanAheadAllowed = true>
       class TReadFile
           : public TArenaInFile {
-        NO_COPY_SEMANTICS(TReadFile);
+        NO_COPY(TReadFile);
         public:
 
         /* TODO */
@@ -564,7 +564,7 @@ namespace Orly {
         /* TODO */
         class TIndexFile
             : public TArenaInFile {
-          NO_COPY_SEMANTICS(TIndexFile);
+          NO_COPY(TIndexFile);
           public:
 
           /* TODO */
@@ -599,7 +599,7 @@ namespace Orly {
 
           /* TODO */
           class TKeyCursor {
-            NO_COPY_SEMANTICS(TKeyCursor);
+            NO_COPY(TKeyCursor);
             public:
 
             /* TODO */
@@ -656,7 +656,7 @@ namespace Orly {
 
           /* TODO */
           class THistoryKeyCursor {
-            NO_COPY_SEMANTICS(THistoryKeyCursor);
+            NO_COPY(THistoryKeyCursor);
             public:
 
             /* TODO */
@@ -1052,13 +1052,13 @@ namespace Orly {
       /* TODO */
       template <size_t CachePageSize, size_t BlockSize, size_t PhysicalBlockSize, Util::TBufKind BufKind, bool ScanAheadAllowed = true>
       class TLocalReadFileCache {
-        NO_COPY_SEMANTICS(TLocalReadFileCache);
+        NO_COPY(TLocalReadFileCache);
         public:
 
         /* TODO */
         class TLocalReadFile
             : public TReadFile<CachePageSize, BlockSize, PhysicalBlockSize, BufKind, ScanAheadAllowed> {
-          NO_COPY_SEMANTICS(TLocalReadFile);
+          NO_COPY(TLocalReadFile);
           public:
 
           /* TODO */
@@ -1108,7 +1108,7 @@ namespace Orly {
 
         /* TODO */
         class TLoaderObj {
-          NO_COPY_SEMANTICS(TLoaderObj);
+          NO_COPY(TLoaderObj);
           public:
 
           /* TODO */

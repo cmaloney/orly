@@ -23,7 +23,7 @@
 #include <mutex>
 #include <unordered_map>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/indy/context.h>
 #include <orly/indy/manager.h>
 #include <orly/package/manager.h>
@@ -85,7 +85,7 @@ namespace Orly {
 
         /* TODO */
         class TChild {
-          NO_COPY_SEMANTICS(TChild);
+          NO_COPY(TChild);
           public:
 
           /* TODO */

@@ -21,7 +21,7 @@
 #include <memory>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/pos_range.h>
 
 namespace Orly {
@@ -38,7 +38,7 @@ namespace Orly {
     class TResultDef;
 
     class TDef {
-      NO_COPY_SEMANTICS(TDef);
+      NO_COPY(TDef);
       public:
 
       class TVisitor {

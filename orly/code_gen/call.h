@@ -20,7 +20,7 @@
 
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/code_gen/function.h>
 #include <orly/code_gen/inline.h>
 
@@ -29,7 +29,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TCall : public TInline {
-      NO_COPY_SEMANTICS(TCall);
+      NO_COPY(TCall);
       public:
 
       typedef std::vector<TInline::TPtr> TArgs;

@@ -36,7 +36,7 @@ namespace Orly {
     class TAssertCase
         : public Symbol::TRoot,
           public std::enable_shared_from_this<TAssertCase> {
-      NO_COPY_SEMANTICS(TAssertCase);
+      NO_COPY(TAssertCase);
       public:
 
       typedef std::shared_ptr<TAssertCase> TPtr;
@@ -75,7 +75,7 @@ namespace Orly {
 
     class TAssert
         : public TThatableUnary {
-      NO_COPY_SEMANTICS(TAssert);
+      NO_COPY(TAssert);
       public:
 
       typedef std::shared_ptr<TAssert> TPtr;

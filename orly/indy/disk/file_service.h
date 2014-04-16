@@ -7,7 +7,7 @@
 
 ||||||| merged common ancestors
    Copyright 2010-2014 Orly
-   
+
 =======
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -30,8 +30,8 @@
 
 #include <unistd.h>
 
+#include <base/class_traits.h>
 #include <base/event_semaphore.h>
-#include <base/no_copy_semantics.h>
 #include <base/scheduler.h>
 #include <base/uuid.h>
 #include <inv_con/unordered_list.h>
@@ -49,7 +49,7 @@ namespace Orly {
       /* TODO */
       class TFileService
           : public TFileServiceBase, public Fiber::TRunnable {
-        NO_COPY_SEMANTICS(TFileService);
+        NO_COPY(TFileService);
         public:
 
         /* TODO */
@@ -123,7 +123,7 @@ namespace Orly {
 
         /* TODO */
         class TOp {
-          NO_COPY_SEMANTICS(TOp);
+          NO_COPY(TOp);
           public:
 
           /* TODO */

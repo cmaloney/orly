@@ -91,7 +91,7 @@ inline Io::TBinaryInputStream &&operator>>(Io::TBinaryInputStream &&strm, TSeque
 
 class TMathContext
     : public TContext {
-  NO_COPY_SEMANTICS(TMathContext);
+  NO_COPY(TMathContext);
   public:
 
   static const Rpc::TEntryId
@@ -132,7 +132,7 @@ class TMathContext
 
   class TProtocol
       : public Rpc::TProtocol {
-    NO_COPY_SEMANTICS(TProtocol);
+    NO_COPY(TProtocol);
     public:
 
     static const TProtocol Protocol;

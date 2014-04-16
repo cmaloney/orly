@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/symbol/member_with_kind.h>
 
 namespace Tools {
@@ -32,7 +32,7 @@ namespace Tools {
       /* TODO */
       class TAnonymousMember
           : public TMemberWithKind {
-        NO_COPY_SEMANTICS(TAnonymousMember);
+        NO_COPY(TAnonymousMember);
         public:
 
         /* TODO */

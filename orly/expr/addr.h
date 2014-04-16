@@ -21,7 +21,7 @@
 #include <memory>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/shared_enum.h>
 #include <orly/expr/ctor.h>
 
@@ -31,7 +31,7 @@ namespace Orly {
 
     class TAddr
         : public TCtor<std::vector<std::pair<TAddrDir, TExpr::TPtr>>> {
-      NO_COPY_SEMANTICS(TAddr);
+      NO_COPY(TAddr);
       public:
 
       typedef std::shared_ptr<TAddr> TPtr;

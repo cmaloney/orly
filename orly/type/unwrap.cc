@@ -25,7 +25,7 @@ using namespace Orly::Type;
 
 class TUnwrapHelperVisitor
     : public TType::TVisitor {
-  NO_COPY_SEMANTICS(TUnwrapHelperVisitor);
+  NO_COPY(TUnwrapHelperVisitor);
   protected:
 
   TUnwrapHelperVisitor(TType &type)
@@ -67,7 +67,7 @@ TType Orly::Type::Unwrap(const TType &type) {
 TType Orly::Type::UnwrapMutable(const TType &type) {
   class TUnwrapMutableVisitor
       : public TUnwrapHelperVisitor {
-    NO_COPY_SEMANTICS(TUnwrapMutableVisitor);
+    NO_COPY(TUnwrapMutableVisitor);
     public:
     TUnwrapMutableVisitor(TType &type)
         : TUnwrapHelperVisitor(type) {}
@@ -85,7 +85,7 @@ TType Orly::Type::UnwrapMutable(const TType &type) {
 TType Orly::Type::UnwrapOptional(const TType &type) {
   class TUnwrapOptionalVisitor
       : public TUnwrapHelperVisitor {
-    NO_COPY_SEMANTICS(TUnwrapOptionalVisitor);
+    NO_COPY(TUnwrapOptionalVisitor);
     public:
     TUnwrapOptionalVisitor(TType &type)
         : TUnwrapHelperVisitor(type) {}
@@ -103,7 +103,7 @@ TType Orly::Type::UnwrapOptional(const TType &type) {
 TType Orly::Type::UnwrapSequence(const TType &type) {
   class TUnwrapSequenceVisitor
       : public TUnwrapHelperVisitor {
-    NO_COPY_SEMANTICS(TUnwrapSequenceVisitor);
+    NO_COPY(TUnwrapSequenceVisitor);
     public:
     TUnwrapSequenceVisitor(TType &type)
       : TUnwrapHelperVisitor(type) {}

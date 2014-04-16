@@ -22,7 +22,7 @@
 #include <functional>
 #include <mutex>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/sabot/type.h>
 #include <orly/native/defs.h>
 
@@ -81,7 +81,7 @@ namespace Orly {
 
         /* TODO */
         class TPin : public TBase::TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* TODO */
@@ -134,7 +134,7 @@ namespace Orly {
 
         /* TODO */
         class TPin : public TBase::TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* TODO */
@@ -186,7 +186,7 @@ namespace Orly {
 
         /* TODO */
         class TPin : public Sabot::Type::TRecord::TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* TODO */
@@ -241,7 +241,7 @@ namespace Orly {
 
         /* TODO */
         class TPin : public Sabot::Type::TTuple::TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* TODO */

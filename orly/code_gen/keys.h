@@ -27,7 +27,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TKeys : public TInline {
-      NO_COPY_SEMANTICS(TKeys);
+      NO_COPY(TKeys);
       public:
 
       typedef std::vector<std::pair<TAddrDir, TInline::TPtr>> TAddrElems;

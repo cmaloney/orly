@@ -33,7 +33,7 @@ namespace Orly {
       /* TODO */
       template <typename TVal, typename TRef, class TComparator = std::less<TVal>>
       class TMinHeap {
-        NO_COPY_SEMANTICS(TMinHeap);
+        NO_COPY(TMinHeap);
         public:
 
         /* TODO */
@@ -187,7 +187,7 @@ namespace Orly {
       /* TODO */
       template <typename TVal, typename TRef, class TComparator = std::less<TVal>>
       class TCopyMinHeap {
-        NO_COPY_SEMANTICS(TCopyMinHeap);
+        NO_COPY(TCopyMinHeap);
         public:
 
         /* TODO */

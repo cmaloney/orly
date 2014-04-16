@@ -98,8 +98,7 @@
 #include <typeinfo>
 #include <utility>
 
-#include <base/no_construction.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <mpl/enable_if.h>
 #include <mpl/not.h>
 
@@ -119,7 +118,7 @@ namespace Visitor {
 
        */
   class TControlBlock final {
-    NO_COPY_SEMANTICS(TControlBlock);
+    NO_COPY(TControlBlock);
     private:
 
     /* The deleter for std::unique_ptr<> which manages malloc'ed memory. */

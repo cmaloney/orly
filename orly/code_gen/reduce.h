@@ -27,7 +27,7 @@ namespace Orly {
     class TImplicitFunc;
 
     class TReduce : public TInline {
-      NO_COPY_SEMANTICS(TReduce);
+      NO_COPY(TReduce);
       public:
 
       typedef std::shared_ptr<TReduce> TPtr;

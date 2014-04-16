@@ -41,7 +41,7 @@ namespace Orly {
     };  // TGenObjError
 
     class TObjCtor : public TInline {
-      NO_COPY_SEMANTICS(TObjCtor);
+      NO_COPY(TObjCtor);
       public:
 
       typedef std::map<std::string, TInline::TPtr> TArgs;

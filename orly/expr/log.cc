@@ -31,7 +31,7 @@ using namespace Orly::Expr;
 
 class TLogTypeVisitor
     : public Type::TUnwrapVisitor {
-  NO_COPY_SEMANTICS(TLogTypeVisitor);
+  NO_COPY(TLogTypeVisitor);
   public:
   TLogTypeVisitor(Type::TType &type, const TPosRange &pos_range)
     : Type::TUnwrapVisitor(type, pos_range) {}

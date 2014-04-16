@@ -22,7 +22,7 @@
 
 #include <algorithm>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/uuid.h>
 #include <inv_con/unordered_list.h>
 #include <orly/indy/disk/util/volume_manager.h>
@@ -72,7 +72,7 @@ namespace Orly {
       template <size_t PageSize, size_t BlockSize, size_t PhysicalBlockSize, Util::TBufKind BufKind>
         class TOutStream
             : public TWriteGroup {
-          NO_COPY_SEMANTICS(TOutStream);
+          NO_COPY(TOutStream);
           public:
 
           static constexpr size_t PagesInBlock = BlockSize / PageSize;

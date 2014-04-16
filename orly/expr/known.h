@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/binary.h>
 #include <orly/expr/unary.h>
 
@@ -29,7 +29,7 @@ namespace Orly {
     /* is known test */
     class TIsKnown
         : public TUnary {
-      NO_COPY_SEMANTICS(TIsKnown);
+      NO_COPY(TIsKnown);
       public:
 
       typedef std::shared_ptr<TIsKnown> TPtr;
@@ -49,7 +49,7 @@ namespace Orly {
     /* is unknown test */
     class TIsUnknown
         : public TUnary {
-      NO_COPY_SEMANTICS(TIsUnknown);
+      NO_COPY(TIsUnknown);
       public:
 
       typedef std::shared_ptr<TIsUnknown> TPtr;
@@ -69,7 +69,7 @@ namespace Orly {
     /* is known expr test */
     class TIsKnownExpr
         : public TBinary {
-      NO_COPY_SEMANTICS(TIsKnownExpr);
+      NO_COPY(TIsKnownExpr);
       public:
 
       typedef std::shared_ptr<TIsKnownExpr> TPtr;
@@ -89,7 +89,7 @@ namespace Orly {
     /* Prefix 'known' to unwrap an optional */
     class TKnown
         : public TUnary {
-      NO_COPY_SEMANTICS(TKnown);
+      NO_COPY(TKnown);
       public:
 
       typedef std::shared_ptr<TKnown> TPtr;

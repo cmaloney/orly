@@ -18,8 +18,8 @@
 
 #include <cassert>
 
+#include <base/class_traits.h>
 #include <base/event_semaphore.h>
-#include <base/no_copy_semantics.h>
 #include <base/sigma_calc.h>
 #include <base/spin_lock.h>
 #include <base/time.h>
@@ -81,7 +81,7 @@ namespace Orly {
       /* TODO */
       class TManager
           : public Fiber::TRunnable {
-        NO_COPY_SEMANTICS(TManager);
+        NO_COPY(TManager);
         public:
 
         /* TAnyPtr and TPtr<> require this forward declaration. */
@@ -205,7 +205,7 @@ namespace Orly {
 
         /* The base class for durable objects. */
         class TObj {
-          NO_COPY_SEMANTICS(TObj);
+          NO_COPY(TObj);
           public:
 
           /* If the object is closed, then this is the latest time at which the object is guaranteed to continue to exist.
@@ -341,7 +341,7 @@ namespace Orly {
         /* TODO */
         class TRepo
             : public TManager::TObj {
-          NO_COPY_SEMANTICS(TRepo);
+          NO_COPY(TRepo);
           public:
 
           /* TODO */
@@ -378,7 +378,7 @@ namespace Orly {
 
           /* TODO */
           class TMapping {
-            NO_COPY_SEMANTICS(TMapping);
+            NO_COPY(TMapping);
             public:
 
             /* Forward Declarations. */
@@ -392,7 +392,7 @@ namespace Orly {
 
             /* TODO */
             class TEntry {
-              NO_COPY_SEMANTICS(TEntry);
+              NO_COPY(TEntry);
               public:
 
               /* TODO */
@@ -495,7 +495,7 @@ namespace Orly {
 
           /* TODO */
           class TDataLayer {
-            NO_COPY_SEMANTICS(TDataLayer);
+            NO_COPY(TDataLayer);
             public:
 
             enum TKind {

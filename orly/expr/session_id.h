@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/leaf.h>
 
 namespace Orly {
@@ -29,7 +29,7 @@ namespace Orly {
 
     class TSessionId
         : public TLeaf {
-      NO_COPY_SEMANTICS(TSessionId);
+      NO_COPY(TSessionId);
       public:
 
       typedef std::shared_ptr<TSessionId> TPtr;

@@ -25,7 +25,7 @@
 #include <thread>
 #include <unordered_map>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/scheduler.h>
 #include <orly/atom/suprena.h>
 #include <orly/package/manager.h>
@@ -52,7 +52,7 @@ namespace Orly {
 
     /* TODO */
     class TService {
-      NO_COPY_SEMANTICS(TService);
+      NO_COPY(TService);
       public:
 
       typedef Base::TPiece<const char> TStrPiece;

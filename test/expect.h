@@ -23,9 +23,9 @@
 #include <string>
 #include <typeinfo>
 
+#include <base/class_traits.h>
 #include <base/code_location.h>
 #include <base/demangle.h>
-#include <base/no_copy_semantics.h>
 #include <base/no_default_case.h>
 #include <test/runner.h>
 
@@ -115,7 +115,7 @@ namespace Test {
 
   /* TODO */
   class TExpect : public TRunner::TExpect {
-    NO_COPY_SEMANTICS(TExpect);
+    NO_COPY(TExpect);
     public:
 
     /* TODO */

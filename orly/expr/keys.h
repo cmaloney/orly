@@ -21,7 +21,7 @@
 #include <memory>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/shared_enum.h>
 #include <orly/expr/addr.h>
 #include <orly/expr/n_ary.h>
@@ -32,7 +32,7 @@ namespace Orly {
 
     class TKeys
         : public TNAry<TAddr::TMemberVec> {
-      NO_COPY_SEMANTICS(TKeys);
+      NO_COPY(TKeys);
       public:
 
       typedef std::shared_ptr<TKeys> TPtr;

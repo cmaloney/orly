@@ -30,7 +30,7 @@ namespace Orly {
     class TTestBlock;
 
     class TTestCase : public TTopFunc {
-      NO_COPY_SEMANTICS(TTestCase);
+      NO_COPY(TTestCase);
       public:
 
       TTestCase(const L0::TPackage *package, const Symbol::Test::TTestCase::TPtr &symbol, TId<TIdKind::Test>::TGen &id_gen);
@@ -58,7 +58,7 @@ namespace Orly {
     };
 
     class TTestBlock {
-      NO_COPY_SEMANTICS(TTestBlock);
+      NO_COPY(TTestBlock);
       public:
       TTestBlock(const L0::TPackage *package, const Symbol::Test::TTestCaseBlock::TPtr &symbol, TId<TIdKind::Test>::TGen &id_gen);
       ~TTestBlock();
@@ -90,7 +90,7 @@ namespace Orly {
     };
 
     class TTest {
-      NO_COPY_SEMANTICS(TTest);
+      NO_COPY(TTest);
       public:
 
       /* TODO: Move to a codegen specific with. */

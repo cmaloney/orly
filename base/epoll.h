@@ -23,14 +23,14 @@
 
 #include <sys/epoll.h>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 
 namespace Base {
 
   /* A wrapper around the operating system epoll. */
   class TEpoll {
-    NO_COPY_SEMANTICS(TEpoll);
+    NO_COPY(TEpoll);
     public:
 
     /* Starts with no fds and no cached events. */

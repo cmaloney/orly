@@ -21,7 +21,7 @@
 #include <cassert>
 #include <functional>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/orly.checkpoint.cst.h>
 #include <orly/orly.package.cst.h>
 

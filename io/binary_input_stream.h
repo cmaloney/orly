@@ -33,8 +33,7 @@
 
 #include <uuid/uuid.h>
 
-#include <base/no_copy_semantics.h>
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <io/binary_stream.h>
 #include <io/input_consumer.h>
 
@@ -44,7 +43,7 @@ namespace Io {
   class TBinaryInputStream
       : public virtual TBinaryStream,
         public TInputConsumer {
-    NO_COPY_SEMANTICS(TBinaryInputStream);
+    NO_COPY(TBinaryInputStream);
     public:
 
     /* TODO */

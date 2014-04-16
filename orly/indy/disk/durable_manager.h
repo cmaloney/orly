@@ -21,10 +21,10 @@
 #include <cstdint>
 #include <functional>
 
+#include <base/class_traits.h>
 #include <base/epoll.h>
 #include <base/event_counter.h>
 #include <base/event_semaphore.h>
-#include <base/no_copy_semantics.h>
 #include <base/scheduler.h>
 #include <base/time.h>
 #include <base/timer_fd.h>
@@ -65,7 +65,7 @@ namespace Orly {
       /* TODO */
       class TManager
           : public Fiber::TRunnable {
-        NO_COPY_SEMANTICS(TManager);
+        NO_COPY(TManager);
         public:
 
         /* TODO */
@@ -94,7 +94,7 @@ namespace Orly {
       /* TODO */
       class TDurableManager
           : public Durable::TManager {
-        NO_COPY_SEMANTICS(TDurableManager);
+        NO_COPY(TDurableManager);
         private:
 
         /* Forward Declarations. */
@@ -211,7 +211,7 @@ namespace Orly {
 
         /* TODO */
         class TSortedByIdFile {
-          NO_COPY_SEMANTICS(TSortedByIdFile);
+          NO_COPY(TSortedByIdFile);
           public:
 
           /* TODO */
@@ -280,7 +280,7 @@ namespace Orly {
           template <typename TOwner>
           class TMyFileTemp
               : public TInFile {
-            NO_COPY_SEMANTICS(TMyFileTemp);
+            NO_COPY(TMyFileTemp);
             public:
 
             /* TODO */
@@ -344,7 +344,7 @@ namespace Orly {
 
         /* TODO */
         class TMergeSortedByIdFile {
-          NO_COPY_SEMANTICS(TMergeSortedByIdFile);
+          NO_COPY(TMergeSortedByIdFile);
           public:
 
           /* TODO */
@@ -396,7 +396,7 @@ namespace Orly {
         /* TODO */
         class TSortedInFile
             : public TInFile {
-          NO_COPY_SEMANTICS(TSortedInFile);
+          NO_COPY(TSortedInFile);
           public:
 
           /* TODO */
@@ -476,7 +476,7 @@ namespace Orly {
 
         /* TODO */
         class TMapping {
-          NO_COPY_SEMANTICS(TMapping);
+          NO_COPY(TMapping);
           public:
 
           /* Forward Declarations. */
@@ -490,7 +490,7 @@ namespace Orly {
 
           /* TODO */
           class TEntry {
-            NO_COPY_SEMANTICS(TEntry);
+            NO_COPY(TEntry);
             public:
 
             /* TODO */
@@ -534,7 +534,7 @@ namespace Orly {
 
           /* TODO */
           class TView {
-            NO_COPY_SEMANTICS(TView);
+            NO_COPY(TView);
             public:
 
             /* TODO */
@@ -631,7 +631,7 @@ namespace Orly {
 
         /* TODO */
         class TDurableLayer {
-          NO_COPY_SEMANTICS(TDurableLayer);
+          NO_COPY(TDurableLayer);
           public:
 
           /* TODO */
@@ -717,12 +717,12 @@ namespace Orly {
         /* TODO */
         class TMemSlushLayer
             : public TDurableLayer {
-          NO_COPY_SEMANTICS(TMemSlushLayer);
+          NO_COPY(TMemSlushLayer);
           public:
 
           /* TODO */
           class TDurableEntry {
-            NO_COPY_SEMANTICS(TDurableEntry);
+            NO_COPY(TDurableEntry);
             public:
 
             /* TODO */
@@ -851,7 +851,7 @@ namespace Orly {
         /* TODO */
         class TDiskOrderedLayer
             : public TDurableLayer {
-          NO_COPY_SEMANTICS(TDiskOrderedLayer);
+          NO_COPY(TDiskOrderedLayer);
           public:
 
           /* TODO */

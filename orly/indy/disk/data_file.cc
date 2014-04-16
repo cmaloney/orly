@@ -33,7 +33,7 @@ using namespace Orly::Indy::Disk::Util;
 
 class TIndexFile
     : public TInFile {
-  NO_COPY_SEMANTICS(TIndexFile);
+  NO_COPY(TIndexFile);
   public:
 
   class TOrderedNote {

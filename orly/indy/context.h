@@ -21,7 +21,7 @@
 #include <unordered_set>
 
 #include <base/chrono.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/no_throw.h>
 #include <base/uuid.h>
 #include <orly/atom/suprena.h>
@@ -41,7 +41,7 @@ namespace Orly {
     /* TODO */
     class TContext
         : public TContextBase {
-      NO_COPY_SEMANTICS(TContext);
+      NO_COPY(TContext);
       public:
 
       /* Forward Declarations. */
@@ -57,7 +57,7 @@ namespace Orly {
 
       /* TODO */
       class TPresentWalker {
-        NO_COPY_SEMANTICS(TPresentWalker);
+        NO_COPY(TPresentWalker);
         public:
 
         /* TODO */
@@ -105,7 +105,7 @@ namespace Orly {
       /* TODO */
       class TKeyCursor
           : public Orly::TKeyCursor {
-        NO_COPY_SEMANTICS(TKeyCursor);
+        NO_COPY(TKeyCursor);
         public:
 
         /* TODO */
@@ -209,7 +209,7 @@ namespace Orly {
     /* TODO */
     class TIndyContext
           : public Orly::Package::TContext {
-      NO_COPY_SEMANTICS(TIndyContext);
+      NO_COPY(TIndyContext);
       public:
 
       /* TODO */

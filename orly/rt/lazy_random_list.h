@@ -21,12 +21,12 @@
 #include <random>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Orly {
   namespace Rt {
     class TLazyRandomList {
-      NO_COPY_SEMANTICS(TLazyRandomList);
+      NO_COPY(TLazyRandomList);
       public:
 
       TLazyRandomList(int64_t seed) : Prng(seed) {}

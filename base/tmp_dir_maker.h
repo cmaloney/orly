@@ -24,14 +24,14 @@
 #include <string>
 #include <utility>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/path_utils.h>
 
 namespace Base {
 
   /* Creates a directory path on construction and destroys it on destruction. */
   class TTmpDirMaker final {
-    NO_COPY_SEMANTICS(TTmpDirMaker);
+    NO_COPY(TTmpDirMaker);
     public:
 
     /* Ensures the dir exists. */

@@ -21,7 +21,7 @@
 #include <memory>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/pos_range.h>
 #include <orly/symbol/stmt/stmt.h>
 
@@ -32,7 +32,7 @@ namespace Orly {
     namespace Stmt {
 
       class TStmtBlock {
-        NO_COPY_SEMANTICS(TStmtBlock);
+        NO_COPY(TStmtBlock);
         public:
 
         typedef std::shared_ptr<TStmtBlock> TPtr;

@@ -48,7 +48,7 @@ size_t TAddrMember::GetIndex() const {
 Type::TType TAddrMember::GetType() const {
   class TAddrMemberTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TAddrMemberTypeVisitor);
+    NO_COPY(TAddrMemberTypeVisitor);
     public:
     TAddrMemberTypeVisitor(Type::TType &type, size_t index, const TPosRange &pos_range)
         : TUnwrapVisitor(type, pos_range), Index(index) {}

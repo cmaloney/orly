@@ -20,7 +20,7 @@
 
 #include <string>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/final.h>
 #include <tools/nycr/symbol/atom.h>
 
@@ -31,7 +31,7 @@ namespace Tools {
     /* TODO */
     class TAtom
         : public TFinal {
-      NO_COPY_SEMANTICS(TAtom);
+      NO_COPY(TAtom);
       protected:
 
       /* TODO */

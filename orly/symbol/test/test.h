@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/pos_range.h>
 #include <orly/symbol/root.h>
 #include <orly/symbol/test/test_case_block.h>
@@ -36,7 +36,7 @@ namespace Orly {
 
       class TTest
           : public std::enable_shared_from_this<TTest> {
-        NO_COPY_SEMANTICS(TTest);
+        NO_COPY(TTest);
         public:
 
         typedef std::shared_ptr<TTest> TPtr;

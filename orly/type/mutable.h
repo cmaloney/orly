@@ -29,7 +29,7 @@ namespace Orly {
   namespace Type {
 
     class TMutable : public TInternedType<TMutable, TType, std::vector<TPart::TPtr>, TType, TType> {
-      NO_COPY_SEMANTICS(TMutable);
+      NO_COPY(TMutable);
       public:
 
       typedef std::vector<TPart::TPtr> TParts;

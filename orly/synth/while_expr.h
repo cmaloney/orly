@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/while.h>
 #include <orly/expr/thatable.h>
 #include <orly/orly.package.cst.h>
@@ -36,7 +36,7 @@ namespace Orly {
     /* TODO */
     class TWhileExpr
         : public TThatableExpr {
-      NO_COPY_SEMANTICS(TWhileExpr);
+      NO_COPY(TWhileExpr);
       public:
 
       /* TODO */

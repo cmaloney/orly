@@ -28,7 +28,7 @@ namespace Orly {
     /* The base class for a notification pushed by the server to the client.
        We're using the visitor pattern, so this is the base of a closed hierarchy. */
     class TNotification {
-      NO_COPY_SEMANTICS(TNotification);
+      NO_COPY(TNotification);
       public:
 
       /* Sum of final types. */

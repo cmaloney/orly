@@ -23,18 +23,18 @@
 
 #include <pthread.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
   /* A hot potato that can be fought over by shared and exclusive users. */
   class TPotato {
-    NO_COPY_SEMANTICS(TPotato);
+    NO_COPY(TPotato);
     public:
 
     /* The base class for shared and exclusive locks.  Any lock will keep a potato alive. */
     class TLock {
-      NO_COPY_SEMANTICS(TLock);
+      NO_COPY(TLock);
       public:
 
       /* The potato to which this lock is attached. */
@@ -65,7 +65,7 @@ namespace Base {
     /* Keeps the potato alive and holds an exclusive lock on it. */
     class TExclusiveLock
         : public TLock {
-      NO_COPY_SEMANTICS(TExclusiveLock);
+      NO_COPY(TExclusiveLock);
       public:
 
       /* Block until the lock is granted. */
@@ -79,7 +79,7 @@ namespace Base {
     /* Keeps the potato alive and holds a shared lock on it. */
     class TSharedLock
         : public TLock {
-      NO_COPY_SEMANTICS(TSharedLock);
+      NO_COPY(TSharedLock);
       public:
 
       /* Block until the lock is granted. */

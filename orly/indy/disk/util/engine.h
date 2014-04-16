@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/uuid.h>
 #include <orly/indy/disk/file_service_base.h>
 #include <orly/indy/disk/util/cache.h>
@@ -39,7 +39,7 @@ namespace Orly {
 
         /* TODO */
         class TEngine {
-          NO_COPY_SEMANTICS(TEngine);
+          NO_COPY(TEngine);
           public:
 
           /* TODO */

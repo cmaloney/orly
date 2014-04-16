@@ -36,7 +36,7 @@ TPostfixSlice::TPostfixSlice(const TExprFactory *expr_factory, const Package::Sy
     Expr = expr_factory->NewExpr(PostfixSlice->GetExpr());
     class TSliceVisitor
         : public Package::Syntax::TSlice::TVisitor {
-      NO_COPY_SEMANTICS(TSliceVisitor);
+      NO_COPY(TSliceVisitor);
       public:
       TSliceVisitor(const TExprFactory *expr_factory, TExpr *&opt_lhs, bool &colon, TExpr *&opt_rhs)
           : ExprFactory(expr_factory), OptLhs(opt_lhs), OptRhs(opt_rhs), Colon(colon) {}

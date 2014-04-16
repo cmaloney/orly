@@ -21,7 +21,7 @@
 #include <functional>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/addr_dir_visitor.h>
 #include <orly/synth/expr.h>
@@ -35,7 +35,7 @@ namespace Orly {
     /* TODO */
     class TAddrCtor
         : public TExpr {
-      NO_COPY_SEMANTICS(TAddrCtor);
+      NO_COPY(TAddrCtor);
       public:
 
       /* TODO */

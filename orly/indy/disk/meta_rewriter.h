@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/indy/disk/in_file.h>
 #include <orly/indy/disk/out_stream.h>
 #include <orly/indy/util/block_vec.h>

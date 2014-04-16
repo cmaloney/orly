@@ -22,15 +22,15 @@
 
 #include <zlib.h>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 #include <base/thrower.h>
 
 namespace Gz {
 
   /* A gzipped file. */
   class TFile final {
-    NO_COPY_SEMANTICS(TFile);
+    NO_COPY(TFile);
     public:
 
     /* The errors we throw. */

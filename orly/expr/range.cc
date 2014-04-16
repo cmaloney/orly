@@ -55,7 +55,7 @@ void TRange::Accept(const TVisitor &visitor) const {
 Type::TType TRange::GetType() const {
   class TRangeTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TRangeTypeVisitor);
+    NO_COPY(TRangeTypeVisitor);
     public:
     TRangeTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/type/impl.h>
 
 namespace Orly {
@@ -28,7 +28,7 @@ namespace Orly {
   namespace Expr {
 
     class TLhsRhsable {
-      NO_COPY_SEMANTICS(TLhsRhsable);
+      NO_COPY(TLhsRhsable);
       public:
 
       typedef std::shared_ptr<TLhsRhsable> TPtr;

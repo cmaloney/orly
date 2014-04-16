@@ -64,7 +64,7 @@ namespace Orly {
          have already done something bad to the database. */
       class TArgs {
 
-        NO_COPY_SEMANTICS(TArgs);
+        NO_COPY(TArgs);
 
         public:
 

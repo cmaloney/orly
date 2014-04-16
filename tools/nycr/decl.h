@@ -25,7 +25,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <tools/nycr/cst_redirect.h>
 
@@ -65,7 +65,7 @@ namespace Tools {
 
     /* The base for all declarations. */
     class TDecl {
-      NO_COPY_SEMANTICS(TDecl);
+      NO_COPY(TDecl);
       public:
 
       /* The our name as plain text. */
@@ -89,7 +89,7 @@ namespace Tools {
 
       /* The base for all references to be bound. */
       class TAnyRef {
-        NO_COPY_SEMANTICS(TAnyRef);
+        NO_COPY(TAnyRef);
         public:
 
         /* Do-little. */
@@ -137,7 +137,7 @@ namespace Tools {
       template <typename TSomeDecl>
       class TRef
           : public TAnyRef {
-        NO_COPY_SEMANTICS(TRef);
+        NO_COPY(TRef);
         public:
 
         /* Do little. */

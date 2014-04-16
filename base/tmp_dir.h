@@ -19,12 +19,12 @@
 #include <cassert>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
   class TTmpDir final {
-    NO_COPY_SEMANTICS(TTmpDir);
+    NO_COPY(TTmpDir);
 
     public:
 

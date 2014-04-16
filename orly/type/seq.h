@@ -26,7 +26,7 @@ namespace Orly {
 
     /* TODO */
     class TSeq : public TUnaryType<TSeq> {
-      NO_COPY_SEMANTICS(TSeq);
+      NO_COPY(TSeq);
 
       TSeq(const TType &elem) : TUnaryType(elem) {}
       virtual ~TSeq();

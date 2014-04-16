@@ -121,7 +121,7 @@ namespace Orly {
 
       /* TODO */
       class TCompletionTrigger {
-        NO_COPY_SEMANTICS(TCompletionTrigger);
+        NO_COPY(TCompletionTrigger);
         public:
 
         /* TODO */

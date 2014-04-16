@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/leaf.h>
 #include <orly/symbol/def.h>
 
@@ -28,7 +28,7 @@ namespace Orly {
 
     class TRef
         : public TLeaf {
-      NO_COPY_SEMANTICS(TRef);
+      NO_COPY(TRef);
       public:
 
       typedef std::shared_ptr<TRef> TPtr;

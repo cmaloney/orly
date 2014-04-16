@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <base/stl_utils.h>
 #include <base/tuple_utils.h>
 

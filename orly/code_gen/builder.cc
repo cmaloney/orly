@@ -201,7 +201,7 @@ void Build(const L0::TPackage *package, const Symbol::Stmt::TStmt::TPtr &stmt) {
   assert(stmt);
 
   class TVisitor : public Symbol::Stmt::TStmt::TVisitor {
-    NO_COPY_SEMANTICS(TVisitor);
+    NO_COPY(TVisitor);
     public:
 
     TVisitor(const L0::TPackage *package) : Package(package) {}
@@ -279,7 +279,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
   assert(expr);
 
   class TVisitor : public Expr::TExpr::TVisitor {
-    NO_COPY_SEMANTICS(TVisitor);
+    NO_COPY(TVisitor);
     public:
 
     ~TVisitor() noexcept {}
@@ -435,7 +435,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
     virtual void operator()(const Expr::TFunctionApp *that) const {
       class TVisitor
           : public Symbol::TAnyFunction::TVisitor {
-        NO_COPY_SEMANTICS(TVisitor);
+        NO_COPY(TVisitor);
         public:
         TVisitor(TInterner &interner, TInline::TPtr &res, const Expr::TFunctionApp::TFunctionAppArgMap &function_app_args, const L0::TPackage *package)
             : Interner(interner), Res(res), FunctionAppArgs(function_app_args), Package(package) {}
@@ -565,7 +565,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
         virtual void operator()(const Symbol::TResultDef *that) const {
           class TVisitor
               : public Symbol::TAnyFunction::TVisitor {
-            NO_COPY_SEMANTICS(TVisitor);
+            NO_COPY(TVisitor);
             public:
             TVisitor(TInterner &interner, TInline::TPtr &res, const L0::TPackage *package)
                 : Interner(interner), Res(res), Package(package) {}
@@ -781,7 +781,7 @@ TInline::TPtr BuildMap(const L0::TPackage *package, const Expr::TExpr::TPtr &exp
     Symbol::TAnyFunction::TPtr func = nullptr;
     for(auto &it: core_def_seqs) {
       class TVisitor : public Symbol::TDef::TVisitor {
-        NO_COPY_SEMANTICS(TVisitor);
+        NO_COPY(TVisitor);
         public:
 
         TVisitor(TFunction::TNamedArgs &args, Symbol::TAnyFunction::TPtr &func) : Args(args), Func(func) {}

@@ -20,7 +20,7 @@
 
 #include <map>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/type/managed_type.h>
 #include <orly/type/has_optional.h>
 
@@ -41,7 +41,7 @@ namespace Orly {
 
     /* TODO */
     class TObj : public TInternedType<TObj, TObjElems> {
-      NO_COPY_SEMANTICS(TObj);
+      NO_COPY(TObj);
       public:
 
       typedef TObjElems TElems;
@@ -56,7 +56,7 @@ namespace Orly {
 
         /* TODO */
         class TAnyField {
-          NO_COPY_SEMANTICS(TAnyField);
+          NO_COPY(TAnyField);
           public:
 
           /* TODO */
@@ -112,7 +112,7 @@ namespace Orly {
         template <typename TVal>
         class TField
             : public TAnyField {
-          NO_COPY_SEMANTICS(TField);
+          NO_COPY(TField);
           public:
 
           /* TODO */
@@ -140,7 +140,7 @@ namespace Orly {
 
         /* TODO */
         class TClass {
-          NO_COPY_SEMANTICS(TClass);
+          NO_COPY(TClass);
           public:
 
           /* TODO */

@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/symbol/compound.h>
 
 namespace Tools {
@@ -32,7 +32,7 @@ namespace Tools {
       /* TODO */
       class TMemberWithKind
           : public TCompound::TMember {
-        NO_COPY_SEMANTICS(TMemberWithKind);
+        NO_COPY(TMemberWithKind);
         public:
 
         /* TODO */

@@ -38,7 +38,7 @@ namespace Orly {
     static const TEol Eol{};
 
     class TCppPrinter {
-      NO_COPY_SEMANTICS(TCppPrinter);
+      NO_COPY(TCppPrinter);
       public:
 
       TCppPrinter(const std::string &filename) : Indent(0), Out(filename),  StartOfLine(true) {
@@ -83,7 +83,7 @@ namespace Orly {
 
     //TODO: Move all the func defs to cc_printer.cc
     class TIndent {
-      NO_COPY_SEMANTICS(TIndent);
+      NO_COPY(TIndent);
       public:
       //TODO: Should have move semantics
       TIndent(TCppPrinter &out) : Out(out) {

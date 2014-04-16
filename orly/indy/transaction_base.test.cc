@@ -49,7 +49,7 @@ const std::vector<size_t> DiskMergeCoreVec{0};
 
 class TMyManager
     : public L1::TManager {
-  NO_COPY_SEMANTICS(TMyManager);
+  NO_COPY(TMyManager);
   public:
 
   TMyManager(Disk::Util::TEngine *engine,

@@ -31,7 +31,7 @@ using namespace Orly::Expr;
 
 class TCeilingTypeVisitor
     : public Type::TUnwrapVisitor {
-  NO_COPY_SEMANTICS(TCeilingTypeVisitor);
+  NO_COPY(TCeilingTypeVisitor);
   public:
   TCeilingTypeVisitor(Type::TType &type, const TPosRange &pos_range)
     : Type::TUnwrapVisitor(type, pos_range) {}

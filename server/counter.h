@@ -25,8 +25,8 @@
 #include <cstdint>
 #include <ctime>
 
+#include <base/class_traits.h>
 #include <base/code_location.h>
-#include <base/no_copy_semantics.h>
 
 /* A macro to simplify declaring counters. */
 #define SERVER_COUNTER(name) static ::Server::TCounter name(HERE, #name);
@@ -86,7 +86,7 @@ namespace Server {
      pre-main initialization.  The GetFirstCounter() and GetNextCounter() functions
      allow you to access this list.  The counters appear in no particular order. */
   class TCounter {
-    NO_COPY_SEMANTICS(TCounter);
+    NO_COPY(TCounter);
     public:
 
     /* Construct with all counts zero.  The given name should point to a string in

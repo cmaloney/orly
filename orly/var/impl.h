@@ -26,8 +26,8 @@
 #include <unordered_map>
 
 #include <base/chrono.h>
+#include <base/class_traits.h>
 #include <base/error.h>
-#include <base/no_copy_semantics.h>
 #include <orly/shared_enum.h>
 //NOTE: We would include <orly/rt.h> but that includes <orly/rt/built_in.h> which includes this
 #include <orly/rt/containers.h>
@@ -80,7 +80,7 @@ namespace Orly {
 
       /* TODO */
       class TImpl {
-        NO_COPY_SEMANTICS(TImpl);
+        NO_COPY(TImpl);
         public:
 
         /* TODO */

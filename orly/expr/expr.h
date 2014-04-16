@@ -21,7 +21,7 @@
 #include <memory>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/expr_parent.h>
 #include <orly/pos_range.h>
 #include <orly/type/impl.h>
@@ -31,7 +31,7 @@ namespace Orly {
   namespace Expr {
 
     class TExpr {
-      NO_COPY_SEMANTICS(TExpr);
+      NO_COPY(TExpr);
       public:
 
       class TVisitor;

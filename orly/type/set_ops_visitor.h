@@ -29,7 +29,7 @@ namespace Orly {
 
     class TSetOpsVisitor
         : public Type::TEqualVisitor {
-      NO_COPY_SEMANTICS(TSetOpsVisitor);
+      NO_COPY(TSetOpsVisitor);
       protected:
 
       TSetOpsVisitor(Type::TType &type, const TPosRange &pos_range)

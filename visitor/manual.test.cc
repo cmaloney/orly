@@ -27,7 +27,7 @@
 #include <functional>
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <mpl/type_set.h>
 
 #include <test/kit.h>
@@ -125,7 +125,7 @@ namespace Shape {
 
   /* The base class for all shapes. */
   class TShape {
-    NO_COPY_SEMANTICS(TShape);
+    NO_COPY(TShape);
     public:
 
     /* 1. Forward declaration. The definition of TVisitor will follow after the final classes are fully defined. */

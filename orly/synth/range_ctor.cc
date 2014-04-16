@@ -38,7 +38,7 @@ TRangeCtor::TRangeCtor(const TExprFactory *expr_factory, const Package::Syntax::
   assert(expr_factory);
   class TRangeEndVisitor
       : public Package::Syntax::TRangeEnd::TVisitor {
-    NO_COPY_SEMANTICS(TRangeEndVisitor);
+    NO_COPY(TRangeEndVisitor);
     public:
     TRangeEndVisitor(const Package::Syntax::TExpr *&end, bool &end_included)
         : End(end), EndIncluded(end_included) {}

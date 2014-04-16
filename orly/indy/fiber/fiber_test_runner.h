@@ -28,7 +28,7 @@ namespace Orly {
       /* TODO */
       class TFiberTestRunner
           : public Indy::Fiber::TRunnable {
-        NO_COPY_SEMANTICS(TFiberTestRunner);
+        NO_COPY(TFiberTestRunner);
         public:
 
         TFiberTestRunner(const std::function<void (std::mutex &, std::condition_variable &, bool &, TRunner::TRunnerCons &)> &test, size_t extra_runners = 0)

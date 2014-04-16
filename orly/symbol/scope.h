@@ -24,7 +24,7 @@
 #include <vector>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/symbol/root.h>
 
 namespace Orly {
@@ -41,7 +41,7 @@ namespace Orly {
     }  // Test
 
     class TScope {
-      NO_COPY_SEMANTICS(TScope);
+      NO_COPY(TScope);
       public:
 
       typedef std::shared_ptr<TScope> TPtr;

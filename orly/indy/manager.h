@@ -39,7 +39,7 @@ namespace Orly {
     /* TODO */
     class TManager
         : public L1::TManager, public DurableManager::TManager {
-      NO_COPY_SEMANTICS(TManager);
+      NO_COPY(TManager);
       public:
 
       /* TODO */
@@ -227,7 +227,7 @@ namespace Orly {
       /* TODO */
       class TMaster
           : public TMasterContext {
-        NO_COPY_SEMANTICS(TMaster);
+        NO_COPY(TMaster);
         public:
 
         /* TODO */
@@ -267,7 +267,7 @@ namespace Orly {
       /* TODO */
       class TSlave
           : public TSlaveContext, Indy::Fiber::TRunnable {
-        NO_COPY_SEMANTICS(TSlave);
+        NO_COPY(TSlave);
         public:
 
         /* TODO */
@@ -322,7 +322,7 @@ namespace Orly {
             : public Io::TOutputConsumer,
               public Io::TInputProducer,
               public Disk::TInFile {
-          NO_COPY_SEMANTICS(TFlusher);
+          NO_COPY(TFlusher);
           public:
 
           /* TODO */

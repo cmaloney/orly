@@ -25,7 +25,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TContextVar : public TInline {
-      NO_COPY_SEMANTICS(TContextVar);
+      NO_COPY(TContextVar);
       public:
 
       typedef std::shared_ptr<const TContextVar> TPtr;

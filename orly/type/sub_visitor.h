@@ -29,7 +29,7 @@ namespace Orly {
 
     class TSubVisitor
         : public Type::TInfixVisitor {
-      NO_COPY_SEMANTICS(TSubVisitor);
+      NO_COPY(TSubVisitor);
       protected:
 
       TSubVisitor(Type::TType &type, const TPosRange &pos_range)

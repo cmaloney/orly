@@ -34,7 +34,7 @@ using namespace Orly::Indy::Util;
 
 class TReader
     : public TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> {
-  NO_COPY_SEMANTICS(TReader);
+  NO_COPY(TReader);
   public:
 
   /* TODO */

@@ -26,7 +26,7 @@ namespace Orly {
 
     /* TODO */
     class TErr : public TUnaryType<TErr> {
-      NO_COPY_SEMANTICS(TErr);
+      NO_COPY(TErr);
 
       TErr(const TType &elem) : TUnaryType(elem) {}
       virtual ~TErr();

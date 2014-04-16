@@ -35,7 +35,7 @@ namespace Orly {
 
       /* TODO */
       class TPackage {
-        NO_COPY_SEMANTICS(TPackage);
+        NO_COPY(TPackage);
         public:
 
         /* TODO */

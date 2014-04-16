@@ -20,7 +20,7 @@
 
 #include <functional>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
 #include <orly/synth/type.h>
@@ -33,7 +33,7 @@ namespace Orly {
     /* TODO */
     class TUnknownCtor
         : public TExpr {
-      NO_COPY_SEMANTICS(TUnknownCtor);
+      NO_COPY(TUnknownCtor);
       public:
 
       /* TODO */

@@ -22,7 +22,7 @@
 
 #include <regex.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/regex_matcher.h>
 #include <base/thrower.h>
 #include <utf8/piece.h>
@@ -31,7 +31,7 @@ namespace Utf8 {
 
   /* A compiled regular expression. */
   class TRegex final {
-    NO_COPY_SEMANTICS(TRegex);
+    NO_COPY(TRegex);
     public:
 
     /* The error we throw. */
@@ -39,7 +39,7 @@ namespace Utf8 {
 
     /* A cursor for walking regex pattern matches. */
     class TCursor final {
-      NO_COPY_SEMANTICS(TCursor);
+      NO_COPY(TCursor);
       public:
 
       /* Search the given text for matches for the given regex. */

@@ -21,7 +21,7 @@
 #include <cassert>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/scope_and_def.h>
 
@@ -36,7 +36,7 @@ namespace Orly {
     /* TODO */
     class TTestDef
         : public TDef {
-      NO_COPY_SEMANTICS(TTestDef);
+      NO_COPY(TTestDef);
       public:
 
       /* TODO */

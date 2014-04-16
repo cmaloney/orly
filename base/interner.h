@@ -23,15 +23,15 @@
 #include <tuple>
 #include <unordered_map>
 
+#include <base/class_traits.h>
 #include <base/hash.h>
-#include <base/no_copy_semantics.h>
 
 namespace Base {
 
   /* TODO */
   template <typename TObj, typename... TArgs>
   class TInterner {
-    NO_COPY_SEMANTICS(TInterner);
+    NO_COPY(TInterner);
     public:
 
     typedef std::shared_ptr<const TObj> TPtr;

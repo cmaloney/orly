@@ -27,7 +27,7 @@ namespace Orly {
 
     //TODO: Probably shouldn't common subexpression eliminate literals.
     class TLiteral : public TInline {
-      NO_COPY_SEMANTICS(TLiteral);
+      NO_COPY(TLiteral);
 
       public:
 

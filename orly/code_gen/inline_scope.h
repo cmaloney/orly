@@ -28,7 +28,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TInlineScope : public TInline {
-      NO_COPY_SEMANTICS(TInlineScope);
+      NO_COPY(TInlineScope);
       public:
 
       typedef std::shared_ptr<const TInlineScope> TPtr;

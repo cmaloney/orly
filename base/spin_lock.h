@@ -23,18 +23,18 @@
 
 #include <sched.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
   /* TODO */
   class TSpinLock {
-    NO_COPY_SEMANTICS(TSpinLock);
+    NO_COPY(TSpinLock);
     public:
 
     /* TODO */
     class TLock {
-      NO_COPY_SEMANTICS(TLock);
+      NO_COPY(TLock);
       public:
 
       /* TODO */
@@ -57,7 +57,7 @@ namespace Base {
 
     /* TODO */
     class TSoftLock {
-      NO_COPY_SEMANTICS(TSoftLock);
+      NO_COPY(TSoftLock);
       public:
 
       /* TODO */

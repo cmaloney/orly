@@ -25,7 +25,7 @@ namespace Orly {
 
     class TMatch
         : public TInline {
-      NO_COPY_SEMANTICS(TMatch);
+      NO_COPY(TMatch);
       public:
 
       typedef std::shared_ptr<TMatch> TPtr;

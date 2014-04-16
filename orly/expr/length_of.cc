@@ -45,7 +45,7 @@ void TLengthOf::Accept(const TVisitor &visitor) const {
 Type::TType TLengthOf::GetType() const {
   class TLengthOfTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TLengthOfTypeVisitor);
+    NO_COPY(TLengthOfTypeVisitor);
     public:
     TLengthOfTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

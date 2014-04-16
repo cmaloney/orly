@@ -53,7 +53,7 @@
 #include <cassert>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Io {
 
@@ -64,7 +64,7 @@ namespace Io {
   /* A I/O stream which maintains a stack of formatters. */
   template <typename TFormat>
   class TStream {
-    NO_COPY_SEMANTICS(TStream);
+    NO_COPY(TStream);
     public:
 
     /* Our current formatting options. */
@@ -100,7 +100,7 @@ namespace Io {
   /* A formatter for an I/O stream. */
   template <typename TFormat>
   class TFormatter {
-    NO_COPY_SEMANTICS(TFormatter);
+    NO_COPY(TFormatter);
     public:
 
     /* Begin using new formatting options. */

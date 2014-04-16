@@ -32,7 +32,7 @@ using namespace Orly::Expr;
 
 class TIsKnownUnknownTypeVisitor
     : public Type::TUnwrapVisitor {
-  NO_COPY_SEMANTICS(TIsKnownUnknownTypeVisitor);
+  NO_COPY(TIsKnownUnknownTypeVisitor);
   public:
   TIsKnownUnknownTypeVisitor(Type::TType &type, const TPosRange &pos_range)
       : Type::TUnwrapVisitor(type, pos_range) {}
@@ -46,7 +46,7 @@ class TIsKnownUnknownTypeVisitor
   virtual void operator()(const Type::TOpt      *that) const {
     class TVisitor
         : public Type::TUnwrapVisitor {
-      NO_COPY_SEMANTICS(TVisitor);
+      NO_COPY(TVisitor);
       public:
       TVisitor(Type::TType &type, const TPosRange &pos_range)
           : Type::TUnwrapVisitor(type, pos_range) {}
@@ -132,7 +132,7 @@ void TIsKnownExpr::Accept(const TVisitor &visitor) const {
 Type::TType TIsKnownExpr::GetType() const {
   class TIsKnownExprTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TIsKnownExprTypeVisitor);
+    NO_COPY(TIsKnownExprTypeVisitor);
     public:
     TIsKnownExprTypeVisitor(Type::TType &type, const Type::TType &expr_type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range), ExprType(expr_type) {}
@@ -176,7 +176,7 @@ void TKnown::Accept(const TVisitor &visitor) const {
 Type::TType TKnown::GetType() const {
   class TKnownTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TKnownTypeVisitor);
+    NO_COPY(TKnownTypeVisitor);
     public:
     TKnownTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

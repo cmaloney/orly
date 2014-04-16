@@ -27,7 +27,7 @@ using namespace Type;
 
 TPrec Orly::Type::GetPrec(const Type::TType &type) {
   class TPrecVisitor : public TType::TVisitor {
-    NO_COPY_SEMANTICS(TPrecVisitor);
+    NO_COPY(TPrecVisitor);
     public:
     TPrecVisitor(TPrec &prec) : Prec(prec) {}
     virtual void operator()(const TAddr *) const {

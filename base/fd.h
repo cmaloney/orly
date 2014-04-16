@@ -24,8 +24,8 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
+#include <base/class_traits.h>
 #include <base/error_utils.h>
-#include <base/no_copy_semantics.h>
 
 namespace Base {
 

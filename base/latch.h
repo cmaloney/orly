@@ -27,7 +27,7 @@ namespace Base {
 
   /* The base for all latches. */
   class TAnyLatch {
-    NO_COPY_SEMANTICS(TAnyLatch);
+    NO_COPY(TAnyLatch);
     public:
 
     /* Do-little. */
@@ -189,7 +189,7 @@ namespace Base {
   template <typename TRequest, typename TReply>
   class TLatch final
       : public TRequestLatch<TRequest>, public TReplyLatch<TReply> {
-    NO_COPY_SEMANTICS(TLatch);
+    NO_COPY(TLatch);
     public:
 
     /* Do-little. */
@@ -243,7 +243,7 @@ namespace Base {
   template <typename TReply>
   class TLatch<void, TReply> final
       : public TRequestLatch<void>, public TReplyLatch<TReply> {
-    NO_COPY_SEMANTICS(TLatch);
+    NO_COPY(TLatch);
     public:
 
     /* Do-little. */
@@ -270,7 +270,7 @@ namespace Base {
   template <>
   class TLatch<void, void> final
       : public TRequestLatch<void>, public TReplyLatch<void> {
-    NO_COPY_SEMANTICS(TLatch);
+    NO_COPY(TLatch);
     public:
 
     /* Do-little. */

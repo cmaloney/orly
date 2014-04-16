@@ -20,10 +20,10 @@
 #include <string.h>
 #include <syslog.h>
 
+#include <base/class_traits.h>
 #include <base/dir_iter.h>
 #include <base/fd.h>
 #include <base/murmur.h>
-#include <base/no_construction.h>
 
 namespace Orly {
 
