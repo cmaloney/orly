@@ -64,6 +64,7 @@
 #include <cassert>
 #include <functional>
 #include <istream>
+#include <memory>
 #include <mutex>
 #include <ostream>
 #include <set>
@@ -593,7 +594,7 @@ namespace Base {
       bool AmbigPosEnd;
 
       /* The parameters. */
-      std::vector<TParam *> Params;
+      std::vector<std::unique_ptr<TParam>> Params;
 
       /* All the names used by our pass-by-name parameters. */
       std::unordered_set<std::string> UsedNames;

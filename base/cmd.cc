@@ -38,15 +38,12 @@ using namespace Base;
 
 TCmd::TMeta::~TMeta() {
   assert(this);
-  for (auto param: Params) {
-    delete param;
-  }
 }
 
 void TCmd::TMeta::Dump(ostream &strm, const TCmd *cmd) const {
   assert(this);
   assert(&strm);
-  for (auto param: Params) {
+  for (auto &param: Params) {
     auto arg = param->TryGetArg();
     if (arg) {
       param->WriteCmd(strm);
@@ -84,7 +81,7 @@ void TCmd::TMeta::WriteHelp(ostream &strm, const TCmd *cmd, size_t line_size, si
   vector<pair<string, string>> by_pos;
   map<string, string> by_name;
   size_t pos_size = 0, named_size = 0;
-  for (auto param: Params) {
+  for (auto &param: Params) {
     param->WriteLineItem(strm);
     pair<string, string> item;
     /* extra */ {
@@ -323,30 +320,29 @@ bool TCmd::TMeta::TParam::ForEachHelpPiece(ostream &strm, const TCmd *cmd, const
   return true;
 }
 
-void TCmd::TMeta::AppendParam(TParam *param) {
+void TCmd::TMeta::AppendParam(TParam *param_raw) {
   assert(this);
-  assert(param);
-  try {
-    if (param->GetIsByName()) {
-      param->ForEachName([this](const char *name) {
-        if (!UsedNames.insert(name).second) {
-          DEFINE_ERROR(error_t, invalid_argument, "ambiguous name");
-          THROW_ERROR(error_t) << '"' << name << '"';
-        }
-        return true;
-      });
-    } else {
-      if (AmbigPosEnd) {
-        DEFINE_ERROR(error_t, invalid_argument, "ambiguous position");
-        THROW_ERROR(error_t) << '"' << param->GetDiagnosticName() << '"';
+  assert(param_raw);
+
+  //TODO: Push further out
+  std::unique_ptr<TParam> param(param_raw);
+
+  if (param->GetIsByName()) {
+    param->ForEachName([this](const char *name) {
+      if (!UsedNames.insert(name).second) {
+        DEFINE_ERROR(error_t, invalid_argument, "ambiguous name");
+        THROW_ERROR(error_t) << '"' << name << '"';
       }
-      AmbigPosEnd = param->GetBasis() != Required || param->GetRecurrence() != Once;
+      return true;
+    });
+  } else {
+    if (AmbigPosEnd) {
+      DEFINE_ERROR(error_t, invalid_argument, "ambiguous position");
+      THROW_ERROR(error_t) << '"' << param->GetDiagnosticName() << '"';
     }
-    Params.push_back(param);
-  } catch (...) {
-    delete param;
-    throw;
+    AmbigPosEnd = param->GetBasis() != Required || param->GetRecurrence() != Once;
   }
+  Params.push_back(std::move(param));
 }
 
 void TCmd::TMeta::WriteWrapped(ostream &strm, size_t col1_size, size_t line_size, const string &col1, const string &col2) {
@@ -413,19 +409,19 @@ TCmd::TMeta::TParser::TParser(const TMeta *meta) {
   assert(meta);
   option op;
   Base::Zero(op);
-  for (auto param: meta->Params) {
+  for (auto &param: meta->Params) {
     if (param->GetIsByName()) {
-      param->ForEachName([this, &op, param](const char *name) {
+      param->ForEachName([this, &op, &param](const char *name) {
         op.name = name;
         auto arg = param->TryGetArg();
         op.has_arg = arg ? (arg->GetIsRequired() ? required_argument : optional_argument) : no_argument;
         op.val = Options.size() + Offset;
         Options.push_back(op);
-        ByName.push_back(param);
+        ByName.push_back(param.get());
         return true;
       });
     } else {
-      ByPos.push_back(param);
+      ByPos.push_back(param.get() );
     }
   }
   Base::Zero(op);
