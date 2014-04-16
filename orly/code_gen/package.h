@@ -39,7 +39,7 @@ namespace Orly {
       typedef std::unordered_set<TExportFunc::TPtr> TExports;
 
       //NOTE: We only make this a vector so that our output is more "stable". Also, hashing test containers would be a little annoying.
-      typedef std::vector<TTest*> TTests;
+      typedef std::vector<std::unique_ptr<TTest>> TTests;
 
       TPackage(const Symbol::TPackage::TPtr &package);
       virtual ~TPackage();
