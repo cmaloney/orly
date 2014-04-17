@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/uuid.h>
 #include <orly/indy/disk/result.h>
 #include <orly/indy/sequence_number.h>
@@ -76,7 +76,7 @@ namespace Orly {
 
       /* TODO */
       class TFileServiceBase {
-        NO_COPY_SEMANTICS(TFileServiceBase);
+        NO_COPY(TFileServiceBase);
         public:
 
         /* TODO */

@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/sort.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
@@ -36,7 +36,7 @@ namespace Orly {
     /* TODO */
     class TSortExpr
         : public TLhsRhsableExpr {
-      NO_COPY_SEMANTICS(TSortExpr);
+      NO_COPY(TSortExpr);
       public:
 
       /* TODO */

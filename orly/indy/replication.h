@@ -75,7 +75,7 @@ namespace Orly {
 
     /* TODO */
     class TReplicationQueue {
-      NO_COPY_SEMANTICS(TReplicationQueue);
+      NO_COPY(TReplicationQueue);
       public:
 
       /* Forward Declarations. */
@@ -86,7 +86,7 @@ namespace Orly {
 
       /* TODO */
       class TReplicationItem {
-        NO_COPY_SEMANTICS(TReplicationItem);
+        NO_COPY(TReplicationItem);
         public:
 
         /* TODO */
@@ -152,7 +152,7 @@ namespace Orly {
     /* TODO */
     class TRepoReplication
         : public TReplicationQueue::TReplicationItem {
-      NO_COPY_SEMANTICS(TRepoReplication);
+      NO_COPY(TRepoReplication);
       public:
 
       /* TODO */
@@ -239,7 +239,7 @@ namespace Orly {
     /* TODO */
     class TDurableReplication
         : public TReplicationQueue::TReplicationItem {
-      NO_COPY_SEMANTICS(TDurableReplication);
+      NO_COPY(TDurableReplication);
       public:
 
       /* TODO */
@@ -314,7 +314,7 @@ namespace Orly {
     /* TODO */
     class TIndexIdReplication
         : public TReplicationQueue::TReplicationItem {
-      NO_COPY_SEMANTICS(TIndexIdReplication);
+      NO_COPY(TIndexIdReplication);
       public:
 
       /* TODO */
@@ -391,7 +391,7 @@ namespace Orly {
     /* TODO */
     class TTransactionReplication
           : public TReplicationQueue::TReplicationItem {
-      NO_COPY_SEMANTICS(TTransactionReplication);
+      NO_COPY(TTransactionReplication);
       public:
 
       TTransactionReplication();

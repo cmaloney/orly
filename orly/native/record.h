@@ -24,7 +24,7 @@
 #include <cstring>
 #include <mutex>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <base/unique_token.h>
 #include <orly/native/state.h>
 #include <orly/native/type.h>
@@ -292,7 +292,7 @@ namespace Orly {
     template <typename TVal>
     class TToNativeVisitor final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
 
       /* TODO */

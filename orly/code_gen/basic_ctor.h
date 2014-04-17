@@ -98,7 +98,7 @@ namespace Orly {
 
     template <typename TContainer>
     class TBasicCtor : public TInline {
-      NO_COPY_SEMANTICS(TBasicCtor);
+      NO_COPY(TBasicCtor);
       public:
 
       typedef std::shared_ptr<const TBasicCtor> TPtr;

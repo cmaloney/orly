@@ -26,9 +26,9 @@
 #include <syslog.h>
 
 #include <base/assert_true.h>
+#include <base/class_traits.h>
 #include <base/error_utils.h>
 #include <base/likely.h>
-#include <base/no_copy_semantics.h>
 #include <base/spin_lock.h>
 #include <inv_con/atomic_unordered_list.h>
 
@@ -37,7 +37,7 @@ namespace Base {
   /* TODO */
   template <typename TObj, typename... TArgs>
   class TThreadLocalGlobalPoolManager {
-    NO_COPY_SEMANTICS(TThreadLocalGlobalPoolManager);
+    NO_COPY(TThreadLocalGlobalPoolManager);
     public:
 
     /* Forward Declaration. */
@@ -45,7 +45,7 @@ namespace Base {
 
     /* TODO */
     class TObjBase {
-      NO_COPY_SEMANTICS(TObjBase);
+      NO_COPY(TObjBase);
       public:
 
       protected:
@@ -66,7 +66,7 @@ namespace Base {
 
     /* TODO */
     class TThreadLocalPool {
-      NO_COPY_SEMANTICS(TThreadLocalPool);
+      NO_COPY(TThreadLocalPool);
       public:
 
       /* TODO */

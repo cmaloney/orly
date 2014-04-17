@@ -57,7 +57,7 @@ namespace Orly {
 
     /* An actual dlopen()'d package. */
     class TLoaded : public std::enable_shared_from_this<TLoaded> {
-      NO_COPY_SEMANTICS(TLoaded);
+      NO_COPY(TLoaded);
       public:
 
       typedef std::shared_ptr<const TLoaded> TPtr;
@@ -91,7 +91,7 @@ namespace Orly {
 
     // TODO: A function to make a call to the actual orly function. Note in Spa we build a closure object around this.
     class TFuncHolder {
-      NO_COPY_SEMANTICS(TFuncHolder);
+      NO_COPY(TFuncHolder);
       public:
 
       typedef std::shared_ptr<const TFuncHolder> TPtr;

@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/binary.h>
 
 namespace Orly {
@@ -29,7 +29,7 @@ namespace Orly {
 
     class TSplit
         : public TBinary {
-      NO_COPY_SEMANTICS(TSplit);
+      NO_COPY(TSplit);
       public:
 
       typedef std::shared_ptr<TSplit> TPtr;

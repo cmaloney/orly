@@ -20,8 +20,7 @@
 
 #include <utility>
 
-#include <base/no_copy_semantics.h>
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/sabot/defs.h>
 
 namespace Orly {
@@ -91,7 +90,7 @@ namespace Orly {
       /* TODO */
       template <typename TVal>
       class TWrapperBase {
-        NO_COPY_SEMANTICS(TWrapperBase);
+        NO_COPY(TWrapperBase);
         public:
 
         /* TODO */
@@ -135,7 +134,7 @@ namespace Orly {
 
       /* The base for all type objects. */
       class TAny {
-        NO_COPY_SEMANTICS(TAny);
+        NO_COPY(TAny);
         public:
 
         /* TODO */
@@ -164,7 +163,7 @@ namespace Orly {
 
         /* Keeps the array in memory. */
         class TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* TODO */
@@ -208,7 +207,7 @@ namespace Orly {
 
         /* Keeps the array in memory. */
         class TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* TODO */
@@ -341,7 +340,7 @@ namespace Orly {
 
         /* Keeps the array in memory. */
         class TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* TODO */
@@ -405,7 +404,7 @@ namespace Orly {
 
         /* Keeps the array in memory. */
         class TPin {
-          NO_COPY_SEMANTICS(TPin);
+          NO_COPY(TPin);
           public:
 
           /* TODO */
@@ -451,7 +450,7 @@ namespace Orly {
 
     /* TODO */
     class TTypeVisitor {
-      NO_COPY_SEMANTICS(TTypeVisitor);
+      NO_COPY(TTypeVisitor);
       public:
 
       /* TODO */
@@ -495,7 +494,7 @@ namespace Orly {
 
     /* TODO */
     class TTypeDoubleVisitor {
-      NO_COPY_SEMANTICS(TTypeDoubleVisitor);
+      NO_COPY(TTypeDoubleVisitor);
       public:
 
       /* TODO */

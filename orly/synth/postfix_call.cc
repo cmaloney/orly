@@ -34,7 +34,7 @@ TPostfixCall::TPostfixCall(const TExprFactory *expr_factory, const Package::Synt
     : PostfixCall(Base::AssertTrue(postfix_call)) {
   class TOptCallArgsVisitor
       : public Package::Syntax::TOptCallArgs::TVisitor {
-    NO_COPY_SEMANTICS(TOptCallArgsVisitor);
+    NO_COPY(TOptCallArgsVisitor);
     public:
     TOptCallArgsVisitor(const TExprFactory *expr_factory, TArgMap &args)
         : Args(args), ExprFactory(expr_factory) {}

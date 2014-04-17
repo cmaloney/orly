@@ -20,8 +20,8 @@
 
 #include <memory>
 
+#include <base/class_traits.h>
 #include <base/iter.h>
-#include <base/no_copy_semantics.h>
 #include <orly/rt/generator.h>
 #include <orly/rt/opt.h>
 #include <orly/rt/runtime_error.h>
@@ -34,7 +34,7 @@ namespace Orly {
     class TCollatedByGenerator
         : public TGenerator<TRes>,
           public std::enable_shared_from_this<TCollatedByGenerator<TRes, TSrc, TReduceResult, THavingResult>> {
-      NO_COPY_SEMANTICS(TCollatedByGenerator);
+      NO_COPY(TCollatedByGenerator);
       public:
 
       using TPtr = std::shared_ptr<const TCollatedByGenerator>;

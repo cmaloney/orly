@@ -101,7 +101,7 @@ FIXTURE(Typical) {
   EXPECT_TRUE(obj.GetType() == Type::TObj::Get(map<string, Type::TType>{{"Bool", Type::TBool::Get()}, {"Int", Type::TInt::Get()}, {"Real", Type::TReal::Get()}}));
 
   class TObjVisitor : public TVar::TVisitor {
-    NO_COPY_SEMANTICS(TObjVisitor);
+    NO_COPY(TObjVisitor);
     public:
 
     TObjVisitor() {}

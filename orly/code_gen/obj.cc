@@ -340,7 +340,7 @@ void Orly::CodeGen::GenObjHeader(const Jhm::TAbsBase &out_dir, const Type::TType
       /* Class */ {
         TIndent indent(out);
         out << ": public TStateVisitor {" << Eol
-            << "NO_COPY_SEMANTICS(TToNativeVisitor);" << Eol
+            << "NO_COPY(TToNativeVisitor);" << Eol
             << "public:" << Eol
             << "/* TODO */" << Eol
             << "TToNativeVisitor(Orly::Rt::Objects::" << obj_class_name << " &out) : Out(out) {}" << Eol

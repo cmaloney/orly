@@ -23,7 +23,7 @@
 #include <cassert>
 #include <iterator>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Orly {
 
@@ -213,12 +213,12 @@ namespace Orly {
       /* TODO */
       template <typename TVal, size_t MaxSize>
       class TSorter {
-        NO_COPY_SEMANTICS(TSorter);
+        NO_COPY(TSorter);
         public:
 
         /* TODO */
         class TCursor {
-          NO_COPY_SEMANTICS(TCursor);
+          NO_COPY(TCursor);
           public:
 
           /* TODO */
@@ -243,7 +243,7 @@ namespace Orly {
         /* TODO */
         class TMemCursor
             : public TCursor {
-          NO_COPY_SEMANTICS(TMemCursor);
+          NO_COPY(TMemCursor);
           public:
 
           /* TODO */

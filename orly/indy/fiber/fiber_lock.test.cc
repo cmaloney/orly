@@ -39,7 +39,7 @@ Base::TSpinLock SpinLock;
 
 class TMyRunnable
     : public TRunnable {
-  NO_COPY_SEMANTICS(TMyRunnable);
+  NO_COPY(TMyRunnable);
   public:
 
   TMyRunnable(TRunner *runner, /*TFiberLock &fiber_lock*/ TLockedQueue &locked_queue, size_t num_iter, std::mutex &mut, std::condition_variable &cond, size_t &num_finished)

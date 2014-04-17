@@ -36,7 +36,7 @@ using namespace Socket;
 using namespace Orly::Balancer;
 
 class TRouter : public TBalancer {
-  NO_COPY_SEMANTICS(TRouter);
+  NO_COPY(TRouter);
   public:
 
   TRouter(TScheduler *scheduler, const TBalancer::TCmd &cmd, size_t milli_interval) : TBalancer(scheduler, cmd), Running(true) {
@@ -88,7 +88,7 @@ class TRouter : public TBalancer {
 
   class TConnection
       : public Rpc::TContext {
-    NO_COPY_SEMANTICS(TConnection);
+    NO_COPY(TConnection);
     public:
 
     TConnection(Base::TFd &&fd)
@@ -100,7 +100,7 @@ class TRouter : public TBalancer {
 
     class TProtocol
         : public Rpc::TProtocol {
-      NO_COPY_SEMANTICS(TProtocol);
+      NO_COPY(TProtocol);
       public:
 
       static const TProtocol Protocol;
@@ -153,7 +153,7 @@ class TRouter : public TBalancer {
 };
 
 class TTestServer {
-  NO_COPY_SEMANTICS(TTestServer);
+  NO_COPY(TTestServer);
   public:
 
   static const Rpc::TEntryId
@@ -190,7 +190,7 @@ class TTestServer {
 
   class TConnection
       : public Rpc::TContext {
-    NO_COPY_SEMANTICS(TConnection);
+    NO_COPY(TConnection);
     public:
 
     TConnection(TTestServer *server, Base::TFd &&fd)
@@ -220,7 +220,7 @@ class TTestServer {
 
     class TProtocol
         : public Rpc::TProtocol {
-      NO_COPY_SEMANTICS(TProtocol);
+      NO_COPY(TProtocol);
       public:
 
       static const TProtocol Protocol;
@@ -301,7 +301,7 @@ std::mutex ExpectedHostLock;
 int ExpectedHost = 0;
 
 class TTestClient {
-  NO_COPY_SEMANTICS(TTestClient);
+  NO_COPY(TTestClient);
   public:
 
   TTestClient(TScheduler *scheduler, const TAddress &server_addr)
@@ -337,7 +337,7 @@ class TTestClient {
 
   class TConnection
       : public Rpc::TContext {
-    NO_COPY_SEMANTICS(TConnection);
+    NO_COPY(TConnection);
     public:
 
     TConnection(Base::TFd &&fd)
@@ -349,7 +349,7 @@ class TTestClient {
 
     class TProtocol
         : public Rpc::TProtocol {
-      NO_COPY_SEMANTICS(TProtocol);
+      NO_COPY(TProtocol);
       public:
 
       static const TProtocol Protocol;

@@ -21,8 +21,8 @@
 #include <c14/lang.h>
 #include <memory>
 
+#include <base/class_traits.h>
 #include <base/iter.h>
-#include <base/no_copy_semantics.h>
 #include <orly/rt/containers.h>
 #include <orly/rt/opt.h>
 #include <orly/rt/regex_splitter.h>
@@ -44,7 +44,7 @@ namespace Orly {
     /* A generator of TItem_ */
     template <typename TItem_>
     class TGenerator {
-      NO_COPY_SEMANTICS(TGenerator);
+      NO_COPY(TGenerator);
       public:
 
       typedef std::shared_ptr<const TGenerator> TPtr;
@@ -66,7 +66,7 @@ namespace Orly {
     template <typename TRes>
     class TFilterGenerator
         : public TGenerator<TRes>, public std::enable_shared_from_this<TFilterGenerator<TRes>> {
-      NO_COPY_SEMANTICS(TFilterGenerator);
+      NO_COPY(TFilterGenerator);
       public:
 
       typedef std::shared_ptr<const TFilterGenerator> TPtr;
@@ -187,7 +187,7 @@ namespace Orly {
     template <typename TRes, typename TSrc>
     class TMapGenerator
         : public TGenerator<TRes>, public std::enable_shared_from_this<TMapGenerator<TRes, TSrc>> {
-      NO_COPY_SEMANTICS(TMapGenerator);
+      NO_COPY(TMapGenerator);
       public:
 
       typedef std::shared_ptr<const TMapGenerator> TPtr;
@@ -309,7 +309,7 @@ namespace Orly {
     class TMatchGenerator final
       : public TGenerator<std::string>,
         public std::enable_shared_from_this<TMatchGenerator> {
-      NO_COPY_SEMANTICS(TMatchGenerator);
+      NO_COPY(TMatchGenerator);
       public:
 
       /* Convenience. */
@@ -385,7 +385,7 @@ namespace Orly {
 
     class TRangeGenerator
         : public TGenerator<int64_t>, public std::enable_shared_from_this<TRangeGenerator> {
-      NO_COPY_SEMANTICS(TRangeGenerator);
+      NO_COPY(TRangeGenerator);
       public:
 
       typedef std::shared_ptr<const TRangeGenerator> TPtr;
@@ -497,7 +497,7 @@ namespace Orly {
     class TSplitGenerator final
       : public TGenerator<TRegexSplitter::TItem>,
         public std::enable_shared_from_this<TSplitGenerator> {
-      NO_COPY_SEMANTICS(TSplitGenerator);
+      NO_COPY(TSplitGenerator);
       public:
 
       /* Convenience. */
@@ -579,7 +579,7 @@ namespace Orly {
     class TStlGenerator
         : public TGenerator<typename TContainer::value_type>,
           public std::enable_shared_from_this<TStlGenerator<TContainer>> {
-      NO_COPY_SEMANTICS(TStlGenerator);
+      NO_COPY(TStlGenerator);
       public:
 
       typedef std::shared_ptr<const TStlGenerator> TPtr;
@@ -650,7 +650,7 @@ namespace Orly {
     class TStlGenerator<std::vector<bool>>
         : public TGenerator<bool>,
           public std::enable_shared_from_this<TStlGenerator<std::vector<bool>>> {
-      NO_COPY_SEMANTICS(TStlGenerator);
+      NO_COPY(TStlGenerator);
       public:
 
       typedef std::shared_ptr<const TStlGenerator> TPtr;
@@ -742,7 +742,7 @@ namespace Orly {
     template <typename TRes>
     class TTakeGenerator
         : public TGenerator<TRes>, public std::enable_shared_from_this<TTakeGenerator<TRes>> {
-      NO_COPY_SEMANTICS(TTakeGenerator);
+      NO_COPY(TTakeGenerator);
       public:
 
       typedef std::shared_ptr<const TTakeGenerator> TPtr;
@@ -834,7 +834,7 @@ namespace Orly {
     template <typename TRes>
     class TSkipGenerator
         : public TGenerator<TRes>, public std::enable_shared_from_this<TSkipGenerator<TRes>> {
-      NO_COPY_SEMANTICS(TSkipGenerator);
+      NO_COPY(TSkipGenerator);
       public:
 
       typedef std::shared_ptr<const TSkipGenerator> TPtr;
@@ -933,7 +933,7 @@ namespace Orly {
     template <typename TRes>
     class TWhileGenerator
         : public TGenerator<TRes>, public std::enable_shared_from_this<TWhileGenerator<TRes>> {
-      NO_COPY_SEMANTICS(TWhileGenerator);
+      NO_COPY(TWhileGenerator);
       public:
 
       typedef std::shared_ptr<const TWhileGenerator> TPtr;

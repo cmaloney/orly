@@ -28,7 +28,7 @@ namespace Orly {
 
     class TUnwrapVisitor
         : public TType::TVisitor {
-      NO_COPY_SEMANTICS(TUnwrapVisitor);
+      NO_COPY(TUnwrapVisitor);
       protected:
 
       TUnwrapVisitor(TType &type, const TPosRange &pos_range)

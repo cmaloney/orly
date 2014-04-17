@@ -25,7 +25,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TRange : public TInline {
-      NO_COPY_SEMANTICS(TRange);
+      NO_COPY(TRange);
       public:
 
       TRange(const L0::TPackage *package,

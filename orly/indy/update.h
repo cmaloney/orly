@@ -18,7 +18,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/ordered_list.h>
 #include <orly/atom/kit2.h>
 #include <orly/atom/suprena.h>
@@ -52,7 +52,7 @@ namespace Orly {
 
     /* TODO */
     class TUpdate {
-      NO_COPY_SEMANTICS(TUpdate);
+      NO_COPY(TUpdate);
       public:
 
       /* Forward Declarations. */
@@ -69,7 +69,7 @@ namespace Orly {
 
       /* TODO */
       class TPersistenceNotification {
-        NO_COPY_SEMANTICS(TPersistenceNotification);
+        NO_COPY(TPersistenceNotification);
         public:
 
         enum TResult {
@@ -95,7 +95,7 @@ namespace Orly {
 
       /* TODO */
       class TEntry {
-        NO_COPY_SEMANTICS(TEntry);
+        NO_COPY(TEntry);
         public:
 
         /* TODO */

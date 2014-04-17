@@ -31,7 +31,7 @@ using namespace Io;
 
 class TMyProducer
     : public TInputProducer {
-  NO_COPY_SEMANTICS(TMyProducer);
+  NO_COPY(TMyProducer);
   public:
 
   TMyProducer(const vector<const char *> &msgs) {
@@ -65,7 +65,7 @@ class TMyProducer
 
 class TMyConsumer
     : public TInputConsumer {
-  NO_COPY_SEMANTICS(TMyConsumer);
+  NO_COPY(TMyConsumer);
   public:
 
   TMyConsumer(const shared_ptr<TInputProducer> &input_producer)

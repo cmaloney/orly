@@ -19,7 +19,7 @@
 #pragma once
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/interior.h>
 
 namespace Orly {
@@ -28,7 +28,7 @@ namespace Orly {
 
     class TBinary
         : public TInterior {
-      NO_COPY_SEMANTICS(TBinary);
+      NO_COPY(TBinary);
       public:
 
       ~TBinary();

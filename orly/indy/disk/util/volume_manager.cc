@@ -52,7 +52,7 @@ namespace Orly {
 
         /* TODO */
         class TGroupRequest {
-          NO_COPY_SEMANTICS(TGroupRequest);
+          NO_COPY(TGroupRequest);
           public:
 
           /* TODO */
@@ -767,7 +767,7 @@ namespace Orly {
 
         /* TODO */
         class TVolume::TStrategy {
-          NO_COPY_SEMANTICS(TStrategy);
+          NO_COPY(TStrategy);
           public:
 
           /* TODO */
@@ -1573,7 +1573,7 @@ inline bool TVolume::TStrategy::CheckDiscardBuf(size_t block_id) const {
 /* TODO */
 class TVolume::TStripedStrategy
     : public TVolume::TStrategy {
-  NO_COPY_SEMANTICS(TStripedStrategy);
+  NO_COPY(TStripedStrategy);
   public:
 
   /* TODO */
@@ -1638,7 +1638,7 @@ class TVolume::TStripedStrategy
 /* TODO */
 class TVolume::TChainedStrategy
     : public TVolume::TStrategy {
-  NO_COPY_SEMANTICS(TChainedStrategy);
+  NO_COPY(TChainedStrategy);
   public:
 
   /* TODO */

@@ -45,7 +45,7 @@ void TAddrOf::Accept(const TVisitor &visitor) const {
 Type::TType TAddrOf::GetType() const {
   class TAddrOfTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TAddrOfTypeVisitor);
+    NO_COPY(TAddrOfTypeVisitor);
     public:
     TAddrOfTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

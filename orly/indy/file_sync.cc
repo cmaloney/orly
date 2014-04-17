@@ -31,7 +31,7 @@ using namespace Orly::Indy::Disk::Util;
 
 class TFileSyncReadFile
     : public TReadFile<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage> {
-  NO_COPY_SEMANTICS(TFileSyncReadFile);
+  NO_COPY(TFileSyncReadFile);
   public:
 
   typedef TStream<Disk::Util::LogicalPageSize, Disk::Util::LogicalBlockSize, Disk::Util::PhysicalBlockSize, Disk::Util::CheckedPage, 0UL> TInStream;

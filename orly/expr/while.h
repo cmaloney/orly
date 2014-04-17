@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/thatable_binary.h>
 
 namespace Orly {
@@ -29,7 +29,7 @@ namespace Orly {
 
     class TWhile
         : public TThatableBinary {
-      NO_COPY_SEMANTICS(TWhile);
+      NO_COPY(TWhile);
       public:
 
       typedef std::shared_ptr<TWhile> TPtr;

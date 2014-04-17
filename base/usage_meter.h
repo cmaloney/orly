@@ -21,13 +21,13 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
   /* TODO */
   class TUsageMeter {
-    NO_COPY_SEMANTICS(TUsageMeter);
+    NO_COPY(TUsageMeter);
     public:
 
     /* who = (RUSAGE_SELF | RUSAGE_CHILDREN | RUSAGE_THREAD) */

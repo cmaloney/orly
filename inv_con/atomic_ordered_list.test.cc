@@ -20,14 +20,14 @@
 
 #include <thread>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <test/kit.h>
 
 class TTeam;
 class TPlayer;
 
 class TTeam {
-  NO_COPY_SEMANTICS(TTeam);
+  NO_COPY(TTeam);
   public:
 
   typedef InvCon::AtomicOrderedList::TCollection<TTeam, TPlayer, int> TPlayerCollection;
@@ -56,7 +56,7 @@ class TTeam {
 };  // TTeam
 
 class TPlayer {
-  NO_COPY_SEMANTICS(TPlayer);
+  NO_COPY(TPlayer);
   public:
 
   typedef InvCon::AtomicOrderedList::TMembership<TPlayer, TTeam, int> TTeamMembership;

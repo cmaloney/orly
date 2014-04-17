@@ -27,7 +27,7 @@ namespace Orly {
 
     class TSkip
         : public TInline {
-      NO_COPY_SEMANTICS(TSkip);
+      NO_COPY(TSkip);
       public:
 
       typedef std::shared_ptr<TSkip> TPtr;

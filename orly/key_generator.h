@@ -29,7 +29,7 @@ namespace Orly {
 
   /* TODO */
   class TKeyCursor {
-    NO_COPY_SEMANTICS(TKeyCursor);
+    NO_COPY(TKeyCursor);
     public:
 
     /* TODO */
@@ -66,7 +66,7 @@ namespace Orly {
 
     /* TODO */
     class TPackageContext {
-      NO_COPY_SEMANTICS(TPackageContext);
+      NO_COPY(TPackageContext);
       public:
 
       /* TODO */
@@ -88,7 +88,7 @@ namespace Orly {
   class TKeyGenerator
       : public Rt::TGenerator<TRet>,
         public std::enable_shared_from_this<TKeyGenerator<TRet>> {
-    NO_COPY_SEMANTICS(TKeyGenerator);
+    NO_COPY(TKeyGenerator);
     public:
 
     /* TODO */

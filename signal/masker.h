@@ -22,14 +22,14 @@
 
 #include <signal.h>
 
+#include <base/class_traits.h>
 #include <base/error_utils.h>
-#include <base/no_copy_semantics.h>
 
 namespace Signal {
 
   /* RAII for setting the signal mask. */
   class TMasker {
-    NO_COPY_SEMANTICS(TMasker);
+    NO_COPY(TMasker);
     public:
 
     /* Set the mask to the given set. */

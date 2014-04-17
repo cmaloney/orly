@@ -35,7 +35,7 @@ namespace Orly {
 
       class TMockMem
           : public TMemoryLayer {
-        NO_COPY_SEMANTICS(TMockMem);
+        NO_COPY(TMockMem);
         public:
 
         TMockMem() : TMemoryLayer(nullptr) {}
@@ -45,7 +45,7 @@ namespace Orly {
       };
 
       class TMockUpdate : public TUpdate {
-        NO_COPY_SEMANTICS(TMockUpdate);
+        NO_COPY(TMockUpdate);
         public:
 
         static TMockUpdate *NewMockUpdate(const TOpByKey &op_by_key, const TKey &id, const TKey &metadata, TSequenceNumber seq_num) {
@@ -64,7 +64,7 @@ namespace Orly {
 
       class TReader
           : public TReadFile<Util::LogicalBlockSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::PageCheckedBlock, true> {
-        NO_COPY_SEMANTICS(TReader);
+        NO_COPY(TReader);
         public:
 
         static constexpr size_t PhysicalCachePageSize = Util::PhysicalBlockSize / (Util::LogicalBlockSize / Util::LogicalBlockSize);

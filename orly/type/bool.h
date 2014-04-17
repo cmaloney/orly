@@ -26,7 +26,7 @@ namespace Orly {
 
     /* TODO */
     class TBool : public TSingletonType<TBool> {
-      NO_COPY_SEMANTICS(TBool);
+      NO_COPY(TBool);
       public:
       virtual ~TBool();
 

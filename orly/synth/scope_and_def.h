@@ -35,7 +35,7 @@
 #include <functional>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/unordered_multimap.h>
 #include <orly/symbol/scope.h>
 #include <orly/synth/cst_utils.h>
@@ -51,7 +51,7 @@ namespace Orly {
 
     /* The base for all references. */
     class TAnyRef {
-      NO_COPY_SEMANTICS(TAnyRef);
+      NO_COPY(TAnyRef);
       public:
 
       /* Do-little. */
@@ -143,7 +143,7 @@ namespace Orly {
        However, we don't assume that the program is correct,
        each scope maintains a multimap between itself and its defs. */
     class TScope {
-      NO_COPY_SEMANTICS(TScope);
+      NO_COPY(TScope);
       public:
 
       /* The type of our collection of defs. */
@@ -218,7 +218,7 @@ namespace Orly {
        However, some defs define their own, local scope as well.
        This is the inner scope of the def, and sub-defs will live within it. */
     class TDef {
-      NO_COPY_SEMANTICS(TDef);
+      NO_COPY(TDef);
       public:
 
       /* The type of our membership in scope's collection of defs. */
@@ -244,7 +244,7 @@ namespace Orly {
       template <typename TSomeDef>
       class TRef
           : public TAnyRef {
-        NO_COPY_SEMANTICS(TRef);
+        NO_COPY(TRef);
         public:
 
         /* Do little. */

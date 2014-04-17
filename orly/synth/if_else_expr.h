@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/synth/expr.h>
 
 namespace Orly {
@@ -28,7 +28,7 @@ namespace Orly {
     /* TODO */
     class TIfElseExpr
         : public TExpr {
-      NO_COPY_SEMANTICS(TIfElseExpr);
+      NO_COPY(TIfElseExpr);
       public:
 
       /* TODO */

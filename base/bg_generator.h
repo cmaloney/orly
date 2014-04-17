@@ -47,13 +47,13 @@
 
 #include <ucontext.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
   /* The base class for all bg generators. */
   class TAnyBgGenerator {
-    NO_COPY_SEMANTICS(TAnyBgGenerator);
+    NO_COPY(TAnyBgGenerator);
     public:
 
     /* You MUST call FinalizeBg() in the destructor of your final class.
@@ -188,7 +188,7 @@ namespace Base {
   template <typename TVal>
   class TBgGenerator final
       : public TAnyBgGenerator {
-    NO_COPY_SEMANTICS(TBgGenerator);
+    NO_COPY(TBgGenerator);
     public:
 
     /* A function which uses a generated value and returns true iff. it wants

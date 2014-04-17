@@ -32,7 +32,7 @@ namespace Orly {
 
     /* Interns notes. */
     class TNoteInterner {
-      NO_COPY_SEMANTICS(TNoteInterner);
+      NO_COPY(TNoteInterner);
       public:
 
       /* TODO */

@@ -42,7 +42,7 @@ class TTetrisManager final
 
   /* TODO */
   class TPov {
-    NO_COPY_SEMANTICS(TPov);
+    NO_COPY(TPov);
     public:
 
     /* Construct a non-global pov. */
@@ -331,7 +331,7 @@ FIXTURE(Typical) {
   std::thread t1(std::bind(launch_fiber_sched, &runner, &frame_pool_manager));
 
   class TTest : public TRunnable {
-    NO_COPY_SEMANTICS(TTest);
+    NO_COPY(TTest);
     public:
 
     TTest(TRunner *runner,

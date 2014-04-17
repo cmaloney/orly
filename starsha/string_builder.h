@@ -21,13 +21,13 @@
 #include <cassert>
 #include <sstream>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Starsha {
 
   /* TODO */
   class TStringBuilder {
-    NO_COPY_SEMANTICS(TStringBuilder);
+    NO_COPY(TStringBuilder);
     public:
 
     /* TODO */

@@ -43,7 +43,7 @@ void TIn::Accept(const TVisitor &visitor) const {
 Type::TType TIn::GetType() const {
   class TInTypeVisitor
       : public Type::TInfixVisitor {
-    NO_COPY_SEMANTICS(TInTypeVisitor);
+    NO_COPY(TInTypeVisitor);
     public:
     TInTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TInfixVisitor(type, pos_range) {}

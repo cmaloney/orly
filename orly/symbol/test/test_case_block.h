@@ -21,7 +21,7 @@
 #include <memory>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <orly/expr/expr.h>
 #include <orly/symbol/root.h>
@@ -36,7 +36,7 @@ namespace Orly {
 
       class TTestCase
           : public TRoot {
-        NO_COPY_SEMANTICS(TTestCase);
+        NO_COPY(TTestCase);
         public:
 
         typedef std::shared_ptr<TTestCase> TPtr;
@@ -76,7 +76,7 @@ namespace Orly {
       };  // TTestCase
 
       class TTestCaseBlock {
-        NO_COPY_SEMANTICS(TTestCaseBlock);
+        NO_COPY(TTestCaseBlock);
         public:
 
         typedef std::shared_ptr<TTestCaseBlock> TPtr;

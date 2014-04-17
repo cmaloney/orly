@@ -28,7 +28,7 @@ namespace Orly {
     /* TODO */
     class TFailoverTestBalancer
         : public TBalancer {
-      NO_COPY_SEMANTICS(TFailoverTestBalancer);
+      NO_COPY(TFailoverTestBalancer);
       public:
 
       /* TODO */

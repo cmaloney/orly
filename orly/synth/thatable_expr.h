@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/thatable.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
@@ -41,7 +41,7 @@ namespace Orly {
     /* TODO */
     class TThatableExpr
         : virtual public TExpr {
-      NO_COPY_SEMANTICS(TThatableExpr);
+      NO_COPY(TThatableExpr);
       public:
 
       /* TODO */

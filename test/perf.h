@@ -51,7 +51,7 @@
 #include <chrono>
 #include <iostream>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <inv_con/ordered_list.h>
 
@@ -80,7 +80,7 @@ namespace Test {
   /* A performance metric. This is the base class for all the different types of performance metrics and performs the
      basic book keeping. */
   class TMetric {
-    NO_COPY_SEMANTICS(TMetric);
+    NO_COPY(TMetric);
 
     public:
     /* The directions in which a metric can be expected to move. */
@@ -137,7 +137,7 @@ namespace Test {
 
   template<typename TVal = int64_t>
   class TGenericCounter : public TMetric {
-    NO_COPY_SEMANTICS(TGenericCounter);
+    NO_COPY(TGenericCounter);
     public:
     TGenericCounter(const char *name, TMetric::TDirection direction)
         : TMetric("counter", name, direction), Val(0) {}
@@ -176,7 +176,7 @@ namespace Test {
 
   template<typename TClock_ = std::chrono::high_resolution_clock>
   class TGenericTimer : public TMetric {
-    NO_COPY_SEMANTICS(TGenericTimer);
+    NO_COPY(TGenericTimer);
     public:
     typedef TClock_ TClock;
 
@@ -238,7 +238,7 @@ namespace Test {
   typedef TGenericTimer<> TTimer;
 
   class TPerf {
-    NO_COPY_SEMANTICS(TPerf);
+    NO_COPY(TPerf);
     public:
 
     typedef void (*TFunc)();

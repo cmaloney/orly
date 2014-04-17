@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/decl.h>
 #include <tools/nycr/symbol/prec_level.h>
 
@@ -29,7 +29,7 @@ namespace Tools {
     /* TODO */
     class TPrecLevel
         : public TDecl {
-      NO_COPY_SEMANTICS(TPrecLevel);
+      NO_COPY(TPrecLevel);
       public:
 
       /* TODO */

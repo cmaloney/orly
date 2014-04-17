@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/collated_by.h>
 #include <orly/expr/thatable.h>
 #include <orly/orly.package.cst.h>
@@ -38,7 +38,7 @@ namespace Orly {
     class TCollatedByExpr
         : public TStartableExpr,
           public TThatableExpr {
-      NO_COPY_SEMANTICS(TCollatedByExpr);
+      NO_COPY(TCollatedByExpr);
       public:
 
       /* TODO */

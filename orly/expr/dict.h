@@ -22,7 +22,7 @@
 #include <map>
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/ctor.h>
 
 namespace Orly {
@@ -31,7 +31,7 @@ namespace Orly {
 
     class TDict
         : public TCtor<std::unordered_map<TExpr::TPtr, TExpr::TPtr>> {
-      NO_COPY_SEMANTICS(TDict);
+      NO_COPY(TDict);
       public:
 
       typedef std::shared_ptr<TDict> TPtr;

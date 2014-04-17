@@ -31,7 +31,7 @@ namespace Orly {
 
         /* TODO */
         class TDiskEngine {
-          NO_COPY_SEMANTICS(TDiskEngine);
+          NO_COPY(TDiskEngine);
           public:
 
           /* TODO */
@@ -310,7 +310,7 @@ namespace Orly {
           /* TODO */
           class TDataFileReader
               : public TReadFile<LogicalPageSize, LogicalBlockSize, PhysicalBlockSize, CheckedPage> {
-            NO_COPY_SEMANTICS(TDataFileReader);
+            NO_COPY(TDataFileReader);
             public:
 
             /* TODO */

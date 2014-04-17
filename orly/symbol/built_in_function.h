@@ -32,7 +32,7 @@ namespace Orly {
     class TBuiltInFunction
         : public TAnyFunction,
           public std::enable_shared_from_this<TBuiltInFunction> {
-      NO_COPY_SEMANTICS(TBuiltInFunction);
+      NO_COPY(TBuiltInFunction);
       public:
 
       typedef std::vector<std::string> TOrderedParams;

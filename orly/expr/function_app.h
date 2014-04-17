@@ -20,7 +20,7 @@
 
 #include <map>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 #include <orly/expr/visitor.h>
 #include <orly/symbol/function.h>
@@ -34,7 +34,7 @@ namespace Orly {
 
     class TFunctionAppArg
         : public Symbol::TRoot {
-      NO_COPY_SEMANTICS(TFunctionAppArg);
+      NO_COPY(TFunctionAppArg);
       public:
 
       typedef std::shared_ptr<TFunctionAppArg> TPtr;
@@ -57,7 +57,7 @@ namespace Orly {
 
     class TFunctionApp
         : public TUnary {
-      NO_COPY_SEMANTICS(TFunctionApp);
+      NO_COPY(TFunctionApp);
       public:
 
       typedef std::shared_ptr<TFunctionApp> TPtr;

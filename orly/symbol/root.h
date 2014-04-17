@@ -19,7 +19,7 @@
 #pragma once
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/expr.h>
 #include <orly/expr/expr_parent.h>
 
@@ -29,7 +29,7 @@ namespace Orly {
 
     class TRoot
         : public Expr::TExprParent {
-      NO_COPY_SEMANTICS(TRoot);
+      NO_COPY(TRoot);
       public:
 
       virtual ~TRoot();

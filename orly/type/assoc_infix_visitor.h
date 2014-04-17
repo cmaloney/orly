@@ -26,7 +26,7 @@ namespace Orly {
 
     class TAssocInfixVisitor
         : public TInfixVisitor {
-      NO_COPY_SEMANTICS(TAssocInfixVisitor);
+      NO_COPY(TAssocInfixVisitor);
       protected:
 
       /* TODO */

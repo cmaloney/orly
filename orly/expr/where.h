@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 #include <orly/symbol/scope.h>
 
@@ -28,7 +28,7 @@ namespace Orly {
 
     class TWhere
         : public Symbol::TScope, public TUnary {
-      NO_COPY_SEMANTICS(TWhere);
+      NO_COPY(TWhere);
       public:
 
       typedef std::shared_ptr<TWhere> TPtr;

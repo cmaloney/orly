@@ -46,7 +46,7 @@ using namespace Jhm;
 /* Compiles a orlyscript package. On construction it builds to the symbolic layer. It can be asked to emit the
    necessary C++ */
 class TPackageBuilder {
-  NO_COPY_SEMANTICS(TPackageBuilder);
+  NO_COPY(TPackageBuilder);
   public:
 
   //TODO: Version report?

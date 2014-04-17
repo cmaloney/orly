@@ -25,7 +25,7 @@ namespace Orly {
   namespace Type {
 
     class TTimePnt : public TSingletonType<TTimePnt> {
-      NO_COPY_SEMANTICS(TTimePnt);
+      NO_COPY(TTimePnt);
       public:
 
       virtual ~TTimePnt();

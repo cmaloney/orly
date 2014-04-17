@@ -24,10 +24,10 @@
 #include <unordered_map>
 #include <netinet/in.h>
 
+#include <base/class_traits.h>
 #include <base/debug_log.h>
 #include <base/fd.h>
 #include <base/log.h>
-#include <base/no_copy_semantics.h>
 #include <base/scheduler.h>
 #include <base/timer_fd.h>
 #include <base/uuid.h>
@@ -119,7 +119,7 @@ namespace Orly {
 
     /* TODO */
     class TIndyReporter {
-      NO_COPY_SEMANTICS(TIndyReporter);
+      NO_COPY(TIndyReporter);
       public:
 
       /* TODO */
@@ -161,7 +161,7 @@ namespace Orly {
     /* TODO */
     class TServer final
         : public TSession::TServer, public Indy::Fiber::TRunnable {
-      NO_COPY_SEMANTICS(TServer);
+      NO_COPY(TServer);
       public:
 
       /* TODO */
@@ -399,7 +399,7 @@ namespace Orly {
       /* A live connection to a client. */
       class TConnection final
           : public Rpc::TContext {
-        NO_COPY_SEMANTICS(TConnection);
+        NO_COPY(TConnection);
         public:
 
         /* The session associated with this connection.  Never null. */
@@ -527,7 +527,7 @@ namespace Orly {
 
         class TConnectionRunnable
             : public Indy::Fiber::TRunnable {
-          NO_COPY_SEMANTICS(TConnectionRunnable);
+          NO_COPY(TConnectionRunnable);
           public:
 
           TConnectionRunnable(Indy::Fiber::TRunner *runner, const std::shared_ptr<const Rpc::TAnyRequest> &request);
@@ -552,7 +552,7 @@ namespace Orly {
         /* The RPC protocol spoken by our end of this conversation. */
         class TProtocol
             : public Rpc::TProtocol {
-          NO_COPY_SEMANTICS(TProtocol);
+          NO_COPY(TProtocol);
           public:
 
           /* Our singleton. */
@@ -582,7 +582,7 @@ namespace Orly {
       /* TODO */
       class TServeClientRunnable
           : public Indy::Fiber::TRunnable {
-        NO_COPY_SEMANTICS(TServeClientRunnable);
+        NO_COPY(TServeClientRunnable);
         public:
 
         /* TODO */

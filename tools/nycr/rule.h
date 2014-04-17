@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/compound.h>
 #include <tools/nycr/symbol/rule.h>
 
@@ -32,7 +32,7 @@ namespace Tools {
     /* TODO */
     class TRule
         : public TCompound {
-      NO_COPY_SEMANTICS(TRule);
+      NO_COPY(TRule);
       public:
 
       /* TODO */

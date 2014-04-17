@@ -895,7 +895,7 @@ bool TVar::operator>(const TVar &that) const {
 TVar::operator bool() const {
   assert(this);
   class TIsUnknownVisitor : public TVar::TVisitor {
-    NO_COPY_SEMANTICS(TIsUnknownVisitor);
+    NO_COPY(TIsUnknownVisitor);
     public:
     TIsUnknownVisitor(bool &is_unknown) : IsUnknown(is_unknown) {}
     virtual void operator()(const Var::TAddr *) const {/* DO NOTHING */}

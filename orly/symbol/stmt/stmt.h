@@ -20,8 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
-
+#include <base/class_traits.h>
 #include <orly/pos_range.h>
 
 namespace Orly {
@@ -37,11 +36,11 @@ namespace Orly {
       class TStmtBlock;
 
       class TStmt {
-        NO_COPY_SEMANTICS(TStmt);
+        NO_COPY(TStmt);
         public:
 
         class TVisitor {
-          NO_COPY_SEMANTICS(TVisitor);
+          NO_COPY(TVisitor);
           public:
 
           virtual ~TVisitor() {}

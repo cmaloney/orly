@@ -21,7 +21,7 @@
 #include <functional>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/symbol/stmt/stmt_block.h>
 #include <orly/synth/scope_and_def.h>
@@ -37,7 +37,7 @@ namespace Orly {
 
     /* TODO */
     class TStmtBlock {
-      NO_COPY_SEMANTICS(TStmtBlock);
+      NO_COPY(TStmtBlock);
       public:
 
       typedef std::vector<TStmt *> TStmtVec;

@@ -24,7 +24,7 @@
 
 #include <syslog.h>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <base/impossible_error.h>
 #include <server/daemonize.h>
 

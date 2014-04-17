@@ -21,7 +21,7 @@
 #include <cassert>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <jhm/naming.h>
 #include <orly/symbol/package.h>
 #include <orly/synth/def_factory.h>
@@ -34,7 +34,7 @@ namespace Orly {
     /* Synth TPackage class */
     class TPackage
         : public TScope {
-      NO_COPY_SEMANTICS(TPackage);
+      NO_COPY(TPackage);
       public:
 
       /* Constructor */
@@ -67,7 +67,7 @@ namespace Orly {
       /* Top level DefFactory */
       class TTopLevelDefFactory
           : public TDefFactory {
-        NO_COPY_SEMANTICS(TTopLevelDefFactory);
+        NO_COPY(TTopLevelDefFactory);
         public:
 
         /* TODO */

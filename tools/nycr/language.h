@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/compound.h>
 #include <tools/nycr/symbol/language.h>
 
@@ -35,7 +35,7 @@ namespace Tools {
     /* TODO */
     class TLanguage
         : public TCompound {
-      NO_COPY_SEMANTICS(TLanguage);
+      NO_COPY(TLanguage);
       public:
 
       /* TODO */

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 
 namespace Orly {
@@ -27,7 +27,7 @@ namespace Orly {
 
     class TReverseOf
         : public TUnary {
-      NO_COPY_SEMANTICS(TReverseOf);
+      NO_COPY(TReverseOf);
       public:
 
       typedef std::shared_ptr<TReverseOf> TPtr;

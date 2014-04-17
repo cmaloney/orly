@@ -20,7 +20,7 @@
 
 #include <string>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/pos_range.h>
 #include <orly/symbol/function.h>
 #include <orly/type/impl.h>
@@ -31,7 +31,7 @@ namespace Orly {
 
     class TParamDef
         : public TFunction::TParamDef {
-      NO_COPY_SEMANTICS(TParamDef);
+      NO_COPY(TParamDef);
       public:
 
       TFunction::TPtr GetFunction() const;

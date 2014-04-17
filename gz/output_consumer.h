@@ -29,7 +29,7 @@ namespace Gz {
   /* TODO */
   class TOutputConsumer final
       : public Io::TOutputConsumer {
-    NO_COPY_SEMANTICS(TOutputConsumer);
+    NO_COPY(TOutputConsumer);
     public:
 
     /* TODO */

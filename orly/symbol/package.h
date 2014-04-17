@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <jhm/naming.h>
 #include <orly/symbol/scope.h>
 
@@ -31,7 +31,7 @@ namespace Orly {
     /* Top level package. */
     class TPackage
         : public TScope {
-      NO_COPY_SEMANTICS(TPackage);
+      NO_COPY(TPackage);
       public:
 
       /* Convenience typedef for std::shared_ptr<TPackage> */

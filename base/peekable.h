@@ -21,7 +21,7 @@
 #include <cassert>
 #include <functional>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/no_default_case.h>
 #include <base/past_end_error.h>
 
@@ -30,7 +30,7 @@ namespace Base {
   /* TODO */
   template <typename TVal>
   class TPeekable {
-    NO_COPY_SEMANTICS(TPeekable);
+    NO_COPY(TPeekable);
     public:
 
     /* TODO */

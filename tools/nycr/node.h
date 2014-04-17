@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Tools {
 
@@ -26,7 +26,7 @@ namespace Tools {
 
     /* TODO */
     class TNode {
-      NO_COPY_SEMANTICS(TNode);
+      NO_COPY(TNode);
       public:
 
       /* TODO */

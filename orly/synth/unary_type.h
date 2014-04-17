@@ -27,7 +27,7 @@ namespace Orly {
     /* TODO */
     class TUnaryType
         : public TType {
-      NO_COPY_SEMANTICS(TUnaryType);
+      NO_COPY(TUnaryType);
       public:
 
       /* TODO */

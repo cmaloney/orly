@@ -43,7 +43,7 @@ void TWhile::Accept(const TVisitor &visitor) const {
 Type::TType TWhile::GetType() const {
   class TWhileTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TWhileTypeVisitor);
+    NO_COPY(TWhileTypeVisitor);
     public:
     TWhileTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

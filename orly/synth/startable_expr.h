@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/startable.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
@@ -35,7 +35,7 @@ namespace Orly {
     /* TODO */
     class TStartableExpr
         : virtual public TExpr {
-      NO_COPY_SEMANTICS(TStartableExpr);
+      NO_COPY(TStartableExpr);
       public:
 
       /* TODO */

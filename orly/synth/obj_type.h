@@ -31,7 +31,7 @@ namespace Orly {
     /* TODO */
     class TObjType
         : public TType {
-      NO_COPY_SEMANTICS(TObjType);
+      NO_COPY(TObjType);
       public:
 
       /* TODO */

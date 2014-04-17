@@ -105,7 +105,7 @@
 #include <mpl/type_list.h>
 #include <mpl/type_set.h>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 
 namespace Visitor {
 

@@ -31,7 +31,7 @@ namespace Orly {
 
       class TMutate
           : public TBinary {
-        NO_COPY_SEMANTICS(TMutate);
+        NO_COPY(TMutate);
         public:
 
         typedef std::shared_ptr<TMutate> TPtr;

@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/input_producer.h>
 #include <io/output_consumer.h>
 
@@ -35,7 +35,7 @@ namespace Io {
   /* A consumer of output which holds all its data in memory. */
   class TRecorder
       : public TOutputConsumer {
-    NO_COPY_SEMANTICS(TRecorder);
+    NO_COPY(TRecorder);
     public:
 
     /* Do-little. */
@@ -66,7 +66,7 @@ namespace Io {
   /* An input producer which plays back a recording. */
   class TPlayer
       : public TInputProducer {
-    NO_COPY_SEMANTICS(TPlayer);
+    NO_COPY(TPlayer);
     public:
 
     /* Play back from the given recorder, which must not be null. */

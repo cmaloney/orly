@@ -27,7 +27,7 @@ namespace Orly {
 
     class TWhile
         : public TInline {
-      NO_COPY_SEMANTICS(TWhile);
+      NO_COPY(TWhile);
       public:
 
       typedef std::shared_ptr<TWhile> TPtr;

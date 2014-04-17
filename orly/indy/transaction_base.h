@@ -35,7 +35,7 @@ namespace Orly {
 
       /* TODO */
       class TTransaction {
-        NO_COPY_SEMANTICS(TTransaction);
+        NO_COPY(TTransaction);
         public:
 
         /* TODO */
@@ -77,7 +77,7 @@ namespace Orly {
 
         /* TODO */
         class TTransactionCompletion {
-          NO_COPY_SEMANTICS(TTransactionCompletion);
+          NO_COPY(TTransactionCompletion);
           public:
 
           enum TTransactionResult {
@@ -376,7 +376,7 @@ namespace Orly {
 
         /* TODO */
         class TMutation {
-          NO_COPY_SEMANTICS(TMutation);
+          NO_COPY(TMutation);
           public:
 
           enum TKind {
@@ -439,7 +439,7 @@ namespace Orly {
         /* TODO */
         class TPusher
             : public TMutation {
-          NO_COPY_SEMANTICS(TPusher);
+          NO_COPY(TPusher);
           public:
 
           /* TODO */
@@ -464,7 +464,7 @@ namespace Orly {
         /* TODO */
         class TPopper
             : public TMutation {
-          NO_COPY_SEMANTICS(TPopper);
+          NO_COPY(TPopper);
           public:
 
           /* TODO */
@@ -514,7 +514,7 @@ namespace Orly {
         /* TODO */
         class TStatusChanger
             : public TMutation {
-          NO_COPY_SEMANTICS(TStatusChanger);
+          NO_COPY(TStatusChanger);
           public:
 
           /* TODO */
@@ -581,7 +581,7 @@ namespace Orly {
       /* TODO */
       class TManager
           : public L0::TManager {
-        NO_COPY_SEMANTICS(TManager);
+        NO_COPY(TManager);
         public:
 
         /* TODO */

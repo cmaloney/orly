@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/shared_enum.h>
 #include <orly/orly.package.cst.h>
 #include <orly/symbol/stmt/mutate.h>
@@ -36,7 +36,7 @@ namespace Orly {
     /* TODO */
     class TMutateStmt
         : public TStmt {
-      NO_COPY_SEMANTICS(TMutateStmt);
+      NO_COPY(TMutateStmt);
       public:
 
       /* TODO */

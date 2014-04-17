@@ -21,7 +21,7 @@
 #include <cassert>
 #include <unordered_set>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/symbol/name.h>
 
 namespace Tools {
@@ -39,12 +39,12 @@ namespace Tools {
 
       /* TODO */
       class TKind {
-        NO_COPY_SEMANTICS(TKind);
+        NO_COPY(TKind);
         public:
 
         /* TODO */
         class TAnyBase {
-          NO_COPY_SEMANTICS(TAnyBase);
+          NO_COPY(TAnyBase);
           public:
 
           /* TODO */

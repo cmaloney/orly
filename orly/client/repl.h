@@ -25,9 +25,9 @@
 
 #include <termios.h>
 
+#include <base/class_traits.h>
 #include <base/cmd.h>
 #include <base/log.h>
-#include <base/no_copy_semantics.h>
 #include <base/no_throw.h>
 #include <base/opt.h>
 #include <base/uuid.h>
@@ -41,7 +41,7 @@ namespace Orly {
 
     /* Runs the Read-Execute-Print Loop for the Orly client. */
     class TRepl {
-      NO_COPY_SEMANTICS(TRepl);
+      NO_COPY(TRepl);
       public:
 
       /* Run the REPL. */

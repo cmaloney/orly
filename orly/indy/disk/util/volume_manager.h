@@ -7,7 +7,7 @@
 
 ||||||| merged common ancestors
    Copyright 2010-2014 Orly
-   
+
 =======
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -43,11 +43,11 @@
 #include <syslog.h>
 #include <unistd.h>
 
+#include <base/class_traits.h>
 #include <base/code_location.h>
 #include <base/error_utils.h>
 #include <base/event_semaphore.h>
 #include <base/likely.h>
-#include <base/no_copy_semantics.h>
 #include <base/scheduler.h>
 #include <base/sigma_calc.h>
 #include <base/timer.h>
@@ -337,7 +337,7 @@ namespace Orly {
 
         /* TODO */
         class TDiskController {
-          NO_COPY_SEMANTICS(TDiskController);
+          NO_COPY(TDiskController);
           public:
 
           /* TODO */
@@ -346,7 +346,7 @@ namespace Orly {
           /* TODO */
           class TEvent
               : public Base::TThreadLocalGlobalPoolManager<TEvent>::TObjBase {
-            NO_COPY_SEMANTICS(TEvent);
+            NO_COPY(TEvent);
             public:
 
             /* TODO */
@@ -563,7 +563,7 @@ namespace Orly {
 
         /* TODO */
         class TDevice {
-          NO_COPY_SEMANTICS(TDevice);
+          NO_COPY(TDevice);
           public:
 
           /* TODO */
@@ -692,7 +692,7 @@ namespace Orly {
         /* TODO */
         class TMemoryDevice
             : public TDevice {
-          NO_COPY_SEMANTICS(TMemoryDevice);
+          NO_COPY(TMemoryDevice);
           public:
 
           /* TODO */
@@ -790,7 +790,7 @@ namespace Orly {
         /* TODO */
         class TPersistentDevice
             : public TDevice {
-          NO_COPY_SEMANTICS(TPersistentDevice);
+          NO_COPY(TPersistentDevice);
           public:
 
           /* TODO */
@@ -972,7 +972,7 @@ namespace Orly {
 
         /* TODO */
         class TVolume {
-          NO_COPY_SEMANTICS(TVolume);
+          NO_COPY(TVolume);
           public:
 
           struct TDesc {
@@ -1128,7 +1128,7 @@ namespace Orly {
 
         /* TODO */
         class TVolumeManager {
-          NO_COPY_SEMANTICS(TVolumeManager);
+          NO_COPY(TVolumeManager);
           public:
 
           /* TODO */

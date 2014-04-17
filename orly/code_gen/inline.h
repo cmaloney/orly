@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <orly/code_gen/id.h>
 #include <orly/code_gen/package_base.h>
@@ -29,7 +29,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TInline {
-      NO_COPY_SEMANTICS(TInline);
+      NO_COPY(TInline);
       public:
 
       typedef std::shared_ptr<const TInline> TPtr;

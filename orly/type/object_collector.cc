@@ -28,7 +28,7 @@ using namespace Orly::Type;
 //TODO: Move to new families of visitors.
 void Orly::Type::CollectObjects(const TType &type, unordered_set<TType> &object_set) {
   class TObjectCollectorVisitor : public TType::TVisitor {
-    NO_COPY_SEMANTICS(TObjectCollectorVisitor);
+    NO_COPY(TObjectCollectorVisitor);
     public:
     TObjectCollectorVisitor(unordered_set<TType> &object_set) : ObjectSet(object_set) {}
     virtual void operator()(const TAddr *that) const {

@@ -26,7 +26,7 @@ namespace Orly {
 
     /* TODO */
     class TExists : public TInline {
-      NO_COPY_SEMANTICS(TExists);
+      NO_COPY(TExists);
       public:
 
       /* TODO */

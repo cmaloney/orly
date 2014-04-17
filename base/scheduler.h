@@ -45,7 +45,7 @@
 #include <thread>
 #include <utility>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <base/shutting_down.h>
 #include <signal/handler_installer.h>
@@ -55,7 +55,7 @@ namespace Base {
 
   /* A scheduler of background jobs. */
   class TScheduler {
-    NO_COPY_SEMANTICS(TScheduler);
+    NO_COPY(TScheduler);
     public:
 
     /* A function to be scheduled. */
@@ -192,7 +192,7 @@ namespace Base {
 
     /* A background worker. */
     class TWorker {
-      NO_COPY_SEMANTICS(TWorker);
+      NO_COPY(TWorker);
       public:
 
       /* Send the interrupt signal to each worker. */

@@ -60,7 +60,7 @@ TAssertExpr::TAssertExpr(const TExprFactory *expr_factory, const Package::Syntax
     : AssertExpr(Base::AssertTrue(assert_expr)), Expr(nullptr) {
   class TAssertionVisitor
       : public Package::Syntax::TAssertion::TVisitor {
-    NO_COPY_SEMANTICS(TAssertionVisitor);
+    NO_COPY(TAssertionVisitor);
     public:
     TAssertionVisitor(TAssertCaseVec &assert_cases, const TExprFactory *expr_factory)
         : AssertCases(assert_cases), ExprFactory(expr_factory) {}

@@ -38,7 +38,7 @@ using namespace Base;
 
 /* A synchronized counter.  We'll use this to manage the thundering herd of threads we'll use for tests. */
 class TCounter {
-  NO_COPY_SEMANTICS(TCounter);
+  NO_COPY(TCounter);
   public:
 
   /* Start at zero. */
@@ -80,7 +80,7 @@ class TCounter {
    the queue should get the values in order of the workers' priorities; otherwise, the
    values in the queue could be in any arbitrary order. */
 class TTester {
-  NO_COPY_SEMANTICS(TTester);
+  NO_COPY(TTester);
   public:
 
   /* Run the test with the given number of workers, each pushing to the queue the given number of times.

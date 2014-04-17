@@ -18,14 +18,14 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Orly {
 
   namespace Expr {
 
     class TExprParent {
-      NO_COPY_SEMANTICS(TExprParent);
+      NO_COPY(TExprParent);
       public:
 
       virtual ~TExprParent();

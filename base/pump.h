@@ -56,16 +56,16 @@
 
 #include <sys/epoll.h>
 
+#include <base/class_traits.h>
 #include <base/event_semaphore.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 #include <base/no_default_case.h>
 
 namespace Base {
 
   /* A pump for pipes. */
   class TPump final {
-    NO_COPY_SEMANTICS(TPump);
+    NO_COPY(TPump);
     public:
 
     /* Construct with no pipes. */
@@ -131,14 +131,14 @@ namespace Base {
 
     /* A pipe, which is really a pair of OS pipes, one inbound and one outbound. */
     class TPipe final {
-      NO_COPY_SEMANTICS(TPipe);
+      NO_COPY(TPipe);
       public:
 
       /* A page of data which is part of a linked list of pages.
          If the page contains data ready to be used, then it is in a pipe's list of committed pages;
          otherwise, it is in the pump's list of recycled pages, waiting to be used again. */
       class TPage final {
-        NO_COPY_SEMANTICS(TPage);
+        NO_COPY(TPage);
         public:
 
         /* Construct as recycled. */

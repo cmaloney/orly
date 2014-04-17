@@ -21,7 +21,7 @@
 #include <functional>
 #include <unordered_map>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
 #include <orly/synth/new_expr.h>
@@ -34,7 +34,7 @@ namespace Orly {
     /* TODO */
     class TDictCtor
         : public TExpr {
-      NO_COPY_SEMANTICS(TDictCtor);
+      NO_COPY(TDictCtor);
       public:
 
       /* TODO */

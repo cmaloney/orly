@@ -20,7 +20,7 @@
 
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
 
@@ -33,7 +33,7 @@ namespace Orly {
     /* TODO */
     class TListCtor
         : public TExpr {
-      NO_COPY_SEMANTICS(TListCtor);
+      NO_COPY(TListCtor);
       public:
 
       /* TODO */

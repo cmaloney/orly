@@ -26,7 +26,7 @@ namespace Orly {
 
     /* TODO */
     class TUnknown : public TSingletonType<TUnknown> {
-      NO_COPY_SEMANTICS(TUnknown);
+      NO_COPY(TUnknown);
       public:
       virtual ~TUnknown();
 

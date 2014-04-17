@@ -21,7 +21,7 @@
 #include <array>
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/n_ary.h>
 
 namespace Orly {
@@ -30,7 +30,7 @@ namespace Orly {
 
     class TRange
         : public TNAry<std::array<TExpr::TPtr, 3U>> {
-      NO_COPY_SEMANTICS(TRange);
+      NO_COPY(TRange);
       public:
 
       typedef std::shared_ptr<TRange> TPtr;

@@ -22,7 +22,7 @@
 
 #include <algorithm>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/atom/kit2.h>
 #include <orly/indy/disk/read_file.h>
 #include <orly/indy/update_walker.h>
@@ -40,7 +40,7 @@ namespace Orly {
       class TUpdateWalkFile
           : public TReadFile<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage>,
             public TUpdateWalker {
-        NO_COPY_SEMANTICS(TUpdateWalkFile);
+        NO_COPY(TUpdateWalkFile);
         public:
 
         using TArena = TDiskArena<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage, DiskArenaMaxCacheSize, true>;

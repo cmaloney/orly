@@ -93,7 +93,7 @@ void TNot::Accept(const TVisitor &visitor) const {
 Type::TType TNot::GetType() const {
   class TNotTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TNotTypeVisitor);
+    NO_COPY(TNotTypeVisitor);
     public:
     TNotTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

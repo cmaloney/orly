@@ -28,7 +28,7 @@ namespace Orly {
 
     class TCollatedBy
         : public TInline {
-      NO_COPY_SEMANTICS(TCollatedBy);
+      NO_COPY(TCollatedBy);
       public:
 
       using TPtr = std::shared_ptr<TCollatedBy>;

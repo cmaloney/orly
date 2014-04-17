@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/atom.h>
 #include <tools/nycr/symbol/keyword.h>
 
@@ -29,7 +29,7 @@ namespace Tools {
     /* TODO */
     class TKeyword
         : public TAtom {
-      NO_COPY_SEMANTICS(TKeyword);
+      NO_COPY(TKeyword);
       public:
 
       /* TODO */

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/expr.h>
 #include <orly/pos_range.h>
 #include <orly/synth/expr.h>
@@ -30,7 +30,7 @@ namespace Orly {
     /* TODO */
     class TAffixExpr
         : public TExpr {
-      NO_COPY_SEMANTICS(TAffixExpr);
+      NO_COPY(TAffixExpr);
       public:
 
       /* TODO */

@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/binary.h>
 #include <orly/expr/unary.h>
 
@@ -30,7 +30,7 @@ namespace Orly {
 
     class TAnd
         : public TBinary {
-      NO_COPY_SEMANTICS(TAnd);
+      NO_COPY(TAnd);
       public:
 
       typedef std::shared_ptr<TAnd> TPtr;
@@ -49,7 +49,7 @@ namespace Orly {
 
     class TAndThen
         : public TBinary {
-      NO_COPY_SEMANTICS(TAndThen);
+      NO_COPY(TAndThen);
       public:
 
       typedef std::shared_ptr<TAndThen> TPtr;
@@ -68,7 +68,7 @@ namespace Orly {
 
     class TNot
         : public TUnary {
-      NO_COPY_SEMANTICS(TNot);
+      NO_COPY(TNot);
       public:
 
       typedef std::shared_ptr<TNot> TPtr;
@@ -87,7 +87,7 @@ namespace Orly {
 
     class TOr
         : public TBinary {
-      NO_COPY_SEMANTICS(TOr);
+      NO_COPY(TOr);
       public:
 
       typedef std::shared_ptr<TOr> TPtr;
@@ -106,7 +106,7 @@ namespace Orly {
 
     class TOrElse
         : public TBinary {
-      NO_COPY_SEMANTICS(TOrElse);
+      NO_COPY(TOrElse);
       public:
 
       typedef std::shared_ptr<TOrElse> TPtr;
@@ -125,7 +125,7 @@ namespace Orly {
 
     class TXor
         : public TBinary {
-      NO_COPY_SEMANTICS(TXor);
+      NO_COPY(TXor);
       public:
 
       typedef std::shared_ptr<TXor> TPtr;

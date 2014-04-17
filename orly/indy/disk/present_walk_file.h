@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/indy/disk/read_file.h>
 #include <orly/indy/present_walker.h>
 #include <orly/sabot/all.h>
@@ -101,7 +101,7 @@ namespace Orly {
 
       /* TODO */
       class TLocalWalkerCache {
-        NO_COPY_SEMANTICS(TLocalWalkerCache);
+        NO_COPY(TLocalWalkerCache);
         public:
 
         /* TODO */
@@ -113,7 +113,7 @@ namespace Orly {
         /* TODO */
         class TPresentWalkFile
             : public TPresentWalker {
-          NO_COPY_SEMANTICS(TPresentWalkFile);
+          NO_COPY(TPresentWalkFile);
           public:
 
           /* TODO */
@@ -373,7 +373,7 @@ namespace Orly {
 
         /* TODO */
         class TLoaderObj {
-          NO_COPY_SEMANTICS(TLoaderObj);
+          NO_COPY(TLoaderObj);
           public:
 
           /* TODO */
@@ -436,7 +436,7 @@ namespace Orly {
       /* TODO */
       class TPresentWalkFileWrapper
           : public TPresentWalker {
-        NO_COPY_SEMANTICS(TPresentWalkFileWrapper);
+        NO_COPY(TPresentWalkFileWrapper);
         public:
 
         /* TODO */

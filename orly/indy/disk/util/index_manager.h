@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/ordered_list.h>
 #include <orly/indy/disk/util/index_sort_file.h>
 #include <orly/indy/util/merge_sorter.h>
@@ -38,7 +38,7 @@ namespace Orly {
         /* TODO */
         template <typename TVal, size_t MemSize, size_t MinParallelSortThreshold, class TComparator = std::less<TVal>>
         class TIndexManager {
-          NO_COPY_SEMANTICS(TIndexManager);
+          NO_COPY(TIndexManager);
           public:
 
           /* TODO */
@@ -48,7 +48,7 @@ namespace Orly {
 
           /* TODO */
           class TCursor {
-            NO_COPY_SEMANTICS(TCursor);
+            NO_COPY(TCursor);
             public:
 
             /* TODO */

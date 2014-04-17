@@ -44,7 +44,7 @@ void TRead::Accept(const TVisitor &visitor) const {
 Type::TType TRead::GetType() const {
   class TReadTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TReadTypeVisitor);
+    NO_COPY(TReadTypeVisitor);
     public:
     TReadTypeVisitor(Type::TType &type, const Type::TType &as_type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range), AsType(as_type) {}

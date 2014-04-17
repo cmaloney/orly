@@ -31,7 +31,7 @@ using namespace Orly::Expr;
 
 class TFloorTypeVisitor
     : public Type::TUnwrapVisitor {
-  NO_COPY_SEMANTICS(TFloorTypeVisitor);
+  NO_COPY(TFloorTypeVisitor);
   public:
   TFloorTypeVisitor(Type::TType &type, const TPosRange &pos_range)
     : Type::TUnwrapVisitor(type, pos_range) {}

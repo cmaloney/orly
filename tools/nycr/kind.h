@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/decl.h>
 #include <tools/nycr/symbol/base.h>
 
@@ -32,7 +32,7 @@ namespace Tools {
     /* TODO */
     class TKind
         : public TDecl {
-      NO_COPY_SEMANTICS(TKind);
+      NO_COPY(TKind);
       public:
 
       /* TODO */

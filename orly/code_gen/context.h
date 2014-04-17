@@ -21,7 +21,7 @@
 #include <stack>
 #include <unordered_map>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/code_gen/inline.h>
 
 namespace Orly {
@@ -82,7 +82,7 @@ namespace Orly {
 
     /* Contexts aggregated by other contexts*/
     class TScopeCtx {
-      NO_COPY_SEMANTICS(TScopeCtx);
+      NO_COPY(TScopeCtx);
       public:
 
       TScopeCtx(TCodeScope *scope);
@@ -91,7 +91,7 @@ namespace Orly {
     }; // TScopeCtx
 
     class TFunctionCtx {
-      NO_COPY_SEMANTICS(TFunctionCtx);
+      NO_COPY(TFunctionCtx);
       public:
 
       TFunctionCtx(TFunction* func);
@@ -103,7 +103,7 @@ namespace Orly {
 
     /* General independent contexts */
     class TThatableCtx {
-      NO_COPY_SEMANTICS(TThatableCtx);
+      NO_COPY(TThatableCtx);
       public:
 
       TThatableCtx(const TInline::TPtr &that);
@@ -111,7 +111,7 @@ namespace Orly {
     }; //TAssertCtx
 
     class TFilterCtx {
-      NO_COPY_SEMANTICS(TFilterCtx);
+      NO_COPY(TFilterCtx);
       public:
 
       TFilterCtx(const TInline::TPtr &that);
@@ -122,7 +122,7 @@ namespace Orly {
     }; // TFilterCtx
 
     class TMapCtx {
-      NO_COPY_SEMANTICS(TMapCtx);
+      NO_COPY(TMapCtx);
       public:
       TMapCtx(Context::TAliases &&aliases);
       ~TMapCtx();
@@ -133,7 +133,7 @@ namespace Orly {
     }; // TMapCtx
 
     class TReduceCtx {
-      NO_COPY_SEMANTICS(TReduceCtx);
+      NO_COPY(TReduceCtx);
       public:
 
       TReduceCtx(const TInline::TPtr &carry, const TInline::TPtr &elem);
@@ -141,7 +141,7 @@ namespace Orly {
     }; // TReduceCtx
 
     class TSortCtx {
-      NO_COPY_SEMANTICS(TSortCtx);
+      NO_COPY(TSortCtx);
       public:
 
       TSortCtx(const TInline::TPtr &lhs, const TInline::TPtr &rhs);
@@ -149,7 +149,7 @@ namespace Orly {
     }; // TSortCtx
 
     class TStmtCtx {
-      NO_COPY_SEMANTICS(TStmtCtx);
+      NO_COPY(TStmtCtx);
       public:
 
       TStmtCtx(TStmtBlock *stmt_block);
@@ -157,7 +157,7 @@ namespace Orly {
     }; // TStmtCtx
 
     class TWhileCtx {
-      NO_COPY_SEMANTICS(TWhileCtx);
+      NO_COPY(TWhileCtx);
       public:
 
       TWhileCtx(const TInline::TPtr &that);

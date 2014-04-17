@@ -20,7 +20,7 @@
 
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/code_gen/id.h>
 #include <orly/code_gen/inline.h>
 #include <orly/shared_enum.h>
@@ -60,7 +60,7 @@ namespace Orly {
     };
 
     class TCodeScope {
-      NO_COPY_SEMANTICS(TCodeScope);
+      NO_COPY(TCodeScope);
       public:
 
       typedef std::vector<std::pair<std::string, TInline::TPtr>> TAssertions;

@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 
 namespace Orly {
@@ -29,7 +29,7 @@ namespace Orly {
 
     class TStart
         : public TUnary {
-      NO_COPY_SEMANTICS(TStart);
+      NO_COPY(TStart);
       public:
 
       typedef std::shared_ptr<TStart> TPtr;

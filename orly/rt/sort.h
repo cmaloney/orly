@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <vector>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/rt/opt.h>
 
 namespace Orly {

@@ -28,7 +28,7 @@ namespace Orly {
     typedef std::vector<std::pair<TAddrDir, TType>> TAddrElems;
 
     class TAddr : public TInternedType<TAddr, TAddrElems> {
-      NO_COPY_SEMANTICS(TAddr);
+      NO_COPY(TAddr);
       public:
 
       typedef TAddrDir TDir;

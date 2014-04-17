@@ -18,7 +18,7 @@
 
 #include <orly/synth/cst_utils.h>
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/get_pos_range.h>
 #include <test/kit.h>

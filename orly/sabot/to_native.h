@@ -52,7 +52,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<int8_t> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(int8_t &out) : Out(out) {}
@@ -91,7 +91,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<int16_t> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(int16_t &out) : Out(out) {}
@@ -130,7 +130,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<int32_t> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(int32_t &out) : Out(out) {}
@@ -169,7 +169,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<int64_t> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(int64_t &out) : Out(out) {}
@@ -208,7 +208,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<uint8_t> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(uint8_t &out) : Out(out) {}
@@ -247,7 +247,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<uint16_t> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(uint16_t &out) : Out(out) {}
@@ -286,7 +286,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<uint32_t> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(uint32_t &out) : Out(out) {}
@@ -325,7 +325,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<uint64_t> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(uint64_t &out) : Out(out) {}
@@ -364,7 +364,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<bool> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(bool &out) : Out(out) {}
@@ -403,7 +403,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<char> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(char &out) : Out(out) {}
@@ -442,7 +442,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<float> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(float &out) : Out(out) {}
@@ -482,7 +482,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<double> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(double &out) : Out(out) {}
@@ -521,7 +521,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<Sabot::TStdDuration> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(Sabot::TStdDuration &out) : Out(out) {}
@@ -560,7 +560,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<Sabot::TStdTimePoint> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(Sabot::TStdTimePoint &out) : Out(out) {}
@@ -599,7 +599,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<Base::TUuid> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(Base::TUuid &out) : Out(out) {}
@@ -638,7 +638,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<Orly::TUUID> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(Orly::TUUID &out) : Out(out) {}
@@ -677,7 +677,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<std::string> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(std::string &out) : Out(out) {}
@@ -720,7 +720,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<Native::TBlob> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(Native::TBlob &out) : Out(out) {}
@@ -764,7 +764,7 @@ namespace Orly {
     template <typename TVal>
     class TToNativeVisitor<Base::TOpt<TVal>> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(Base::TOpt<TVal> &out) : Out(out) {}
@@ -814,7 +814,7 @@ namespace Orly {
     template <typename TVal>
     class TToNativeVisitor<Orly::TDesc<TVal>> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(Orly::TDesc<TVal> &out) : Out(out) {}
@@ -859,7 +859,7 @@ namespace Orly {
     template <typename TVal>
     class TToNativeVisitor<std::vector<TVal>> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(std::vector<TVal> &out) : Out(out) {}
@@ -909,7 +909,7 @@ namespace Orly {
     template <>
     class TToNativeVisitor<std::vector<bool>> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(std::vector<bool> &out) : Out(out) {}
@@ -959,7 +959,7 @@ namespace Orly {
     template <typename TVal, typename TCompare>
     class TToNativeVisitor<std::set<TVal, TCompare>> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(std::set<TVal, TCompare> &out) : Out(out) {}
@@ -1008,7 +1008,7 @@ namespace Orly {
     template <typename TLhs, typename TRhs, typename TCompare>
     class TToNativeVisitor<std::map<TLhs, TRhs, TCompare>> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(std::map<TLhs, TRhs, TCompare> &out) : Out(out) {
@@ -1086,7 +1086,7 @@ namespace Orly {
     template <typename... TElems>
     class TToNativeVisitor<std::tuple<TElems...>> final
         : public TStateVisitor {
-      NO_COPY_SEMANTICS(TToNativeVisitor);
+      NO_COPY(TToNativeVisitor);
       public:
       /* TODO */
       TToNativeVisitor(std::tuple<TElems...> &out) : Out(out) {}

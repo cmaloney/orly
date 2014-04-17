@@ -21,7 +21,7 @@
 #include <memory>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/binary.h>
 #include <orly/expr/leaf.h>
 #include <orly/expr/lhsrhsable.h>
@@ -32,7 +32,7 @@ namespace Orly {
 
     class TLhs
         : public TLeaf {
-      NO_COPY_SEMANTICS(TLhs);
+      NO_COPY(TLhs);
       public:
 
       typedef std::shared_ptr<TLhs> TPtr;
@@ -55,7 +55,7 @@ namespace Orly {
 
     class TRhs
         : public TLeaf {
-      NO_COPY_SEMANTICS(TRhs);
+      NO_COPY(TRhs);
       public:
 
       typedef std::shared_ptr<TRhs> TPtr;

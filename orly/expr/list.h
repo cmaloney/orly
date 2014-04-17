@@ -21,7 +21,7 @@
 #include <memory>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/ctor.h>
 
 namespace Orly {
@@ -30,7 +30,7 @@ namespace Orly {
 
     class TList
         : public TCtor<std::vector<TExpr::TPtr>> {
-      NO_COPY_SEMANTICS(TList);
+      NO_COPY(TList);
       public:
 
       typedef std::shared_ptr<TList> TPtr;

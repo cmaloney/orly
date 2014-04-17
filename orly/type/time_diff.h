@@ -25,7 +25,7 @@ namespace Orly {
   namespace Type {
 
     class TTimeDiff : public TSingletonType<TTimeDiff> {
-      NO_COPY_SEMANTICS(TTimeDiff);
+      NO_COPY(TTimeDiff);
 
       public:
       virtual ~TTimeDiff();

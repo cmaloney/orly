@@ -48,7 +48,7 @@ const Type::TType &TUnknown::GetCoreType() const {
 Type::TType TUnknown::GetType() const {
   class TUnknownVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TUnknownVisitor);
+    NO_COPY(TUnknownVisitor);
     public:
     TUnknownVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

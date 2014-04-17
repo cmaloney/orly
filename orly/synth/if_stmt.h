@@ -21,7 +21,7 @@
 #include <functional>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/symbol/stmt/if.h>
 #include <orly/synth/new_expr.h>
@@ -39,7 +39,7 @@ namespace Orly {
     /* TODO */
     class TIfStmt
         : public TStmt {
-      NO_COPY_SEMANTICS(TIfStmt);
+      NO_COPY(TIfStmt);
       public:
 
       /* TODO */
@@ -60,7 +60,7 @@ namespace Orly {
       private:
 
       class TIfClause {
-        NO_COPY_SEMANTICS(TIfClause);
+        NO_COPY(TIfClause);
         public:
 
         template <typename TNode>

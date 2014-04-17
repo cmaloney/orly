@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/shared_enum.h>
 #include <orly/expr/interior.h>
 #include <orly/pos_range.h>
@@ -35,7 +35,7 @@ namespace Orly {
     template <typename TContainer>
     class TNAry
         : public TInterior {
-      NO_COPY_SEMANTICS(TNAry);
+      NO_COPY(TNAry);
       public:
 
       typedef std::function<void (const TExpr::TPtr &expr)> TCallback;

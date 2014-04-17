@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/n_ary.h>
 #include <orly/pos_range.h>
 
@@ -29,7 +29,7 @@ namespace Orly {
     template <typename TContainer>
     class TCtor
         : public TNAry<TContainer> {
-      NO_COPY_SEMANTICS(TCtor);
+      NO_COPY(TCtor);
       public:
 
       protected:

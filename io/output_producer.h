@@ -21,7 +21,7 @@
 #include <cassert>
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/chunk_and_pool.h>
 #include <io/output_consumer.h>
 
@@ -29,7 +29,7 @@ namespace Io {
 
   /* A producer of out-bound data. */
   class TOutputProducer {
-    NO_COPY_SEMANTICS(TOutputProducer);
+    NO_COPY(TOutputProducer);
     public:
 
     /* The pool from which we acquire chunks.  Never null. */

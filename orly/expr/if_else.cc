@@ -68,7 +68,7 @@ const TExpr::TPtr &TIfElse::GetFalse() const {
 
 Type::TType TIfElse::GetType() const {
   class TIfElseVisitor : public Type::TEqualVisitor {
-    NO_COPY_SEMANTICS(TIfElseVisitor);
+    NO_COPY(TIfElseVisitor);
     public:
     TIfElseVisitor(Type::TType &type, const TPosRange &pos_range) : TEqualVisitor(type, pos_range) {}
     virtual void operator()(const Type::TAny *, const Type::TAny *) const {

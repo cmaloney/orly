@@ -20,9 +20,9 @@
 
 #include <memory>
 
+#include <base/class_traits.h>
 #include <base/hash.h>
 #include <base/interner.h>
-#include <base/no_copy_semantics.h>
 #include <orly/code_gen/basic_ctor.h>
 #include <orly/code_gen/binary.h>
 #include <orly/code_gen/built_in_call.h>
@@ -45,7 +45,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TInterner {
-      NO_COPY_SEMANTICS(TInterner);
+      NO_COPY(TInterner);
       public:
 
       //Note: TInterner is constructed by and exclusively owned by TCodeScope.
@@ -151,7 +151,7 @@ namespace Orly {
       /* TODO: This isn't as simple and clean as I would like it to be, but should be usable. */
       template <typename TObj_, typename... TArgs>
       class TStorage {
-        NO_COPY_SEMANTICS(TStorage);
+        NO_COPY(TStorage);
         public:
 
         typedef std::tuple<TArgs...> TKey;

@@ -24,8 +24,8 @@
 #include <mutex>
 #include <vector>
 
+#include <base/class_traits.h>
 #include <base/event_semaphore.h>
-#include <base/no_copy_semantics.h>
 #include <base/opt.h>
 #include <base/sigma_calc.h>
 #include <base/thrower.h>
@@ -45,7 +45,7 @@ namespace Orly {
     /* An open session. */
     class TSession final
         : public Durable::TObj {
-      NO_COPY_SEMANTICS(TSession);
+      NO_COPY(TSession);
       public:
 
       /* Convenience. */

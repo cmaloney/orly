@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/pos_range.h>
 #include <orly/symbol/param_def.h>
 
@@ -31,7 +31,7 @@ namespace Orly {
     class TGivenParamDef
         : public TParamDef,
           public std::enable_shared_from_this<TGivenParamDef> {
-      NO_COPY_SEMANTICS(TGivenParamDef);
+      NO_COPY(TGivenParamDef);
       public:
 
       typedef std::shared_ptr<TGivenParamDef> TPtr;

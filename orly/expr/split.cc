@@ -46,7 +46,7 @@ void TSplit::Accept(const TVisitor &visitor) const {
 Type::TType TSplit::GetType() const {
   class TSplitTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TSplitTypeVisitor);
+    NO_COPY(TSplitTypeVisitor);
     public:
     TSplitTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

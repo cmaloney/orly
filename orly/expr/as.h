@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 
 namespace Orly {
@@ -27,7 +27,7 @@ namespace Orly {
 
     class TAs
         : public TUnary {
-      NO_COPY_SEMANTICS(TAs);
+      NO_COPY(TAs);
       public:
 
       typedef std::shared_ptr<TAs> TPtr;

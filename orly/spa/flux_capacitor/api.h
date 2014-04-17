@@ -98,7 +98,7 @@ namespace Orly {
 
       /* TODO */
       class TTetrisHandler {
-        NO_COPY_SEMANTICS(TTetrisHandler);
+        NO_COPY(TTetrisHandler);
 
         enum TTask {TaskRun, TaskDrain, TaskStop};
         public:
@@ -285,7 +285,7 @@ namespace Orly {
       /* TODO */
       template <typename TVal>
       class TStore {
-        NO_COPY_SEMANTICS(TStore);
+        NO_COPY(TStore);
         public:
 
         /* TODO */
@@ -398,7 +398,7 @@ namespace Orly {
 
         /* TODO */
         class TStoreData {
-          NO_COPY_SEMANTICS(TStoreData);
+          NO_COPY(TStoreData);
           public:
 
           /* TODO */
@@ -441,7 +441,7 @@ namespace Orly {
 
         /* TODO */
         class TDataMember {
-          NO_COPY_SEMANTICS(TDataMember);
+          NO_COPY(TDataMember);
           public:
 
           /* TODO */
@@ -509,7 +509,7 @@ namespace Orly {
 
         /* TODO */
         class TCache {
-          NO_COPY_SEMANTICS(TCache);
+          NO_COPY(TCache);
           public:
 
           /* TODO */
@@ -539,7 +539,7 @@ namespace Orly {
 
         /* TODO */
         class TCacheMember {
-          NO_COPY_SEMANTICS(TCacheMember);
+          NO_COPY(TCacheMember);
           public:
 
           /* TODO */
@@ -640,12 +640,12 @@ namespace Orly {
 
       /* TODO */
       class TSessionObj {
-        NO_COPY_SEMANTICS(TSessionObj);
+        NO_COPY(TSessionObj);
         public:
 
         /* TODO */
         class TSessionHandle : public Base::TRefCounted {
-          NO_COPY_SEMANTICS(TSessionHandle);
+          NO_COPY(TSessionHandle);
           public:
 
           /* TODO */
@@ -761,7 +761,7 @@ namespace Orly {
 
         /* TODO */
         class TNotifier {
-          NO_COPY_SEMANTICS(TNotifier);
+          NO_COPY(TNotifier);
           public:
 
           /* TODO */
@@ -844,12 +844,12 @@ namespace Orly {
 
       /* TODO */
       class TSharedPovObj {
-        NO_COPY_SEMANTICS(TSharedPovObj);
+        NO_COPY(TSharedPovObj);
         public:
 
         /* TODO */
         class TSharedPovHandle : public Base::TRefCounted {
-          NO_COPY_SEMANTICS(TSharedPovHandle);
+          NO_COPY(TSharedPovHandle);
           public:
 
           /* TODO */
@@ -973,12 +973,12 @@ namespace Orly {
 
       /* TODO */
       class TPrivatePovObj {
-        NO_COPY_SEMANTICS(TPrivatePovObj);
+        NO_COPY(TPrivatePovObj);
         public:
 
         /* TODO */
         class TPrivatePovHandle : public Base::TRefCounted {
-          NO_COPY_SEMANTICS(TPrivatePovHandle);
+          NO_COPY(TPrivatePovHandle);
           public:
 
           /* TODO */

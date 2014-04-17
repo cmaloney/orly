@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
-
+#include <base/class_traits.h>
 #include <orly/pos_range.h>
 #include <orly/symbol/stmt/stmt.h>
 #include <orly/symbol/stmt/stmt_arg.h>
@@ -32,7 +31,7 @@ namespace Orly {
 
       class TUnary
           : public TStmt {
-        NO_COPY_SEMANTICS(TUnary);
+        NO_COPY(TUnary);
         public:
 
         virtual ~TUnary();

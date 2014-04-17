@@ -26,7 +26,7 @@ namespace Orly {
 
   /* TODO */
   class TContextBase {
-    NO_COPY_SEMANTICS(TContextBase);
+    NO_COPY(TContextBase);
     public:
 
     /* TODO */

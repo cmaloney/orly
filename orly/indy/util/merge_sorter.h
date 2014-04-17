@@ -33,12 +33,12 @@ namespace Orly {
       /* TODO */
       template <typename TRef>
       class TKeySorter {
-        NO_COPY_SEMANTICS(TKeySorter);
+        NO_COPY(TKeySorter);
         public:
 
           /* TODO */
         class TMergeElement {
-          NO_COPY_SEMANTICS(TMergeElement);
+          NO_COPY(TMergeElement);
           public:
 
           /* TODO */
@@ -125,12 +125,12 @@ namespace Orly {
       /* TODO */
       template <typename TRef>
       class TKeyCopySorter {
-        NO_COPY_SEMANTICS(TKeyCopySorter);
+        NO_COPY(TKeyCopySorter);
         public:
 
           /* TODO */
         class TMergeElement {
-          NO_COPY_SEMANTICS(TMergeElement);
+          NO_COPY(TMergeElement);
           public:
 
           /* TODO */
@@ -232,12 +232,12 @@ namespace Orly {
       /* TODO */
       template <typename TRef>
       class TCoreSorter {
-        NO_COPY_SEMANTICS(TCoreSorter);
+        NO_COPY(TCoreSorter);
         public:
 
           /* TODO */
         class TMergeElement {
-          NO_COPY_SEMANTICS(TMergeElement);
+          NO_COPY(TMergeElement);
           public:
 
           /* TODO */
@@ -343,12 +343,12 @@ namespace Orly {
       /* TODO */
       template <typename TRef>
       class TDurableSorter {
-        NO_COPY_SEMANTICS(TDurableSorter);
+        NO_COPY(TDurableSorter);
         public:
 
           /* TODO */
         class TMergeElement {
-          NO_COPY_SEMANTICS(TMergeElement);
+          NO_COPY(TMergeElement);
           public:
 
           /* TODO */
@@ -438,12 +438,12 @@ namespace Orly {
       /* TODO */
       template <typename TVal, typename TRef, class TComparator = std::less<TVal>>
       class TMergeSorter {
-        NO_COPY_SEMANTICS(TMergeSorter);
+        NO_COPY(TMergeSorter);
         public:
 
           /* TODO */
         class TMergeElement {
-          NO_COPY_SEMANTICS(TMergeElement);
+          NO_COPY(TMergeElement);
           public:
 
           /* TODO */
@@ -547,12 +547,12 @@ namespace Orly {
       /* TODO */
       template <typename TVal, typename TRef, class TComparator = std::less<TVal>>
       class TCopyMergeSorter {
-        NO_COPY_SEMANTICS(TCopyMergeSorter);
+        NO_COPY(TCopyMergeSorter);
         public:
 
           /* TODO */
         class TMergeElement {
-          NO_COPY_SEMANTICS(TMergeElement);
+          NO_COPY(TMergeElement);
           public:
 
           /* TODO */

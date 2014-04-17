@@ -30,7 +30,7 @@ namespace Gz {
   /* TODO */
   class TInputProducer final
       : public Io::TInputProducer {
-    NO_COPY_SEMANTICS(TInputProducer);
+    NO_COPY(TInputProducer);
     public:
 
     /* TODO */

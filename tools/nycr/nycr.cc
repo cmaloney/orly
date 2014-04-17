@@ -39,7 +39,7 @@ using namespace std;
 using namespace Tools::Nycr;
 
 class TNycr : public Base::TCmd {
-  NO_COPY_SEMANTICS(TNycr);
+  NO_COPY(TNycr);
   public:
 
   TNycr(int argc, char *argv[])

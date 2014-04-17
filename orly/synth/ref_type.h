@@ -29,7 +29,7 @@ namespace Orly {
     /* TODO */
     class TRefType
         : public TType {
-      NO_COPY_SEMANTICS(TRefType);
+      NO_COPY(TRefType);
       public:
 
       /* TODO */

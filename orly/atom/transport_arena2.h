@@ -33,7 +33,7 @@ namespace Orly {
     /* TODO */
     class TTransportArena final
         : public TCore::TArena {
-      NO_COPY_SEMANTICS(TTransportArena);
+      NO_COPY(TTransportArena);
       public:
 
       /* Conveniences. */

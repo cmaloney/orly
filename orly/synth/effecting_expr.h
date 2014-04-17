@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/expr/effect.h>
 #include <orly/synth/stmt_block.h>
@@ -34,7 +34,7 @@ namespace Orly {
     /* TODO */
     class TEffectingExpr
         : public TThatableExpr {
-      NO_COPY_SEMANTICS(TEffectingExpr);
+      NO_COPY(TEffectingExpr);
       public:
 
       /* TODO */

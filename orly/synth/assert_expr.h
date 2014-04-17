@@ -21,7 +21,7 @@
 #include <cassert>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <orly/expr/assert.h>
 #include <orly/expr/thatable.h>
@@ -38,7 +38,7 @@ namespace Orly {
     /* TODO */
     class TAssertExpr
         : public TThatableExpr {
-      NO_COPY_SEMANTICS(TAssertExpr);
+      NO_COPY(TAssertExpr);
       public:
 
       /* TODO */
@@ -66,7 +66,7 @@ namespace Orly {
 
       /* TODO */
       class TAssertCase {
-        NO_COPY_SEMANTICS(TAssertCase);
+        NO_COPY(TAssertCase);
         public:
 
         TAssertCase(const Base::TOpt<std::string> &opt_name, TExpr *expr);

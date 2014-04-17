@@ -34,14 +34,14 @@ namespace Orly {
         : public TRoot,
           public TAnyFunction,
           public std::enable_shared_from_this<TFunction> {
-      NO_COPY_SEMANTICS(TFunction);
+      NO_COPY(TFunction);
       public:
 
       typedef std::shared_ptr<TFunction> TPtr;
 
       class TParamDef
           : public TDef {
-        NO_COPY_SEMANTICS(TParamDef);
+        NO_COPY(TParamDef);
         public:
 
         typedef std::shared_ptr<TParamDef> TPtr;

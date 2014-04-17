@@ -30,7 +30,7 @@ namespace Orly {
     /* TODO */
     class TInfixVisitor
         : public TType::TDoubleVisitor {
-      NO_COPY_SEMANTICS(TInfixVisitor);
+      NO_COPY(TInfixVisitor);
       protected:
 
       /* TODO */

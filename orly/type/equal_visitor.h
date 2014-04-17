@@ -26,7 +26,7 @@ namespace Orly {
 
     class TEqualVisitor
         : public TAssocInfixVisitor {
-      NO_COPY_SEMANTICS(TEqualVisitor);
+      NO_COPY(TEqualVisitor);
       protected:
 
       TEqualVisitor(TType &type, const TPosRange &pos_range)

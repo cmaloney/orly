@@ -56,7 +56,7 @@ namespace Base {
      cannot copy it. */
   template <typename TVal>
   class TIterHolder : public TIter<TVal> {
-    NO_COPY_SEMANTICS(TIterHolder);
+    NO_COPY(TIterHolder);
     public:
     TIterHolder(TIter<TVal>* iter) : Iter(Base::AssertTrue(iter)) {}
     ~TIterHolder() {

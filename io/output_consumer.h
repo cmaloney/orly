@@ -20,14 +20,14 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/chunk_and_pool.h>
 
 namespace Io {
 
   /* A consumer of out-bound data. */
   class TOutputConsumer {
-    NO_COPY_SEMANTICS(TOutputConsumer);
+    NO_COPY(TOutputConsumer);
     public:
 
     /* Consume the next chunk of data. */

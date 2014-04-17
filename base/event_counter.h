@@ -19,14 +19,14 @@
 #include <cstdint>
 #include <cassert>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 
 namespace Base {
 
   /* TODO */
   class TEventCounter {
-    NO_COPY_SEMANTICS(TEventCounter);
+    NO_COPY(TEventCounter);
     public:
 
     /* TODO */

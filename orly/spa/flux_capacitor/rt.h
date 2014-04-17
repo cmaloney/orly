@@ -33,7 +33,7 @@ namespace Orly {
 
       template <typename TRet>
       class TKeyGenerator : public Rt::TGenerator<TRet>, public std::enable_shared_from_this<TKeyGenerator<TRet>> {
-        NO_COPY_SEMANTICS(TKeyGenerator);
+        NO_COPY(TKeyGenerator);
         public:
 
         typedef std::shared_ptr<const TKeyGenerator> TPtr;

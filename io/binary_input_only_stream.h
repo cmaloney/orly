@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/binary_input_stream.h>
 
 namespace Io {
@@ -26,7 +26,7 @@ namespace Io {
   /* An input stream in binary format. */
   class TBinaryInputOnlyStream
       : public TBinaryInputStream {
-    NO_COPY_SEMANTICS(TBinaryInputOnlyStream);
+    NO_COPY(TBinaryInputOnlyStream);
     public:
 
     /* Do-little. */

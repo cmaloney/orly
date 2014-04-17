@@ -21,7 +21,7 @@
 #include <functional>
 #include <map>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
 #include <orly/synth/name.h>
@@ -35,7 +35,7 @@ namespace Orly {
     /* TODO */
     class TObjCtor
         : public TExpr {
-      NO_COPY_SEMANTICS(TObjCtor);
+      NO_COPY(TObjCtor);
       public:
 
       /* TODO */

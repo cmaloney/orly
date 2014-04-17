@@ -21,7 +21,7 @@
 #include <cassert>
 #include <string>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <starsha/corpus.h>
 
 namespace Starsha {
@@ -29,7 +29,7 @@ namespace Starsha {
   /* TODO */
   class TObjFile
       : public TCorpus::TFile {
-    NO_COPY_SEMANTICS(TObjFile);
+    NO_COPY(TObjFile);
     public:
 
     /* TODO */

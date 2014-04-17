@@ -21,8 +21,8 @@
 #include <cassert>
 #include <string>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 
 namespace Socket {
 
@@ -31,7 +31,7 @@ namespace Socket {
   void Bind(TNamedUnixSocket &socket, const TAddress &address);
 
   class TNamedUnixSocket final {
-    NO_COPY_SEMANTICS(TNamedUnixSocket);
+    NO_COPY(TNamedUnixSocket);
 
     public:
     TNamedUnixSocket(int type, int protocol);

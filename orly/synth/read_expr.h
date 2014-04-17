@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/new_expr.h>
 #include <orly/synth/type.h>
@@ -34,7 +34,7 @@ namespace Orly {
     /* TODO */
     class TReadExpr
         : public TExpr {
-      NO_COPY_SEMANTICS(TReadExpr);
+      NO_COPY(TReadExpr);
       public:
 
       /* TODO */

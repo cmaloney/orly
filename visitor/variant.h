@@ -99,8 +99,8 @@
 #include <stdexcept>
 #include <c14/type_traits.h>
 
+#include <base/class_traits.h>
 #include <base/demangle.h>
-#include <base/no_copy_semantics.h>
 #include <mpl/contains.h>
 #include <mpl/enable_if.h>
 #include <mpl/get_difference.h>
@@ -347,7 +347,7 @@ namespace Visitor {
     /* Our type-erased acceptor. We keep the actual type of the data saved in
        the typed acceptor. See below for the definition of typed acceptor. */
     class TAnyAcceptor {
-      NO_COPY_SEMANTICS(TAnyAcceptor);
+      NO_COPY(TAnyAcceptor);
       public:
 
       /* See below. */
@@ -370,7 +370,7 @@ namespace Visitor {
        pointer to one of these with a pointer to a TAnyAcceptor. */
     template <typename TElem>
     class TAcceptor final : public TAnyAcceptor {
-      NO_COPY_SEMANTICS(TAcceptor);
+      NO_COPY(TAcceptor);
       public:
 
       /* Accessor to our singleton instance. */

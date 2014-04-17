@@ -30,7 +30,7 @@
 
 #include <limits.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <base/spin_lock.h>
 #include <starsha/note.h>
@@ -41,17 +41,17 @@ namespace Starsha {
 
   /* TODO */
   class TCorpus {
-    NO_COPY_SEMANTICS(TCorpus);
+    NO_COPY(TCorpus);
     public:
 
     /* TODO */
     class TFile {
-      NO_COPY_SEMANTICS(TFile);
+      NO_COPY(TFile);
       public:
 
       /* TODO */
       class TKind {
-        NO_COPY_SEMANTICS(TKind);
+        NO_COPY(TKind);
         public:
 
         /* TODO */
@@ -186,7 +186,7 @@ namespace Starsha {
       template <typename TSomeFile>
       class TSpecificKind
           : public TKind {
-        NO_COPY_SEMANTICS(TSpecificKind);
+        NO_COPY(TSpecificKind);
         public:
 
         /* TODO */

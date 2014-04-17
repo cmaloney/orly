@@ -22,7 +22,7 @@
 #include <memory>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/n_ary.h>
 #include <orly/expr/visitor.h>
 
@@ -32,7 +32,7 @@ namespace Orly {
 
     class TSlice
         : public TNAry<std::array<TExpr::TPtr, 3U>> {
-      NO_COPY_SEMANTICS(TSlice);
+      NO_COPY(TSlice);
       public:
 
       typedef std::shared_ptr<TSlice> TPtr;

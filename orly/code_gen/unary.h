@@ -25,7 +25,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TUnary : public TInline {
-      NO_COPY_SEMANTICS(TUnary);
+      NO_COPY(TUnary);
       public:
 
       typedef std::shared_ptr<const TUnary> TPtr;

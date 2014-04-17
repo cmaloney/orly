@@ -26,8 +26,8 @@
 #include <stdexcept>
 #include <string>
 
+#include <base/class_traits.h>
 #include <base/layout.h>
-#include <base/no_copy_semantics.h>
 #include <orly/atom/comparison.h>
 #include <orly/native/all.h>
 #include <orly/sabot/match_prefix_type.h>
@@ -489,7 +489,7 @@ namespace Orly {
 
     /* A storage area for notes. */
     class TCore::TArena {
-      NO_COPY_SEMANTICS(TArena);
+      NO_COPY(TArena);
       public:
 
       /* Thrown when Pin() cannot locate a note. */
@@ -504,7 +504,7 @@ namespace Orly {
 
       /* Holds a note in memory. */
       class TPin {
-        NO_COPY_SEMANTICS(TPin);
+        NO_COPY(TPin);
         public:
 
         /* Releases the note on its way out. */
@@ -668,7 +668,7 @@ namespace Orly {
 
     /* A piece of data stored in an arena. */
     class PACKED TCore::TNote {
-      NO_COPY_SEMANTICS(TNote);
+      NO_COPY(TNote);
       public:
 
       /* Used when getting arrays of pairs of cores. */

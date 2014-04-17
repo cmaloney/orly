@@ -43,7 +43,7 @@ TEmptyCtor::TEmptyCtor(const Package::Syntax::TEmptyCtor *empty_ctor)
       Type(nullptr) {
   class TSyntaxTypeVisitor
       : public Package::Syntax::TType::TVisitor {
-    NO_COPY_SEMANTICS(TSyntaxTypeVisitor);
+    NO_COPY(TSyntaxTypeVisitor);
     public:
     TSyntaxTypeVisitor(TType *&type, const TPosRange &pos_range)
         : Type(type), PosRange(pos_range) {}

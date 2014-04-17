@@ -25,7 +25,7 @@ namespace Orly {
   namespace CodeGen {
 
     class TMutableRewrap : public TInline {
-      NO_COPY_SEMANTICS(TMutableRewrap);
+      NO_COPY(TMutableRewrap);
       public:
 
       virtual void WriteExpr(TCppPrinter &out) const;
@@ -48,7 +48,7 @@ namespace Orly {
 
 
     class TAddrMember : public TMutableRewrap  {
-      NO_COPY_SEMANTICS(TAddrMember);
+      NO_COPY(TAddrMember);
       public:
 
       TAddrMember(const L0::TPackage *package, const Type::TType &return_type, const TInline::TPtr &addr, size_t index);
@@ -62,7 +62,7 @@ namespace Orly {
     }; // TAddrMember
 
     class TObjMember : public TMutableRewrap {
-      NO_COPY_SEMANTICS(TObjMember);
+      NO_COPY(TObjMember);
 
       public:
 

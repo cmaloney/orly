@@ -31,7 +31,7 @@ namespace Orly {
 
         /* TODO */
         class TMemEngine {
-          NO_COPY_SEMANTICS(TMemEngine);
+          NO_COPY(TMemEngine);
           public:
 
           /* TODO */

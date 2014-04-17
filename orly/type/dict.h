@@ -25,7 +25,7 @@ namespace Orly {
   namespace Type {
 
     class TDict : public TInternedType<TDict, TType, TType> {
-      NO_COPY_SEMANTICS(TDict);
+      NO_COPY(TDict);
       public:
 
       const TType &GetKey() const {

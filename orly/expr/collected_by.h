@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/error.h>
 #include <orly/expr/binary.h>
 #include <orly/expr/lhsrhsable.h>
@@ -37,7 +37,7 @@ namespace Orly {
     class TCollectedBy
         : public TBinary,
           public TLhsRhsable {
-      NO_COPY_SEMANTICS(TCollectedBy);
+      NO_COPY(TCollectedBy);
       public:
 
       using TPtr = std::shared_ptr<TCollectedBy>;
@@ -62,7 +62,7 @@ namespace Orly {
            right of the collected_by matches the type of the 'lhs' and 'rhs' keywords. */
         class TCollectVisitor
             : public Type::TEqualVisitor {
-          NO_COPY_SEMANTICS(TCollectVisitor);
+          NO_COPY(TCollectVisitor);
           public:
           TCollectVisitor(Type::TType &type, const TPosRange &pos_range)
               : Type::TEqualVisitor(type, pos_range) {}

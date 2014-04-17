@@ -26,10 +26,10 @@
 #include <stdexcept>
 #include <iostream> /* TODO: GET RID OF */
 
+#include <base/class_traits.h>
 #include <base/error_utils.h>
 #include <base/layout.h>
 #include <base/likely.h>
-#include <base/no_copy_semantics.h>
 #include <inv_con/atomic_unordered_list.h>
 #include <orly/indy/disk/util/hash_util.h>
 #include <orly/indy/disk/util/volume_manager.h>
@@ -45,7 +45,7 @@ namespace Orly {
         /* TODO */
         template <size_t PageSize>
         class TCache {
-          NO_COPY_SEMANTICS(TCache);
+          NO_COPY(TCache);
           private:
 
           /* TODO */
@@ -787,7 +787,7 @@ namespace Orly {
 
           /* TODO */
           class ALIGNED(64) TLRU {
-            NO_COPY_SEMANTICS(TLRU);
+            NO_COPY(TLRU);
             public:
 
             typedef InvCon::AtomicUnorderedList::TCollection<TLRU, TSlot> TSlotCollection;

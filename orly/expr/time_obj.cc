@@ -47,7 +47,7 @@ void TTimeObj::Accept(const TVisitor &visitor) const {
 Type::TType TTimeObj::GetType() const {
   class TTimeObjTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TTimeObjTypeVisitor);
+    NO_COPY(TTimeObjTypeVisitor);
     public:
     TTimeObjTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

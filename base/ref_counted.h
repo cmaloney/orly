@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
@@ -31,7 +31,7 @@ namespace Base {
 
         class TFoo
             : public TRefCounted {
-          NO_COPY_SEMANTICS(TFoo);
+          NO_COPY(TFoo);
           public:
 
           typedef TRefCounted::TPtr<TFoo> TPtr;
@@ -61,7 +61,7 @@ namespace Base {
      to by more than one instance of TRefCounted::TPtr<>.  This is intentional; you should not rely
      on the presence of absence of smart-pointers to provide syncronization.*/
   class TRefCounted {
-    NO_COPY_SEMANTICS(TRefCounted);
+    NO_COPY(TRefCounted);
     public:
 
     /* A smart pointer to a ref-counted object.  This is a value type.

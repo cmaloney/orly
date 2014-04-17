@@ -23,9 +23,8 @@
 #include <iostream>
 
 #include <base/assert_true.h>
+#include <base/class_traits.h>
 #include <base/cmd.h>
-#include <base/no_construction.h>
-#include <base/no_copy_semantics.h>
 
 namespace Test {
 
@@ -33,11 +32,11 @@ namespace Test {
   class TFixture;
 
   class TApp final {
-    NO_COPY_SEMANTICS(TApp);
+    NO_COPY(TApp);
     public:
 
     class TCmd : public Base::TCmd {
-      NO_COPY_SEMANTICS(TCmd);
+      NO_COPY(TCmd);
       public:
 
       TCmd(int argc, char **argv) : PrintTiming(false), VerboseMember(false) {
@@ -61,7 +60,7 @@ namespace Test {
 
     /* TODO */
     class TLogger {
-      NO_COPY_SEMANTICS(TLogger);
+      NO_COPY(TLogger);
       public:
 
       /* TODO */
@@ -95,7 +94,7 @@ namespace Test {
 
     /* TODO */
     class TRunner {
-      NO_COPY_SEMANTICS(TRunner);
+      NO_COPY(TRunner);
       public:
 
       /* TODO */

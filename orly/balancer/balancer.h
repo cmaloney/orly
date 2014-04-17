@@ -20,11 +20,11 @@
 
 #include <cassert>
 
+#include <base/class_traits.h>
 #include <base/cmd.h>
 #include <base/fd.h>
 #include <base/io_utils.h>
 #include <base/log.h>
-#include <base/no_copy_semantics.h>
 #include <base/scheduler.h>
 #include <socket/address.h>
 
@@ -34,7 +34,7 @@ namespace Orly {
 
     /* TODO */
     class TBalancer {
-      NO_COPY_SEMANTICS(TBalancer);
+      NO_COPY(TBalancer);
       public:
 
       /* Command-line arguments. */

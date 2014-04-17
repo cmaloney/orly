@@ -48,7 +48,7 @@ Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 60000UL);
 
 class TRAIITest {
-  NO_COPY_SEMANTICS(TRAIITest);
+  NO_COPY(TRAIITest);
   public:
 
   using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,

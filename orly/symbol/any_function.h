@@ -24,7 +24,7 @@
 #include <vector>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/symbol/def.h>
 #include <orly/symbol/result_def.h>
 #include <orly/type/func.h>
@@ -38,11 +38,11 @@ namespace Orly {
     class TBuiltInFunction;
 
     class TAnyFunction {
-      NO_COPY_SEMANTICS(TAnyFunction);
+      NO_COPY(TAnyFunction);
       public:
 
       class TVisitor {
-        NO_COPY_SEMANTICS(TVisitor);
+        NO_COPY(TVisitor);
         public:
 
         virtual ~TVisitor() {}

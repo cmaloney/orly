@@ -34,7 +34,7 @@ using namespace Orly::Indy::Util;
 /* TODO */
 template <bool CanTail, bool CanTailTombstones>
 class TMergeDataFileImpl {
-  NO_COPY_SEMANTICS(TMergeDataFileImpl);
+  NO_COPY(TMergeDataFileImpl);
   public:
 
   template <size_t LocalCacheSize>
@@ -1106,7 +1106,7 @@ class TMergeDataFileImpl {
 
   class TMyMergeArena
       : public TArenaInFile {
-    NO_COPY_SEMANTICS(TMyMergeArena);
+    NO_COPY(TMyMergeArena);
     public:
 
     TMyMergeArena(TEngine *engine, const TBlockVec &block_vec, size_t arena_byte_offset, size_t arena_num_notes, size_t arena_num_bytes)
@@ -2010,7 +2010,7 @@ class TMergeDataFileImpl {
   /* TODO */
   class TReader
       : public TReadFile<LogicalBlockSize, LogicalBlockSize, PhysicalBlockSize, PageCheckedBlock, true> {
-    NO_COPY_SEMANTICS(TReader);
+    NO_COPY(TReader);
     public:
 
     static constexpr size_t PhysicalCachePageSize = PhysicalBlockSize / (LogicalBlockSize / LogicalBlockSize);
@@ -2056,7 +2056,7 @@ class TMergeDataFileImpl {
 
   class TMergeIndexFile
       : public TArenaInFile {
-    NO_COPY_SEMANTICS(TMergeIndexFile);
+    NO_COPY(TMergeIndexFile);
     public:
 
     /*

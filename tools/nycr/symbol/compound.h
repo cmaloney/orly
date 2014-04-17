@@ -23,7 +23,7 @@
 #include <ostream>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/symbol/final.h>
 
 namespace Tools {
@@ -38,7 +38,7 @@ namespace Tools {
       /* TODO */
       class TCompound
           : public TFinal {
-        NO_COPY_SEMANTICS(TCompound);
+        NO_COPY(TCompound);
         public:
 
         /* TODO */

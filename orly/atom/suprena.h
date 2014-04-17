@@ -32,7 +32,7 @@ namespace Orly {
     /* An extensible arena that interns notes in memory. */
     class TSuprena final
         : public TCore::TExtensibleArena {
-      NO_COPY_SEMANTICS(TSuprena);
+      NO_COPY(TSuprena);
       public:
 
       /* Do-little. */

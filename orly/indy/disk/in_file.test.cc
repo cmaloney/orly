@@ -37,7 +37,7 @@ TBufBlock::TPool TBufBlock::Pool(PhysicalBlockSize, 100UL);
 
 class TMyInFile
     : public TInFile {
-  NO_COPY_SEMANTICS(TMyInFile);
+  NO_COPY(TMyInFile);
   public:
 
   TMyInFile(const Orly::Indy::Util::TBlockVec &block_vec) : BlockVec(block_vec) {}

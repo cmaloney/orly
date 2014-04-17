@@ -37,21 +37,21 @@ namespace Orly {
     /* Base class for code gen functions. See leaf classes TTopFunc, TInnerFunc, TImplicitFunc for instantiable
        instanecs. */
     class TFunction : public std::enable_shared_from_this<TFunction> {
-      NO_COPY_SEMANTICS(TFunction);
+      NO_COPY(TFunction);
       public:
 
       typedef std::shared_ptr<TFunction> TPtr;
       typedef std::map<std::string, Type::TType> TNamedArgs;
 
       class TArg {
-        NO_COPY_SEMANTICS(TArg);
+        NO_COPY(TArg);
         public:
         /* An inline for a function argument.
 
           TRefs aren't interned using the interner because that would make variable aliases like 'v0 = a0'. Rather
           every arg has one, and only one TRef which it gives pointers to to anyone who asks for an inline version. */
         class TRef : public TInline {
-          NO_COPY_SEMANTICS(TRef);
+          NO_COPY(TRef);
           public:
 
           typedef std::shared_ptr<const TRef> TPtr;

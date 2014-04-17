@@ -22,15 +22,15 @@
 
 #include <signal.h>
 
+#include <base/class_traits.h>
 #include <base/error_utils.h>
-#include <base/no_copy_semantics.h>
 #include <base/zero.h>
 
 namespace Signal {
 
   /* RAII for installing a signal handler. */
   class THandlerInstaller {
-    NO_COPY_SEMANTICS(THandlerInstaller);
+    NO_COPY(THandlerInstaller);
     public:
 
     /* Set the mask to the given set. */

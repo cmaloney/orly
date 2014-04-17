@@ -36,7 +36,7 @@ namespace Orly {
 
       /* TODO */
       class TContextOutputStreamer {
-        NO_COPY_SEMANTICS(TContextOutputStreamer);
+        NO_COPY(TContextOutputStreamer);
         public:
 
         /* TODO */

@@ -32,7 +32,7 @@ namespace Orly {
 
       class TDelete
           : public TUnary {
-        NO_COPY_SEMANTICS(TDelete);
+        NO_COPY(TDelete);
         public:
 
         typedef std::shared_ptr<TDelete> TPtr;
@@ -58,7 +58,7 @@ namespace Orly {
 
       class TNew
           : public TBinary {
-        NO_COPY_SEMANTICS(TNew);
+        NO_COPY(TNew);
         public:
 
         typedef std::shared_ptr<TNew> TPtr;

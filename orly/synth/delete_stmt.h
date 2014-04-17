@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/symbol/stmt/stmt.h>
 #include <orly/synth/stmt.h>
@@ -35,7 +35,7 @@ namespace Orly {
     /* TODO */
     class TDeleteStmt
         : public TStmt {
-      NO_COPY_SEMANTICS(TDeleteStmt);
+      NO_COPY(TDeleteStmt);
       public:
 
       /* TODO */

@@ -26,7 +26,7 @@ namespace Orly {
 
     /* TODO */
     class TId : public TSingletonType<TId> {
-      NO_COPY_SEMANTICS(TId);
+      NO_COPY(TId);
       public:
 
       virtual ~TId();

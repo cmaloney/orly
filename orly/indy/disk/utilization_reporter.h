@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/indy/disk/priority.h>
 
 namespace Orly {
@@ -29,7 +29,7 @@ namespace Orly {
 
       /* TODO */
       class TUtilizationReporter {
-        NO_COPY_SEMANTICS(TUtilizationReporter);
+        NO_COPY(TUtilizationReporter);
         public:
 
         enum TKind {

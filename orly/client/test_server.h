@@ -31,10 +31,10 @@
 #include <poll.h>
 #include <netinet/in.h>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
 #include <base/layout.h>
 #include <base/log.h>
-#include <base/no_copy_semantics.h>
 #include <io/endian.h>
 #include <signal/handler_installer.h>
 #include <socket/address.h>
@@ -148,7 +148,7 @@ namespace Orly {
 
     /* A server against which to test your clients. */
     class TTestServer final {
-      NO_COPY_SEMANTICS(TTestServer);
+      NO_COPY(TTestServer);
       public:
 
       /* Command-line parser. */
@@ -208,7 +208,7 @@ namespace Orly {
       /* Handles connunications between the server and a connected client.
          In particular, when a deadline is armed, the client must complete all I/O before the deadline or be hung up on. */
       class TConn final {
-        NO_COPY_SEMANTICS(TConn);
+        NO_COPY(TConn);
         public:
 
         /* Handle communications between the given server and the given client socket.

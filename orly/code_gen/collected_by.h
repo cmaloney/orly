@@ -28,7 +28,7 @@ namespace Orly {
 
     class TCollectedBy
         : public TInline {
-      NO_COPY_SEMANTICS(TCollectedBy);
+      NO_COPY(TCollectedBy);
       public:
 
       using TImplicitFuncPtr = std::shared_ptr<TImplicitFunc>;

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/atom.h>
 #include <tools/nycr/symbol/operator.h>
 
@@ -32,7 +32,7 @@ namespace Tools {
     /* TODO */
     class TOperator
         : public TAtom {
-      NO_COPY_SEMANTICS(TOperator);
+      NO_COPY(TOperator);
       public:
 
       /* TODO */

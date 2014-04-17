@@ -48,7 +48,7 @@ void TAs::Accept(const TVisitor &visitor) const {
 Type::TType TAs::GetType() const {
   class TAsTypeVisitor
       : public Type::TInfixVisitor {
-    NO_COPY_SEMANTICS(TAsTypeVisitor);
+    NO_COPY(TAsTypeVisitor);
     public:
     TAsTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TInfixVisitor(type, pos_range) {}
@@ -223,7 +223,7 @@ Type::TType TAs::GetType() const {
     virtual void operator()(const Type::TSeq      *lhs, const Type::TDict     *rhs) const {
       class TTypeVisitor
           : public Type::TUnwrapVisitor {
-        NO_COPY_SEMANTICS(TTypeVisitor);
+        NO_COPY(TTypeVisitor);
         public:
         TTypeVisitor(
             Type::TType &type,

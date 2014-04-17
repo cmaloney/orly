@@ -46,7 +46,7 @@ void TMatch::Accept(const TVisitor &visitor) const {
 Type::TType TMatch::GetType() const {
   class TMatchTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TMatchTypeVisitor);
+    NO_COPY(TMatchTypeVisitor);
     public:
     TMatchTypeVisitor(Type::TType &type, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range) {}

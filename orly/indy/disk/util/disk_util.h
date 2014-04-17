@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/indy/disk/util/device_util.h>
 #include <orly/indy/disk/util/volume_manager.h>
 
@@ -30,7 +30,7 @@ namespace Orly {
 
         /* TODO */
         class TDiskUtil {
-          NO_COPY_SEMANTICS(TDiskUtil);
+          NO_COPY(TDiskUtil);
           public:
 
           /* TODO */

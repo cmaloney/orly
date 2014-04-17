@@ -27,9 +27,8 @@
 #include <string>
 #include <utility>
 
+#include <base/class_traits.h>
 #include <base/event_semaphore.h>
-#include <base/no_construction.h>
-#include <base/no_copy_semantics.h>
 #include <base/opt.h>
 #include <base/thrower.h>
 #include <base/uuid.h>
@@ -192,7 +191,7 @@ namespace Orly {
     /* The base class for managers of durable objects. */
     class TManager
         : public Indy::Fiber::TRunnable {
-      NO_COPY_SEMANTICS(TManager);
+      NO_COPY(TManager);
       public:
 
       /* Evict and destroy all objects whose deadlines have passed.
@@ -306,7 +305,7 @@ namespace Orly {
 
     /* The base class for durable objects. */
     class TObj {
-      NO_COPY_SEMANTICS(TObj);
+      NO_COPY(TObj);
       public:
 
       /* If the object is closed, then this is the latest time at which the object is guaranteed to continue to exist.

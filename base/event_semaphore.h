@@ -21,14 +21,14 @@
 #include <cstdint>
 #include <cassert>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 
 namespace Base {
 
   /* TODO */
   class TEventSemaphore {
-    NO_COPY_SEMANTICS(TEventSemaphore);
+    NO_COPY(TEventSemaphore);
     public:
 
     /* TODO */

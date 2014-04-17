@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 
 namespace Orly {
@@ -27,7 +27,7 @@ namespace Orly {
 
     class TTimeObj
         : public TUnary {
-      NO_COPY_SEMANTICS(TTimeObj);
+      NO_COPY(TTimeObj);
       public:
 
       typedef std::shared_ptr<TTimeObj> TPtr;

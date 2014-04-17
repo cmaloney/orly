@@ -21,8 +21,8 @@
 #include <cassert>
 #include <netdb.h>
 
+#include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/no_copy_semantics.h>
 #include <socket/address.h>
 
 namespace Socket {
@@ -31,7 +31,7 @@ namespace Socket {
 
     /* An RAII wrapper around getaddrinfo. */
     class TCursor {
-      NO_COPY_SEMANTICS(TCursor);
+      NO_COPY(TCursor);
       public:
 
       /* Iterate over address for the given node and service.

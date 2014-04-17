@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/start.h>
 #include <orly/expr/startable.h>
 #include <orly/expr/thatable.h>
@@ -37,7 +37,7 @@ namespace Orly {
         : public TInterior,
           public TThatable,
           public TStartable {
-      NO_COPY_SEMANTICS(TCollatedBy);
+      NO_COPY(TCollatedBy);
       public:
 
       using TPtr = std::shared_ptr<TCollatedBy>;

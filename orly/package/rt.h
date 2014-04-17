@@ -38,7 +38,7 @@ namespace Orly {
     //compiler whenever possible.
     class TContext
         : public L0::TPackageContext {
-      NO_COPY_SEMANTICS(TContext);
+      NO_COPY(TContext);
       public:
 
       /* A map from database keys to changes to all/part of the key */
@@ -235,7 +235,7 @@ namespace Orly {
     /* TODO */
     class TSpaContext
           : public TContext {
-      NO_COPY_SEMANTICS(TSpaContext);
+      NO_COPY(TSpaContext);
       public:
 
       /* TODO */

@@ -25,7 +25,7 @@ namespace Orly {
   namespace Type {
 
     class TAny : public TSingletonType<TAny> {
-      NO_COPY_SEMANTICS(TAny);
+      NO_COPY(TAny);
       public:
 
       virtual ~TAny();

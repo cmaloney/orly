@@ -90,7 +90,7 @@ TPerf *TPerf::First = 0;
 TPerf *TPerf::Last = 0;
 
 class TApp : public TCmd {
-  NO_COPY_SEMANTICS(TApp);
+  NO_COPY(TApp);
   public:
 
   TApp() : Describe(false) {}
@@ -98,7 +98,7 @@ class TApp : public TCmd {
   private:
 
   class TRunner {
-    NO_COPY_SEMANTICS(TRunner);
+    NO_COPY(TRunner);
     public:
 
     TRunner(const TPerf *perf) : Perf(perf) {}
@@ -117,7 +117,7 @@ class TApp : public TCmd {
   };
 
   class TMeta : public TCmd::TMeta {
-    NO_COPY_SEMANTICS(TMeta);
+    NO_COPY(TMeta);
     public:
 
     TMeta() : TCmd::TMeta("Orly C++ Perf Test") {

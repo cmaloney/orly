@@ -22,8 +22,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <base/no_construction.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/rt/obj.h>
 #include <orly/rt/runtime_error.h>
 #include <orly/type/impl.h>

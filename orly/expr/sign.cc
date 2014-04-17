@@ -32,7 +32,7 @@ using namespace Orly::Expr;
 
 class TSignTypeVisitor
     : public Type::TUnwrapVisitor {
-  NO_COPY_SEMANTICS(TSignTypeVisitor);
+  NO_COPY(TSignTypeVisitor);
   public:
 
   TSignTypeVisitor(Type::TType &type, const TPosRange &pos_range)

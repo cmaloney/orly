@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/binary_input_stream.h>
 #include <io/binary_output_stream.h>
 
@@ -28,7 +28,7 @@ namespace Io {
   class TBinaryIoStream
       : public TBinaryInputStream,
         public TBinaryOutputStream {
-    NO_COPY_SEMANTICS(TBinaryIoStream);
+    NO_COPY(TBinaryIoStream);
     public:
 
     /* Attach to the given object, which must be both producer and consumer.  The pointer must not be null.

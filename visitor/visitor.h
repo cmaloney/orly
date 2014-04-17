@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_construction.h>
+#include <base/class_traits.h>
 #include <visitor/applier.h>
 #include <visitor/double.h>
 #include <visitor/computer.h>

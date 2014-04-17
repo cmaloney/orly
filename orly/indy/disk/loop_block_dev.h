@@ -29,7 +29,7 @@ namespace Orly {
     namespace Disk {
 
       class TBlockDev {
-        NO_COPY_SEMANTICS(TBlockDev);
+        NO_COPY(TBlockDev);
         public:
 
         TBlockDev(const char *file_name, size_t file_size_mb, const char *loop_name)

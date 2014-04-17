@@ -30,7 +30,7 @@ class TObj;
 
 class TObj
     : public TThreadLocalPoolManager<TObj>::TObjBase {
-  NO_COPY_SEMANTICS(TObj);
+  NO_COPY(TObj);
   public:
 
   TObj() {}

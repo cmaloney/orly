@@ -21,7 +21,7 @@
 #include <cstdint>
 #include <stdexcept>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/code_gen/cpp_printer.h>
 
 namespace Orly {
@@ -46,7 +46,7 @@ namespace Orly {
 
       /* Generates unique ids. */
       class TGen {
-        NO_COPY_SEMANTICS(TGen);
+        NO_COPY(TGen);
         public:
 
         TGen() : NextId(0) {}

@@ -27,7 +27,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 
 namespace MultiEvent {
@@ -38,7 +38,7 @@ namespace MultiEvent {
 
   /* A one-time event which can be waited for by TWaiter. */
   class TEvent {
-    NO_COPY_SEMANTICS(TEvent);
+    NO_COPY(TEvent);
     public:
 
     typedef std::shared_ptr<TEvent> TPtr;
@@ -87,7 +87,7 @@ namespace MultiEvent {
 
   /* Waits for one or more TEvents to fire. */
   class TWaiter {
-    NO_COPY_SEMANTICS(TWaiter);
+    NO_COPY(TWaiter);
     public:
 
     /* A function which produces events. */

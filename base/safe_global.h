@@ -22,7 +22,7 @@
 #include <functional>
 
 #include <base/assert_true.h>
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/spin_lock.h>
 
 namespace Base {
@@ -30,7 +30,7 @@ namespace Base {
   /* TODO */
   template <typename TVal>
   class TSafeGlobal {
-    NO_COPY_SEMANTICS(TSafeGlobal);
+    NO_COPY(TSafeGlobal);
     public:
 
     /* TODO */

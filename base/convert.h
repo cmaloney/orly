@@ -252,7 +252,7 @@ namespace Base {
   };
 
   class TConvertProxy {
-    NO_COPY_SEMANTICS(TConvertProxy);
+    NO_COPY(TConvertProxy);
     public:
     TConvertProxy(const TPiece<const char> text) : Converter(text) {}
 

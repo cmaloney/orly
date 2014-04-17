@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 
 namespace Orly {
@@ -27,7 +27,7 @@ namespace Orly {
 
     class TNegative
         : public TUnary {
-      NO_COPY_SEMANTICS(TNegative);
+      NO_COPY(TNegative);
       public:
 
       typedef std::shared_ptr<TNegative> TPtr;
@@ -46,7 +46,7 @@ namespace Orly {
 
     class TPositive
         : public TUnary {
-      NO_COPY_SEMANTICS(TPositive);
+      NO_COPY(TPositive);
       public:
 
       typedef std::shared_ptr<TPositive> TPtr;

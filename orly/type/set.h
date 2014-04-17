@@ -26,7 +26,7 @@ namespace Orly {
 
     /* TODO */
     class TSet : public TUnaryType<TSet> {
-      NO_COPY_SEMANTICS(TSet);
+      NO_COPY(TSet);
 
       TSet(const TType &elem) : TUnaryType(elem) {}
       virtual ~TSet();

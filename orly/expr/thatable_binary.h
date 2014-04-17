@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/binary.h>
 #include <orly/expr/thatable.h>
 
@@ -30,7 +30,7 @@ namespace Orly {
 
     class TThatableBinary
         : public TThatable, public TBinary {
-      NO_COPY_SEMANTICS(TThatableBinary);
+      NO_COPY(TThatableBinary);
       public:
 
       typedef std::shared_ptr<TThatableBinary> TPtr;

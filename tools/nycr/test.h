@@ -20,13 +20,13 @@
 #include <cctype>
 #include <stdexcept>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 
 namespace Tools {
   namespace Nycr {
     namespace Test {
       class TNode {
-        NO_COPY_SEMANTICS(TNode);
+        NO_COPY(TNode);
       public:
 
         TNode(const std::string &name)

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/unary.h>
 
 namespace Orly {
@@ -27,7 +27,7 @@ namespace Orly {
 
     class TCeiling
         : public TUnary {
-      NO_COPY_SEMANTICS(TCeiling);
+      NO_COPY(TCeiling);
       public:
 
       typedef std::shared_ptr<TCeiling> TPtr;

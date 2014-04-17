@@ -91,7 +91,7 @@ TDbKeysExpr::TDbKeysExpr(const TExprFactory *expr_factory, const Package::Syntax
     : DbKeysExpr(Base::AssertTrue(db_keys_expr)), ValueType(NewType(DbKeysExpr->GetType())) {
   class TDbKeysMemberVisitor
       : public Package::Syntax::TDbKeysMember::TVisitor {
-    NO_COPY_SEMANTICS(TDbKeysMemberVisitor);
+    NO_COPY(TDbKeysMemberVisitor);
     public:
     TDbKeysMemberVisitor(
         const TAddrDirVisitor *addr_dir_visitor,

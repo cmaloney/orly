@@ -27,7 +27,7 @@ namespace Orly {
 
     class TFilter
         : public TInline {
-      NO_COPY_SEMANTICS(TFilter);
+      NO_COPY(TFilter);
       public:
 
       typedef std::shared_ptr<TFilter> TPtr;

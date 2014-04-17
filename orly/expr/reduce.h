@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/start.h>
 #include <orly/expr/startable.h>
 #include <orly/expr/thatable_binary.h>
@@ -32,7 +32,7 @@ namespace Orly {
     class TReduce
         : public TThatableBinary,
           public TStartable {
-      NO_COPY_SEMANTICS(TReduce);
+      NO_COPY(TReduce);
       public:
 
       typedef std::shared_ptr<TReduce> TPtr;

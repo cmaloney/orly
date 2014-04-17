@@ -27,7 +27,7 @@ namespace Orly {
 
     class TTake
         : public TInline {
-      NO_COPY_SEMANTICS(TTake);
+      NO_COPY(TTake);
       public:
 
       typedef std::shared_ptr<TTake> TPtr;

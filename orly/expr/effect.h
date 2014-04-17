@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/thatable_unary.h>
 #include <orly/expr/visitor.h>
 #include <orly/symbol/stmt/stmt_block.h>
@@ -29,7 +29,7 @@ namespace Orly {
 
     class TEffect
         : public TThatableUnary {
-      NO_COPY_SEMANTICS(TEffect);
+      NO_COPY(TEffect);
       public:
 
       typedef std::shared_ptr<TEffect> TPtr;

@@ -26,7 +26,7 @@
 #include <snappy.h>
 #include <snappy-sinksource.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/indy/disk/buf_block.h>
 #include <orly/indy/disk/in_file.h>
 #include <orly/indy/disk/out_stream.h>
@@ -45,7 +45,7 @@ namespace Orly {
           /* TODO */
           class TBlockSource
               : public snappy::Source {
-            NO_COPY_SEMANTICS(TBlockSource);
+            NO_COPY(TBlockSource);
             public:
 
             /* TODO */
@@ -76,7 +76,7 @@ namespace Orly {
           template <size_t CachePageSize, size_t BlockSize, size_t PhysicalBlockSize, Util::TBufKind BufKind>
           class TStreamSource
               : public snappy::Source {
-            NO_COPY_SEMANTICS(TStreamSource);
+            NO_COPY(TStreamSource);
             public:
 
             typedef TStream<CachePageSize, BlockSize, PhysicalBlockSize, BufKind, 0UL /*local cache */> TDataInStream;
@@ -125,7 +125,7 @@ namespace Orly {
           template <size_t PageSize, size_t BlockSize, size_t PhysicalBlockSize, Util::TBufKind BufKind>
           class TBlockSink
               : public snappy::Sink {
-            NO_COPY_SEMANTICS(TBlockSink);
+            NO_COPY(TBlockSink);
             public:
 
             /* TODO */
@@ -153,7 +153,7 @@ namespace Orly {
           /* TODO */
           class TIoStreamSource
               : public snappy::Source {
-            NO_COPY_SEMANTICS(TIoStreamSource);
+            NO_COPY(TIoStreamSource);
             public:
 
             /* TODO */
@@ -197,7 +197,7 @@ namespace Orly {
           /* TODO */
           class TIoStreamSink
               : public snappy::Sink {
-            NO_COPY_SEMANTICS(TIoStreamSink);
+            NO_COPY(TIoStreamSink);
             public:
 
             /* TODO */
@@ -222,7 +222,7 @@ namespace Orly {
           /* TODO */
           class TRawSink
               : public snappy::Sink {
-            NO_COPY_SEMANTICS(TRawSink);
+            NO_COPY(TRawSink);
             public:
 
             /* TODO */

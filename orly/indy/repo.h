@@ -48,7 +48,7 @@ namespace Orly {
     /* TODO */
     class TRepo
         : public L0::TManager::TRepo {
-      NO_COPY_SEMANTICS(TRepo);
+      NO_COPY(TRepo);
       public:
 
       /* TODO */
@@ -56,7 +56,7 @@ namespace Orly {
 
       /* TODO */
       class TView {
-        NO_COPY_SEMANTICS(TView);
+        NO_COPY(TView);
         public:
 
         /* TODO */
@@ -248,7 +248,7 @@ namespace Orly {
       /* TODO */
       class TPresentWalker
           : public Indy::TPresentWalker {
-        NO_COPY_SEMANTICS(TPresentWalker);
+        NO_COPY(TPresentWalker);
         public:
 
         /* TODO */
@@ -278,7 +278,7 @@ namespace Orly {
         /* TODO */
         class TRunnablePrep
             : public Indy::Fiber::TRunnable {
-          NO_COPY_SEMANTICS(TRunnablePrep);
+          NO_COPY(TRunnablePrep);
           public:
 
           /* TODO */
@@ -370,7 +370,7 @@ namespace Orly {
       /* TODO */
       class TUpdateWalker
           : public Indy::TUpdateWalker {
-        NO_COPY_SEMANTICS(TUpdateWalker);
+        NO_COPY(TUpdateWalker);
         public:
 
         /* TODO */
@@ -459,7 +459,7 @@ namespace Orly {
     /* TODO */
     class TFastRepo
         : public Orly::Indy::TRepo {
-      NO_COPY_SEMANTICS(TFastRepo);
+      NO_COPY(TFastRepo);
       public:
 
       /* TODO */
@@ -505,7 +505,7 @@ namespace Orly {
     /* TODO */
     class TSafeRepo
         : public Orly::Indy::TRepo {
-      NO_COPY_SEMANTICS(TSafeRepo);
+      NO_COPY(TSafeRepo);
       public:
 
       /* TODO */

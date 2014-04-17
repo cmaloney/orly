@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/symbol/stmt/new_and_delete.h>
 #include <orly/synth/new_expr.h>
@@ -30,7 +30,7 @@ namespace Orly {
 
     /* TODO */
     class TTestKvEntry {
-      NO_COPY_SEMANTICS(TTestKvEntry);
+      NO_COPY(TTestKvEntry);
       public:
 
       /* TODO */

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/opt.h>
 #include <orly/orly.package.cst.h>
 #include <orly/symbol/test/test_case_block.h>
@@ -31,7 +31,7 @@ namespace Orly {
     class TExprFactory;
 
     class TTestCaseBlock {
-      NO_COPY_SEMANTICS(TTestCaseBlock);
+      NO_COPY(TTestCaseBlock);
       public:
 
       TTestCaseBlock(
@@ -49,7 +49,7 @@ namespace Orly {
       private:
 
       class TTestCase {
-        NO_COPY_SEMANTICS(TTestCase);
+        NO_COPY(TTestCase);
         public:
 
         TTestCase(

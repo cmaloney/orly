@@ -35,7 +35,7 @@ namespace Orly {
           typename TComparator = std::less<TVal>>
       class TSubSortRunnable
           : public TRunnable {
-        NO_COPY_SEMANTICS(TSubSortRunnable);
+        NO_COPY(TSubSortRunnable);
         public:
 
         /* TODO */
@@ -82,7 +82,7 @@ namespace Orly {
           typename TComparator = std::less<TVal>>
       class TInplaceMergeRunnable
           : public TRunnable {
-        NO_COPY_SEMANTICS(TInplaceMergeRunnable);
+        NO_COPY(TInplaceMergeRunnable);
         public:
 
         /* TODO */

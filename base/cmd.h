@@ -75,16 +75,15 @@
 
 #include <getopt.h>
 
+#include <base/class_traits.h>
 #include <base/demangle.h>
-#include <base/no_copy_semantics.h>
-#include <base/no_construction.h>
 #include <base/thrower.h>
 
 namespace Base {
 
   /* The base class for all commands to be handled from the command line. */
   class TCmd {
-    NO_COPY_SEMANTICS(TCmd);
+    NO_COPY(TCmd);
     public:
 
     /* The directory in which the executable resides.  Not null.  No trailing slash.
@@ -105,7 +104,7 @@ namespace Base {
 
     /* The base class for all meta-objects describing command objects. */
     class TMeta {
-      NO_COPY_SEMANTICS(TMeta);
+      NO_COPY(TMeta);
       public:
 
       /* A function which receives error messages which arise during command line parsing
@@ -206,13 +205,13 @@ namespace Base {
 
       /* The base class for all command line parameter meta-objects. */
       class TParam {
-        NO_COPY_SEMANTICS(TParam);
+        NO_COPY(TParam);
         public:
 
         /* The base class for all argument meta-objects.
            Here use 'argument' to refer to the value being parsed by the parameter. */
         class TArg {
-          NO_COPY_SEMANTICS(TArg);
+          NO_COPY(TArg);
           public:
 
           /* True iff. this argument is required. */
@@ -388,7 +387,7 @@ namespace Base {
         template <typename TVal>
         class TTypedArg
             : public TArg {
-          NO_COPY_SEMANTICS(TTypedArg);
+          NO_COPY(TTypedArg);
           public:
 
           /* See base class. */
@@ -470,7 +469,7 @@ namespace Base {
       template <typename TSomeCmd, typename TVal>
       class TBackedParam
           : public TParam {
-        NO_COPY_SEMANTICS(TBackedParam);
+        NO_COPY(TBackedParam);
         public:
 
         /* The type of our backer. */
@@ -503,7 +502,7 @@ namespace Base {
         /* An argument accepted by this parameter. */
         class TArg
             : public TParam::TTypedArg<TVal> {
-          NO_COPY_SEMANTICS(TArg);
+          NO_COPY(TArg);
           public:
 
           /* Do-little. */
@@ -544,7 +543,7 @@ namespace Base {
       template <typename TSomeCmd>
       class TUnbackedParam
           : public TParam {
-        NO_COPY_SEMANTICS(TUnbackedParam);
+        NO_COPY(TUnbackedParam);
         public:
 
         /* The type of our handler. */
@@ -603,7 +602,7 @@ namespace Base {
       /* A parser for the command line.
          This is basically a big wrapper around getopt_long_only(). */
       class TParser {
-        NO_COPY_SEMANTICS(TParser);
+        NO_COPY(TParser);
         public:
 
         /* A parser for the parameters described by the given meta-object. */
@@ -622,7 +621,7 @@ namespace Base {
 
         /* A run of the parser. */
         class TRun {
-          NO_COPY_SEMANTICS(TRun);
+          NO_COPY(TRun);
           public:
 
           /* Do-little. */

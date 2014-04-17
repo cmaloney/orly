@@ -281,7 +281,7 @@ template <>
 TPosRange Orly::Synth::GetPosRange(const Package::Syntax::TLiteralExpr *that) {
   class TVisitor
     : public Package::Syntax::TLiteral::TVisitor {
-      NO_COPY_SEMANTICS(TVisitor);
+      NO_COPY(TVisitor);
       public:
       TVisitor(TPosRange &pos_range)
         : PosRange(pos_range) {}
@@ -438,7 +438,7 @@ template <>
 TPosRange Orly::Synth::GetPosRange(const Package::Syntax::TRangeCtor *that) {
   class TVisitor
     : public Package::Syntax::TRangeEnd::TVisitor {
-      NO_COPY_SEMANTICS(TVisitor);
+      NO_COPY(TVisitor);
       public:
       TVisitor(const Package::Syntax::TOpenBracket *open_bracket, TPosRange &pos_range)
         : OpenBracket(open_bracket), PosRange(pos_range) {}
@@ -560,7 +560,7 @@ template <>
 TPosRange Orly::Synth::GetPosRange(const Package::Syntax::TExpr *expr) {
   class TPosRangeVisitor
       : public Package::Syntax::TExpr::TVisitor {
-    NO_COPY_SEMANTICS(TPosRangeVisitor);
+    NO_COPY(TPosRangeVisitor);
     public:
     TPosRangeVisitor(TPosRange &pos_range)
         : PosRange(pos_range) {}

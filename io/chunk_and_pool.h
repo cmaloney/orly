@@ -24,7 +24,7 @@
 #include <queue>
 #include <stdexcept>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/no_throw.h>
 
 namespace Io {
@@ -34,7 +34,7 @@ namespace Io {
 
   /* A chunk of data in a data stream. */
   class TChunk {
-    NO_COPY_SEMANTICS(TChunk);
+    NO_COPY(TChunk);
     public:
 
     /* Passed to a constructor when constructing an empty chunk. */
@@ -199,7 +199,7 @@ namespace Io {
   /* A pool of chunks. */
   class TPool
       : public std::enable_shared_from_this<TPool> {
-    NO_COPY_SEMANTICS(TPool);
+    NO_COPY(TPool);
     public:
 
     /* The error thrown by AcquireChunk() when a pool of fixed size is empty. */

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/expr.h>
 
 namespace Orly {
@@ -27,7 +27,7 @@ namespace Orly {
 
     class TLeaf
         : public TExpr {
-      NO_COPY_SEMANTICS(TLeaf);
+      NO_COPY(TLeaf);
       protected:
 
       TLeaf(const TPosRange &pos_range);

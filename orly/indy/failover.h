@@ -20,7 +20,7 @@
 #include <condition_variable>
 #include <mutex>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/uuid.h>
 #include <io/device.h>
 #include <rpc/rpc.h>
@@ -56,7 +56,7 @@ namespace Orly {
     /* TODO */
     class TCommonContext
         : public Rpc::TContext {
-      NO_COPY_SEMANTICS(TCommonContext);
+      NO_COPY(TCommonContext);
       public:
 
       /* TODO */
@@ -82,7 +82,7 @@ namespace Orly {
       /* TODO */
       class TProtocol
           : public Rpc::TProtocol {
-        NO_COPY_SEMANTICS(TProtocol);
+        NO_COPY(TProtocol);
         protected:
 
         /* TODO */
@@ -134,7 +134,7 @@ namespace Orly {
     /* TODO */
     class TMasterContext
         : public TCommonContext {
-      NO_COPY_SEMANTICS(TMasterContext);
+      NO_COPY(TMasterContext);
       public:
 
       /* TODO */
@@ -152,7 +152,7 @@ namespace Orly {
       /* TODO */
       class TProtocol
           : public TCommonContext::TProtocol {
-        NO_COPY_SEMANTICS(TProtocol);
+        NO_COPY(TProtocol);
         public:
 
         /* TODO */
@@ -193,7 +193,7 @@ namespace Orly {
     /* TODO */
     class TSlaveContext
         : public TCommonContext {
-      NO_COPY_SEMANTICS(TSlaveContext);
+      NO_COPY(TSlaveContext);
       public:
 
       /* TODO */
@@ -208,7 +208,7 @@ namespace Orly {
       /* TODO */
       class TProtocol
           : public TCommonContext::TProtocol {
-        NO_COPY_SEMANTICS(TProtocol);
+        NO_COPY(TProtocol);
         public:
 
         /* TODO */

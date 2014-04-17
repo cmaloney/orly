@@ -18,7 +18,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <inv_con/ordered_list.h>
 #include <orly/indy/manager_base.h>
 #include <orly/indy/update.h>
@@ -42,7 +42,7 @@ namespace Orly {
     /* TODO */
     class TMemoryLayer
         : public L0::TManager::TRepo::TDataLayer {
-      NO_COPY_SEMANTICS(TMemoryLayer);
+      NO_COPY(TMemoryLayer);
       public:
 
       /* TODO */
@@ -92,7 +92,7 @@ namespace Orly {
       /* TODO */
       class TMatchPresentWalker
           : public Indy::TPresentWalker {
-        NO_COPY_SEMANTICS(TMatchPresentWalker);
+        NO_COPY(TMatchPresentWalker);
         public:
 
         /* TODO */
@@ -142,7 +142,7 @@ namespace Orly {
       /* TODO */
       class TRangePresentWalker
           : public Indy::TPresentWalker {
-        NO_COPY_SEMANTICS(TRangePresentWalker);
+        NO_COPY(TRangePresentWalker);
         public:
 
         /* TODO */
@@ -196,7 +196,7 @@ namespace Orly {
       /* TODO */
       class TUpdateWalker
           : public Indy::TUpdateWalker {
-        NO_COPY_SEMANTICS(TUpdateWalker);
+        NO_COPY(TUpdateWalker);
         public:
 
         /* TODO */

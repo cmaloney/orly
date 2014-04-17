@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/symbol/root.h>
 
 namespace Orly {
@@ -33,7 +33,7 @@ namespace Orly {
 
       class TStmtArg
           : public TRoot {
-        NO_COPY_SEMANTICS(TStmtArg);
+        NO_COPY(TStmtArg);
         public:
 
         typedef std::shared_ptr<TStmtArg> TPtr;

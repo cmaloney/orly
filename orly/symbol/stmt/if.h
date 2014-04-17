@@ -34,7 +34,7 @@ namespace Orly {
 
       class TIfClause
           : public TRoot {
-        NO_COPY_SEMANTICS(TIfClause);
+        NO_COPY(TIfClause);
         public:
 
         typedef std::shared_ptr<TIfClause> TPtr;
@@ -56,7 +56,7 @@ namespace Orly {
       };  // TIfClause
 
       class TElseClause {
-        NO_COPY_SEMANTICS(TElseClause);
+        NO_COPY(TElseClause);
         public:
 
         typedef std::shared_ptr<TElseClause> TPtr;
@@ -77,7 +77,7 @@ namespace Orly {
 
       class TIf
           : public TStmt {
-        NO_COPY_SEMANTICS(TIf);
+        NO_COPY(TIf);
         public:
 
         typedef std::shared_ptr<TIf> TPtr;

@@ -21,7 +21,7 @@
 #include <functional>
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/expr.h>
 #include <orly/synth/new_expr.h>
@@ -35,7 +35,7 @@ namespace Orly {
     /* TODO */
     class TDbKeysExpr
         : public TExpr {
-      NO_COPY_SEMANTICS(TDbKeysExpr);
+      NO_COPY(TDbKeysExpr);
       public:
 
       /* TODO */
@@ -62,7 +62,7 @@ namespace Orly {
 
       /* TODO */
       class TMember {
-        NO_COPY_SEMANTICS(TMember);
+        NO_COPY(TMember);
         public:
 
         /* TODO */
@@ -101,7 +101,7 @@ namespace Orly {
       /* TODO */
       class TFixedMember
           : public TMember {
-        NO_COPY_SEMANTICS(TFixedMember);
+        NO_COPY(TFixedMember);
         public:
 
         /* TODO */
@@ -129,7 +129,7 @@ namespace Orly {
       /* TODO */
       class TFreeMember
           : public TMember {
-        NO_COPY_SEMANTICS(TFreeMember);
+        NO_COPY(TFreeMember);
         public:
 
         /* TODO */

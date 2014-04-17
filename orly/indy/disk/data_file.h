@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/atom/kit2.h>
 #include <orly/indy/disk/in_file.h>
 #include <orly/indy/disk/out_stream.h>
@@ -105,7 +105,7 @@ namespace Orly {
 
       /* TODO */
       class TDataFile {
-        NO_COPY_SEMANTICS(TDataFile);
+        NO_COPY(TDataFile);
         public:
 
         template <size_t LocalCacheSize>

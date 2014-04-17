@@ -29,14 +29,14 @@
 
 #include <dirent.h>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <base/thrower.h>
 
 namespace Base {
 
   /* An iterator over the contents of a directory. */
   class TDirIter final {
-    NO_COPY_SEMANTICS(TDirIter);
+    NO_COPY(TDirIter);
     public:
 
     /* What kind of directory entry have we? */

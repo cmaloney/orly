@@ -22,7 +22,7 @@
 #include <memory>
 #include <unordered_set>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/ctor.h>
 
 namespace Orly {
@@ -31,7 +31,7 @@ namespace Orly {
 
     class TSet
         : public TCtor<std::unordered_set<TExpr::TPtr>> {
-      NO_COPY_SEMANTICS(TSet);
+      NO_COPY(TSet);
       public:
 
       typedef std::shared_ptr<TSet> TPtr;

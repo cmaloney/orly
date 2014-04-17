@@ -26,8 +26,8 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+#include <base/class_traits.h>
 #include <base/error_utils.h>
-#include <base/no_copy_semantics.h>
 #include <base/spin_lock.h>
 
 namespace Orly {
@@ -38,12 +38,12 @@ namespace Orly {
 
       /* TODO */
       class TBufBlock {
-        NO_COPY_SEMANTICS(TBufBlock);
+        NO_COPY(TBufBlock);
         public:
 
         /* TODO */
         class TPool {
-          NO_COPY_SEMANTICS(TPool);
+          NO_COPY(TPool);
           public:
 
           /* TODO */
@@ -153,7 +153,7 @@ namespace Orly {
 
           /* TODO */
           class TBlock {
-            NO_COPY_SEMANTICS(TBlock);
+            NO_COPY(TBlock);
             public:
 
             /* TODO */

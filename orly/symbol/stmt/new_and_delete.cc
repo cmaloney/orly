@@ -27,7 +27,7 @@ using namespace Orly::Symbol::Stmt;
 
 class TAddressTypeVisitor
     : public Type::TUnwrapVisitor {
-  NO_COPY_SEMANTICS(TAddressTypeVisitor);
+  NO_COPY(TAddressTypeVisitor);
   public:
   TAddressTypeVisitor(Type::TType &type, const TPosRange &pos_range)
       : Type::TUnwrapVisitor(type, pos_range) {}

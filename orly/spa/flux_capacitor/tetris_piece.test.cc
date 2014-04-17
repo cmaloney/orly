@@ -39,7 +39,7 @@ const Var::TVar DefaultVar;
 namespace Orly { namespace Spa { namespace FluxCapacitor {
 
   class TContext {
-    NO_COPY_SEMANTICS(TContext);
+    NO_COPY(TContext);
     public:
 
     TContext(TKvMap &kv_map)
@@ -67,7 +67,7 @@ bool NoAssert(TContext &) {
 
 class TMyPiece
     : public TTetrisPiece {
-  NO_COPY_SEMANTICS(TMyPiece);
+  NO_COPY(TMyPiece);
   public:
 
   enum TStatus { Undecided, Promoted, Failed };
@@ -125,7 +125,7 @@ class TMyPiece
 };
 
 class TMyPlayer {
-  NO_COPY_SEMANTICS(TMyPlayer);
+  NO_COPY(TMyPlayer);
   public:
 
   TMyPlayer() {}

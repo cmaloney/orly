@@ -41,7 +41,7 @@ bool PrintCmds = false;  // Flag for Starsha's TRunner
 TUUID POV_ID;
 
 class TProgram {
-  NO_COPY_SEMANTICS(TProgram);
+  NO_COPY(TProgram);
   public:
 
   TProgram(const char *script) {

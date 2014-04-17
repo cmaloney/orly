@@ -27,7 +27,7 @@ namespace Orly {
     class TImplicitFunc;
 
     class TSort : public TInline {
-      NO_COPY_SEMANTICS(TSort);
+      NO_COPY(TSort);
       public:
 
       typedef std::shared_ptr<TImplicitFunc> TImplicitFuncPtr;

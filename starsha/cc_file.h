@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <starsha/c_family_file.h>
 
 namespace Starsha {
@@ -26,7 +26,7 @@ namespace Starsha {
   /* TODO */
   class TCcFile
       : public TCFamilyFile {
-    NO_COPY_SEMANTICS(TCcFile);
+    NO_COPY(TCcFile);
     public:
 
     /* TODO */

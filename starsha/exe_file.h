@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <starsha/corpus.h>
 
 namespace Starsha {
@@ -31,7 +31,7 @@ namespace Starsha {
   /* TODO */
   class TExeFile
       : public TCorpus::TFile {
-    NO_COPY_SEMANTICS(TExeFile);
+    NO_COPY(TExeFile);
     public:
 
     /* TODO */

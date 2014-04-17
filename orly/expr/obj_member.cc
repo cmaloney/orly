@@ -46,7 +46,7 @@ void TObjMember::Accept(const TVisitor &visitor) const {
 Type::TType TObjMember::GetType() const {
   class TObjMemberTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TObjMemberTypeVisitor);
+    NO_COPY(TObjMemberTypeVisitor);
     public:
     TObjMemberTypeVisitor(Type::TType &type, const std::string &name, const TPosRange &pos_range)
         : Type::TUnwrapVisitor(type, pos_range), Name(name) {}

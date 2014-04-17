@@ -20,7 +20,7 @@
 
 #include <vector>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <tools/nycr/final.h>
 #include <tools/nycr/operator.h>
 #include <tools/nycr/symbol/compound.h>
@@ -35,7 +35,7 @@ namespace Tools {
     /* TODO */
     class TCompound
         : public TFinal {
-      NO_COPY_SEMANTICS(TCompound);
+      NO_COPY(TCompound);
       protected:
 
       /* TODO */
@@ -66,7 +66,7 @@ namespace Tools {
 
       /* TODO */
       class TMember {
-        NO_COPY_SEMANTICS(TMember);
+        NO_COPY(TMember);
         public:
 
         /* TODO */
@@ -88,7 +88,7 @@ namespace Tools {
       /* TODO */
       class TErrorMember
           : public TMember {
-        NO_COPY_SEMANTICS(TErrorMember);
+        NO_COPY(TErrorMember);
         public:
 
         /* TODO */
@@ -105,7 +105,7 @@ namespace Tools {
       /* TODO */
       class TMemberWithKind
           : public TMember {
-        NO_COPY_SEMANTICS(TMemberWithKind);
+        NO_COPY(TMemberWithKind);
         public:
 
         /* TODO */
@@ -130,7 +130,7 @@ namespace Tools {
 
       /* TODO */
       class TAnonymousMember : public TMemberWithKind {
-        NO_COPY_SEMANTICS(TAnonymousMember);
+        NO_COPY(TAnonymousMember);
         public:
 
         /* TODO */
@@ -145,7 +145,7 @@ namespace Tools {
       /* TODO */
       class TNamedMember
           : public TMemberWithKind {
-        NO_COPY_SEMANTICS(TNamedMember);
+        NO_COPY(TNamedMember);
         public:
 
         /* TODO */

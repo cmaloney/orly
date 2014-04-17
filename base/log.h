@@ -31,14 +31,14 @@
 #include <thread>
 #include <utility>
 
+#include <base/class_traits.h>
 #include <base/cmd.h>
-#include <base/no_copy_semantics.h>
 
 namespace Base {
 
   /* RAII for opening and closing the system log. */
   class TLog {
-    NO_COPY_SEMANTICS(TLog);
+    NO_COPY(TLog);
     public:
 
     /* Command line options for logging. */

@@ -22,7 +22,7 @@
 #include <utility>
 #include <string>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <utf8/piece.h>
 #include <utf8/regex.h>
 
@@ -32,7 +32,7 @@ namespace Orly {
 
     /* Split a text into pieces based on regex delimiters.. */
     class TStrReplace final {
-      NO_COPY_SEMANTICS(TStrReplace);
+      NO_COPY(TStrReplace);
       public:
 
       using TPiece = Utf8::TPiece;

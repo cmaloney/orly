@@ -25,7 +25,7 @@ namespace Orly {
   namespace Type {
 
     class TStr : public TSingletonType<TStr> {
-      NO_COPY_SEMANTICS(TStr);
+      NO_COPY(TStr);
 
       public:
       virtual ~TStr();

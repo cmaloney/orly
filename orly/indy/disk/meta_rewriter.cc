@@ -26,7 +26,7 @@ using namespace Orly::Indy::Disk;
 
 class TMetaRewriteInFile
     : public TInFile {
-  NO_COPY_SEMANTICS(TMetaRewriteInFile);
+  NO_COPY(TMetaRewriteInFile);
   public:
 
   TMetaRewriteInFile(const Orly::Indy::Util::TBlockVec &block_vec)

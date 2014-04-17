@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <orly/expr/thatable.h>
 #include <orly/expr/unary.h>
 #include <orly/pos_range.h>
@@ -31,7 +31,7 @@ namespace Orly {
 
     class TThatableUnary
         : public TThatable, public TUnary {
-      NO_COPY_SEMANTICS(TThatableUnary);
+      NO_COPY(TThatableUnary);
       public:
 
       typedef std::shared_ptr<TThatableUnary> TPtr;

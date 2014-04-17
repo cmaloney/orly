@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <base/no_copy_semantics.h>
+#include <base/class_traits.h>
 #include <io/binary_output_stream.h>
 
 namespace Io {
@@ -26,7 +26,7 @@ namespace Io {
   /* An output stream in binary format. */
   class TBinaryOutputOnlyStream
       : public TBinaryOutputStream {
-    NO_COPY_SEMANTICS(TBinaryOutputOnlyStream);
+    NO_COPY(TBinaryOutputOnlyStream);
     public:
 
     /* Attach to the given consumer, if any.

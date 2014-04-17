@@ -55,7 +55,7 @@ void TSlice::Accept(const TVisitor &visitor) const {
 Type::TType TSlice::GetType() const {
   class TSliceTypeVisitor
       : public Type::TUnwrapVisitor {
-    NO_COPY_SEMANTICS(TSliceTypeVisitor);
+    NO_COPY(TSliceTypeVisitor);
     public:
     TSliceTypeVisitor(
         Type::TType &type,

@@ -25,7 +25,7 @@ namespace Orly {
   namespace Type {
 
     class TInt : public TSingletonType<TInt> {
-      NO_COPY_SEMANTICS(TInt);
+      NO_COPY(TInt);
 
       public:
       virtual ~TInt();

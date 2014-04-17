@@ -238,7 +238,7 @@ namespace std {
    If they need to act on common data, they need to be synchronized around it with
    a mutex or something similar. */
 class TSpa : public Mongoose::TMongoose {
-  NO_COPY_SEMANTICS(TSpa);
+  NO_COPY(TSpa);
   public:
 
   //TODO: Move to <base/service.h> framework. For now going for fast to implement, not pretty.

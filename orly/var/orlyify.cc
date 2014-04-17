@@ -31,7 +31,7 @@ using namespace Orly::Var;
 
 void Orly::Var::Orlyify(ostream &strm, const TVar &var) {
   class TVisitor : public TVar::TVisitor {
-    NO_COPY_SEMANTICS(TVisitor);
+    NO_COPY(TVisitor);
     public:
     TVisitor(ostream &strm) : Strm(strm) {}
     private:
