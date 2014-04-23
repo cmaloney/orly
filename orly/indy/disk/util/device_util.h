@@ -20,6 +20,8 @@
 #include <string.h>
 #include <syslog.h>
 
+#include <functional>
+
 #include <base/class_traits.h>
 #include <base/dir_iter.h>
 #include <base/fd.h>
