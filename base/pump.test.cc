@@ -32,9 +32,11 @@ using namespace Base;
 
 static const char *Msg = "Mofo the Psychic Gorilla!";
 
-static const size_t MsgSize = strlen(Msg);
+static constexpr size_t MsgSize = 25;
+
 
 FIXTURE(OnePipeManyCycles) {
+  assert(strlen(Msg) == MsgSize);
   const size_t cycle_repeat_count = 300;
   size_t i;
   for (i = 0; i < cycle_repeat_count; ++i) {
