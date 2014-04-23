@@ -282,7 +282,7 @@ namespace Orly {
     /* See declaration. */
     template <typename TRec>
     template <typename TVal, const char *Name, TVal (TRec::*Member)>
-    const Record<TRec>::TElem<TVal, Name, Member> Record<TRec>::TElem<TVal, Name, Member>::Elem;
+    const typename Record<TRec>::template TElem<TVal, Name, Member> Record<TRec>::TElem<TVal, Name, Member>::Elem;
 
   }  // Native
 
