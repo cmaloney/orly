@@ -950,12 +950,14 @@ inline void TMatchPrefixStateVisitor::OnArrayOfPairsOfStates(const State::TArray
   void *lhs_state_alloc = alloca(Sabot::State::GetMaxStateSize() * 2);
   void *rhs_state_alloc = reinterpret_cast<uint8_t *>(lhs_state_alloc) + Sabot::State::GetMaxStateSize();
   for (size_t elem_idx = 0; elem_idx < lhs_pin->GetElemCount(); ++elem_idx) {
-    Sabot::State::TAny::TWrapper
-      lhs_key(lhs_pin->NewLhs(elem_idx, lhs_state_alloc)),
-      rhs_key(rhs_pin->NewLhs(elem_idx, rhs_state_alloc));
-    AcceptDouble(*lhs_key, *rhs_key, *this);
-    if (IsNoMatch(Result)) {
-      return;
+    /* Ensure destruction */ {
+      Sabot::State::TAny::TWrapper
+        lhs_key(lhs_pin->NewLhs(elem_idx, lhs_state_alloc)),
+        rhs_key(rhs_pin->NewLhs(elem_idx, rhs_state_alloc));
+      AcceptDouble(*lhs_key, *rhs_key, *this);
+      if (IsNoMatch(Result)) {
+        return;
+      }
     }
     Sabot::State::TAny::TWrapper
       lhs_val(lhs_pin->NewRhs(elem_idx, lhs_state_alloc)),

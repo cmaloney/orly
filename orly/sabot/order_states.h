@@ -882,12 +882,14 @@ namespace Orly {
       void *lhs_state_alloc = alloca(State::GetMaxStatePinSize());
       void *rhs_state_alloc = alloca(State::GetMaxStatePinSize());
       for (size_t lhs_idx = 0, rhs_idx = 0; lhs_idx < lhs_pin->GetElemCount() && rhs_idx < rhs_pin->GetElemCount(); ++lhs_idx, ++rhs_idx) {
-        Sabot::State::TAny::TWrapper
-          lhs_key(lhs_pin->NewLhs(lhs_idx, lhs_state_alloc)),
-          rhs_key(rhs_pin->NewLhs(rhs_idx, rhs_state_alloc));
-        AcceptDouble(*lhs_key, *rhs_key, *this);
-        if (IsNe(Comparison)) {
-          return;
+        /* destruction of the wrappers before reuse */ {
+          Sabot::State::TAny::TWrapper
+            lhs_key(lhs_pin->NewLhs(lhs_idx, lhs_state_alloc)),
+            rhs_key(rhs_pin->NewLhs(rhs_idx, rhs_state_alloc));
+          AcceptDouble(*lhs_key, *rhs_key, *this);
+          if (IsNe(Comparison)) {
+            return;
+          }
         }
         Sabot::State::TAny::TWrapper
           lhs_val(lhs_pin->NewRhs(lhs_idx, lhs_state_alloc)),

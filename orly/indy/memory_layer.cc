@@ -197,11 +197,13 @@ TMemoryLayer::TRangePresentWalker &TMemoryLayer::TRangePresentWalker::operator++
 void TMemoryLayer::TRangePresentWalker::Refresh() const {
   assert(this);
   if (Valid && !Cached) {
-    void *key_state_alloc = alloca(Sabot::State::GetMaxStateSize() * 2);
-    void *search_state_alloc = reinterpret_cast<uint8_t *>(key_state_alloc) + Sabot::State::GetMaxStateSize();
+    void *key_state_alloc = alloca(Sabot::State::GetMaxStateSize());
+    void *key_state_alloc_2 = alloca(Sabot::State::GetMaxStateSize());
+    void *key_state_alloc_3 = alloca(Sabot::State::GetMaxStateSize());
+    void *search_state_alloc = alloca(Sabot::State::GetMaxStateSize());
     Sabot::State::TAny::TWrapper key_state(PassedMatch ?
                                            To.GetKey().GetCore().NewState(To.GetKey().GetArena(), key_state_alloc) :
-                                           From.GetKey().GetCore().NewState(From.GetKey().GetArena(), key_state_alloc));
+                                           From.GetKey().GetCore().NewState(From.GetKey().GetArena(), key_state_alloc_2));
     for (;Csr; ++Csr) {
       Cached = true;
       Atom::TComparison index_id_comp = Atom::CompareOrdered(From.GetIndexId(), Csr->GetIndexKey().GetIndexId());
@@ -216,7 +218,7 @@ void TMemoryLayer::TRangePresentWalker::Refresh() const {
           if (!PassedMatch) {
             if (Atom::IsGe(comp)) {
               PassedMatch = true;
-              Sabot::State::TAny::TWrapper to_state(To.GetKey().GetCore().NewState(To.GetKey().GetArena(), key_state_alloc));
+              Sabot::State::TAny::TWrapper to_state(To.GetKey().GetCore().NewState(To.GetKey().GetArena(), key_state_alloc_3));
               Atom::TComparison comp = OrderStates(*cur_state, *key_state);
               if (Atom::IsGt(comp)) {
                 Valid = false;
