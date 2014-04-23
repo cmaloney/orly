@@ -4,7 +4,7 @@
 
    Compile it like this:
 
-      g++ -std=c++11 -fPIC -shared -g -Wno-unused-variable -Wno-type-limits -Werror -Wno-parentheses -Wall -Wextra -Wno-unused-parameter  \
+      g++ -std=c++1y -fPIC -shared -g -Wno-unused-variable -Wno-type-limits -Werror -Wno-parentheses -Wall -Wextra -Wno-unused-parameter  \
         -I<your /src dir>  \
         -o<your .so dir>/manual.1.so  \
         manual.cc

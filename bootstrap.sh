@@ -32,7 +32,7 @@ common_flags=(-O2 -s
   -Wall -Werror -Wextra
   -Wno-type-limits -Wno-delete-non-virtual-dtor -Wno-parentheses -Wno-unused-result
   -DTEST_OUTPUT_DIR="/tmp/"
-  -std=c++11 -I$SRC -D"SRC_ROOT=\"$SRC\""
+  -std=c++1y -I$SRC -D"SRC_ROOT=\"$SRC\""
   -pthread -lpthread
   -lrt
   )

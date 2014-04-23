@@ -26,7 +26,7 @@
     }
     "g++" {
       "flags" {
-        "-std=c++11";
+        "-std=c++1y";
         "-Wall";
         "-Werror";
         "-Wextra";
@@ -79,7 +79,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -90,7 +90,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -101,7 +101,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -112,7 +112,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -123,7 +123,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -134,7 +134,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -145,7 +145,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -156,7 +156,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
