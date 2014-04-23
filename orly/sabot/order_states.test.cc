@@ -157,8 +157,8 @@ static const TOpt<tuple<int32_t>> OptTuple(Tuple_G);
 
 template <typename TLhs, typename TRhs>
 TComparison CheckStates(const TLhs &lhs, const TRhs &rhs) {
-  void *lhs_state_alloc = alloca(Sabot::State::GetMaxStateSize() * 2);
-  void *rhs_state_alloc = reinterpret_cast<uint8_t *>(lhs_state_alloc) + Sabot::State::GetMaxStateSize();
+  void *lhs_state_alloc = alloca(Sabot::State::GetMaxStateSize());
+  void *rhs_state_alloc = alloca(Sabot::State::GetMaxStateSize());
   Sabot::State::TAny::TWrapper
     lhs_state(State::New(lhs, lhs_state_alloc)),
     rhs_state(State::New(rhs, rhs_state_alloc));
