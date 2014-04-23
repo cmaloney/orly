@@ -124,7 +124,10 @@ def Main():
         if ex.errno != 2:
           raise
         if result[0] != 0:
-          print 'No state file:', filepath
+          print 'New failure:', filepath
+          print 'Exited with code', result[0]
+          print 'OUTPUT: '
+          print '\n'.join('\n'.join(x) for x in result[1])
           changed_files.append(filepath)
           failed_files.append(filepath)
         else:
