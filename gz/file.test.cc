@@ -29,7 +29,8 @@ FIXTURE(Typical) {
   static const char
       *path = "/tmp/gz.file.test.gz",
       *msg  = "Mofo the Psychic gorilla lives for compression.";
-  static size_t msg_size = strlen(msg);
+  static constexpr size_t msg_size = 47;
+  assert(msg_size == strlen(msg));
   /* Write a message to a temp file. */ {
     TFile file(path, "w");
     const char *csr = msg;
