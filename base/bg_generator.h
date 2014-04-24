@@ -43,6 +43,7 @@
 #include <cassert>
 #include <cstddef>
 #include <exception>
+#include <functional>
 #include <utility>
 
 #include <ucontext.h>
