@@ -836,8 +836,8 @@ namespace Orly {
     /* TODO */
     template <typename TVal>
     inline void TOrderStatesVisitor::OnArrayOfScalars(const State::TArrayOfScalars<TVal> &lhs, const State::TArrayOfScalars<TVal> &rhs) const {
-      void *lhs_alloc = alloca(State::GetMaxStatePinSize() * 2);
-      void *rhs_alloc = reinterpret_cast<uint8_t *>(lhs_alloc) + State::GetMaxStatePinSize();
+      void *lhs_alloc = alloca(State::GetMaxStatePinSize());
+      void *rhs_alloc = alloca(State::GetMaxStatePinSize());
       typename State::TArrayOfScalars<TVal>::TPin::TWrapper lhs_pin(lhs.Pin(lhs_alloc));
       typename State::TArrayOfScalars<TVal>::TPin::TWrapper rhs_pin(rhs.Pin(rhs_alloc));
       int comp = memcmp(lhs_pin->GetStart(), rhs_pin->GetStart(), std::min(lhs_pin->GetSize(), rhs_pin->GetSize()));
@@ -853,12 +853,12 @@ namespace Orly {
 
     /* TODO */
     inline void TOrderStatesVisitor::OnArrayOfSingleStates(const State::TArrayOfSingleStates &lhs, const State::TArrayOfSingleStates &rhs) const {
-      void *lhs_alloc = alloca(State::GetMaxStatePinSize() * 2);
-      void *rhs_alloc = reinterpret_cast<uint8_t *>(lhs_alloc) + State::GetMaxStatePinSize();
+      void *lhs_alloc = alloca(State::GetMaxStatePinSize());
+      void *rhs_alloc = alloca(State::GetMaxStatePinSize());
       State::TArrayOfSingleStates::TPin::TWrapper lhs_pin(lhs.Pin(lhs_alloc));
       State::TArrayOfSingleStates::TPin::TWrapper rhs_pin(rhs.Pin(rhs_alloc));
-      void *lhs_state_alloc = alloca(Sabot::State::GetMaxStateSize() * 2);
-      void *rhs_state_alloc = reinterpret_cast<uint8_t *>(lhs_state_alloc) + Sabot::State::GetMaxStateSize();
+      void *lhs_state_alloc = alloca(State::GetMaxStatePinSize());
+      void *rhs_state_alloc = alloca(State::GetMaxStatePinSize());
       for (size_t lhs_idx = 0, rhs_idx = 0; lhs_idx < lhs_pin->GetElemCount() && rhs_idx < rhs_pin->GetElemCount(); ++lhs_idx, ++rhs_idx) {
         Sabot::State::TAny::TWrapper
           lhs_state(lhs_pin->NewElem(lhs_idx, lhs_state_alloc)),
@@ -875,19 +875,21 @@ namespace Orly {
 
     /* TODO */
     inline void TOrderStatesVisitor::OnArrayOfPairsOfStates(const State::TArrayOfPairsOfStates &lhs, const State::TArrayOfPairsOfStates &rhs) const {
-      void *lhs_alloc = alloca(State::GetMaxStatePinSize() * 2);
-      void *rhs_alloc = reinterpret_cast<uint8_t *>(lhs_alloc) + State::GetMaxStatePinSize();
+      void *lhs_alloc = alloca(State::GetMaxStatePinSize());
+      void *rhs_alloc = alloca(State::GetMaxStatePinSize());
       State::TArrayOfPairsOfStates::TPin::TWrapper lhs_pin(lhs.Pin(lhs_alloc));
       State::TArrayOfPairsOfStates::TPin::TWrapper rhs_pin(rhs.Pin(rhs_alloc));
-      void *lhs_state_alloc = alloca(Sabot::State::GetMaxStateSize() * 2);
-      void *rhs_state_alloc = reinterpret_cast<uint8_t *>(lhs_state_alloc) + Sabot::State::GetMaxStateSize();
+      void *lhs_state_alloc = alloca(State::GetMaxStatePinSize());
+      void *rhs_state_alloc = alloca(State::GetMaxStatePinSize());
       for (size_t lhs_idx = 0, rhs_idx = 0; lhs_idx < lhs_pin->GetElemCount() && rhs_idx < rhs_pin->GetElemCount(); ++lhs_idx, ++rhs_idx) {
-        Sabot::State::TAny::TWrapper
-          lhs_key(lhs_pin->NewLhs(lhs_idx, lhs_state_alloc)),
-          rhs_key(rhs_pin->NewLhs(rhs_idx, rhs_state_alloc));
-        AcceptDouble(*lhs_key, *rhs_key, *this);
-        if (IsNe(Comparison)) {
-          return;
+        /* destruction of the wrappers before reuse */ {
+          Sabot::State::TAny::TWrapper
+            lhs_key(lhs_pin->NewLhs(lhs_idx, lhs_state_alloc)),
+            rhs_key(rhs_pin->NewLhs(rhs_idx, rhs_state_alloc));
+          AcceptDouble(*lhs_key, *rhs_key, *this);
+          if (IsNe(Comparison)) {
+            return;
+          }
         }
         Sabot::State::TAny::TWrapper
           lhs_val(lhs_pin->NewRhs(lhs_idx, lhs_state_alloc)),
@@ -904,8 +906,8 @@ namespace Orly {
 
     /* TODO */
     inline Atom::TComparison OrderStates(const State::TAny &lhs, const State::TAny &rhs) {
-      void *lhs_type_alloc = alloca(Sabot::Type::GetMaxTypeSize() * 2);
-      void *rhs_type_alloc = reinterpret_cast<uint8_t *>(lhs_type_alloc) + Sabot::Type::GetMaxTypeSize();
+      void *lhs_type_alloc = alloca(State::GetMaxStatePinSize());
+      void *rhs_type_alloc = alloca(State::GetMaxStatePinSize());
       Atom::TComparison comp = OrderTypes(*Sabot::Type::TAny::TWrapper(lhs.GetType(lhs_type_alloc)),
                                           *Sabot::Type::TAny::TWrapper(rhs.GetType(rhs_type_alloc)));
       if (IsEq(comp)) {

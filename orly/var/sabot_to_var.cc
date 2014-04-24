@@ -91,7 +91,8 @@ void Var::TToVarVisitor::operator()(const Sabot::State::TOpt &state) const      
   assert(unary_type);
   void *type_pin_alloc = alloca(Sabot::Type::GetMaxTypePinSize());
   Sabot::Type::TUnary::TPin::TWrapper type_pin(unary_type->Pin(type_pin_alloc));
-  Var = Var::TVar::Opt(opt, Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewElem(type_alloc))));
+  void *type_alloc_2 = alloca(Sabot::Type::GetMaxTypeSize());
+  Var = Var::TVar::Opt(opt, Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewElem(type_alloc_2))));
 }
 void Var::TToVarVisitor::operator()(const Sabot::State::TSet &state) const           {
   void *pin_alloc = alloca(Sabot::State::GetMaxStatePinSize());
@@ -108,7 +109,8 @@ void Var::TToVarVisitor::operator()(const Sabot::State::TSet &state) const      
   assert(unary_type);
   void *type_pin_alloc = alloca(Sabot::Type::GetMaxTypePinSize());
   Sabot::Type::TUnary::TPin::TWrapper type_pin(unary_type->Pin(type_pin_alloc));
-  Var = Var::TVar::Set(state_set, Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewElem(type_alloc))));
+  void *type_alloc_2 = alloca(Sabot::Type::GetMaxTypeSize());
+  Var = Var::TVar::Set(state_set, Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewElem(type_alloc_2))));
 }
 void Var::TToVarVisitor::operator()(const Sabot::State::TVector &state) const        {
   void *pin_alloc = alloca(Sabot::State::GetMaxStatePinSize());
@@ -125,16 +127,18 @@ void Var::TToVarVisitor::operator()(const Sabot::State::TVector &state) const   
   assert(unary_type);
   void *type_pin_alloc = alloca(Sabot::Type::GetMaxTypePinSize());
   Sabot::Type::TUnary::TPin::TWrapper type_pin(unary_type->Pin(type_pin_alloc));
-  Var = Var::TVar::List(state_vec, Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewElem(type_alloc))));
+  void *type_alloc_2 = alloca(Sabot::Type::GetMaxTypeSize());
+  Var = Var::TVar::List(state_vec, Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewElem(type_alloc_2))));
 }
 void Var::TToVarVisitor::operator()(const Sabot::State::TMap &state) const           {
   void *pin_alloc = alloca(Sabot::State::GetMaxStatePinSize());
-  void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+  void *state_alloc_lhs = alloca(Sabot::State::GetMaxStateSize());
+  void *state_alloc_rhs = alloca(Sabot::State::GetMaxStateSize());
   Sabot::State::TMap::TPin::TWrapper pin(state.Pin(pin_alloc));
   const size_t elem_count = pin->GetElemCount();
   Rt::TDict<Var::TVar, Var::TVar> state_map;
   for (size_t elem_idx = 0; elem_idx < elem_count; ++elem_idx) {
-    state_map[ToVar(*Sabot::State::TAny::TWrapper(pin->NewLhs(elem_idx, state_alloc)))] = ToVar(*Sabot::State::TAny::TWrapper(pin->NewRhs(elem_idx, state_alloc)));
+    state_map[ToVar(*Sabot::State::TAny::TWrapper(pin->NewLhs(elem_idx, state_alloc_lhs)))] = ToVar(*Sabot::State::TAny::TWrapper(pin->NewRhs(elem_idx, state_alloc_rhs)));
   }
   void *type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
   const Sabot::Type::TAny::TWrapper elem_type(state.GetType(type_alloc));
@@ -142,9 +146,11 @@ void Var::TToVarVisitor::operator()(const Sabot::State::TMap &state) const      
   assert(binary_type);
   void *type_pin_alloc = alloca(Sabot::Type::GetMaxTypePinSize());
   Sabot::Type::TBinary::TPin::TWrapper type_pin(binary_type->Pin(type_pin_alloc));
+  void *lhs_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+  void *rhs_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
   Var = Var::TVar::Dict(state_map,
-                       Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewLhs(type_alloc))),
-                       Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewRhs(type_alloc))));
+                       Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewLhs(lhs_type_alloc))),
+                       Type::ToType(*Sabot::Type::TAny::TWrapper(type_pin->NewRhs(rhs_type_alloc))));
 }
 void Var::TToVarVisitor::operator()(const Sabot::State::TRecord &state) const        {
   void *pin_alloc = alloca(Sabot::State::GetMaxStatePinSize());
@@ -168,6 +174,9 @@ void Var::TToVarVisitor::operator()(const Sabot::State::TRecord &state) const   
 void Var::TToVarVisitor::operator()(const Sabot::State::TTuple &state) const         {
   void *pin_alloc = alloca(Sabot::State::GetMaxStatePinSize());
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+  void *state_alloc_1 = alloca(Sabot::State::GetMaxStateSize());
+  void *state_alloc_2 = alloca(Sabot::State::GetMaxStateSize());
+  void *state_alloc_3 = alloca(Sabot::State::GetMaxStateSize());
   Sabot::State::TTuple::TPin::TWrapper pin(state.Pin(pin_alloc));
   const size_t elem_count = pin->GetElemCount();
   std::vector<std::pair<TAddrDir, TVar>> state_vec(elem_count);
@@ -177,7 +186,7 @@ void Var::TToVarVisitor::operator()(const Sabot::State::TTuple &state) const    
     if (desc) {
       void *desc_pin_alloc = alloca(Sabot::State::GetMaxStatePinSize());
       Sabot::State::TDesc::TPin::TWrapper desc_pin(desc->Pin(desc_pin_alloc));
-      state_vec[elem_idx] = make_pair(TAddrDir::Desc, ToVar(*Sabot::State::TAny::TWrapper(desc_pin->NewElem(0, state_alloc))));
+      state_vec[elem_idx] = make_pair(TAddrDir::Desc, ToVar(*Sabot::State::TAny::TWrapper(desc_pin->NewElem(0, state_alloc_1))));
     } else {
       /* it might be free and then desc. */
       const Sabot::State::TFree *free_state = dynamic_cast<const Sabot::State::TFree *>(elem_state.get());
@@ -192,12 +201,12 @@ void Var::TToVarVisitor::operator()(const Sabot::State::TTuple &state) const    
         Sabot::Type::TAny::TWrapper sub_type(sub_pin->NewElem(type_alloc_2));
         Sabot::Type::TDesc *desc_type = dynamic_cast<Sabot::Type::TDesc *>(sub_type.get());
         if (desc_type) {
-          state_vec[elem_idx] = make_pair(TAddrDir::Desc, ToVar(*Sabot::State::TAny::TWrapper(pin->NewElem(elem_idx, state_alloc))));
+          state_vec[elem_idx] = make_pair(TAddrDir::Desc, ToVar(*Sabot::State::TAny::TWrapper(pin->NewElem(elem_idx, state_alloc_2))));
         } else {
-          state_vec[elem_idx] = make_pair(TAddrDir::Asc, ToVar(*Sabot::State::TAny::TWrapper(pin->NewElem(elem_idx, state_alloc))));
+          state_vec[elem_idx] = make_pair(TAddrDir::Asc, ToVar(*Sabot::State::TAny::TWrapper(pin->NewElem(elem_idx, state_alloc_2))));
         }
       } else {
-        state_vec[elem_idx] = make_pair(TAddrDir::Asc, ToVar(*Sabot::State::TAny::TWrapper(pin->NewElem(elem_idx, state_alloc))));
+        state_vec[elem_idx] = make_pair(TAddrDir::Asc, ToVar(*Sabot::State::TAny::TWrapper(pin->NewElem(elem_idx, state_alloc_3))));
       }
     }
   }
