@@ -17,6 +17,7 @@
    limitations under the License. */
 
 #include <cmath>
+#include <stddef.h>
 #include <gmpxx.h>
 
 #include <orly/indy/disk/util/hash_util.h>
