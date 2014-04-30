@@ -211,18 +211,7 @@ namespace Orly {
           }
 
           /* TODO */
-          static void ForEachDevice(const std::function<bool (const char *)> &cb) {
-            for (Base::TDirIter dir_iter("/dev"); dir_iter; ++dir_iter) {
-              const char *file_name = dir_iter.GetName();
-              if (dir_iter.GetKind() == Base::TDirIter::TKind::BlockDev) {
-                if (strncmp(file_name, "ram", 3) != 0
-                  && strncmp(file_name, "loop", 4) != 0
-                  && strncmp(file_name, "sr", 2) != 0) {
-                  cb(file_name);
-                }
-              }
-            }
-          }
+          static bool ForEachDevice(const std::function<bool (const char *)> &cb);
 
           /* TODO */
           static std::string GetPathToPartitionInfo(const std::string &dev_path) {
