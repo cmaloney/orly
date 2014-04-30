@@ -36,7 +36,7 @@ namespace Orly {
             : FileName(file_name),
               LoopName(loop_name) {
           std::stringstream cmd1;
-          cmd1 << "dd if=/dev/zero of=/tmp/" << FileName << " bs=512 count=" << (file_size_mb * 256UL);
+          cmd1 << "truncate -s " << file_size_mb << "M /tmp/" << FileName;
           std::stringstream cmd2;
           cmd2 << "chmod a+rw /tmp/" << FileName;
           std::stringstream cmd3;
