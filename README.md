@@ -13,7 +13,8 @@ Currently Orly only runs on Linux.
 
 ## System Requirements
 
-TBD (HDD? SSD? RAM? Processor speed? FS type?)
+* Ubuntu 14.04 LTS (Trusty Tahr) (64-bit)
+* 4GB of RAM
 
 ## Building Orly
 
