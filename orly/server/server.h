@@ -178,6 +178,9 @@ namespace Orly {
         /* The port on which TServer::MainSocket listens for clients. */
         in_port_t PortNumber;
 
+        /* Enables the memcache interface */
+        bool EnableMemcache;
+
         /* The port on which TServer::MemcacheSocket listens for clients. */
         in_port_t MemcachePortNumber;
 

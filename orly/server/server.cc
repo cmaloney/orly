@@ -106,7 +106,11 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The port on which the server listens for clients."
   );
   Param(
-    &TCmd::MemcachePortNumber, "memcache_port_number", Optional, "memcache_port_number\0mpn\0",
+    &TCmd::EnableMemcache, "enable_memcache", Optional, "enable_memcache\0",
+      "The port on which the server listens for Memcache protocol clients."
+  );
+  Param(
+    &TCmd::MemcachePortNumber, "memcache_port_number", Optional, "memcache_port_number\0",
       "The port on which the server listens for Memcache protocol clients."
   );
   Param(
@@ -365,6 +369,7 @@ class TIndexIdReader
 
 TServer::TCmd::TCmd()
     : PortNumber(DefaultPortNumber),
+      EnableMemcache(false),
       MemcachePortNumber(11211), // Memcache default port number
       SlavePortNumber(DefaultSlavePortNumber),
       ConnectionBacklog(5000),
@@ -1092,21 +1097,23 @@ void TServer::Init() {
 
     }
 
-    /* Setup mynde indexes */ {
-      std::lock_guard<std::mutex> lock(IndexMapMutex);
-      void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
-      void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
-      Sabot::Type::TAny::TWrapper key_type_wrapper(Orly::Native::Type::For<Mynde::TKey>::GetType(key_type_alloc));
-      Sabot::Type::TAny::TWrapper val_type_wrapper(Orly::Native::Type::For<Mynde::TValue>::GetType(val_type_alloc));
-      Atom::TCore key_core(&IndexMapArena, *key_type_wrapper);
-      Atom::TCore val_core(&IndexMapArena, *val_type_wrapper);
-      auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)),
-                                          Mynde::MemcachedIndexUuid);
-      if (ret.second) {
-        /* TODO: clean up the index_id_replication obj... refactor this logic into a function */
-        RepoManager->Enqueue(new TIndexIdReplication(
-            Mynde::MemcachedIndexUuid, TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)));
-        IndexIdSet.insert(Mynde::MemcachedIndexUuid);
+    if(Cmd.EnableMemcache) {
+      /* Setup mynde indexes */ {
+        std::lock_guard<std::mutex> lock(IndexMapMutex);
+        void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+        void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+        Sabot::Type::TAny::TWrapper key_type_wrapper(Orly::Native::Type::For<Mynde::TKey>::GetType(key_type_alloc));
+        Sabot::Type::TAny::TWrapper val_type_wrapper(Orly::Native::Type::For<Mynde::TValue>::GetType(val_type_alloc));
+        Atom::TCore key_core(&IndexMapArena, *key_type_wrapper);
+        Atom::TCore val_core(&IndexMapArena, *val_type_wrapper);
+        auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)),
+                                            Mynde::MemcachedIndexUuid);
+        if (ret.second) {
+          /* TODO: clean up the index_id_replication obj... refactor this logic into a function */
+          RepoManager->Enqueue(new TIndexIdReplication(
+              Mynde::MemcachedIndexUuid, TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)));
+          IndexIdSet.insert(Mynde::MemcachedIndexUuid);
+        }
       }
     }
 
@@ -1126,21 +1133,22 @@ void TServer::Init() {
     Scheduler->Schedule(bind(&TServer::AcceptClientConnections, this, false));
 
     //TODO: Dedup this code (Exactly the same as just above with one bool different)
+    if (Cmd.EnableMemcache) {
 
-    /* open the mynde socket */ {
-      TAddress address(TAddress::IPv4Any, Cmd.MemcachePortNumber);
-      MemcacheSocket = TFd(socket(address.GetFamily(), SOCK_STREAM, 0));
-      int flag = true;
-      IfLt0(setsockopt(MemcacheSocket, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)));
-      try {
-        Bind(MemcacheSocket, address);
-      } catch (const std::exception &ex) {
-        syslog(LOG_ERR, "Server startup caught exception [%s], Can't listen for memcache clients on port [%d]", ex.what(), Cmd.MemcachePortNumber);
+      /* open the mynde socket */ {
+        TAddress address(TAddress::IPv4Any, Cmd.MemcachePortNumber);
+        MemcacheSocket = TFd(socket(address.GetFamily(), SOCK_STREAM, 0));
+        int flag = true;
+        IfLt0(setsockopt(MemcacheSocket, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)));
+        try {
+          Bind(MemcacheSocket, address);
+        } catch (const std::exception &ex) {
+          syslog(LOG_ERR, "Server startup caught exception [%s], Can't listen for memcache clients on port [%d]", ex.what(), Cmd.MemcachePortNumber);
+        }
+        IfLt0(listen(MemcacheSocket, Cmd.ConnectionBacklog));
       }
-      IfLt0(listen(MemcacheSocket, Cmd.ConnectionBacklog));
+      Scheduler->Schedule(bind(&TServer::AcceptClientConnections, this, true));
     }
-    Scheduler->Schedule(bind(&TServer::AcceptClientConnections, this, true));
-
 
     Scheduler->Schedule(bind(&TServer::CleanHouse, this));
     Reporter = std::unique_ptr<TIndyReporter>(new TIndyReporter(this, Scheduler, Cmd.ReportingPortNumber));
