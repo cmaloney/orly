@@ -17,9 +17,8 @@ TBD (HDD? SSD? RAM? Processor speed? FS type?)
 
 ## Building Orly
 
-Requires the latest versions of the gcc and clang/LLVM compilers. Prior to building Orly, you **must** have applied our patches to the compilers and standard library.
-
-See docs/build.md for precise instructions
+Requires the latest versions of the gcc and clang/LLVM compilers.
+We're currently using: gcc (Ubuntu 4.9-20140406-1ubuntu1) 4.9.0 20140405 (experimental) [trunk revision 209157]
 
 ## Contributing to Orly
 
