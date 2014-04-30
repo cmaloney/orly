@@ -26,7 +26,7 @@
 
 /* This attribute, attached to a struct, class, or union, specifies that the type's alignment be the maximum useful for the host machine.  This can
    often make copy operations more efficient. */
-#define ALIGNED_MAX __attribute__((__aligned__))
+#define ALIGNED_MAX alignas(std::max_align_t)
 
 /* This attribute, attached to struct, class, or union type definition, specifies that each member (other than zero-width bitfields) of the
    aggregate must be placed to minimize the memory required.  When attached to an enum definition, it indicates that the smallest integral type
