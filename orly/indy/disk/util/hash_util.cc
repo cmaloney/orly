@@ -16,9 +16,12 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <cmath>
-
 #include <orly/indy/disk/util/hash_util.h>
+
+#include <cmath>
+#include <cstddef>
+
+#include <gmpxx.h>
 
 using namespace std;
 using namespace Orly::Indy::Disk::Util;
