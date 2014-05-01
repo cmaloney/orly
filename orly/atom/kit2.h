@@ -27,7 +27,6 @@
 #include <string>
 
 #include <base/class_traits.h>
-#include <base/layout.h>
 #include <orly/atom/comparison.h>
 #include <orly/native/all.h>
 #include <orly/sabot/match_prefix_type.h>
@@ -43,7 +42,7 @@ namespace Orly {
     static const size_t MaxDirectSize = 23;
 
     /* A flyweight which can store any of the types handled by the sabot system. */
-    class PACKED TCore {
+    class [[gnu::packed]] TCore {
       public:
 
       /* Conveniences. */
@@ -429,7 +428,7 @@ namespace Orly {
 
         /* We are an indirect blob or string and the offset leads to our data.
            If we're a string, then 'size' does not count our null terminator. */
-        struct PACKED {
+        struct [[gnu::packed]] {
 
           /* The position in the arena where our array is stored. */
           TOffset Offset;
@@ -442,7 +441,7 @@ namespace Orly {
         /* We're an indirect array of cores and the offset leads to our data.
            The note will contain at least the given number of cores, but it may have more.
            If exemplar is true, then we should interpret the types of the cores in the array, but not their states. */
-        struct PACKED {
+        struct [[gnu::packed]] {
 
           /* The position in the arena where our array is stored. */
           TOffset Offset;
@@ -667,7 +666,7 @@ namespace Orly {
     };  // TExtensibleArena
 
     /* A piece of data stored in an arena. */
-    class PACKED TCore::TNote {
+    class [[gnu::packed]] TCore::TNote {
       NO_COPY(TNote);
       public:
 
