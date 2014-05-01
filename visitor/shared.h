@@ -96,6 +96,7 @@
 #include <memory>
 #include <new>
 #include <typeinfo>
+#include <type_traits>
 #include <utility>
 
 #include <base/class_traits.h>
@@ -453,7 +454,7 @@ namespace Visitor {
      and returns the pointer to the element. */
   template <typename TElem, typename... TArgs>
   TShared<TElem> MakeShared(TArgs &&... args) {
-    using elem_t = c14::decay_t<TElem>;
+    using elem_t = std::decay_t<TElem>;
     auto buffer = TControlBlock::New(sizeof(elem_t), [](void * elem)->void {
       assert(elem);
       static_cast<elem_t *>(elem)->~elem_t();
@@ -510,7 +511,7 @@ namespace Visitor {
                  const TShared<TRhsElem> &rhs) noexcept {
     assert(&lhs);
     assert(&rhs);
-    using common_t = c14::common_type_t<TLhsElem *, TRhsElem *>;
+    using common_t = std::common_type_t<TLhsElem *, TRhsElem *>;
     return std::less<common_t>()(lhs.Get(), rhs.Get());
   }
 

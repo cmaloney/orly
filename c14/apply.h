@@ -46,8 +46,8 @@
 
 #pragma once
 
-#include <c14/type_traits.h>
 #include <c14/utility.h>
+#include <type_traits>
 #include <tuple>
 #include <utility>
 

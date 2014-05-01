@@ -97,7 +97,7 @@
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
-#include <c14/type_traits.h>
+#include <type_traits>
 
 #include <base/class_traits.h>
 #include <base/demangle.h>
@@ -183,12 +183,12 @@ namespace Visitor {
     /* Our integral constant to test if TVal is a member of this family. */
     template <typename TElem>
     class IsMember
-        : public Mpl::Contains<typename Members::All, c14::decay_t<TElem>> {};
+        : public Mpl::Contains<typename Members::All, std::decay_t<TElem>> {};
 
     /* Construct a new variant off of a non-managed element. */
     template <typename TElem, Mpl::EnableIf<IsMember<TElem>>...>
     static TVariant New(TElem &&elem) {
-      using elem_t = c14::decay_t<TElem>;
+      using elem_t = std::decay_t<TElem>;
       return TVariant(TAcceptor<elem_t>::Get(),
                       MakeShared<elem_t>(std::forward<TElem>(elem)));
     }
@@ -206,7 +206,7 @@ namespace Visitor {
        release mode so be __sure__ to use it carefully! */
     template <typename TElem, Mpl::EnableIf<IsMember<TElem>>...>
     static TVariant Share(TElem &elem) {
-      using elem_t = c14::decay_t<TElem>;
+      using elem_t = std::decay_t<TElem>;
       return TVariant(TAcceptor<elem_t>::Get(),
                       Visitor::Share(const_cast<elem_t &>(elem)));
     }
@@ -420,7 +420,7 @@ namespace Visitor {
       /* Simply call the MakeShared function and return our copied data. */
       template <typename TElem>
       TData operator()(TElem &&that) const {
-        return MakeShared<c14::decay_t<TElem>>(std::forward<TElem>(that));
+        return MakeShared<std::decay_t<TElem>>(std::forward<TElem>(that));
       }
 
     };  // TMakeShared
@@ -454,7 +454,7 @@ namespace Visitor {
       template <typename TElem>
       requires<IsMember<TElem>::value,
       const TAnyAcceptor *> operator()(TElem &&) const {
-        return TAcceptor<c14::decay_t<TElem>>::Get();
+        return TAcceptor<std::decay_t<TElem>>::Get();
       }
 
     };  // TGetAcceptor

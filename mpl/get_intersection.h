@@ -19,7 +19,7 @@
 #pragma once
 
 #include <c14/identity.h>
-#include <c14/type_traits.h>
+#include <type_traits>
 
 #include <mpl/compare.h>
 #include <mpl/conditional.h>

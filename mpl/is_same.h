@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <c14/type_traits.h>
+#include <type_traits>
 
 #include <mpl/get_size.h>
 #include <mpl/is_subset_of.h>
@@ -52,6 +52,6 @@ namespace Mpl {
 
   /* Decay the types and pass-through std::is_same<>. */
   template <typename TLhs, typename TRhs>
-  struct IsSame : public std::is_same<c14::decay_t<TLhs>, c14::decay_t<TRhs>> {};
+  struct IsSame : public std::is_same<std::decay_t<TLhs>, std::decay_t<TRhs>> {};
 
 }  // Mpl

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <c14/type_traits.h>
+#include <type_traits>
 
 #include <mpl/type_list.h>
 #include <mpl/type_set.h>

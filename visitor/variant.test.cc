@@ -55,7 +55,7 @@ namespace Visitor {
 }  // Visitor
 
 template <typename TMember>
-using IsFoo = Mpl::Contains<TFoo::Members::All, c14::decay_t<TMember>>;
+using IsFoo = Mpl::Contains<TFoo::Members::All, std::decay_t<TMember>>;
 
 FIXTURE(Stateless) {
   TFoo variant;
@@ -350,9 +350,7 @@ namespace Visitor {
 }  // Visitor
 
 template <typename TMember>
-using IsFooBar =
-    Mpl::Contains<Mpl::TGetUnion<TFoo::Members::All, TBar::Members::All>,
-                  c14::decay_t<TMember>>;
+using IsFooBar = Mpl::Contains<Mpl::TGetUnion<TFoo::Members::All, TBar::Members::All>, std::decay_t<TMember> >;
 
 // to_string.h
 struct TToString {

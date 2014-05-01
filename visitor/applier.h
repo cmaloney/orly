@@ -96,8 +96,8 @@
 #include <cassert>
 #include <c14/apply.h>
 #include <c14/identity.h>
-#include <c14/type_traits.h>
 #include <c14/utility.h>
+#include <type_traits>
 #include <tuple>
 
 #include <mpl/get_at.h>
@@ -112,8 +112,9 @@ namespace Visitor {
      If it's a reference, we wrap the underlying type in a reference_wrapper<>, otherwise we decay the type, which means the value
      will either move or copy in. */
   template <typename T>
-  using TCapture =
-      c14::conditional_t<std::is_lvalue_reference<T>::value, std::reference_wrapper<c14::remove_reference_t<T>>, c14::decay_t<T>>;
+  using TCapture = std::conditional_t<std::is_lvalue_reference<T>::value,
+                                      std::reference_wrapper<std::remove_reference_t<T>>,
+                                      std::decay_t<T>>;
 
   /* Forward declaration for TPartialForwarder. */
   template <typename TVerb, typename Signature>

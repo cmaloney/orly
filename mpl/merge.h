@@ -18,8 +18,9 @@
 
 #pragma once
 
+#include <type_traits>
+
 #include <c14/identity.h>
-#include <c14/type_traits.h>
 #include <mpl/extend.h>
 #include <mpl/type_list.h>
 
