@@ -72,30 +72,34 @@ TDiskUtil::TDiskUtil(Base::TScheduler *scheduler,
                  device_info.ReplicationFactor);
           throw std::runtime_error("The number of devices in a volume must be a multiple of the replication factor");
         }
-        std::unique_ptr<TVolume> volume(new TVolume(TVolume::TDesc{
-            device_info.VolumeStrategy == 1UL ? TVolume::TDesc::Striped : TVolume::TDesc::Chained,
-            TDevice::TDesc {
-              TDevice::TDesc::TKind::SSD, /* TODO */
-              device_info.LogicalBlockSize, /* LogicalBlockSize */
-              device_info.PhysicalBlockSize, /* PhysicalBlockSize*/
-              device_info.NumLogicalBlockExposed, /* NumLogicalBlock */
-              device_info.LogicalBlockSize * device_info.NumLogicalBlockExposed /* Capacity */
+        auto volume = std::make_unique<TVolume>(
+            TVolume::TDesc{
+              device_info.VolumeStrategy == 1UL ? TVolume::TDesc::Striped : TVolume::TDesc::Chained,
+              TDevice::TDesc{ TDevice::TDesc::TKind::SSD,                                       /* TODO */
+                              device_info.LogicalBlockSize,                                     /* LogicalBlockSize */
+                              device_info.PhysicalBlockSize,                                    /* PhysicalBlockSize*/
+                              device_info.NumLogicalBlockExposed,                               /* NumLogicalBlock */
+                              device_info.LogicalBlockSize * device_info.NumLogicalBlockExposed /* Capacity */
+              },
+              device_info.VolumeSpeed == 1UL ? TVolume::TDesc::TStorageSpeed::Fast :
+                                               TVolume::TDesc::TStorageSpeed::Slow, /* storage speed */
+              device_info.ReplicationFactor,                                        /* replication factor */
+              device_info.NumDevicesInVolume / device_info.ReplicationFactor,       /* the number of logical extents */
+              (device_info.StripeSizeKB * 1024) / device_info.LogicalBlockSize,     /* num logical block per stripe */
+              device_info.MinDiscardBlocks,                                         /* MinDiscardAllocBlocks */
+              0.85                                                                  /* HighUtilizationThreshold */
             },
-            device_info.VolumeSpeed == 1UL ? TVolume::TDesc::TStorageSpeed::Fast : TVolume::TDesc::TStorageSpeed::Slow, /* storage speed */
-            device_info.ReplicationFactor, /* replication factor */
-            device_info.NumDevicesInVolume / device_info.ReplicationFactor, /* the number of logical extents */
-            (device_info.StripeSizeKB * 1024) / device_info.LogicalBlockSize, /* num logical block per stripe */
-            device_info.MinDiscardBlocks, /* MinDiscardAllocBlocks */
-            0.85 /* HighUtilizationThreshold */
-          }, CacheCb, Scheduler));
-        std::unique_ptr<TDevice> new_device(new TPersistentDevice(Controller,
-                                                                  path_to_device.c_str(),
-                                                                  path,
-                                                                  device_info.LogicalBlockSize, /* logical block size */
-                                                                  device_info.PhysicalBlockSize, /* physical block size */
-                                                                  device_info.NumLogicalBlockExposed, /* num logical block exposed */
-                                                                  do_fsync,
-                                                                  do_corruption_check));
+            CacheCb,
+            Scheduler);
+        std::unique_ptr<TDevice> new_device(
+            new TPersistentDevice(Controller,
+                                  path_to_device.c_str(),
+                                  path,
+                                  device_info.LogicalBlockSize,       /* logical block size */
+                                  device_info.PhysicalBlockSize,      /* physical block size */
+                                  device_info.NumLogicalBlockExposed, /* num logical block exposed */
+                                  do_fsync,
+                                  do_corruption_check));
         volume->AddDevice(new_device.get(), device_info.VolumeDeviceNumber);
         VolumeById.emplace(device_info.VolumeId, std::move(volume));
         PersistentDeviceSet.insert(std::move(new_device));
@@ -123,7 +127,7 @@ TDiskUtil::TDiskUtil(Base::TScheduler *scheduler,
     vol.second->Init(extent_set);
     auto vol_man = VolumeManagerByInstance.find(instance_name);
     if (vol_man == VolumeManagerByInstance.end()) {
-      VolumeManagerByInstance.emplace(instance_name, std::unique_ptr<TVolumeManager>(new TVolumeManager(Scheduler)));
+      VolumeManagerByInstance.emplace(instance_name, std::make_unique<TVolumeManager>(Scheduler));
     }
     auto &volume_manager = VolumeManagerByInstance.find(instance_name)->second;
     volume_manager->AddExistingVolume(vol.second.get(), vol.first.Id);
@@ -237,7 +241,7 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
 
   auto device_iter = device_set.begin();
   TDeviceUtil::TOrlyDevice new_device_info;
-  std::unique_ptr<TVolume> volume(new TVolume(TVolume::TDesc{
+  auto volume = std::make_unique<TVolume>(TVolume::TDesc{
     kind,
     TDevice::TDesc {
       TDevice::TDesc::TKind::SSD, /* TODO */
@@ -252,10 +256,10 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
     (stripe_size_in_kb * 1024) / logical_block_size, /* num logical block per stripe */
     num_blocks_required_for_discard, /* MinDiscardAllocBlocks */
     0.85 /* HighUtilizationThreshold */
-  }, CacheCb, Scheduler));
+  }, CacheCb, Scheduler);
   auto vol_man = VolumeManagerByInstance.find(instance_name);
   if (vol_man == VolumeManagerByInstance.end()) {
-    VolumeManagerByInstance.emplace(instance_name, std::unique_ptr<TVolumeManager>(new TVolumeManager(Scheduler)));
+    VolumeManagerByInstance.emplace(instance_name, std::make_unique<TVolumeManager>(Scheduler));
   }
   auto &volume_manager = VolumeManagerByInstance.find(instance_name)->second;
   size_t volume_id_num = volume_manager->RequestNewVolumeId();

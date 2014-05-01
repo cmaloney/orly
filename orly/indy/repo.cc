@@ -161,7 +161,7 @@ unique_ptr<Indy::TPresentWalker> TRepo::NewPresentWalker(const std::unique_ptr<T
                                                          bool ignore_tombstone) {
   assert(this);
   assert(view);
-  return unique_ptr<TPresentWalker>(new TPresentWalker(view, from, to, ignore_tombstone));
+  return make_unique<TPresentWalker>(view, from, to, ignore_tombstone);
 }
 
 unique_ptr<Indy::TPresentWalker> TRepo::NewPresentWalker(const std::unique_ptr<TView> &view,
@@ -169,7 +169,7 @@ unique_ptr<Indy::TPresentWalker> TRepo::NewPresentWalker(const std::unique_ptr<T
                                                          bool ignore_tombstone) {
   assert(this);
   assert(view);
-  return unique_ptr<TPresentWalker>(new TPresentWalker(view, key, ignore_tombstone));
+  return make_unique<TPresentWalker>(view, key, ignore_tombstone);
 }
 
 unique_ptr<Indy::TUpdateWalker> TRepo::NewUpdateWalker(const std::unique_ptr<TView> &view,
@@ -177,7 +177,7 @@ unique_ptr<Indy::TUpdateWalker> TRepo::NewUpdateWalker(const std::unique_ptr<TVi
                                                        const Base::TOpt<TSequenceNumber> &to) {
   assert(this);
   assert(view);
-  return unique_ptr<TUpdateWalker>(new TUpdateWalker(view, from, to));
+  return make_unique<TUpdateWalker>(view, from, to);
 }
 
 unique_ptr<Indy::TUpdateWalker> TRepo::NewUpdateWalker(const std::unique_ptr<TView> &view,
@@ -355,7 +355,7 @@ std::shared_ptr<TUpdate> TRepo::GetLowestUpdate() {
   assert(this);
   assert(LowestSeqNum);
   assert(HighestSeqNum);
-  auto view = unique_ptr<TRepo::TView>(new TRepo::TView(this));
+  auto view = make_unique<TRepo::TView>(this);
   auto walker_ptr = NewUpdateWalker(view, *LowestSeqNum, *LowestSeqNum);
   auto &walker = *walker_ptr;
   assert(walker);
@@ -1418,25 +1418,18 @@ std::unique_ptr<Orly::Indy::TPresentWalker> TSafeRepo::NewPresentWalkerFile(size
                                                                             const TIndexKey &index_from,
                                                                             const TIndexKey &index_to) const {
   assert(this);
-  return unique_ptr<Disk::TPresentWalkFileWrapper>(new Disk::TPresentWalkFileWrapper(Manager->GetEngine(),
-                                                                                     GetId(),
-                                                                                     gen_id,
-                                                                                     index_from.GetIndexId(),
-                                                                                     index_from.GetKey(),
-                                                                                     index_to.GetKey()));
+  return make_unique<Disk::TPresentWalkFileWrapper>(
+      Manager->GetEngine(), GetId(), gen_id, index_from.GetIndexId(), index_from.GetKey(), index_to.GetKey());
 }
 
 std::unique_ptr<Orly::Indy::TPresentWalker> TSafeRepo::NewPresentWalkerFile(size_t gen_id,
                                                                             const TIndexKey &index_key) const {
   assert(this);
-  return unique_ptr<Disk::TPresentWalkFileWrapper>(new Disk::TPresentWalkFileWrapper(Manager->GetEngine(),
-                                                                                     GetId(),
-                                                                                     gen_id,
-                                                                                     index_key.GetIndexId(),
-                                                                                     index_key.GetKey()));
+  return make_unique<Disk::TPresentWalkFileWrapper>(
+      Manager->GetEngine(), GetId(), gen_id, index_key.GetIndexId(), index_key.GetKey());
 }
 
 std::unique_ptr<Orly::Indy::TUpdateWalker> TSafeRepo::NewUpdateWalkerFile(size_t gen_id, TSequenceNumber from) const {
   assert(this);
-  return unique_ptr<Disk::TUpdateWalkFile>(new Disk::TUpdateWalkFile(Manager->GetEngine(), GetId(), gen_id, from));
+  return make_unique<Disk::TUpdateWalkFile>(Manager->GetEngine(), GetId(), gen_id, from);
 }

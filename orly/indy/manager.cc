@@ -773,7 +773,7 @@ void TManager::TSlave::TFlusher::ConsumeOutput(const std::shared_ptr<const Io::T
 std::shared_ptr<const Io::TChunk> TManager::TSlave::TFlusher::TryProduceInput() {
   assert(this);
   if (!InStream) {
-    InStream = std::unique_ptr<TDataInStream>(new TDataInStream(HERE, Disk::Source::SlaveSlush, Disk::RealTime, this, Engine->GetPageCache(), 0UL));
+    InStream = std::make_unique<TDataInStream>(HERE, Disk::Source::SlaveSlush, Disk::RealTime, this, Engine->GetPageCache(), 0UL);
   }
   auto chunk = Pool->AcquireChunk();
   const size_t amt_to_read = chunk->GetRemainingSize();
@@ -893,7 +893,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
               TBinaryOutputOnlyStream strm(Flusher);
               Flusher->SetStoredOffset();
               SlushCoreVec->Write(strm);
-              SlushCoreVec = std::unique_ptr<TCoreVectorBuilder>(new TCoreVectorBuilder());
+              SlushCoreVec = std::make_unique<TCoreVectorBuilder>();
             }
           }
         } catch (const exception &ex) {
@@ -1165,7 +1165,7 @@ L0::TManager::TRepo *TManager::ConstructRepo(const TUuid &repo_id,
     } else {
       TSuprena arena;
       TIndexKey search_key(SystemRepoIndexId, TKey(TSavedRepoKey(SavedRepoMagicNumber, repo_id), &arena, state_alloc));
-      auto view = unique_ptr<Indy::TRepo::TView>(new Indy::TRepo::TView(SystemRepo));
+      auto view = make_unique<Indy::TRepo::TView>(SystemRepo);
       auto walker_ptr = SystemRepo->NewPresentWalker(view, search_key, true);
       auto &walker = *walker_ptr;
       if (!walker) {
@@ -1236,7 +1236,7 @@ bool TManager::CanLoad(const L0::TId &id) {
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   TSuprena arena;
   TIndexKey search_key(SystemRepoIndexId, TKey(TSavedRepoKey(SavedRepoMagicNumber, id), &arena, state_alloc));
-  auto view = unique_ptr<Indy::TRepo::TView>(new Indy::TRepo::TView(SystemRepo));
+  auto view = make_unique<Indy::TRepo::TView>(SystemRepo);
   auto walker_ptr = SystemRepo->NewPresentWalker(view, search_key, true);
   auto &walker = *walker_ptr;
   return static_cast<bool>(walker);
@@ -1298,7 +1298,7 @@ void TManager::OnSlaveJoin(const Base::TFd &fd) {
         /* acquire Context lock */ {
           lock_guard<mutex> lock(ContextLock);
           PromoteSolo(fd);
-          view = unique_ptr<Indy::TRepo::TView>(new Indy::TRepo::TView(SystemRepo));
+          view = make_unique<Indy::TRepo::TView>(SystemRepo);
           std::cout << "Walking tuple(SavedRepoMagicNumber, free<uuid>)" << std::endl;
           walker_ptr = SystemRepo->NewPresentWalker(view, TIndexKey(SystemRepoIndexId, TKey(make_tuple(SavedRepoMagicNumber, Native::TFree<Base::TUuid>()), &arena, state_alloc)), true);
         }  // release Context lock
@@ -1323,7 +1323,7 @@ void TManager::OnSlaveJoin(const Base::TFd &fd) {
           bool is_safe = repo->IsSafeRepo();
 
           assert(SlaveSyncViewMap.find(repo_id) == SlaveSyncViewMap.end());
-          const std::unique_ptr<Indy::TRepo::TView> &sync_view = SlaveSyncViewMap.emplace(repo_id, std::unique_ptr<Indy::TRepo::TView>(new Indy::TRepo::TView(repo))).first->second;
+          const std::unique_ptr<Indy::TRepo::TView> &sync_view = SlaveSyncViewMap.emplace(repo_id, std::make_unique<Indy::TRepo::TView>(repo)).first->second;
 
           Base::TOpt<Base::TUuid> parent_repo_id;
           if (repo->GetParentRepo()) {

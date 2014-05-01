@@ -48,8 +48,7 @@ void TCppPrinter::Write(const TPosRange &pos_range) {
 TTestCase::TTestCase(const L0::TPackage *package,
                      const Symbol::Test::TTestCase::TPtr &symbol,
                      TId<TIdKind::Test>::TGen &id_gen)
-    : TFunction(package, TIdScope::New()), TTopFunc(package), Id(id_gen.New()), Pos(symbol->GetPosRange()),
-      OptChildren(0) {
+    : TFunction(package, TIdScope::New()), TTopFunc(package), Id(id_gen.New()), Pos(symbol->GetPosRange()) {
 
   PostCtor({}, symbol->GetExpr(), false);
 
@@ -58,14 +57,10 @@ TTestCase::TTestCase(const L0::TPackage *package,
   }
 
   if(symbol->GetOptTestCaseBlock()) {
-    OptChildren = new TTestBlock(package, symbol->GetOptTestCaseBlock(), id_gen);
+    OptChildren = make_unique<TTestBlock>(package, symbol->GetOptTestCaseBlock(), id_gen);
   }
 
   Build();
-}
-
-TTestCase::~TTestCase() {
-  if(OptChildren) delete OptChildren;
 }
 
 void TTestCase::WriteCcName(TCppPrinter &out) const {
@@ -161,7 +156,7 @@ TTestBlock::TTestBlock(const L0::TPackage *package,
                        TId<TIdKind::Test>::TGen &id_gen) {
   try {
     for(auto &it: symbol->GetTestCases()) {
-      unique_ptr<TTestCase> tc_ptr(new TTestCase(package, it, id_gen));
+      auto tc_ptr = make_unique<TTestCase>(package, it, id_gen);
       Children.push_back(tc_ptr.get());
       tc_ptr.release();
     }
@@ -269,7 +264,8 @@ TTest::TTest(const L0::TPackage *package, const Symbol::Test::TTest::TPtr &symbo
     : Id(id_gen.New()), Tests(package, symbol->GetTestCaseBlock(), id_gen) {
 
   if(symbol->GetOptWithClause()) {
-    OptWith = unique_ptr<TWith>(new TWith(package, symbol->GetOptWithClause()));
+    //TODO: http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2070
+    OptWith = std::unique_ptr<TWith>(new TWith(package, symbol->GetOptWithClause()));
   }
 }
 

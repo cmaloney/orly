@@ -46,10 +46,10 @@ static void CheckDestroyKeyCursor() {
 TContext::TContext(const Indy::L0::TManager::TPtr<TRepo> &private_repo, Atom::TCore::TExtensibleArena *arena)
     : TContextBase(arena), KeyCursorCollection(this), WalkerCount(0UL) {
   Indy::L0::TManager::TPtr<L0::TManager::TRepo> cur_repo = private_repo;
-  RepoTree.push_back(make_pair(private_repo, unique_ptr<TRepo::TView>(new TRepo::TView(private_repo))));
+  RepoTree.push_back(make_pair(private_repo, make_unique<TRepo::TView>(private_repo)));
   for (;cur_repo->GetParentRepo(); cur_repo = *cur_repo->GetParentRepo()) {
     Indy::L0::TManager::TPtr<Indy::TRepo> parent = *cur_repo->GetParentRepo();
-    RepoTree.push_back(make_pair(parent, unique_ptr<TRepo::TView>(new TRepo::TView(parent))));
+    RepoTree.push_back(make_pair(parent, make_unique<TRepo::TView>(parent)));
   }
 }
 

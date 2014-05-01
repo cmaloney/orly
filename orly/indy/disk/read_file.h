@@ -412,7 +412,6 @@ namespace Orly {
         void Init() {
           assert(StartingBlockOffset * BlockSize < FileLength);
           TStream<CachePageSize, BlockSize, PhysicalBlockSize, BufKind, MaxMetaCacheSize> in_stream(CodeLocation, UtilSrc, Priority, this, Cache, StartingBlockOffset * BlockSize);
-          //InStream = std::unique_ptr<TStream<CachePageSize, BlockSize, PhysicalBlockSize, BufKind, MaxMetaCacheSize>>(new TStream<CachePageSize, BlockSize, PhysicalBlockSize, BufKind, MaxMetaCacheSize>(CodeLocation, UtilSrc, Priority, this, Cache, StartingBlockOffset * BlockSize));
           /*
             # of blocks
             # of meta-blocks (n)
@@ -461,7 +460,7 @@ namespace Orly {
             in_stream.Read(offset);
             //std::cout << "Index [" << index_id << "] @ [" << offset << "]" << std::endl;
             IndexOffsetById.emplace(index_id, offset);
-            std::unique_ptr<TIndexFile> idx_ptr(new TIndexFile(this, index_id, offset, Priority));
+            auto idx_ptr = std::make_unique<TIndexFile>(this, index_id, offset, Priority);
             IndexByOffset.insert(std::make_pair(offset, idx_ptr.get()));
             IndexById.emplace(index_id, std::move(idx_ptr));
           }
@@ -1116,8 +1115,7 @@ namespace Orly {
 
           /* TODO */
           TLoaderObj(TLocalReadFileCache *cache, Util::TEngine *engine, const Base::TUuid &file_id, size_t gen_id) : CacheMembership(this, TFileKey(file_id, gen_id), &cache->LoaderCollection) {
-            TLocalReadFile *file = new TLocalReadFile(engine, file_id, gen_id);
-            File = std::unique_ptr<TLocalReadFile>(file);
+            File = std::make_unique<TLocalReadFile>(engine, file_id, gen_id);
             /* if frames have joined the waiting queue, schedule them */
             for (auto frame : FrameWaitingVec) {
               Fiber::TRunner::LocalRunner->Schedule(frame);

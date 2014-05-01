@@ -98,7 +98,7 @@ class TMergeDataFileImpl {
           std::vector<std::unique_ptr<TRemapSorter>> remap_sorter_vec;
           size_t max_arena_bytes = 0UL;
           for (const auto &idx_f : reader_vec) {
-            remap_sorter_vec.push_back(std::unique_ptr<TRemapSorter>(new TRemapSorter(HERE, Source::MergeDataFileRemapIndex, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
+            remap_sorter_vec.push_back(make_unique<TRemapSorter>(HERE, Source::MergeDataFileRemapIndex, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
             idx_file_vec.emplace_back(new typename TReader::TIndexFile(std::get<0>(idx_f), idx.first, std::get<1>(idx_f), Priority));
             typename TReader::TIndexFile &idx_file = *idx_file_vec.back();
             disk_arena_vec.emplace_back(new TDataDiskArena<true>(&idx_file, Engine->GetCache<TDataDiskArena<true>::PhysicalCachePageSize>(), Priority));
@@ -108,19 +108,21 @@ class TMergeDataFileImpl {
           assert(idx_file_vec.size());
           /* mini scope for small stream */ {
             TDataInStream<0UL> in_stream(HERE, Source::MergeDataFileRemapIndex, RealTime, idx_file_vec[0].get(), engine->GetCache<TDataInStream<0UL>::PhysicalCachePageSize>(), 0);
-            index_map.emplace(index_id, std::unique_ptr<TMergeIndexFile>(new TMergeIndexFile(index_id,
-                                                                                             Engine,
-                                                                                             StorageSpeed,
-                                                                                             gen_id,
-                                                                                             Priority,
-                                                                                             MaxBlockCacheReadSlotsAllowed,
-                                                                                             TempFileConsolThresh,
-                                                                                             &BlockVec,
-                                                                                             MainArenaRemapIndex,
-                                                                                             #ifndef NDEBUG
-                                                                                             WrittenBlockSet,
-                                                                                             #endif
-                                                                                             idx_file_vec[0]->GetKey(0UL, in_stream, disk_arena_vec[0].get()))));
+            index_map.emplace(
+                index_id,
+                make_unique<TMergeIndexFile>(index_id,
+                                             Engine,
+                                             StorageSpeed,
+                                             gen_id,
+                                             Priority,
+                                             MaxBlockCacheReadSlotsAllowed,
+                                             TempFileConsolThresh,
+                                             &BlockVec,
+                                             MainArenaRemapIndex,
+                                             #ifndef NDEBUG
+                                             WrittenBlockSet,
+                                             #endif
+                                             idx_file_vec[0]->GetKey(0UL, in_stream, disk_arena_vec[0].get())));
           }
           TMergeIndexFile &merge_idx_file = *index_map[index_id];
           assert(idx_file_vec.size() == disk_arena_vec.size());
@@ -239,7 +241,7 @@ class TMergeDataFileImpl {
           std::vector<std::vector<size_t>> type_boundary_offset_vec;
           size_t max_arena_bytes = 0UL;
           for (const auto &reader : ReadFileVec) {
-            main_remap_sorter_vec.push_back(std::unique_ptr<TRemapSorter>(new TRemapSorter(HERE, Source::MergeDataFileRemapIndex, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
+            main_remap_sorter_vec.push_back(make_unique<TRemapSorter>(HERE, Source::MergeDataFileRemapIndex, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
             disk_arena_vec.emplace_back(new typename TReader::TArena(reader.get(), Engine->GetCache<TReader::PhysicalCachePageSize>(), Low));
             type_boundary_offset_vec.emplace_back(reader->GetTypeBoundaryOffsetVec());
             max_arena_bytes += reader->GetNumBytesOfArena();
@@ -305,10 +307,10 @@ class TMergeDataFileImpl {
             size_t max_block_cache_read_slot_per_sub_cursor = MaxBlockCacheReadSlotsAllowed / (source_file_vec.size() * 4UL);
             for (const auto &source_file : source_file_vec) {
               /* current keys */ {
-                key_access_sorter_vec.push_back(std::unique_ptr<TMergeDataFileImpl::TRemapAccessSorter>(new TMergeDataFileImpl::TRemapAccessSorter(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
-                key_resolved_sorter_vec.push_back(std::unique_ptr<TMergeDataFileImpl::TRemapResolvedSorter>(new TMergeDataFileImpl::TRemapResolvedSorter(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
-                val_access_sorter_vec.push_back(std::unique_ptr<TMergeDataFileImpl::TRemapAccessSorter>(new TMergeDataFileImpl::TRemapAccessSorter(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
-                val_resolved_sorter_vec.push_back(std::unique_ptr<TMergeDataFileImpl::TRemapResolvedSorter>(new TMergeDataFileImpl::TRemapResolvedSorter(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
+                key_access_sorter_vec.push_back(make_unique<TMergeDataFileImpl::TRemapAccessSorter>(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
+                key_resolved_sorter_vec.push_back(make_unique<TMergeDataFileImpl::TRemapResolvedSorter>(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
+                val_access_sorter_vec.push_back(make_unique<TMergeDataFileImpl::TRemapAccessSorter>(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
+                val_resolved_sorter_vec.push_back(make_unique<TMergeDataFileImpl::TRemapResolvedSorter>(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
                 TMergeDataFileImpl::TRemapAccessSorter &key_access_sorter = *key_access_sorter_vec.back();
                 TMergeDataFileImpl::TRemapResolvedSorter &key_resolved_sorter = *key_resolved_sorter_vec.back();
                 TMergeDataFileImpl::TRemapSorter &key_remap_sorter = *idx_file.ArenaRemapSorterVec[pos / 2];
@@ -347,17 +349,17 @@ class TMergeDataFileImpl {
                 TMergeDataFileImpl::ResolveRemap(MaxBlockCacheReadSlotsAllowed, val_access_sorter, val_remap_sorter, val_resolved_sorter);
                 key_access_sorter_vec.back().reset(); /* reset the access sorter so we release the resources. */
                 val_access_sorter_vec.back().reset(); /* reset the access sorter so we release the resources. */
-                key_resolved_sorter_cursor_vec.push_back(std::unique_ptr<typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor>(new typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor(&key_resolved_sorter, max_block_cache_read_slot_per_sub_cursor)));
-                val_resolved_sorter_cursor_vec.push_back(std::unique_ptr<typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor>(new typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor(&val_resolved_sorter, max_block_cache_read_slot_per_sub_cursor)));
+                key_resolved_sorter_cursor_vec.push_back(std::make_unique<typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor>(&key_resolved_sorter, max_block_cache_read_slot_per_sub_cursor));
+                val_resolved_sorter_cursor_vec.push_back(std::make_unique<typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor>(&val_resolved_sorter, max_block_cache_read_slot_per_sub_cursor));
               } /* finish access pattern for current keys */
 
               ++pos;
 
               /* history keys */ {
-                key_access_sorter_vec.push_back(std::unique_ptr<TMergeDataFileImpl::TRemapAccessSorter>(new TMergeDataFileImpl::TRemapAccessSorter(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
-                key_resolved_sorter_vec.push_back(std::unique_ptr<TMergeDataFileImpl::TRemapResolvedSorter>(new TMergeDataFileImpl::TRemapResolvedSorter(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
-                val_access_sorter_vec.push_back(std::unique_ptr<TMergeDataFileImpl::TRemapAccessSorter>(new TMergeDataFileImpl::TRemapAccessSorter(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
-                val_resolved_sorter_vec.push_back(std::unique_ptr<TMergeDataFileImpl::TRemapResolvedSorter>(new TMergeDataFileImpl::TRemapResolvedSorter(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true)));
+                key_access_sorter_vec.push_back(make_unique<TMergeDataFileImpl::TRemapAccessSorter>(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
+                key_resolved_sorter_vec.push_back(make_unique<TMergeDataFileImpl::TRemapResolvedSorter>(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
+                val_access_sorter_vec.push_back(make_unique<TMergeDataFileImpl::TRemapAccessSorter>(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
+                val_resolved_sorter_vec.push_back(make_unique<TMergeDataFileImpl::TRemapResolvedSorter>(HERE, Source::MergeDataFileScan, TempFileConsolThresh, SorterStorageSpeed, Engine, true));
                 TMergeDataFileImpl::TRemapAccessSorter &key_access_sorter = *key_access_sorter_vec.back();
                 TMergeDataFileImpl::TRemapResolvedSorter &key_resolved_sorter = *key_resolved_sorter_vec.back();
                 TMergeDataFileImpl::TRemapSorter &key_remap_sorter = *idx_file.ArenaRemapSorterVec[pos / 2];
@@ -400,8 +402,8 @@ class TMergeDataFileImpl {
                 TMergeDataFileImpl::ResolveRemap(MaxBlockCacheReadSlotsAllowed, val_access_sorter, val_remap_sorter, val_resolved_sorter);
                 key_access_sorter_vec.back().reset(); /* reset the access sorter so we release the resources. */
                 val_access_sorter_vec.back().reset(); /* reset the access sorter so we release the resources. */
-                key_resolved_sorter_cursor_vec.push_back(std::unique_ptr<typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor>(new typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor(&key_resolved_sorter, max_block_cache_read_slot_per_sub_cursor)));
-                val_resolved_sorter_cursor_vec.push_back(std::unique_ptr<typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor>(new typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor(&val_resolved_sorter, max_block_cache_read_slot_per_sub_cursor)));
+                key_resolved_sorter_cursor_vec.push_back(std::make_unique<typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor>(&key_resolved_sorter, max_block_cache_read_slot_per_sub_cursor));
+                val_resolved_sorter_cursor_vec.push_back(std::make_unique<typename TMergeDataFileImpl::TRemapResolvedSorter::TCursor>(&val_resolved_sorter, max_block_cache_read_slot_per_sub_cursor));
               } /* finish access pattern for history keys */
 
               ++pos;
@@ -1324,7 +1326,7 @@ class TMergeDataFileImpl {
       for (const auto &type_vec : type_boundary_offset_vec_by_file) {
         std::map<size_t, std::unique_ptr<typename TMergeDataFileImpl<CanTail, CanTailTombstones>::TArenaKeeperSorter>> temp_map;
         for (size_t offset : type_vec) {
-          temp_map.insert(make_pair(offset, std::unique_ptr<typename TMergeDataFileImpl<CanTail, CanTailTombstones>::TArenaKeeperSorter>(new typename TMergeDataFileImpl<CanTail, CanTailTombstones>::TArenaKeeperSorter(HERE, Source::MergeDataFileTailIndex, temp_file_consol_thresh, sorter_storage_speed, engine, true))));
+          temp_map.insert(make_pair(offset, std::make_unique<typename TMergeDataFileImpl<CanTail, CanTailTombstones>::TArenaKeeperSorter>(HERE, Source::MergeDataFileTailIndex, temp_file_consol_thresh, sorter_storage_speed, engine, true)));
         }
         sorted_keeper_map_vec.emplace_back(std::move(temp_map));
       }
@@ -1760,8 +1762,8 @@ class TMergeDataFileImpl {
         file_id_by_pos_vec.emplace_back(file);
 
         /* build an access pattern list */ {
-          access_sorter_vec.push_back(std::unique_ptr<TRemapAccessSorter>(new TRemapAccessSorter(HERE, Source::MergeDataFileRemapIndex, temp_file_consol_thresh, sorter_storage_speed, engine, true)));
-          resolved_sorter_vec.push_back(std::unique_ptr<TRemapResolvedSorter>(new TRemapResolvedSorter(HERE, Source::MergeDataFileRemapIndex, temp_file_consol_thresh, sorter_storage_speed, engine, true)));
+          access_sorter_vec.push_back(std::make_unique<TRemapAccessSorter>(HERE, Source::MergeDataFileRemapIndex, temp_file_consol_thresh, sorter_storage_speed, engine, true));
+          resolved_sorter_vec.push_back(std::make_unique<TRemapResolvedSorter>(HERE, Source::MergeDataFileRemapIndex, temp_file_consol_thresh, sorter_storage_speed, engine, true));
           TRemapAccessSorter &access_sorter = *access_sorter_vec.back();
           TRemapResolvedSorter &resolved_sorter = *resolved_sorter_vec.back();
           TRemapSorter &remap_sorter = *remap_sorter_vec[file];
@@ -2020,7 +2022,7 @@ class TMergeDataFileImpl {
     /* TODO */
     TReader(const Base::TCodeLocation &code_location /* DEBUG */, uint8_t util_src, TEngine *engine, const Base::TUuid &file_id, size_t gen_id)
         : TReadFile(code_location, util_src, engine, file_id, Low, gen_id) {
-      Arena = std::unique_ptr<TArena>(new TArena(this, engine->GetCache<PhysicalCachePageSize>(), Low));
+      Arena = std::make_unique<TArena>(this, engine->GetCache<PhysicalCachePageSize>(), Low);
     }
 
     /* TODO */
@@ -2206,7 +2208,7 @@ class TMergeDataFileImpl {
                                   NumArenaNotes,
                                   NumArenaBytes);
       FileSize = ArenaByteOffset + NumArenaBytes;
-      MyArena = std::unique_ptr<TDataDiskArena<true>>(new TDataDiskArena<true>(this, Engine->GetCache<TDataDiskArena<true>::PhysicalCachePageSize>(), Priority));
+      MyArena = std::make_unique<TDataDiskArena<true>>(this, Engine->GetCache<TDataDiskArena<true>::PhysicalCachePageSize>(), Priority);
     }
 
     void PrepKeyRange(size_t max_keys, TUpdateCollector *update_collector) {
@@ -2234,20 +2236,24 @@ class TMergeDataFileImpl {
       Engine->AppendReserveBlocks(StorageSpeed, max_blocks_required, *BlockVec);
       assert(BlockVec->Size() == total_num_blocks);
       assert(((MaxByteOffsetOfKeyStream - 1) / LogicalBlockSize) < BlockVec->Size());
-      KeyStream = std::unique_ptr<TDataOutStream>(new TDataOutStream(HERE,
-                                                                     Source::DataFileKey,
-                                                                     Engine->GetVolMan(),
-                                                                     ByteOffsetOfKeyIndex,
-                                                                     *BlockVec,
-                                                                     KeyCollisionMap,
-                                                                     KeyTrigger,
-                                                                     Priority,
-                                                                     true /* do_cache */,
-                                                                     #ifndef NDEBUG
-                                                                     WrittenBlockSet,
-                                                                     #endif
-                                                                     [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;}));
-      WasPrepared = true;
+      KeyStream =
+          std::make_unique<TDataOutStream>(HERE,
+                                           Source::DataFileKey,
+                                           Engine->GetVolMan(),
+                                           ByteOffsetOfKeyIndex,
+                                           *BlockVec,
+                                           KeyCollisionMap,
+                                           KeyTrigger,
+                                           Priority,
+                                           true /* do_cache */,
+                                           #ifndef NDEBUG
+                                           WrittenBlockSet,
+                                           #endif
+                                           [/* causing ICE if left to default */](Disk::Util::TVolumeManager *) {
+            throw;
+            return 0U;
+          });
+                                        WasPrepared = true;
     }
 
     void PushCurKey(TSequenceNumber seq_num, const Atom::TCore &key, const Atom::TCore &val) {

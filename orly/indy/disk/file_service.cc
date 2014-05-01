@@ -50,8 +50,8 @@ TFileService::TFileService(Base::TScheduler *scheduler,
   Image1BlockIdVec.push_back(image_1_block_id);
   Image2BlockIdVec.push_back(image_2_block_id);
   if (!create) {
-    std::unique_ptr<TBufBlock> image_1_buf_block(new TBufBlock());
-    std::unique_ptr<TBufBlock> image_2_buf_block(new TBufBlock());
+    auto image_1_buf_block = make_unique<TBufBlock>();
+    auto image_2_buf_block = make_unique<TBufBlock>();
     /* read both base images and use the one with the higher version number */
 
     size_t version_1 = 0UL;
@@ -127,7 +127,7 @@ TFileService::TFileService(Base::TScheduler *scheduler,
         if (!both_images_loaded_success) {
           throw std::runtime_error("File System is corrupt. Base Image was irrecoverable, alternate image was also corrupt");
         }
-        std::unique_ptr<TBufBlock> append_log_first_buf_block(new TBufBlock());
+        auto append_log_first_buf_block = make_unique<TBufBlock>();
         /* read the first append log entry to get its version. */
         assert(AppendLogBlockVec.size());
         size_t block_of_first_append_log = AppendLogBlockVec[0];
@@ -787,7 +787,7 @@ bool TFileService::TryLoadFromBaseImage(size_t base_image_block, const size_t *c
 
 void TFileService::ZeroImageBlocks(size_t image_1_block_id, size_t image_2_block_id) {
   assert(this);
-  std::unique_ptr<TBufBlock> buf_block(new TBufBlock());
+  auto buf_block = make_unique<TBufBlock>();
   memset(buf_block->GetData(), 0, Util::PhysicalBlockSize);
   TCompletionTrigger trigger;
   /* zero-out image_block 1 */ {
@@ -818,7 +818,7 @@ void TFileService::ZeroImageBlocks(size_t image_1_block_id, size_t image_2_block
 void TFileService::ZeroAppendLog() {
   assert(this);
   TCompletionTrigger trigger;
-  std::unique_ptr<TBufBlock> buf_block(new TBufBlock());
+  auto buf_block = make_unique<TBufBlock>();
   memset(buf_block->GetData(), 0, Util::PhysicalBlockSize);
   for (auto block_id : AppendLogBlockVec) { /* zero-out each append block */
     VolMan->Write(HERE,

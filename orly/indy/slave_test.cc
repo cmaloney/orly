@@ -116,19 +116,19 @@ int main(int argc, char *argv[]) {
       (*cb)(client_fd);
     });
   };
-  unique_ptr<TManager> slave(new TManager(SlavePath ,
-                                          SlaveDeviceName,
-                                          BlockSize,
-                                          CacheSize,
-                                          QueueDepth,
-                                          MergeMemDelay,
-                                          FlushMemDelay,
-                                          MergeDiskDelay,
-                                          ReplicationDelay,
-                                          TManager::SyncSlave,
-                                          slave_sock,
-                                          wait_for_slave,
-                                          StateChanged));
+  auto slave = make_unique<TManager>(SlavePath,
+                                     SlaveDeviceName,
+                                     BlockSize,
+                                     CacheSize,
+                                     QueueDepth,
+                                     MergeMemDelay,
+                                     FlushMemDelay,
+                                     MergeDiskDelay,
+                                     ReplicationDelay,
+                                     TManager::SyncSlave,
+                                     slave_sock,
+                                     wait_for_slave,
+                                     StateChanged);
   std::thread queuer([&slave]() {
     slave->RunReplicationQueue();
   });

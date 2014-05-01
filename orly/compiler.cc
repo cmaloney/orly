@@ -59,7 +59,7 @@ class TPackageBuilder {
     Cst = Package::Syntax::TPackage::ParseFile(TAbsPath(src_root, RelPath).AsStr().c_str());
     if (!HasErrors()) {
       assert(Cst);
-      Synth = unique_ptr<Synth::TPackage>(new Synth::TPackage(RelPath.ToNamespaceIncludingName(), &*Cst, false));
+      Synth = make_unique<Synth::TPackage>(RelPath.ToNamespaceIncludingName(), &*Cst, false);
     }
   }
 
@@ -132,7 +132,7 @@ Package::TVersionedName Orly::Compiler::Compile(
 
   typedef unordered_map<TRelPath, unique_ptr<TPackageBuilder>> TPackageMap;
   TPackageMap packages;
-  packages.insert(make_pair(core_rel, unique_ptr<TPackageBuilder>(new TPackageBuilder(core_rel))));
+  packages.insert(make_pair(core_rel, make_unique<TPackageBuilder>(core_rel)));
 
   bool failed = false;
 

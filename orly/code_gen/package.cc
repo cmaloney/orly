@@ -153,8 +153,7 @@ TPackage::TPackage(const Symbol::TPackage::TPtr &package) : L0::TPackage(package
 
   for(auto &test: package->GetTests()) {
     assert(&test); // To keep GCC from warning about unused variables.
-    //TODO: make_unique
-    Tests.push_back(std::unique_ptr<TTest>(new TTest(this, test, TestIdGen)));
+    Tests.push_back(std::make_unique<TTest>(this, test, TestIdGen));
   }
 }
 

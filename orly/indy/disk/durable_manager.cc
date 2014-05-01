@@ -678,7 +678,7 @@ TDurableManager::TSortedInFile::TSortedInFile(Util::TPageCache *page_cache,
       FileLength(file_length),
       StartingBlockId(starting_block_id),
       StartingBlockOffset(starting_block_offset) {
-  InStream = std::unique_ptr<TInStream>(new TInStream(HERE, Source::DurableFetch, priority, this, PageCache, 0));
+  InStream = std::make_unique<TInStream>(HERE, Source::DurableFetch, priority, this, PageCache, 0);
   InStream->Read(NumEntries);
   InStream->Read(NumBlocks);
   InStream->Read(HashIndexOffset);
@@ -694,7 +694,7 @@ TDurableManager::TSortedInFile::TSortedInFile(Util::TEngine *engine, DiskPriorit
     syslog(LOG_ERR, "TSortedInFile() Can not find file %s[%ld]", ss.str().c_str(), gen_id);
     throw std::runtime_error("Could not find file.");
   }
-  InStream = std::unique_ptr<TInStream>(new TInStream(HERE, Source::DurableFetch, priority, this, PageCache, 0));
+  InStream = std::make_unique<TInStream>(HERE, Source::DurableFetch, priority, this, PageCache, 0);
   InStream->Read(NumEntries);
   InStream->Read(NumBlocks);
   InStream->Read(HashIndexOffset);
@@ -826,7 +826,7 @@ TDurableManager::TMergeSortedByIdFile::TMergeSortedByIdFile(const std::vector<si
   THashSorter hash_sorter(HERE, Source::DurableMergeFileHashIndex, temp_file_consol_thresh, StorageSpeed, Engine, true);
   std::vector<std::unique_ptr<TSortedInFile>> in_file_vec;
   for (auto iter : gen_vec) {
-    in_file_vec.push_back(std::unique_ptr<TSortedInFile>(new TSortedInFile(Engine, priority, iter)));
+    in_file_vec.push_back(std::make_unique<TSortedInFile>(Engine, priority, iter));
   }
 
   size_t total_durable_serialized_space = 0UL;
@@ -854,7 +854,7 @@ TDurableManager::TMergeSortedByIdFile::TMergeSortedByIdFile(const std::vector<si
         size_t byte_offset_of_durable_index = iter->GetStartOfDurableByIdIndex();
 
         entries_left_vec.push_back(num_entries_in_file);
-        in_stream_vec.push_back(std::unique_ptr<TInStream>(new TInStream(HERE, Source::DurableMergeFileScan, priority, iter.get(), Engine->GetPageCache(), byte_offset_of_durable_index)));
+        in_stream_vec.push_back(std::make_unique<TInStream>(HERE, Source::DurableMergeFileScan, priority, iter.get(), Engine->GetPageCache(), byte_offset_of_durable_index));
 
         if (entries_left_vec.back() > 0) {
           TInStream &entry_stream = *in_stream_vec.back();
@@ -978,7 +978,7 @@ TDurableManager::TMergeSortedByIdFile::TMergeSortedByIdFile(const std::vector<si
         size_t byte_offset_of_durable_index = iter->GetStartOfDurableByIdIndex();
 
         entries_left_vec.push_back(num_entries_in_file);
-        index_in_stream_vec.push_back(std::unique_ptr<TInStream>(new TInStream(HERE, Source::DurableMergeFileScan, priority, iter.get(), Engine->GetPageCache(), byte_offset_of_durable_index)));
+        index_in_stream_vec.push_back(std::make_unique<TInStream>(HERE, Source::DurableMergeFileScan, priority, iter.get(), Engine->GetPageCache(), byte_offset_of_durable_index));
 
         if (entries_left_vec.back() > 0) {
           TInStream &index_in_stream = *index_in_stream_vec.back();

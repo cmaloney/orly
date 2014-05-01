@@ -846,29 +846,31 @@ void TServer::Init() {
 
     Disk::Util::TEngine *engine_ptr = nullptr;
     if (Cmd.MemorySim) {
-      SimMemEngine = std::unique_ptr<Disk::Sim::TMemEngine>(new Disk::Sim::TMemEngine(Scheduler,
-                                                                                      Cmd.MemorySimMB /* simulated space */,
-                                                                                      Cmd.MemorySimSlowMB /* simulated slow volume space */,
-                                                                                      (Cmd.PageCacheSizeMB * 1024UL * 1024UL) / 4096 /* page cache slots: 1GB */,
-                                                                                      1 /* num page lru */,
-                                                                                      (Cmd.BlockCacheSizeMB * 1024UL * 1024UL) / (4096 * 16) /* block cache slots: 1GB */,
-                                                                                      1 /* num block lru */));
+      SimMemEngine = std::make_unique<Disk::Sim::TMemEngine>(
+          Scheduler,
+          Cmd.MemorySimMB /* simulated space */,
+          Cmd.MemorySimSlowMB /* simulated slow volume space */,
+          (Cmd.PageCacheSizeMB * 1024UL * 1024UL) / 4096 /* page cache slots: 1GB */,
+          1 /* num page lru */,
+          (Cmd.BlockCacheSizeMB * 1024UL * 1024UL) / (4096 * 16) /* block cache slots: 1GB */,
+          1 /* num block lru */);
       engine_ptr = SimMemEngine->GetEngine();
     } else {
-      DiskEngine = std::unique_ptr<Disk::Util::TDiskEngine>(new Disk::Util::TDiskEngine(Scheduler,
-                                                                                        RunnerCons,
-                                                                                        FramePoolManager.get(),
-                                                                                        Cmd.DiskControllerCoreVec,
-                                                                                        Cmd.InstanceName,
-                                                                                        Cmd.DiscardOnCreate,
-                                                                                        Cmd.DoFsync,
-                                                                                        (Cmd.PageCacheSizeMB * 1024UL * 1024UL) / 4096 /* page cache slots: 1GB */,
-                                                                                        8 /* num page lru */,
-                                                                                        (Cmd.BlockCacheSizeMB * 1024UL * 1024UL) / (4096 * 16) /* block cache slots: 1GB */,
-                                                                                        8 /* num block lru */,
-                                                                                        Cmd.FileServiceAppendLogMB,
-                                                                                        Cmd.Create,
-                                                                                        Cmd.NoRealtime));
+      DiskEngine = make_unique<Disk::Util::TDiskEngine>(
+          Scheduler,
+          RunnerCons,
+          FramePoolManager.get(),
+          Cmd.DiskControllerCoreVec,
+          Cmd.InstanceName,
+          Cmd.DiscardOnCreate,
+          Cmd.DoFsync,
+          (Cmd.PageCacheSizeMB * 1024UL * 1024UL) / 4096 /* page cache slots: 1GB */,
+          8 /* num page lru */,
+          (Cmd.BlockCacheSizeMB * 1024UL * 1024UL) / (4096 * 16) /* block cache slots: 1GB */,
+          8 /* num block lru */,
+          Cmd.FileServiceAppendLogMB,
+          Cmd.Create,
+          Cmd.NoRealtime);
       engine_ptr = DiskEngine->GetEngine();
     }
     assert(engine_ptr);
@@ -897,31 +899,31 @@ void TServer::Init() {
       }
       */
     };
-    RepoManager = unique_ptr<Orly::Indy::TManager>(new Orly::Indy::TManager(engine_ptr,
-                                                                            Cmd.ReplicationSyncBufMB,
-                                                                            Cmd.MergeMemInterval,
-                                                                            Cmd.MergeDiskInterval,
-                                                                            Cmd.LayerCleaningInterval,
-                                                                            Cmd.ReplicationInterval,
-                                                                            RepoState,
-                                                                            Cmd.AllowTailing,
-                                                                            Cmd.AllowFileSync,
-                                                                            Cmd.NoRealtime,
-                                                                            std::move(starting_sock),
-                                                                            slave_bind_cb,
-                                                                            bind(&TServer::StateChangeCb, this, placeholders::_1),
-                                                                            update_replication_notification_cb,
-                                                                            on_replicate_index_id_cb,
-                                                                            for_each_index_cb,
-                                                                            for_each_scheduler_cb,
-                                                                            Scheduler,
-                                                                            &BGFastRunner,
-                                                                            block_slots_available_per_merger,
-                                                                            Cmd.MaxRepoCacheSize,
-                                                                            Cmd.TempFileConsolidationThreshold,
-                                                                            Cmd.MemMergeCoreVec,
-                                                                            Cmd.DiskMergeCoreVec,
-                                                                            Cmd.Create));
+    RepoManager = make_unique<Orly::Indy::TManager>(engine_ptr,
+                                                    Cmd.ReplicationSyncBufMB,
+                                                    Cmd.MergeMemInterval,
+                                                    Cmd.MergeDiskInterval,
+                                                    Cmd.LayerCleaningInterval,
+                                                    Cmd.ReplicationInterval,
+                                                    RepoState,
+                                                    Cmd.AllowTailing,
+                                                    Cmd.AllowFileSync,
+                                                    Cmd.NoRealtime,
+                                                    std::move(starting_sock),
+                                                    slave_bind_cb,
+                                                    bind(&TServer::StateChangeCb, this, placeholders::_1),
+                                                    update_replication_notification_cb,
+                                                    on_replicate_index_id_cb,
+                                                    for_each_index_cb,
+                                                    for_each_scheduler_cb,
+                                                    Scheduler,
+                                                    &BGFastRunner,
+                                                    block_slots_available_per_merger,
+                                                    Cmd.MaxRepoCacheSize,
+                                                    Cmd.TempFileConsolidationThreshold,
+                                                    Cmd.MemMergeCoreVec,
+                                                    Cmd.DiskMergeCoreVec,
+                                                    Cmd.Create);
     auto global_ttl = TTtl::max();
     GlobalRepo = RepoManager->GetRepo(TSession::GlobalPovId, global_ttl, *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, true, Cmd.Create);
 
@@ -935,11 +937,11 @@ void TServer::Init() {
           switch (file_obj.Kind) {
             case Indy::Disk::TFileObj::TKind::DataFile: {
               TIndexIdReader reader(engine_ptr, file_uid, Indy::Disk::RealTime, file_obj.GenId, file_obj.StartingBlockId, file_obj.StartingBlockOffset, file_obj.FileSize);
-              std::unique_ptr<TIndexIdReader::TArena> main_arena(new TIndexIdReader::TArena(&reader, engine_ptr->GetCache<TIndexIdReader::PhysicalCachePageSize>(), Orly::Indy::Disk::RealTime));
+              auto main_arena = make_unique<TIndexIdReader::TArena>(&reader, engine_ptr->GetCache<TIndexIdReader::PhysicalCachePageSize>(), Orly::Indy::Disk::RealTime);
               const auto &index_map = reader.GetIndexByIdMap();
               for (const auto &idx_pair : index_map) {
                 const auto &idx_file = idx_pair.second;
-                std::unique_ptr<TIndexIdReader::TArena> index_arena(new TIndexIdReader::TArena(idx_file.get(), engine_ptr->GetCache<TIndexIdReader::PhysicalCachePageSize>(), Orly::Indy::Disk::RealTime));
+                auto index_arena = make_unique<TIndexIdReader::TArena>(idx_file.get(), engine_ptr->GetCache<TIndexIdReader::PhysicalCachePageSize>(), Orly::Indy::Disk::RealTime);
                 TIndexIdReader::TIndexFile::TKeyCursor csr(idx_file.get());
                 if (csr) {
                   TKey key((*csr).Key, index_arena.get());
@@ -1151,7 +1153,7 @@ void TServer::Init() {
     }
 
     Scheduler->Schedule(bind(&TServer::CleanHouse, this));
-    Reporter = std::unique_ptr<TIndyReporter>(new TIndyReporter(this, Scheduler, Cmd.ReportingPortNumber));
+    Reporter = make_unique<TIndyReporter>(this, Scheduler, Cmd.ReportingPortNumber);
     DEBUG_LOG("TServer::Init end");
   } catch (const std::exception &ex) {
     syslog(LOG_ERR, "TServer::Init() caught exception [%s]", ex.what());
@@ -1615,7 +1617,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
       ++running;
       auto global_repo = GetGlobalRepo();
       TSequenceNumber starting_number = global_repo->UseSequenceNumbers(10000000UL);
-      std::unique_ptr<Base::TEventSemaphore> sem(new Base::TEventSemaphore());
+      auto sem = make_unique<Base::TEventSemaphore>();
       sub_scheduler.Schedule(std::bind(run_func, cref(file), ref(*sem), starting_number, storage_speed));
       if (waiting_map.empty()) {
         sem->Push();
@@ -1922,7 +1924,6 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
 
   // Context for the current series of requests which we need to be consistent.
   // TODO: Switch to a tri state that lives on the stack
-  // TODO: make_unique
   std::unique_ptr<Indy::TContext> context;
 
   // TODO: Detect protocol here (binary or text). Currently we only support binary.
@@ -1952,9 +1953,9 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       // being read / handled
       Mynde::TRequest req(in);
 
-      //TODO: make_unique
       size_t prev_assignment_count = std::atomic_fetch_add(&SlowAssignmentCounter, 1UL);
-      std::unique_ptr<Indy::Fiber::TSwitchToRunner> switch_to_runner(new Indy::Fiber::TSwitchToRunner(FastRunnerVec[prev_assignment_count % FastRunnerVec.size()].get()));
+      auto switch_to_runner =
+          make_unique<Indy::Fiber::TSwitchToRunner>(FastRunnerVec[prev_assignment_count % FastRunnerVec.size()].get());
       // TODO: Build up the response in this. Call 'fire' when the whole response is built.
       // TResponseBuilder resp(req);
 
@@ -1976,7 +1977,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
       switch (req.GetOpcode()) {
         case Mynde::TRequest::TOpcode::Get: {
           if (!context) {
-            context = std::unique_ptr<Indy::TContext>(new Indy::TContext(repo, &context_arena));
+            context = make_unique<Indy::TContext>(repo, &context_arena);
           }
 
           // TODO: Change keys and values to be start, limit based rather than doing this std::string marshalling

@@ -151,7 +151,7 @@ FIXTURE(Typical) {
                                                  1 /* num page lru */,
                                                  64 /* block cache slots: 4MB */,
                                                  1 /* num block lru */);
-    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec));
+    auto manager = make_unique<TMyManager>(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec);
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);
     auto repo_1 = manager->GetRepo(repo_1_id, TTtl::max(), *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, false, true);
@@ -164,7 +164,7 @@ FIXTURE(Typical) {
     }
     EXPECT_EQ(repo_1->GetStatus(), Normal);
     /* check that nothing is there */ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_1));
+      auto view = make_unique<TRepo::TView>(repo_1);
       auto walker_ptr = repo_1->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       EXPECT_FALSE(static_cast<bool>(walker));
@@ -180,7 +180,7 @@ FIXTURE(Typical) {
     }
     EXPECT_EQ(repo_1->GetStatus(), Normal);
     /* check that our update is there */ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_1));
+      auto view = make_unique<TRepo::TView>(repo_1);
       auto walker_ptr = repo_1->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       if (EXPECT_TRUE(static_cast<bool>(walker))) {
@@ -197,7 +197,7 @@ FIXTURE(Typical) {
     }
     EXPECT_EQ(repo_1->GetStatus(), Normal);
     /* check that our update is there */ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_1));
+      auto view = make_unique<TRepo::TView>(repo_1);
       auto walker_ptr = repo_1->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       if (EXPECT_TRUE(static_cast<bool>(walker))) {
@@ -216,7 +216,7 @@ FIXTURE(Typical) {
     }
     EXPECT_EQ(repo_1->GetStatus(), Normal);
     /* check that nothing is there */ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_1));
+      auto view = make_unique<TRepo::TView>(repo_1);
       auto walker_ptr = repo_1->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       EXPECT_FALSE(static_cast<bool>(walker));
@@ -284,7 +284,7 @@ FIXTURE(Promoter) {
                                                  1 /* num page lru */,
                                                  64 /* block cache slots: 4MB */,
                                                  1 /* num block lru */);
-    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec));
+    auto manager = make_unique<TMyManager>(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec);
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid repo_2_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);
@@ -299,7 +299,7 @@ FIXTURE(Promoter) {
       transaction->CommitAction();
     }
     /* check that repo 1 has the update */ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_1));
+      auto view = make_unique<TRepo::TView>(repo_1);
       auto walker_ptr = repo_1->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       if (EXPECT_TRUE(static_cast<bool>(walker))) {
@@ -317,7 +317,7 @@ FIXTURE(Promoter) {
       transaction->CommitAction();
     }
     /* check that repo 2 has the update */ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_2));
+      auto view = make_unique<TRepo::TView>(repo_2);
       auto walker_ptr = repo_2->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       if (EXPECT_TRUE(static_cast<bool>(walker))) {
@@ -327,7 +327,7 @@ FIXTURE(Promoter) {
       EXPECT_FALSE(static_cast<bool>(walker));
     }
     /* check that nothing is in repo 1*/ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_1));
+      auto view = make_unique<TRepo::TView>(repo_1);
       auto walker_ptr = repo_1->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       EXPECT_FALSE(static_cast<bool>(walker));
@@ -354,7 +354,7 @@ FIXTURE(DiskPromoter) {
                                                  1 /* num page lru */,
                                                  64 /* block cache slots: 4MB */,
                                                  1 /* num block lru */);
-    unique_ptr<TMyManager> manager(new TMyManager(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec));
+    auto manager = make_unique<TMyManager>(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec);
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid repo_2_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);
@@ -369,7 +369,7 @@ FIXTURE(DiskPromoter) {
       transaction->CommitAction();
     }
     /* check that repo 1 has the update */ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_1));
+      auto view = make_unique<TRepo::TView>(repo_1);
       auto walker_ptr = repo_1->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       if (EXPECT_TRUE(static_cast<bool>(walker))) {
@@ -387,7 +387,7 @@ FIXTURE(DiskPromoter) {
       transaction->CommitAction();
     }
     /* check that repo 2 has the update */ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_2));
+      auto view = make_unique<TRepo::TView>(repo_2);
       auto walker_ptr = repo_2->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       if (EXPECT_TRUE(static_cast<bool>(walker))) {
@@ -397,7 +397,7 @@ FIXTURE(DiskPromoter) {
       EXPECT_FALSE(static_cast<bool>(walker));
     }
     /* check that nothing is in repo 1*/ {
-      unique_ptr<TRepo::TView> view(new TRepo::TView(repo_1));
+      auto view = make_unique<TRepo::TView>(repo_1);
       auto walker_ptr = repo_1->NewPresentWalker(view, TIndexKey(idx_id, TKey(make_tuple(1L), &arena, state_alloc)), TIndexKey(idx_id, TKey(make_tuple(10L), &arena, state_alloc)));
       auto &walker = *walker_ptr;
       EXPECT_FALSE(static_cast<bool>(walker));

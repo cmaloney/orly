@@ -55,17 +55,17 @@ void TMemoryLayer::ReverseInsert(TUpdate *update) NO_THROW {
 std::unique_ptr<TPresentWalker> TMemoryLayer::NewPresentWalker(const TIndexKey &from,
                                                                const TIndexKey &to) const {
   assert(this);
-  return unique_ptr<TRangePresentWalker>(new TRangePresentWalker(this, from, to));
+  return make_unique<TRangePresentWalker>(this, from, to);
 }
 
 std::unique_ptr<TPresentWalker> TMemoryLayer::NewPresentWalker(const TIndexKey &key) const {
   assert(this);
-  return unique_ptr<TMatchPresentWalker>(new TMatchPresentWalker(this, key));
+  return make_unique<TMatchPresentWalker>(this, key);
 }
 
 std::unique_ptr<Orly::Indy::TUpdateWalker> TMemoryLayer::NewUpdateWalker(TSequenceNumber from) const {
   assert(this);
-  return unique_ptr<TUpdateWalker>(new TUpdateWalker(this, from));
+  return make_unique<TUpdateWalker>(this, from);
 }
 
 TMemoryLayer::TMatchPresentWalker::TMatchPresentWalker(const TMemoryLayer *layer,

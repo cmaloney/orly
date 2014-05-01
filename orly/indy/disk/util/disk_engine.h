@@ -124,8 +124,8 @@ namespace Orly {
                 }
               }
             };
-            DiskController = std::unique_ptr<TDiskController>(new TDiskController());
-            DiskUtil = std::unique_ptr<TDiskUtil>(new TDiskUtil(scheduler, DiskController.get(), instance_name, do_fsync, CacheCb, true));
+            DiskController = std::make_unique<TDiskController>();
+            DiskUtil = std::make_unique<TDiskUtil>(scheduler, DiskController.get(), instance_name, do_fsync, CacheCb, true);
             VolMan = DiskUtil->GetVolumeManager(instance_name);
             std::vector<std::vector<TPersistentDevice *>> device_vec;
             size_t pos = 0UL;
@@ -141,8 +141,8 @@ namespace Orly {
             VolMan->MarkBlockRangeUsed(TBlockRange(0UL, 1UL));
             SystemBlockId = 0UL;
 
-            PageCache = std::unique_ptr<Util::TPageCache>(new Util::TPageCache(VolMan, page_cache_size, num_page_lru));
-            BlockCache = std::unique_ptr<Util::TBlockCache>(new Util::TBlockCache(VolMan, block_cache_size, num_block_lru));
+            PageCache = std::make_unique<Util::TPageCache>(VolMan, page_cache_size, num_page_lru);
+            BlockCache = std::make_unique<Util::TBlockCache>(VolMan, block_cache_size, num_block_lru);
 
             std::unique_ptr<const TBufBlock> buf_block(new TBufBlock());
             memset(buf_block->GetData(), 0, PhysicalBlockSize);
@@ -267,17 +267,18 @@ namespace Orly {
               }
               return true;
             };
-            FileService = std::unique_ptr<TFileService>(new TFileService(scheduler,
-                                                                         runner_cons,
-                                                                         frame_pool_manager,
-                                                                         VolMan,
-                                                                         Image1BlockId,
-                                                                         Image2BlockId,
-                                                                         AppendLogBlockVec,
-                                                                         file_init_cb,
-                                                                         create));
+            FileService = std::make_unique<TFileService>(scheduler,
+                                                         runner_cons,
+                                                         frame_pool_manager,
+                                                         VolMan,
+                                                         Image1BlockId,
+                                                         Image2BlockId,
+                                                         AppendLogBlockVec,
+                                                         file_init_cb,
+                                                         create);
 
-            Engine = std::unique_ptr<Util::TEngine>(new Util::TEngine(VolMan, PageCache.get(), BlockCache.get(), FileService.get(), true));
+            Engine =
+                std::make_unique<Util::TEngine>(VolMan, PageCache.get(), BlockCache.get(), FileService.get(), true);
           }
 
           /* TODO */

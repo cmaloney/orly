@@ -31,9 +31,9 @@ static const size_t BlockSize = 4096UL * 16;
 TBufBlock::TPool TBufBlock::Pool(BlockSize, 256);
 
 FIXTURE(Typical) {
-  unique_ptr<TBufBlock> in_block(new TBufBlock());
-  unique_ptr<TBufBlock> compressed_block(new TBufBlock());
-  unique_ptr<TBufBlock> out_block(new TBufBlock());
+  auto in_block = std::make_unique<TBufBlock>();
+  auto compressed_block = std::make_unique<TBufBlock>();
+  auto out_block = std::make_unique<TBufBlock>();
 
   size_t *ptr = reinterpret_cast<size_t *>(in_block->GetData());
   for (size_t j = 0; j < PhysicalBlockSize / sizeof(size_t); ++j) {

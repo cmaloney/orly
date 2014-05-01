@@ -145,7 +145,7 @@ namespace Orly {
             }
             /* The unique ptr to index_file is a temporary solution. */
             if (IndexFile) {
-              IndexArena = std::unique_ptr<TArena>(new TArena(IndexFile, engine->GetCache<PhysicalCachePageSize>(), RealTime));
+              IndexArena = std::make_unique<TArena>(IndexFile, engine->GetCache<PhysicalCachePageSize>(), RealTime);
               Item.KeyArena = IndexArena.get();
               Item.OpArena = &MainArena;
             }

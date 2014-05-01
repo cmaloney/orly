@@ -47,10 +47,10 @@ void TestFileServiceRestart(size_t num_append_log_blocks,
     Base::TThreadLocalGlobalPoolManager<Orly::Indy::Fiber::TFrame, size_t, Orly::Indy::Fiber::TRunner *> *frame_pool_manager = Orly::Indy::Fiber::TFrame::LocalFramePool->GetPoolManager();
 
     Util::TCacheCb cache_cb = [](Util::TCacheInstr, const Util::TOffset , void *, size_t ) {};
-    std::unique_ptr<Util::TMemoryDevice> mem_device(new Util::TMemoryDevice(512, 512, 262144, true /* fsync */, true));
-    std::unique_ptr<Util::TVolume> volume(new Util::TVolume(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, mem_device->GetDesc(), Util::TVolume::TDesc::Fast, 1UL, 1UL, 1024UL, 8UL, 0.85}, cache_cb, &scheduler));
+    auto mem_device = make_unique<Util::TMemoryDevice>(512, 512, 262144, true /* fsync */, true);
+    auto volume = make_unique<Util::TVolume>(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, mem_device->GetDesc(), Util::TVolume::TDesc::Fast, 1UL, 1UL, 1024UL, 8UL, 0.85}, cache_cb, &scheduler);
     volume->AddDevice(mem_device.get(), 0UL);
-    std::unique_ptr<Util::TVolumeManager> vol_man(new Util::TVolumeManager(&scheduler));
+    auto vol_man = make_unique<Util::TVolumeManager>(&scheduler);
     vol_man->AddNewVolume(volume.get());
 
     Util::TBlockRange tmp_range;
@@ -302,8 +302,8 @@ FIXTURE(WithCorruptBaseImageRestart) {
   Base::TUuid file_uid(Base::TUuid::Twister);
   auto downtime_cb = [](Util::TVolumeManager *vol_man, size_t image_1_block, size_t image_2_block, const std::vector<size_t> &/*append_log_block_vec*/) {
     std::mt19937_64 engine;
-    std::unique_ptr<TBufBlock> image_1_buf(new TBufBlock());
-    std::unique_ptr<TBufBlock> image_2_buf(new TBufBlock());
+    auto image_1_buf = make_unique<TBufBlock>();
+    auto image_2_buf = make_unique<TBufBlock>();
     TCompletionTrigger trigger;
     vol_man->ReadBlock(HERE, Util::CheckedBlock, 0UL, image_1_buf->GetData(), image_1_block, RealTime, trigger);
     vol_man->ReadBlock(HERE, Util::CheckedBlock, 0UL, image_2_buf->GetData(), image_2_block, RealTime, trigger);
@@ -353,7 +353,7 @@ FIXTURE(WithCorruptAppendLogRestart) {
   Base::TUuid file_uid(Base::TUuid::Twister);
   auto downtime_cb = [](Util::TVolumeManager *vol_man, size_t /*image_1_block*/, size_t /*image_2_block*/, const std::vector<size_t> &append_log_block_vec) {
     std::mt19937_64 engine;
-    std::unique_ptr<TBufBlock> append_buf(new TBufBlock());
+    auto append_buf = make_unique<TBufBlock>();
     TCompletionTrigger trigger;
     vol_man->Read(HERE, Util::CheckedSector, 0UL, append_buf->GetData(), append_log_block_vec[0] * Util::PhysicalBlockSize, Util::PhysicalSectorSize, RealTime, trigger);
     trigger.Wait();

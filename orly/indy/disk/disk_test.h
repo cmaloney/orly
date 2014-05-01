@@ -73,7 +73,7 @@ namespace Orly {
 
         TReader(const Base::TCodeLocation &code_location /* DEBUG */, Util::TEngine *engine, const Base::TUuid &file_id, size_t gen_id)
             : TReadFile(code_location, Source::MergeDataFileOther, engine, file_id, Low, gen_id) {
-          Arena = std::unique_ptr<TArena>(new TArena(this, engine->GetCache<PhysicalCachePageSize>(), Low));
+          Arena = std::make_unique<TArena>(this, engine->GetCache<PhysicalCachePageSize>(), Low);
         }
 
         virtual ~TReader() {

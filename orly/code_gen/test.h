@@ -34,7 +34,6 @@ namespace Orly {
       public:
 
       TTestCase(const L0::TPackage *package, const Symbol::Test::TTestCase::TPtr &symbol, TId<TIdKind::Test>::TGen &id_gen);
-      ~TTestCase();
 
       virtual void WriteCcName(TCppPrinter &out) const;
       const TId<TIdKind::Test> &GetId() const;
@@ -54,7 +53,7 @@ namespace Orly {
       std::string Name;
       TPosRange Pos;
       TInline::TPtr Test;
-      TTestBlock *OptChildren;
+      std::unique_ptr<TTestBlock> OptChildren;
     };
 
     class TTestBlock {
