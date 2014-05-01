@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <c14/lang.h>
-
 #include <orly/rt/containers.h>
 #include <orly/rt/get_size.h>
 #include <orly/rt/is_empty.h>
@@ -37,8 +35,9 @@ namespace Orly {
   namespace Rt {
 
     template <typename TAddr>
-    auto AddrToPair(const TAddr &addr)
-      DECLTYPE_AUTO(std::make_pair(addr.template Get<0>(), addr.template Get<1>()));
+    auto AddrToPair(const TAddr &addr) {
+      return std::make_pair(addr.template Get<0>(), addr.template Get<1>());
+    }
 
     template <int size, typename TKey, typename TVal>
     const TDict<TKey, TVal> &DictCtor(const TDict<TKey, TVal> &out) {

@@ -96,7 +96,6 @@
 #include <cassert>
 #include <c14/apply.h>
 #include <c14/identity.h>
-#include <c14/lang.h>
 #include <c14/type_traits.h>
 #include <c14/utility.h>
 #include <tuple>

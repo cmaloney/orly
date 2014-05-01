@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <c14/lang.h>
 #include <memory>
 
 #include <base/class_traits.h>
@@ -1021,24 +1020,29 @@ namespace Orly {
     };  // TWhileGenerator<TRes>
 
     template <typename TGeneratorType>
-    auto MakeCursor(const std::shared_ptr<const TGeneratorType> &generator)
-      DECLTYPE_AUTO(typename TGeneratorType::TCursor(generator));
+    auto MakeCursor(const std::shared_ptr<const TGeneratorType> &generator) {
+      return typename TGeneratorType::TCursor(generator);
+    }
 
     template <typename TVal>
-    auto MakeCursor(const typename TGenerator<TVal>::TPtr &generator)
-      DECLTYPE_AUTO(generator->NewCursor());
+    auto MakeCursor(const typename TGenerator<TVal>::TPtr &generator) {
+      return generator->NewCursor();
+    }
 
     template <typename TVal>
-    auto MakeGenerator(const std::vector<TVal> &val)
-      DECLTYPE_AUTO(TStlGenerator<std::vector<TVal>>::New(val));
+    auto MakeGenerator(const std::vector<TVal> &val) {
+      return TStlGenerator<std::vector<TVal>>::New(val);
+    }
 
     template <typename TVal>
-    auto MakeGenerator(const TSet<TVal> &set)
-      DECLTYPE_AUTO(TStlGenerator<TSet<TVal>>::New(set));
+    auto MakeGenerator(const TSet<TVal> &set) {
+      return TStlGenerator<TSet<TVal>>::New(set);
+    }
 
     template <typename TKey, typename TVal>
-    auto MakeGenerator(const TDict<TKey, TVal> &dict)
-      DECLTYPE_AUTO((TStlGenerator<TDict<TKey, TVal>>::New(dict)));
+    auto MakeGenerator(const TDict<TKey, TVal> &dict) {
+      return TStlGenerator<TDict<TKey, TVal>>::New(dict);
+    }
 
   } // Rt
 
