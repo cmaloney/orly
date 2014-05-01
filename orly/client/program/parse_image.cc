@@ -53,13 +53,13 @@ static bool ForEachXact(const TProgram *program, const TForXact &cb) {
 }
 
 bool Orly::Client::Program::ParseImageFile(const char *path, const TForXact &cb) {
-  bool result = ForEachXact(unique_ptr<TProgram>(TProgram::ParseFile(path)).get(), cb);
+  bool result = ForEachXact(TProgram::ParseFile(path).get(), cb);
   Tools::Nycr::TNode::DeleteEach();
   return result;
 }
 
 bool Orly::Client::Program::ParseImageStr(const char *str, const TForXact &cb) {
-  bool result = ForEachXact(unique_ptr<TProgram>(TProgram::ParseStr(str)).get(), cb);
+  bool result = ForEachXact(TProgram::ParseStr(str).get(), cb);
   Tools::Nycr::TNode::DeleteEach();
   return result;
 }

@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <functional>
+#include <memory>
 
 #include <base/assert_true.h>
 #include <base/class_traits.h>
@@ -38,54 +39,48 @@ namespace Base {
 
     /* TODO */
     TSafeGlobal(const TFactory &factory)
-        : Factory(factory), Val(0), Constructing(false) {}
-
-    /* TODO */
-    ~TSafeGlobal() {
-      assert(this);
-      delete Val;
-    }
+        : Factory(factory), Constructing(false) {}
 
     /* TODO */
     const TVal &operator*() const {
       assert(this);
       Freshen();
-      return *AssertTrue(Val);
+      return *AssertTrue(Val).get();
     }
 
     /* TODO */
     TVal &operator*() {
       assert(this);
       Freshen();
-      return *AssertTrue(Val);
+      return *AssertTrue(Val).get();
     }
 
     /* TODO */
     const TVal *operator->() const {
       assert(this);
       Freshen();
-      return AssertTrue(Val);
+      return AssertTrue(Val).get();
     }
 
     /* TODO */
     TVal *operator->() {
       assert(this);
       Freshen();
-      return AssertTrue(Val);
+      return AssertTrue(Val).get();
     }
 
     /* TODO */
     const TVal *GetObj() const {
       assert(this);
       Freshen();
-      return AssertTrue(Val);
+      return AssertTrue(Val).get();
     }
 
     /* TODO */
     TVal *GetObj() {
       assert(this);
       Freshen();
-      return AssertTrue(Val);
+      return AssertTrue(Val).get();
     }
 
     private:
@@ -97,7 +92,7 @@ namespace Base {
       if (!Val) {
         assert(!Constructing);
         Constructing = true;
-        Val = Factory();
+        Val = std::unique_ptr<TVal>(Factory());
         assert(Val);
         Constructing = false;
       }
@@ -110,7 +105,7 @@ namespace Base {
     TFactory Factory;
 
     /* TODO */
-    mutable TVal *Val;
+    mutable std::unique_ptr<TVal> Val;
 
     /* TODO */
     mutable bool Constructing;

@@ -18,6 +18,7 @@
 
 #include <cassert>
 #include <cctype>
+#include <memory>
 #include <stdexcept>
 
 #include <base/class_traits.h>
@@ -151,24 +152,21 @@ namespace Tools {
         str = cur;
       }
 
-      static inline TNode *ParseNode(const char *&str) {
+      static inline std::unique_ptr<TNode> ParseNode(const char *&str) {
         std::string name, kind;
         ParseString(str, name);
-        TNode *node = new TNode(name);
-        try {
-          if (TryMatch(str, '{')) {
-            while (!TryMatch(str, '}')) {
-              ParseString(str, kind);
-              Match(str, '-');
-              Match(str, '>');
-              ParseNode(str)->InsertIntoParent(node, kind);
-            }
-          } else {
-            Match(str, ';');
+        std::unique_ptr<TNode> node(new TNode(name));
+        if (TryMatch(str, '{')) {
+          while (!TryMatch(str, '}')) {
+            ParseString(str, kind);
+            Match(str, '-');
+            Match(str, '>');
+            auto child_node = ParseNode(str);
+            child_node->InsertIntoParent(node.get(), kind);
+            child_node.release();
           }
-        } catch (...) {
-          delete node;
-          throw;
+        } else {
+          Match(str, ';');
         }
         return node;
       }

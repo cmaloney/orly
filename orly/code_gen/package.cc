@@ -153,17 +153,12 @@ TPackage::TPackage(const Symbol::TPackage::TPtr &package) : L0::TPackage(package
 
   for(auto &test: package->GetTests()) {
     assert(&test); // To keep GCC from warning about unused variables.
-    std::unique_ptr<TTest> test_ptr(new TTest(this, test, TestIdGen));
-    Tests.push_back(test_ptr.get());
-    test_ptr.release();
+    //TODO: make_unique
+    Tests.push_back(std::unique_ptr<TTest>(new TTest(this, test, TestIdGen)));
   }
 }
 
-TPackage::~TPackage() {
-  for(auto &test: Tests) {
-    delete test;
-  }
-}
+TPackage::~TPackage() {}
 
 void TPackage::Emit(const Jhm::TAbsBase &out_dir) const {;
   assert(this);
@@ -399,7 +394,7 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
     }
     out << "}," << Eol
         << "/* tests */ std::vector<const Package::TTest*>{" << Eol;
-        Join(',', Tests, [](const TTest *test, TCppPrinter &out) {
+        Join(',', Tests, [](const std::unique_ptr<TTest> &test, TCppPrinter &out) {
           out << "&TI_" << test->GetId() << Eol;
         }, out);
     out << "}," << Eol

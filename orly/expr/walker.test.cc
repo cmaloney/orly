@@ -42,21 +42,14 @@ NOTE: Copied in <orly/expr/addr_walker.test.cc> */
 bool PrintCmds = false;
 
 Symbol::TPackage::TPtr MakePackage(const string &orlyscript) {
-  TPackage *cst = TPackage::ParseStr(orlyscript.c_str());
+  auto cst = TPackage::ParseStr(orlyscript.c_str());
   if(Tools::Nycr::TError::GetFirstError()) {
     //Syntax error!
     Tools::Nycr::TError::PrintSortedErrors(std::cout);
     Tools::Nycr::TError::DeleteEach();
     throw std::invalid_argument("Orlyscript has syntax errors");
   }
-  try {
-    auto synth = new Orly::Synth::TPackage(Jhm::TNamespace(""), cst, false);
-
-    return synth->GetSymbol();
-  } catch (...) {
-    delete cst;
-    throw;
-  }
+  return (new Orly::Synth::TPackage(Jhm::TNamespace(""), cst.get(), false))->GetSymbol();
 }
 
 /* Given a Orlyscript string, collects all of the objects used in the script */

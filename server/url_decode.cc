@@ -60,38 +60,38 @@ void Server::UrlDecode(const TPiece<const char> &in, std::string &out) {
   char *str = new char[in.GetSize()];
   memcpy(str, in.GetStart(), in.GetSize());
 
-  //Convert the string character by character until the whole thing is decoded
-  char *store_csr = str;
-  const char *read_csr = in.GetStart();
+  try {
+    //Convert the string character by character until the whole thing is decoded
+    char *store_csr = str;
+    const char *read_csr = in.GetStart();
 
-  while(read_csr < in.GetLimit()) {
-    if(*read_csr == '+') {
-      *store_csr = ' ';
-      ++read_csr;
-      ++store_csr;
+    while(read_csr < in.GetLimit()) {
+      if(*read_csr == '+') {
+        *store_csr = ' ';
+        ++read_csr;
+        ++store_csr;
 
-    } else if(*read_csr != '%') {
-      *store_csr = *read_csr;
+      } else if(*read_csr != '%') {
+        *store_csr = *read_csr;
 
-      ++read_csr;
-      ++store_csr;
+        ++read_csr;
+        ++store_csr;
 
-    } else {
-      ++read_csr;
-      if(read_csr + 2 > in.GetLimit()) {
-        throw TUrlDecodeError(read_csr - in.GetStart(), "Expected two hex digits, but found end of stream");
+      } else {
+        ++read_csr;
+        if(read_csr + 2 > in.GetLimit()) {
+          throw TUrlDecodeError(read_csr - in.GetStart(), "Expected two hex digits, but found end of stream");
+        }
+        unsigned char buf = HexToNum(read_csr, in.GetStart()) * 16;
+        ++read_csr;
+        buf += HexToNum(read_csr, in.GetStart());
+        ++read_csr;
+        *store_csr = buf;
+        ++store_csr;
       }
-      unsigned char buf = HexToNum(read_csr, in.GetStart()) * 16;
-      ++read_csr;
-      buf += HexToNum(read_csr, in.GetStart());
-      ++read_csr;
-      *store_csr = buf;
-      ++store_csr;
     }
-  }
 
   //convert the temporary buffer into a std::string
-  try {
     out.assign(str, store_csr - str);
   } catch (...) {
     delete [] str;

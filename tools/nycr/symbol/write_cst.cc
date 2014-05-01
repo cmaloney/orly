@@ -109,7 +109,7 @@ static void WriteCstCc(const char *root, const char *branch, const char *atom, c
       << "using namespace std;" << endl
       << TUsingNamespace(language)
       << TType(language->GetName()) << " *" << TUpper(language->GetName()) << "_ = 0;" << endl << endl
-      << TType(language->GetName()) << " *" << TType(language->GetName()) << "::ParseFile(const char *path) {" << endl
+      << "unique_ptr<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseFile(const char *path) {" << endl
       << "  " << TUnderscore(language) << "in = fopen(path, \"r\");" << endl
       << "  if (!" << TUnderscore(language) << "in) {" << endl
       << "    THROW << \"could not open \\\"\" << path << '\\\"';" << endl
@@ -117,16 +117,16 @@ static void WriteCstCc(const char *root, const char *branch, const char *atom, c
       << "  " << TUpper(language->GetName()) << "_ = 0;" << endl
       << "  ::Tools::Nycr::TError::DeleteEach();" << endl
       << "  " << TUnderscore(language) << "parse();" << endl
-      << "  return " << TUpper(language->GetName()) << "_;" << endl
+      << "  return std::unique_ptr<" << TType(language->GetName()) << ">(" << TUpper(language->GetName()) << "_);" << endl
       << '}' << endl
       << endl
-      << TType(language->GetName()) << " *" << TType(language->GetName()) << "::ParseStr(const char *str) {" << endl
+      << "unique_ptr<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseStr(const char *str) {" << endl
       << "  " << TUpper(language->GetName()) << "_ = 0;" << endl
       << "  ::Tools::Nycr::TError::DeleteEach();" << endl
       << "  " << TUnderscore(language) << "NycrPrepStr(str);"<<endl
       << "  " << TUnderscore(language) << "parse();" << endl
       << "  " << TUnderscore(language) << "NycrCleanStr();" <<endl
-      << "  return " << TUpper(language->GetName()) << "_;" << endl
+      << "  return std::unique_ptr<" << TType(language->GetName()) << ">(" << TUpper(language->GetName()) << "_);" << endl
       << '}' << endl;
   ForEachKnownKind(language, bind(WriteDef, _1, ref(strm)));
 }
@@ -259,8 +259,8 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
       Strm << "  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;" << endl;
       Strm << "  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;" << endl;
       if (is_language) {
-        Strm << "  static " << TType(that->GetName()) << " *ParseFile(const char *path);" << endl;
-        Strm << "  static " << TType(that->GetName()) << " *ParseStr(const char *str);" << endl;
+        Strm << "  static std::unique_ptr<" << TType(that->GetName()) << "> ParseFile(const char *path);" << endl;
+        Strm << "  static std::unique_ptr<" << TType(that->GetName()) << "> ParseStr(const char *str);" << endl;
       }
       if (!members_in_order.empty()) {
         Strm << "  private:" << endl;

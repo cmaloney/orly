@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cstddef>
 #include <functional>
+#include <memory>
 
 #include <base/assert_true.h>
 #include <base/stl_utils.h>
@@ -59,14 +60,7 @@ namespace Base {
     NO_COPY(TIterHolder);
     public:
     TIterHolder(TIter<TVal>* iter) : Iter(Base::AssertTrue(iter)) {}
-    ~TIterHolder() {
-      if (Iter) {
-        delete Iter;
-      }
-    }
-    TIterHolder(TIterHolder &&that) : Iter(that.Iter) {
-      that.Iter = 0;
-    }
+    TIterHolder(TIterHolder &&that) : Iter(std::move(that.Iter)) {}
 
     virtual operator bool() const {
       assert(this);
@@ -97,7 +91,7 @@ namespace Base {
     }
 
     private:
-    TIter<TVal> *Iter;
+    std::unique_ptr<TIter<TVal>> Iter;
   };
 
 

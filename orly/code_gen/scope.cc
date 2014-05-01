@@ -47,10 +47,6 @@ TId<TIdKind::Var> TIdScope::NewVar() {
 TCodeScope::TCodeScope(const TIdScope::TPtr &id_scope)
     : IdScope(id_scope), Interner(new TInterner(this)), Stmts(new TStmtBlock()) {}
 
-TCodeScope::~TCodeScope() {
-  delete Interner;
-}
-
 void TCodeScope::AddAssertion(const std::string &name, const TInline::TPtr &assertion) {
   assert(this);
   assert(&name);
@@ -83,7 +79,7 @@ TIdScope::TPtr TCodeScope::GetIdScope() const {
 
 TInterner *TCodeScope::GetInterner() const {
   assert(this);
-  return Interner;
+  return Interner.get();
 }
 
 const TCodeScope::TLocals &TCodeScope::GetLocals() const {

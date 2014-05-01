@@ -42,31 +42,6 @@ namespace Base {
     return container.find(key) != container.end();
   }
 
-  /* Deletes each key in an associative container. */
-  template <typename TContainer>
-  void DeleteEachKey(TContainer &container) {
-    for (auto iter = container.begin(); iter != container.end(); ++iter) {
-      delete iter->first;
-    }
-  }
-
-  /* Deletes each key and value in an associative container. */
-  template <typename TContainer>
-  void DeleteEachKeyAndValue(TContainer &container) {
-    for (auto iter = container.begin(); iter != container.end(); ++iter) {
-      delete iter->first;
-      delete iter->second;
-    }
-  }
-
-  /* Deletes each value in an associative container. */
-  template <typename TContainer>
-  void DeleteEachValue(TContainer &container) {
-    for (auto iter = container.begin(); iter != container.end(); ++iter) {
-      delete iter->second;
-    }
-  }
-
   /* Erase the given value from the container.  If the value is not in the container, fail an assertion. */
   template <typename TContainer>
   void EraseOrFail(TContainer &container, const typename TContainer::key_type &key) {

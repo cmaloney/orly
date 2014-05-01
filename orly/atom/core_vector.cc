@@ -18,6 +18,7 @@
 
 #include <orly/atom/core_vector.h>
 
+#include <base/assert_true.h>
 #include <cstdint>
 #include <cstdlib>
 #include <new>
@@ -26,18 +27,11 @@ using namespace std;
 using namespace Io;
 using namespace Orly::Atom;
 
-TCoreVector::TCoreVector(TBinaryInputStream &strm) {
-  assert(&strm);
-  Arena = new TPackedArena(strm);
+TCoreVector::TCoreVector(TBinaryInputStream &strm) : Arena(strm) {
   uint32_t size;
   strm >> size;
   Cores.resize(size);
   strm.ReadExactly(&Cores[0], size * sizeof(TCore));
-}
-
-TCoreVector::~TCoreVector() {
-  assert(this);
-  delete Arena;
 }
 
 TCoreVector::TPackedArena::TPackedArena(TBinaryInputStream &strm)

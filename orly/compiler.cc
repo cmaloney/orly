@@ -56,8 +56,7 @@ class TPackageBuilder {
 
   void BuildSymbols(const TAbsBase &src_root) {
     assert(this);
-    Cst = unique_ptr<Package::Syntax::TPackage>(Package::Syntax::TPackage::ParseFile(
-        TAbsPath(src_root, RelPath).AsStr().c_str()));
+    Cst = Package::Syntax::TPackage::ParseFile(TAbsPath(src_root, RelPath).AsStr().c_str());
     if (!HasErrors()) {
       assert(Cst);
       Synth = unique_ptr<Synth::TPackage>(new Synth::TPackage(RelPath.ToNamespaceIncludingName(), &*Cst, false));

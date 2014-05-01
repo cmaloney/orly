@@ -25,8 +25,6 @@ using namespace Orly::Command::Syntax;
 using namespace Tools::Nycr::Test;
 
 FIXTURE(Typical) {
-  auto cst = TCommand::ParseStr("1+2a");
-  auto cst2 = TCommand::ParseStr("2b1a");
-  delete cst2;
-  delete cst;
+  TCommand::ParseStr("1+2a");
+  TCommand::ParseStr("2b1a");
 }
