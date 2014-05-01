@@ -46,7 +46,6 @@
 
 #pragma once
 
-#include <c14/utility.h>
 #include <type_traits>
 #include <tuple>
 #include <utility>
@@ -54,7 +53,7 @@
 namespace c14 {
 
   template <typename F, typename TTuple, std::size_t... Idx>
-  decltype(auto) apply(F &&f, TTuple &&tuple, c14::index_sequence<Idx...> &&) {
+  decltype(auto) apply(F &&f, TTuple &&tuple, std::index_sequence<Idx...> &&) {
         return std::forward<F>(f)(std::get<Idx>(std::forward<TTuple>(tuple))...);
   }
 
@@ -62,7 +61,7 @@ namespace c14 {
   decltype(auto)  apply(F &&f, TTuple &&tuple) {
     return apply(std::forward<F>(f),
                  std::forward<TTuple>(tuple),
-                 c14::make_index_sequence<std::tuple_size<c14::decay_t<TTuple> >::value>());
+                 std::make_index_sequence<std::tuple_size<std::decay_t<TTuple> >::value>());
   }
 
 }  // c14

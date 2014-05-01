@@ -44,12 +44,10 @@ static_assert(std::is_same<TExtend<TTypeList<int, double>, TTypeList<>>, TTypeLi
 static_assert(std::is_same<TExtend<TTypeList<double>, TTypeList<std::string>>, TTypeList<double, std::string>>::value, "");
 
 // TGetSlice<TList, IndexSequence>
-static_assert(std::is_same<TGetSlice<TTypeList<int, int>, c14::make_index_sequence<1>>, TTypeList<int>>::value, "");
+static_assert(std::is_same<TGetSlice<TTypeList<int, int>, std::make_index_sequence<1>>, TTypeList<int>>::value, "");
 static_assert(std::is_same<TGetSlice<TTypeList<std::string, int>, c14::make_index_range<0, 2>>, TTypeList<std::string, int>>::value, "");
 static_assert(std::is_same<TGetSlice<TTypeList<int, double, double>, c14::make_index_range<1, 2>>, TTypeList<double>>::value, "");
-static_assert(std::is_same<TGetSlice<TTypeList<std::string, double, std::string>, c14::index_sequence<0, 2>>,
-                           TTypeList<std::string, std::string>>::value,
-              "");
+static_assert(std::is_same<TGetSlice<TTypeList<std::string, double, std::string>, std::index_sequence<0, 2> >, TTypeList<std::string, std::string> >::value, "");
 
 // TGetUnique<TTypeList>
 static_assert(std::is_same<TGetUnique<TTypeList<int, int>>, TTypeList<int>>::value, "");

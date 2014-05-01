@@ -21,34 +21,21 @@
 #include <c14/identity.h>
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
 namespace c14 {
-
-  /* integer_sequence<>. */
-  template <typename T, T... Ints>
-  struct integer_sequence : public std::integral_constant<std::size_t, sizeof...(Ints)> {};
 
   template <typename T, T Cur, T End, T... Ints>
   struct make_integer_range_impl;
 
   template <typename T, T End, T... Ints>
-  struct make_integer_range_impl<T, End, End, Ints...> : public c14::identity<integer_sequence<T, Ints...>> {};
+  struct make_integer_range_impl<T, End, End, Ints...> : public c14::identity<std::integer_sequence<T, Ints...>> {};
 
   template <typename T, T Cur, T End, T... Ints>
   struct make_integer_range_impl : public make_integer_range_impl<T, Cur + 1, End, Ints..., Cur> {};
 
   template <typename T, T Begin, T End>
   using make_integer_range = typename make_integer_range_impl<T, Begin, End>::type;
-
-  template <typename T, T N>
-  using make_integer_sequence = make_integer_range<T, 0, N>;
-
-  /* index_sequence<>. */
-  template <std::size_t... Idxs>
-  using index_sequence = integer_sequence<std::size_t, Idxs...>;
-
-  template <std::size_t Idx>
-  using make_index_sequence = make_integer_sequence<std::size_t, Idx>;
 
   template <std::size_t Begin, std::size_t End>
   using make_index_range = make_integer_range<std::size_t, Begin, End>;
