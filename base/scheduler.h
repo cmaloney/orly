@@ -48,6 +48,7 @@
 #include <base/class_traits.h>
 #include <base/opt.h>
 #include <base/shutting_down.h>
+#include <base/thrower.h>
 #include <signal/handler_installer.h>
 #include <signal/set.h>
 
@@ -63,6 +64,8 @@ namespace Base {
 
     /* A function to be scheduled by RunUntilCtrlC(). */
     using TMainJob = std::function<void (TScheduler *)>;
+
+    DEFINE_ERROR(TJobExit, std::runtime_error, "Job exiting via 'graceful' exception");
 
     /* Destribes a set of rules for managing workers. */
     class TPolicy {

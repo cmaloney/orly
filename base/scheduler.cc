@@ -202,6 +202,7 @@ void TScheduler::TWorker::ThreadMain() {
           }
           syslog(LOG_INFO, "worker %p; interrupted", this);
         }
+      } catch (const TJobExit &ex) { // Job intentionally threw to exit. Don't log.
       } catch (const exception &ex) {
         syslog(LOG_ERR, "worker %p; job threw standard exception; %s", this, ex.what());
       } catch (...) {

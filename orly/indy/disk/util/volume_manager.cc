@@ -1835,7 +1835,7 @@ void TVolume::TStrategy::DiscardRunner() {
       int ret = epoll_wait(DiscardEpollFd, &event, 1, timeout);
       if (ret < 0 && errno == EINTR) {
         if (Base::ShuttingDown) {
-          throw std::runtime_error("Discard() runner shutting down.");
+          throw TScheduler::TJobExit("Discard() runner shutting down.");
         } else {
           continue;
         }
