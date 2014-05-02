@@ -94,7 +94,7 @@
 #pragma once
 
 #include <cassert>
-#include <c14/apply.h>
+#include <base/apply.h>
 #include <c14/identity.h>
 #include <c14/utility.h>
 #include <type_traits>
@@ -136,7 +136,7 @@ namespace Visitor {
     /* We take arbitrary number of arguments and we call the TVerb::operator() along with the bound arguments that we cached. */
     template <typename... TUnboundArgs>
     void operator()(TUnboundArgs &&... args) const {
-      Result = c14::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
+      Result = Base::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
     }
 
     private:
@@ -164,7 +164,7 @@ namespace Visitor {
     /* We take arbitrary number of arguments and we call the TVerb::operator() along with the bound arguments that we cached. */
     template <typename... TUnboundArgs>
     void operator()(TUnboundArgs &&... args) const {
-      Result = &c14::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
+      Result = &Base::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
     }
 
     private:
@@ -193,7 +193,7 @@ namespace Visitor {
     /* See above. */
     template <typename... TUnboundArgs>
     void operator()(TUnboundArgs &&... args) const {
-      c14::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
+      Base::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
     }
 
     private:
