@@ -13,7 +13,6 @@
 #include <mpl/merge.h>
 #include <mpl/not.h>
 #include <mpl/reverse.h>
-#include <mpl/sort.h>
 #include <mpl/type_list.h>
 #include <mpl/type_set.h>
 
@@ -45,8 +44,8 @@ static_assert(std::is_same<TExtend<TTypeList<double>, TTypeList<std::string>>, T
 
 // TGetSlice<TList, IndexSequence>
 static_assert(std::is_same<TGetSlice<TTypeList<int, int>, std::make_index_sequence<1>>, TTypeList<int>>::value, "");
-static_assert(std::is_same<TGetSlice<TTypeList<std::string, int>, c14::make_index_range<0, 2>>, TTypeList<std::string, int>>::value, "");
-static_assert(std::is_same<TGetSlice<TTypeList<int, double, double>, c14::make_index_range<1, 2>>, TTypeList<double>>::value, "");
+//static_assert(std::is_same<TGetSlice<TTypeList<std::string, int>, c14::make_index_range<0, 2>>, TTypeList<std::string, int>>::value, "");
+//static_assert(std::is_same<TGetSlice<TTypeList<int, double, double>, c14::make_index_range<1, 2>>, TTypeList<double>>::value, "");
 static_assert(std::is_same<TGetSlice<TTypeList<std::string, double, std::string>, std::index_sequence<0, 2> >, TTypeList<std::string, std::string> >::value, "");
 
 // TGetUnique<TTypeList>
