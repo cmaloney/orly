@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <c14/identity.h>
 #include <type_traits>
 
+#include <base/identity.h>
 #include <mpl/conditional.h>
 #include <mpl/extend.h>
 #include <mpl/type_list.h>
@@ -42,7 +42,7 @@ namespace Mpl {
 
   /* Base case. */
   template <typename TList_, typename TSet_>
-  struct GetUniqueRecur<TList_, TSet_, TTypeList<>> : public c14::identity<TList_> {};
+  struct GetUniqueRecur<TList_, TSet_, TTypeList<>> : public Base::identity<TList_> {};
 
   /* Recursive case. */
   template <typename TList_, typename TSet_, typename TElem, typename... TMoreElems>

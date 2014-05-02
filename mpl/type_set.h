@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <base/identity.h>
 #include <mpl/type_list.h>
 #include <mpl/get_unique.h>
 
@@ -45,7 +46,7 @@ namespace Mpl {
   struct GetList;
 
   template <typename... TElems>
-  struct GetList<TTypeSet<TElems...>> : public c14::identity<typename TTypeSet<TElems...>::TList> {};
+  struct GetList<TTypeSet<TElems...>> : public Base::identity<typename TTypeSet<TElems...>::TList> {};
 
   template <typename TContainer>
   using TGetList = typename GetList<TContainer>::type;

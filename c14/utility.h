@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <c14/identity.h>
+#include <base/identity.h>
 #include <cstddef>
 #include <type_traits>
 #include <utility>
@@ -29,7 +29,7 @@ namespace c14 {
   struct make_integer_range_impl;
 
   template <typename T, T End, T... Ints>
-  struct make_integer_range_impl<T, End, End, Ints...> : public c14::identity<std::integer_sequence<T, Ints...>> {};
+  struct make_integer_range_impl<T, End, End, Ints...> : public Base::identity<std::integer_sequence<T, Ints...>> {};
 
   template <typename T, T Cur, T End, T... Ints>
   struct make_integer_range_impl : public make_integer_range_impl<T, Cur + 1, End, Ints..., Cur> {};

@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <c14/identity.h>
 #include <utility>
 
+#include <base/identity.h>
 #include <mpl/get_at.h>
 #include <mpl/type_list.h>
 
@@ -31,7 +31,7 @@ namespace Mpl {
   struct GetSlice;
 
   template <typename TList, std::size_t... Idx>
-  struct GetSlice<TList, std::index_sequence<Idx...>> : public c14::identity<TTypeList<TGetAt<TList, Idx>...>> {};
+  struct GetSlice<TList, std::index_sequence<Idx...>> : public Base::identity<TTypeList<TGetAt<TList, Idx>...>> {};
 
   template <typename TList, typename IdxSeq>
   using TGetSlice = typename GetSlice<TList, IdxSeq>::type;

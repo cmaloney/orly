@@ -18,13 +18,14 @@
 
 #pragma once
 
+#include <base/identity.h>
 #include <mpl/type_list.h>
 
 namespace Mpl {
 
   /* GetAt. */
   template <std::size_t Idx, typename TElem, typename... TMoreElems>
-  c14::identity<TElem> GetAtImpl(TTypeListRecur<Idx, TElem, TMoreElems...> &&);
+  Base::identity<TElem> GetAtImpl(TTypeListRecur<Idx, TElem, TMoreElems...> &&);
 
   template <typename TList, std::size_t Idx>
   struct GetAt : public decltype(GetAtImpl<Idx>(std::declval<TList>())) {};

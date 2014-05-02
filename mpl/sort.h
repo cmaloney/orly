@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <c14/identity.h>
 #include <c14/utility.h>
 
+#include <base/identity.h>
 #include <mpl/get_size.h>
 #include <mpl/get_slice.h>
 #include <mpl/merge.h>
@@ -35,15 +35,15 @@ namespace Mpl {
   using TSort = typename Sort<TCompare, TList>::type;
 
   template <template <typename, typename> class TCompare>
-  struct Sort<TCompare, TTypeList<>> : public c14::identity<TTypeList<>> {};
+  struct Sort<TCompare, TTypeList<>> : public Base::identity<TTypeList<>> {};
 
   template <template <typename, typename> class TCompare, typename TElem>
-  struct Sort<TCompare, TTypeList<TElem>> : public c14::identity<TTypeList<TElem>> {};
+  struct Sort<TCompare, TTypeList<TElem>> : public Base::identity<TTypeList<TElem>> {};
 
   template <template <typename, typename> class TCompare, typename TList>
   struct Sort : public Merge<
       TCompare,
-      TSort<TCompare, TGetSlice<TList, c14::make_index_range<0, GetSize<TList>::value / 2>>>,
-      TSort<TCompare, TGetSlice<TList, c14::make_index_range<GetSize<TList>::value / 2, GetSize<TList>::value>>>> {};
+      TSort<TCompare, TGetSlice<TList, Base::make_index_range<0, GetSize<TList>::value / 2>>>,
+      TSort<TCompare, TGetSlice<TList, Base::make_index_range<GetSize<TList>::value / 2, GetSize<TList>::value>>>> {};
 
 }  // Mpl
