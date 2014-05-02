@@ -83,6 +83,7 @@ class TSubprocServer final {
         InstanceName = "flapjack";
         MemorySimMB = 512;
         MemorySimSlowMB = 256;
+        EnableMemcache = true;
       }
     } cmd;
     TLog log(cmd);
