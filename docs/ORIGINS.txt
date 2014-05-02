@@ -1,0 +1,5 @@
+Orly is a fork of the open source graph database StigDB produced by a small
+team that had been working exclusively on the project at Tagged, Inc. for the
+past four years. That team now works for OrlyAtomics, Inc and is continuing to
+develop this large-scale database, distributed runtime environment, and
+programming language.
