@@ -96,10 +96,10 @@ void TReplicationStreamer::Read(Io::TBinaryInputStream &strm) {
   assert(!RepoVector);
   assert(!DurableVector);
   assert(!TransactionVector);
-  IndexIdVector = std::unique_ptr<TCoreVector>(new TCoreVector(strm));
-  RepoVector = std::unique_ptr<TCoreVector>(new TCoreVector(strm));
-  DurableVector = std::unique_ptr<TCoreVector>(new TCoreVector(strm));
-  TransactionVector = std::unique_ptr<TCoreVector>(new TCoreVector(strm));
+  IndexIdVector = make_unique<TCoreVector>(strm);
+  RepoVector = make_unique<TCoreVector>(strm);
+  DurableVector = make_unique<TCoreVector>(strm);
+  TransactionVector = make_unique<TCoreVector>(strm);
 }
 
 void TReplicationStreamer::PushIndexId(const TIndexIdReplication &index_id) {

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <c14/type_traits.h>
+#include <type_traits>
 
 #include <mpl/and.h>
 #include <mpl/not.h>

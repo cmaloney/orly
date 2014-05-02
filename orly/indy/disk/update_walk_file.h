@@ -63,7 +63,7 @@ namespace Orly {
               EntryStream(HERE, Source::UpdateWalk, RealTime, this, engine->GetPageCache(), 0),
               Valid(true), Cached(false) {
           for (const auto &idx_pair : IndexById) {
-            ArenaByIndexId.emplace(idx_pair.first, std::unique_ptr<TArena>(new TArena(idx_pair.second.get(), engine->GetCache<PhysicalCachePageSize>(), RealTime)));
+            ArenaByIndexId.emplace(idx_pair.first, std::make_unique<TArena>(idx_pair.second.get(), engine->GetCache<PhysicalCachePageSize>(), RealTime));
           }
           Refresh();
         }

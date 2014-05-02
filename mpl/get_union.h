@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <base/identity.h>
 #include <mpl/type_list.h>
 #include <mpl/type_set.h>
 
@@ -29,7 +30,7 @@ namespace Mpl {
 
   template <typename... TLhsElems, typename... TRhsElems>
   struct GetUnionImpl<TTypeList<TLhsElems...>, TTypeList<TRhsElems...>>
-      : public c14::identity<TTypeSet<TLhsElems..., TRhsElems...>> {};
+      : public Base::identity<TTypeSet<TLhsElems..., TRhsElems...>> {};
 
   template <typename TLhs, typename TRhs>
   using TGetUnionImpl = typename GetUnionImpl<TGetList<TLhs>, TGetList<TRhs>>::type;
@@ -38,7 +39,7 @@ namespace Mpl {
   struct GetUnion;
 
   template <typename... TElems>
-  struct GetUnion<TTypeSet<TElems...>> : public c14::identity<TTypeSet<TElems...>> {};
+  struct GetUnion<TTypeSet<TElems...>> : public Base::identity<TTypeSet<TElems...>> {};
 
   template <typename TFirstSet, typename TSecondSet, typename... TMoreSets>
   struct GetUnion<TFirstSet, TSecondSet, TMoreSets...> : public GetUnion<TGetUnionImpl<TFirstSet, TSecondSet>, TMoreSets...> {};

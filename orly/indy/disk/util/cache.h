@@ -28,7 +28,6 @@
 
 #include <base/class_traits.h>
 #include <base/error_utils.h>
-#include <base/layout.h>
 #include <base/likely.h>
 #include <inv_con/atomic_unordered_list.h>
 #include <orly/indy/disk/util/hash_util.h>
@@ -786,7 +785,7 @@ namespace Orly {
           private:
 
           /* TODO */
-          class ALIGNED(64) TLRU {
+          class alignas(64) TLRU {
             NO_COPY(TLRU);
             public:
 

@@ -61,12 +61,13 @@ namespace Base {
 
     /* Execute the given command in a shell.  This will replace the calling process
        entirely with the shell process, so don't expect this function to return. */
-    static void Exec(const char *cmd) __attribute__((noreturn));
+    [[noreturn]] static void Exec(const char *cmd);
 
     /* Fork a new child process.  If we are the parent, return a pointer to a newly
        allocated TSubprocess instance.  If we are the child, return null. */
     static std::unique_ptr<TSubprocess> New(TPump &pump) {
-      std::unique_ptr<TSubprocess> result(new TSubprocess(pump));
+      // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2070
+      auto result = std::unique_ptr<TSubprocess>(new TSubprocess(pump));
       if (!result->ChildId) {
         result.reset();
       }

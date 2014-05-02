@@ -1,4 +1,4 @@
-/* <c14/identity.h>
+/* <base/identity.h>
 
    Identity type trait.
 
@@ -64,7 +64,7 @@
 
 #pragma once
 
-namespace c14 {
+namespace Base {
 
   template <typename T>
   struct identity {
@@ -74,4 +74,4 @@ namespace c14 {
   template <typename T>
   using identity_t = typename identity<T>::type;
 
-}  // c14
+}  // Base

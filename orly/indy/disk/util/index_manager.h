@@ -62,7 +62,7 @@ namespace Orly {
                 CsrVec.push_back(std::unique_ptr<typename Indy::Util::TSorter<TVal, MemSize>::TCursor>(new typename TSortFile::TCursor(&*csr, read_ahead_per_csr)));
               }
               CsrVec.push_back(std::unique_ptr<typename Indy::Util::TSorter<TVal, MemSize>::TCursor>(new typename Indy::Util::TSorter<TVal, MemSize>::TMemCursor(&Manager->MemSorter)));
-              MinHeap = std::unique_ptr<Indy::Util::TMinHeap<TVal, size_t, TComparator>>(new Indy::Util::TMinHeap<TVal, size_t, TComparator>(CsrVec.size(), manager->Comp));
+              MinHeap = std::make_unique<Indy::Util::TMinHeap<TVal, size_t, TComparator>>(CsrVec.size(), manager->Comp);
               for (size_t i = 0; i < CsrVec.size(); ++i) {
                 typename Indy::Util::TSorter<TVal, MemSize>::TCursor &csr = *CsrVec[i];
                 if (csr) {

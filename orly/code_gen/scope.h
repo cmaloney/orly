@@ -70,6 +70,8 @@ namespace Orly {
          their own id generators as */
       TCodeScope(const TIdScope::TPtr &id_scope);
 
+      ~TCodeScope();
+
       /* Add an assertion to the scope */
       void AddAssertion(const std::string &name, const TInline::TPtr &assertion);
 
@@ -94,7 +96,7 @@ namespace Orly {
 
       TIdScope::TPtr IdScope;
 
-      std::unique_ptr<TInterner> Interner;
+      TInterner *Interner;
 
       /* Common subexpressions that will need definitions. */
       TLocals Locals;

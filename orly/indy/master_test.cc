@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
       (*cb)(client_fd);
     });
   };
-  unique_ptr<TManager> master(new TManager(MasterPath,
+  auto master = std::make_unique<TManager>(MasterPath,
                                            MasterDeviceName,
                                            BlockSize,
                                            CacheSize,

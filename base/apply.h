@@ -1,4 +1,4 @@
-/* <c14/apply.h>
+/* <base/apply.h>
 
    Defines a function which takes a callable thing (such as functions, function objects, lambdas, etc.) and invokes it with the
    elements of a tuple.
@@ -30,6 +30,8 @@
    the indices of the elements to be passed to the function. So we can use this to do things like, pass the same argument multiple
    times, reorder the arguments so that it fits the function signature, pass a slice of the tuple, etc.
 
+   NOTE: Replace with https://github.com/cplusplus/fundamentals-ts when it's standardized
+
    Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,22 +48,22 @@
 
 #pragma once
 
-#include <c14/lang.h>
-#include <c14/type_traits.h>
-#include <c14/utility.h>
+#include <type_traits>
 #include <tuple>
 #include <utility>
 
-namespace c14 {
+namespace Base {
 
   template <typename F, typename TTuple, std::size_t... Idx>
-  auto apply(F &&f, TTuple &&tuple, c14::index_sequence<Idx...> &&)
-      DECLTYPE_AUTO(std::forward<F>(f)(std::get<Idx>(std::forward<TTuple>(tuple))...));
+  decltype(auto) apply(F &&f, TTuple &&tuple, std::index_sequence<Idx...> &&) {
+        return std::forward<F>(f)(std::get<Idx>(std::forward<TTuple>(tuple))...);
+  }
 
   template <typename F, typename TTuple>
-  auto apply(F &&f, TTuple &&tuple)
-      DECLTYPE_AUTO(apply(std::forward<F>(f),
-                          std::forward<TTuple>(tuple),
-                          c14::make_index_sequence<std::tuple_size<c14::decay_t<TTuple>>::value>()));
+  decltype(auto)  apply(F &&f, TTuple &&tuple) {
+    return apply(std::forward<F>(f),
+                 std::forward<TTuple>(tuple),
+                 std::make_index_sequence<std::tuple_size<std::decay_t<TTuple> >::value>());
+  }
 
-}  // c14
+}  // base

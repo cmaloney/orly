@@ -105,7 +105,7 @@ void TFileSync::Read(Io::TBinaryInputStream &stream) {
                                           #endif
                                           [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
     size_t compressed_size = 0UL;
-    std::unique_ptr<TBufBlock> buf_block(new TBufBlock());
+    auto buf_block = std::make_unique<TBufBlock>();
     for (size_t amt_decompressed = 0UL; amt_decompressed < file_length;) {
       stream >> compressed_size;
       Snappy::TIoStreamSource stream_source(stream, compressed_size);

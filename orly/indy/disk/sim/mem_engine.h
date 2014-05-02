@@ -121,25 +121,25 @@ namespace Orly {
               }
             };
             for (size_t i = 0; i < NumFastMemDevice; ++i) {
-              FastMemDeviceArray[i] = std::unique_ptr<Util::TMemoryDevice>(new Util::TMemoryDevice(logical_block_size, physical_block_size, num_fast_logical_block / NumFastMemDevice, true /* fsync */, true));
+              FastMemDeviceArray[i] = std::make_unique<Util::TMemoryDevice>(logical_block_size, physical_block_size, num_fast_logical_block / NumFastMemDevice, true /* fsync */, true);
             }
             for (size_t i = 0; i < NumSlowMemDevice; ++i) {
-              SlowMemDeviceArray[i] = std::unique_ptr<Util::TMemoryDevice>(new Util::TMemoryDevice(logical_block_size, physical_block_size, num_slow_logical_block / NumSlowMemDevice, true /* fsync */, true));
+              SlowMemDeviceArray[i] = std::make_unique<Util::TMemoryDevice>(logical_block_size, physical_block_size, num_slow_logical_block / NumSlowMemDevice, true /* fsync */, true);
             }
-            FastVolume = std::unique_ptr<Util::TVolume>(new Util::TVolume(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, FastMemDeviceArray[0]->GetDesc(), Util::TVolume::TDesc::Fast, 1UL, NumFastMemDevice, num_logical_block_per_stripe, min_discard_blocks, high_utilization_threshold}, CacheCb, scheduler));
-            SlowVolume = std::unique_ptr<Util::TVolume>(new Util::TVolume(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, SlowMemDeviceArray[0]->GetDesc(), Util::TVolume::TDesc::Slow, 1UL, NumSlowMemDevice, num_logical_block_per_stripe, min_discard_blocks, high_utilization_threshold}, CacheCb, scheduler));
+            FastVolume = std::make_unique<Util::TVolume>(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, FastMemDeviceArray[0]->GetDesc(), Util::TVolume::TDesc::Fast, 1UL, NumFastMemDevice, num_logical_block_per_stripe, min_discard_blocks, high_utilization_threshold}, CacheCb, scheduler);
+            SlowVolume = std::make_unique<Util::TVolume>(Util::TVolume::TDesc{Util::TVolume::TDesc::Striped, SlowMemDeviceArray[0]->GetDesc(), Util::TVolume::TDesc::Slow, 1UL, NumSlowMemDevice, num_logical_block_per_stripe, min_discard_blocks, high_utilization_threshold}, CacheCb, scheduler);
             for (size_t i = 0; i < NumFastMemDevice; ++i) {
               FastVolume->AddDevice(FastMemDeviceArray[i].get(), i);
             }
             for (size_t i = 0; i < NumSlowMemDevice; ++i) {
               SlowVolume->AddDevice(SlowMemDeviceArray[i].get(), i);
             }
-            VolMan = std::unique_ptr<Util::TVolumeManager>(new Util::TVolumeManager(scheduler));
+            VolMan = std::make_unique<Util::TVolumeManager>(scheduler);
             VolMan->AddNewVolume(FastVolume.get());
             VolMan->AddNewVolume(SlowVolume.get());
-            PageCache = std::unique_ptr<Util::TPageCache>(new Util::TPageCache(VolMan.get(), page_cache_size, num_page_lru));
-            BlockCache = std::unique_ptr<Util::TBlockCache>(new Util::TBlockCache(VolMan.get(), block_cache_size, num_block_lru));
-            Engine = std::unique_ptr<Util::TEngine>(new Util::TEngine(VolMan.get(), PageCache.get(), BlockCache.get(), &TestFileService, false));
+            PageCache = std::make_unique<Util::TPageCache>(VolMan.get(), page_cache_size, num_page_lru);
+            BlockCache = std::make_unique<Util::TBlockCache>(VolMan.get(), block_cache_size, num_block_lru);
+            Engine = std::make_unique<Util::TEngine>(VolMan.get(), PageCache.get(), BlockCache.get(), &TestFileService, false);
           }
 
           /* TODO */

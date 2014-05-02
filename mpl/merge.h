@@ -18,8 +18,9 @@
 
 #pragma once
 
-#include <c14/identity.h>
-#include <c14/type_traits.h>
+#include <type_traits>
+
+#include <base/identity.h>
 #include <mpl/extend.h>
 #include <mpl/type_list.h>
 
@@ -32,13 +33,13 @@ namespace Mpl {
   using TMerge = typename Merge<TCompare, TLhs, TRhs>::type;
 
   template <template <typename, typename> class TCompare>
-  struct Merge<TCompare, TTypeList<>, TTypeList<>> : public c14::identity<TTypeList<>> {};
+  struct Merge<TCompare, TTypeList<>, TTypeList<>> : public Base::identity<TTypeList<>> {};
 
   template <template <typename, typename> class TCompare, typename... TLhsElems>
-  struct Merge<TCompare, TTypeList<TLhsElems...>, TTypeList<>> : public c14::identity<TTypeList<TLhsElems...>> {};
+  struct Merge<TCompare, TTypeList<TLhsElems...>, TTypeList<>> : public Base::identity<TTypeList<TLhsElems...>> {};
 
   template <template <typename, typename> class TCompare, typename... TRhsElems>
-  struct Merge<TCompare, TTypeList<>, TTypeList<TRhsElems...>> : public c14::identity<TTypeList<TRhsElems...>> {};
+  struct Merge<TCompare, TTypeList<>, TTypeList<TRhsElems...>> : public Base::identity<TTypeList<TRhsElems...>> {};
 
   template <template <typename, typename> class TCompare,
             typename TLhsElem,

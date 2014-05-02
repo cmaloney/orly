@@ -94,13 +94,12 @@
 #pragma once
 
 #include <cassert>
-#include <c14/apply.h>
-#include <c14/identity.h>
-#include <c14/lang.h>
-#include <c14/type_traits.h>
-#include <c14/utility.h>
+#include <utility>
+#include <type_traits>
 #include <tuple>
 
+#include <base/apply.h>
+#include <base/identity.h>
 #include <mpl/get_at.h>
 #include <mpl/type_list.h>
 #include <mpl/type_set.h>
@@ -113,8 +112,9 @@ namespace Visitor {
      If it's a reference, we wrap the underlying type in a reference_wrapper<>, otherwise we decay the type, which means the value
      will either move or copy in. */
   template <typename T>
-  using TCapture =
-      c14::conditional_t<std::is_lvalue_reference<T>::value, std::reference_wrapper<c14::remove_reference_t<T>>, c14::decay_t<T>>;
+  using TCapture = std::conditional_t<std::is_lvalue_reference<T>::value,
+                                      std::reference_wrapper<std::remove_reference_t<T>>,
+                                      std::decay_t<T>>;
 
   /* Forward declaration for TPartialForwarder. */
   template <typename TVerb, typename Signature>
@@ -136,7 +136,7 @@ namespace Visitor {
     /* We take arbitrary number of arguments and we call the TVerb::operator() along with the bound arguments that we cached. */
     template <typename... TUnboundArgs>
     void operator()(TUnboundArgs &&... args) const {
-      Result = c14::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
+      Result = Base::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
     }
 
     private:
@@ -164,7 +164,7 @@ namespace Visitor {
     /* We take arbitrary number of arguments and we call the TVerb::operator() along with the bound arguments that we cached. */
     template <typename... TUnboundArgs>
     void operator()(TUnboundArgs &&... args) const {
-      Result = &c14::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
+      Result = &Base::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
     }
 
     private:
@@ -193,7 +193,7 @@ namespace Visitor {
     /* See above. */
     template <typename... TUnboundArgs>
     void operator()(TUnboundArgs &&... args) const {
-      c14::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
+      Base::apply(TVerb(), std::tuple_cat(std::forward_as_tuple(std::forward<TUnboundArgs>(args)...), BoundArgs));
     }
 
     private:
@@ -257,7 +257,7 @@ namespace Visitor {
 
     /* const-member functions. */
     template <typename TResult, typename... TArgs>
-    static c14::identity<TResult (TArgs...)> Get(TResult (TVerb::*)(TDecoratedMembers..., TArgs...) const);
+    static Base::identity<TResult (TArgs...)> Get(TResult (TVerb::*)(TDecoratedMembers..., TArgs...) const);
 
     /* These 2 Call() functions use SFINAE to pick the situation that fits our needs. */
 
@@ -267,7 +267,7 @@ namespace Visitor {
 
     /* Template involved, look up the Signature type. */
     template <typename T = TVerb>
-    static c14::identity<typename T::Signature> Impl();
+    static Base::identity<typename T::Signature> Impl();
 
     public:
 

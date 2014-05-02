@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <c14/type_traits.h>
+#include <type_traits>
 
 #include <mpl/not.h>
 
@@ -32,7 +32,7 @@ namespace Mpl {
     public:
 
     template <typename Pred>
-    using EnableIf = c14::enable_if_t<Pred::value, Enable>;
+    using EnableIf = std::enable_if_t<Pred::value, Enable>;
 
   };  // EnableIfImpl
 

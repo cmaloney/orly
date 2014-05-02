@@ -179,7 +179,7 @@ namespace Orly {
                TODO: use smaller integers for this meta data */
             NumMetaBytes = num_compressed_blocks * 2UL * sizeof(size_t);
             const size_t max_disk_blocks_required = num_compressed_blocks + ((NumMetaBytes / Disk::Util::LogicalCheckedBlockSize));
-            std::unique_ptr<TBufBlock> buf_block(new TBufBlock());
+            auto buf_block = std::make_unique<TBufBlock>();
             size_t left = sorter.GetSize();
             Engine->AppendReserveBlocks(StorageSpeed, max_disk_blocks_required, BlockVec);
             #ifndef NDEBUG
@@ -299,7 +299,7 @@ namespace Orly {
                  TODO: use smaller integers for this meta data */
               NumMetaBytes = num_compressed_blocks * 2UL * sizeof(size_t);
               const size_t max_disk_blocks_required = num_compressed_blocks + ((NumMetaBytes / Disk::Util::LogicalCheckedBlockSize));
-              std::unique_ptr<TBufBlock> buf_block(new TBufBlock());
+              auto buf_block = std::make_unique<TBufBlock>();
               Engine->AppendReserveBlocks(StorageSpeed, max_disk_blocks_required, BlockVec);
               #ifndef NDEBUG
               std::unordered_set<size_t> written_block_set;

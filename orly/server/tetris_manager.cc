@@ -271,7 +271,7 @@ TTetrisManager::TTetrisManager(Base::TScheduler *scheduler,
     runner->Run();
     delete FramePool;
   };
-  FiberThread = std::unique_ptr<std::thread>(new std::thread(std::bind(launch_sched, &FiberScheduler, frame_pool_manager)));
+  FiberThread = std::make_unique<std::thread>(std::bind(launch_sched, &FiberScheduler, frame_pool_manager));
   setup_is_complete.Pop();
 }
 

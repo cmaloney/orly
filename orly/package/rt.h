@@ -125,19 +125,16 @@ namespace Orly {
         //TODO: Make seed bigger so we have more possible random sequences.
         if(OptRandomSeed.IsUnknown()) {
           OptRandomSeed = std::random_device()();
-          //TODO: make_unique.
-
         }
         if(!GenSeeds) {
-          GenSeeds = std::unique_ptr<Rt::TLazyRandomList>(new Rt::TLazyRandomList(OptRandomSeed.GetVal()));
+          GenSeeds = std::make_unique<Rt::TLazyRandomList>(OptRandomSeed.GetVal());
         }
         assert(GenSeeds);
 
         // Get the requested generator (Using unique_ptr to insert if not exists)
         auto &gen_ptr = RandomGenerators[std::make_tuple(gen_id, min, max)];
         if(!gen_ptr) {
-          //TODO: make_unique.
-          gen_ptr = std::unique_ptr<Rt::TLazyRandomList>(new Rt::TLazyRandomList(GenSeeds->Get(gen_id), min, max));
+          gen_ptr = std::make_unique<Rt::TLazyRandomList>(GenSeeds->Get(gen_id), min, max);
         }
 
         assert(gen_ptr);

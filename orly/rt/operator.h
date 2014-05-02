@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <c14/lang.h>
 #include <cassert>
 #include <vector>
 
@@ -115,33 +114,39 @@ namespace Orly {
 
     /* Wrapper function for EqEq. */
     template <typename TLhs, typename TRhs>
-    auto EqEq(const TLhs &lhs, const TRhs &rhs)
-      DECLTYPE_AUTO((EqEqStruct<TLhs, TRhs>::Do(lhs, rhs)));
+    auto EqEq(const TLhs &lhs, const TRhs &rhs) {
+      return EqEqStruct<TLhs, TRhs>::Do(lhs, rhs);
+    }
 
     /* Wrapper function for Neq. */
     template <typename TLhs, typename TRhs>
-    auto Neq(const TLhs &lhs, const TRhs &rhs)
-      DECLTYPE_AUTO((NeqStruct<TLhs, TRhs>::Do(lhs, rhs)));
+    auto Neq(const TLhs &lhs, const TRhs &rhs) {
+      return NeqStruct<TLhs, TRhs>::Do(lhs, rhs);
+    }
 
     /* Wrapper function for Lt. */
     template <typename TLhs, typename TRhs>
-    auto Lt(const TLhs &lhs, const TRhs &rhs)
-      DECLTYPE_AUTO((LtStruct<TLhs, TRhs>::Do(lhs, rhs)));
+    auto Lt(const TLhs &lhs, const TRhs &rhs) {
+      return LtStruct<TLhs, TRhs>::Do(lhs, rhs);
+    }
 
     /* Wrapper function for LtEq. */
     template <typename TLhs, typename TRhs>
-    auto LtEq(const TLhs &lhs, const TRhs &rhs)
-      DECLTYPE_AUTO((LtEqStruct<TLhs, TRhs>::Do(lhs, rhs)));
+    auto LtEq(const TLhs &lhs, const TRhs &rhs) {
+      return LtEqStruct<TLhs, TRhs>::Do(lhs, rhs);
+    }
 
     /* Wrapper function for Gt. */
     template <typename TLhs, typename TRhs>
-    auto Gt(const TLhs &lhs, const TRhs &rhs)
-      DECLTYPE_AUTO((GtStruct<TLhs, TRhs>::Do(lhs, rhs)));
+    auto Gt(const TLhs &lhs, const TRhs &rhs) {
+      return GtStruct<TLhs, TRhs>::Do(lhs, rhs);
+    }
 
     /* Wrapper function for GtEq. */
     template <typename TLhs, typename TRhs>
-    auto GtEq(const TLhs &lhs, const TRhs &rhs)
-      DECLTYPE_AUTO((GtEqStruct<TLhs, TRhs>::Do(lhs, rhs)));
+    auto GtEq(const TLhs &lhs, const TRhs &rhs) {
+      return GtEqStruct<TLhs, TRhs>::Do(lhs, rhs);
+    }
 
     /* The following are helpful functions that allow generic handling of optional cases.
        NOTE: In situations where you explicitly know that the value is an optional,
@@ -213,8 +218,9 @@ namespace Orly {
     }
 
     template <typename TLhs, typename TRhsFunction>
-    auto AndThen(TLhs &&lhs, TRhsFunction &&rhs)
-      DECLTYPE_AUTO(IsKnownFalse(lhs) ? false : And(lhs, rhs()));
+    auto AndThen(TLhs &&lhs, TRhsFunction &&rhs) {
+      return IsKnownFalse(lhs) ? false : And(lhs, rhs());
+    }
 
     inline bool Not(bool val) { return !val; }
 
@@ -234,8 +240,9 @@ namespace Orly {
     }
 
     template <typename TLhs, typename TRhsFunction>
-    auto OrElse(TLhs &&lhs, TRhsFunction &&rhs)
-      DECLTYPE_AUTO(IsKnownTrue(lhs) ? true : Or(lhs, rhs()));
+    auto OrElse(TLhs &&lhs, TRhsFunction &&rhs) {
+      return IsKnownTrue(lhs) ? true : Or(lhs, rhs());
+    }
 
     inline bool Xor(bool lhs, bool rhs) { return lhs ^ rhs; }
 
@@ -429,8 +436,9 @@ namespace Orly {
     struct EqEqStruct<TDict<TLhsKey, TLhsVal>, TDict<TRhsKey, TRhsVal>> {
       NO_CONSTRUCTION(EqEqStruct);
 
-      static auto Do(const TDict<TLhsKey, TLhsVal> &lhs, const TDict<TRhsKey, TRhsVal> &rhs)
-        DECLTYPE_AUTO(Dict::Equal(lhs, rhs, true));
+      static auto Do(const TDict<TLhsKey, TLhsVal> &lhs, const TDict<TRhsKey, TRhsVal> &rhs) {
+        return Dict::Equal(lhs, rhs, true);
+      }
 
     };  // EqEqStruct
 
@@ -439,8 +447,9 @@ namespace Orly {
     struct NeqStruct<TDict<TLhsKey, TLhsVal>, TDict<TRhsKey, TRhsVal>> {
       NO_CONSTRUCTION(NeqStruct);
 
-      static auto Do(const TDict<TLhsKey, TLhsVal> &lhs, const TDict<TRhsKey, TRhsVal> &rhs)
-        DECLTYPE_AUTO(Dict::Equal(lhs, rhs, false));
+      static auto Do(const TDict<TLhsKey, TLhsVal> &lhs, const TDict<TRhsKey, TRhsVal> &rhs) {
+        return Dict::Equal(lhs, rhs, false);
+      }
 
     };  // NeqStruct
 
@@ -451,8 +460,9 @@ namespace Orly {
     struct EqEqStruct<std::vector<TLhs>, std::vector<TRhs>> {
       NO_CONSTRUCTION(EqEqStruct);
 
-      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs)
-        DECLTYPE_AUTO(List::Equal(lhs, rhs, true));
+      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs) {
+        return List::Equal(lhs, rhs, true);
+      }
 
     };
 
@@ -461,8 +471,9 @@ namespace Orly {
     struct NeqStruct<std::vector<TLhs>, std::vector<TRhs>> {
       NO_CONSTRUCTION(NeqStruct);
 
-      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs)
-        DECLTYPE_AUTO(List::Equal(lhs, rhs, false));
+      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs) {
+        return List::Equal(lhs, rhs, false);
+      }
 
     };
 
@@ -471,8 +482,9 @@ namespace Orly {
     struct LtStruct<std::vector<TLhs>, std::vector<TRhs>> {
       NO_CONSTRUCTION(LtStruct);
 
-      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs)
-        DECLTYPE_AUTO(List::Compare(lhs, rhs, LtStruct<TLhs, TRhs>::Do, LtStruct<size_t, size_t>::Do));
+      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs) {
+        return List::Compare(lhs, rhs, LtStruct<TLhs, TRhs>::Do, LtStruct<size_t, size_t>::Do);
+      }
 
     };
 
@@ -481,8 +493,9 @@ namespace Orly {
     struct LtEqStruct<std::vector<TLhs>, std::vector<TRhs>> {
       NO_CONSTRUCTION(LtEqStruct);
 
-      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs)
-        DECLTYPE_AUTO(List::Compare(lhs, rhs, LtEqStruct<TLhs, TRhs>::Do, LtEqStruct<size_t, size_t>::Do));
+      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs) {
+        return List::Compare(lhs, rhs, LtEqStruct<TLhs, TRhs>::Do, LtEqStruct<size_t, size_t>::Do);
+      }
 
     };
 
@@ -491,8 +504,9 @@ namespace Orly {
     struct GtStruct<std::vector<TLhs>, std::vector<TRhs>> {
       NO_CONSTRUCTION(GtStruct);
 
-      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs)
-        DECLTYPE_AUTO(List::Compare(lhs, rhs, GtStruct<TLhs, TRhs>::Do, GtStruct<size_t, size_t>::Do));
+      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs) {
+        return List::Compare(lhs, rhs, GtStruct<TLhs, TRhs>::Do, GtStruct<size_t, size_t>::Do);
+      }
 
     };
 
@@ -501,8 +515,9 @@ namespace Orly {
     struct GtEqStruct<std::vector<TLhs>, std::vector<TRhs>> {
       NO_CONSTRUCTION(GtEqStruct);
 
-      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs)
-        DECLTYPE_AUTO(List::Compare(lhs, rhs, GtEqStruct<TLhs, TRhs>::Do, GtEqStruct<size_t, size_t>::Do));
+      static auto Do(const std::vector<TLhs> &lhs, const std::vector<TRhs> &rhs) {
+        return List::Compare(lhs, rhs, GtEqStruct<TLhs, TRhs>::Do, GtEqStruct<size_t, size_t>::Do);
+      }
 
     };
 
@@ -513,8 +528,9 @@ namespace Orly {
     struct EqEqStruct<TMutable<TAddr, TLhs>, TRhs> {
       NO_CONSTRUCTION(EqEqStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs)
-        DECLTYPE_AUTO(EqEq(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs) {
+        return EqEq(lhs.GetVal(), rhs);
+      }
     };
 
     /* EqEq : lhs == mutable<addr, rhs> */
@@ -522,8 +538,9 @@ namespace Orly {
     struct EqEqStruct<TLhs, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(EqEqStruct);
 
-      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(EqEq(lhs, rhs.GetVal()));
+      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return EqEq(lhs, rhs.GetVal());
+      }
     };
 
     /* EqEq : opt<lhs> == mutable<addr, rhs> */
@@ -531,8 +548,9 @@ namespace Orly {
     struct EqEqStruct<TOpt<TLhs>, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(EqEqStruct);
 
-      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(EqEq(lhs, rhs.GetVal()));
+      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return EqEq(lhs, rhs.GetVal());
+      }
     };
 
     /* EqEq : mutable<addr, lhs> == opt<rhs>. */
@@ -540,8 +558,9 @@ namespace Orly {
     struct EqEqStruct<TMutable<TAddr, TLhs>, TOpt<TRhs>> {
       NO_CONSTRUCTION(EqEqStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs)
-        DECLTYPE_AUTO(EqEq(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs) {
+        return EqEq(lhs.GetVal(), rhs);
+      }
     };
 
     /* EqEq : mutable<lhs_addr, lhs> == mutable<rhs_addr, rhs> */
@@ -549,8 +568,9 @@ namespace Orly {
     struct EqEqStruct<TMutable<TLhsAddr, TLhs>, TMutable<TRhsAddr, TRhs>> {
       NO_CONSTRUCTION(EqEqStruct);
 
-      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(EqEq(lhs.GetVal(), rhs.GetVal()));
+      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs) {
+        return EqEq(lhs.GetVal(), rhs.GetVal());
+      }
     };
 
     /* Neq : mutable<addr, lhs> != rhs. */
@@ -558,8 +578,9 @@ namespace Orly {
     struct NeqStruct<TMutable<TAddr, TLhs>, TRhs> {
       NO_CONSTRUCTION(NeqStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs)
-        DECLTYPE_AUTO(Neq(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs) {
+        return Neq(lhs.GetVal(), rhs);
+      }
     };
 
     /* Neq : lhs != mutable<addr, rhs> */
@@ -567,8 +588,9 @@ namespace Orly {
     struct NeqStruct<TLhs, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(NeqStruct);
 
-      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Neq(lhs, rhs.GetVal()));
+      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return Neq(lhs, rhs.GetVal());
+      }
     };
 
     /* Neq : opt<lhs> != mutable<addr, rhs> */
@@ -576,8 +598,9 @@ namespace Orly {
     struct NeqStruct<TOpt<TLhs>, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(NeqStruct);
 
-      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Neq(lhs, rhs.GetVal()));
+      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return Neq(lhs, rhs.GetVal());
+      }
     };
 
     /* Neq : mutable<addr, lhs> != opt<rhs>. */
@@ -585,8 +608,9 @@ namespace Orly {
     struct NeqStruct<TMutable<TAddr, TLhs>, TOpt<TRhs>> {
       NO_CONSTRUCTION(NeqStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs)
-        DECLTYPE_AUTO(Neq(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs) {
+        return Neq(lhs.GetVal(), rhs);
+      }
     };
 
     /* Neq : mutable<lhs_addr, lhs> != mutable<rhs_addr, rhs> */
@@ -594,8 +618,9 @@ namespace Orly {
     struct NeqStruct<TMutable<TLhsAddr, TLhs>, TMutable<TRhsAddr, TRhs>> {
       NO_CONSTRUCTION(NeqStruct);
 
-      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Neq(lhs.GetVal(), rhs.GetVal()));
+      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs) {
+        return Neq(lhs.GetVal(), rhs.GetVal());
+      }
     };
 
     /* Lt : mutable<addr, lhs> < rhs. */
@@ -603,8 +628,9 @@ namespace Orly {
     struct LtStruct<TMutable<TAddr, TLhs>, TRhs> {
       NO_CONSTRUCTION(LtStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs)
-        DECLTYPE_AUTO(Lt(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs) {
+        return Lt(lhs.GetVal(), rhs);
+      }
     };
 
     /* Lt : lhs < mutable<addr, rhs> */
@@ -612,8 +638,9 @@ namespace Orly {
     struct LtStruct<TLhs, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(LtStruct);
 
-      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Lt(lhs, rhs.GetVal()));
+      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return Lt(lhs, rhs.GetVal());
+      }
     };
 
     /* Lt : opt<lhs> < mutable<addr, rhs> */
@@ -621,8 +648,9 @@ namespace Orly {
     struct LtStruct<TOpt<TLhs>, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(LtStruct);
 
-      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Lt(lhs, rhs.GetVal()));
+      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return Lt(lhs, rhs.GetVal());
+      }
     };
 
     /* Lt : mutable<addr, lhs> < opt<rhs>. */
@@ -630,8 +658,9 @@ namespace Orly {
     struct LtStruct<TMutable<TAddr, TLhs>, TOpt<TRhs>> {
       NO_CONSTRUCTION(LtStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs)
-        DECLTYPE_AUTO(Lt(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs) {
+        return Lt(lhs.GetVal(), rhs);
+      }
     };
 
     /* Lt : mutable<lhs_addr, lhs> < mutable<rhs_addr, rhs> */
@@ -639,8 +668,9 @@ namespace Orly {
     struct LtStruct<TMutable<TLhsAddr, TLhs>, TMutable<TRhsAddr, TRhs>> {
       NO_CONSTRUCTION(LtStruct);
 
-      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Lt(lhs.GetVal(), rhs.GetVal()));
+      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs) {
+        return Lt(lhs.GetVal(), rhs.GetVal());
+      }
     };
 
     /* LtEq : mutable<addr, lhs> <= rhs. */
@@ -648,8 +678,9 @@ namespace Orly {
     struct LtEqStruct<TMutable<TAddr, TLhs>, TRhs> {
       NO_CONSTRUCTION(LtEqStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs)
-        DECLTYPE_AUTO(LtEq(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs) {
+        return LtEq(lhs.GetVal(), rhs);
+      }
     };
 
     /* LtEq : lhs <= mutable<addr, rhs> */
@@ -657,8 +688,9 @@ namespace Orly {
     struct LtEqStruct<TLhs, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(LtEqStruct);
 
-      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(LtEq(lhs, rhs.GetVal()));
+      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return LtEq(lhs, rhs.GetVal());
+      }
     };
 
     /* LtEq : opt<lhs> <= mutable<addr, rhs> */
@@ -666,8 +698,9 @@ namespace Orly {
     struct LtEqStruct<TOpt<TLhs>, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(LtEqStruct);
 
-      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(LtEq(lhs, rhs.GetVal()));
+      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return LtEq(lhs, rhs.GetVal());
+      }
     };
 
     /* LtEq : mutable<addr, lhs> <= opt<rhs>. */
@@ -675,8 +708,9 @@ namespace Orly {
     struct LtEqStruct<TMutable<TAddr, TLhs>, TOpt<TRhs>> {
       NO_CONSTRUCTION(LtEqStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs)
-        DECLTYPE_AUTO(LtEq(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs) {
+        return LtEq(lhs.GetVal(), rhs);
+      }
     };
 
     /* LtEq : mutable<lhs_addr, lhs> <= mutable<rhs_addr, rhs> */
@@ -684,8 +718,9 @@ namespace Orly {
     struct LtEqStruct<TMutable<TLhsAddr, TLhs>, TMutable<TRhsAddr, TRhs>> {
       NO_CONSTRUCTION(LtEqStruct);
 
-      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(LtEq(lhs.GetVal(), rhs.GetVal()));
+      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs) {
+        return LtEq(lhs.GetVal(), rhs.GetVal());
+      }
     };
 
     /* Gt : mutable<addr, lhs> > rhs. */
@@ -693,8 +728,9 @@ namespace Orly {
     struct GtStruct<TMutable<TAddr, TLhs>, TRhs> {
       NO_CONSTRUCTION(GtStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs)
-        DECLTYPE_AUTO(Gt(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs) {
+        return Gt(lhs.GetVal(), rhs);
+      }
     };
 
     /* Gt : lhs > mutable<addr, rhs> */
@@ -702,8 +738,9 @@ namespace Orly {
     struct GtStruct<TLhs, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(GtStruct);
 
-      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Gt(lhs, rhs.GetVal()));
+      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return Gt(lhs, rhs.GetVal());
+      }
     };
 
     /* Gt : opt<lhs> > mutable<addr, rhs> */
@@ -711,8 +748,9 @@ namespace Orly {
     struct GtStruct<TOpt<TLhs>, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(GtStruct);
 
-      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Gt(lhs, rhs.GetVal()));
+      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return Gt(lhs, rhs.GetVal());
+      }
     };
 
     /* Gt : mutable<addr, lhs> > opt<rhs>. */
@@ -720,8 +758,9 @@ namespace Orly {
     struct GtStruct<TMutable<TAddr, TLhs>, TOpt<TRhs>> {
       NO_CONSTRUCTION(GtStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs)
-        DECLTYPE_AUTO(Gt(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs) {
+        return Gt(lhs.GetVal(), rhs);
+      }
     };
 
     /* Gt : mutable<lhs_addr, lhs> > mutable<rhs_addr, rhs> */
@@ -729,8 +768,9 @@ namespace Orly {
     struct GtStruct<TMutable<TLhsAddr, TLhs>, TMutable<TRhsAddr, TRhs>> {
       NO_CONSTRUCTION(GtStruct);
 
-      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(Gt(lhs.GetVal(), rhs.GetVal()));
+      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs) {
+        return Gt(lhs.GetVal(), rhs.GetVal());
+      }
     };
 
     /* GtEq : mutable<addr, lhs> >= rhs. */
@@ -738,8 +778,9 @@ namespace Orly {
     struct GtEqStruct<TMutable<TAddr, TLhs>, TRhs> {
       NO_CONSTRUCTION(GtEqStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs)
-        DECLTYPE_AUTO(GtEq(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TRhs &rhs) {
+        return GtEq(lhs.GetVal(), rhs);
+      }
     };
 
     /* GtEq : lhs >= mutable<addr, rhs> */
@@ -747,8 +788,9 @@ namespace Orly {
     struct GtEqStruct<TLhs, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(GtEqStruct);
 
-      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(GtEq(lhs, rhs.GetVal()));
+      static auto Do(const TLhs &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return GtEq(lhs, rhs.GetVal());
+      }
     };
 
     /* GtEq : opt<lhs> >= mutable<addr, rhs> */
@@ -756,8 +798,9 @@ namespace Orly {
     struct GtEqStruct<TOpt<TLhs>, TMutable<TAddr, TRhs>> {
       NO_CONSTRUCTION(GtEqStruct);
 
-      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(GtEq(lhs, rhs.GetVal()));
+      static auto Do(const TOpt<TLhs> &lhs, const TMutable<TAddr, TRhs> &rhs) {
+        return GtEq(lhs, rhs.GetVal());
+      }
     };
 
     /* GtEq : mutable<addr, lhs> >= opt<rhs>. */
@@ -765,8 +808,9 @@ namespace Orly {
     struct GtEqStruct<TMutable<TAddr, TLhs>, TOpt<TRhs>> {
       NO_CONSTRUCTION(GtEqStruct);
 
-      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs)
-        DECLTYPE_AUTO(GtEq(lhs.GetVal(), rhs));
+      static auto Do(const TMutable<TAddr, TLhs> &lhs, const TOpt<TRhs> &rhs) {
+        return GtEq(lhs.GetVal(), rhs);
+      }
     };
 
     /* GtEq : mutable<lhs_addr, lhs> >= mutable<rhs_addr, rhs> */
@@ -774,8 +818,9 @@ namespace Orly {
     struct GtEqStruct<TMutable<TLhsAddr, TLhs>, TMutable<TRhsAddr, TRhs>> {
       NO_CONSTRUCTION(GtEqStruct);
 
-      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs)
-        DECLTYPE_AUTO(GtEq(lhs.GetVal(), rhs.GetVal()));
+      static auto Do(const TMutable<TLhsAddr, TLhs> &lhs, const TMutable<TRhsAddr, TRhs> &rhs) {
+        return GtEq(lhs.GetVal(), rhs.GetVal());
+      }
     };
 
     /* Set comparators */
@@ -785,8 +830,9 @@ namespace Orly {
     struct EqEqStruct<TSet<TLhs>, TSet<TRhs>> {
       NO_CONSTRUCTION(EqEqStruct);
 
-      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs)
-        DECLTYPE_AUTO(Set::Equal(lhs, rhs, true));
+      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs) {
+        return Set::Equal(lhs, rhs, true);
+      }
 
     };
 
@@ -795,8 +841,9 @@ namespace Orly {
     struct NeqStruct<TSet<TLhs>, TSet<TRhs>> {
       NO_CONSTRUCTION(NeqStruct);
 
-      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs)
-        DECLTYPE_AUTO(Set::Equal(lhs, rhs, false));
+      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs) {
+        return Set::Equal(lhs, rhs, false);
+      }
 
     };
 
@@ -805,8 +852,9 @@ namespace Orly {
     struct LtStruct<TSet<TLhs>, TSet<TRhs>> {
       NO_CONSTRUCTION(LtStruct);
 
-      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs)
-        DECLTYPE_AUTO(Set::Subset(lhs, rhs, LtStruct<size_t, size_t>::Do));
+      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs) {
+        return Set::Subset(lhs, rhs, LtStruct<size_t, size_t>::Do);
+      }
 
     };
 
@@ -815,8 +863,9 @@ namespace Orly {
     struct LtEqStruct<TSet<TLhs>, TSet<TRhs>> {
       NO_CONSTRUCTION(LtEqStruct);
 
-      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs)
-        DECLTYPE_AUTO(Set::Subset(lhs, rhs, LtEqStruct<size_t, size_t>::Do));
+      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs) {
+        return Set::Subset(lhs, rhs, LtEqStruct<size_t, size_t>::Do);
+      }
 
     };
 
@@ -825,8 +874,9 @@ namespace Orly {
     struct GtStruct<TSet<TLhs>, TSet<TRhs>> {
       NO_CONSTRUCTION(GtStruct);
 
-      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs)
-        DECLTYPE_AUTO(Set::Subset(rhs, lhs, LtStruct<size_t, size_t>::Do));
+      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs) {
+        return Set::Subset(rhs, lhs, LtStruct<size_t, size_t>::Do);
+      }
 
     };
 
@@ -835,8 +885,9 @@ namespace Orly {
     struct GtEqStruct<TSet<TLhs>, TSet<TRhs>> {
       NO_CONSTRUCTION(GtEqStruct);
 
-      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs)
-        DECLTYPE_AUTO(Set::Subset(rhs, lhs, LtEqStruct<size_t, size_t>::Do));
+      static auto Do(const TSet<TLhs> &lhs, const TSet<TRhs> &rhs) {
+        return Set::Subset(rhs, lhs, LtEqStruct<size_t, size_t>::Do);
+      }
 
     };
 

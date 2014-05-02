@@ -73,7 +73,7 @@ class TSubprocServer final {
   private:
 
   /* Child proc enters here. */
-  void ServerMain() __attribute__((noreturn)) {
+  [[noreturn]] void ServerMain() {
     const struct cmd_t final : public TServer::TCmd {
       cmd_t() {
         Echo = true;

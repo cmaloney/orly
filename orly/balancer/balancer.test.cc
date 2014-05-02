@@ -399,9 +399,9 @@ FIXTURE(Typical) {
   TAddress server_1_address(TAddress::IPv4Loopback, 19381);
   TAddress server_2_address(TAddress::IPv4Loopback, 19382);
   TRouter router(&scheduler, cmd, check_interval_milli);
-  std::unique_ptr<TTestServer> test_server_1(new TTestServer(&scheduler, 19381, 'M'));
+  auto test_server_1 = make_unique<TTestServer>(&scheduler, 19381, 'M');
   router.AddHost(server_1_address);
-  std::unique_ptr<TTestServer> test_server_2(new TTestServer(&scheduler, 19382, 'S'));
+  auto test_server_2 = make_unique<TTestServer>(&scheduler, 19382, 'S');
   router.AddHost(server_2_address);
   router.Wait();
   /* set master */ {

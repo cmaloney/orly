@@ -32,7 +32,6 @@
 
 #include <netinet/in.h>
 
-#include <base/layout.h>
 #include <base/thrower.h>
 #include <base/uuid.h>
 #include <rpc/rpc.h>
@@ -48,7 +47,7 @@ namespace Orly {
   namespace Handshake {
 
     /* The first part of the handshake sent by the client at connection time. */
-    class PACKED THeader {
+    class [[gnu::packed]] THeader {
       public:
 
       /* Thrown by GetRequestKind() when the header is malformed. */
@@ -104,7 +103,7 @@ namespace Orly {
        If the client wants to start a new session, it will send THandshake<TNewSession>.
        If the client wants to reconnect to an old session, it will send THandshake<TOldSession>. */
     template <typename TRequest>
-    class PACKED THandshake {
+    class [[gnu::packed]] THandshake {
       public:
 
       /* Pass the construction through to the request. */
@@ -129,14 +128,14 @@ namespace Orly {
     };  // Orly::Handshake::THandshake<TRequest>
 
     /* A request for a health check. */
-    class PACKED THealthCheck {
+    class [[gnu::packed]] THealthCheck {
       public:
 
       /* The code used in the header. */
       static const THeader::TRequestKind RequestKind = 'H';
 
       /* The reply sent by the server upon success. */
-      class PACKED TReply {
+      class [[gnu::packed]] TReply {
         public:
 
         /* The result of the request. */
@@ -180,14 +179,14 @@ namespace Orly {
     static_assert(sizeof(THandshake<THealthCheck>) == 12, "health-check handshake is insane");
 
     /* A request for a new session. */
-    class PACKED TNewSession {
+    class [[gnu::packed]] TNewSession {
       public:
 
       /* The code used in the header. */
       static const THeader::TRequestKind RequestKind = 'N';
 
       /* The reply sent by the server upon success. */
-      class PACKED TReply {
+      class [[gnu::packed]] TReply {
         public:
 
         /* Default-constructs a bad reply.  This is meant to be used as a read buffer and overwritten with a valid reply. */
@@ -216,14 +215,14 @@ namespace Orly {
     static_assert(sizeof(THandshake<TNewSession>) == 12, "new session handshake is insane");
 
     /* A request for an old session. */
-    class PACKED TOldSession {
+    class [[gnu::packed]] TOldSession {
       public:
 
       /* The code used in the header. */
       static const THeader::TRequestKind RequestKind = 'O';
 
       /* The reply sent by the server upon success. */
-      class PACKED TReply {
+      class [[gnu::packed]] TReply {
         public:
 
         /* The result of the request. */

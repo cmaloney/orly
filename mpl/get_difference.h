@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <c14/identity.h>
-#include <c14/type_traits.h>
+#include <type_traits>
 
+#include <base/identity.h>
 #include <mpl/conditional.h>
 #include <mpl/contains.h>
 #include <mpl/type_list.h>
@@ -33,7 +33,7 @@ namespace Mpl {
   struct GetDifferenceRecur;
 
   template <typename... TElems, typename TRhs>
-  struct GetDifferenceRecur<TTypeList<TElems...>, TTypeList<>, TRhs> : public c14::identity<TTypeSet<TElems...>> {};
+  struct GetDifferenceRecur<TTypeList<TElems...>, TTypeList<>, TRhs> : public Base::identity<TTypeSet<TElems...>> {};
 
   template <typename TList, typename TElem, typename... TMoreElems, typename TRhs>
   struct GetDifferenceRecur<TList, TTypeList<TElem, TMoreElems...>, TRhs> : public Mpl::Conditional<

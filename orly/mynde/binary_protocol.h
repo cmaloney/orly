@@ -41,7 +41,6 @@
 
 #include <cstdint>
 
-#include <base/layout.h>
 #include <strm/bin/in.h>
 #include <strm/bin/out.h>
 
@@ -98,7 +97,7 @@ static constexpr uint8_t BinaryMagicResponse = 0x81;
 /* Memcached binary request header, as specified by the protocol
 
    Can be read from and written to a binary stream. */
-struct PACKED TRequestHeader {
+struct [[gnu::packed]] TRequestHeader {
   //Translates the uint8_t opcode to a command, along with flags (Condensing quiet/not, as well as return key/not)
 
   uint8_t Magic;   //0x80
@@ -126,7 +125,7 @@ static_assert(sizeof(TRequestHeader) == 24, "According to the binary protocol sp
 /* Memcached binary response header, as specified by the protocol
 
    Can be read from and written to a binary stream. */
-struct PACKED TResponseHeader {
+struct [[gnu::packed]] TResponseHeader {
   uint8_t Magic; // 0x81
   uint8_t Opcode;
   uint16_t KeyLength;

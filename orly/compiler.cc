@@ -59,7 +59,7 @@ class TPackageBuilder {
     Cst = Package::Syntax::TPackage::ParseFile(TAbsPath(src_root, RelPath).AsStr().c_str());
     if (!HasErrors()) {
       assert(Cst);
-      Synth = unique_ptr<Synth::TPackage>(new Synth::TPackage(RelPath.ToNamespaceIncludingName(), &*Cst, false));
+      Synth = make_unique<Synth::TPackage>(RelPath.ToNamespaceIncludingName(), &*Cst, false);
     }
   }
 
@@ -132,7 +132,7 @@ Package::TVersionedName Orly::Compiler::Compile(
 
   typedef unordered_map<TRelPath, unique_ptr<TPackageBuilder>> TPackageMap;
   TPackageMap packages;
-  packages.insert(make_pair(core_rel, unique_ptr<TPackageBuilder>(new TPackageBuilder(core_rel))));
+  packages.insert(make_pair(core_rel, make_unique<TPackageBuilder>(core_rel)));
 
   bool failed = false;
 
@@ -217,7 +217,7 @@ Package::TVersionedName Orly::Compiler::Compile(
 
       TAbsPath out_path(out_tree, core_rel.SwapLastExtension({version_str_builder.str(), "so"}));
       //TODO: Check these compile flags.
-      args << "g++ -std=c++11 -x c++ -I" << Base::GetSrcRoot() << " -fPIC -shared -o"<< out_path << " -iquote " << out_tree << ' '
+      args << "g++ -std=c++1y -x c++ -I" << Base::GetSrcRoot() << " -fPIC -shared -o"<< out_path << " -iquote " << out_tree << ' '
            << TAbsPath(out_tree, core_rel.SwapLastExtension(Jhm::TStrList{"link","cc"}));
       Base::Join(' ', packages, [&out_tree](const TPackageMap::value_type &it, ostream &out) {
         out << ' ' << TAbsPath(out_tree, it.first.SwapLastExtension("cc"));

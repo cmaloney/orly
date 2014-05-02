@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <c14/identity.h>
-#include <c14/type_traits.h>
+#include <type_traits>
 
+#include <base/identity.h>
 #include <mpl/compare.h>
 #include <mpl/conditional.h>
 #include <mpl/get_size.h>
@@ -34,7 +34,7 @@ namespace Mpl {
   struct GetIntersectionRecur;
 
   template <typename... TElems, typename TLong>
-  struct GetIntersectionRecur<TTypeList<TElems...>, TTypeList<>, TLong> : public c14::identity<TTypeSet<TElems...>> {};
+  struct GetIntersectionRecur<TTypeList<TElems...>, TTypeList<>, TLong> : public Base::identity<TTypeSet<TElems...>> {};
 
   template <typename TList, typename TElem, typename... TMoreElems, typename TLong>
   struct GetIntersectionRecur<TList, TTypeList<TElem, TMoreElems...>, TLong> : public Mpl::Conditional<

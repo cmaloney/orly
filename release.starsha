@@ -30,7 +30,7 @@
     }
     "g++" {
       "flags" {
-        "-std=c++11";
+        "-std=c++1y";
         "-Werror";
         "-Wall";
         "-Wextra";
@@ -93,7 +93,7 @@
           "-DTEST_OUTPUT_DIR=\"/tmp/\"";
           "-g";
           "-DDEBUG";
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -105,7 +105,7 @@
           "-flto";
           "-DNDEBUG";
           "-U_FORTIFY_SOURCE"
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -117,7 +117,7 @@
           "-flto";
           "-DNDEBUG";
           "-U_FORTIFY_SOURCE"
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -129,7 +129,7 @@
           "-flto";
           "-DNDEBUG";
           "-U_FORTIFY_SOURCE"
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -141,7 +141,7 @@
           "-flto";
           "-DNDEBUG";
           "-U_FORTIFY_SOURCE"
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -153,7 +153,7 @@
           "-flto";
           "-DNDEBUG";
           "-U_FORTIFY_SOURCE"
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -165,7 +165,7 @@
           "-flto";
           "-DNDEBUG";
           "-U_FORTIFY_SOURCE"
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -177,7 +177,7 @@
           "-flto";
           "-DNDEBUG";
           "-U_FORTIFY_SOURCE"
-          "-std=c++11";
+          "-std=c++1y";
           "-pthread";
         }
       }
@@ -226,7 +226,7 @@
           "-Wno-unused-result";
           "-Wno-strict-aliasing";
           "-Wno-delete-non-virtual-dtor";
-          "-std=c++11";
+          "-std=c++1y";
           "-msse2";
           "-Wno-invalid-offsetof";
           "-U_FORTIFY_SOURCE";

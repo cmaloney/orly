@@ -33,7 +33,6 @@
 
 #include <base/class_traits.h>
 #include <base/fd.h>
-#include <base/layout.h>
 #include <base/log.h>
 #include <io/endian.h>
 #include <signal/handler_installer.h>
@@ -43,7 +42,7 @@ namespace Orly {
 
   namespace BinProto {
 
-    class PACKED TMsgHdr final {
+    class [[gnu::packed]] TMsgHdr final {
       public:
 
       enum class TKind : uint8_t { Request = '?', NormalReply = '.', ErrorReply = '!' };

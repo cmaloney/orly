@@ -291,7 +291,7 @@ TIf::TIf(const L0::TPackage *package, TPredicatedBlocks &&if_clauses)
 void TIf::SetOptElseClause() {
   assert(this);
   assert(!OptElseClause);
-  OptElseClause = std::unique_ptr<TStmtBlock>(new TStmtBlock);
+  OptElseClause = std::make_unique<TStmtBlock>();
 }
 
 TStmtBlock &TIf::GetElseClause() {

@@ -172,9 +172,10 @@ namespace Visitor {
 
     /* Single accept with a result. Dispatches to the correct TAcceptor depending on TVisitor::TResult. */
     template <typename TVisitor, typename TBase, typename... TArgs>
-    auto Accept(TBase &&base, TArgs &&... args)
-        DECLTYPE_AUTO((TAcceptor<typename TVisitor::TResult, TVisitor>::Single(std::forward<TBase>(base),
-                                                                               std::forward<TArgs>(args)...)));
+    decltype(auto) Accept(TBase &&base, TArgs &&... args) {
+      return TAcceptor<typename TVisitor::TResult, TVisitor>::Single(std::forward<TBase>(base),
+                                                                             std::forward<TArgs>(args)...);
+    }
 
   }  // Single
 
@@ -182,10 +183,11 @@ namespace Visitor {
 
     /* Double accept with a result. Dispatches to the correct TAcceptor depending on TVisitor::TResult. */
     template <typename TVisitor, typename TLhs, typename TRhs, typename... TArgs>
-    auto Accept(TLhs &&lhs, TRhs &&rhs, TArgs &&... args)
-        DECLTYPE_AUTO((TAcceptor<typename TVisitor::TResult, TVisitor>::Double(std::forward<TLhs>(lhs),
+    decltype(auto) Accept(TLhs &&lhs, TRhs &&rhs, TArgs &&... args) {
+      return TAcceptor<typename TVisitor::TResult, TVisitor>::Double(std::forward<TLhs>(lhs),
                                                                                std::forward<TRhs>(rhs),
-                                                                               std::forward<TArgs>(args)...)));
+                                                                               std::forward<TArgs>(args)...);
+    }
 
   }  // Double
 

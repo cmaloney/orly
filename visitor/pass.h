@@ -39,7 +39,7 @@
 
 #pragma once
 
-#include <c14/type_traits.h>
+#include <type_traits>
 
 namespace Visitor {
 
@@ -56,7 +56,7 @@ namespace Visitor {
 
   /* Add const-ref to T. Becomes: const T &. */
   template <typename T>
-  using Cref = std::add_lvalue_reference<c14::add_const_t<T>>;
+  using Cref = std::add_lvalue_reference<std::add_const_t<T>>;
 
   /* Convenience type alias for Cref<T>::type. */
   template <typename T>
@@ -72,7 +72,7 @@ namespace Visitor {
 
   /* const T * */
   template <typename T>
-  using Cptr = std::add_pointer<c14::add_const_t<T>>;
+  using Cptr = std::add_pointer<std::add_const_t<T>>;
 
   /* Convenience type alias for Cptr<T>::type. */
   template <typename T>
@@ -85,8 +85,8 @@ namespace Visitor {
   template <typename T>
   using IsSmall =
       std::integral_constant<bool,
-                             std::is_pod<c14::decay_t<T>>::value &&
-                                 sizeof(c14::decay_t<T>) <= sizeof(int *)>;
+                             std::is_pod<std::decay_t<T>>::value &&
+                                 sizeof(std::decay_t<T>) <= sizeof(int *)>;
 
   /* Pass by T if T is POD and the size of T is less than or equal to a
      pointer (passing by value is more efficient or

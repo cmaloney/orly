@@ -44,7 +44,7 @@ void Compile(const char *name, const char *filename, int num_trials = 3) {
   for (int i = 0; i < num_trials; ++i) {
     Base::TTimer timer;
     std::ostringstream strm;
-    strm << "g++ -std=c++11 -I" << SRC_ROOT << ' ' << filename;
+    strm << "g++ -std=c++1y -I" << SRC_ROOT << ' ' << filename;
     timer.Start();
     Starsha::TRunner runner(strm.str());
     auto status = runner.Wait();

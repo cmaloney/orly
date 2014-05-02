@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <c14/lang.h>
 #include <vector>
 
 #include <base/false.h>
@@ -74,8 +73,9 @@ namespace Orly {
        Note: If we have nested optionals we'll loop back into this function,
              which is invalid in Orlyscript */
     template <typename TAddr, typename TVal>
-    auto IsEmpty(const TMutable<TAddr, TVal> &mutable_)
-      DECLTYPE_AUTO(IsEmpty(mutable_.GetVal()));
+    auto IsEmpty(const TMutable<TAddr, TVal> &mutable_) {
+      return IsEmpty(mutable_.GetVal());
+    }
 
   }  // Rt
 

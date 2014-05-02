@@ -102,7 +102,10 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
                                             const TManager::TPtr<Indy::TRepo> &global_repo,
                                             const TManager::TPtr<Indy::TRepo> &repo,
                                             Base::TScheduler &scheduler)> &cb) {
-  Fiber::TFiberTestRunner runner([&](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &runner_cons) {
+  Fiber::TFiberTestRunner runner([&](std::mutex &mut,
+                                     std::condition_variable &cond,
+                                     bool &fin,
+                                     Fiber::TRunner::TRunnerCons &runner_cons) {
     using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,
       Orly::Indy::Disk::Util::LogicalBlockSize,
       Orly::Indy::Disk::Util::PhysicalBlockSize,
@@ -141,31 +144,31 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
       Fiber::TRunner bg_runner(runner_cons);
       std::vector<size_t> merge_mem_cores{0};
       std::vector<size_t> merge_disk_cores{0};
-      unique_ptr<TManager> manager(new TManager(mem_engine.GetEngine(),
-                                                ReplicationSyncBufMB,
-                                                MergeMemInterval,
-                                                MergeDiskInterval,
-                                                LayerCleaningInterval,
-                                                ReplicationInterval,
-                                                TManager::Solo,
-                                                AllowTailing,
-                                                AllowFileSync,
-                                                NoRealtime,
-                                                std::move(solo_sock),
-                                                wait_for_slave,
-                                                StateChanged,
-                                                UpdateReplicationNotificationCb,
-                                                OnReplicateIndexIdCb,
-                                                ForEachIndexCb,
-                                                ForEachSchedulerCb,
-                                                &scheduler,
-                                                &bg_runner,
-                                                BlockSlotsAvailablePerMerger,
-                                                MaxRepoCacheSize,
-                                                TempFileConsolidationThreshold,
-                                                merge_mem_cores,
-                                                merge_disk_cores,
-                                                true));
+      auto manager = make_unique<TManager>(mem_engine.GetEngine(),
+                                           ReplicationSyncBufMB,
+                                           MergeMemInterval,
+                                           MergeDiskInterval,
+                                           LayerCleaningInterval,
+                                           ReplicationInterval,
+                                           TManager::Solo,
+                                           AllowTailing,
+                                           AllowFileSync,
+                                           NoRealtime,
+                                           std::move(solo_sock),
+                                           wait_for_slave,
+                                           StateChanged,
+                                           UpdateReplicationNotificationCb,
+                                           OnReplicateIndexIdCb,
+                                           ForEachIndexCb,
+                                           ForEachSchedulerCb,
+                                           &scheduler,
+                                           &bg_runner,
+                                           BlockSlotsAvailablePerMerger,
+                                           MaxRepoCacheSize,
+                                           TempFileConsolidationThreshold,
+                                           merge_mem_cores,
+                                           merge_disk_cores,
+                                           true);
       auto durable_manager = make_shared<Orly::Indy::Disk::TDurableManager>(&scheduler,
                                                                             runner_cons,
                                                                             frame_pool_manager,
@@ -237,7 +240,8 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
     std::lock_guard<std::mutex> lock(mut);
     fin = true;
     cond.notify_one();
-  }, 6);
+                                 },
+                                 6);
 }
 
 FIXTURE(Typical) {

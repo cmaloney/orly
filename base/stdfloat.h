@@ -1,4 +1,4 @@
-/* <c14/cstdfloat.h>
+/* <base/stdfloat.h>
 
    Aliases for the built-in floating-point types.  Similar to <cstdint>.
 

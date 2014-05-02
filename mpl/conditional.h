@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include <c14/type_traits.h>
+#include <type_traits>
 
 namespace Mpl {
 
   template <typename If, typename Then, typename Else>
-  using Conditional = c14::conditional_t<If::value, Then, Else>;
+  using Conditional = std::conditional_t<If::value, Then, Else>;
 
 }  // Mpl

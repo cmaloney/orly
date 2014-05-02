@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include <c14/identity.h>
-
+#include <base/identity.h>
 #include <mpl/type_list.h>
 
 namespace Mpl {
@@ -30,7 +29,7 @@ namespace Mpl {
 
   template <typename... TLhsElems, typename... TRhsElems>
   struct Extend<TTypeList<TLhsElems...>, TTypeList<TRhsElems...>>
-      : public c14::identity<TTypeList<TLhsElems..., TRhsElems...>> {};
+      : public Base::identity<TTypeList<TLhsElems..., TRhsElems...>> {};
 
   template <typename TLhs, typename TRhs>
   using TExtend = typename Extend<TLhs, TRhs>::type;

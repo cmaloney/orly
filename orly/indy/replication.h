@@ -48,7 +48,7 @@ namespace Orly {
       /* TODO */
       void Read(Io::TBinaryInputStream &stream) {
         assert(!CoreVec);
-        CoreVec = std::unique_ptr<Atom::TCoreVector>(new Atom::TCoreVector(stream));
+        CoreVec = std::make_unique<Atom::TCoreVector>(stream);
       }
 
       /* TODO */

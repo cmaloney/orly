@@ -416,19 +416,23 @@ void TIndexFile::PrepKeyRange(TDataFile::TUpdateCollector *update_collector, TDa
   }
 
   Engine->AppendReserveBlocks(StorageSpeed, max_blocks_required, *BlockVec);
-  KeyStream = std::unique_ptr<TDataFile::TDataOutStream>(new TDataFile::TDataOutStream(HERE,
-                                                                                       Source::DataFileKey,
-                                                                                       Engine->GetVolMan(),
-                                                                                       ByteOffsetOfKeyIndex,
-                                                                                       *BlockVec,
-                                                                                       KeyCollisionMap,
-                                                                                       KeyTrigger,
-                                                                                       Priority,
-                                                                                       true,
-                                                                                       #ifndef NDEBUG
-                                                                                       WrittenBlockSet,
-                                                                                       #endif
-                                                                                       [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;}));
+  KeyStream =
+      std::make_unique<TDataFile::TDataOutStream>(HERE,
+                                                  Source::DataFileKey,
+                                                  Engine->GetVolMan(),
+                                                  ByteOffsetOfKeyIndex,
+                                                  *BlockVec,
+                                                  KeyCollisionMap,
+                                                  KeyTrigger,
+                                                  Priority,
+                                                  true,
+                                                  #ifndef NDEBUG
+                                                  WrittenBlockSet,
+                                                  #endif
+                                                  [/* causing ICE if left to default */](Disk::Util::TVolumeManager *) {
+        throw;
+        return 0U;
+      });
 }
 
 Atom::TCore::TOffset TIndexFile::RemapKey(Atom::TCore::TOffset offset) {
@@ -769,13 +773,9 @@ TDataFile::TDataFile(Util::TEngine *engine,
       UpdateCollector(HERE, Source::DataFileUpdateIndex, TempFileConsolThresh, StorageSpeed, Engine, true) {
   assert(this);
   try {
-    std::unique_ptr<TIndexFile::TOrderedNoteIndex> main_arena_note_index(new TIndexFile::TOrderedNoteIndex(HERE,
-                                                                                                           Source::DataFileNoteIndex,
-                                                                                                           TempFileConsolThresh,
-                                                                                                           StorageSpeed,
-                                                                                                           Engine,
-                                                                                                           true));
-    std::unordered_map<Base::TUuid, std::unique_ptr<TIndexFile>> index_map;
+    auto main_arena_note_index = make_unique<TIndexFile::TOrderedNoteIndex>(
+        HERE, Source::DataFileNoteIndex, TempFileConsolThresh, StorageSpeed, Engine, true);
+    std::unordered_map<Base::TUuid, std::unique_ptr<TIndexFile> > index_map;
     size_t main_arena_max_bytes = 0UL;
     /* compute the number of updates */ {
       for (TMemoryLayer::TUpdateCollection::TCursor csr(memory_layer->GetUpdateCollection()); csr; ++csr) {
@@ -793,17 +793,18 @@ TDataFile::TDataFile(Util::TEngine *engine,
         if (!prev_index_id || cur_idx_id != *prev_index_id) {
           if (prev_index_id) {
             assert(prev_entry);
-            auto ret = index_map.emplace(*prev_index_id, std::unique_ptr<TIndexFile>(new TIndexFile(*prev_index_id,
-                                                                                                    gen_id,
-                                                                                                    Engine,
-                                                                                                    StorageSpeed,
-                                                                                                    Priority,
-                                                                                                    MainArenaRemapIndex,
-                                                                                                    #ifndef NDEBUG
-                                                                                                    WrittenBlockSet,
-                                                                                                    #endif
-                                                                                                    TempFileConsolThresh,
-                                                                                                    prev_entry->GetKey())));
+            auto ret = index_map.emplace(*prev_index_id,
+                                         std::make_unique<TIndexFile>(*prev_index_id,
+                                                                      gen_id,
+                                                                      Engine,
+                                                                      StorageSpeed,
+                                                                      Priority,
+                                                                      MainArenaRemapIndex,
+                                                                      #ifndef NDEBUG
+                                                                      WrittenBlockSet,
+                                                                      #endif
+                                                                      TempFileConsolThresh,
+                                                                      prev_entry->GetKey()));
             TIndexFile &index_file = *ret.first->second;
             std::swap(index_file.ArenaNoteIndex, ordered_note_index);
             index_file.MaxArenaBytes = cur_index_bytes;
@@ -812,13 +813,9 @@ TDataFile::TDataFile(Util::TEngine *engine,
           cur_index_bytes = 0UL;
           max_key_count = 0UL;
           prev_index_id = cur_idx_id;
-          ordered_note_index = std::unique_ptr<TIndexFile::TOrderedNoteIndex>(new TIndexFile::TOrderedNoteIndex(HERE,
-                                                                                                                Source::DataFileNoteIndex,
-                                                                                                                TempFileConsolThresh,
-                                                                                                                StorageSpeed,
-                                                                                                                Engine,
-                                                                                                                true));
-        }
+          ordered_note_index = std::make_unique<TIndexFile::TOrderedNoteIndex>(
+              HERE, Source::DataFileNoteIndex, TempFileConsolThresh, StorageSpeed, Engine, true);
+                                                                              }
         TSuprena &cur_arena = csr->GetSuprena();
         /* push the key's arena */ {
           const TCore &key_core = csr->GetKey().GetCore();
@@ -849,18 +846,20 @@ TDataFile::TDataFile(Util::TEngine *engine,
       }
       if (prev_index_id) {
         assert(prev_entry);
-        auto ret = index_map.emplace(*prev_index_id, std::unique_ptr<TIndexFile>(new TIndexFile(*prev_index_id,
-                                                                                                gen_id,
-                                                                                                Engine,
-                                                                                                StorageSpeed,
-                                                                                                Priority,
-                                                                                                MainArenaRemapIndex,
-                                                                                                #ifndef NDEBUG
-                                                                                                WrittenBlockSet,
-                                                                                                #endif
-                                                                                                TempFileConsolThresh,
-                                                                                                prev_entry->GetKey())));
-        TIndexFile &index_file = *ret.first->second;
+        auto ret = index_map.emplace(*prev_index_id,
+                                     std::make_unique<TIndexFile>(*prev_index_id,
+                                                                  gen_id,
+                                                                  Engine,
+                                                                  StorageSpeed,
+                                                                  Priority,
+                                                                  MainArenaRemapIndex,
+                                                                      #ifndef NDEBUG
+                                                                  WrittenBlockSet,
+                                                                      #endif
+                                                                  TempFileConsolThresh,
+                                                                  prev_entry->GetKey()));
+                                                                              TIndexFile &index_file =
+                                                                                  *ret.first->second;
         std::swap(index_file.ArenaNoteIndex, ordered_note_index);
         index_file.MaxArenaBytes = cur_index_bytes;
         index_file.MaxKeyCount = max_key_count;
