@@ -128,9 +128,12 @@ void TCFamilyFile::OnExists() {
                  Whatever it is, try to convert the token into a rel path. */
               const char *rel_path = GetCorpus()->TryGetRelPath(token);
               if (rel_path) {
-                /* We found a rel path to an included header. */
-                HdrFiles.push_back(TSpecificKind<THdrFile>::GetOrNewOutFile(GetCorpus(), rel_path));
-                new TNote(note, rel_path);
+                if(GetCorpus()->IsFileIncluded(rel_path)) {
+                  /* We found a rel path to an included header. */
+                  HdrFiles.push_back(TSpecificKind<THdrFile>::GetOrNewOutFile(GetCorpus(), rel_path));
+                  new TNote(note, rel_path);
+
+                }
               }
             }
             /* Done with this token.  Switch modes. */
