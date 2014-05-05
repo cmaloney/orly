@@ -51,3 +51,32 @@ bool TDeviceUtil::ForEachDevice(const function<bool(const char *)> &cb) {
 
   return true;
 }
+
+bool TDeviceUtil::IsHardDrive(const std::string &dev_path) {
+  return dev_path.compare(0, 2, "sd") == 0;
+}
+
+std::string TDeviceUtil::GetPathToPartitionInfo(const std::string &dev_path) {
+  if(IsHardDrive(dev_path)) {
+    return GetPathToDeviceInfo(dev_path) + dev_path + '/';
+  }
+  return GetPathToDeviceInfo(dev_path);
+}
+
+std::string TDeviceUtil::GetPathToDeviceInfo(const std::string &dev_path) {
+  std::string path_to_partition_info = "/sys/block/";
+  if (IsHardDrive(dev_path)) {
+    auto digit_start = dev_path.find_last_not_of("0123456789");
+    if (digit_start == std::string::npos) {
+      path_to_partition_info += dev_path;
+    } else {
+      path_to_partition_info += dev_path.substr(0, digit_start + 1);
+    }
+  } else {
+    path_to_partition_info += dev_path;
+  }
+  // NOTE: We add the '/'  on a seperate line from the return so that we can take advantage of NRVO
+  path_to_partition_info += '/';
+
+  return path_to_partition_info;
+}

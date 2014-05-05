@@ -213,33 +213,11 @@ namespace Orly {
           /* TODO */
           static bool ForEachDevice(const std::function<bool (const char *)> &cb);
 
-          /* TODO */
-          static std::string GetPathToPartitionInfo(const std::string &dev_path) {
-            std::string path_to_partition_info = "/sys/block/";
-            if (isdigit(dev_path.back()) && strncmp(dev_path.c_str(), "dm-", 3) != 0) {
-              size_t len_of_device_name = 0UL;
-              for (size_t i = 0; i < dev_path.size(); ++i, ++len_of_device_name) {
-                if (isdigit(dev_path[i])) {
-                  break;
-                }
-              }
-              path_to_partition_info += dev_path.substr(0, len_of_device_name) + '/';
-            }
-            path_to_partition_info += dev_path + "/";
-            return std::move(path_to_partition_info);
-          }
+          static bool IsHardDrive(const std::string &dev_path);
 
-          static std::string GetPathToDeviceInfo(const std::string &dev_path) {
-            std::string path_to_device_info = "/sys/block/";
-            size_t len_of_device_name = 0UL;
-            for (size_t i = 0; i < dev_path.size(); ++i, ++len_of_device_name) {
-              if (isdigit(dev_path[i]) && strncmp(dev_path.c_str(), "dm-", 3) != 0) {
-                break;
-              }
-            }
-            path_to_device_info += dev_path.substr(0, len_of_device_name) + '/';
-            return std::move(path_to_device_info);
-          }
+          static std::string GetPathToPartitionInfo(const std::string &dev_path);
+
+          static std::string GetPathToDeviceInfo(const std::string &dev_path);
 
           static size_t GetValFromDeviceInfo(const std::string &dev_name, const std::string &path_to_field) {
             const std::string path_to_device_info = TDeviceUtil::GetPathToDeviceInfo(std::string(dev_name));
