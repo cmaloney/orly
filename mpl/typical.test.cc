@@ -71,6 +71,7 @@ static_assert(
                  TTypeList<int8_t, int16_t, int32_t, uint16_t, uint32_t, uint64_t>>::value,
     "");
 
+/*
 // TSort<TCompare, TTypeList>
 static_assert(std::is_same<TSort<TLess, TTypeList<>>, TTypeList<>>::value, "");
 static_assert(std::is_same<TSort<TLess, TTypeList<int>>, TTypeList<int>>::value, "");
@@ -82,6 +83,7 @@ static_assert(
     std::is_same<TSort<TGreater, TTypeList<int8_t, int32_t, uint16_t, int16_t, uint32_t, int64_t, uint64_t>>,
                  TReverse<TTypeList<int8_t, int16_t, int32_t, int64_t, uint16_t, uint32_t, uint64_t>>>::value,
     "");
+*/
 
 /**
  *   TTypeSet.
