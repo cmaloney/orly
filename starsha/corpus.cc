@@ -364,20 +364,7 @@ TCorpus::TCorpus(const char *config, const char *config_mixin, size_t worker_cou
   });
   /* Add all of the source files. */
   Walk(
-    Src.c_str(),
-    [this](const char *rel_path){
-      for (const string &excluded_dir: ExcludedDirs) {
-        if (strncmp(rel_path, excluded_dir.c_str(), excluded_dir.size()) == 0) {
-          for (const string &included_dir: IncludedDirs) {
-            if (strncmp(rel_path, included_dir.c_str(), included_dir.size()) == 0) {
-              return true;
-            }  // if  (included...)
-          }  // for (included_dirs...)
-          return false;
-        }  // if  (excluded...)
-      }  // for (excluded_dirs...)
-      return true;
-    },
+    Src.c_str(), std::bind(&TCorpus::IsFileIncluded, this, placeholders::_1),
     [this](const char *rel_path, time_t mod_time) {
       if (strncmp(rel_path, "tools/nycr/nycr", 15)) {
         auto kind = TFile::TKind::TryGetKindByRelPath(rel_path);
@@ -388,6 +375,20 @@ TCorpus::TCorpus(const char *config, const char *config_mixin, size_t worker_cou
     }
   );
   Process();
+}
+
+bool TCorpus::IsFileIncluded(const char *rel_path) const {
+  for (const string &excluded_dir : ExcludedDirs) {
+    if (strncmp(rel_path, excluded_dir.c_str(), excluded_dir.size()) == 0) {
+      for (const string &included_dir : IncludedDirs) {
+        if (strncmp(rel_path, included_dir.c_str(), included_dir.size()) == 0) {
+          return true;
+        } // if  (included...)
+      }   // for (included_dirs...)
+      return false;
+    } // if  (excluded...)
+  }   // for (excluded_dirs...)
+  return true;
 }
 
 TCorpus::~TCorpus() {

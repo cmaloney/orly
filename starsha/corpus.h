@@ -338,6 +338,9 @@ namespace Starsha {
       return Note;
     }
 
+    /* Returns true iff the file is valid to be in the corpus (isn't explicitly excluded from the corpus) */
+    bool IsFileIncluded(const char *path) const;
+
     /* TODO */
     const std::string &GetOut() const {
       assert(this);

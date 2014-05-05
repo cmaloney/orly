@@ -1,6 +1,7 @@
 "root" {
   "exclude" {
     ".git";
+    "third_party/websocketpp";
   }
   "include" {}
   "tools" {
@@ -22,6 +23,7 @@
         "-lz";
         "-lreadline";
         "-lsnappy";
+        "-lboost_system";
       }
     }
     "g++" {
@@ -39,6 +41,9 @@
 
         "-DTEST_OUTPUT_DIR=\"/tmp/\"";
         "-DORLY_HOST";
+
+        "-D_WEBSOCKETPP_CPP11_STL_";
+        "-isystem third_party/websocketpp/"
 
         "-DDEBUG";
         "-g";
