@@ -107,12 +107,12 @@ namespace Orly {
 
     /* TODO */
     template <typename TLhs>
-    class TRhsVisitor
+    class TRhsStateVisitor
         : public TStateVisitor {
       public:
 
       /* TODO */
-      TRhsVisitor(const TLhs &lhs, const TStateDoubleVisitor &double_visitor)
+      TRhsStateVisitor(const TLhs &lhs, const TStateDoubleVisitor &double_visitor)
           : Lhs(lhs), DoubleVisitor(double_visitor) {}
 
       /* TODO */
@@ -152,47 +152,47 @@ namespace Orly {
       /* TODO */
       const TStateDoubleVisitor &DoubleVisitor;
 
-    };  // TRhsVisitor<TLhs>
+    };  // TRhsStateVisitor<TLhs>
 
     /* TODO */
-    class TLhsVisitor
+    class TLhsStateVisitor
         : public TStateVisitor {
       public:
 
       /* TODO */
-      TLhsVisitor(const State::TAny &rhs, const TStateDoubleVisitor &double_visitor)
+      TLhsStateVisitor(const State::TAny &rhs, const TStateDoubleVisitor &double_visitor)
           : Rhs(rhs), DoubleVisitor(double_visitor) {}
 
-      virtual ~TLhsVisitor() {}
+      virtual ~TLhsStateVisitor() {}
 
       /* TODO */
-      virtual void operator()(const State::TFree &lhs      ) const { Rhs.Accept(TRhsVisitor<State::TFree     >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TTombstone &lhs ) const { Rhs.Accept(TRhsVisitor<State::TTombstone>(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TVoid &lhs      ) const { Rhs.Accept(TRhsVisitor<State::TVoid     >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TInt8 &lhs      ) const { Rhs.Accept(TRhsVisitor<State::TInt8     >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TInt16 &lhs     ) const { Rhs.Accept(TRhsVisitor<State::TInt16    >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TInt32 &lhs     ) const { Rhs.Accept(TRhsVisitor<State::TInt32    >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TInt64 &lhs     ) const { Rhs.Accept(TRhsVisitor<State::TInt64    >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TUInt8 &lhs     ) const { Rhs.Accept(TRhsVisitor<State::TUInt8    >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TUInt16 &lhs    ) const { Rhs.Accept(TRhsVisitor<State::TUInt16   >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TUInt32 &lhs    ) const { Rhs.Accept(TRhsVisitor<State::TUInt32   >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TUInt64 &lhs    ) const { Rhs.Accept(TRhsVisitor<State::TUInt64   >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TBool &lhs      ) const { Rhs.Accept(TRhsVisitor<State::TBool     >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TChar &lhs      ) const { Rhs.Accept(TRhsVisitor<State::TChar     >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TFloat &lhs     ) const { Rhs.Accept(TRhsVisitor<State::TFloat    >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TDouble &lhs    ) const { Rhs.Accept(TRhsVisitor<State::TDouble   >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TDuration &lhs  ) const { Rhs.Accept(TRhsVisitor<State::TDuration >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TTimePoint &lhs ) const { Rhs.Accept(TRhsVisitor<State::TTimePoint>(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TUuid &lhs      ) const { Rhs.Accept(TRhsVisitor<State::TUuid     >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TBlob &lhs      ) const { Rhs.Accept(TRhsVisitor<State::TBlob     >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TStr &lhs       ) const { Rhs.Accept(TRhsVisitor<State::TStr      >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TDesc &lhs      ) const { Rhs.Accept(TRhsVisitor<State::TDesc     >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TOpt &lhs       ) const { Rhs.Accept(TRhsVisitor<State::TOpt      >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TSet &lhs       ) const { Rhs.Accept(TRhsVisitor<State::TSet      >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TVector &lhs    ) const { Rhs.Accept(TRhsVisitor<State::TVector   >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TMap &lhs       ) const { Rhs.Accept(TRhsVisitor<State::TMap      >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TRecord &lhs    ) const { Rhs.Accept(TRhsVisitor<State::TRecord   >(lhs, DoubleVisitor)); }
-      virtual void operator()(const State::TTuple &lhs     ) const { Rhs.Accept(TRhsVisitor<State::TTuple    >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TFree &lhs      ) const { Rhs.Accept(TRhsStateVisitor<State::TFree     >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TTombstone &lhs ) const { Rhs.Accept(TRhsStateVisitor<State::TTombstone>(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TVoid &lhs      ) const { Rhs.Accept(TRhsStateVisitor<State::TVoid     >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TInt8 &lhs      ) const { Rhs.Accept(TRhsStateVisitor<State::TInt8     >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TInt16 &lhs     ) const { Rhs.Accept(TRhsStateVisitor<State::TInt16    >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TInt32 &lhs     ) const { Rhs.Accept(TRhsStateVisitor<State::TInt32    >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TInt64 &lhs     ) const { Rhs.Accept(TRhsStateVisitor<State::TInt64    >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TUInt8 &lhs     ) const { Rhs.Accept(TRhsStateVisitor<State::TUInt8    >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TUInt16 &lhs    ) const { Rhs.Accept(TRhsStateVisitor<State::TUInt16   >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TUInt32 &lhs    ) const { Rhs.Accept(TRhsStateVisitor<State::TUInt32   >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TUInt64 &lhs    ) const { Rhs.Accept(TRhsStateVisitor<State::TUInt64   >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TBool &lhs      ) const { Rhs.Accept(TRhsStateVisitor<State::TBool     >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TChar &lhs      ) const { Rhs.Accept(TRhsStateVisitor<State::TChar     >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TFloat &lhs     ) const { Rhs.Accept(TRhsStateVisitor<State::TFloat    >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TDouble &lhs    ) const { Rhs.Accept(TRhsStateVisitor<State::TDouble   >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TDuration &lhs  ) const { Rhs.Accept(TRhsStateVisitor<State::TDuration >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TTimePoint &lhs ) const { Rhs.Accept(TRhsStateVisitor<State::TTimePoint>(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TUuid &lhs      ) const { Rhs.Accept(TRhsStateVisitor<State::TUuid     >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TBlob &lhs      ) const { Rhs.Accept(TRhsStateVisitor<State::TBlob     >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TStr &lhs       ) const { Rhs.Accept(TRhsStateVisitor<State::TStr      >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TDesc &lhs      ) const { Rhs.Accept(TRhsStateVisitor<State::TDesc     >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TOpt &lhs       ) const { Rhs.Accept(TRhsStateVisitor<State::TOpt      >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TSet &lhs       ) const { Rhs.Accept(TRhsStateVisitor<State::TSet      >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TVector &lhs    ) const { Rhs.Accept(TRhsStateVisitor<State::TVector   >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TMap &lhs       ) const { Rhs.Accept(TRhsStateVisitor<State::TMap      >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TRecord &lhs    ) const { Rhs.Accept(TRhsStateVisitor<State::TRecord   >(lhs, DoubleVisitor)); }
+      virtual void operator()(const State::TTuple &lhs     ) const { Rhs.Accept(TRhsStateVisitor<State::TTuple    >(lhs, DoubleVisitor)); }
 
       private:
 
@@ -202,12 +202,12 @@ namespace Orly {
       /* TODO */
       const TStateDoubleVisitor &DoubleVisitor;
 
-    };  // TLhsVisitor
+    };  // TLhsStateVisitor
 
   }  // Sabot
 
 }  // Orly
 
 void Orly::Sabot::AcceptDouble(const State::TAny &lhs, const State::TAny &rhs, const TStateDoubleVisitor &double_visitor) {
-  lhs.Accept(TLhsVisitor(rhs, double_visitor));
+  lhs.Accept(TLhsStateVisitor(rhs, double_visitor));
 }
