@@ -99,11 +99,11 @@ void TFileSync::Read(Io::TBinaryInputStream &stream) {
                                           collision_map,
                                           trigger,
                                           Disk::Low,
-                                          true,
+                                          true
                                           #ifndef NDEBUG
-                                          written_block_set,
+                                          ,written_block_set
                                           #endif
-                                          [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                          );
     size_t compressed_size = 0UL;
     auto buf_block = std::make_unique<TBufBlock>();
     for (size_t amt_decompressed = 0UL; amt_decompressed < file_length;) {

@@ -509,11 +509,11 @@ TDurableManager::TSortedByIdFile::TSortedByIdFile(TMemSlushLayer *mem_layer,
                               block_collision_map,
                               completion_trigger,
                               priority,
-                              true,
+                              true
                               #ifndef NDEBUG
-                              written_block_set,
+                              ,written_block_set
                               #endif
-                              [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                              );
 
     out_stream << NumDurable;  // NumEntries
     out_stream << num_blocks;  // NumBlocks
@@ -569,11 +569,11 @@ TDurableManager::TSortedByIdFile::TSortedByIdFile(TMemSlushLayer *mem_layer,
                             block_collision_map,
                             completion_trigger,
                             priority,
-                            true,
+                            true
                             #ifndef NDEBUG
-                            written_block_set,
+                            ,written_block_set
                             #endif
-                            [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                            );
 
       for (size_t i = 0; i < num_hash_fields; ++i) {
         if (hash_csr && (*hash_csr).Hash <= i) {
@@ -611,11 +611,11 @@ TDurableManager::TSortedByIdFile::TSortedByIdFile(TMemSlushLayer *mem_layer,
                                 block_collision_map,
                                 completion_trigger,
                                 priority,
-                                true,
+                                true
                                 #ifndef NDEBUG
-                                written_block_set,
+                                ,written_block_set
                                 #endif
-                                [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                );
       TMyFile my_file(this);
       TInStream in_stream(HERE, Source::DurableSortFileHash, priority, &my_file, Engine->GetPageCache(), byte_offset_of_hash_index);
       uuid_t cur_id;
@@ -939,11 +939,11 @@ TDurableManager::TMergeSortedByIdFile::TMergeSortedByIdFile(const std::vector<si
                                 block_collision_map,
                                 completion_trigger,
                                 priority,
-                                true,
+                                true
                                 #ifndef NDEBUG
-                                written_block_set,
+                                ,written_block_set
                                 #endif
-                                [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                );
 
     index_stream << NumDurable;  // NumEntries
     index_stream << num_blocks;  // NumBlocks
@@ -1060,11 +1060,11 @@ TDurableManager::TMergeSortedByIdFile::TMergeSortedByIdFile(const std::vector<si
                             block_collision_map,
                             completion_trigger,
                             priority,
-                            true,
+                            true
                             #ifndef NDEBUG
-                            written_block_set,
+                            ,written_block_set
                             #endif
-                            [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                            );
 
       for (size_t i = 0; i < num_hash_fields; ++i) {
         if (hash_csr && (*hash_csr).Hash <= i) {
@@ -1102,11 +1102,11 @@ TDurableManager::TMergeSortedByIdFile::TMergeSortedByIdFile(const std::vector<si
                                 block_collision_map,
                                 completion_trigger,
                                 priority,
-                                true,
+                                true
                                 #ifndef NDEBUG
-                                written_block_set,
+                                ,written_block_set
                                 #endif
-                                [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                );
       TMyFile my_file(this);
       TInStream in_stream(HERE, Source::DurableMergeFileHash, priority, &my_file, Engine->GetPageCache(), byte_offset_of_hash_index);
       uuid_t cur_id;
