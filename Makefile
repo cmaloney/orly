@@ -1,3 +1,5 @@
+.NOTPARALLEL:
+
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
 RELEASE_OUT=../out/release
@@ -9,19 +11,19 @@ ORLY_UTIL=starsha/starsha starsha/dummy orly/core_import
 .PHONY: apps release test test_build test_lang clean install
 
 apps: tools/starsha
-	starsha $(ORLY_APPS) $(ORLY_UTIL)
+	starsha $(STARSHA_FLAGS) $(ORLY_APPS) $(ORLY_UTIL)
 
 release: tools/starsha
-	starsha $(ORLY_APPS) $(ORLY_UTIL) --config=release
+	starsha $(STARSHA_FLAGS) $(ORLY_APPS) $(ORLY_UTIL) --config=release
 
 tools/starsha:
 	./bootstrap.sh
 
 test: apps
-	starsha --all="*.test" --test
+	starsha $(STARSHA_FLAGS) --all="*.test" --test
 
 test_build: apps
-	starsha --all="*.test"
+	starsha $(STARSHA_FLAGS) --all="*.test"
 
 test_lang: apps
 	cd orly/lang_tests; ./run_tests.py
