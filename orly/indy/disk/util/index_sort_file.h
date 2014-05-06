@@ -196,11 +196,11 @@ namespace Orly {
                                                        collision_map,
                                                        CompletionTrigger,
                                                        Low,
-                                                       true,
+                                                       true
                                                        #ifndef NDEBUG
-                                                       written_block_set,
+                                                       ,written_block_set
                                                        #endif
-                                                       [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                                       );
               TMyBlockSink::TDataOutStream out_stream(HERE,
                                                       util_src,
                                                       vol_man,
@@ -209,11 +209,11 @@ namespace Orly {
                                                       collision_map,
                                                       CompletionTrigger,
                                                       Low,
-                                                      true,
+                                                      true
                                                       #ifndef NDEBUG
-                                                      written_block_set,
+                                                      ,written_block_set
                                                       #endif
-                                                      [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                                      );
               TMyBlockSink block_sink(out_stream);
               while (left > 0) {
                 const size_t do_now = std::min(left, max_per_block);
@@ -314,11 +314,11 @@ namespace Orly {
                                                          collision_map,
                                                          CompletionTrigger,
                                                          Low,
-                                                         true,
+                                                         true
                                                          #ifndef NDEBUG
-                                                         written_block_set,
+                                                         ,written_block_set
                                                          #endif
-                                                         [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                                         );
                 TMyBlockSink::TDataOutStream out_stream(HERE,
                                                         util_src,
                                                         vol_man,
@@ -327,11 +327,11 @@ namespace Orly {
                                                         collision_map,
                                                         CompletionTrigger,
                                                         Low,
-                                                        true,
+                                                        true
                                                         #ifndef NDEBUG
-                                                        written_block_set,
+                                                        ,written_block_set
                                                         #endif
-                                                        [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                                        );
 
 
 

@@ -117,7 +117,6 @@ namespace Orly {
                     const size_t logical_offset = page_id * PageSize;
                     char *buf = cache->PageData + (page_offset * PageSize);
 
-                    TSlot *this_slot = this; /* TODO: have to do this right now because it segfaults (ICE) gcc 4.7.1 if you capture [this] */
                     TCompletionTrigger *trigger_ptr = &async_trigger;
                     cache->VolumeManager->Read(code_location,
                                                buf_kind,
@@ -127,15 +126,15 @@ namespace Orly {
                                                PageSize,
                                                priority,
                                                async_trigger,
-                                               [this_slot, main_slot, can_release, new_val, trigger_ptr, cache, page_id, code_location](TDiskResult result, const char *err_str) {
+                                               [this, main_slot, can_release, new_val, trigger_ptr, cache, page_id, code_location](TDiskResult result, const char *err_str) {
                       if (result == TDiskResult::Success) {
                         size_t val = new_val | HighestBit;
-                        std::atomic_store(&(this_slot->BufAddr), val);
+                        std::atomic_store(&(BufAddr), val);
                         trigger_ptr->Callback(result, err_str);
                       } else {
                         size_t val = new_val | HighestBit;
                         val |= ThirdHighestBit; /* set the error bit */
-                        std::atomic_store(&(this_slot->BufAddr), val);
+                        std::atomic_store(&(BufAddr), val);
                       }
                       if (can_release) {
                         cache->Release(main_slot, page_id);

@@ -601,11 +601,11 @@ class TMergeDataFileImpl {
                                                     collision_map,
                                                     completion_trigger,
                                                     Priority,
-                                                    true /* do_cache */,
+                                                    true /* do_cache */
                                                     #ifndef NDEBUG
-                                                    WrittenBlockSet,
+                                                    ,WrittenBlockSet
                                                     #endif
-                                                    [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                                    );
           TMergeDataFileImpl::TDataOutStream ptr_stream(HERE,
                                                     Source::MergeDataFileUpdate,
                                                     Engine->GetVolMan(),
@@ -614,11 +614,11 @@ class TMergeDataFileImpl {
                                                     collision_map,
                                                     completion_trigger,
                                                     Priority,
-                                                    true /* do_cache */,
+                                                    true /* do_cache */
                                                     #ifndef NDEBUG
-                                                    WrittenBlockSet,
+                                                    ,WrittenBlockSet
                                                     #endif
-                                                    [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                                    );
           typename TUpdateCollector::TCursor update_csr(&UpdateCollector, MaxBlockCacheReadSlotsAllowed);
           assert(update_csr);
           TSequenceNumber cur_seq_num = (*update_csr).SequenceNumber;
@@ -729,11 +729,11 @@ class TMergeDataFileImpl {
                                               collision_map,
                                               completion_trigger,
                                               Priority,
-                                              true /* do_cache */,
+                                              true /* do_cache */
                                               #ifndef NDEBUG
-                                              WrittenBlockSet,
+                                              ,WrittenBlockSet
                                               #endif
-                                              [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                              );
         stream << BlockVec.Size();  // # of blocks
         stream << num_meta_blocks;  // # of meta-blocks
         stream << num_sequential_block_pairings;  // # of #block / block_id pairings
@@ -1398,11 +1398,11 @@ class TMergeDataFileImpl {
                                   arena_collision_map,
                                   completion_trigger,
                                   priority,
-                                  true /* do_cache */,
+                                  true /* do_cache */
                                   #ifndef NDEBUG
-                                  written_block_set,
+                                  ,written_block_set
                                   #endif
-                                  [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                  );
       Atom::TCore::TOffset cur_disk_offset = 0UL;
 
       /* let's get some information about what types are involved... */ {
@@ -2145,11 +2145,11 @@ class TMergeDataFileImpl {
                                    KeyCollisionMap,
                                    KeyTrigger,
                                    Priority,
-                                   true /*do cache */,
+                                   true /*do cache */
                                    #ifndef NDEBUG
-                                   WrittenBlockSet,
+                                   ,WrittenBlockSet
                                    #endif
-                                   [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                   );
 
         meta_stream << ArenaByteOffset;  // Offset of Arena
         meta_stream << NumArenaNotes;  // number of arena notes
@@ -2245,14 +2245,11 @@ class TMergeDataFileImpl {
                                            KeyCollisionMap,
                                            KeyTrigger,
                                            Priority,
-                                           true /* do_cache */,
+                                           true /* do_cache */
                                            #ifndef NDEBUG
-                                           WrittenBlockSet,
+                                           ,WrittenBlockSet
                                            #endif
-                                           [/* causing ICE if left to default */](Disk::Util::TVolumeManager *) {
-            throw;
-            return 0U;
-          });
+                                           );
                                         WasPrepared = true;
     }
 
@@ -2384,11 +2381,11 @@ class TMergeDataFileImpl {
                                 collision_map,
                                 completion_trigger,
                                 Priority,
-                                true /* do_cache */,
+                                true /* do_cache */
                                 #ifndef NDEBUG
-                                WrittenBlockSet,
+                                ,WrittenBlockSet
                                 #endif
-                                [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                );
           for (size_t i = 0; i < num_hash_fields; ++i) {
             if (hash_csr && (*hash_csr).Hash <= i) {
               const THashObj &obj = *hash_csr;
@@ -2449,11 +2446,11 @@ class TMergeDataFileImpl {
                                       collision_map,
                                       completion_trigger,
                                       Priority,
-                                      true /* do_cache */,
+                                      true /* do_cache */
                                       #ifndef NDEBUG
-                                      WrittenBlockSet,
+                                      ,WrittenBlockSet
                                       #endif
-                                      [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                      );
             TDataInStream<0UL> in_stream(HERE, Source::DataFileHash, Priority, this, Engine->GetCache<TDataInStream<0UL>::PhysicalCachePageSize>(), hash_index_byte_offset);
             Atom::TCore core;
             size_t key_ptr = 0;

@@ -89,11 +89,11 @@ FIXTURE(Stream) {
     /* stream data out */ {
       std::unordered_set<size_t> written_block_set{};
       TDataOutStream out_stream(HERE, 0UL, mem_engine.GetVolMan(), 0UL, block_vec, collision_map,
-                                trigger, RealTime, true,
+                                trigger, RealTime, true
                                 #ifndef NDEBUG
-                                written_block_set,
+                                ,written_block_set
                                 #endif
-                                [/* causing ICE if left to default */](TVolumeManager *){throw; return 0U;});
+                                );
       for (size_t i = 0; i < num_to_write; ++i) {
         out_stream << i;
       }

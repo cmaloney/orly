@@ -119,11 +119,11 @@ std::pair<size_t, size_t> TMetaRewriter::RewriteMetaData(Disk::Util::TEngine *en
                        collision_map,
                        trigger,
                        Disk::Medium,
-                       true,
+                       true
                        #ifndef NDEBUG
-                       written_block_set,
+                       ,written_block_set
                        #endif
-                       [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                       );
     out << block_vec_size - old_num_meta_blocks + num_meta_blocks;  // # of blocks
     out << num_meta_blocks;  // # of meta-blocks
     out << num_sequential_block_pairings;  // # of #block / block_id pairings

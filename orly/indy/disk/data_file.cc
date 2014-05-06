@@ -189,11 +189,11 @@ class TIndexFile
                                             KeyCollisionMap,
                                             KeyTrigger,
                                             Priority,
-                                            true,
+                                            true
                                             #ifndef NDEBUG
-                                            WrittenBlockSet,
+                                            ,WrittenBlockSet
                                             #endif
-                                            [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                            );
 
       meta_stream << ArenaByteOffset;  // Offset of Arena
       meta_stream << NumArenaNotes;  // number of arena notes
@@ -425,14 +425,11 @@ void TIndexFile::PrepKeyRange(TDataFile::TUpdateCollector *update_collector, TDa
                                                   KeyCollisionMap,
                                                   KeyTrigger,
                                                   Priority,
-                                                  true,
+                                                  true
                                                   #ifndef NDEBUG
-                                                  WrittenBlockSet,
+                                                  ,WrittenBlockSet
                                                   #endif
-                                                  [/* causing ICE if left to default */](Disk::Util::TVolumeManager *) {
-        throw;
-        return 0U;
-      });
+                                                  );
 }
 
 Atom::TCore::TOffset TIndexFile::RemapKey(Atom::TCore::TOffset offset) {
@@ -628,11 +625,11 @@ void TIndexFile::FlushHashes() {
                                        collision_map,
                                        completion_trigger,
                                        Priority,
-                                       true,
+                                       true
                                        #ifndef NDEBUG
-                                       WrittenBlockSet,
+                                       ,WrittenBlockSet
                                        #endif
-                                       [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                       );
       for (size_t i = 0; i < num_hash_fields; ++i) {
         if (hash_csr && (*hash_csr).Hash <= i) {
           const THashObj &obj = *hash_csr;
@@ -696,11 +693,11 @@ void TIndexFile::FlushHashes() {
                                              collision_map,
                                              completion_trigger,
                                              Priority,
-                                             true,
+                                             true
                                              #ifndef NDEBUG
-                                             WrittenBlockSet,
+                                             ,WrittenBlockSet
                                              #endif
-                                             [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                             );
         TDataFile::TDataInStream<0UL> in_stream(HERE, Source::DataFileHash, Priority, this, Engine->GetCache<TDataFile::TDataInStream<0UL>::PhysicalCachePageSize>(), hash_index_byte_offset);
         TCore core;
         size_t key_ptr = 0;
@@ -965,11 +962,11 @@ TDataFile::TDataFile(Util::TEngine *engine,
                                   collision_map,
                                   completion_trigger,
                                   Priority,
-                                  true,
+                                  true
                                   #ifndef NDEBUG
-                                  WrittenBlockSet,
+                                  ,WrittenBlockSet
                                   #endif
-                                  [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                  );
         TDataOutStream ptr_stream(HERE,
                                   Source::DataFileUpdate,
                                   Engine->GetVolMan(),
@@ -978,11 +975,11 @@ TDataFile::TDataFile(Util::TEngine *engine,
                                   collision_map,
                                   completion_trigger,
                                   Priority,
-                                  true,
+                                  true
                                   #ifndef NDEBUG
-                                  WrittenBlockSet,
+                                  ,WrittenBlockSet
                                   #endif
-                                  [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                  );
         TUpdateCollector::TCursor update_csr(&UpdateCollector, 32UL);
         assert(update_csr);
         TSequenceNumber cur_seq_num = (*update_csr).SequenceNumber;
@@ -1091,11 +1088,11 @@ TDataFile::TDataFile(Util::TEngine *engine,
                             collision_map,
                             completion_trigger,
                             Priority,
-                            true,
+                            true
                             #ifndef NDEBUG
-                            WrittenBlockSet,
+                            ,WrittenBlockSet
                             #endif
-                            [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                            );
       stream << BlockVec.Size();  // # of blocks
       stream << num_meta_blocks;  // # of meta-blocks
       stream << num_sequential_block_pairings;  // # of #block / block_id pairings
@@ -1240,11 +1237,11 @@ size_t MakeArena(Disk::Util::TEngine *engine,
                                            arena_collision_map,
                                            completion_trigger,
                                            priority,
-                                           true,
+                                           true
                                            #ifndef NDEBUG
-                                           written_block_set,
+                                           ,written_block_set
                                            #endif
-                                           [/* causing ICE if left to default */](Disk::Util::TVolumeManager *){throw; return 0U;});
+                                           );
     type_boundary_vec.push_back(cur_disk_offset);
 
     void *lhs_type_alloc = alloca(Sabot::Type::GetMaxTypeSize() * 2);
