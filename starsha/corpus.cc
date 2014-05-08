@@ -158,14 +158,14 @@ bool TCorpus::TFile::TrySetModTime() {
 }
 
 TCorpus::TFile::TFile(TCorpus *corpus, const string &rel_path)
-    : IsSrc(false), RelPath(rel_path) {
+    : IsSrc(false), IsNew(false), RelPath(rel_path) {
   assert(RelPath[0] != '.');
   Init(corpus);
   TrySetModTime();
 }
 
 TCorpus::TFile::TFile(TCorpus *corpus, const string &rel_path, time_t mod_time)
-    : IsSrc(true), RelPath(rel_path), ModTime(mod_time) {
+    : IsSrc(true), IsNew(false), RelPath(rel_path), ModTime(mod_time) {
   assert(RelPath[0] != '.');
   Init(corpus);
   Base::TSpinLock::TLock lock(Corpus->FilesToScanLock);
@@ -177,6 +177,11 @@ TCorpus::TFile::~TFile() {}
 void TCorpus::TFile::CollectBuildLeaves(unordered_set<TFile *> &leaves) {
   assert(this);
   assert(&leaves);
+  if (IsNew) {
+    // If we're already generated, all our dependencies must have been met already. Don't look for more.
+    // Looking for more causes problesm.
+    return;
+  }
   if (!IsSrc) {
     auto producer = TryGetProducer();
     if (!producer) {
@@ -420,6 +425,7 @@ void TCorpus::Build(const vector<TCorpus::TFile *> &targets, const function<bool
           }
         }
         for (auto product: products) {
+          product->MarkAsNew();
           if (!product->TrySetModTime()) {
             THROW << '"' << producer->RelPath << "\" claimed to produce \"" << product->RelPath << "\" but it didn't";
           }
