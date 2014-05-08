@@ -19,8 +19,11 @@
 #include <orly/server/ws.h>
 
 #include <cassert>
+#include <cstdlib>
 #include <memory>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 #include <unistd.h>
 
@@ -71,6 +74,8 @@ class TSessionManager
       return Id;
     }
 
+    void InstallPackage(const vector<string> &/*name*/, uint64_t /*version*/) {}
+
     TWs::TSessionPin *NewPin() {
       return new TPin(this);
     }
@@ -86,6 +91,8 @@ class TSessionManager
       TSuprena arena;
       return TMethodResult(&arena, TCore(98.6, &arena, alloc), TOpt<TTracker>());
     }
+
+    void UninstallPackage(const vector<string> &/*name*/, uint64_t /*version*/) {}
 
     private:
 
@@ -114,6 +121,11 @@ class TSessionManager
         return Session->Id;
       }
 
+      virtual void InstallPackage(const vector<string> &name, uint64_t version) const override {
+        assert(this);
+        return Session->InstallPackage(name, version);
+      }
+
       virtual TUuid NewPov(bool is_safe, bool is_shared, const TOpt<TUuid> &parent_id) const override {
         assert(this);
         return Session->NewPov(is_safe, is_shared, parent_id);
@@ -122,6 +134,11 @@ class TSessionManager
       virtual TMethodResult Try(const TMethodRequest &method_request) const override {
         assert(this);
         return Session->Try(method_request);
+      }
+
+      virtual void UninstallPackage(const vector<string> &name, uint64_t version) const override {
+        assert(this);
+        return Session->UninstallPackage(name, version);
       }
 
       private:
@@ -140,11 +157,12 @@ class TSessionManager
 
 };  // TSessionManager
 
-int main(int, char *[]) {
+int main(int argc, char *argv[]) {
+  in_port_t port_number = (argc >= 2) ? atoi(argv[1]) : 8080;
   THandlerInstaller handle_sigint(SIGINT);
   TMasker mask_all_but_sigint(*TSet(TSet::Exclude, { SIGINT }));
   TSessionManager session_mngr;
-  unique_ptr<TWs> ws(TWs::New(&session_mngr, 8081));
+  unique_ptr<TWs> ws(TWs::New(&session_mngr, port_number));
   pause();
   return 0;
 }
