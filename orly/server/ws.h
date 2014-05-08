@@ -18,6 +18,10 @@
 
 #pragma once
 
+#include <cstdint>
+#include <string>
+#include <vector>
+
 #include <netinet/in.h>
 
 #include <base/class_traits.h>
@@ -49,10 +53,16 @@ namespace Orly {
           virtual const Base::TUuid &GetId() const = 0;
 
           /* TODO */
+          virtual void InstallPackage(const std::vector<std::string> &name, uint64_t version) const = 0;
+
+          /* TODO */
           virtual Base::TUuid NewPov(bool is_safe, bool is_shared, const Base::TOpt<Base::TUuid> &parent_id) const = 0;
 
           /* TODO */
           virtual TMethodResult Try(const TMethodRequest &method_request) const = 0;
+
+          /* TODO */
+          virtual void UninstallPackage(const std::vector<std::string> &name, uint64_t version) const = 0;
 
           protected:
 

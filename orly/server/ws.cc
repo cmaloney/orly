@@ -124,12 +124,10 @@ class TWsImpl final
       virtual void operator()(const TBeginImportStmt *) const override { NotSupported("begin import"); }
       virtual void operator()(const TEndImportStmt   *) const override { NotSupported("end import"); }
       virtual void operator()(const TImportStmt      *) const override { NotSupported("import"); }
-      virtual void operator()(const TInstallStmt     *) const override { NotSupported("install"); }
       virtual void operator()(const TPovStatusStmt   *) const override { NotSupported("pause/unpause pov"); }
       virtual void operator()(const TSetTtlStmt      *) const override { NotSupported("set ttl"); }
       virtual void operator()(const TSetUserIdStmt   *) const override { NotSupported("set user_id"); }
       virtual void operator()(const TTailStmt        *) const override { NotSupported("tail"); }
-      virtual void operator()(const TUninstallStmt   *) const override { NotSupported("uninstall"); }
 
       /* Echo. */
       virtual void operator()(const TEchoStmt *stmt) const override {
@@ -166,13 +164,30 @@ class TWsImpl final
         Strm << Conn->Session->GetId();
       }
 
+      /* Install package. */
+      virtual void operator()(const TInstallStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        vector<string> package_name;
+        uint64_t version;
+        TranslatePackage(package_name, version, stmt->GetPackageName());
+        GetSession()->InstallPackage(package_name, version);
+      }
+
+      /* Uninstall package. */
+      virtual void operator()(const TUninstallStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        vector<string> package_name;
+        uint64_t version;
+        TranslatePackage(package_name, version, stmt->GetPackageName());
+        GetSession()->UninstallPackage(package_name, version);
+      }
+
       /* New pov. */
       virtual void operator()(const TPovConsStmt *stmt) const override {
         assert(this);
         assert(stmt);
-        if (!Conn->Session) {
-          throw invalid_argument("session not yet established");
-        }
         bool is_safe = dynamic_cast<const TSafeGuarantee *>(stmt->GetPovGuarantee()) != nullptr;
         bool is_shared = dynamic_cast<const TSharedKind *>(stmt->GetPovKind()) != nullptr;
         TOpt<TUuid> parent_id;
@@ -180,16 +195,13 @@ class TWsImpl final
         if (parent) {
           parent_id = Translate(parent->GetIdExpr());
         }
-        Strm << Conn->Session->NewPov(is_safe, is_shared, parent_id);
+        Strm << GetSession()->NewPov(is_safe, is_shared, parent_id);
       }
 
       /* Try call. */
       virtual void operator()(const TTryStmt *stmt) const override {
         assert(this);
         assert(stmt);
-        if (!Conn->Session) {
-          throw invalid_argument("session not yet established");
-        }
         TUuid pov_id = Translate(stmt->GetPovId());
         vector<string> fq_name;
         TranslatePathName(fq_name, stmt->GetPackage());
@@ -203,7 +215,7 @@ class TWsImpl final
           auto tail = dynamic_cast<const TObjMemberListTail *>(list->GetOptObjMemberListTail());
           list = tail ? tail->GetObjMemberList() : nullptr;
         }
-        TMethodResult result = Conn->Session->Try(TMethodRequest(pov_id, fq_name, closure));
+        TMethodResult result = GetSession()->Try(TMethodRequest(pov_id, fq_name, closure));
         Indy::TKey(result.GetValue(), result.GetArena().get()).Dump(Strm);
       }
 
@@ -215,6 +227,15 @@ class TWsImpl final
       /* Pull in some stuff from sabot. */
       using TStateDumper = Orly::Sabot::TStateDumper;
       using TWrapper = Orly::Sabot::State::TAny::TWrapper;
+
+      /* TODO */
+      TSessionPin *GetSession() const {
+        assert(this);
+        if (!Conn->Session) {
+          throw invalid_argument("session not yet established");
+        }
+        return Conn->Session.get();
+      }
 
       /* TODO */
       static void NotSupported(const char *name) {
