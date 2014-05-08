@@ -484,7 +484,7 @@ namespace Orly {
             try {
               ((*runnable).*runnable_func)();
             } catch (const std::exception &ex) {
-              syslog(LOG_EMERG, "FATAL ERROR: Fiber Runner caught exception. These must be handled within the fiber.");
+              syslog(LOG_EMERG, "FATAL ERROR: Fiber Runner caught exception. These must be handled within the fiber. %s", ex.what());
               //abort();
             }
             #ifndef NDEBUG

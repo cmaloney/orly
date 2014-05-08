@@ -72,6 +72,7 @@ int TApp::Run() {
 
 int main(int argc, char *argv[]) {
   TApp::TCmd cmd(argc, argv);
+  TLog log(cmd);
   TApp app(cmd);
   return app.Run();
 }

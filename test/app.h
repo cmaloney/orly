@@ -25,6 +25,7 @@
 #include <base/assert_true.h>
 #include <base/class_traits.h>
 #include <base/cmd.h>
+#include <base/log.h>
 
 namespace Test {
 
@@ -35,7 +36,7 @@ namespace Test {
     NO_COPY(TApp);
     public:
 
-    class TCmd : public Base::TCmd {
+    class TCmd : public Base::TLog::TCmd {
       NO_COPY(TCmd);
       public:
 
@@ -44,9 +45,9 @@ namespace Test {
       }
 
       private:
-      class TMeta : public Base::TCmd::TMeta {
+      class TMeta : public Base::TLog::TCmd::TMeta {
         public:
-        TMeta() : Base::TCmd::TMeta("Orly Unit Test") {
+        TMeta() : Base::TLog::TCmd::TMeta("Orly Unit Test") {
           Param(&TCmd::VerboseMember, "verbose", Optional, "verbose\0v\0", "Show the results of unit tests, regardless of whether they pass or fail");
           Param(&TCmd::PrintTiming, "print_timing", Optional, "timing\0t\0", "Print execution time for each fixture");
         }
