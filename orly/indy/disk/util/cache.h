@@ -19,7 +19,6 @@
 #pragma once
 
 #include <sched.h>
-#include <sys/mman.h>
 #include <unistd.h>
 
 #include <atomic>
@@ -29,6 +28,7 @@
 #include <base/class_traits.h>
 #include <base/error_utils.h>
 #include <base/likely.h>
+#include <base/mlock.h>
 #include <inv_con/atomic_unordered_list.h>
 #include <orly/indy/disk/util/hash_util.h>
 #include <orly/indy/disk/util/volume_manager.h>
@@ -241,10 +241,10 @@ namespace Orly {
             ReadWait.tv_sec = 0;
             ReadWait.tv_nsec = 25000L;
             SlotArray = new TSlot[NumSlots];
-            Base::IfLt0(mlock(SlotArray, NumSlots * sizeof(TSlot)));
+            Base::MlockN(*SlotArray, NumSlots);
             try {
               LRUArray = new TLRU[NumLRU];
-              Base::IfLt0(mlock(LRUArray, NumLRU * sizeof(TLRU)));
+              Base::MlockN(*LRUArray, NumLRU);
               try {
                 assert(PageSize >= static_cast<size_t>(getpagesize()));
                 assert(PageSize % getpagesize() == 0);

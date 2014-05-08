@@ -18,12 +18,12 @@
 
 #include <orly/indy/util/pool.h>
 
-#include <base/error_utils.h>
-
 #include <cstdint>
 #include <cstdlib>
 #include <string.h>
-#include <sys/mman.h>
+
+#include <base/error_utils.h>
+#include <base/mlock.h>
 
 using namespace std;
 using namespace Orly::Indy::Util;
@@ -51,7 +51,7 @@ void TPool::Init(size_t block_count) {
       syslog(LOG_EMERG, "TPool::Init() [%s] bad_alloc while trying to init pool of %ld blocks [%ld bytes]", Name, block_count, (BlockSize * block_count));
       throw std::bad_alloc();
     }
-    Base::IfLt0(mlock(Blob, BlockSize * block_count));
+    Base::MlockRaw(Blob, BlockSize * block_count);
     #ifndef NDEBUG
     memset(Blob, 0, BlockSize * block_count);
     #endif

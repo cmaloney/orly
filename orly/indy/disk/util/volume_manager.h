@@ -31,7 +31,6 @@
 #include <sys/epoll.h>
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
-#include <sys/mman.h>
 #include <syslog.h>
 #include <unistd.h>
 
@@ -40,6 +39,7 @@
 #include <base/error_utils.h>
 #include <base/event_semaphore.h>
 #include <base/likely.h>
+#include <base/mlock.h>
 #include <base/scheduler.h>
 #include <base/sigma_calc.h>
 #include <base/timer.h>
@@ -692,7 +692,7 @@ namespace Orly {
               : TDevice(TDesc{TDesc::Mem, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, fsync_on, do_corruption_check), Data(nullptr) {
             assert(Desc.Capacity % getpagesize() == 0);
             Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&Data), getpagesize(), PhysicalBlockSize /* super block */ + Desc.Capacity));
-            Base::IfLt0(mlock(Data, PhysicalBlockSize /* super block */ + Desc.Capacity));
+            Base::MlockRaw(Data, PhysicalBlockSize + Desc.Capacity);
             try {
               memset(Data, 0, PhysicalBlockSize /* super block */ + Desc.Capacity);
             } catch (...) {
