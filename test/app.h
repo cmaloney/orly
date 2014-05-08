@@ -170,5 +170,4 @@ namespace Test {
     assert(&logger);
     return logger.Write(val);
   }
-
 }
