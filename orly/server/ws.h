@@ -41,7 +41,10 @@ namespace Orly {
         NO_COPY(TWs);
         public:
 
-        /* Inherit and finalize this class to handle per-session operations. */
+        /* Inherit and finalize this class to handle per-session operations.
+           The websockets subsystem will destroy this interface object when the connection
+           goes away, so, in the Orly sense, it's not the session (which is durable), but
+           a pin in the session to indicate it is in use. */
         class TSessionPin {
           NO_COPY(TSessionPin);
           public:
@@ -52,16 +55,16 @@ namespace Orly {
           /* The id used to resume the session later. */
           virtual const Base::TUuid &GetId() const = 0;
 
-          /* TODO */
+          /* Override to perform the request (syncrhonously. */
           virtual void InstallPackage(const std::vector<std::string> &name, uint64_t version) const = 0;
 
-          /* TODO */
+          /* Override to perform the request (syncrhonously. */
           virtual Base::TUuid NewPov(bool is_safe, bool is_shared, const Base::TOpt<Base::TUuid> &parent_id) const = 0;
 
-          /* TODO */
+          /* Override to perform the request (syncrhonously. */
           virtual TMethodResult Try(const TMethodRequest &method_request) const = 0;
 
-          /* TODO */
+          /* Override to perform the request (syncrhonously. */
           virtual void UninstallPackage(const std::vector<std::string> &name, uint64_t version) const = 0;
 
           protected:
@@ -71,7 +74,8 @@ namespace Orly {
 
         };  // TWs::TSessionPin
 
-        /* Inherit and finalize this class to handle per-connection. */
+        /* Inherit and finalize this class to handle per-connection.
+           To the websockets subsystem, this interface represents the rest of the server. */
         class TSessionManager {
           NO_COPY(TSessionManager);
           public:
