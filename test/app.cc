@@ -25,10 +25,15 @@
 #include <base/cmd.h>
 #include <base/os_error.h>
 #include <test/fixture.h>
+#include <test/is_in_test.h>
 
 using namespace std;
 using namespace Base;
 using namespace Test;
+
+void Test::ExtraInit() {
+  AvoidTheseWheneverPossible::MarkAsInTest();
+}
 
 TApp::TRunner::~TRunner() {}
 
@@ -71,6 +76,7 @@ int TApp::Run() {
 }
 
 int main(int argc, char *argv[]) {
+  ExtraInit();
   TApp::TCmd cmd(argc, argv);
   TLog log(cmd);
   TApp app(cmd);

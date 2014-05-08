@@ -22,13 +22,13 @@
 #include <stdexcept>
 #include <vector>
 
-#include <sys/mman.h>
 #include <syslog.h>
 
 #include <base/assert_true.h>
 #include <base/class_traits.h>
 #include <base/error_utils.h>
 #include <base/likely.h>
+#include <base/mlock.h>
 #include <base/spin_lock.h>
 #include <inv_con/atomic_unordered_list.h>
 
@@ -223,7 +223,7 @@ namespace Base {
     TThreadLocalGlobalPoolManager(size_t num_elems, const TArgs &... args)
         : NumElems(num_elems), Alloc(nullptr), PoolCollection(this) {
       Alloc = reinterpret_cast<TObj *>(malloc(sizeof(TObj) * num_elems));
-      Base::IfLt0(mlock(Alloc, sizeof(TObj) * num_elems));
+      MlockN(*Alloc, num_elems);
       if (unlikely(!Alloc)) {
         throw std::bad_alloc();
       }

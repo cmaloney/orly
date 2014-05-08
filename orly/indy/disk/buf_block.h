@@ -24,10 +24,10 @@
 
 #include <syslog.h>
 #include <unistd.h>
-#include <sys/mman.h>
 
 #include <base/class_traits.h>
 #include <base/error_utils.h>
+#include <base/mlock.h>
 #include <base/spin_lock.h>
 
 namespace Orly {
@@ -80,7 +80,7 @@ namespace Orly {
             MaxBlocks = block_count;
             if (block_count) {
               Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&Blob), getpagesize(), BlockSize * block_count));
-              Base::IfLt0(mlock(Blob, BlockSize * block_count));
+              Base::MlockRaw(Blob, BlockSize * block_count);
               #ifndef NDEBUG
               memset(Blob, 0, BlockSize * block_count);
               #endif
