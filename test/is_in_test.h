@@ -34,6 +34,10 @@
 
 #include <cstdint>
 
+namespace Base {
+  void MlockRaw(const void *, uint64_t);
+}
+
 namespace Test {
 
   void ExtraInit();
@@ -50,6 +54,7 @@ namespace Test {
     static void MarkAsInTest();
 
     friend void Test::ExtraInit();
+    friend void Base::MlockRaw(const void *, uint64_t);
   };
 
 } // Base
