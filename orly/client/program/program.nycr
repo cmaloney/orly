@@ -80,6 +80,8 @@ xact_kwd          = '"xact"';
 echo_kwd          = '"echo"';
 pov_kwd           = '"pov"';
 tail_kwd          = '"tail"';
+session_kwd       = '"session"';
+resume_kwd        = '"resume"';
 
 unary_placeholder = '' unary_prec right;
 name = '[_a-zA-Z][_a-zA-Z0-9]*' pri 2;
@@ -130,6 +132,8 @@ set_ttl_stmt        : stmt -> set_kwd ttl_kwd id_expr to_kwd int_expr semi;
 try_stmt            : stmt -> try_kwd pov_id:id_expr package:name_list method_name:name args:obj_expr semi;
 echo_stmt           : stmt -> echo_kwd expr semi;
 tail_stmt           : stmt -> tail_kwd semi;
+new_session_stmt    : stmt -> new_kwd session_kwd semi;
+resume_session_stmt : stmt -> resume_kwd session_kwd id_expr semi;
 
 image : top -> image_kwd open_brace opt_xact_seq close_brace;
 
