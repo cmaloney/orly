@@ -195,11 +195,23 @@ class TWsTestServer::TSessionManager
 
 };  // TSessionManager
 
-TWsTestServer::TWsTestServer(in_port_t port_number)
-    : SessionManager(nullptr), Ws(nullptr) {
+TWsTestServer::TWsTestServer(in_port_t port_start, size_t probe_size)
+    : SessionManager(nullptr), PortNumber(port_start), Ws(nullptr) {
+  assert(probe_size);
   try {
     SessionManager = new TSessionManager;
-    Ws = TWs::New(SessionManager, port_number);
+    for (;;) {
+      try {
+        Ws = TWs::New(SessionManager, PortNumber);
+        break;
+      } catch (...) {
+        --probe_size;
+        if (!probe_size) {
+          throw;
+        }
+        ++PortNumber;
+      }
+    }  // for
   } catch (...) {
     this->~TWsTestServer();
     throw;

@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <cassert>
+#include <cstddef>
+
 #include <base/class_traits.h>
 #include <orly/server/ws.h>
 
@@ -30,11 +33,20 @@ namespace Orly {
       NO_COPY(TWsTestServer);
       public:
 
-      /* Startup the server on the given port. */
-      TWsTestServer(in_port_t port_number = 8080);
+      /* Startup the server on the first available port, starting from the
+         given port, and continuing up monotonically for the given number of
+         probes.  If no port is available in the given range, throw. */
+      explicit TWsTestServer(
+          in_port_t port_start = 8080, size_t probe_size = 1);
 
       /* Shutdown the server. */
       ~TWsTestServer();
+
+      /* The port on which the server is accepting connections. */
+      in_port_t GetPortNumber() const noexcept {
+        assert(this);
+        return PortNumber;
+      }
 
       private:
 
@@ -43,6 +55,9 @@ namespace Orly {
 
       /* The session manager we provide to the server object. */
       TSessionManager *SessionManager;
+
+      /* See accessor. */
+      in_port_t PortNumber;
 
       /* The server object we wrap. */
       TWs *Ws;

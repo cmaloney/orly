@@ -34,42 +34,27 @@ using TMsgPtr = TAsioClient::message_ptr;
 const string UriPrefix = "ws://127.0.0.1:";
 
 FIXTURE(Typical) {
-  /* TODO: This loop-and-retry approach is a hack. The server isn't releasing
-     its port number properly, probably because I'm not using the library correctly.
-     I also don't know how to do a bind-to-any-port style server with this library,
-     so, to get repeatable success, we have to port-probe. */
-  in_port_t port_number = 8080;
-  int retry_limit = 100;
-  string reply;
-  do {
-    try {
-      TWsTestServer ws_test_server(port_number);
-      TAsioClient client;
-      client.clear_access_channels(websocketpp::log::alevel::all);
-      client.clear_error_channels(websocketpp::log::elevel::all);
-      client.init_asio();
-      client.set_open_handler(
-        [&client](TConnHndl conn_hndl) {
-          client.send(conn_hndl, "echo 'hello';", websocketpp::frame::opcode::text);    
-        }
-      );
-      client.set_message_handler(
-        [&client, &reply](TConnHndl conn_hndl, TMsgPtr msg_ptr) {
-          reply = msg_ptr->get_payload();
-          client.close(conn_hndl, websocketpp::close::status::going_away, "");
-        }
-      );
-      websocketpp::lib::error_code ec;
-      auto conn = client.get_connection(UriPrefix + to_string(port_number), ec);
-      client.connect(conn);
-      client.run();
-    } catch (...) {
-      --retry_limit;
-      if (!retry_limit) {
-        throw;
-      }
-      ++port_number;
+  TWsTestServer ws_test_server(8080, 100);
+  TAsioClient client;
+  client.clear_access_channels(websocketpp::log::alevel::all);
+  client.clear_error_channels(websocketpp::log::elevel::all);
+  client.init_asio();
+  client.set_open_handler(
+    [&client](TConnHndl conn_hndl) {
+      client.send(conn_hndl, "echo 'hello';", websocketpp::frame::opcode::text);    
     }
-  } while (reply.empty());
+  );
+  string reply;
+  client.set_message_handler(
+    [&client, &reply](TConnHndl conn_hndl, TMsgPtr msg_ptr) {
+      reply = msg_ptr->get_payload();
+      client.close(conn_hndl, websocketpp::close::status::going_away, "");
+    }
+  );
+  websocketpp::lib::error_code ec;
+  auto conn = client.get_connection(
+      UriPrefix + to_string(ws_test_server.GetPortNumber()), ec);
+  client.connect(conn);
+  client.run();
   EXPECT_EQ(reply, "ok:\"hello\"");
 }

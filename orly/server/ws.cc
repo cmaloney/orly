@@ -56,6 +56,7 @@ class TWsImpl final
     AsioServer.clear_access_channels(websocketpp::log::alevel::all);
     AsioServer.clear_error_channels(websocketpp::log::elevel::all);
     AsioServer.init_asio();
+    AsioServer.set_reuse_addr(true);
     AsioServer.set_open_handler(bind(&TWsImpl::OnOpen, this, _1));
     AsioServer.set_close_handler(bind(&TWsImpl::OnClose, this, _1));
     AsioServer.set_message_handler(bind(&TWsImpl::OnMsg, this, _1, _2));

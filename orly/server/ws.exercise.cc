@@ -35,13 +35,15 @@ using namespace Signal;
 
 /* Very main.  So running.  Wow. */
 int main(int argc, char *argv[]) {
-  /* Get our port number from the command line, or use the default. */
+  /* Get our port number and probe size from the command line,
+     or use the defaults. */
   in_port_t port_number = (argc >= 2) ? atoi(argv[1]) : 8080;
+  size_t probe_size = (argc >= 3) ? atoi(argv[2]) : 1;
   /* Handle SIGINT. */
   THandlerInstaller handle_sigint(SIGINT);
   TMasker mask_all_but_sigint(*TSet(TSet::Exclude, { SIGINT }));
   /* Make an el-fake-o server and run the websocket interface against it. */
-  TWsTestServer ws_test_server(port_number);
+  TWsTestServer ws_test_server(port_number, probe_size);
   /* Wait to be told to stop. */
   pause();
   return EXIT_SUCCESS;
