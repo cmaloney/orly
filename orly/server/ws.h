@@ -52,8 +52,17 @@ namespace Orly {
           /* Do-little. */
           virtual ~TSessionPin() {}
 
+          /* Override to perform the request (syncrhonously. */
+          virtual void BeginImport() const = 0;
+
+          /* Override to perform the request (syncrhonously. */
+          virtual void EndImport() const = 0;
+
           /* The id used to resume the session later. */
           virtual const Base::TUuid &GetId() const = 0;
+
+          /* Override to perform the request (syncrhonously. */
+          virtual void Import(const std::string &path, uint64_t count) const = 0;
 
           /* Override to perform the request (syncrhonously. */
           virtual void InstallPackage(const std::vector<std::string> &name, uint64_t version) const = 0;
@@ -63,6 +72,15 @@ namespace Orly {
 
           /* Override to perform the request (syncrhonously. */
           virtual void PausePov(const Base::TUuid &pov_id) const = 0;
+
+          /* Override to perform the request (syncrhonously. */
+          virtual void SetTtl(const Base::TUuid &durable_id, const std::chrono::seconds &ttl) const = 0;
+
+          /* Override to perform the request (syncrhonously. */
+          virtual void SetUserId(const Base::TUuid &user_id) const = 0;
+
+          /* Override to perform the request (syncrhonously. */
+          virtual void Tail() const = 0;
 
           /* Override to perform the request (syncrhonously. */
           virtual TMethodResult Try(const TMethodRequest &method_request) const = 0;
