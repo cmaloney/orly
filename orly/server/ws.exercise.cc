@@ -85,6 +85,8 @@ class TSessionManager
       return TUuid(TUuid::Best);
     }
 
+    void PausePov(const Base::TUuid &/*pov_id*/) const {}
+
     TMethodResult Try(const TMethodRequest &/*method_request*/) {
       assert(this);
       void *alloc = alloca(Sabot::State::GetMaxStateSize());
@@ -93,6 +95,8 @@ class TSessionManager
     }
 
     void UninstallPackage(const vector<string> &/*name*/, uint64_t /*version*/) {}
+
+    void UnpausePov(const Base::TUuid &/*pov_id*/) const {}
 
     private:
 
@@ -131,6 +135,11 @@ class TSessionManager
         return Session->NewPov(is_safe, is_shared, parent_id);
       }
 
+      virtual void PausePov(const Base::TUuid &pov_id) const override {
+        assert(this);
+        return Session->PausePov(pov_id);
+      }
+
       virtual TMethodResult Try(const TMethodRequest &method_request) const override {
         assert(this);
         return Session->Try(method_request);
@@ -139,6 +148,11 @@ class TSessionManager
       virtual void UninstallPackage(const vector<string> &name, uint64_t version) const override {
         assert(this);
         return Session->UninstallPackage(name, version);
+      }
+
+      virtual void UnpausePov(const Base::TUuid &pov_id) const override {
+        assert(this);
+        return Session->UnpausePov(pov_id);
       }
 
       private:

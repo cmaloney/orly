@@ -77,25 +77,24 @@ class TWsImpl final
   using TMsgPtr = TAsioServer::message_ptr;
   using TConnHndl = websocketpp::connection_hdl;
 
-  /* TODO */
+  /* Constructed by TWsImpl::OnOpen(), destroyed by TWsImpl::OnClose(). */
   class TConn final {
     NO_COPY(TConn);
     public:
 
-    /* TODO */
+    /* Cache the args. */
     TConn(TWsImpl *ws, TConnHndl hndl)
         : Ws(ws), Hndl(hndl), Exiting(false) {}
 
-    /* TODO */
-    ~TConn() {}
-
-    /* TODO */
+    /* True iff. we have processed an exit statement and so want the TCP
+       connection to close. */
     bool IsExiting() const noexcept {
       assert(this);
       return Exiting;
     }
 
-    /* TODO */
+    /* Called by TWsImpl::OnMsg(). Parses and interprets a statement sent
+       to us as a text message. */
     string OnMsg(TMsgPtr msg) {
       assert(this);
       assert(msg);
@@ -111,12 +110,12 @@ class TWsImpl final
 
     private:
 
-    /* TODO */
+    /* Interpret a statement. */
     class TStmtVisitor final
         : public TStmt::TVisitor {
       public:
 
-      /* TODO */
+      /* Cache the args. */
       TStmtVisitor(TConn *conn, ostream &strm)
           : Conn(conn), Strm(strm) {}
 
@@ -124,7 +123,6 @@ class TWsImpl final
       virtual void operator()(const TBeginImportStmt *) const override { NotSupported("begin import"); }
       virtual void operator()(const TEndImportStmt   *) const override { NotSupported("end import"); }
       virtual void operator()(const TImportStmt      *) const override { NotSupported("import"); }
-      virtual void operator()(const TPovStatusStmt   *) const override { NotSupported("pause/unpause pov"); }
       virtual void operator()(const TSetTtlStmt      *) const override { NotSupported("set ttl"); }
       virtual void operator()(const TSetUserIdStmt   *) const override { NotSupported("set user_id"); }
       virtual void operator()(const TTailStmt        *) const override { NotSupported("tail"); }
@@ -219,6 +217,18 @@ class TWsImpl final
         Indy::TKey(result.GetValue(), result.GetArena().get()).Dump(Strm);
       }
 
+      virtual void operator()(const TPovStatusStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        bool is_pause = dynamic_cast<const TPauseKind *>(stmt->GetStatusKind()) != nullptr;
+        TUuid pov_id = Translate(stmt->GetIdExpr());
+        if (is_pause) {
+          GetSession()->PausePov(pov_id);
+        } else {
+          GetSession()->UnpausePov(pov_id);
+        }
+      }
+
       private:
 
       /* The size used to alloca() space for a sabot of state. */
@@ -228,7 +238,8 @@ class TWsImpl final
       using TStateDumper = Orly::Sabot::TStateDumper;
       using TWrapper = Orly::Sabot::State::TAny::TWrapper;
 
-      /* TODO */
+      /* The session we are using in this connection.  Never null.
+         If no session has yet been established for this connection, throw. */
       TSessionPin *GetSession() const {
         assert(this);
         if (!Conn->Session) {
@@ -237,7 +248,7 @@ class TWsImpl final
         return Conn->Session.get();
       }
 
-      /* TODO */
+      /* TODO: Remove this. */
       static void NotSupported(const char *name) {
         assert(name);
         ostringstream strm;
@@ -251,24 +262,24 @@ class TWsImpl final
         return TUuid(id_expr->GetLexeme().GetText().substr(1, id_expr->GetLexeme().GetText().size() - 2).c_str());
       }
 
-      /* TODO */
+      /* The connection on whose behalf we're translating. */
       TConn *Conn;
 
-      /* TODO */
+      /* The stream to which to write the result of our interpretation. */
       ostream &Strm;
 
     };  // TWsImpl::TStmtVisitor
 
-    /* TODO */
+    /* The server of which this connection is a part. */
     TWsImpl *Ws;
 
-    /* TODO */
+    /* The handle of this connection, used to identify its TCP socket. */
     TConnHndl Hndl;
 
-    /* TODO */
+    /* See accessor. */
     bool Exiting;
 
-    /* TODO */
+    /* The session established for this connection, if any. */
     unique_ptr<TSessionPin> Session;
 
   };  // TWsImpl::TConn
@@ -283,7 +294,7 @@ class TWsImpl final
     }
   }
 
-  /* TODO */
+  /* Called by the ws framework when it accepts a new TCP connection. */
   void OnOpen(TConnHndl conn_hndl) {
     assert(this);
     unique_ptr<TConn> temp(new TConn(this, conn_hndl));
@@ -293,7 +304,8 @@ class TWsImpl final
     temp.release();
   }
    
-  /* TODO */
+  /* Called by the ws framework when it closes a TCP connection (or when the
+     connection is closed by the client). */
   void OnClose(TConnHndl conn_hndl) {
     assert(this);
     auto iter = Conns.find(conn_hndl);
@@ -304,7 +316,7 @@ class TWsImpl final
     Conns.erase(iter);
   }
 
-  /* Invoked from a background thread each time a websocket message arrives. */
+  /* Called by the ws framework each time a message arrives. */
   void OnMsg(TConnHndl conn_hndl, TMsgPtr msg) {
     assert(this);
     /* Find the connection object established by the OnOpen() call. */

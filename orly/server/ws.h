@@ -62,10 +62,16 @@ namespace Orly {
           virtual Base::TUuid NewPov(bool is_safe, bool is_shared, const Base::TOpt<Base::TUuid> &parent_id) const = 0;
 
           /* Override to perform the request (syncrhonously. */
+          virtual void PausePov(const Base::TUuid &pov_id) const = 0;
+
+          /* Override to perform the request (syncrhonously. */
           virtual TMethodResult Try(const TMethodRequest &method_request) const = 0;
 
           /* Override to perform the request (syncrhonously. */
           virtual void UninstallPackage(const std::vector<std::string> &name, uint64_t version) const = 0;
+
+          /* Override to perform the request (syncrhonously. */
+          virtual void UnpausePov(const Base::TUuid &pov_id) const = 0;
 
           protected:
 
