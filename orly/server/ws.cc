@@ -54,6 +54,7 @@ class TWsImpl final
       : SessionManager(session_mngr) {
     assert(session_mngr);
     AsioServer.clear_access_channels(websocketpp::log::alevel::all);
+    AsioServer.clear_error_channels(websocketpp::log::elevel::all);
     AsioServer.init_asio();
     AsioServer.set_open_handler(bind(&TWsImpl::OnOpen, this, _1));
     AsioServer.set_close_handler(bind(&TWsImpl::OnClose, this, _1));
