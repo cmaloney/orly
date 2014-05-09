@@ -11,6 +11,7 @@
         "-Wl,--hash-style=gnu";
         "-Wl,--no-copy-dt-needed-entries";
         "-Wl,-z,relro";
+        "-Wl,--no-as-needed";
         "-O3";
         "-flto";
         "-s";
@@ -194,6 +195,7 @@
           "-Wl,--hash-style=gnu";
           "-Wl,--no-copy-dt-needed-entries";
           "-Wl,-z,relro";
+          "-Wl,--no-as-needed";
           "-O3";
           "-flto";
           "-s";
