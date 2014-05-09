@@ -43,9 +43,9 @@ Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::Pool(sizeof(TRepo::TMappi
 Orly::Indy::Util::TPool L0::TManager::TRepo::TMapping::TEntry::Pool(sizeof(TRepo::TMapping::TEntry), "Repo Mapping Entry");
 Orly::Indy::Util::TPool L0::TManager::TRepo::TDataLayer::Pool(sizeof(TMemoryLayer), "Data Layer");
 
-Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 4000004UL);
-Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 4000004UL);
-Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 60000UL);
+Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 1048578UL);
+Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Entry", 1048578UL);
+Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 2000UL);
 
 class TRAIITest {
   NO_COPY(TRAIITest);
@@ -75,11 +75,11 @@ FIXTURE(Typical) {
     TScheduler scheduler(TScheduler::TPolicy(10, 10, milliseconds(10)));
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
+                               256 /* disk space: 256 MB */,
                                256,
-                               262144 /* page cache slots: 1GB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     Base::TUuid data_file_id(TUuid::TimeAndMAC);
@@ -129,11 +129,11 @@ FIXTURE(WithMergeFile) {
     TScheduler scheduler(TScheduler::TPolicy(10, 10, milliseconds(10)));
 
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
+                               256 /* disk space: 256MB */,
                                256,
-                               262144 /* page cache slots: 1GB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     Base::TUuid file_id(TUuid::TimeAndMAC);
