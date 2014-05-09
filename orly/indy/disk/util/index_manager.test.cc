@@ -34,7 +34,7 @@ using namespace Orly::Indy::Util;
 
 static const size_t BlockSize = 4096UL * 16;
 
-TBufBlock::TPool TBufBlock::Pool(BlockSize, 20000);
+TBufBlock::TPool TBufBlock::Pool(BlockSize, 200);
 
 FIXTURE(Typical) {
   TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
@@ -42,7 +42,7 @@ FIXTURE(Typical) {
     const size_t num_iter = 100000L;
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
+                               1 * 1024 /* disk space: 1 GB */,
                                256,
                                262144 /* page cache slots: 1GB */,
                                1 /* num page lru */,
@@ -74,7 +74,7 @@ FIXTURE(ManySortFiles) {
     const size_t num_iter = 1000000L;
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
     Sim::TMemEngine mem_engine(&scheduler,
-                               4 * 1024 /* disk space: 4 GB */,
+                               1 * 1024 /* disk space: 1 GB */,
                                256,
                                262144 /* page cache slots: 1GB */,
                                1 /* num page lru */,
