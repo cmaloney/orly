@@ -75,7 +75,7 @@ void *TGrowingPool::TryAlloc(size_t size) {
       syslog(LOG_EMERG, "TGrowingPool::TryAlloc() [%s] bad_alloc while trying to allocate block [%ld bytes]", Name, BlockSize);
       throw std::bad_alloc();
     }
-    Mlock(block, BlockSize);
+    MlockRaw(block, BlockSize);
     #ifndef NDEBUG
     memset(block, 0, BlockSize);
     #endif
