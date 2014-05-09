@@ -1433,179 +1433,239 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
 
   size_t completion_count = 0UL;
 
-  size_t total_block_slots_available = (Cmd.BlockCacheSizeMB * 1024UL) / Disk::Util::PhysicalBlockSize * 0.8;
-  size_t block_slots_per_merge_file = total_block_slots_available / num_merge_threads;
-  auto run_func = [&](const string &file, Base::TEventSemaphore &sem, TSequenceNumber seq_num, Disk::Util::TVolume::TDesc::TStorageSpeed storage_speed) {
-    void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
-    void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
-    std::unordered_map<Base::TUuid, Base::TUuid> index_id_remapper;
-    const size_t orig_seq_num = seq_num;
-    size_t last_dot = file.find_last_of('.');
-    if (last_dot == std::string::npos) {
-      syslog(LOG_ERR, "Invalid import file [%s]", file.c_str());
-      return;
-    } else {
-      string ext = file.substr(last_dot, file.size());
-      string usable_file;
-      std::shared_ptr<Io::TInputProducer> producer;
-      if (ext == string(".gz")) {
-        producer = make_shared<Gz::TInputProducer>(file.c_str(), "r");
-      } else if (ext == string(".bin")) {
-        producer = make_shared<Io::TDevice>(open(file.c_str(), O_RDONLY));
-      } else {
-        syslog(LOG_ERR, "Invalid import file [%s]", file.c_str());
-        return;
-      }
-      TMemoryLayer *mem_layer = new TMemoryLayer(RepoManager.get());
+  class TJobRunner : Fiber::TRunnable {
+    NO_COPY(TJobRunner);
+    public:
+
+    TJobRunner(Fiber::TRunner *runner,
+               TServer *server,
+               const std::string &file,
+               Base::TEventSemaphore &sem,
+               TSequenceNumber seq_num,
+               Disk::Util::TVolume::TDesc::TStorageSpeed storage_speed,
+               std::mutex &mut,
+               std::condition_variable &cond,
+               std::map<TSequenceNumber, std::unique_ptr<Base::TEventSemaphore>> &waiting_map,
+               size_t &completion_count,
+               std::vector<size_t> &gen_id_vec,
+               int64_t &running,
+               const std::vector<string> &file_vec)
+        : Server(server),
+          File(file),
+          Sem(sem),
+          SeqNum(seq_num),
+          StorageSpeed(storage_speed),
+          Mut(mut),
+          Cond(cond),
+          WaitingMap(waiting_map),
+          CompletionCount(completion_count),
+          GenIdVec(gen_id_vec),
+          Running(running),
+          FileVec(file_vec) {
+      FramePool = Indy::Fiber::TFrame::LocalFramePool;
+      Frame = FramePool->Alloc();
       try {
-        size_t num_entry_inserted = 0UL;
-        auto entry_sort_func = [](const TUpdate::TEntry *lhs, const TUpdate::TEntry *rhs) {
-          return lhs->GetEntryKey() <= rhs->GetEntryKey();
-        };
-        /* read file */ {
-          Io::TBinaryInputOnlyStream strm(producer);
-          Atom::TCoreVector core_vec(strm);
-          const vector<Atom::TCore> &cores_read = core_vec.GetCores();
-          if (cores_read.size() < 2) {
-            syslog(LOG_ERR, "Invalid import file [%s], must have number of transactions followed by file metadata", usable_file.c_str());
-            return;
-          }
-
-          void *lhs_state_alloc = alloca(Sabot::State::GetMaxStateSize());
-          void *rhs_state_alloc = alloca(Sabot::State::GetMaxStateSize());
-          int64_t num_transactions;
-          Sabot::ToNative(*Sabot::State::TAny::TWrapper(cores_read[0].NewState(core_vec.GetArena(), lhs_state_alloc)), num_transactions);
-          syslog(LOG_INFO, "Importing [%ld] transactions from core vector file [%s]", num_transactions, file.c_str());
-
-          if (!TetrisManager->IsPlayerPaused(TSession::GlobalPovId)) {
-            throw runtime_error("please call BeginImport() before attempting to import image files");
-          }
-
-          size_t pos_in_vec = 2UL; /* start at the first transaction (skipping the metadata) */
-
-          auto check_pos = [&cores_read](size_t pos) {
-            if (pos >= cores_read.size()) {
-              syslog(LOG_ERR, "pos = [%ld], core vec size [%ld]", pos, cores_read.size());
-              throw std::runtime_error("core vector file corrupt");
-            }
-          };
-
-          Base::TUuid tx_id;
-          Base::TUuid index_id;
-          for (int64_t i = 0; i < num_transactions; ++i) {
-            Atom::TSuprena arena;
-            TUpdate::TOpByKey op_by_key;
-            /* transaction id */
-            check_pos(pos_in_vec);
-            Sabot::ToNative(*Sabot::State::TAny::TWrapper(cores_read[pos_in_vec].NewState(core_vec.GetArena(), lhs_state_alloc)), tx_id);
-            ++pos_in_vec;
-            /* transaction metadata */
-            check_pos(pos_in_vec);
-            TKey tx_meta(cores_read[pos_in_vec], core_vec.GetArena());
-            ++pos_in_vec;
-            /* num kv pairs in transaction */
-            check_pos(pos_in_vec);
-            int64_t num_kv;
-            Sabot::ToNative(*Sabot::State::TAny::TWrapper(cores_read[pos_in_vec].NewState(core_vec.GetArena(), lhs_state_alloc)), num_kv);
-            assert(num_kv > 0);
-            ++pos_in_vec;
-            /* for n kv pairs in transaction */
-            for (int64_t n = 0; n < num_kv; ++n) {
-              check_pos(pos_in_vec);
-              Sabot::ToNative(*Sabot::State::TAny::TWrapper(cores_read[pos_in_vec].NewState(core_vec.GetArena(), lhs_state_alloc)), index_id);
-              ++pos_in_vec;
-
-              check_pos(pos_in_vec);
-              check_pos(pos_in_vec + 1);
-
-              auto remap_pos = index_id_remapper.find(index_id);
-              if (remap_pos != index_id_remapper.end()) {
-                TKey key(cores_read[pos_in_vec], core_vec.GetArena());
-                TKey val(cores_read[pos_in_vec + 1], core_vec.GetArena());
-                op_by_key[TIndexKey(remap_pos->second, key)] = val;
-              } else {
-                TKey key(cores_read[pos_in_vec], core_vec.GetArena());
-                TKey val(cores_read[pos_in_vec + 1], core_vec.GetArena());
-                Atom::TSuprena temp_arena;
-                Sabot::Type::TAny::TWrapper key_type_wrapper(key.GetCore().GetType(core_vec.GetArena(), key_type_alloc));
-                Sabot::Type::TAny::TWrapper val_type_wrapper(val.GetCore().GetType(core_vec.GetArena(), val_type_alloc));
-                Atom::TCore key_core(&temp_arena, *key_type_wrapper);
-                Atom::TCore val_core(&temp_arena, *val_type_wrapper);
-                /* this does not exist yet, uncommon case: at this point we grab the lock, recheck against the master copy (possibly update it),
-                   and update our copy. */ {
-                  std::lock_guard<std::mutex> lock(IndexMapMutex);
-                  auto new_ret = IndexTypeByIdMap.emplace(TIndexType(TKey(&IndexMapArena, lhs_state_alloc, TKey(key_core, &temp_arena)), TKey(&IndexMapArena, rhs_state_alloc, TKey(val_core, &temp_arena))), index_id);
-                  if (!new_ret.second) {
-                    /* it's already there, use the id that was inserted before us */
-                    index_id_remapper.emplace(index_id, new_ret.first->second);
-                    index_id = new_ret.first->second;
-                  } else {
-                    /* TODO: replicate index id */
-                    index_id_remapper.emplace(index_id, index_id);
-                    IndexIdSet.insert(index_id);
-
-                    stringstream ss;
-                    ss << "Importer adding Index [" << index_id << "]\t";
-                    key_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-                    ss << " <- ";
-                    val_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-                    ss << std::endl;
-                    syslog(LOG_INFO, "%s", ss.str().c_str());
-                  }
-                } /* release lock */
-                op_by_key[TIndexKey(index_id, key)] = val;
-              }
-
-              ++pos_in_vec;
-              ++pos_in_vec;
-            }
-            TUpdate *update = new TUpdate(op_by_key, tx_meta, TKey(tx_id, &arena, lhs_state_alloc), lhs_state_alloc);
-            update->SetSequenceNumber(seq_num);
-            ++seq_num;
-            mem_layer->ImporterAppendUpdate(update);
-          }
-          producer.reset();
-        } /* finish reading file */
-        /* sort and fix the mem_layer */ {
-          std::vector<TUpdate::TEntry *> entry_vec;
-          entry_vec.reserve(num_entry_inserted);
-          for (TMemoryLayer::TUpdateCollection::TCursor update_csr(mem_layer->GetUpdateCollection()); update_csr; ++update_csr) {
-            for (TUpdate::TEntryCollection::TCursor entry_csr(update_csr->GetEntryCollection()); entry_csr; ++entry_csr) {
-              entry_vec.push_back(&*entry_csr);
-            }
-          }
-          std::sort(entry_vec.begin(), entry_vec.end(), entry_sort_func);
-          for (auto entry : entry_vec) {
-            mem_layer->ImporterAppendEntry(entry);
-          }
-        }
-        /* write the mem layer to disk in the global repo */ {
-          auto global_repo = GetGlobalRepo();
-
-          size_t num_keys = 0UL;
-          TSequenceNumber saved_low_seq = 0UL, saved_high_seq = 0UL;
-          size_t gen_id = global_repo->WriteFile(mem_layer, storage_speed, saved_low_seq, saved_high_seq, num_keys, 0UL);
-          delete mem_layer;
-          mem_layer = nullptr;
-          sem.Pop();
-          std::lock_guard<std::mutex> lock(mut);
-          gen_id_vec.push_back(gen_id);
-        }
-      } catch (const exception &ex) {
-        delete mem_layer;
-        syslog(LOG_ERR, "Error while trying to import file %s : %s", file.c_str(), ex.what());
-        return;
+        Frame->Latch(runner, this, static_cast<Indy::Fiber::TRunnable::TFunc>(&TJobRunner::Run));
+      } catch (...) {
+        FramePool->Free(Frame);
+        throw;
       }
     }
-    std::lock_guard<std::mutex> lock(mut);
-    --running;
-    waiting_map.erase(orig_seq_num);
-    if (waiting_map.size()) {
-      waiting_map.begin()->second->Push();
+
+    ~TJobRunner() {}
+
+    void Run() {
+      void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+      void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+      std::unordered_map<Base::TUuid, Base::TUuid> index_id_remapper;
+      const size_t orig_seq_num = SeqNum;
+      size_t last_dot = File.find_last_of('.');
+      if (last_dot == std::string::npos) {
+        syslog(LOG_ERR, "Invalid import file [%s]", File.c_str());
+        return;
+      } else {
+        string ext = File.substr(last_dot, File.size());
+        string usable_file;
+        std::shared_ptr<Io::TInputProducer> producer;
+        if (ext == string(".gz")) {
+          producer = make_shared<Gz::TInputProducer>(File.c_str(), "r");
+        } else if (ext == string(".bin")) {
+          producer = make_shared<Io::TDevice>(open(File.c_str(), O_RDONLY));
+        } else {
+          syslog(LOG_ERR, "Invalid import file [%s]", File.c_str());
+          return;
+        }
+        TMemoryLayer *mem_layer = new TMemoryLayer(Server->RepoManager.get());
+        try {
+          size_t num_entry_inserted = 0UL;
+          auto entry_sort_func = [](const TUpdate::TEntry *lhs, const TUpdate::TEntry *rhs) {
+            return lhs->GetEntryKey() <= rhs->GetEntryKey();
+          };
+          /* read file */ {
+            Io::TBinaryInputOnlyStream strm(producer);
+            Atom::TCoreVector core_vec(strm);
+            const vector<Atom::TCore> &cores_read = core_vec.GetCores();
+            if (cores_read.size() < 2) {
+              syslog(LOG_ERR, "Invalid import file [%s], must have number of transactions followed by file metadata", usable_file.c_str());
+              return;
+            }
+
+            void *lhs_state_alloc = alloca(Sabot::State::GetMaxStateSize());
+            void *rhs_state_alloc = alloca(Sabot::State::GetMaxStateSize());
+            int64_t num_transactions;
+            Sabot::ToNative(*Sabot::State::TAny::TWrapper(cores_read[0].NewState(core_vec.GetArena(), lhs_state_alloc)), num_transactions);
+            syslog(LOG_INFO, "Importing [%ld] transactions from core vector file [%s]", num_transactions, File.c_str());
+
+            if (!Server->TetrisManager->IsPlayerPaused(TSession::GlobalPovId)) {
+              throw runtime_error("please call BeginImport() before attempting to import image files");
+            }
+
+            size_t pos_in_vec = 2UL; /* start at the first transaction (skipping the metadata) */
+
+            auto check_pos = [&cores_read](size_t pos) {
+              if (pos >= cores_read.size()) {
+                syslog(LOG_ERR, "pos = [%ld], core vec size [%ld]", pos, cores_read.size());
+                throw std::runtime_error("core vector file corrupt");
+              }
+            };
+
+            Base::TUuid tx_id;
+            Base::TUuid index_id;
+            for (int64_t i = 0; i < num_transactions; ++i) {
+              Atom::TSuprena arena;
+              TUpdate::TOpByKey op_by_key;
+              /* transaction id */
+              check_pos(pos_in_vec);
+              Sabot::ToNative(*Sabot::State::TAny::TWrapper(cores_read[pos_in_vec].NewState(core_vec.GetArena(), lhs_state_alloc)), tx_id);
+              ++pos_in_vec;
+              /* transaction metadata */
+              check_pos(pos_in_vec);
+              TKey tx_meta(cores_read[pos_in_vec], core_vec.GetArena());
+              ++pos_in_vec;
+              /* num kv pairs in transaction */
+              check_pos(pos_in_vec);
+              int64_t num_kv;
+              Sabot::ToNative(*Sabot::State::TAny::TWrapper(cores_read[pos_in_vec].NewState(core_vec.GetArena(), lhs_state_alloc)), num_kv);
+              assert(num_kv > 0);
+              ++pos_in_vec;
+              /* for n kv pairs in transaction */
+              for (int64_t n = 0; n < num_kv; ++n) {
+                check_pos(pos_in_vec);
+                Sabot::ToNative(*Sabot::State::TAny::TWrapper(cores_read[pos_in_vec].NewState(core_vec.GetArena(), lhs_state_alloc)), index_id);
+                ++pos_in_vec;
+
+                check_pos(pos_in_vec);
+                check_pos(pos_in_vec + 1);
+
+                auto remap_pos = index_id_remapper.find(index_id);
+                if (remap_pos != index_id_remapper.end()) {
+                  TKey key(cores_read[pos_in_vec], core_vec.GetArena());
+                  TKey val(cores_read[pos_in_vec + 1], core_vec.GetArena());
+                  op_by_key[TIndexKey(remap_pos->second, key)] = val;
+                } else {
+                  TKey key(cores_read[pos_in_vec], core_vec.GetArena());
+                  TKey val(cores_read[pos_in_vec + 1], core_vec.GetArena());
+                  Atom::TSuprena temp_arena;
+                  Sabot::Type::TAny::TWrapper key_type_wrapper(key.GetCore().GetType(core_vec.GetArena(), key_type_alloc));
+                  Sabot::Type::TAny::TWrapper val_type_wrapper(val.GetCore().GetType(core_vec.GetArena(), val_type_alloc));
+                  Atom::TCore key_core(&temp_arena, *key_type_wrapper);
+                  Atom::TCore val_core(&temp_arena, *val_type_wrapper);
+                  /* this does not exist yet, uncommon case: at this point we grab the lock, recheck against the master copy (possibly update it),
+                     and update our copy. */ {
+                    std::lock_guard<std::mutex> lock(Server->IndexMapMutex);
+                    auto new_ret = Server->IndexTypeByIdMap.emplace(TIndexType(TKey(&Server->IndexMapArena, lhs_state_alloc, TKey(key_core, &temp_arena)), TKey(&Server->IndexMapArena, rhs_state_alloc, TKey(val_core, &temp_arena))), index_id);
+                    if (!new_ret.second) {
+                      /* it's already there, use the id that was inserted before us */
+                      index_id_remapper.emplace(index_id, new_ret.first->second);
+                      index_id = new_ret.first->second;
+                    } else {
+                      /* TODO: replicate index id */
+                      index_id_remapper.emplace(index_id, index_id);
+                      Server->IndexIdSet.insert(index_id);
+
+                      stringstream ss;
+                      ss << "Importer adding Index [" << index_id << "]\t";
+                      key_type_wrapper->Accept(Sabot::TTypeDumper(ss));
+                      ss << " <- ";
+                      val_type_wrapper->Accept(Sabot::TTypeDumper(ss));
+                      ss << std::endl;
+                      syslog(LOG_INFO, "%s", ss.str().c_str());
+                    }
+                  } /* release lock */
+                  op_by_key[TIndexKey(index_id, key)] = val;
+                }
+
+                ++pos_in_vec;
+                ++pos_in_vec;
+              }
+              TUpdate *update = new TUpdate(op_by_key, tx_meta, TKey(tx_id, &arena, lhs_state_alloc), lhs_state_alloc);
+              update->SetSequenceNumber(SeqNum);
+              ++SeqNum;
+              mem_layer->ImporterAppendUpdate(update);
+            }
+            producer.reset();
+          } /* finish reading file */
+          /* sort and fix the mem_layer */ {
+            std::vector<TUpdate::TEntry *> entry_vec;
+            entry_vec.reserve(num_entry_inserted);
+            for (TMemoryLayer::TUpdateCollection::TCursor update_csr(mem_layer->GetUpdateCollection()); update_csr; ++update_csr) {
+              for (TUpdate::TEntryCollection::TCursor entry_csr(update_csr->GetEntryCollection()); entry_csr; ++entry_csr) {
+                entry_vec.push_back(&*entry_csr);
+              }
+            }
+            std::sort(entry_vec.begin(), entry_vec.end(), entry_sort_func);
+            for (auto entry : entry_vec) {
+              mem_layer->ImporterAppendEntry(entry);
+            }
+          }
+          /* write the mem layer to disk in the global repo */ {
+            auto global_repo = Server->GetGlobalRepo();
+
+            size_t num_keys = 0UL;
+            TSequenceNumber saved_low_seq = 0UL, saved_high_seq = 0UL;
+            size_t gen_id = global_repo->WriteFile(mem_layer, StorageSpeed, saved_low_seq, saved_high_seq, num_keys, 0UL);
+            delete mem_layer;
+            mem_layer = nullptr;
+            Sem.Pop();
+            std::lock_guard<std::mutex> lock(Mut);
+            GenIdVec.push_back(gen_id);
+          }
+        } catch (const exception &ex) {
+          delete mem_layer;
+          syslog(LOG_ERR, "Error while trying to import file %s : %s", File.c_str(), ex.what());
+          return;
+        }
+      }
+      std::lock_guard<std::mutex> lock(Mut);
+      --Running;
+      WaitingMap.erase(orig_seq_num);
+      if (WaitingMap.size()) {
+        WaitingMap.begin()->second->Push();
+      }
+      Cond.notify_one();
+      ++CompletionCount;
+      syslog(LOG_INFO, "Imported file [%s], [%ld of %ld]", File.c_str(), CompletionCount, FileVec.size());
+      Indy::Fiber::FreeMyFrame(FramePool);
+      delete this;
     }
-    cond.notify_one();
-    ++completion_count;
-    syslog(LOG_INFO, "Imported file [%s], [%ld of %ld]", file.c_str(), completion_count, file_vec.size());
+
+    private:
+
+    TServer *Server;
+    std::string File;
+    Base::TEventSemaphore &Sem;
+    TSequenceNumber SeqNum;
+    Disk::Util::TVolume::TDesc::TStorageSpeed StorageSpeed;
+    Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalPool *FramePool;
+    Indy::Fiber::TFrame *Frame;
+    std::mutex &Mut;
+    std::condition_variable &Cond;
+    std::map<TSequenceNumber, std::unique_ptr<Base::TEventSemaphore>> &WaitingMap;
+    size_t &CompletionCount;
+    std::vector<size_t> &GenIdVec;
+    int64_t &Running;
+    const std::vector<string> &FileVec;
+
   };
   TScheduler sub_scheduler(TScheduler::TPolicy(std::min(num_load_threads, num_merge_threads), std::max(num_load_threads, num_merge_threads), milliseconds(10)));
   for (const auto &file : file_vec) {
@@ -1618,7 +1678,19 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
       auto global_repo = GetGlobalRepo();
       TSequenceNumber starting_number = global_repo->UseSequenceNumbers(10000000UL);
       auto sem = make_unique<Base::TEventSemaphore>();
-      sub_scheduler.Schedule(std::bind(run_func, cref(file), ref(*sem), starting_number, storage_speed));
+      new TJobRunner(&BGFastRunner,
+                     this,
+                     file,
+                     *sem,
+                     starting_number,
+                     storage_speed,
+                     mut,
+                     cond,
+                     waiting_map,
+                     completion_count,
+                     gen_id_vec,
+                     running,
+                     file_vec);
       if (waiting_map.empty()) {
         sem->Push();
       }
@@ -1638,38 +1710,104 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
   TSequenceNumber final_saved_low, final_saved_high;
   size_t final_num_keys;
   /* now iterate over the gen_id_vec till we have just the 1 file */ {
-    auto merge_job = [&](std::vector<size_t> to_merge, size_t expected_jobs, Disk::Util::TVolume::TDesc::TStorageSpeed storage_speed) {
-      size_t num_keys = 0UL;
-      TSequenceNumber saved_low_seq = 0UL, saved_high_seq = 0UL;
-      size_t gen_id = 0UL;
-      if (to_merge.size() > 1) {
+    class TMergeRunner : Fiber::TRunnable {
+      NO_COPY(TMergeRunner);
+      public:
+
+      TMergeRunner(Fiber::TRunner *runner,
+                 TServer *server,
+                 const std::vector<size_t> &to_merge,
+                 size_t expected_jobs,
+                 Disk::Util::TVolume::TDesc::TStorageSpeed storage_speed,
+                 std::mutex &mut,
+                 std::condition_variable &cond,
+                 int64_t &running,
+                 size_t &finished,
+                 std::vector<size_t> &end_vec,
+                 TSequenceNumber &final_saved_low,
+                 TSequenceNumber &final_saved_high,
+                 size_t &final_num_keys,
+                 size_t num_merge_threads)
+          : Server(server),
+            ToMerge(to_merge),
+            ExpectedJobs(expected_jobs),
+            StorageSpeed(storage_speed),
+            Mut(mut),
+            Cond(cond),
+            Running(running),
+            Finished(finished),
+            EndVec(end_vec),
+            FinalSavedLow(final_saved_low),
+            FinalSavedHigh(final_saved_high),
+            FinalNumKeys(final_num_keys),
+            NumMergeThreads(num_merge_threads) {
+        FramePool = Indy::Fiber::TFrame::LocalFramePool;
+        Frame = FramePool->Alloc();
         try {
-          gen_id = global_repo->MergeFiles(to_merge, storage_speed, block_slots_per_merge_file, Cmd.TempFileConsolidationThreshold, saved_low_seq, saved_high_seq, num_keys, 0UL, false, false);
-        } catch (const std::exception &ex) {
-          stringstream ss;
-          for (size_t g : to_merge) {
-            ss << ", " << g;
-          }
-          syslog(LOG_ERR, "Error [%s] merging files [%s]", ex.what(), ss.str().c_str());
+          Frame->Latch(runner, this, static_cast<Indy::Fiber::TRunnable::TFunc>(&TMergeRunner::Run));
+        } catch (...) {
+          FramePool->Free(Frame);
           throw;
         }
-        for (auto f : to_merge) {
-          global_repo->RemoveFile(f);
-        }
-      } else {
-        gen_id = to_merge.front();
       }
 
+      ~TMergeRunner() {}
 
-      std::lock_guard<std::mutex> lock(mut);
-      end_vec.push_back(gen_id);
-      final_saved_low = saved_low_seq;
-      final_saved_high = saved_high_seq;
-      final_num_keys = num_keys;
-      ++finished;
-      syslog(LOG_INFO, "Finished Import Merge job [%ld] of [%ld]", finished, expected_jobs);
-      --running;
-      cond.notify_one();
+      void Run() {
+        auto global_repo = Server->GetGlobalRepo();
+        const size_t total_block_slots_available = (Server->Cmd.BlockCacheSizeMB * 1024UL) / Disk::Util::PhysicalBlockSize * 0.8;
+        const size_t block_slots_per_merge_file = total_block_slots_available / NumMergeThreads;
+        size_t num_keys = 0UL;
+        TSequenceNumber saved_low_seq = 0UL, saved_high_seq = 0UL;
+        size_t gen_id = 0UL;
+        if (ToMerge.size() > 1) {
+          try {
+            gen_id = global_repo->MergeFiles(ToMerge, StorageSpeed, block_slots_per_merge_file, Server->Cmd.TempFileConsolidationThreshold, saved_low_seq, saved_high_seq, num_keys, 0UL, false, false);
+          } catch (const std::exception &ex) {
+            stringstream ss;
+            for (size_t g : ToMerge) {
+              ss << ", " << g;
+            }
+            syslog(LOG_ERR, "Error [%s] merging files [%s]", ex.what(), ss.str().c_str());
+            throw;
+          }
+          for (auto f : ToMerge) {
+            global_repo->RemoveFile(f);
+          }
+        } else {
+          gen_id = ToMerge.front();
+        }
+
+
+        std::lock_guard<std::mutex> lock(Mut);
+        EndVec.push_back(gen_id);
+        FinalSavedLow = saved_low_seq;
+        FinalSavedHigh = saved_high_seq;
+        FinalNumKeys = num_keys;
+        ++Finished;
+        syslog(LOG_INFO, "Finished Import Merge job [%ld] of [%ld]", Finished, ExpectedJobs);
+        --Running;
+        Cond.notify_one();
+        Indy::Fiber::FreeMyFrame(FramePool);
+        delete this;
+      }
+
+      TServer *Server;
+      std::vector<size_t> ToMerge;
+      size_t ExpectedJobs;
+      Disk::Util::TVolume::TDesc::TStorageSpeed StorageSpeed;
+      Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalPool *FramePool;
+      Indy::Fiber::TFrame *Frame;
+      std::mutex &Mut;
+      std::condition_variable &Cond;
+      int64_t &Running;
+      size_t &Finished;
+      std::vector<size_t> &EndVec;
+      TSequenceNumber &FinalSavedLow;
+      TSequenceNumber &FinalSavedHigh;
+      size_t &FinalNumKeys;
+      const size_t NumMergeThreads;
+
     };
     while (gen_id_vec.size() > 1) {
       size_t expected_jobs = ceil(static_cast<double>(gen_id_vec.size()) / merge_simultaneous);
@@ -1687,7 +1825,20 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
           to_merge.push_back(gen_id_vec.front());
           gen_id_vec.erase(gen_id_vec.begin());
         }
-        sub_scheduler.Schedule(std::bind(merge_job, to_merge, expected_jobs, storage_speed));
+        new TMergeRunner(&BGFastRunner,
+                         this,
+                         to_merge,
+                         expected_jobs,
+                         storage_speed,
+                         mut,
+                         cond,
+                         running,
+                         finished,
+                         end_vec,
+                         final_saved_low,
+                         final_saved_high,
+                         final_num_keys,
+                         num_merge_threads);
       }
       /* wait for them to finish */ {
         std::unique_lock<std::mutex> lock(mut);
