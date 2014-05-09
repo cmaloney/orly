@@ -16,27 +16,80 @@
   }
 }
 "files" {
-  "orly/server/orly.o" {
-    "ld" {
+  "third_party/mongoose/mongoose.c" {
+    "gcc" {
       "flags" {
         "-fsanitize=thread";
-        "-pie";
         "-fPIC";
       }
     }
   }
-  "orly/indy/disk/data_file.cc" {
+  "orly/client/program/program.program.flex.cc" {
     "g++" {
       "flags" {
         "-fsanitize=thread";
-        "-fno-omit-frame-pointer";
-        "-pie";
         "-fPIC";
       }
     }
   }
-  "third_party/mongoose/mongoose.c" {
-    "gcc" {
+  "orly/client/program/program.program.bison.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fPIC";
+      }
+    }
+  }
+  "orly/orly.package.flex.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fPIC";
+      }
+    }
+  }
+  "orly/orly.package.bison.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fPIC";
+      }
+    }
+  }
+  "orly/orly.checkpoint.flex.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fPIC";
+      }
+    }
+  }
+  "orly/orly.checkpoint.bison.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fPIC";
+      }
+    }
+  }
+  "orly/orly.command.flex.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fPIC";
+      }
+    }
+  }
+  "orly/orly.command.bison.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=thread";
+        "-fPIC";
+      }
+    }
+  }
+  "orly/server/orly.o" {
+    "ld" {
       "flags" {
         "-fsanitize=thread";
         "-fPIC";
