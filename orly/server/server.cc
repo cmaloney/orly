@@ -106,6 +106,10 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The port on which the server listens for clients."
   );
   Param(
+      &TCmd::WsPortNumber, "ws_port_number", Optional, "ws_port_number\0wspn\0",
+      "The port on which the server listens for websocket clients."
+  );
+  Param(
     &TCmd::EnableMemcache, "enable_memcache", Optional, "enable_memcache\0",
       "The port on which the server listens for Memcache protocol clients."
   );
@@ -369,6 +373,7 @@ class TIndexIdReader
 
 TServer::TCmd::TCmd()
     : PortNumber(DefaultPortNumber),
+      WsPortNumber(8082),
       EnableMemcache(false),
       MemcachePortNumber(11211), // Memcache default port number
       SlavePortNumber(DefaultSlavePortNumber),
@@ -761,6 +766,9 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
   while (!InitFinished) {
     InitCond.wait(lock);
   }
+
+  /* Launch the websockets server. */
+  Ws.reset(TWs::New(this, cmd.WsPortNumber));
 }
 
 void TServer::Init() {
@@ -1171,6 +1179,91 @@ TServer::~TServer() {
   GlobalRepo.Reset();
   RepoManager.reset();
   Fiber::TFrame::LocalFramePool->Free(Frame);
+}
+
+TWs::TSessionPin *TServer::NewSession() {
+  assert(this);
+  assert(DurableManager);
+  return new TSessionPin(this);
+}
+
+TWs::TSessionPin *TServer::ResumeSession(const TUuid &id) {
+  assert(this);
+  assert(DurableManager);
+  return new TSessionPin(this, id);
+}
+
+TServer::TSessionPin::TSessionPin(TServer *server) {
+  assert(server);
+  Conn = TConnection::New(
+      server,
+      server->DurableManager->New<TSession>(Base::TUuid::Twister, seconds(600)));
+  if (!Conn) {
+    throw runtime_error("could not create session");
+  }
+}
+
+TServer::TSessionPin::TSessionPin(TServer *server, const TUuid &id) {
+  assert(server);
+  Conn = TConnection::New(server, server->DurableManager->Open<TSession>(id));
+  if (!Conn) {
+    throw runtime_error("could not resume session");
+  }
+}
+
+void TServer::TSessionPin::BeginImport() const {
+  assert(this);
+}
+
+void TServer::TSessionPin::EndImport() const {
+  assert(this);
+}
+
+const Base::TUuid &TServer::TSessionPin::GetId() const {
+  assert(this);
+  return Conn->GetSession()->GetId();
+}
+
+void TServer::TSessionPin::Import(const std::string &, uint64_t) const {
+  assert(this);
+}
+
+void TServer::TSessionPin::InstallPackage(const std::vector<std::string> &, uint64_t) const {
+  assert(this);
+}
+
+Base::TUuid TServer::TSessionPin::NewPov(bool, bool, const Base::TOpt<Base::TUuid> &) const {
+  assert(this);
+  return Base::TUuid();
+}
+
+void TServer::TSessionPin::PausePov(const Base::TUuid &) const {
+  assert(this);
+}
+
+void TServer::TSessionPin::SetTtl(const Base::TUuid &, const std::chrono::seconds &) const {
+  assert(this);
+}
+
+void TServer::TSessionPin::SetUserId(const Base::TUuid &) const {
+  assert(this);
+}
+
+void TServer::TSessionPin::Tail() const {
+  assert(this);
+}
+
+TMethodResult TServer::TSessionPin::Try(const TMethodRequest &) const {
+  assert(this);
+  return TMethodResult();
+}
+
+void TServer::TSessionPin::UninstallPackage(const std::vector<std::string> &, uint64_t) const {
+  assert(this);
+}
+
+void TServer::TSessionPin::UnpausePov(const Base::TUuid &) const {
+  assert(this);
 }
 
 void TServer::TConnection::Run(TFd &fd) {

@@ -47,6 +47,7 @@
 #include <orly/package/manager.h>
 #include <orly/server/repo_tetris_manager.h>
 #include <orly/server/session.h>
+#include <orly/server/ws.h>
 #include <orly/type/type_czar.h>
 
 namespace Orly {
@@ -160,7 +161,8 @@ namespace Orly {
 
     /* TODO */
     class TServer final
-        : public TSession::TServer, public Indy::Fiber::TRunnable {
+        : public TSession::TServer, public Indy::Fiber::TRunnable,
+          public TWs::TSessionManager {
       NO_COPY(TServer);
       public:
 
@@ -177,6 +179,9 @@ namespace Orly {
 
         /* The port on which TServer::MainSocket listens for clients. */
         in_port_t PortNumber;
+
+        /* The port on which the server listens for websocket clients. */
+        in_port_t WsPortNumber;
 
         /* Enables the memcache interface */
         bool EnableMemcache;
@@ -397,6 +402,12 @@ namespace Orly {
         return Scheduler;
       }
 
+      /* Called when the websockets server wishes to create a new session. */
+      virtual TWs::TSessionPin *NewSession() override;
+
+      /* Called when the websockets server wishes to resume an old session. */
+      virtual TWs::TSessionPin *ResumeSession(const Base::TUuid &id) override;
+
       private:
 
       /* A live connection to a client. */
@@ -582,6 +593,40 @@ namespace Orly {
 
       };  // TServer::TConnection
 
+      /* Constructed by NewSession() and ResumeSession() to hold a session open for
+         the websockets server. */
+      class TSessionPin final
+          : public TWs::TSessionPin {
+        public:
+
+        /* Construct a new session. */
+        explicit TSessionPin(TServer *server);
+
+        /* Resume an old session. */
+        TSessionPin(TServer *server, const Base::TUuid &id);
+
+        /* Pass-throughs to the session object we have pinned. */
+        virtual void BeginImport() const override;
+        virtual void EndImport() const override;
+        virtual const Base::TUuid &GetId() const override;
+        virtual void Import(const std::string &, uint64_t) const override;
+        virtual void InstallPackage(const std::vector<std::string> &, uint64_t) const override;
+        virtual Base::TUuid NewPov(bool, bool, const Base::TOpt<Base::TUuid> &) const override;
+        virtual void PausePov(const Base::TUuid &) const override;
+        virtual void SetTtl(const Base::TUuid &, const std::chrono::seconds &) const override;
+        virtual void SetUserId(const Base::TUuid &) const override;
+        virtual void Tail() const override;
+        virtual TMethodResult Try(const TMethodRequest &) const override;
+        virtual void UninstallPackage(const std::vector<std::string> &, uint64_t) const override;
+        virtual void UnpausePov(const Base::TUuid &) const override;
+
+        private:
+
+        /* Our link to the reset of the server. */
+        std::shared_ptr<TConnection> Conn;
+
+      };  // TServer::TSessionPin
+
       /* TODO */
       class TServeClientRunnable
           : public Indy::Fiber::TRunnable {
@@ -766,6 +811,9 @@ namespace Orly {
       bool InitFinished;
       std::condition_variable InitCond;
       std::mutex InitMutex;
+
+      /* The websockets server object */
+      std::unique_ptr<TWs> Ws;
 
       /* TODO */
       friend class TIndyReporter;
