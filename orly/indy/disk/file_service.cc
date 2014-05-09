@@ -415,7 +415,7 @@ void TFileService::Runner() {
     ring_offset_vec.push_back((AppendLogBlockVec[i / NumSectorsPerBlock] * Util::PhysicalBlockSize) + ((i % NumSectorsPerBlock) * Util::PhysicalSectorSize));
   }
   size_t *ring_buf = nullptr;
-  Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&ring_buf), getpagesize(), getpagesize()));
+  Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&ring_buf), getpagesize(), getpagesize()));
   std::vector<std::unique_ptr<TBufBlock>> image_buf_block_vec;
   image_buf_block_vec.emplace_back(new TBufBlock());
   TCompletionTrigger append_log_flush_trigger;

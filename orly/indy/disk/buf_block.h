@@ -79,7 +79,7 @@ namespace Orly {
             assert(MaxBlocks == 0UL);
             MaxBlocks = block_count;
             if (block_count) {
-              Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&Blob), getpagesize(), BlockSize * block_count));
+              Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&Blob), getpagesize(), BlockSize * block_count));
               Base::MlockRaw(Blob, BlockSize * block_count);
               #ifndef NDEBUG
               memset(Blob, 0, BlockSize * block_count);

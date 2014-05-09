@@ -916,8 +916,8 @@ namespace Orly {
             assert(NumBlocks % Volume->GetDesc().NumLogicalExtent == 0UL);
             try {
               std::lock_guard<std::mutex> lock(BlockMapLock);
-              Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&BlockMapBuf), getpagesize(), BlockMapByteSize));
-              Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&DiscardMapBuf), getpagesize(), BlockMapByteSize));
+              Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&BlockMapBuf), getpagesize(), BlockMapByteSize));
+              Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&DiscardMapBuf), getpagesize(), BlockMapByteSize));
               Base::MlockRaw(BlockMapBuf, BlockMapByteSize);
               Base::MlockRaw(DiscardMapBuf, BlockMapByteSize);
               memset(BlockMapBuf, 0, BlockMapByteSize);

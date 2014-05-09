@@ -128,7 +128,7 @@ namespace Orly {
             try {
               Base::TFd fd = open(path, O_RDONLY);
               size_t *buf = nullptr;
-              Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
+              Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
               try {
                 Base::IfLt0(pread(fd, buf, BlockSize, 0UL));
                 if (buf[MagicNumberPos] != OrlyFSMagicNumber) {
@@ -167,7 +167,7 @@ namespace Orly {
           static void ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
             Base::TFd fd = open(path, O_RDWR);
             size_t *buf = nullptr;
-            Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
+            Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
             try {
               memset(buf, 0, BlockSize);
               buf[MagicNumberPos] = OrlyFSMagicNumber;
@@ -198,7 +198,7 @@ namespace Orly {
           static void ZeroSuperBlock(const char *path) {
             Base::TFd fd = open(path, O_RDWR);
             size_t *buf = nullptr;
-            Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
+            Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
             try {
               memset(buf, 0, BlockSize);
               Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));

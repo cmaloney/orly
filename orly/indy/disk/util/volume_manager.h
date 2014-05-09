@@ -691,7 +691,7 @@ namespace Orly {
           TMemoryDevice(size_t logical_block_size, size_t physical_block_size, size_t num_logical_block, bool fsync_on, bool do_corruption_check)
               : TDevice(TDesc{TDesc::Mem, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, fsync_on, do_corruption_check), Data(nullptr) {
             assert(Desc.Capacity % getpagesize() == 0);
-            Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&Data), getpagesize(), PhysicalBlockSize /* super block */ + Desc.Capacity));
+            Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&Data), getpagesize(), PhysicalBlockSize /* super block */ + Desc.Capacity));
             Base::MlockRaw(Data, PhysicalBlockSize + Desc.Capacity);
             try {
               memset(Data, 0, PhysicalBlockSize /* super block */ + Desc.Capacity);
