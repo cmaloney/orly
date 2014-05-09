@@ -249,7 +249,7 @@ namespace Orly {
                 assert(PageSize >= static_cast<size_t>(getpagesize()));
                 assert(PageSize % getpagesize() == 0);
                 Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&PageData), PageSize, PageSize * MaxCacheSize));
-                Base::IfLt0(mlock(PageData, PageSize * MaxCacheSize));
+                Base::MlockRaw(PageData, PageSize * MaxCacheSize);
                 #ifndef NDEBUG
                 memset(PageData, 0, PageSize * MaxCacheSize);
                 #endif
