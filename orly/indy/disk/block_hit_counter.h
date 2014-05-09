@@ -46,9 +46,9 @@ namespace Orly {
               NumBlocks(num_blocks),
               WorksetBuf(nullptr),
               FlushBuf(nullptr) {
-          Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&WorksetBuf), getpagesize(), GetNumBytes()));
+          Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&WorksetBuf), getpagesize(), GetNumBytes()));
           try {
-            Base::IfLt0(posix_memalign(reinterpret_cast<void **>(&FlushBuf), getpagesize(), GetNumBytes()));
+            Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&FlushBuf), getpagesize(), GetNumBytes()));
             try {
               memset(WorksetBuf, 0, GetNumBytes());
               memset(FlushBuf, 0, GetNumBytes());
