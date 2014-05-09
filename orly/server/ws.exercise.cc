@@ -1,6 +1,10 @@
 /* <orly/server/ws.exercise.cc>
 
+<<<<<<< HEAD
    Runs the <orly/server/ws_test_server.h> until SIGINT.
+=======
+   Exercise for <orly/server/ws.h>.
+>>>>>>> 5f15a8e88df451920867161421b709ef01e9ce35
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
