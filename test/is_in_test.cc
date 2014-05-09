@@ -16,6 +16,8 @@
 
 #include <test/is_in_test.h>
 
+#include <stdexcept>
+
 using namespace Test;
 
 // We use a local function with private variable to get the guarantees we want around initialization of this.
@@ -24,7 +26,7 @@ static bool InTest(bool set_true) {
 
   if (set_true) {
     if(in_test) {
-
+      throw std::runtime_error("Marked as InTest twice");
     }
     in_test = true;
   }
