@@ -12,46 +12,82 @@
   }
 }
 "files" {
-  "orly/orly.o" {
-    "ld" {
+  "third_party/mongoose/mongoose.c" {
+    "gcc" {
       "flags" {
         "-fsanitize=address";
+        "-fno-omit-frame-pointer";
       }
     }
   }
-  "orly/spa/spa.o" {
-    "ld" {
+  "orly/client/program/program.program.flex.cc" {
+    "g++" {
       "flags" {
         "-fsanitize=address";
+        "-fno-omit-frame-pointer";
       }
     }
   }
-  "orly/exit.test.o" {
-    "ld" {
+  "orly/client/program/program.program.bison.cc" {
+    "g++" {
       "flags" {
         "-fsanitize=address";
+        "-fno-omit-frame-pointer";
       }
     }
   }
-  "orly/sample.test.o" {
-    "ld" {
+  "orly/orly.package.flex.cc" {
+    "g++" {
       "flags" {
         "-fsanitize=address";
+        "-fno-omit-frame-pointer";
+      }
+    }
+  }
+  "orly/orly.package.bison.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=address";
+        "-fno-omit-frame-pointer";
+      }
+    }
+  }
+  "orly/orly.checkpoint.flex.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=address";
+        "-fno-omit-frame-pointer";
+      }
+    }
+  }
+  "orly/orly.checkpoint.bison.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=address";
+        "-fno-omit-frame-pointer";
+      }
+    }
+  }
+  "orly/orly.command.flex.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=address";
+        "-fno-omit-frame-pointer";
+      }
+    }
+  }
+  "orly/orly.command.bison.cc" {
+    "g++" {
+      "flags" {
+        "-fsanitize=address";
+        "-fno-omit-frame-pointer";
       }
     }
   }
   "orly/server/orly.o" {
     "ld" {
       "flags" {
-        "-fsanitize=address";
-      }
-    }
-  }
-  "orly/indy/disk/data_file.cc" {
-    "g++" {
-      "flags" {
-        "-fsanitize=address";
-        "-fno-omit-frame-pointer";
+        "-fsanitize=thread";
       }
     }
   }
