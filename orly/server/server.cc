@@ -1667,7 +1667,6 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
     const std::vector<string> &FileVec;
 
   };
-  TScheduler sub_scheduler(TScheduler::TPolicy(std::min(num_load_threads, num_merge_threads), std::max(num_load_threads, num_merge_threads), milliseconds(10)));
   for (const auto &file : file_vec) {
     /* wait for runner to be ready */ {
       std::unique_lock<std::mutex> lock(mut);
