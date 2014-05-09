@@ -144,6 +144,12 @@ bool Orly::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TC
       Base::TUuid id(tmp.c_str());
       Client->SetUserId(id)->Sync();
     }
+    virtual void operator()(const TNewSessionStmt *) const override {
+      throw invalid_argument("'new session' not allowed or required in binary connection");
+    }
+    virtual void operator()(const TResumeSessionStmt *) const override {
+      throw invalid_argument("'resume session' not allowed or required in binary connection");
+    }
     #if 0
     virtual void operator()(const TCallStmt *that) const override {
       vector<string> function_name;
