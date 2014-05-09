@@ -119,14 +119,6 @@ class TWsImpl final
       TStmtVisitor(TConn *conn, ostream &strm)
           : Conn(conn), Strm(strm) {}
 
-      /* Not supported. */
-      virtual void operator()(const TBeginImportStmt *) const override { NotSupported("begin import"); }
-      virtual void operator()(const TEndImportStmt   *) const override { NotSupported("end import"); }
-      virtual void operator()(const TImportStmt      *) const override { NotSupported("import"); }
-      virtual void operator()(const TSetTtlStmt      *) const override { NotSupported("set ttl"); }
-      virtual void operator()(const TSetUserIdStmt   *) const override { NotSupported("set user_id"); }
-      virtual void operator()(const TTailStmt        *) const override { NotSupported("tail"); }
-
       /* Echo. */
       virtual void operator()(const TEchoStmt *stmt) const override {
         assert(this);
@@ -160,6 +152,23 @@ class TWsImpl final
         }
         Conn->Session.reset(Conn->Ws->SessionManager->ResumeSession(Translate(stmt->GetIdExpr())));
         Strm << Conn->Session->GetId();
+      }
+
+      /* Set user id. */
+      virtual void operator()(const TSetUserIdStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        TUuid user_id = Translate(stmt->GetIdExpr());
+        GetSession()->SetUserId(user_id);
+      }
+
+      /* Set time-to-live. */
+      virtual void operator()(const TSetTtlStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        TUuid durable_id = Translate(stmt->GetIdExpr());
+        chrono::seconds ttl(stmt->GetIntExpr()->GetLexeme().AsInt());
+        GetSession()->SetTtl(durable_id, ttl);
       }
 
       /* Install package. */
@@ -217,6 +226,7 @@ class TWsImpl final
         Indy::TKey(result.GetValue(), result.GetArena().get()).Dump(Strm);
       }
 
+      /* Pause or unpause a pov. */
       virtual void operator()(const TPovStatusStmt *stmt) const override {
         assert(this);
         assert(stmt);
@@ -227,6 +237,33 @@ class TWsImpl final
         } else {
           GetSession()->UnpausePov(pov_id);
         }
+      }
+
+      /* Tail the global pov. */
+      virtual void operator()(const TTailStmt *) const override {
+        assert(this);
+        GetSession()->Tail();
+      }
+
+      /* Begin bulk import mode. */
+      virtual void operator()(const TBeginImportStmt *) const override {
+        assert(this);
+        GetSession()->BeginImport();
+      }
+
+      /* End bulk import mode. */
+      virtual void operator()(const TEndImportStmt *) const override {
+        assert(this);
+        GetSession()->EndImport();
+      }
+
+      /* Import bulk data. */
+      virtual void operator()(const TImportStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        string path = stmt->GetFile()->GetLexeme().AsDoubleQuotedString();
+        uint64_t count = stmt->GetXactCount()->GetLexeme().AsInt();
+        GetSession()->Import(path, count);
       }
 
       private:
@@ -246,14 +283,6 @@ class TWsImpl final
           throw invalid_argument("session not yet established");
         }
         return Conn->Session.get();
-      }
-
-      /* TODO: Remove this. */
-      static void NotSupported(const char *name) {
-        assert(name);
-        ostringstream strm;
-        strm << '"' << name << "\" statement not supported via websocket";
-        throw invalid_argument(strm.str());
       }
 
       /* Translate an Orlyscript id into a TUuid. */
