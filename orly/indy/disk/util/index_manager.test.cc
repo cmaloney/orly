@@ -39,17 +39,17 @@ TBufBlock::TPool TBufBlock::Pool(BlockSize, 200);
 FIXTURE(Typical) {
   TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
     const size_t consol_thresh = 20UL;
-    const size_t num_iter = 100000L;
+    const size_t num_iter = 10000L;
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
     Sim::TMemEngine mem_engine(&scheduler,
-                               1 * 1024 /* disk space: 1 GB */,
+                               256 /* disk space: 256 MB */,
                                256,
-                               262144 /* page cache slots: 1GB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
-    typedef TIndexManager<size_t, 10000, 1000> TMyManager;
+    typedef TIndexManager<size_t, 1000, 100> TMyManager;
     TMyManager manager(HERE, 0UL, consol_thresh, TVolume::TDesc::Fast, mem_engine.GetEngine(), true /* do cache */);
     for (size_t i = 0; i < num_iter; ++i) {
       manager.Emplace(num_iter - 1 - i);
@@ -74,11 +74,11 @@ FIXTURE(ManySortFiles) {
     const size_t num_iter = 1000000L;
     TScheduler scheduler(TScheduler::TPolicy(4, 10, milliseconds(10)));
     Sim::TMemEngine mem_engine(&scheduler,
-                               1 * 1024 /* disk space: 1 GB */,
+                               256 /* disk space: 256 MB */,
                                256,
-                               262144 /* page cache slots: 1GB */,
+                               16384 /* page cache slots: 64MB */,
                                1 /* num page lru */,
-                               16384 /* block cache slots: 1GB */,
+                               1024 /* block cache slots: 64MB */,
                                1 /* num block lru */);
 
     typedef TIndexManager<size_t, 100, 100> TMyManager;
