@@ -11,6 +11,7 @@
         "-Wl,--hash-style=gnu";
         "-Wl,--no-copy-dt-needed-entries";
         "-Wl,-z,relro";
+        "-Wl,--no-as-needed";
       }
       "libs" {
         "-luuid";
@@ -170,6 +171,10 @@
       "ld" {
         "flags" {
           "-rdynamic";
+          "-Wl,--hash-style=gnu";
+          "-Wl,--no-copy-dt-needed-entries";
+          "-Wl,-z,relro";
+          "-Wl,--no-as-needed";
           "-Wl,-rpath -Wl,/opt/gcc/lib64 --enable-new-dtags";
         }
         "libs" {
