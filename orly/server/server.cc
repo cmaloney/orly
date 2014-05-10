@@ -1213,10 +1213,12 @@ TServer::TSessionPin::TSessionPin(TServer *server, const TUuid &id) {
 
 void TServer::TSessionPin::BeginImport() const {
   assert(this);
+  Conn->BeginImport();
 }
 
 void TServer::TSessionPin::EndImport() const {
   assert(this);
+  Conn->EndImport();
 }
 
 const Base::TUuid &TServer::TSessionPin::GetId() const {
@@ -1224,46 +1226,61 @@ const Base::TUuid &TServer::TSessionPin::GetId() const {
   return Conn->GetSession()->GetId();
 }
 
-void TServer::TSessionPin::Import(const std::string &, uint64_t) const {
-  assert(this);
+void TServer::TSessionPin::Import(const std::string &/*path*/, uint64_t /*count*/) const {
+  throw runtime_error("'import' not implemented in websockets interface");
 }
 
-void TServer::TSessionPin::InstallPackage(const std::vector<std::string> &, uint64_t) const {
+void TServer::TSessionPin::InstallPackage(
+    const std::vector<std::string> &name, uint64_t version) const {
   assert(this);
+  Conn->InstallPackage(name, version);
 }
 
-Base::TUuid TServer::TSessionPin::NewPov(bool, bool, const Base::TOpt<Base::TUuid> &) const {
+Base::TUuid TServer::TSessionPin::NewPov(
+    bool is_safe, bool is_shared, const Base::TOpt<Base::TUuid> &parent_id) const {
   assert(this);
-  return Base::TUuid();
+  static const seconds ttl(600);
+  auto func = is_safe
+      ? (is_shared ? &TConnection::NewSafeSharedPov : &TConnection::NewSafePrivatePov)
+      : (is_shared ? &TConnection::NewFastSharedPov : &TConnection::NewFastPrivatePov);
+  return (Conn.get()->*func)(parent_id, ttl);
 }
 
-void TServer::TSessionPin::PausePov(const Base::TUuid &) const {
+void TServer::TSessionPin::PausePov(const Base::TUuid &pov_id) const {
   assert(this);
+  Conn->PausePov(pov_id);
 }
 
-void TServer::TSessionPin::SetTtl(const Base::TUuid &, const std::chrono::seconds &) const {
+void TServer::TSessionPin::SetTtl(
+    const Base::TUuid &durable_id, const std::chrono::seconds &ttl) const {
   assert(this);
+  Conn->SetTimeToLive(durable_id, ttl);
 }
 
-void TServer::TSessionPin::SetUserId(const Base::TUuid &) const {
+void TServer::TSessionPin::SetUserId(const Base::TUuid &user_id) const {
   assert(this);
+  Conn->SetUserId(user_id);
 }
 
 void TServer::TSessionPin::Tail() const {
   assert(this);
+  Conn->TailGlobalPov();
 }
 
-TMethodResult TServer::TSessionPin::Try(const TMethodRequest &) const {
+TMethodResult TServer::TSessionPin::Try(const TMethodRequest &method_request) const {
   assert(this);
-  return TMethodResult();
+  return Conn->Try(method_request.GetPovId(), method_request.GetPackage(), method_request.GetClosure());
 }
 
-void TServer::TSessionPin::UninstallPackage(const std::vector<std::string> &, uint64_t) const {
+void TServer::TSessionPin::UninstallPackage(
+    const std::vector<std::string> &name, uint64_t version) const {
   assert(this);
+  Conn->UninstallPackage(name, version);
 }
 
-void TServer::TSessionPin::UnpausePov(const Base::TUuid &) const {
+void TServer::TSessionPin::UnpausePov(const Base::TUuid &pov_id) const {
   assert(this);
+  Conn->UnpausePov(pov_id);
 }
 
 void TServer::TConnection::Run(TFd &fd) {
