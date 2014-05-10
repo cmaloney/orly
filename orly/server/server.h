@@ -40,6 +40,7 @@
 #include <orly/indy/disk/sim/mem_engine.h>
 #include <orly/indy/disk/util/disk_engine.h>
 #include <orly/indy/fiber/fiber.h>
+#include <orly/indy/fiber/jump_runnable.h>
 #include <orly/notification/all.h>
 #include <orly/notification/pov_failure.h>
 #include <orly/notification/system_shutdown.h>
@@ -534,6 +535,12 @@ namespace Orly {
            if the client times out, commits a syntax error, or otherwise does something weird. */
         void Run(Base::TFd &fd);
 
+        /* Run the given jump-runnable on the server's websockets runner. */
+        void RunWs(Indy::Fiber::TJumpRunnable &&jump_runnable) {
+          assert(this);          
+          jump_runnable(Server->FramePoolManager.get(), &Server->WsRunner);
+        }
+
         /* Construct a new connection for the given server, connected to the given session.  Neither the server
            pointer nor the session pointer may be null.  If the server already has a connection to the given session,
            this function returns null. */
@@ -742,6 +749,7 @@ namespace Orly {
       Indy::Fiber::TRunner RunReplicationQueueRunner;
       Indy::Fiber::TRunner RunReplicationWorkRunner;
       Indy::Fiber::TRunner RunReplicateTransactionRunner;
+      Indy::Fiber::TRunner WsRunner;
       std::unordered_set<Indy::Fiber::TRunner *> ForEachSchedCallbackExtraSet;
 
       /* TODO */
@@ -814,6 +822,9 @@ namespace Orly {
 
       /* The websockets server object */
       std::unique_ptr<TWs> Ws;
+
+      /* The thread on which WsRunner runs. */
+      std::thread WsThread;
 
       /* TODO */
       friend class TIndyReporter;
