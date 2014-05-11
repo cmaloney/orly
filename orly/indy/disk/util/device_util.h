@@ -124,91 +124,13 @@ namespace Orly {
           };
 
           /* TODO */
-          static bool ProbeDevice(const char *path, TOrlyDevice &out_device) {
-            try {
-              Base::TFd fd = open(path, O_RDONLY);
-              size_t *buf = nullptr;
-              Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
-              try {
-                Base::IfLt0(pread(fd, buf, BlockSize, 0UL));
-                if (buf[MagicNumberPos] != OrlyFSMagicNumber) {
-                  free(buf);
-                  return false;
-                }
-                uint64_t check = Base::Murmur(buf, NumDataElem, 0UL);
-                if (check != buf[NumDataElem]) {
-                  throw std::runtime_error("Orly system block corrupt");
-                }
-                memcpy(&(out_device.VolumeId), &buf[VolumeIdPos], sizeof(TVolumeId));
-                out_device.VolumeDeviceNumber = buf[VolumeDeviceNumberPos];
-                out_device.NumDevicesInVolume = buf[NumDevicesInVolumePos];
-                out_device.LogicalExtentStart = buf[LogicalExtentStartPos];
-                out_device.LogicalExtentSize = buf[LogicalExtentSizePos];
-                out_device.VolumeStrategy = buf[VolumeStrategyPos];
-                out_device.VolumeSpeed = buf[VolumeSpeedPos];
-                out_device.ReplicationFactor = buf[ReplicationFactorPos];
-                out_device.StripeSizeKB = buf[StripeSizeKBPos];
-                out_device.LogicalBlockSize = buf[LogicalBlockSizePos];
-                out_device.PhysicalBlockSize = buf[PhysicalBlockSizePos];
-                out_device.NumLogicalBlockExposed = buf[NumLogicalBlockExposedPos];
-                out_device.MinDiscardBlocks = buf[MinDiscardBlocksPos];
-              } catch (...) {
-                free(buf);
-                throw;
-              }
-              free(buf);
-            } catch (const std::exception &ex) {
-              return false;
-            }
-            return true;
-          }
+          static bool ProbeDevice(const char *path, TOrlyDevice &out_device);
 
           /* TODO */
-          static void ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
-            Base::TFd fd = open(path, O_RDWR);
-            size_t *buf = nullptr;
-            Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
-            try {
-              memset(buf, 0, BlockSize);
-              buf[MagicNumberPos] = OrlyFSMagicNumber;
-              memcpy(&buf[VolumeIdPos], &(new_device_info.VolumeId), sizeof(TVolumeId));
-              buf[VolumeDeviceNumberPos] = new_device_info.VolumeDeviceNumber;
-              buf[NumDevicesInVolumePos] = new_device_info.NumDevicesInVolume;
-              buf[LogicalExtentStartPos] = new_device_info.LogicalExtentStart;
-              buf[LogicalExtentSizePos] = new_device_info.LogicalExtentSize;
-              buf[VolumeStrategyPos] = new_device_info.VolumeStrategy;
-              buf[VolumeSpeedPos] = new_device_info.VolumeSpeed;
-              buf[ReplicationFactorPos] = new_device_info.ReplicationFactor;
-              buf[StripeSizeKBPos] = new_device_info.StripeSizeKB;
-              buf[LogicalBlockSizePos] = new_device_info.LogicalBlockSize;
-              buf[PhysicalBlockSizePos] = new_device_info.PhysicalBlockSize;
-              buf[NumLogicalBlockExposedPos] = new_device_info.NumLogicalBlockExposed;
-              buf[MinDiscardBlocksPos] = new_device_info.MinDiscardBlocks;
-              buf[NumDataElem] = Base::Murmur(buf, NumDataElem, 0UL);
-              Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));
-              fsync(fd);
-            } catch (...) {
-              free(buf);
-              throw;
-            }
-            free(buf);
-          }
+          static void ModifyDevice(const char *path, TOrlyDevice &new_device_info);
 
           /* TODO */
-          static void ZeroSuperBlock(const char *path) {
-            Base::TFd fd = open(path, O_RDWR);
-            size_t *buf = nullptr;
-            Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
-            try {
-              memset(buf, 0, BlockSize);
-              Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));
-              fsync(fd);
-            } catch (...) {
-              free(buf);
-              throw;
-            }
-            free(buf);
-          }
+          static void ZeroSuperBlock(const char *path);
 
           /* TODO */
           static bool ForEachDevice(const std::function<bool (const char *)> &cb);
@@ -219,23 +141,7 @@ namespace Orly {
 
           static std::string GetPathToDeviceInfo(const std::string &dev_path);
 
-          static size_t GetValFromDeviceInfo(const std::string &dev_name, const std::string &path_to_field) {
-            const std::string path_to_device_info = TDeviceUtil::GetPathToDeviceInfo(std::string(dev_name));
-            std::string info_path = path_to_device_info + path_to_field;
-            size_t val = 0UL;
-            try {
-              Base::TFd fd = open(info_path.c_str(), O_RDONLY);
-              Base::IfLt0(fd);
-              char buf[64];
-              char *ptr = buf;
-              Base::IfLt0(pread(fd, buf, 64, 0));
-              val = strtol(ptr, &ptr, 10);
-            } catch (const std::exception &ex) {
-              syslog(LOG_ERR, "Error while opening [%s] file [%s] for device [%s] : %s", path_to_field.c_str(), info_path.c_str(), dev_name.c_str(), ex.what());
-              throw;
-            }
-            return val;
-          }
+          static size_t GetValFromDeviceInfo(const std::string &dev_name, const std::string &path_to_field);
 
           static size_t GetDiscardGranularity(const std::string &dev_name) {
             return GetValFromDeviceInfo(dev_name, "queue/discard_granularity");
