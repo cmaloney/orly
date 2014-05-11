@@ -18,9 +18,6 @@
 
 #include <orly/server/tetris_manager.h>
 
-#include <sys/syscall.h>
-#include <unistd.h>
-
 #include <base/debug_log.h>
 #include <orly/indy/disk/util/volume_manager.h>
 
