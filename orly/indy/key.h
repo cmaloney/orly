@@ -391,7 +391,7 @@ namespace Orly {
     inline void TKey::Dump(std::ostream &strm) const {
       assert(this);
       void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-      Sabot::State::TAny::TWrapper(Core.NewState(Arena, state_alloc))->Accept(Sabot::TStateDumper(strm));
+      Sabot::State::TAny::TWrapper(GetState(state_alloc))->Accept(Sabot::TStateDumper(strm));
     }
 
     inline Atom::TCore::TArena *TKey::GetArena() const {
