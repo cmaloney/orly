@@ -36,8 +36,6 @@ using namespace Orly::Compiler;
 using namespace Orly::Package;
 using namespace Orly::Spa;
 
-bool PrintCmds = false;  // Flag for Starsha's TRunner
-
 TUUID POV_ID;
 
 class TProgram {

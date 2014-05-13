@@ -299,7 +299,7 @@ namespace Starsha {
     };  // TFile
 
     /* TODO */
-    TCorpus(const char *config, const char *config_mixin, size_t worker_count);
+    TCorpus(const char *config, const char *config_mixin, size_t worker_count, bool print_cmds);
 
     /* TODO */
     ~TCorpus();
@@ -384,10 +384,14 @@ namespace Starsha {
     /* TODO */
     static std::string &ChangeExt(std::string &out, const std::string &path, const char *new_ext);
 
+    void Run(const std::string &cmd, std::vector<std::string> &lines);
+
     private:
 
     /* TODO */
     void Process();
+
+    bool PrintCmds;
 
     /* TODO */
     TThreadPool ThreadPool;

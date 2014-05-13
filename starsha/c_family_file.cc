@@ -24,7 +24,6 @@
 
 #include <starsha/hdr_file.h>
 #include <starsha/obj_file.h>
-#include <starsha/runner.h>
 #include <starsha/string_builder.h>
 
 using namespace std;
@@ -73,7 +72,7 @@ void TCFamilyFile::OnExists() {
         TStringBuilder(cmd_line)
             << Cmd << Flags << " -M -MG -I" << GetCorpus()->GetSrc() << " -I" << GetCorpus()->GetOut()
             << " -D'SRC_ROOT=\"" << GetCorpus()->GetSrc() << "/\"' " << GetAbsPath();
-        Run(cmd_line, lines);
+        GetCorpus()->Run(cmd_line, lines);
       }
       /* Join all the lines together into a single text.  Why?  Because gcc is actually sending us a single, long line, but it is breaking it into
          continuations in order to keep it under an 80-col limit.  This niceness on its part is making our lives more complicated. */
@@ -177,7 +176,7 @@ void TCFamilyFile::Produce(bool run, const unordered_set<TFile *> &targets, unor
         << Cmd << Flags << " -c -I" << GetCorpus()->GetSrc() << " -I" << GetCorpus()->GetOut() << " -o" << target->GetAbsPath()
         << " -D'SRC_ROOT=\"" << GetCorpus()->GetSrc() << "/\"' " << GetAbsPath();
     vector<string> lines;
-    Run(cmd_line, lines);
+    GetCorpus()->Run(cmd_line, lines);
   }
   products = targets;
 }

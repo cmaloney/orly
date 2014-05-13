@@ -23,7 +23,6 @@
 
 #include <starsha/cc_file.h>
 #include <starsha/hdr_file.h>
-#include <starsha/runner.h>
 #include <starsha/string_builder.h>
 
 using namespace std;
@@ -73,7 +72,7 @@ void TFlexFile::Produce(bool run, const unordered_set<TFile *> &, unordered_set<
     string cmd_line;
     TStringBuilder(cmd_line) << "flex -o" << PrimaryTarget->GetAbsPath() << ' ' << GetAbsPath();
     vector<string> lines;
-    Run(cmd_line, lines);
+    GetCorpus()->Run(cmd_line, lines);
   }
   products = Targets;
 }

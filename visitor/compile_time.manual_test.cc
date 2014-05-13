@@ -35,9 +35,6 @@
 /* Temporary file used for files. */
 static Base::TTmpFile File("compile_time_genXXXXXX.cc", true);
 
-/* Needed for Starsha runner. */
-bool PrintCmds = false;
-
 /* Compiles and measures the average compile time over num_trials (default = 3). */
 void Compile(const char *name, const char *filename, int num_trials = 3) {
   std::vector<double> trials(num_trials);

@@ -120,6 +120,6 @@ namespace Starsha {
   };  // TRunner
 
   /* TODO */
-  void Run(const std::string &cmd, std::vector<std::string> &lines);
+  void Run(const std::string &cmd, std::vector<std::string> &lines, bool print_cmd);
 
 }  // Starsha

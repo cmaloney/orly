@@ -20,7 +20,6 @@
 
 #include <fstream>
 
-#include <starsha/runner.h>
 #include <orly/balancer/failover_test_balancer.h>
 #include <orly/client/client.h>
 #include <orly/compiler.h>
@@ -47,8 +46,6 @@ const char *Server2BlockDevice = "sdc";
 const char *Server1BlockDevice = "xvdf";
 const char *Server2BlockDevice = "xvdg";
 #endif
-
-bool PrintCmds = false;
 
 class TExerciseClient final
     : public TClient {

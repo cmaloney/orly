@@ -20,7 +20,6 @@
 
 #include <fstream>
 
-#include <starsha/runner.h>
 #include <orly/client/client.h>
 #include <orly/compiler.h>
 #include <orly/spa/honcho.h>
@@ -36,8 +35,6 @@ using namespace Orly::Client;
 using namespace Orly::Server;
 
 const char *ServerBlockDevice = "sdb";
-
-bool PrintCmds = false;
 
 class TExerciseClient final
     : public TClient {

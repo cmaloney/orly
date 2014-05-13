@@ -95,8 +95,6 @@ const size_t TempFileConsolidationThreshold = 20UL;
 static const char *sample_package = "package #1;"
                                     "test_func = (true);";
 
-bool PrintCmds = false; /* For starsha runner */
-
 void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
                                             const std::unique_ptr<TManager> &manager,
                                             const TManager::TPtr<Indy::TRepo> &global_repo,

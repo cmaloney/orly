@@ -34,13 +34,8 @@ using namespace std;
 using namespace Base;
 using namespace Starsha;
 
-extern bool PrintCmds;
-
 TRunner::TRunner(const string &cmd, size_t buffer_size)
     : Poller(EPOLL_CLOEXEC), OutParser(buffer_size), ErrParser(buffer_size) {
-  if (PrintCmds) {
-    cout << cmd << '\n';
-  }
   TOsError::IfLt0(HERE, ChildId = fork());
   if (ChildId) {
     InPipe.Close(TPipe::In);
@@ -180,9 +175,14 @@ void TRunner::TParser::Freshen() const {
   }
 }
 
-void Starsha::Run(const string &cmd, vector<string> &lines) {
+void Starsha::Run(const string &cmd, vector<string> &lines, bool print_cmd) {
   assert(&lines);
   vector<string> errors;
+
+  if(print_cmd) {
+    cout << cmd << '\n';
+  }
+
   int status;
   /* extra */ {
     TRunner runner(cmd);
