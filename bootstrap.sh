@@ -28,7 +28,7 @@ fi
 #Setup install prefix for 'make install'
 sed -i 's@PREFIX=.*@PREFIX='$PREFIX'@g' Makefile
 
-common_flags=(-O2 -s
+common_flags=(-O2 -flto -s
   -Wall -Werror -Wextra
   -Wno-type-limits -Wno-delete-non-virtual-dtor -Wno-parentheses -Wno-unused-result
   -DTEST_OUTPUT_DIR="/tmp/"
