@@ -33,6 +33,8 @@
 #include <orly/indy/key.h>
 #include <orly/sabot/state_dumper.h>
 #include <orly/sabot/type_dumper.h>
+#include <orly/var/jsonify.h>
+#include <orly/var/sabot_to_var.h>
 
 using namespace std;
 using namespace std::placeholders;
@@ -62,7 +64,7 @@ class TWsImpl final
     AsioServer.set_message_handler(bind(&TWsImpl::OnMsg, this, _1, _2));
     AsioServer.listen(port_number);
     AsioServer.start_accept();
-    BgThread = thread(&TWsImpl::BgMain, this);      
+    BgThread = thread(&TWsImpl::BgMain, this);
   }
 
   /* Shuts down the server. */
@@ -126,7 +128,7 @@ class TWsImpl final
         assert(this);
         assert(stmt);
         void *alloc = alloca(SabotStateSize);
-        TWrapper(NewStateSabot(stmt->GetExpr(), alloc))->Accept(TStateDumper(Strm));
+        Var::Jsonify(Strm, Var::ToVar(*TWrapper(NewStateSabot(stmt->GetExpr(), alloc))));
       }
 
       /* Exit. */
@@ -142,7 +144,7 @@ class TWsImpl final
           throw invalid_argument("session already established");
         }
         Conn->Session.reset(Conn->Ws->SessionManager->NewSession());
-        Strm << Conn->Session->GetId();
+        Strm << '"' << Conn->Session->GetId() << '"';
       }
 
       /* Resume session. */
@@ -153,7 +155,7 @@ class TWsImpl final
           throw invalid_argument("session already established");
         }
         Conn->Session.reset(Conn->Ws->SessionManager->ResumeSession(Translate(stmt->GetIdExpr())));
-        Strm << Conn->Session->GetId();
+        Strm << '"' << Conn->Session->GetId() << '"';
       }
 
       /* Set user id. */
@@ -204,7 +206,7 @@ class TWsImpl final
         if (parent) {
           parent_id = Translate(parent->GetIdExpr());
         }
-        Strm << GetSession()->NewPov(is_safe, is_shared, parent_id);
+        Strm << '"' << GetSession()->NewPov(is_safe, is_shared, parent_id) << '"';
       }
 
       /* Try call. */
@@ -225,7 +227,9 @@ class TWsImpl final
           list = tail ? tail->GetObjMemberList() : nullptr;
         }
         TMethodResult result = GetSession()->Try(TMethodRequest(pov_id, fq_name, closure));
-        Indy::TKey(result.GetValue(), result.GetArena().get()).Dump(Strm);
+        void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+        Var::Jsonify(
+            Strm, Var::ToVar(*TWrapper(Indy::TKey(result.GetValue(), result.GetArena().get()).GetState(state_alloc))));
       }
 
       /* Pause or unpause a pov. */
@@ -236,8 +240,10 @@ class TWsImpl final
         TUuid pov_id = Translate(stmt->GetIdExpr());
         if (is_pause) {
           GetSession()->PausePov(pov_id);
+          Strm << "\"paused\"";
         } else {
           GetSession()->UnpausePov(pov_id);
+          Strm << "\"unpaused\"";
         }
       }
 
@@ -334,7 +340,7 @@ class TWsImpl final
     }
     temp.release();
   }
-   
+
   /* Called by the ws framework when it closes a TCP connection (or when the
      connection is closed by the client). */
   void OnClose(TConnHndl conn_hndl) {
@@ -357,22 +363,23 @@ class TWsImpl final
     }
     /* Pass the message to the connection object for processing. */
     TConn *conn = iter->second;
-    const char *prefix;
+    const char *status;
     string reply;
     try {
       reply = conn->OnMsg(msg);
-      prefix = "ok";
+      status = "ok";
     } catch (const exception &ex) {
       reply = ex.what();
-      prefix = "ex";
+      status = "exception";
     }
     /* Format the reply and send it back to the client. */
     ostringstream strm;
-    strm << prefix;
-    if (!reply.empty()) {
-      strm << ':' << reply;
+    strm << "{\"status\":\"" << status << '"';
+    if(!reply.empty()) {
+      strm << ",\"result\":" << reply;
     }
-    AsioServer.send(conn_hndl, strm.str(), websocketpp::frame::opcode::text);    
+    strm << '}';
+    AsioServer.send(conn_hndl, strm.str(), websocketpp::frame::opcode::text);
     if (conn->IsExiting()) {
       AsioServer.close(conn_hndl, websocketpp::close::status::normal, "");
     }
