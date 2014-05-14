@@ -26,9 +26,9 @@
 #include <fstream>
 #include <vector>
 
+#include <base/subprocess.h>
 #include <base/tmp_file.h>
 #include <base/timer.h>
-#include <starsha/runner.h>
 
 #include <test/kit.h>
 
@@ -46,14 +46,14 @@ void Compile(const char *name, const char *filename, int num_trials = 3) {
     std::ostringstream strm;
     strm << "g++ -std=c++1y -I" << SRC_ROOT << ' ' << filename;
     timer.Start();
-    Starsha::TRunner runner(strm.str());
-    auto status = runner.Wait();
+
+    Base::TPump pump;
+    auto subproc = Base::TSubprocess::New(pump, strm.str().c_str());
+    auto status = subproc->Wait();
     timer.Stop();
     if (!EXPECT_EQ(status, 0)) {
-      runner.ForEachLine([](bool, const char * line) {
-        std::cout << line << std::endl;
-        return true;
-      });
+      Base::EchoOutput(subproc->TakeStdOutFromChild());
+      Base::EchoOutput(subproc->TakeStdErrFromChild());
     }
     trials[i] = timer.Total();
   }

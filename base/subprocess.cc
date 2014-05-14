@@ -21,7 +21,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+#include <iostream>
+
 #include <base/error_utils.h>
+#include <strm/bin/in.h>
+#include <strm/fd.h>
 
 using namespace std;
 using namespace Base;
@@ -65,5 +69,16 @@ TSubprocess::TSubprocess(TPump &pump) {
     StdInToChild.Reset();
     StdOutFromChild.Reset();
     StdErrFromChild.Reset();
+  }
+}
+
+void Base::EchoOutput(TFd &&fd) {
+  Strm::TFdDefault in_prod(move(fd));
+  Strm::Bin::TIn in_cons(&in_prod);
+  uint8_t buf[4096];
+
+  // Copy everything to cout error message
+  while(size_t read = in_cons.TryRead(buf, 4096)) {
+    cout.write(reinterpret_cast<char*>(buf), read);
   }
 }
