@@ -26,7 +26,7 @@ if [ -z "$PREFIX" ]; then
 fi
 
 common_flags=(-O2 -flto -s
-  -Wall -Werror -Wextra
+  -Wall -Werror -Wextra -Wl,--no-as-needed
   -Wno-type-limits -Wno-delete-non-virtual-dtor -Wno-parentheses -Wno-unused-result
   -DTEST_OUTPUT_DIR="/tmp/"
   -std=c++1y -I$SRC -D"SRC_ROOT=\"$SRC\""
