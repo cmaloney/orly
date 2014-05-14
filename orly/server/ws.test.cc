@@ -41,7 +41,7 @@ FIXTURE(Typical) {
   client.init_asio();
   client.set_open_handler(
     [&client](TConnHndl conn_hndl) {
-      client.send(conn_hndl, "echo 'hello';", websocketpp::frame::opcode::text);    
+      client.send(conn_hndl, "echo 'hello';", websocketpp::frame::opcode::text);
     }
   );
   string reply;
@@ -56,5 +56,5 @@ FIXTURE(Typical) {
       UriPrefix + to_string(ws_test_server.GetPortNumber()), ec);
   client.connect(conn);
   client.run();
-  EXPECT_EQ(reply, "ok:\"hello\"");
+  EXPECT_EQ(reply, R"({"status":"ok","result":"hello"})");
 }
