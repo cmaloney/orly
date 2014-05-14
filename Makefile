@@ -6,7 +6,7 @@ RELEASE_OUT=../out/release
 #Apps get installed on 'make install'
 ORLY_APPS=orly/orlyc orly/server/orlyi orly/spa/spa orly/client/orly_client orly/indy/disk/util/orly_dm
 #Utils are simply things we like making sure still build
-ORLY_UTIL=starsha/starsha starsha/dummy orly/core_import
+ORLY_UTIL=starsha/starsha orly/core_import
 
 .PHONY: apps release test test_build test_lang clean install
 
