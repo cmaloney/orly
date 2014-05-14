@@ -440,12 +440,12 @@ namespace Visitor {
       template <typename TElem>
       requires<!IsMember<TElem>::value,
       const TAnyAcceptor *> operator()(TElem &&) const {
-        std::cerr
+        /*std::cerr
             << "Error attempting to copy- or move- construct variants across "
             << "families. The type of the value held by the other variant "
                "was "
             << Base::TDemangle(typeid(TElem)).Get()
-            << ", which is not a member of this family." << std::endl;
+            << ", which is not a member of this family." << std::endl;*/
         throw std::bad_cast();
       }
 
