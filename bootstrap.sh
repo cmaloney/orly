@@ -38,7 +38,15 @@ common_flags=(-O2 -flto -s
   )
 
 #Build starsha
-$CC "${common_flags[@]}" -DNDEBUG -Wold-style-cast -I$OUT $SRC/starsha/walk.cc $SRC/starsha/pipe.cc $SRC/starsha/obj_file.cc $SRC/starsha/nycr_file.cc $SRC/starsha/c_family_file.cc $SRC/starsha/cc_file.cc $SRC/starsha/bison_file.cc $SRC/starsha/starsha.cc $SRC/base/cmd.cc $SRC/starsha/c_file.cc $SRC/base/error.cc $SRC/starsha/exe_file.cc $SRC/starsha/note.cc $SRC/starsha/hdr_file.cc $SRC/base/demangle.cc $SRC/base/code_location.cc $SRC/starsha/thread_pool.cc $SRC/starsha/status_line.cc $SRC/starsha/corpus.cc $SRC/starsha/flex_file.cc $SRC/starsha/runner.cc $SRC/base/make_dir.cc $SRC/base/thrower.cc -luuid -ldl -o $SRC/tools/starsha
+$CC "${common_flags[@]}" -DNDEBUG -Wold-style-cast -I$OUT                                                              \
+  $SRC/starsha/walk.cc $SRC/starsha/obj_file.cc $SRC/starsha/nycr_file.cc $SRC/starsha/c_family_file.cc                \
+  $SRC/starsha/cc_file.cc $SRC/starsha/bison_file.cc $SRC/starsha/starsha.cc $SRC/base/cmd.cc $SRC/starsha/c_file.cc   \
+  $SRC/base/error.cc $SRC/starsha/exe_file.cc $SRC/starsha/note.cc $SRC/starsha/hdr_file.cc $SRC/base/demangle.cc      \
+  $SRC/base/code_location.cc $SRC/starsha/thread_pool.cc $SRC/starsha/status_line.cc $SRC/starsha/corpus.cc            \
+  $SRC/starsha/flex_file.cc $SRC/starsha/runner.cc $SRC/base/make_dir.cc $SRC/base/thrower.cc $SRC/base/subprocess.cc  \
+  $SRC/base/pump.cc $SRC/strm/in.cc $SRC/strm/bin/in.cc $SRC/strm/out.cc $SRC/base/io_utils.cc $SRC/strm/bin/var_int.cc\
+  $SRC/base/event_semaphore.cc $SRC/strm/past_end.cc $SRC/strm/syntax_error.cc $SRC/base/time.cc                       \
+  -luuid -ldl -o $SRC/tools/starsha
 
 #Build nycr
 mkdir -p $OUT_BOOTSTRAP/tools/nycr/syntax/

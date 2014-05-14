@@ -203,16 +203,28 @@ class TStarsha
                 TStatusLine() << "Running test: " << target->GetRelPath();
                 string cmd_line;
                 TStringBuilder(cmd_line) << target->GetAbsPath() << (Verbose ? " -v" : "");
-                TRunner runner(cmd_line);
-                int status = runner.Wait();
-                if (status || Verbose) {
+                vector<string> output;
+
+                auto PrintStdOut = [&rel_path, &output] () {
                   cout << rel_path << ":\n";
-                  runner.ForEachLine([](bool, const char *line) {
+                  for(const auto &line: output) {
                     cout << line << '\n';
-                    return true;
-                  });
+                  }
+                };
+
+                try {
+                  corpus.Run(cmd_line, output);
+                  if(Verbose) {
+                    PrintStdOut();
+                  }
+                } catch(const TRunError &ex) {
+                  PrintStdOut();
+                  cout << "\n\nSTDERR: \n===========================================\n"
+                       << ex.GetStdErr()
+                       << "\n\n EXITCODE: " << ex.GetExitCode() << '\n';
+                  is_ok = false;
                 }
-                is_ok = is_ok && (status == 0);
+
                 if (!is_ok && !KeepGoing) {
                   break;
                 }

@@ -127,6 +127,9 @@ namespace Strm {
       /* Reads the next bytes of data. */
       void Read(void *data, size_t size);
 
+      /* Reads up to size_t data. On EOF returns size < size_t, rather than throwing. */
+      [[gnu::warn_unused_result]] size_t TryRead(void *data, size_t size);
+
       /* Skips the next byte of data. */
       void Skip() {
         assert(this);
