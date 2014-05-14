@@ -21,7 +21,6 @@
 #include <iostream>
 #include <sstream>
 
-#include <starsha/runner.h>
 #include <starsha/string_builder.h>
 
 using namespace std;
@@ -97,7 +96,7 @@ void TObjFile::Produce(bool run, const unordered_set<TFile *> &targets, unordere
     string cmd_line;
     TStringBuilder(cmd_line) << "g++" << Flags << " -o" << target->GetAbsPath() << impl_files << Libs;
     vector<string> lines;
-    Run(cmd_line, lines);
+    GetCorpus()->Run(cmd_line, lines);
   }
   products = targets;
 }

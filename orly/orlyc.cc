@@ -29,10 +29,6 @@ using namespace std;
 using namespace Orly;
 using namespace Orly::Spa; // Sort of ug. Would be nice to remove. Not strictly necessary for running tests...
 
-//For the starsha runner.
-bool PrintCmds = false;
-
-
 class TCompilerConfig : public Base::TCmd {
   public:
   TCompilerConfig(int argc, char **argv)

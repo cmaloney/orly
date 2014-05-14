@@ -29,6 +29,7 @@
 #include <base/make_dir.h>
 #include <base/os_error.h>
 #include <starsha/all_kinds.h>
+#include <starsha/runner.h>
 #include <starsha/walk.h>
 
 using namespace std;
@@ -256,8 +257,8 @@ void TCorpus::TFile::Init(TCorpus *corpus) {
   }
 }
 
-TCorpus::TCorpus(const char *config, const char *config_mixin, size_t worker_count)
-    : ThreadPool(worker_count) {
+TCorpus::TCorpus(const char *config, const char *config_mixin, size_t worker_count, bool print_cmds)
+    : PrintCmds(print_cmds), ThreadPool(worker_count) {
   assert(config);
   /* Initialize the file kind knowledge base. */
   TFile::TKind::Initialize();
@@ -560,6 +561,10 @@ string &TCorpus::ChangeExt(string &out, const string &path, const char *new_ext)
     out.replace(dot, out.size(), new_ext);
   }
   return out;
+}
+
+void TCorpus::Run(const std::string &cmd, std::vector<std::string> &lines) {
+  Starsha::Run(cmd, lines, PrintCmds);
 }
 
 void TCorpus::Process() {

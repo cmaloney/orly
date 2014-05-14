@@ -393,6 +393,7 @@ namespace Strm {
       }
 
       using TCons::Read;
+      using TCons::TryRead;
       using TCons::Peek;
 
       private:

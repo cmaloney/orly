@@ -19,107 +19,42 @@
 #pragma once
 
 #include <cassert>
-#include <cstring>
-#include <exception>
-#include <functional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 #include <base/class_traits.h>
-#include <starsha/pipe.h>
 
 namespace Starsha {
 
-  /* TODO */
-  class TRunner {
-    NO_COPY(TRunner);
+  class TRunError : public std::runtime_error {
     public:
+     TRunError(int exit_code, const std::string &&stderr)
+         : std::runtime_error("Error running subprocess"), ExitCode(exit_code), StdErr(std::move(stderr)) {}
 
-    /* TODO */
-    TRunner(const std::string &cmd, size_t buffer_size = 4096);
-
-    /* TODO */
-    ~TRunner();
-
-    /* TODO */
-    bool ForEachLine(const std::function<bool (bool is_err, const char *line)> &cb);
-
-    /* TODO */
-    void Send(const std::string &data) {
-      assert(this);
-      assert(&data);
-      Send(data.data(), data.size());
+    const char *what() const noexcept final {
+      //TODO: Make this be more useful. / include the return code.
+      return StdErr.c_str();
     }
 
-    /* TODO */
-    void Send(const char *data) {
+    int GetExitCode() const {
       assert(this);
-      assert(data);
-      Send(data, strlen(data));
+      return ExitCode;
     }
 
-    /* TODO */
-    void Send(const char *buf, size_t max_size);
-
-    /* TODO */
-    int Wait();
+    const std::string &GetStdErr() const {
+      assert(this);
+      return StdErr;
+    }
 
     private:
+    int ExitCode;
+    std::string StdErr;
 
-    /* TODO */
-    class TParser {
-      NO_COPY(TParser);
-      public:
+  };
 
-      /* TODO */
-      TParser(size_t buffer_size);
-
-      /* TODO */
-      ~TParser();
-
-      /* TODO */
-      const char *Peek() const;
-
-      /* TODO */
-      void Pop();
-
-      /* TODO */
-      void Push(TPipe *pipe);
-
-      private:
-
-      /* TODO */
-      void Freshen() const;
-
-      /* TODO */
-      char *Start, *Limit, *PushStart;
-
-      /* TODO */
-      bool Done;
-
-      /* TODO */
-      mutable char *PeekStart, *PeekLimit;
-
-      /* TODO */
-      mutable bool CanPeek;
-
-    };  // TParser;
-
-    /* TODO */
-    TPipe::TPoller Poller;
-
-    /* TODO */
-    TParser OutParser, ErrParser;
-
-    /* TODO */
-    TPipe InPipe, OutPipe, ErrPipe;
-
-    /* TODO */
-    int ChildId;
-
-  };  // TRunner
-
-  /* TODO */
-  void Run(const std::string &cmd, std::vector<std::string> &lines);
+  /* Runs the given command, returning the lines from std::out one by one. Throws if anything in stderr or return code
+     is non-zero. */
+  void Run(const std::string &cmd, std::vector<std::string> &lines, bool print_cmd);
 
 }  // Starsha

@@ -39,7 +39,6 @@ static Type::TTypeCzar type_czar;
 /* Helper function turns a string into a TPackage (by reading in the concrete syntax tree)
 
 NOTE: Copied in <orly/expr/addr_walker.test.cc> */
-bool PrintCmds = false;
 
 Symbol::TPackage::TPtr MakePackage(const string &orlyscript) {
   auto cst = TPackage::ParseStr(orlyscript.c_str());

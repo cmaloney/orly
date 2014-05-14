@@ -25,7 +25,6 @@
 #include <starsha/cc_file.h>
 #include <starsha/flex_file.h>
 #include <starsha/hdr_file.h>
-#include <starsha/runner.h>
 #include <starsha/string_builder.h>
 
 using namespace std;
@@ -47,7 +46,7 @@ void TNycrFile::OnExists() {
     /* extra: build and run the command, capturing its output lines */ {
       string cmd_line;
       TStringBuilder(cmd_line) << GetCorpus()->GetBootstrap() << "/tools/nycr/nycr -l " << GetAbsPath();
-      Run(cmd_line, Languages);
+      GetCorpus()->Run(cmd_line, Languages);
     }
     for (string &language: Languages) {
       new TNote(note, language);
@@ -114,7 +113,7 @@ void TNycrFile::Produce(bool run, const unordered_set<TFile *> &, unordered_set<
     TStringBuilder(cmd_line)
         << GetCorpus()->GetBootstrap() << "/tools/nycr/nycr -a " << atom << " -p " << branch << " -r " << root << ' ' << GetAbsPath();
     vector<string> lines;
-    Run(cmd_line, lines);
+    GetCorpus()->Run(cmd_line, lines);
   }
   products = Targets;
 }

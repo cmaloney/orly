@@ -42,9 +42,6 @@ using namespace Starsha;
 static const char *TestExt = ".test";
 static const size_t TestExtLen = strlen(TestExt);
 
-//Used by runner.cc as an extern
-bool PrintCmds = false;
-
 void GetAbsPath(char *abs_path, const char *root, const char *arg) {
   assert(abs_path);
   assert(root);
@@ -127,10 +124,9 @@ class TStarsha
   }
 
   int Run() {
-    ::PrintCmds = PrintCmds;
     int result;
     try {
-      TCorpus corpus(Config.c_str(), ConfigMixin.size() ? ConfigMixin.c_str() : nullptr, WorkerCount);
+      TCorpus corpus(Config.c_str(), ConfigMixin.size() ? ConfigMixin.c_str() : nullptr, WorkerCount, PrintCmds);
       vector<TCorpus::TFile *> targets;
       if (All.size() > 0) {
         const char *pattern = All.c_str();
@@ -207,16 +203,28 @@ class TStarsha
                 TStatusLine() << "Running test: " << target->GetRelPath();
                 string cmd_line;
                 TStringBuilder(cmd_line) << target->GetAbsPath() << (Verbose ? " -v" : "");
-                TRunner runner(cmd_line);
-                int status = runner.Wait();
-                if (status || Verbose) {
+                vector<string> output;
+
+                auto PrintStdOut = [&rel_path, &output] () {
                   cout << rel_path << ":\n";
-                  runner.ForEachLine([](bool, const char *line) {
+                  for(const auto &line: output) {
                     cout << line << '\n';
-                    return true;
-                  });
+                  }
+                };
+
+                try {
+                  corpus.Run(cmd_line, output);
+                  if(Verbose) {
+                    PrintStdOut();
+                  }
+                } catch(const TRunError &ex) {
+                  PrintStdOut();
+                  cout << "\n\nSTDERR: \n===========================================\n"
+                       << ex.GetStdErr()
+                       << "\n\n EXITCODE: " << ex.GetExitCode() << '\n';
+                  is_ok = false;
                 }
-                is_ok = is_ok && (status == 0);
+
                 if (!is_ok && !KeepGoing) {
                   break;
                 }

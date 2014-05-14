@@ -63,6 +63,29 @@ void TCons::Read(void *data, size_t size) {
   }
 }
 
+size_t TCons::TryRead(void *data, size_t size) {
+  assert(this);
+  assert(data || !size);
+  size_t remaining = size;
+
+  char *cursor = static_cast<char *>(data);
+  while(remaining) {
+    TryRefresh();
+    if(AtEnd) {
+      break;
+    }
+
+    auto actl = min<size_t>(remaining, Limit - Cursor);
+    memcpy(cursor, Cursor, actl);
+    Cursor += actl;
+    cursor += actl;
+    remaining -= actl;
+  }
+
+  return size - remaining;
+}
+
+
 void TCons::Skip(size_t size) {
   assert(this);
   while (size) {

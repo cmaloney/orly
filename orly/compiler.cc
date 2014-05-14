@@ -31,11 +31,13 @@
 #include <base/piece.h>
 #include <base/split.h>
 #include <base/source_root.h>
+#include <base/subprocess.h>
 #include <base/thrower.h>
 #include <orly/code_gen/package.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/package.h>
-#include <starsha/runner.h>
+#include <strm/fd.h>
+#include <strm/bin/in.h>
 #include <tools/nycr/error.h>
 
 using namespace std;
@@ -231,15 +233,15 @@ Package::TVersionedName Orly::Compiler::Compile(
       }
     }
 
-    Starsha::TRunner runner(args.str());
-    runner.ForEachLine([debug_cc](bool, const char *line) {
-      if(debug_cc) {
-        cout << line << endl;
-      }
-      return true;
-    });
-    auto status = runner.Wait();
+    Base::TPump pump;
+    auto subproc = Base::TSubprocess::New(pump, args.str().c_str());
+    auto status = subproc->Wait();
     if (status || failed) {
+      if (debug_cc) {
+        Base::EchoOutput(subproc->TakeStdOutFromChild());
+        Base::EchoOutput(subproc->TakeStdErrFromChild());
+      }
+
       //NOTE: use '-d' to get the error messages.
       cout << "Error while compiling an Intermediate Representation. See a Orly team member with your Orly code for support" << endl;
       throw TCompileFailure(HERE, "Compiling C++ and linking");

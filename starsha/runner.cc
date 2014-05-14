@@ -18,195 +18,113 @@
 
 #include <starsha/runner.h>
 
+#include <algorithm>
+#include <array>
 #include <cassert>
-#include <cstdlib>
-#include <exception>
 #include <iostream>
 #include <sstream>
+#include <thread>
 
-#include <unistd.h>
-#include <sys/wait.h>
-
-#include <base/os_error.h>
-#include <base/thrower.h>
+#include <base/class_traits.h>
+#include <base/subprocess.h>
+#include <strm/bin/in.h>
+#include <strm/fd.h>
 
 using namespace std;
 using namespace Base;
 using namespace Starsha;
+using namespace Strm;
 
-extern bool PrintCmds;
+//TODO: Move to <strm/text/>
+class TBgLineReader : public In::TCons {
+  NO_COPY(TBgLineReader);
 
-TRunner::TRunner(const string &cmd, size_t buffer_size)
-    : Poller(EPOLL_CLOEXEC), OutParser(buffer_size), ErrParser(buffer_size) {
-  if (PrintCmds) {
+  public:
+  TBgLineReader(In::TProd *prod, vector<string> &out)
+      : In::TCons(prod), Out(out), BgReader(&TBgLineReader::ReadLinesToEof, this) {}
+
+  ~TBgLineReader() {
+    BgReader.join();
+  }
+
+  private:
+
+  void ReadLinesToEof() {
+    array<char, 4096> buf;
+    using TIt = array<char, 4096>::const_iterator;
+
+    //Loop will naturally exit when TryRead returns no data (This is one extra call to it, but good enough.)
+    while(size_t act = TryRead(buf.data(), 4096)) {
+      // Find each '\n', split at it, and move the line before that point to Out.
+      TIt start = buf.cbegin();
+      const TIt end = buf.cbegin() + act;
+      TIt it;
+      while((it = find(start, end, '\n')) != end) {
+        CurLine.append(start, it);
+        Out.emplace_back(move(CurLine));
+        start = it + 1;
+      }
+
+      if (start != end) {
+        CurLine.append(start, end);
+      }
+    }
+
+    // Catch anything leftover
+    if(!CurLine.empty()) {
+      Out.emplace_back(move(CurLine));
+    }
+  }
+
+  vector<string> &Out;
+  string CurLine;
+
+  thread BgReader;
+};
+
+void Starsha::Run(const string &cmd, vector<string> &lines, bool print_cmd) {
+  assert(&cmd);
+  assert(&lines);
+
+  if(print_cmd) {
     cout << cmd << '\n';
   }
-  TOsError::IfLt0(HERE, ChildId = fork());
-  if (ChildId) {
-    InPipe.Close(TPipe::In);
-    OutPipe.Close(TPipe::Out);
-    ErrPipe.Close(TPipe::Out);
-    Poller.Add(&OutPipe);
-    Poller.Add(&ErrPipe);
-  } else {
-    try {
-      ErrPipe.MoveFd(TPipe::Out, 2);
-      OutPipe.MoveFd(TPipe::Out, 1);
-      InPipe.MoveFd(TPipe::In, 0);
-      TOsError::IfLt0(HERE, execlp("/bin/sh", "/bin/sh", "-c", cmd.c_str(), NULL));
-    } catch (const exception &ex) {
-      cerr << "exception: " << ex.what() << endl;
-      abort();
-    } catch (...) {
-      cerr << "exception: unknown error" << endl;
-      abort();
-    }
-  }
-}
 
-TRunner::~TRunner() {}
+  // TOOD: should really memory cap the pump...
+  // TODO: Jumping through <base/pump> here and <strm> gives us several unneded / extra copies.
+  TPump pump;
+  auto subproc = TSubprocess::New(pump, cmd.c_str());
 
-bool TRunner::ForEachLine(const function<bool (bool is_err, const char *line)> &cb) {
-  assert(this);
-  assert(&cb);
-  struct {
-    TParser *Parser;
-    bool IsErr;
-  } items[] = { { &OutParser, false }, { &ErrParser, true }, { 0, false } };
-  TPipe *pipe;
-  for (;;) {
-    for (auto item = items; item->Parser; ++item) {
-      for (;;) {
-        auto line = item->Parser->Peek();
-        if (!line) {
-          break;
-        }
-        if (!cb(item->IsErr, line)) {
-          return false;
-        }
-        item->Parser->Pop();
-      }
-    }
-    pipe = Poller.Wait();
-    if (!pipe) {
-      break;
-    }
-    ((pipe == &OutPipe) ? OutParser : ErrParser).Push(pipe);
-  }
-  return true;
-}
+  // TODO: We won't be providing any input. Tell the child process that.
+  close(subproc->TakeStdInToChild());
 
-void TRunner::Send(const char *data, size_t size) {
-  assert(this);
-  InPipe.Write(data, size);
-}
+  // Read stdout into lines
+  TFdDefault stdout_fd(subproc->TakeStdOutFromChild());
+  TBgLineReader stdout(&stdout_fd, lines);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-int TRunner::Wait() {
-  assert(this);
-  int status;
-  TOsError::IfLt0(HERE, waitpid(ChildId, &status, 0));
-  return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
-}
-#pragma GCC diagnostic pop
+  // Wait for process to exit
+  int status = subproc->Wait();
 
-TRunner::TParser::TParser(size_t buffer_size) {
-  Start = new char[buffer_size];
-  Limit = Start + buffer_size;
-  PushStart = Start;
-  Done = false;
-  PeekStart = Start;
-  PeekLimit = Start;
-  CanPeek = false;
-}
+  TFdDefault stderr_fd(subproc->TakeStdErrFromChild());
+  Bin::TIn stderr_reader(&stderr_fd);
 
-TRunner::TParser::~TParser() {
-  assert(this);
-  delete [] Start;
-}
-
-const char *TRunner::TParser::Peek() const {
-  assert(this);
-  Freshen();
-  return CanPeek ? PeekStart : 0;
-}
-
-void TRunner::TParser::Pop() {
-  assert(this);
-  Freshen();
-  PeekStart = PeekLimit + 1;
-  PeekLimit = PeekStart;
-  CanPeek = false;
-}
-
-void TRunner::TParser::Push(TPipe *pipe) {
-  assert(this);
-  assert(pipe);
-  if (PushStart >= Limit && PeekStart > Start) {
-    memmove(Start, PeekStart, PeekLimit - PeekStart);
-    size_t shift_size = PeekStart - Start;
-    PeekStart = Start;
-    PeekLimit -= shift_size;
-    PushStart -= shift_size;
-  }
-  size_t max_size = Limit - PushStart;
-  if (!max_size) {
-    THROW << "parser buffer overflow";
-  }
-  size_t size = pipe->Read(PushStart, max_size);
-  if (size) {
-    PushStart += size;
-  } else {
-    *PushStart = '\0';
-    Done = true;
-  }
-}
-
-void TRunner::TParser::Freshen() const {
-  assert(this);
-  if (!CanPeek) {
-    for (; PeekLimit < PushStart; ++PeekLimit) {
-      if (*PeekLimit == '\n') {
-        *PeekLimit = '\0';
-        CanPeek = true;
-        break;
-      }
-    }
-    if (!CanPeek && Done && PeekStart < PushStart) {
-      PeekLimit = PushStart;
-      CanPeek = true;
-    }
-  }
-}
-
-void Starsha::Run(const string &cmd, vector<string> &lines) {
-  assert(&lines);
-  vector<string> errors;
-  int status;
-  /* extra */ {
-    TRunner runner(cmd);
-    runner.ForEachLine([&lines, &errors](bool is_err, const char *line) {
-      (is_err ? errors : lines).push_back(string(line));
-      return true;
-    });
-    status = runner.Wait();
-  }
-  if (status || !errors.empty()) {
+  if(status || stderr_reader) {
+    // TODO: This reporting method sucks / lots of needless copying of potentially large strings...
+    // Move all the data into a runtime_error
     ostringstream strm;
-    if (!errors.empty()) {
-      bool sep_flag = false;
-      for (const string &error: errors) {
-        if (sep_flag) {
-          strm << endl;
-        } else {
-          sep_flag = true;
-        }
-        strm << error;
+    if(stderr_reader) {
+      uint8_t buf[4096];
+
+      // Copy everything to the error message
+      while(size_t read = stderr_reader.TryRead(buf, 4096)) {
+        strm.write(reinterpret_cast<char*>(buf), read);
       }
-    } else {
-      strm << "status = " << status;
+
     }
-    throw runtime_error(strm.str());
+    if(status) {
+      strm << "\n\nexit_code = " << status;
+    }
+    //TODO: Embed the data better / make a custom error object
+    throw TRunError(status, strm.str());
   }
 }

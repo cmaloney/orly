@@ -36,8 +36,6 @@ using namespace Orly::Compiler;
 using namespace Orly::Package;
 using namespace Orly::Spa;
 
-bool PrintCmds = false;  // Flag for Starsha's TRunner
-
 TUUID POV_ID;
 
 class TProgram {
@@ -49,12 +47,10 @@ class TProgram {
     strm << AbsBase << '/';
     TempFile = strm.str();
     Base::MakeDirs(TempFile.c_str());
-    try {
+    /* ofstream */ {
       ofstream script_file(AbsPath.AsStr());
       script_file << script << endl;
       script_file.close();
-    } catch (...) {
-      throw;
     }
     try {
       Compile(AbsPath, AbsBase, false, true, false);
@@ -71,20 +67,15 @@ class TProgram {
   }
 
   void Try(const string &func, TService::TOrlyArg &args, const Var::TVar &expected) {
-    try {
-      Var::TVar var;
-      //TODO: Needs notify povs. At least one.
-      unordered_map<TUUID, TUUID> notifiers;
-      void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-      Atom::TSuprena suprena;
-      Atom::TCore result_core;
-      Service.Try(Service.GetPackageManager().Get(Jhm::TNamespace("sample"))->GetFunctionInfo(Base::AsPiece(func)), POV_ID, unordered_set<TUUID>{}, args, result_core, suprena, notifiers);
-      var = Var::ToVar(*Sabot::State::TAny::TWrapper(result_core.NewState(&suprena, state_alloc)));
-      EXPECT_TRUE(var == expected);
-    } catch (const std::exception &err) {
-      cerr << err.what() << endl;
-      throw;
-    }
+    Var::TVar var;
+    //TODO: Needs notify povs. At least one.
+    unordered_map<TUUID, TUUID> notifiers;
+    void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+    Atom::TSuprena suprena;
+    Atom::TCore result_core;
+    Service.Try(Service.GetPackageManager().Get(Jhm::TNamespace("sample"))->GetFunctionInfo(Base::AsPiece(func)), POV_ID, unordered_set<TUUID>{}, args, result_core, suprena, notifiers);
+    var = Var::ToVar(*Sabot::State::TAny::TWrapper(result_core.NewState(&suprena, state_alloc)));
+    EXPECT_TRUE(var == expected);
   }
 
   static TService Service;
@@ -242,9 +233,9 @@ FIXTURE(DuplicateKeysRuntimeError) {
                    "x = {key:true, 1:false, 2:true};");
   TService::TOrlyArg args;
   auto func = [&]{ program.Try("x", args, Var::TVar(string("ExpectRuntimeError"))); };
+
   EXPECT_THROW_FUNC(Rt::TRuntimeError, func);
 }
-
 /*****************************************
 **************** SEQ *********************
 *****************************************/

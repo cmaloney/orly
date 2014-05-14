@@ -56,6 +56,24 @@ namespace Base {
       return StdOutFromChild;
     }
 
+    /* An fd from which to read the child's stderr output. */
+    TFd TakeStdErrFromChild() const {
+      assert(this);
+      return std::move(StdErrFromChild);
+    }
+
+    /* An fd from which to write the child's stdin input. */
+    TFd TakeStdInToChild() const {
+      assert(this);
+      return std::move(StdInToChild);
+    }
+
+    /* An fd from which to read the child's stdout output. */
+    TFd TakeStdOutFromChild() {
+      assert(this);
+      return std::move(StdOutFromChild);
+    }
+
     /* Wait for the child to complete and return its exit code. */
     int Wait() const;
 
@@ -97,5 +115,9 @@ namespace Base {
     int ChildId;
 
   };  // TSubprocess
+
+
+  /* TODO: Move this to a better place */
+  void EchoOutput(Base::TFd &&fd);
 
 }  // Base
