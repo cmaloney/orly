@@ -29,7 +29,7 @@
 
 namespace Strm {
 
-  template <uint64_t MaxInSize_ = 4094, uint64_t MaxOutSize_ = 4096>
+  template <uint64_t MaxInSize_ = 4096, uint64_t MaxOutSize_ = 4096>
   class TFd : public Out::TCons, public In::TProd {
     public:
     static constexpr uint64_t MaxInSize = MaxInSize_;
