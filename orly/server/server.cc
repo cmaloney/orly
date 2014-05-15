@@ -1202,9 +1202,11 @@ TWs::TSessionPin *TServer::ResumeSession(const TUuid &id) {
 
 TServer::TSessionPin::TSessionPin(TServer *server) {
   assert(server);
-  Conn = TConnection::New(
-      server,
-      server->DurableManager->New<TSession>(Base::TUuid::Twister, seconds(600)));
+  server->RunWs(Indy::Fiber::TJumpRunnable([this, server] {
+      Conn = TConnection::New(
+          server,
+          server->DurableManager->New<TSession>(Base::TUuid::Twister, seconds(600)));
+  }));
   if (!Conn) {
     throw runtime_error("could not create session");
   }
@@ -1212,7 +1214,9 @@ TServer::TSessionPin::TSessionPin(TServer *server) {
 
 TServer::TSessionPin::TSessionPin(TServer *server, const TUuid &id) {
   assert(server);
-  Conn = TConnection::New(server, server->DurableManager->Open<TSession>(id));
+  server->RunWs(Indy::Fiber::TJumpRunnable([this, server, &id] {
+      Conn = TConnection::New(server, server->DurableManager->Open<TSession>(id));
+  }));
   if (!Conn) {
     throw runtime_error("could not resume session");
   }
