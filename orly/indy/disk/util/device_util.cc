@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 #include <base/thrower.h>
+#include <base/mem_aligned_ptr.h>
 
 using namespace Orly::Indy::Disk::Util;
 using namespace std;
@@ -28,15 +29,13 @@ using namespace std;
 bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
   try {
     Base::TFd fd = open(path, O_RDONLY);
-    size_t *buf = nullptr;
-    Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
+    Base::TMemAlignedPtr<size_t> buf (BlockSize, BlockSize);
     try {
       Base::IfLt0(pread(fd, buf, BlockSize, 0UL));
       if (buf[MagicNumberPos] != OrlyFSMagicNumber) {
-        free(buf);
         return false;
       }
-      uint64_t check = Base::Murmur(buf, NumDataElem, 0UL);
+      uint64_t check = Base::Murmur(buf.Get(), NumDataElem, 0UL);
       if (check != buf[NumDataElem]) {
         throw std::runtime_error("Orly system block corrupt");
       }
@@ -54,10 +53,8 @@ bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
       out_device.NumLogicalBlockExposed = buf[NumLogicalBlockExposedPos];
       out_device.MinDiscardBlocks = buf[MinDiscardBlocksPos];
     } catch (...) {
-      free(buf);
       throw;
     }
-    free(buf);
   } catch (const std::exception &ex) {
     return false;
   }
@@ -66,8 +63,7 @@ bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
 
 void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
   Base::TFd fd = open(path, O_RDWR);
-  size_t *buf = nullptr;
-  Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
+  Base::TMemAlignedPtr<size_t> buf (BlockSize, BlockSize);
   try {
     memset(buf, 0, BlockSize);
     buf[MagicNumberPos] = OrlyFSMagicNumber;
@@ -84,28 +80,23 @@ void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
     buf[PhysicalBlockSizePos] = new_device_info.PhysicalBlockSize;
     buf[NumLogicalBlockExposedPos] = new_device_info.NumLogicalBlockExposed;
     buf[MinDiscardBlocksPos] = new_device_info.MinDiscardBlocks;
-    buf[NumDataElem] = Base::Murmur(buf, NumDataElem, 0UL);
+    buf[NumDataElem] = Base::Murmur(buf.Get(), NumDataElem, 0UL);
     Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));
     fsync(fd);
   } catch (...) {
-    free(buf);
     throw;
   }
-  free(buf);
 }
 void TDeviceUtil::ZeroSuperBlock(const char *path) {
   Base::TFd fd = open(path, O_RDWR);
-  size_t *buf = nullptr;
-  Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&buf), BlockSize, BlockSize));
+  Base::TMemAlignedPtr<size_t> buf (BlockSize, BlockSize);
   try {
     memset(buf, 0, BlockSize);
     Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));
     fsync(fd);
   } catch (...) {
-    free(buf);
     throw;
   }
-  free(buf);
 }
 
 bool TDeviceUtil::ForEachDevice(const function<bool(const char *)> &cb) {
