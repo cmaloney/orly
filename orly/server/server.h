@@ -537,8 +537,8 @@ namespace Orly {
 
         /* Run the given jump-runnable on the server's websockets runner. */
         void RunWs(Indy::Fiber::TJumpRunnable &&jump_runnable) {
-          assert(this);          
-          jump_runnable(Server->FramePoolManager.get(), &Server->WsRunner);
+          assert(this);
+          Server->RunWs(std::move(jump_runnable));
         }
 
         /* Construct a new connection for the given server, connected to the given session.  Neither the server
@@ -718,6 +718,12 @@ namespace Orly {
 
       /* See <orly/protocol.h>. */
       void InstallPackage(const std::vector<std::string> &package_name, uint64_t version);
+
+      /* Run the given jump-runnable on our websockets runner. */
+      void RunWs(Indy::Fiber::TJumpRunnable &&jump_runnable) {
+        assert(this);
+        jump_runnable(FramePoolManager.get(), &WsRunner);
+      }
 
       /* Serves a client on the given fd.  Launched as a thread by AcceptClientConnections() when a client connects. */
       void ServeClient(Base::TFd &fd, const Socket::TAddress &client_address);
