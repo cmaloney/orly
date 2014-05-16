@@ -616,7 +616,7 @@ namespace Orly {
         virtual void BeginImport() const override;
         virtual void EndImport() const override;
         virtual const Base::TUuid &GetId() const override;
-        virtual void Import(const std::string &, uint64_t) const override;
+        virtual void Import(const std::string &, int64_t, int64_t, int64_t) const override;
         virtual void InstallPackage(const std::vector<std::string> &, uint64_t) const override;
         virtual Base::TUuid NewPov(bool, bool, const Base::TOpt<Base::TUuid> &) const override;
         virtual void PausePov(const Base::TUuid &) const override;

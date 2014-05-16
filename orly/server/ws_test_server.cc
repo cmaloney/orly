@@ -89,7 +89,7 @@ class TWsTestServer::TSessionManager
     }
 
     /* Do-little. */
-    void Import(const string &/*path*/, uint64_t /*count*/) const {}
+    void Import(const string &, int64_t, int64_t, int64_t) const {}
 
     /* Do-little. */
     void InstallPackage(const vector<string> &/*name*/, uint64_t /*version*/) {}
@@ -164,7 +164,11 @@ class TWsTestServer::TSessionManager
       virtual void BeginImport() const override { Session->BeginImport(); }
       virtual void EndImport() const override { Session->EndImport(); }
       virtual const TUuid &GetId() const override { return Session->GetId(); }
-      virtual void Import(const string &path, uint64_t count) const override { Session->Import(path, count); }
+      virtual void Import(
+              const string &file_pattern, int64_t num_load_threads,
+              int64_t num_merge_threads, int64_t merge_simultaneous) const override {
+        Session->Import(file_pattern, num_load_threads, num_merge_threads, merge_simultaneous);
+      }
       virtual void InstallPackage(const vector<string> &name, uint64_t version) const override { Session->InstallPackage(name, version); }
       virtual TUuid NewPov(bool is_safe, bool is_shared, const TOpt<TUuid> &parent_id) const override { return Session->NewPov(is_safe, is_shared, parent_id); }
       virtual void PausePov(const TUuid &pov_id) const override { Session->PausePov(pov_id); }

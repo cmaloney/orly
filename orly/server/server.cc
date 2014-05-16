@@ -1237,8 +1237,12 @@ const Base::TUuid &TServer::TSessionPin::GetId() const {
   return Conn->GetSession()->GetId();
 }
 
-void TServer::TSessionPin::Import(const std::string &/*path*/, uint64_t /*count*/) const {
-  throw runtime_error("'import' not implemented in websockets interface");
+void TServer::TSessionPin::Import(
+    const string &file_pattern, int64_t num_load_threads,
+    int64_t num_merge_threads, int64_t merge_simultaneous) const {
+  Conn->RunWs(Indy::Fiber::TJumpRunnable(bind(
+      &TConnection::ImportCoreVector, Conn.get(),
+      cref(file_pattern), num_load_threads, num_merge_threads, merge_simultaneous)));
 }
 
 void TServer::TSessionPin::InstallPackage(

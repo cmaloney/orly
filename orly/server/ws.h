@@ -52,43 +52,45 @@ namespace Orly {
           /* Do-little. */
           virtual ~TSessionPin() {}
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void BeginImport() const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void EndImport() const = 0;
 
           /* The id used to resume the session later. */
           virtual const Base::TUuid &GetId() const = 0;
 
-          /* Override to perform the request (syncrhonously. */
-          virtual void Import(const std::string &path, uint64_t count) const = 0;
+          /* Override to perform the request. */
+          virtual void Import(
+              const std::string &file_pattern, int64_t num_load_threads,
+              int64_t num_merge_threads, int64_t merge_simultaneous) const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void InstallPackage(const std::vector<std::string> &name, uint64_t version) const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual Base::TUuid NewPov(bool is_safe, bool is_shared, const Base::TOpt<Base::TUuid> &parent_id) const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void PausePov(const Base::TUuid &pov_id) const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void SetTtl(const Base::TUuid &durable_id, const std::chrono::seconds &ttl) const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void SetUserId(const Base::TUuid &user_id) const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void Tail() const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual TMethodResult Try(const TMethodRequest &method_request) const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void UninstallPackage(const std::vector<std::string> &name, uint64_t version) const = 0;
 
-          /* Override to perform the request (syncrhonously. */
+          /* Override to perform the request. */
           virtual void UnpausePov(const Base::TUuid &pov_id) const = 0;
 
           protected:
