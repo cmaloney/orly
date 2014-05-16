@@ -10,22 +10,25 @@ ORLY_UTIL=starsha/starsha orly/core_import
 ORLY_DATA_IMPORTERS=$(addprefix orly/data/,beer complete_graph game_of_thrones money_laundering belgian_beer 				   \
 		friends_of_friends matrix shakespeare)
 
+ORLY_MAIN_TARGETS=$(ORLY_APPS) $(ORLY_UTIL) $(ORLY_DATA_IMPORTERS)
+STARSHA=starsha $(STARSHA_FLAGS)
+
 .PHONY: apps release test test_build test_lang clean install
 
 apps: tools/starsha
-	starsha $(STARSHA_FLAGS) $(ORLY_APPS) $(ORLY_UTIL)
+	$(STARSHA) $(ORLY_MAIN_TARGETS)
 
 release: tools/starsha
-	starsha --config=release $(STARSHA_FLAGS) $(ORLY_APPS) $(ORLY_UTIL) $(ORLY_DATA_IMPORTERS)
+	$(STARSHA) --config=release $(ORLY_MAIN_TARGETS)
 
 tools/starsha:
 	./bootstrap.sh
 
 test: apps
-	starsha $(STARSHA_FLAGS) --all="*.test" --test
+	$(STARSHA) --all="*.test" --test
 
 test_build: apps
-	starsha $(STARSHA_FLAGS) --all="*.test"
+	$(STARSHA) --all="*.test"
 
 test_lang: apps
 	cd orly/lang_tests; ./run_tests.py
