@@ -55,7 +55,7 @@ namespace Orly {
         void operator()(TFramePoolMngr *frame_pool_mngr, Indy::Fiber::TRunner *runner) {
           assert(this);
           /* Make sure we have a frame pool. */
-          EnsureLocalFramesPool(frame_pool_mngr);
+          EnsureLocalFramePool(frame_pool_mngr);
           /* The fiber will set this flag when it's done. */
           Flag = false;
           /* Make a frame and latch it into the runner. */
@@ -76,7 +76,7 @@ namespace Orly {
 
         /* If the calling thread doesn't already have a local pool of fiber frames, make one for it;
            otherwise, do nothing. */
-        static void EnsureLocalFramesPool(TFramePoolMngr *frame_pool_mngr) {
+        static void EnsureLocalFramePool(TFramePoolMngr *frame_pool_mngr) {
           assert(frame_pool_mngr);
           /* Make sure we have a frame pool. */
           if (!Fiber::TFrame::LocalFramePool) {

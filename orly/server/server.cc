@@ -1600,6 +1600,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
           GenIdVec(gen_id_vec),
           Running(running),
           FileVec(file_vec) {
+      Indy::Fiber::TJumpRunnable::EnsureLocalFramePool(server->FramePoolManager.get());
       FramePool = Indy::Fiber::TFrame::LocalFramePool;
       Frame = FramePool->Alloc();
       try {
