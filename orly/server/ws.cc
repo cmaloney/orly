@@ -269,9 +269,12 @@ class TWsImpl final
       virtual void operator()(const TImportStmt *stmt) const override {
         assert(this);
         assert(stmt);
-        string path = stmt->GetFile()->GetLexeme().AsDoubleQuotedString();
-        uint64_t count = stmt->GetXactCount()->GetLexeme().AsInt();
-        GetSession()->Import(path, count);
+        string path = Translate(stmt->GetFile());
+        int64_t
+            load_threads = Translate(stmt->GetLoadThreads()),
+            merge_threads = Translate(stmt->GetMergeThreads()),
+            merge_sim = Translate(stmt->GetMergeSim());
+        GetSession()->Import(path, load_threads, merge_threads, merge_sim);
       }
 
       private:
@@ -297,6 +300,36 @@ class TWsImpl final
       static TUuid Translate(const TIdExpr *id_expr) {
         assert(id_expr);
         return TUuid(id_expr->GetLexeme().GetText().substr(1, id_expr->GetLexeme().GetText().size() - 2).c_str());
+      }
+
+      /* Translate an Orlyscript int into a 64-bit signed int. */
+      static int64_t Translate(const TIntExpr *int_expr) {
+        assert(int_expr);
+        return int_expr->GetLexeme().AsInt();
+      }
+
+      /* Translate an Orlyscript string into a std string. */
+      static string Translate(const TStrExpr *str_expr) {
+        assert(str_expr);
+        struct visitor_t final : public TStrExpr::TVisitor {
+          string &Result;
+          visitor_t(string &result) : Result(result) {}
+          virtual void operator()(const TDoubleQuotedRawStrExpr *that) const override {
+            Result = that->GetLexeme().AsDoubleQuotedRawString();
+          }
+          virtual void operator()(const TDoubleQuotedStrExpr *that) const override {
+            Result = that->GetLexeme().AsDoubleQuotedString();
+          }
+          virtual void operator()(const TSingleQuotedRawStrExpr *that) const override {
+            Result = that->GetLexeme().AsSingleQuotedRawString();
+          }
+          virtual void operator()(const TSingleQuotedStrExpr *that) const override {
+            Result = that->GetLexeme().AsSingleQuotedString();
+          }
+        };
+        string result;
+        str_expr->Accept(visitor_t(result));
+        return move(result);
       }
 
       /* The connection on whose behalf we're translating. */

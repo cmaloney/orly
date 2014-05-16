@@ -122,7 +122,7 @@ stmt : top;
 exit_stmt           : stmt -> exit_kwd semi;
 begin_import_stmt   : stmt -> begin_kwd import_kwd semi;
 end_import_stmt     : stmt -> end_kwd import_kwd semi;
-import_stmt         : stmt -> import_kwd xact_count:int_expr from_kwd file:double_quoted_str_expr semi;
+import_stmt         : stmt -> import_kwd file:str_expr load_threads:int_expr merge_threads:int_expr merge_sim:int_expr semi;
 install_stmt        : stmt -> install_kwd package_name semi;
 uninstall_stmt      : stmt -> uninstall_kwd package_name semi;
 pov_cons_stmt       : stmt -> new_kwd pov_guarantee pov_kind pov_kwd opt_parent semi;
