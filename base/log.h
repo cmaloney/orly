@@ -69,7 +69,7 @@ namespace Base {
 
       /* All options default to false. */
       TCmd()
-          : Echo(false), All(false), Warning(false), Notice(false), Info(false), Debug(false) {}
+          : Echo(true), All(false), Warning(false), Notice(false), Info(false), Debug(false) {}
 
     };  // Cmd
 
