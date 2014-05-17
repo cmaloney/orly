@@ -29,6 +29,7 @@
 
 #include <base/cmd.h>
 #include <base/os_error.h>
+#include <base/subprocess.h>
 #include <starsha/corpus.h>
 #include <starsha/exe_file.h>
 #include <starsha/runner.h>
@@ -203,25 +204,19 @@ class TStarsha
                 TStatusLine() << "Running test: " << target->GetRelPath();
                 string cmd_line;
                 TStringBuilder(cmd_line) << target->GetAbsPath() << (Verbose ? " -v" : "");
-                vector<string> output;
 
-                auto PrintStdOut = [&rel_path, &output] () {
-                  cout << rel_path << ":\n";
-                  for(const auto &line: output) {
-                    cout << line << '\n';
-                  }
-                };
+                TPump pump;
+                // Just use Subprocess directly rather than TCorpus::Run. Text to stderr doesn't mean the test failed.
+                auto subprocess = TSubprocess::New(pump, cmd_line.c_str());
+                auto status = subprocess->Wait();
 
-                try {
-                  corpus.Run(cmd_line, output);
-                  if(Verbose) {
-                    PrintStdOut();
-                  }
-                } catch(const TRunError &ex) {
-                  PrintStdOut();
-                  cout << "\n\nSTDERR: \n===========================================\n"
-                       << ex.GetStdErr()
-                       << "\n\n EXITCODE: " << ex.GetExitCode() << '\n';
+                if(Verbose || status) {
+                  EchoOutput(subprocess->TakeStdOutFromChild());
+                  EchoOutput(subprocess->TakeStdErrFromChild());
+                }
+
+                if(status) {
+                  cout << "\n\nEXITCODE: " << status << '\n';
                   is_ok = false;
                 }
 
