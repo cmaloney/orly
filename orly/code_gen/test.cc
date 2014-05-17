@@ -217,13 +217,14 @@ void TWith::Write(TCppPrinter &out) const {
   }
 
   CodeScope->WriteStart(out);
-  out << "void *state_alloc = alloca(Sabot::State::GetMaxStateSize());" << Eol;
   for(auto &it: News) {
     //NOTE: The duplicate code here to print out new effects is sort of ugly, but way easier than not doing it du
     const Base::TUuid &index_id = Package->GetIndexIdFor(it.first->GetReturnType(), it.second->GetReturnType());
     char uuid[37];
     index_id.FormatUnderscore(uuid);
-    out << "ctx.AddEffect(" << it.first << ", " << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << ", Var::TNew::New(Var::ToVar(*Sabot::State::TAny::TWrapper(Native::State::New(" << it.second << ", state_alloc)))));" << Eol;
+    out << "ctx.AddEffect(" << it.first << ", " << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid
+        << ", Var::TNew::New(Var::ToVar(*Sabot::State::TAny::TWrapper(Native::State::New(" << it.second
+        << ", alloca(Sabot::State::GetMaxStateSize()))))));" << Eol;
   }
   out << "return true;" << Eol;
 }
