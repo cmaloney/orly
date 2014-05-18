@@ -19,7 +19,6 @@
 #include <orly/server/ws.h>
 
 #include <cassert>
-#include <iomanip>
 #include <map>
 #include <memory>
 #include <thread>
@@ -300,7 +299,8 @@ class TWsImpl final
           Jhm::TAbsBase root = Jhm::TAbsBase::Find("__orly__", found_root);
           auto pkg = Compiler::Compile(
               root.GetAbsPath(tmp_file.GetPath()),
-              Jhm::TAbsBase(string()), found_root, true, false, out_strm);
+              Jhm::TAbsBase(Conn->Ws->SessionManager->GetPackageDir()),
+              found_root, true, false, out_strm);
           reply["status"] = "ok";
           reply["name"] = pkg.Name.ToRelPath().AsStr();
           reply["version"] = pkg.Version;

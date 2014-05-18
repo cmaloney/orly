@@ -45,6 +45,12 @@ class TWsTestServer::TSessionManager
   /* Do-little. */
   TSessionManager() {}
 
+  /* Returns a dummy, as we don't really compile. */
+  virtual const std::string &GetPackageDir() const override {
+    static const string dummy;
+    return dummy;
+  }
+
   /* Construct a new session and pin it. */
   virtual TWs::TSessionPin *NewSession() override {
     assert(this);
