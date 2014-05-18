@@ -21,17 +21,11 @@
 #pragma once
 
 #include <cassert>
-#include <cstdlib>
-#include <sstream>
+#include <mutex>
+#include <random>
 #include <string>
-#include <utility>
-
-#include <fcntl.h>
 
 #include <base/class_traits.h>
-#include <base/fd.h>
-#include <base/io_utils.h>
-#include <base/path_utils.h>
 
 namespace Base {
 
@@ -44,18 +38,10 @@ namespace Base {
     TTmpCopyToFile(
         const std::string &tmp_dir, const std::string &text,
         const std::string &prefix = "",
-        const std::string &ext = "") {
-      auto id = std::to_string(rand());
-      Path = MakePath({ tmp_dir.c_str() }, { prefix.c_str(), id.c_str(), ext.c_str() });
-      TFd fd(creat(Path.c_str(), S_IRWXU));
-      WriteExactly(fd, text.data(), text.size());
-    }
+        const std::string &ext = "");
 
     /* Ensures the tmp file is gone. */
-    ~TTmpCopyToFile() {
-      assert(this);
-      Delete(Path.c_str());
-    }
+    ~TTmpCopyToFile();
 
     /* The path to tmp file we manage. */
     const std::string &GetPath() const {
@@ -67,6 +53,12 @@ namespace Base {
 
     /* See accessor. */
     std::string Path;
+
+    /* Covers 'Rand', below. */
+    static std::mutex Mutex;
+
+    /* Used to generate unique file names. */
+    static std::minstd_rand Rand;
 
   };  // TTmpCopyToFile
 

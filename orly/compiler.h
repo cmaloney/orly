@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <ostream>
+#include <iostream>
 #include <string>
 
 #include <base/error.h>
@@ -29,7 +29,7 @@ namespace Orly {
 
   namespace Compiler {
 
-    /* Thrown when we compilation fails. Errors will have been printed to std::cout */
+    /* Thrown when we compilation fails. Errors will have been printed to the out-stream. */
     class TCompileFailure
         : public Base::TFinalError<TCompileFailure> {
       public:
@@ -46,7 +46,8 @@ namespace Orly {
         const Jhm::TAbsBase &out_tree,
         bool found_root, // Only if we found the root can we look at sub scopes.
         bool debug_cc,
-        bool machine_mode);
+        bool machine_mode,
+        std::ostream &out_strm = std::cout);
 
   }  // Compiler
 

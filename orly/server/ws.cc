@@ -19,6 +19,7 @@
 #include <orly/server/ws.h>
 
 #include <cassert>
+#include <iomanip>
 #include <map>
 #include <memory>
 #include <thread>
@@ -28,6 +29,7 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
+#include <base/json.h>
 #include <base/tmp_copy_to_file.h>
 #include <base/tmp_dir_maker.h>
 #include <orly/compiler.h>
@@ -39,7 +41,6 @@
 #include <orly/sabot/type_dumper.h>
 #include <orly/var/jsonify.h>
 #include <orly/var/sabot_to_var.h>
-#include <tools/nycr/escape.h>
 
 using namespace std;
 using namespace std::placeholders;
@@ -58,8 +59,10 @@ class TWsImpl final
 
   /* Starts up the server. */
   TWsImpl(TSessionManager *session_mngr, in_port_t port_number)
-      : SessionManager(session_mngr), TmpDirMaker("/tmp/orly_ws_compile") {
+      : SessionManager(session_mngr),
+        TmpDirMaker(MakePath({ P_tmpdir, "orly_ws_compile" }, {})) {
     assert(session_mngr);
+    syslog(LOG_INFO, "ws compile tmp dir = \"%s\"", TmpDirMaker.GetPath().c_str());
     AsioServer.clear_access_channels(websocketpp::log::alevel::all);
     AsioServer.clear_error_channels(websocketpp::log::elevel::all);
     AsioServer.init_asio();
@@ -289,23 +292,24 @@ class TWsImpl final
         TTmpCopyToFile tmp_file(
             Conn->Ws->TmpDirMaker.GetPath(), Translate(stmt->GetStrExpr()),
             "tmp_pkg_", ".orly");
-        map<string, string> reply;
+        ostringstream out_strm;
+        TJson reply = TJson::Object;
         try {
           bool found_root = false;
           Jhm::TAbsBase root = Jhm::TAbsBase::Find("__orly__", found_root);
           auto pkg = Compiler::Compile(
               root.GetAbsPath(tmp_file.GetPath()),
-              Jhm::TAbsBase(string()), found_root, true, false);
+              Jhm::TAbsBase(string()), found_root, true, false, out_strm);
           reply["status"] = "ok";
           reply["name"] = pkg.Name.ToRelPath().AsStr();
-          reply["version"] = to_string(pkg.Version);
+          reply["version"] = pkg.Version;
         } catch (const Compiler::TCompileFailure &ex) {
           reply["status"] = "error";
-          reply["kind"] = "compiler internal";
-          reply["msg"] = ex.what();
+          reply["kind"] = "compiler";
+          reply["diagnostics"] = out_strm.str();
         } catch (const TSourceError &src_error) {
           reply["status"] = "error";
-          reply["kind"] = "source code";
+          reply["kind"] = "compiler internal";
           reply["msg"] = src_error.what();
           reply["pos"] = src_error.GetPosRange().AsStr();
         } catch (const Base::TError &ex) {
@@ -314,25 +318,13 @@ class TWsImpl final
           reply["kind"] = "server system";
           reply["msg"] = ex.what();
           reply["file"] = code_loc.GetFile();
-          reply["line"] = to_string(code_loc.GetLineNumber());
+          reply["line"] = code_loc.GetLineNumber();
         } catch (const exception &ex) {
           reply["status"] = "error";
           reply["kind"] = "std exception";
           reply["msg"] = ex.what();
         }
-        Strm << '{';
-        bool sep = false;
-        for (const auto &item: reply) {
-          if (sep) {
-            Strm << ',';
-          } else {
-            sep = true;
-          }
-          Strm
-              << Tools::Nycr::TEscape(item.first) << ':'
-              << Tools::Nycr::TEscape(item.second);
-        }
-        Strm << '}';
+        Strm << reply;
       }
 
       private:

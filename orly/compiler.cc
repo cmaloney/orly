@@ -20,8 +20,8 @@
 
 #include <cassert>
 #include <fstream>
-#include <iostream>
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <sstream>
 #include <unistd.h>
@@ -118,6 +118,9 @@ class TPackageBuilder {
 
 };  // TPackageBuilder
 
+/* Nabbed by Compile() to prevent multiple threads from trying to compile. */
+static mutex Compiling;
+
 //Note: This should probably be promted to a compile management class.
 //TODO: Reintroduce machine mode, not saving cc. Also reintroduce syntax check only and semantic check only compilation.
 /* Returns the versioned package name of the final build target. */
@@ -126,7 +129,10 @@ Package::TVersionedName Orly::Compiler::Compile(
       const TAbsBase &out_tree,
       bool /*found_root*/, //Only if we found the root can we look at sub scopes.
       bool debug_cc,
-      bool machine_mode) {
+      bool machine_mode,
+      ostream &out_strm) {
+
+  lock_guard<mutex> lock_compiling(Compiling);
 
   const TAbsBase &src_tree = core_file.GetAbsBase();
   const TRelPath &core_rel = core_file.GetRelPath();
@@ -147,30 +153,30 @@ Package::TVersionedName Orly::Compiler::Compile(
       todo.pop();
 
       if (cur.GetName().GetExtensions().size() != 1 || cur.GetName().GetExtensions()[0] != "orly") {
-        cout << "Invalid package name. Package names may not contain a '.'. This means, for example, a source file can only be 'a.orly', not 'a.foo.orly'" << endl;
+        out_strm << "Invalid package name. Package names may not contain a '.'. This means, for example, a source file can only be 'a.orly', not 'a.foo.orly'" << endl;
         failed = true;
         break;
       }
 
       auto &builder = packages[cur];
       if (machine_mode) {
-        cout << "MM_NOTICE: Synth + Symbols" << endl;
+        out_strm << "MM_NOTICE: Synth + Symbols" << endl;
       }
       builder->BuildSymbols(src_tree);
       if (builder->HasErrors()) {
-        cout << "Errors in: " << cur << endl;
-        builder->PrintErrors(cout);
+        out_strm << "Errors in: " << cur << endl;
+        builder->PrintErrors(out_strm);
         failed = true;
         break;
       }
       if (machine_mode) {
         // TODO: UNCOMMENT
-        // cout << "MM_NOTICE: TypeCheck" << endl;
+        // out_strm << "MM_NOTICE: TypeCheck" << endl;
       }
       builder->TypeCheck();
       if (builder->HasErrors()) {
-        cout << "Errors in: " << cur << endl;
-        builder->PrintErrors(cout);
+        out_strm << "Errors in: " << cur << endl;
+        builder->PrintErrors(out_strm);
         failed = true;
         break;
       }
@@ -188,15 +194,15 @@ Package::TVersionedName Orly::Compiler::Compile(
       }
       */
       if (machine_mode) {
-        cout << "MM_NOTICE: Code Gen" << endl;
+        out_strm << "MM_NOTICE: Code Gen" << endl;
       }
       //TODO: We only need to generate the C++ if we don't already have up to date C++. Note that doing this means we need
       //      to always gen to a temp file, then move it into place to be atomic in case someone uses Ctrl-C.
       builder->GenerateIntermediateCode(out_tree);
       if (packages[cur]->HasErrors()) {
         //TODO: It would be nice not to have this duplication.
-        cout << "Errors in: " << cur << endl;
-        builder->PrintErrors(cout);
+        out_strm << "Errors in: " << cur << endl;
+        builder->PrintErrors(out_strm);
         failed = true;
         break;
       }
@@ -209,7 +215,7 @@ Package::TVersionedName Orly::Compiler::Compile(
 
   /* extra */ {
     if(machine_mode) {
-      cout << "MM_NOTICE: Compiling C++" << endl;
+      out_strm << "MM_NOTICE: Compiling C++" << endl;
     }
     stringstream args;
     /* extra */ {
@@ -243,7 +249,7 @@ Package::TVersionedName Orly::Compiler::Compile(
       }
 
       //NOTE: use '-d' to get the error messages.
-      cout << "Error while compiling an Intermediate Representation. See a Orly team member with your Orly code for support" << endl;
+      out_strm << "Error while compiling an Intermediate Representation. See a Orly team member with your Orly code for support" << endl;
       throw TCompileFailure(HERE, "Compiling C++ and linking");
     }
   }
