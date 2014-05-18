@@ -52,7 +52,7 @@ namespace Base {
       Set(tmp);
     }
 
-    T* Get() const noexcept{return Mem;}
+    T* Get() const noexcept{ assert(Mem);return Mem; }
 
     T& operator[](std::size_t n) noexcept{ assert(Mem);return Mem[n]; }
 
@@ -60,9 +60,9 @@ namespace Base {
 
     T& operator*() const { assert(Mem);return *Mem; }
 
-    T* operator->() const noexcept{ assert(Mem);return Get(); }
+    T* operator->() const noexcept{ return Get(); }
 
-    operator T*() const noexcept{return Get();}
+    operator T*() const noexcept{ return Get(); }
 
     private:
 
