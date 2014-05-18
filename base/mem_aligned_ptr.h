@@ -31,11 +31,15 @@ namespace Base {
   template <typename T>
   class TMemAlignedPtr {
     static_assert(std::is_trivial<T>::value, "T must be a trivial type");
-    MOVE_ONLY(TMemAlignedPtr)
+    NO_COPY(TMemAlignedPtr)
 
     public:
 
     constexpr TMemAlignedPtr() = default;
+
+    TMemAlignedPtr(TMemAlignedPtr&& sink): Mem(sink.Mem) {
+      sink.Mem = nullptr;
+    }
 
     TMemAlignedPtr(std::size_t align_to, std::size_t size) {
       Allocate(align_to, size);
@@ -53,6 +57,13 @@ namespace Base {
     }
 
     T* Get() const noexcept{ assert(Mem);return Mem; }
+
+    TMemAlignedPtr& operator=(TMemAlignedPtr&& sink) {
+      Mem = sink.Mem;
+      sink.Mem = nullptr;
+
+      return *this;
+    }
 
     T& operator[](std::size_t n) noexcept{ assert(Mem);return Mem[n]; }
 
