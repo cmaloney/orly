@@ -88,24 +88,24 @@ namespace Orly {
           public:
 
           static constexpr uint64_t OrlyFSMagicNumber = 15684509348693311000UL;
-          static constexpr size_t BlockSize = 4096 * 16;
-          static constexpr size_t CorruptionCheckSize = sizeof(uint64_t);
+          static constexpr uint64_t BlockSize = 4096 * 16;
+          static constexpr uint64_t CorruptionCheckSize = sizeof(uint64_t);
           static_assert(sizeof(TVolumeId) % sizeof(uint64_t) == 0, "TVolumeId size must be a multiple of 8 bytes");
-          static constexpr size_t NumDataElem = (BlockSize - CorruptionCheckSize) / sizeof(uint64_t);
-          static constexpr size_t MagicNumberPos = 0UL;
-          static constexpr size_t VolumeIdPos = 1UL;
-          static constexpr size_t VolumeDeviceNumberPos = VolumeIdPos + sizeof(TVolumeId) / sizeof(uint64_t);
-          static constexpr size_t NumDevicesInVolumePos = VolumeDeviceNumberPos + 1UL;
-          static constexpr size_t LogicalExtentStartPos = NumDevicesInVolumePos + 1UL;
-          static constexpr size_t LogicalExtentSizePos = LogicalExtentStartPos + 1UL;
-          static constexpr size_t VolumeStrategyPos = LogicalExtentSizePos + 1UL;
-          static constexpr size_t VolumeSpeedPos = VolumeStrategyPos + 1UL;
-          static constexpr size_t ReplicationFactorPos = VolumeSpeedPos + 1UL;
-          static constexpr size_t StripeSizeKBPos = ReplicationFactorPos + 1UL;
-          static constexpr size_t LogicalBlockSizePos = StripeSizeKBPos + 1UL;
-          static constexpr size_t PhysicalBlockSizePos = LogicalBlockSizePos + 1UL;
-          static constexpr size_t NumLogicalBlockExposedPos = PhysicalBlockSizePos + 1UL;
-          static constexpr size_t MinDiscardBlocksPos = NumLogicalBlockExposedPos + 1UL;
+          static constexpr uint64_t NumDataElem = (BlockSize - CorruptionCheckSize) / sizeof(uint64_t);
+          static constexpr uint64_t MagicNumberPos = 0UL;
+          static constexpr uint64_t VolumeIdPos = 1UL;
+          static constexpr uint64_t VolumeDeviceNumberPos = VolumeIdPos + sizeof(TVolumeId) / sizeof(uint64_t);
+          static constexpr uint64_t NumDevicesInVolumePos = VolumeDeviceNumberPos + 1UL;
+          static constexpr uint64_t LogicalExtentStartPos = NumDevicesInVolumePos + 1UL;
+          static constexpr uint64_t LogicalExtentSizePos = LogicalExtentStartPos + 1UL;
+          static constexpr uint64_t VolumeStrategyPos = LogicalExtentSizePos + 1UL;
+          static constexpr uint64_t VolumeSpeedPos = VolumeStrategyPos + 1UL;
+          static constexpr uint64_t ReplicationFactorPos = VolumeSpeedPos + 1UL;
+          static constexpr uint64_t StripeSizeKBPos = ReplicationFactorPos + 1UL;
+          static constexpr uint64_t LogicalBlockSizePos = StripeSizeKBPos + 1UL;
+          static constexpr uint64_t PhysicalBlockSizePos = LogicalBlockSizePos + 1UL;
+          static constexpr uint64_t NumLogicalBlockExposedPos = PhysicalBlockSizePos + 1UL;
+          static constexpr uint64_t MinDiscardBlocksPos = NumLogicalBlockExposedPos + 1UL;
 
           struct TOrlyDevice {
             TVolumeId VolumeId;

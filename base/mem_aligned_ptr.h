@@ -1,4 +1,9 @@
 /* <base/mem_aligned_ptr.h>
+ 
+  Defines a scoped piece of memory that is posix_memaligned.
+  This object assumes the ctor and dtor will be called properly and that the pointer contained was allocated via posix_memalign.
+  To use you need to call TMemAlignedPtr::Allocate with the memory properties you want, this can be done from the two parameter ctor.
+  The memory is cleaned upon scope exit.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,6 +21,8 @@
 
 #include <cassert>
 
+#include <type_traits>
+
 #include <base/class_traits.h>
 #include <base/error_utils.h>
 
@@ -23,41 +30,50 @@ namespace Base {
 
   template <typename T>
   class TMemAlignedPtr {
-    NO_COPY(TMemAlignedPtr)
-    NO_MOVE(TMemAlignedPtr)
+    static_assert(std::is_trivial<T>::value, "T must be a trivial type");
+    MOVE_ONLY(TMemAlignedPtr)
+
     public:
-      constexpr TMemAlignedPtr() = default;
 
-      TMemAlignedPtr(std::size_t align_to, std::size_t size) {
-        Allocate(align_to, size);
-      }
+    constexpr TMemAlignedPtr() = default;
 
-      ~TMemAlignedPtr() {
-        Reset(nullptr);
-      }
+    TMemAlignedPtr(std::size_t align_to, std::size_t size) {
+      Allocate(align_to, size);
+    }
 
-      void Allocate(std::size_t align_to, std::size_t size) {
-        T* tmp;
-        Base::IfNe0( posix_memalign(
-              reinterpret_cast<void**>(&tmp), align_to, size) );
-        Reset(tmp);
-      }
+    ~TMemAlignedPtr() {
+      Set(nullptr);
+    }
 
-      T* Get() const noexcept{return Mem;}
+    void Allocate(std::size_t align_to, std::size_t size) {
+      T* tmp;
+      Base::IfNe0( posix_memalign(
+            reinterpret_cast<void**>(&tmp), align_to, size) );
+      Set(tmp);
+    }
 
-      T& operator[](std::size_t n) noexcept{ assert(Mem);return Mem[n]; }
+    T* Get() const noexcept{return Mem;}
 
-      const T& operator[](std::size_t n) const noexcept{ assert(Mem);return Mem[n]; }
+    T& operator[](std::size_t n) noexcept{ assert(Mem);return Mem[n]; }
 
-      operator T*() const noexcept{return Get();}
+    const T& operator[](std::size_t n) const noexcept{ assert(Mem);return Mem[n]; }
+
+    T& operator*() const { assert(Mem);return *Mem; }
+
+    T* operator->() const noexcept{ assert(Mem);return Get(); }
+
+    operator T*() const noexcept{return Get();}
+
     private:
-      T* Mem = nullptr;
-      void Reset(T* new_mem) {
-        if (Mem) {
-          free(Mem);
-        }
-        Mem = new_mem;
+
+    T* Mem = nullptr;
+
+    void Set(T* new_mem) {
+      if (Mem) {
+        free(Mem);
       }
+      Mem = new_mem;
+    }
   }; // TMemAlignedPtr
 
 } // Base

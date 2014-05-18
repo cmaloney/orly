@@ -29,13 +29,13 @@ using namespace std;
 bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
   try {
     Base::TFd fd = open(path, O_RDONLY);
-    Base::TMemAlignedPtr<size_t> buf (BlockSize, BlockSize);
+    Base::TMemAlignedPtr<uint64_t> buf (BlockSize, BlockSize);
     try {
       Base::IfLt0(pread(fd, buf, BlockSize, 0UL));
       if (buf[MagicNumberPos] != OrlyFSMagicNumber) {
         return false;
       }
-      uint64_t check = Base::Murmur(buf.Get(), NumDataElem, 0UL);
+      uint64_t check = Base::Murmur(buf, NumDataElem, 0UL);
       if (check != buf[NumDataElem]) {
         throw std::runtime_error("Orly system block corrupt");
       }
@@ -63,7 +63,7 @@ bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
 
 void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
   Base::TFd fd = open(path, O_RDWR);
-  Base::TMemAlignedPtr<size_t> buf (BlockSize, BlockSize);
+  Base::TMemAlignedPtr<uint64_t> buf (BlockSize, BlockSize);
   try {
     memset(buf, 0, BlockSize);
     buf[MagicNumberPos] = OrlyFSMagicNumber;
@@ -80,7 +80,7 @@ void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
     buf[PhysicalBlockSizePos] = new_device_info.PhysicalBlockSize;
     buf[NumLogicalBlockExposedPos] = new_device_info.NumLogicalBlockExposed;
     buf[MinDiscardBlocksPos] = new_device_info.MinDiscardBlocks;
-    buf[NumDataElem] = Base::Murmur(buf.Get(), NumDataElem, 0UL);
+    buf[NumDataElem] = Base::Murmur(buf, NumDataElem, 0UL);
     Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));
     fsync(fd);
   } catch (...) {
@@ -89,7 +89,7 @@ void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
 }
 void TDeviceUtil::ZeroSuperBlock(const char *path) {
   Base::TFd fd = open(path, O_RDWR);
-  Base::TMemAlignedPtr<size_t> buf (BlockSize, BlockSize);
+  Base::TMemAlignedPtr<uint64_t> buf (BlockSize, BlockSize);
   try {
     memset(buf, 0, BlockSize);
     Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));
