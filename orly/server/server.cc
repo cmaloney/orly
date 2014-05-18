@@ -673,6 +673,7 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
       Scheduler(scheduler),
       Cmd(cmd),
       HousecleaningTimer(cmd.HousecleaningInterval) {
+  srand(time(nullptr));
   InitalizeFramePoolManager(Cmd.NumFiberFrames, StackSize, &BGFastRunner);
   Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(Cmd.NumDiskEvents);
   using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,

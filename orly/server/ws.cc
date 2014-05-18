@@ -41,6 +41,7 @@
 #include <orly/sabot/type_dumper.h>
 #include <orly/var/jsonify.h>
 #include <orly/var/sabot_to_var.h>
+#include <tools/nycr/escape.h>
 
 using namespace std;
 using namespace std::placeholders;
