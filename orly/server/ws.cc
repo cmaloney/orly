@@ -40,7 +40,6 @@
 #include <orly/sabot/type_dumper.h>
 #include <orly/var/jsonify.h>
 #include <orly/var/sabot_to_var.h>
-#include <tools/nycr/escape.h>
 
 using namespace std;
 using namespace std::placeholders;
@@ -289,18 +288,26 @@ class TWsImpl final
       virtual void operator()(const TCompileStmt *stmt) const override {
         assert(this);
         assert(stmt);
-        TTmpCopyToFile tmp_file(
-            Conn->Ws->TmpDirMaker.GetPath(), Translate(stmt->GetStrExpr()),
-            "tmp_pkg_", ".orly");
         ostringstream out_strm;
         TJson reply = TJson::Object;
         try {
-          bool found_root = false;
-          Jhm::TAbsBase root = Jhm::TAbsBase::Find("__orly__", found_root);
+          TTmpCopyToFile tmp_file(
+              Conn->Ws->TmpDirMaker.GetPath(), Translate(stmt->GetStrExpr()),
+              "tmp_pkg_", ".orly");
+          /* Having just made the full path to the temp file and already knowing
+             the dir in which to place the compiler outputs, we must now parse these
+             apart again and reformat them to suit the JHM file name classes which
+             the compiler uses.  This is ugly. */
+          const auto &tmp_path = tmp_file.GetPath();
+          auto last_pos = tmp_path.find_last_of('/');
+          Jhm::TAbsPath abs_path_to_src(
+              Jhm::TAbsBase(tmp_path.substr(0, last_pos)),
+              Jhm::TRelPath(tmp_path.substr(last_pos + 1)));
+          Jhm::TAbsBase abs_base_to_dir(
+              Conn->Ws->SessionManager->GetPackageDir());
           auto pkg = Compiler::Compile(
-              root.GetAbsPath(tmp_file.GetPath()),
-              Jhm::TAbsBase(Conn->Ws->SessionManager->GetPackageDir()),
-              found_root, true, false, out_strm);
+              abs_path_to_src, abs_base_to_dir,
+              true, true, false, out_strm);
           reply["status"] = "ok";
           reply["name"] = pkg.Name.ToRelPath().AsStr();
           reply["version"] = pkg.Version;
