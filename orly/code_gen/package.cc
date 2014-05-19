@@ -325,9 +325,13 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
       if(!it->GetArgs().empty()) {
         out << ", ";
       }
-      Join(", ", it->GetArgs(), [] (TFunction::TArgs::const_reference arg, TCppPrinter &out) {
-        out << "Sabot::AsNative<" << arg.second->GetType() << ">(*Sabot::State::TAny::TWrapper(args.at(\"" << arg.first << "\").GetState(state_alloc)))";
-      }, out);
+      Join(", ",
+           it->GetArgs(),
+           [](TFunction::TArgs::const_reference arg, TCppPrinter &out) {
+             out << "Sabot::AsNative<" << arg.second->GetType() << ">(*Sabot::State::TAny::TWrapper(args.at(\""
+                 << arg.first << "\").GetState(alloca(Sabot::State::GetMaxStateSize()))))";
+           },
+           out);
       out << "), state_alloc));" << Eol;
     }
     out << '}' << Eol;
