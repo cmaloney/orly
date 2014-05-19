@@ -188,11 +188,14 @@ def Main():
 
   lil.run(filepaths, callback=Callback)
 
-  if not args.update:
-    print 'Change:', ','.join(changed_files)
-    print 'Pass:', ','.join(passed_files)
-    print 'Fail:', ','.join(failed_files)
-    print 'Overall: %s changed, %s passed, %s failed' % (len(changed_files), len(passed_files), len(failed_files))
+  if args.update:
+    return 0
+
+  print 'Change:', ','.join(changed_files)
+  print 'Pass:', ','.join(passed_files)
+  print 'Fail:', ','.join(failed_files)
+  print 'Overall: %s changed, %s passed, %s failed' % (len(changed_files), len(passed_files), len(failed_files))
+  return 0 if len(changed_files) == 0 else -1
 
 if __name__ == '__main__':
-  Main()
+  exit(Main())
