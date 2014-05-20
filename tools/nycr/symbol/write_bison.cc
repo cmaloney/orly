@@ -92,18 +92,18 @@ static void WriteBisonCc(const char *root, const char *branch, const char *atom,
       << "#include <tools/nycr/error.h>" << endl
       << "#include <" << TPath(branch, atom,language) << ".cst.h>" << endl
       << TUsingNamespace(language)
-      << "extern std::unique_ptr<" << TType(language->GetName()) << "> " << TUpper(language->GetName()) << "_;" << endl
       << "#define YYLOC_DEFAULT " << TUnderscore(language) << "yylloc_default" << endl
       << "#define YYMAXDEPTH 1000000" << endl
       << "#define YYINITDEPTH 1000000" << endl
       << "%}" << endl << endl
       << "%code {" << endl
       << "  int " << TUnderscore(language) << "lex(YYSTYPE *, YYLTYPE *);" << endl
-      << "  void " << TUnderscore(language) << "error(const YYLTYPE *, char const *);" << endl
+      << "  void " << TUnderscore(language) << "error(const YYLTYPE *, const std::unique_ptr<" << TType(language->GetName()) <<"> &, char const *);" << endl
       << "}" << endl << endl
       << "%defines" << endl
       << "%locations" << endl
-      << "%pure-parser" << endl
+      << "%parse-param {std::unique_ptr<" << TType(language->GetName()) << "> &cst_out}" << endl
+      << "%define api.pure" << endl
       << "%name-prefix \"" << TUnderscore(language) <<"\"" << endl
       << "%glr-parser" << endl
       << "%error-verbose" << endl;
@@ -158,7 +158,7 @@ static void WriteBisonCc(const char *root, const char *branch, const char *atom,
   strm
       << endl
       << "%%" << endl << endl
-      << "void " << TUnderscore(language) << "error(const YYLTYPE *loc, char const *msg) {" << endl
+      << "void " << TUnderscore(language) << "error(const YYLTYPE *loc, const std::unique_ptr<" << TType(language->GetName()) <<"> &, char const *msg) {" << endl
       << "  new ::Tools::Nycr::TError(loc->first_line, loc->first_column, loc->last_line, loc->last_column, msg);" << endl
       << '}' << endl;
 }
@@ -234,7 +234,7 @@ static void WriteRule(const TKind *kind, ostream &strm) {
       }
       Strm << ");" << endl;
       if (is_language) {
-        Strm << "    " << TUpper(that->GetName()) << "_ = std::unique_ptr<" << TType(that->GetName()) << ">($$);" << endl
+        Strm << "    cst_out = std::unique_ptr<" << TType(that->GetName()) << ">($$);" << endl
              << "    $$ = nullptr;" << endl;
       }
       Strm << "  }" << endl;

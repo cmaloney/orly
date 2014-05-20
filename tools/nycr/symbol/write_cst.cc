@@ -102,30 +102,29 @@ static void WriteCstCc(const char *root, const char *branch, const char *atom, c
       << "#include <" << TPath(branch, atom, language) << ".flex.h>" << endl << endl
       << "#include <iostream>" << endl
       << "extern FILE *" << TUnderscore(language) << "in;" << endl
-      << "extern void " << TUnderscore(language) << "parse();" << endl << endl
       << "extern void " << TUnderscore(language) << "NycrPrepStr(const char *str);" << endl
-      << "extern void " << TUnderscore(language) << "NycrCleanStr();" << endl
+      << "extern void " << TUnderscore(language) << "NycrCleanStr();" << endl << endl
       << "using namespace std;" << endl
       << TUsingNamespace(language)
-      << "std::unique_ptr<" << TType(language->GetName()) << "> " << TUpper(language->GetName()) << "_;" << endl << endl
+      << "extern void " << TUnderscore(language) << "parse(std::unique_ptr<" << TType(language->GetName()) << "> &cst_out);" << endl << endl
       << "unique_ptr<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseFile(const char *path) {" << endl
       << "  " << TUnderscore(language) << "in = fopen(path, \"r\");" << endl
       << "  if (!" << TUnderscore(language) << "in) {" << endl
       << "    THROW << \"could not open \\\"\" << path << '\\\"';" << endl
       << "  }" << endl
-      << "  assert(!" << TUpper(language->GetName()) << "_);" << endl
       << "  ::Tools::Nycr::TError::DeleteEach();" << endl
-      << "  " << TUnderscore(language) << "parse();" << endl
-      << "  return std::move(" << TUpper(language->GetName()) << "_);" << endl
+      << "  std::unique_ptr<" << TType(language->GetName()) << "> cst;" << endl << endl
+      << "  " << TUnderscore(language) << "parse(cst);" << endl
+      << "  return cst;" << endl
       << '}' << endl
       << endl
       << "unique_ptr<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseStr(const char *str) {" << endl
-      << "  assert(!" << TUpper(language->GetName()) << "_);" << endl
       << "  ::Tools::Nycr::TError::DeleteEach();" << endl
       << "  " << TUnderscore(language) << "NycrPrepStr(str);"<<endl
-      << "  " << TUnderscore(language) << "parse();" << endl
+      << "  std::unique_ptr<" << TType(language->GetName()) << "> cst;" << endl << endl
+      << "  " << TUnderscore(language) << "parse(cst);" << endl
       << "  " << TUnderscore(language) << "NycrCleanStr();" <<endl
-      << "  return std::move(" << TUpper(language->GetName()) << "_);" << endl
+      << "  return cst;" << endl
       << '}' << endl;
   ForEachKnownKind(language, bind(WriteDef, _1, ref(strm)));
 }
