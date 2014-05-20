@@ -59,8 +59,7 @@ namespace Base {
     T* Get() const noexcept{ assert(Mem);return Mem; }
 
     TMemAlignedPtr& operator=(TMemAlignedPtr&& sink) {
-      Mem = sink.Mem;
-      sink.Mem = nullptr;
+      std::swap(Mem, sink.Mem);
 
       return *this;
     }
