@@ -49,7 +49,7 @@ bool Orly::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TC
       Sabot::State::TAny::TWrapper(NewStateSabot(that->GetExpr(), state_alloc))->Accept(Sabot::TStateDumper(strm));
       cout << **(Client->Echo(strm.str())) << endl;
     }
-    virtual void operator()(const TTailStmt */*that*/) const override {
+    virtual void operator()(const TTailStmt *) const override {
       Client->TailGlobalPov()->Sync();
     }
     // import
@@ -60,7 +60,7 @@ bool Orly::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TC
       Client->EndImport()->Sync();
     }
     virtual void operator()(const TImportStmt *) const override {
-      // cout << **(Client->Import(that->GetFile()->GetLexeme().AsDoubleQuotedString(), that->GetXactCount()->GetLexeme().AsInt())) << endl;
+      throw runtime_error("'import' stmt not implemented in this interface");
     }
     // packages
     virtual void operator()(const TInstallStmt *that) const override {
@@ -150,23 +150,9 @@ bool Orly::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TC
     virtual void operator()(const TResumeSessionStmt *) const override {
       throw invalid_argument("'resume session' not allowed or required in binary connection");
     }
-    #if 0
-    virtual void operator()(const TCallStmt *that) const override {
-      vector<string> function_name;
-      TranslatePathName(function_name, that->GetNameList());
-      TFastArena arena;
-      Atom::TCore obj_core;
-      TranslateExpr(&arena, &obj_core, that->GetObjExpr());
-      cout << "Will Call : ";
-      bool f = true;
-      for (const auto &iter : function_name) {
-
-        cout << (f ? "" : "/") << iter;;
-        f = false;
-      }
-      cout << " with [" << Atom::TAtom(obj_core, &arena) << "]" << endl;
+    virtual void operator()(const TCompileStmt *) const override {
+      throw runtime_error("'compile' stmt not implemented in this interface");
     }
-    #endif
     private:
     bool &Result;
     const shared_ptr<TClient> &Client;

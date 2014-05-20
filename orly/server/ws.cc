@@ -28,6 +28,11 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
+#include <base/json.h>
+#include <base/tmp_copy_to_file.h>
+#include <base/tmp_dir_maker.h>
+#include <orly/compiler.h>
+#include <orly/error.h>
 #include <orly/client/program/parse_stmt.h>
 #include <orly/client/program/translate_expr.h>
 #include <orly/indy/key.h>
@@ -53,8 +58,10 @@ class TWsImpl final
 
   /* Starts up the server. */
   TWsImpl(TSessionManager *session_mngr, in_port_t port_number)
-      : SessionManager(session_mngr) {
+      : SessionManager(session_mngr),
+        TmpDirMaker(MakePath({ P_tmpdir, "orly_ws_compile" }, {})) {
     assert(session_mngr);
+    syslog(LOG_INFO, "ws compile tmp dir = \"%s\"", TmpDirMaker.GetPath().c_str());
     AsioServer.clear_access_channels(websocketpp::log::alevel::all);
     AsioServer.clear_error_channels(websocketpp::log::elevel::all);
     AsioServer.init_asio();
@@ -277,6 +284,57 @@ class TWsImpl final
         GetSession()->Import(path, load_threads, merge_threads, merge_sim);
       }
 
+      /* Compile Orlyscript into an installable package. */
+      virtual void operator()(const TCompileStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        ostringstream out_strm;
+        TJson reply = TJson::Object;
+        try {
+          TTmpCopyToFile tmp_file(
+              Conn->Ws->TmpDirMaker.GetPath(), Translate(stmt->GetStrExpr()),
+              "tmp_pkg_", ".orly");
+          /* Having just made the full path to the temp file and already knowing
+             the dir in which to place the compiler outputs, we must now parse these
+             apart again and reformat them to suit the JHM file name classes which
+             the compiler uses.  This is ugly. */
+          const auto &tmp_path = tmp_file.GetPath();
+          auto last_pos = tmp_path.find_last_of('/');
+          Jhm::TAbsPath abs_path_to_src(
+              Jhm::TAbsBase(tmp_path.substr(0, last_pos)),
+              Jhm::TRelPath(tmp_path.substr(last_pos + 1)));
+          Jhm::TAbsBase abs_base_to_dir(
+              Conn->Ws->SessionManager->GetPackageDir());
+          auto pkg = Compiler::Compile(
+              abs_path_to_src, abs_base_to_dir,
+              true, true, false, out_strm);
+          reply["status"] = "ok";
+          reply["name"] = pkg.Name.ToRelPath().AsStr();
+          reply["version"] = pkg.Version;
+        } catch (const Compiler::TCompileFailure &ex) {
+          reply["status"] = "error";
+          reply["kind"] = "compiler";
+          reply["diagnostics"] = out_strm.str();
+        } catch (const TSourceError &src_error) {
+          reply["status"] = "error";
+          reply["kind"] = "compiler internal";
+          reply["msg"] = src_error.what();
+          reply["pos"] = src_error.GetPosRange().AsStr();
+        } catch (const Base::TError &ex) {
+          const auto &code_loc = ex.GetCodeLocation();
+          reply["status"] = "error";
+          reply["kind"] = "server system";
+          reply["msg"] = ex.what();
+          reply["file"] = code_loc.GetFile();
+          reply["line"] = code_loc.GetLineNumber();
+        } catch (const exception &ex) {
+          reply["status"] = "error";
+          reply["kind"] = "std exception";
+          reply["msg"] = ex.what();
+        }
+        Strm << reply;
+      }
+
       private:
 
       /* The size used to alloca() space for a sabot of state. */
@@ -420,6 +478,9 @@ class TWsImpl final
 
   /* The session manager interface passed to us at construction time. */
   TSessionManager *SessionManager;
+
+  /* Creates and destroys the tmp dir used by the compile stmt. */
+  TTmpDirMaker TmpDirMaker;
 
   /* This object handles the mechanics of the websocket protocol. */
   TAsioServer AsioServer;

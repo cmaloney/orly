@@ -109,6 +109,9 @@ namespace Orly {
           /* For the convenience of those who inherit from us. */
           using TSessionPin = TWs::TSessionPin;
 
+          /* The root of the directory tree where packages are installed. */
+          virtual const std::string &GetPackageDir() const = 0;
+
           /* Called when the connection wishes to create a new session. */
           virtual TSessionPin *NewSession() = 0;
 
