@@ -1,0 +1,138 @@
+/* <orly/orly.nycr>
+
+   Nycr grammar for Orly import files.
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------
+    TERMINAL TOKENS
+   ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+prec lowest_prec;
+prec logical_or_prec;        /* logical 'or' */
+prec logical_xor_prec;       /* logical 'xor' */
+prec logical_and_prec;       /* logical 'and' */
+prec equality_prec;          /* equal and not-equal */
+prec inequality_prec;        /* less-than; less-than-or-equal; greater-than; greater-than-or-equal */
+prec bitwise_or_prec;        /* bitwise 'or', set union */
+prec bitwise_xor_prec;       /* bitwise 'xor', set symmetric difference */
+prec bitwise_and_prec;       /* bitwise 'and', set intersection */
+prec shift_and_rotate_prec;  /* bit shifts and rotations */
+prec add_and_sub_prec;       /* addition and subtraction */
+prec mul_and_div_prec;       /* multiplication, division, and modulo */
+prec exponentiation_prec;    /* exponentiation */
+prec unary_prec;             /* unary plus and minus; logical and bitwise negation */
+prec func_and_member_prec;   /* function application; element and member access; constructed literals */
+prec highest_prec;
+
+close_addr        = '"]>"';
+close_brace       = '"}"';
+close_bracket     = '"]"';
+close_obj         = '"}>"';
+close_paren       = '")"';
+colon             = '":"' lowest_prec left;
+comma             = '","';
+dot               = '"."' func_and_member_prec left;
+open_addr         = '"<["';
+open_brace        = '"{"';
+open_bracket      = '"["' unary_prec nonassoc;
+open_obj          = '"<{"';
+open_paren        = '"("' func_and_member_prec left;
+semi              = '";"';
+new_line          = '"\\n"';
+
+unary_placeholder = '' unary_prec right;
+
+literal;
+id_literal   : literal = r'\{[[:xdigit:]]{8}\-([[:xdigit:]]{4}\-){3}[[:xdigit:]]{12}\}';
+int_literal  : literal = '-?[[:digit:]]+';
+real_literal : literal = r'-?[[:digit:]]+\.[[:digit:]]+([eE][\-\+]?[[:digit:]]+)?';
+
+time_diff_literal : literal = r'\{[\-\+]?[[:digit:]]+T([[:digit:]]+\:){2}[[:digit:]]+(\.[[:digit:]]{1,9})?\}';
+time_pnt_literal : literal = r'\{[[:digit:]]+(\-[[:digit:]]{1,2}){2}T([[:digit:]]{1,2}\:){2}[[:digit:]]{1,2}(\.[[:digit:]]{1,9})?(Z|([\-\+][[:digit:]]{1,2}\:[[:digit:]]{1,2}))\}';
+
+str_literal : literal;
+double_quoted_raw_str_literal : str_literal = '{DOUBLE_QUOTED_NON_MARK_RAW_STRING}';
+double_quoted_str_literal     : str_literal = '{DOUBLE_QUOTED_STRING}' pri 1;
+
+bool_literal : literal;
+false_kwd : bool_literal = '"false"';
+true_kwd  : bool_literal = '"true"';
+
+null_literal : literal = '"null"';
+
+no_name -> empty;
+name    = '[_a-zA-Z][_a-zA-Z0-9]*' pri 2;
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------
+    IMPORTS
+   ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+import -> opt_import_stmt_seq <orly/data/twitter/import/syntax> sr 0;
+
+opt_import_stmt_seq;
+no_import_stmt_seq : opt_import_stmt_seq -> empty;
+import_stmt_seq    : opt_import_stmt_seq -> opt_import_stmt_seq import_stmt;
+
+import_stmt;
+data_row            : import_stmt -> expr new_line;
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------
+    EXPRESSIONS
+   ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+/* NOTE: expr doesn't inherit from opt_expr because then the opt expr visitor would visit all the leaf exprs, which we don't want. */
+opt_expr;
+no_expr : opt_expr -> empty;
+an_expr : opt_expr -> expr;
+
+expr;
+literal_expr    : expr -> literal;
+paren_expr      : expr -> open_paren expr close_paren;
+ref_expr        : expr -> name;
+
+ctor : expr;
+list_ctor : ctor -> open_bracket opt_expr opt_expr_list_tail close_bracket;  /* [ expr, expr, ... ] */
+set_ctor  : ctor -> open_brace opt_expr_list close_brace;      /* { expr, expr, ... } */
+
+  expr_list -> expr opt_expr_list_tail;
+  opt_expr_list -> opt_expr opt_expr_list_tail;
+
+  opt_expr_list_tail;
+  no_expr_list_tail : opt_expr_list_tail -> empty;
+  expr_list_tail    : opt_expr_list_tail -> comma expr_list;
+
+dict_ctor : ctor -> open_brace dict_member_list close_brace;  /* { key_expr : val_expr, key_expr : val_expr, ... } */
+
+  dict_member_list -> dict_member opt_dict_member_list_tail;
+
+  opt_dict_member_list_tail;
+  no_dict_member_list_tail : opt_dict_member_list_tail -> empty;
+  dict_member_list_tail    : opt_dict_member_list_tail -> comma dict_member_list;
+
+  dict_member -> key:expr colon value:expr;
+
+obj_ctor : ctor -> open_obj opt_obj_member_list close_obj;  /* <{ .name : expr, .name : expr, ... }> */
+
+  opt_obj_member_list;
+  no_obj_member_list : opt_obj_member_list -> empty;
+  obj_member_list    : opt_obj_member_list -> obj_member opt_obj_member_list_tail;
+
+  opt_obj_member_list_tail;
+  no_obj_member_list_tail : opt_obj_member_list_tail -> empty;
+  obj_member_list_tail    : opt_obj_member_list_tail -> comma obj_member_list;
+
+  obj_member -> dot name colon expr;
+

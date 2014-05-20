@@ -1,0 +1,22 @@
+package #1;
+
+user_tweet_ident = 13;
+tweet_user_ident = 17;
+
+TweetInfo is <[int, str, str, int, int, int?, int?]>;
+
+users = (keys (TweetInfo) @ <[user_tweet_ident, free::(int), free::(int)]>).1 as {int};
+
+total_tweet_count = (keys (TweetInfo) @ <[tweet_user_ident, free::(int), free::(int)]> reduce start(0) + 1);
+
+tweet_count = (keys (TweetInfo) @ <[user_tweet_ident, uid, free::(int)]> reduce start(0) + 1) where {
+  uid = given::(int);
+};
+
+tweets = (*(keys (TweetInfo) @ <[user_tweet_ident, uid, free::(int)]>)::(TweetInfo) as [TweetInfo]) where {
+  uid = given::(int);
+};
+
+responded_to = (keys (str) @ <[uid, free::(int), free::(int)]>.1 as {int}) where {
+  uid = given::(int);
+};
