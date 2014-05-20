@@ -105,7 +105,7 @@ namespace Base {
         } else {
           alloc_obj = TryAllocUncommon();
           if (!alloc_obj) {
-            syslog(LOG_ERR, "Bad Alloc in TThreadLocalPool");
+            syslog(LOG_ERR, "Bad Alloc in TThreadLocalPool [%s]", typeid(TObj).name());
             throw std::bad_alloc();
           }
         }
