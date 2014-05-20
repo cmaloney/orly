@@ -42,18 +42,18 @@ namespace Base {
     }
 
     TMemAlignedPtr(std::size_t align_to, std::size_t size) {
-      Allocate(align_to, size);
+      Base::IfNe0( posix_memalign(
+          reinterpret_cast<void**>(&Mem), align_to, size) );
     }
 
     ~TMemAlignedPtr() {
-      Set(nullptr);
+      if (Mem) {
+        free(Mem);
+      }
     }
 
     void Allocate(std::size_t align_to, std::size_t size) {
-      T* tmp;
-      Base::IfNe0( posix_memalign(
-            reinterpret_cast<void**>(&tmp), align_to, size) );
-      Set(tmp);
+      *this = TMemAlignedPtr<T>(align_to, size);
     }
 
     T* Get() const noexcept{ assert(Mem);return Mem; }
@@ -77,13 +77,6 @@ namespace Base {
     private:
 
     T* Mem = nullptr;
-
-    void Set(T* new_mem) {
-      if (Mem) {
-        free(Mem);
-      }
-      Mem = new_mem;
-    }
   }; // TMemAlignedPtr
 
 } // Base
