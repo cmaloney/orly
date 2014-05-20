@@ -23,38 +23,33 @@
 #include <orly/synth/get_pos_range.h>
 #include <test/kit.h>
 
+using namespace std;
 using namespace Orly;
 using namespace Orly::Package;
 using namespace Orly::Synth;
 
 FIXTURE(Typical) {
-  Syntax::TOptDefSeq *root =
-      new Syntax::TDefSeq(
-        new Syntax::TBadDef(new Syntax::TSemi(1, 1, 1, 2, ";", 1)),
-        new Syntax::TDefSeq(
-          new Syntax::TBadDef(new Syntax::TSemi(2, 1, 2, 2, ";", 1)),
-          new Syntax::TNoDefSeq()
+  auto root =
+      make_unique<Syntax::TDefSeq>(
+        make_unique<Syntax::TBadDef>(make_unique<Syntax::TSemi>(1, 1, 1, 2, ";", 1)),
+        make_unique<Syntax::TDefSeq>(
+          make_unique<Syntax::TBadDef>(make_unique<Syntax::TSemi>(2, 1, 2, 2, ";", 1)),
+          make_unique<Syntax::TNoDefSeq>()
         )
       );
-  try {
-    const Syntax::TOptDefSeq *a = root;
-    int line_number = 1;
-    ForEach<Syntax::TDef>(a,
-        [&line_number](const Syntax::TDef *def) -> bool {
-          const Syntax::TBadDef *bad_def = dynamic_cast<const Syntax::TBadDef *>(def);
-          if (EXPECT_TRUE(bad_def)) {
-            const Syntax::TSemi *semi = bad_def->GetSemi();
-            assert(semi);
-            if (EXPECT_EQ(semi->GetLexeme().GetPosRange().GetStart().GetLineNumber(), line_number)) {
-              ++line_number;
-            }
+  const Syntax::TOptDefSeq *a = root.get();
+  int line_number = 1;
+  ForEach<Syntax::TDef>(a,
+      [&line_number](const Syntax::TDef *def) -> bool {
+        const Syntax::TBadDef *bad_def = dynamic_cast<const Syntax::TBadDef *>(def);
+        if (EXPECT_TRUE(bad_def)) {
+          const Syntax::TSemi *semi = bad_def->GetSemi();
+          assert(semi);
+          if (EXPECT_EQ(semi->GetLexeme().GetPosRange().GetStart().GetLineNumber(), line_number)) {
+            ++line_number;
           }
-          return true;
-        });
-    EXPECT_EQ(line_number, 3);
-  } catch (...) {
-    delete root;
-    throw;
-  }
-  delete root;
+        }
+        return true;
+      });
+  EXPECT_EQ(line_number, 3);
 }

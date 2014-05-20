@@ -64,7 +64,6 @@ static void WriteCstH(const char *root, const char *branch, const char *atom, co
       << "#include <base/class_traits.h>" << endl
       << "#include <tools/nycr/indent.h>" << endl
       << "#include <tools/nycr/lexeme.h>" << endl
-      << "#include <tools/nycr/node.h>" << endl
       << "#include <tools/nycr/test.h>" << endl << endl;
   ostringstream namespace_prefix_builder;
   const TLanguage::TNamespaces &namespaces = language->GetNamespaces();
@@ -108,25 +107,25 @@ static void WriteCstCc(const char *root, const char *branch, const char *atom, c
       << "extern void " << TUnderscore(language) << "NycrCleanStr();" << endl
       << "using namespace std;" << endl
       << TUsingNamespace(language)
-      << TType(language->GetName()) << " *" << TUpper(language->GetName()) << "_ = 0;" << endl << endl
+      << "std::unique_ptr<" << TType(language->GetName()) << "> " << TUpper(language->GetName()) << "_;" << endl << endl
       << "unique_ptr<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseFile(const char *path) {" << endl
       << "  " << TUnderscore(language) << "in = fopen(path, \"r\");" << endl
       << "  if (!" << TUnderscore(language) << "in) {" << endl
       << "    THROW << \"could not open \\\"\" << path << '\\\"';" << endl
       << "  }" << endl
-      << "  " << TUpper(language->GetName()) << "_ = 0;" << endl
+      << "  assert(!" << TUpper(language->GetName()) << "_);" << endl
       << "  ::Tools::Nycr::TError::DeleteEach();" << endl
       << "  " << TUnderscore(language) << "parse();" << endl
-      << "  return std::unique_ptr<" << TType(language->GetName()) << ">(" << TUpper(language->GetName()) << "_);" << endl
+      << "  return std::move(" << TUpper(language->GetName()) << "_);" << endl
       << '}' << endl
       << endl
       << "unique_ptr<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseStr(const char *str) {" << endl
-      << "  " << TUpper(language->GetName()) << "_ = 0;" << endl
+      << "  assert(!" << TUpper(language->GetName()) << "_);" << endl
       << "  ::Tools::Nycr::TError::DeleteEach();" << endl
       << "  " << TUnderscore(language) << "NycrPrepStr(str);"<<endl
       << "  " << TUnderscore(language) << "parse();" << endl
       << "  " << TUnderscore(language) << "NycrCleanStr();" <<endl
-      << "  return std::unique_ptr<" << TType(language->GetName()) << ">(" << TUpper(language->GetName()) << "_);" << endl
+      << "  return std::move(" << TUpper(language->GetName()) << "_);" << endl
       << '}' << endl;
   ForEachKnownKind(language, bind(WriteDef, _1, ref(strm)));
 }
@@ -208,7 +207,7 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
           } else {
             sep = true;
           }
-          Strm << TType(kind->GetName()) << " *" << TLower(member->GetName());
+          Strm << "std::unique_ptr<" << TType(kind->GetName()) << "> &&" << TLower(member->GetName());
         }
       }
       Strm << ')';
@@ -228,7 +227,7 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
               sep = true;
             }
             const TName &name = member->GetName();
-            Strm << TUpper(name) << '(' << TLower(name) << ')';
+            Strm << TUpper(name) << "(std::move(" << TLower(name) << "))";
           }
         }
         Strm << " {" << endl;
@@ -236,7 +235,7 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
              iter != members_in_order.end(); ++iter) {
           const TCompound::TMember *member = *iter;
           if (member->TryGetKind()) {
-            Strm << "    assert(" << TLower(member->GetName()) << ");" << endl;
+            Strm << "    assert(" << TUpper(member->GetName()) << ");" << endl;
           }
         }
         Strm << "  }" << endl
@@ -252,7 +251,7 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
               << "  const " << TType(kind->GetName())
               << " *Get" << TUpper(member->GetName()) << "() const {" << endl
               << "    assert(this);" << endl
-              << "    return " << TUpper(member->GetName()) << ';' << endl
+              << "    return " << TUpper(member->GetName()) << ".get();" << endl
               << "  }" << endl;
         }
       }
@@ -269,7 +268,7 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
           const TCompound::TMember *member = *iter;
           const TKind *kind = member->TryGetKind();
           if (kind) {
-            Strm << "  " << TType(kind->GetName()) << " *" << TUpper(member->GetName()) << ';' << endl;
+            Strm << "  std::unique_ptr<" << TType(kind->GetName()) << "> " << TUpper(member->GetName()) << ';' << endl;
           }
         }
       }
@@ -295,11 +294,9 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
     void WriteOpen(const TKind *that) const {
       Strm << endl << "// ";
       WriteNycrDecl(that, Strm);
-      Strm << "class " << TType(that->GetName()) << " : public ";
+      Strm << "class " << TType(that->GetName());
       if (that->GetBase()) {
-        Strm << TType(that->GetBase()->GetName());
-      } else {
-        Strm << "::Tools::Nycr::TNode";
+        Strm << " : public " << TType(that->GetBase()->GetName());
       }
       Strm << " {" << endl
            << "  NO_COPY(" << TType(that->GetName()) << ");" << endl
@@ -337,16 +334,8 @@ static void WriteDef(const TKind *kind, ostream &strm) {
       if (!members_in_order.empty()) {
         Strm
             << endl
-            << TType(that->GetName()) << "::~" << TType(that->GetName()) << "() {" << endl
-            << "  assert(this);" << endl;
-        for (auto iter = members_in_order.begin();
-             iter != members_in_order.end(); ++iter) {
-          const TCompound::TMember *member = *iter;
-          if (member->TryGetKind()) {
-            Strm << "  delete " << TUpper(member->GetName()) << ';' << endl;
-          }
-        }
-        Strm << '}' << endl;
+            << TType(that->GetName()) << "::~" << TType(that->GetName()) << "() = default;" << endl
+            << endl;
       }
       WriteWriteStart(that);
       Strm << " << endl;" << endl;

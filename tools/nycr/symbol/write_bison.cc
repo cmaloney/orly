@@ -92,7 +92,7 @@ static void WriteBisonCc(const char *root, const char *branch, const char *atom,
       << "#include <tools/nycr/error.h>" << endl
       << "#include <" << TPath(branch, atom,language) << ".cst.h>" << endl
       << TUsingNamespace(language)
-      << "extern " << TType(language->GetName()) << " *" << TUpper(language->GetName()) << "_;" << endl
+      << "extern std::unique_ptr<" << TType(language->GetName()) << "> " << TUpper(language->GetName()) << "_;" << endl
       << "#define YYLOC_DEFAULT " << TUnderscore(language) << "yylloc_default" << endl
       << "#define YYMAXDEPTH 1000000" << endl
       << "#define YYINITDEPTH 1000000" << endl
@@ -120,6 +120,11 @@ static void WriteBisonCc(const char *root, const char *branch, const char *atom,
   strm
       << "}" << endl << endl;
   ForEachKnownKind(language, bind(WriteTypeDecl, _1, ref(strm)));
+
+  // Write destructors for all the types
+  strm << endl << endl
+       << "%destructor { delete $$; } <*>" << endl << endl;
+
   vector<const TOperator *> ops;
   ForEachKnownKind(language, bind(CollectOperators, _1, ref(ops)));
   sort(ops.begin(), ops.end(), CompareOps);
@@ -224,12 +229,13 @@ static void WriteRule(const TKind *kind, ostream &strm) {
           } else {
             sep = true;
           }
-          Strm << "$" << (i + 1);
+          Strm << "std::unique_ptr<" << TType(members[i]->TryGetKind()->GetName()) <<">($" << (i + 1) << ")";
         }
       }
       Strm << ");" << endl;
       if (is_language) {
-        Strm << "    " << TUpper(that->GetName()) << "_ = $$;" << endl;
+        Strm << "    " << TUpper(that->GetName()) << "_ = std::unique_ptr<" << TType(that->GetName()) << ">($$);" << endl
+             << "    $$ = nullptr;" << endl;
       }
       Strm << "  }" << endl;
       OnFinish();
