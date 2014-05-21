@@ -39,6 +39,7 @@
 #include <base/error_utils.h>
 #include <base/event_semaphore.h>
 #include <base/likely.h>
+#include <base/mem_aligned_ptr.h>
 #include <base/mlock.h>
 #include <base/scheduler.h>
 #include <base/sigma_calc.h>
@@ -689,20 +690,18 @@ namespace Orly {
 
           /* TODO */
           TMemoryDevice(size_t logical_block_size, size_t physical_block_size, size_t num_logical_block, bool fsync_on, bool do_corruption_check)
-              : TDevice(TDesc{TDesc::Mem, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, fsync_on, do_corruption_check), Data(nullptr) {
+              : TDevice(TDesc{TDesc::Mem, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, fsync_on, do_corruption_check),
+                Data(Base::MemAlignedAlloc<char>(getpagesize(), PhysicalBlockSize /* super block */ + Desc.Capacity)) {
             assert(Desc.Capacity % getpagesize() == 0);
-            Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&Data), getpagesize(), PhysicalBlockSize /* super block */ + Desc.Capacity));
-            Base::MlockRaw(Data, PhysicalBlockSize + Desc.Capacity);
+            Base::MlockRaw(Data.get(), PhysicalBlockSize + Desc.Capacity);
             try {
-              memset(Data, 0, PhysicalBlockSize /* super block */ + Desc.Capacity);
+              memset(Data.get(), 0, PhysicalBlockSize /* super block */ + Desc.Capacity);
             } catch (...) {
-              free(Data);
             }
           }
 
           /* TODO */
           virtual ~TMemoryDevice() {
-            free(Data);
           }
 
           /* TODO */
@@ -752,7 +751,7 @@ namespace Orly {
           /* TODO */
           virtual void DiscardAll() override {
             #ifndef NDEBUG
-            memset(Data + PhysicalBlockSize /* super block */, 0, Desc.Capacity);
+            memset(Data.get() + PhysicalBlockSize /* super block */, 0, Desc.Capacity);
             #endif
             /* do nothing */
           }
@@ -760,7 +759,7 @@ namespace Orly {
           /* TODO */
           virtual void DiscardRange(uint64_t from, uint64_t num_bytes) override {
             #ifndef NDEBUG
-            memset(Data + from, 0, num_bytes);
+            memset(Data.get() + from, 0, num_bytes);
             #endif
           }
 
@@ -775,7 +774,7 @@ namespace Orly {
                         long long nbytes, DiskPriority priority, bool abort_on_error);
 
           /* TODO */
-          char *Data;
+          std::unique_ptr<char> Data;
 
         };  // TMemoryDevice
 

@@ -28,6 +28,7 @@
 #include <base/class_traits.h>
 #include <base/error_utils.h>
 #include <base/likely.h>
+#include <base/mem_aligned_ptr.h>
 #include <base/mlock.h>
 #include <inv_con/atomic_unordered_list.h>
 #include <orly/indy/disk/util/hash_util.h>
@@ -82,7 +83,7 @@ namespace Orly {
               assert((val & HighestBit) == HighestBit);
               assert((val & ThirdHighestBit) == 0UL);
               const size_t page_offset = val & All1But3HighestBits;
-              return cache->PageData + (page_offset * PageSize);
+              return cache->PageData.get() + (page_offset * PageSize);
             }
 
             /* TODO */
@@ -115,7 +116,7 @@ namespace Orly {
                     /* we successfully swapped in the second highest bit. this means we need to load the data and then set the highest bit once it's valid. */
                     const size_t page_offset = val & All1But3HighestBits;
                     const size_t logical_offset = page_id * PageSize;
-                    char *buf = cache->PageData + (page_offset * PageSize);
+                    char *buf = cache->PageData.get() + (page_offset * PageSize);
 
                     TCompletionTrigger *trigger_ptr = &async_trigger;
                     cache->VolumeManager->Read(code_location,
@@ -164,7 +165,7 @@ namespace Orly {
                   /* if the highest bit is set, then we can just return the buffer after checking for an error. */
                   if ((val & ThirdHighestBit) == 0) {
                     const size_t page_offset = val & All1But3HighestBits;
-                    return cache->PageData + (page_offset * PageSize);
+                    return cache->PageData.get() + (page_offset * PageSize);
                   } else {
                     std::cerr << "Disk page loaded with error [" << val << "]" << std::endl;
                     throw std::logic_error("Disk page was loaded with error.");
@@ -188,7 +189,7 @@ namespace Orly {
                     /* we successfully swapped in the second highest bit. this means we need to load the data and then set the highest bit once it's valid. */
                     const size_t page_offset = val & All1But3HighestBits;
                     const size_t logical_offset = page_id * PageSize;
-                    char *buf = cache->PageData + (page_offset * PageSize);
+                    char *buf = cache->PageData.get() + (page_offset * PageSize);
                     cache->VolumeManager->Read(code_location, buf_kind, util_src, buf, logical_offset, PageSize, priority, trigger);
                     try {
                       trigger.Wait(true);
@@ -248,10 +249,10 @@ namespace Orly {
               try {
                 assert(PageSize >= static_cast<size_t>(getpagesize()));
                 assert(PageSize % getpagesize() == 0);
-                Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&PageData), PageSize, PageSize * MaxCacheSize));
-                Base::MlockRaw(PageData, PageSize * MaxCacheSize);
+                PageData = Base::MemAlignedAlloc<char>(PageSize, PageSize * MaxCacheSize);
+                Base::MlockRaw(PageData.get(), PageSize * MaxCacheSize);
                 #ifndef NDEBUG
-                memset(PageData, 0, PageSize * MaxCacheSize);
+                memset(PageData.get(), 0, PageSize * MaxCacheSize);
                 #endif
                 try {
                   /* we're going to init max_cache_size slots with DummyStartSlot with a valid
@@ -268,7 +269,6 @@ namespace Orly {
                   }
                   TryRemoveSlotFunc = std::bind(&TCache::TryRemoveSlot, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
                 } catch (...) {
-                  free(PageData);
                   throw;
                 }
               } catch (...) {
@@ -286,7 +286,6 @@ namespace Orly {
           /* TODO */
           ~TCache() {
             assert(this);
-            free(PageData);
             delete[] LRUArray;
             delete[] SlotArray;
           }
@@ -622,7 +621,7 @@ namespace Orly {
             /* copy the data from buf into the address referenced by BufAddr and set it as "successfully read" */
             size_t cur_addr = std::atomic_load(&(data_slot->BufAddr));
             const size_t page_offset = cur_addr & All1But3HighestBits;
-            char *data = PageData + (page_offset * PageSize);
+            char *data = PageData.get() + (page_offset * PageSize);
             memcpy(data, buf, PageSize);
             if (!std::atomic_compare_exchange_strong(&(data_slot->BufAddr), &cur_addr, (cur_addr & All1But3HighestBits) | HighestBit)) {
               /* since the reference count is 1 and we're the one modifying this page, no one should be changing this value from under us... */
@@ -676,7 +675,7 @@ namespace Orly {
                 TSlot *const data_slot = my_data_slots[i];
                 size_t new_val = std::atomic_load(&(data_slot->BufAddr));
                 const size_t page_offset = new_val & All1But3HighestBits;
-                char *const buf = cache->PageData + (page_offset * PageSize);
+                char *const buf = cache->PageData.get() + (page_offset * PageSize);
                 buf_array[i] = buf;
               }
               TCompletionTrigger *trigger_ptr = &async_trigger;
@@ -952,7 +951,7 @@ namespace Orly {
           TLRU *LRUArray;
 
           /* TODO */
-          char *PageData;
+          std::unique_ptr<char> PageData;
 
           /* TODO */
           timespec ReadWait;

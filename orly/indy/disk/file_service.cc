@@ -20,6 +20,8 @@
 
 #include <orly/indy/disk/indy_util_reporter.h>
 
+#include <base/mem_aligned_ptr.h>
+
 using namespace std;
 using namespace Orly::Indy::Disk;
 
@@ -414,8 +416,7 @@ void TFileService::Runner() {
   for (size_t i = 0; i < NumAppendLogSectors; ++i) {
     ring_offset_vec.push_back((AppendLogBlockVec[i / NumSectorsPerBlock] * Util::PhysicalBlockSize) + ((i % NumSectorsPerBlock) * Util::PhysicalSectorSize));
   }
-  size_t *ring_buf = nullptr;
-  Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&ring_buf), getpagesize(), getpagesize()));
+  auto ring_buf = Base::MemAlignedAlloc<size_t>(getpagesize(), getpagesize());
   std::vector<std::unique_ptr<TBufBlock>> image_buf_block_vec;
   image_buf_block_vec.emplace_back(new TBufBlock());
   TCompletionTrigger append_log_flush_trigger;
@@ -429,8 +430,8 @@ void TFileService::Runner() {
         /* Acquire Queue lock */ {
           std::lock_guard<std::mutex> lock(QueueLock);
           TOp *op = nullptr;
-          memset(ring_buf, 0, Util::PhysicalSectorSize);
-          size_t *buf = ring_buf;
+          memset(ring_buf.get(), 0, Util::PhysicalSectorSize);
+          size_t *buf = ring_buf.get();
           *buf = cur_version_num;
           buf += 1;
           for (to_apply = 0; to_apply < NumFilesPerRingBuf; ++to_apply, buf += (EntrySize + OpSize)) {
@@ -539,7 +540,7 @@ void TFileService::Runner() {
             VolMan->WriteAndFlush(HERE,
                                   Util::CheckedSector,
                                   Source::FileService,
-                                  reinterpret_cast<char *>(ring_buf),
+                                  reinterpret_cast<char *>(ring_buf.get()),
                                   ring_offset_vec[CurRingSector],
                                   Util::PhysicalSectorSize,
                                   RealTime,
@@ -594,9 +595,7 @@ void TFileService::Runner() {
         break;
       }
     }
-    free(ring_buf);
   } catch (const std::exception &ex) {
-    free(ring_buf);
     if (Disk::Util::TDiskController::TEvent::LocalEventPool) {
       delete Disk::Util::TDiskController::TEvent::LocalEventPool;
       Disk::Util::TDiskController::TEvent::LocalEventPool = nullptr;

@@ -28,6 +28,7 @@
 
 #include <base/class_traits.h>
 #include <base/error_utils.h>
+#include <base/mem_aligned_ptr.h>
 
 namespace Orly {
 
@@ -46,18 +47,16 @@ namespace Orly {
               NumBlocks(num_blocks),
               WorksetBuf(nullptr),
               FlushBuf(nullptr) {
-          Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&WorksetBuf), getpagesize(), GetNumBytes()));
+          WorksetBuf = Base::MemAlignedAlloc<uint8_t>(getpagesize(), GetNumBytes());
           try {
-            Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&FlushBuf), getpagesize(), GetNumBytes()));
+            FlushBuf = Base::MemAlignedAlloc<uint8_t>(getpagesize(), GetNumBytes());
             try {
-              memset(WorksetBuf, 0, GetNumBytes());
-              memset(FlushBuf, 0, GetNumBytes());
+              memset(WorksetBuf.get(), 0, GetNumBytes());
+              memset(FlushBuf.get(), 0, GetNumBytes());
             } catch (...) {
-              free(FlushBuf);
               throw;
             }
           } catch (...) {
-            free(WorksetBuf);
             throw;
           }
         }
@@ -65,15 +64,13 @@ namespace Orly {
         /* TODO */
         ~TBlockHitCounter() {
           assert(this);
-          free(WorksetBuf);
-          free(FlushBuf);
         }
 
         /* TODO */
         inline void AddHits(size_t block_num, size_t num_hits) {
           assert(this);
           std::lock_guard<std::mutex> lock(CountLock);
-          uint8_t *val = WorksetBuf + block_num;
+          uint8_t *val = WorksetBuf.get() + block_num;
           double cur = log(exp(*val) + num_hits);
           *val = std::min(std::numeric_limits<uint8_t>::max(), static_cast<uint8_t>(floor(cur)));
         }
@@ -82,14 +79,14 @@ namespace Orly {
         inline uint8_t GetNumHits(size_t block_num) const {
           assert(this);
           std::lock_guard<std::mutex> lock(CountLock);
-          return *(WorksetBuf + block_num);
+          return *(WorksetBuf.get() + block_num);
         }
 
         /* TODO */
         inline void Reset(size_t block_num) {
           assert(this);
           std::lock_guard<std::mutex> lock(CountLock);
-          *(WorksetBuf + block_num) = 0;
+          *(WorksetBuf.get() + block_num) = 0;
         }
 
         private:
@@ -107,10 +104,10 @@ namespace Orly {
         const size_t NumBlocks;
 
         /* TODO */
-        uint8_t *WorksetBuf;
+        std::unique_ptr<uint8_t> WorksetBuf;
 
         /* TODO */
-        uint8_t *FlushBuf;
+        std::unique_ptr<uint8_t> FlushBuf;
 
         /* TODO */
         mutable std::mutex CountLock;
