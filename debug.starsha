@@ -191,6 +191,28 @@
         }
       }
     }
+    "tools/nycr/nycr.nycr.bison.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++1y";
+          "-pthread";
+        }
+      }
+    }
+    "tools/nycr/nycr.nycr.flex.cc" {
+      "g++" {
+        "flags" {
+          "-DTEST_OUTPUT_DIR=\"/tmp/\"";
+          "-g";
+          "-DDEBUG";
+          "-std=c++1y";
+          "-pthread";
+        }
+      }
+    }
   }
 }
 

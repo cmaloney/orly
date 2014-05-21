@@ -372,11 +372,9 @@ TCorpus::TCorpus(const char *config, const char *config_mixin, size_t worker_cou
   Walk(
     Src.c_str(), std::bind(&TCorpus::IsFileIncluded, this, placeholders::_1),
     [this](const char *rel_path, time_t mod_time) {
-      if (strncmp(rel_path, "tools/nycr/nycr", 15)) {
-        auto kind = TFile::TKind::TryGetKindByRelPath(rel_path);
-        if (kind) {
-          kind->NewSrcFile(this, rel_path, mod_time);
-        }
+      auto kind = TFile::TKind::TryGetKindByRelPath(rel_path);
+      if (kind) {
+        kind->NewSrcFile(this, rel_path, mod_time);
       }
     }
   );

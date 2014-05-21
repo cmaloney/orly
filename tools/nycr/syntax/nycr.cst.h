@@ -26,12 +26,28 @@ class TPrecKwd;
 class TName;
 class TSemi;
 class TKind;
-class TBase;
+class TOper;
 class TOptSuper;
 class TSuper;
 class TColon;
 class TNoSuper;
-class TRule;
+class TPattern;
+class TEq;
+class TStrLiteral;
+class TSingleQuotedStrLiteral;
+class TSingleQuotedRawStrLiteral;
+class TDoubleQuotedStrLiteral;
+class TDoubleQuotedRawStrLiteral;
+class TOptPriLevel;
+class TPriLevel;
+class TPriKwd;
+class TIntLiteral;
+class TNoPriLevel;
+class TAssoc;
+class TRightKwd;
+class TNonassocKwd;
+class TLeftKwd;
+class TLanguage;
 class TOptRhs;
 class TRhs;
 class TArrow;
@@ -39,79 +55,63 @@ class TOptMemberSeq;
 class TNoMemberSeq;
 class TMemberSeq;
 class TMember;
-class TAnonymousMember;
+class TNamedMember;
 class TErrorMember;
 class TErrorKwd;
-class TNamedMember;
+class TAnonymousMember;
 class TOptOperRef;
 class TOperRef;
 class TNoOperRef;
 class TNoRhs;
 class TEmptyKwd;
-class TLanguage;
 class TOpenAngle;
 class TOptPath;
 class TPath;
 class TOptPathTail;
-class TNoPathTail;
 class TPathTail;
 class TSlash;
+class TNoPathTail;
 class TNoPath;
 class TCloseAngle;
 class TOptExpectedSr;
 class TNoExpectedSr;
 class TExpectedSr;
 class TSrKwd;
-class TIntLiteral;
 class TOptExpectedRr;
 class TNoExpectedRr;
 class TExpectedRr;
 class TRrKwd;
-class TOper;
-class TPattern;
-class TEq;
-class TStrLiteral;
-class TSingleQuotedRawStrLiteral;
-class TDoubleQuotedStrLiteral;
-class TSingleQuotedStrLiteral;
-class TDoubleQuotedRawStrLiteral;
-class TOptPriLevel;
-class TPriLevel;
-class TPriKwd;
-class TNoPriLevel;
-class TAssoc;
-class TNonassocKwd;
-class TLeftKwd;
-class TRightKwd;
+class TRule;
 class TKeyword;
+class TBase;
 class TBadDecl;
 
 // nycr -> opt_decl_seq <tools/nycr/syntax> sr 0 rr 0;
 class TNycr {
   NO_COPY(TNycr);
   public:
-  TNycr(TOptDeclSeq *opt_decl_seq)
-      : OptDeclSeq(opt_decl_seq) {
-    assert(opt_decl_seq);
+  TNycr(std::unique_ptr<TOptDeclSeq> &&opt_decl_seq)
+      : OptDeclSeq(std::move(opt_decl_seq)) {
+    assert(OptDeclSeq);
   }
   virtual ~TNycr();
   const TOptDeclSeq *GetOptDeclSeq() const {
     assert(this);
-    return OptDeclSeq;
+    return OptDeclSeq.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  static TNycr *ParseFile(const char *path);
-  static TNycr *ParseStr(const char *str);
+  static std::unique_ptr<TNycr> ParseFile(const char *path);
+  static std::unique_ptr<TNycr> ParseStr(const char *str);
   private:
-  TOptDeclSeq *OptDeclSeq;
+  std::unique_ptr<TOptDeclSeq> OptDeclSeq;
 };  // TNycr
 
 // opt_decl_seq;
 class TOptDeclSeq {
   NO_COPY(TOptDeclSeq);
   public:
-  class TVisitor {
+  class TVisitor { 
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TNoDeclSeq *that) const = 0;
@@ -145,10 +145,10 @@ class TNoDeclSeq : public TOptDeclSeq {
 class TDeclSeq : public TOptDeclSeq {
   NO_COPY(TDeclSeq);
   public:
-  TDeclSeq(TDecl *decl, TOptDeclSeq *opt_decl_seq)
-      : Decl(decl), OptDeclSeq(opt_decl_seq) {
-    assert(decl);
-    assert(opt_decl_seq);
+  TDeclSeq(std::unique_ptr<TDecl> &&decl, std::unique_ptr<TOptDeclSeq> &&opt_decl_seq)
+      : Decl(std::move(decl)), OptDeclSeq(std::move(opt_decl_seq)) {
+    assert(Decl);
+    assert(OptDeclSeq);
   }
   virtual ~TDeclSeq();
   virtual void Accept(const TOptDeclSeq::TVisitor &visitor) const {
@@ -158,32 +158,32 @@ class TDeclSeq : public TOptDeclSeq {
   }
   const TDecl *GetDecl() const {
     assert(this);
-    return Decl;
+    return Decl.get();
   }
   const TOptDeclSeq *GetOptDeclSeq() const {
     assert(this);
-    return OptDeclSeq;
+    return OptDeclSeq.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
-  TDecl *Decl;
-  TOptDeclSeq *OptDeclSeq;
+  std::unique_ptr<TDecl> Decl;
+  std::unique_ptr<TOptDeclSeq> OptDeclSeq;
 };  // TDeclSeq
 
 // decl;
 class TDecl {
   NO_COPY(TDecl);
   public:
-  class TVisitor {
+  class TVisitor { 
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TPrecLevel *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TBase *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TRule *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TLanguage *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TOper *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TLanguage *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TRule *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TKeyword *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TBase *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TBadDecl *that) const = 0;
     protected:
       TVisitor() {}
@@ -200,11 +200,11 @@ class TDecl {
 class TPrecLevel : public TDecl {
   NO_COPY(TPrecLevel);
   public:
-  TPrecLevel(TPrecKwd *prec_kwd, TName *name, TSemi *semi)
-      : PrecKwd(prec_kwd), Name(name), Semi(semi) {
-    assert(prec_kwd);
-    assert(name);
-    assert(semi);
+  TPrecLevel(std::unique_ptr<TPrecKwd> &&prec_kwd, std::unique_ptr<TName> &&name, std::unique_ptr<TSemi> &&semi)
+      : PrecKwd(std::move(prec_kwd)), Name(std::move(name)), Semi(std::move(semi)) {
+    assert(PrecKwd);
+    assert(Name);
+    assert(Semi);
   }
   virtual ~TPrecLevel();
   virtual void Accept(const TDecl::TVisitor &visitor) const {
@@ -214,22 +214,22 @@ class TPrecLevel : public TDecl {
   }
   const TPrecKwd *GetPrecKwd() const {
     assert(this);
-    return PrecKwd;
+    return PrecKwd.get();
   }
   const TName *GetName() const {
     assert(this);
-    return Name;
+    return Name.get();
   }
   const TSemi *GetSemi() const {
     assert(this);
-    return Semi;
+    return Semi.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
-  TPrecKwd *PrecKwd;
-  TName *Name;
-  TSemi *Semi;
+  std::unique_ptr<TPrecKwd> PrecKwd;
+  std::unique_ptr<TName> Name;
+  std::unique_ptr<TSemi> Semi;
 };  // TPrecLevel
 
 // prec_kwd = "prec" pri 0;
@@ -284,18 +284,19 @@ class TSemi {
 class TKind : public TDecl {
   NO_COPY(TKind);
   public:
-  class TVisitor {
+  class TVisitor { 
     public:
       virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TBase *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TRule *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TLanguage *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TOper *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TLanguage *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TRule *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TKeyword *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TBase *that) const = 0;
     protected:
       TVisitor() {}
     };  // TVisitor
   virtual ~TKind() {}
+  using TDecl::Accept;
   virtual void Accept(const TVisitor &visitor) const = 0;
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
@@ -303,17 +304,20 @@ class TKind : public TDecl {
   TKind() {}
 };  // TKind
 
-// base : kind -> name opt_super semi;
-class TBase : public TKind {
-  NO_COPY(TBase);
+// oper : kind -> name opt_super pattern prec_level_ref:name assoc semi;
+class TOper : public TKind {
+  NO_COPY(TOper);
   public:
-  TBase(TName *name, TOptSuper *opt_super, TSemi *semi)
-      : Name(name), OptSuper(opt_super), Semi(semi) {
-    assert(name);
-    assert(opt_super);
-    assert(semi);
+  TOper(std::unique_ptr<TName> &&name, std::unique_ptr<TOptSuper> &&opt_super, std::unique_ptr<TPattern> &&pattern, std::unique_ptr<TName> &&prec_level_ref, std::unique_ptr<TAssoc> &&assoc, std::unique_ptr<TSemi> &&semi)
+      : Name(std::move(name)), OptSuper(std::move(opt_super)), Pattern(std::move(pattern)), PrecLevelRef(std::move(prec_level_ref)), Assoc(std::move(assoc)), Semi(std::move(semi)) {
+    assert(Name);
+    assert(OptSuper);
+    assert(Pattern);
+    assert(PrecLevelRef);
+    assert(Assoc);
+    assert(Semi);
   }
-  virtual ~TBase();
+  virtual ~TOper();
   virtual void Accept(const TKind::TVisitor &visitor) const {
     assert(this);
     assert(&visitor);
@@ -326,29 +330,44 @@ class TBase : public TKind {
   }
   const TName *GetName() const {
     assert(this);
-    return Name;
+    return Name.get();
   }
   const TOptSuper *GetOptSuper() const {
     assert(this);
-    return OptSuper;
+    return OptSuper.get();
+  }
+  const TPattern *GetPattern() const {
+    assert(this);
+    return Pattern.get();
+  }
+  const TName *GetPrecLevelRef() const {
+    assert(this);
+    return PrecLevelRef.get();
+  }
+  const TAssoc *GetAssoc() const {
+    assert(this);
+    return Assoc.get();
   }
   const TSemi *GetSemi() const {
     assert(this);
-    return Semi;
+    return Semi.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
-  TName *Name;
-  TOptSuper *OptSuper;
-  TSemi *Semi;
-};  // TBase
+  std::unique_ptr<TName> Name;
+  std::unique_ptr<TOptSuper> OptSuper;
+  std::unique_ptr<TPattern> Pattern;
+  std::unique_ptr<TName> PrecLevelRef;
+  std::unique_ptr<TAssoc> Assoc;
+  std::unique_ptr<TSemi> Semi;
+};  // TOper
 
 // opt_super;
 class TOptSuper {
   NO_COPY(TOptSuper);
   public:
-  class TVisitor {
+  class TVisitor { 
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TSuper *that) const = 0;
@@ -368,10 +387,10 @@ class TOptSuper {
 class TSuper : public TOptSuper {
   NO_COPY(TSuper);
   public:
-  TSuper(TColon *colon, TName *name)
-      : Colon(colon), Name(name) {
-    assert(colon);
-    assert(name);
+  TSuper(std::unique_ptr<TColon> &&colon, std::unique_ptr<TName> &&name)
+      : Colon(std::move(colon)), Name(std::move(name)) {
+    assert(Colon);
+    assert(Name);
   }
   virtual ~TSuper();
   virtual void Accept(const TOptSuper::TVisitor &visitor) const {
@@ -381,17 +400,17 @@ class TSuper : public TOptSuper {
   }
   const TColon *GetColon() const {
     assert(this);
-    return Colon;
+    return Colon.get();
   }
   const TName *GetName() const {
     assert(this);
-    return Name;
+    return Name.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
-  TColon *Colon;
-  TName *Name;
+  std::unique_ptr<TColon> Colon;
+  std::unique_ptr<TName> Name;
 };  // TSuper
 
 // colon = "\":\"" pri 0;
@@ -424,937 +443,35 @@ class TNoSuper : public TOptSuper {
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
 };  // TNoSuper
 
-// rule : kind -> name opt_super opt_rhs semi;
-class TRule : public TKind {
-  NO_COPY(TRule);
-  public:
-  TRule(TName *name, TOptSuper *opt_super, TOptRhs *opt_rhs, TSemi *semi)
-      : Name(name), OptSuper(opt_super), OptRhs(opt_rhs), Semi(semi) {
-    assert(name);
-    assert(opt_super);
-    assert(opt_rhs);
-    assert(semi);
-  }
-  virtual ~TRule();
-  virtual void Accept(const TKind::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Accept(const TDecl::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TName *GetName() const {
-    assert(this);
-    return Name;
-  }
-  const TOptSuper *GetOptSuper() const {
-    assert(this);
-    return OptSuper;
-  }
-  const TOptRhs *GetOptRhs() const {
-    assert(this);
-    return OptRhs;
-  }
-  const TSemi *GetSemi() const {
-    assert(this);
-    return Semi;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TName *Name;
-  TOptSuper *OptSuper;
-  TOptRhs *OptRhs;
-  TSemi *Semi;
-};  // TRule
-
-// opt_rhs;
-class TOptRhs {
-  NO_COPY(TOptRhs);
-  public:
-  class TVisitor {
-    public:
-      virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TRhs *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TNoRhs *that) const = 0;
-    protected:
-      TVisitor() {}
-    };  // TVisitor
-  virtual ~TOptRhs() {}
-  virtual void Accept(const TVisitor &visitor) const = 0;
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
-  protected:
-  TOptRhs() {}
-};  // TOptRhs
-
-// rhs : opt_rhs -> arrow member_seq opt_oper_ref;
-class TRhs : public TOptRhs {
-  NO_COPY(TRhs);
-  public:
-  TRhs(TArrow *arrow, TMemberSeq *member_seq, TOptOperRef *opt_oper_ref)
-      : Arrow(arrow), MemberSeq(member_seq), OptOperRef(opt_oper_ref) {
-    assert(arrow);
-    assert(member_seq);
-    assert(opt_oper_ref);
-  }
-  virtual ~TRhs();
-  virtual void Accept(const TOptRhs::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TArrow *GetArrow() const {
-    assert(this);
-    return Arrow;
-  }
-  const TMemberSeq *GetMemberSeq() const {
-    assert(this);
-    return MemberSeq;
-  }
-  const TOptOperRef *GetOptOperRef() const {
-    assert(this);
-    return OptOperRef;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TArrow *Arrow;
-  TMemberSeq *MemberSeq;
-  TOptOperRef *OptOperRef;
-};  // TRhs
-
-// arrow = "\"->\"" pri 0;
-class TArrow {
-  NO_COPY(TArrow);
-  public:
-  TArrow(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TArrow
-
-// opt_member_seq;
-class TOptMemberSeq {
-  NO_COPY(TOptMemberSeq);
-  public:
-  class TVisitor {
-    public:
-      virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TNoMemberSeq *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TMemberSeq *that) const = 0;
-    protected:
-      TVisitor() {}
-    };  // TVisitor
-  virtual ~TOptMemberSeq() {}
-  virtual void Accept(const TVisitor &visitor) const = 0;
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
-  protected:
-  TOptMemberSeq() {}
-};  // TOptMemberSeq
-
-// no_member_seq : opt_member_seq -> empty;
-class TNoMemberSeq : public TOptMemberSeq {
-  NO_COPY(TNoMemberSeq);
-  public:
-  TNoMemberSeq() {}
-  virtual void Accept(const TOptMemberSeq::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-};  // TNoMemberSeq
-
-// member_seq : opt_member_seq -> member opt_member_seq;
-class TMemberSeq : public TOptMemberSeq {
-  NO_COPY(TMemberSeq);
-  public:
-  TMemberSeq(TMember *member, TOptMemberSeq *opt_member_seq)
-      : Member(member), OptMemberSeq(opt_member_seq) {
-    assert(member);
-    assert(opt_member_seq);
-  }
-  virtual ~TMemberSeq();
-  virtual void Accept(const TOptMemberSeq::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TMember *GetMember() const {
-    assert(this);
-    return Member;
-  }
-  const TOptMemberSeq *GetOptMemberSeq() const {
-    assert(this);
-    return OptMemberSeq;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TMember *Member;
-  TOptMemberSeq *OptMemberSeq;
-};  // TMemberSeq
-
-// member;
-class TMember {
-  NO_COPY(TMember);
-  public:
-  class TVisitor {
-    public:
-      virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TAnonymousMember *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TErrorMember *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TNamedMember *that) const = 0;
-    protected:
-      TVisitor() {}
-    };  // TVisitor
-  virtual ~TMember() {}
-  virtual void Accept(const TVisitor &visitor) const = 0;
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
-  protected:
-  TMember() {}
-};  // TMember
-
-// anonymous_member : member -> name;
-class TAnonymousMember : public TMember {
-  NO_COPY(TAnonymousMember);
-  public:
-  TAnonymousMember(TName *name)
-      : Name(name) {
-    assert(name);
-  }
-  virtual ~TAnonymousMember();
-  virtual void Accept(const TMember::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TName *GetName() const {
-    assert(this);
-    return Name;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TName *Name;
-};  // TAnonymousMember
-
-// error_member : member -> error_kwd;
-class TErrorMember : public TMember {
-  NO_COPY(TErrorMember);
-  public:
-  TErrorMember(TErrorKwd *error_kwd)
-      : ErrorKwd(error_kwd) {
-    assert(error_kwd);
-  }
-  virtual ~TErrorMember();
-  virtual void Accept(const TMember::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TErrorKwd *GetErrorKwd() const {
-    assert(this);
-    return ErrorKwd;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TErrorKwd *ErrorKwd;
-};  // TErrorMember
-
-// error_kwd = "error" pri 0;
-class TErrorKwd {
-  NO_COPY(TErrorKwd);
-  public:
-  TErrorKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TErrorKwd
-
-// named_member : member -> name:name colon kind:name;
-class TNamedMember : public TMember {
-  NO_COPY(TNamedMember);
-  public:
-  TNamedMember(TName *name, TColon *colon, TName *kind)
-      : Name(name), Colon(colon), Kind(kind) {
-    assert(name);
-    assert(colon);
-    assert(kind);
-  }
-  virtual ~TNamedMember();
-  virtual void Accept(const TMember::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TName *GetName() const {
-    assert(this);
-    return Name;
-  }
-  const TColon *GetColon() const {
-    assert(this);
-    return Colon;
-  }
-  const TName *GetKind() const {
-    assert(this);
-    return Kind;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TName *Name;
-  TColon *Colon;
-  TName *Kind;
-};  // TNamedMember
-
-// opt_oper_ref;
-class TOptOperRef {
-  NO_COPY(TOptOperRef);
-  public:
-  class TVisitor {
-    public:
-      virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TOperRef *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TNoOperRef *that) const = 0;
-    protected:
-      TVisitor() {}
-    };  // TVisitor
-  virtual ~TOptOperRef() {}
-  virtual void Accept(const TVisitor &visitor) const = 0;
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
-  protected:
-  TOptOperRef() {}
-};  // TOptOperRef
-
-// oper_ref : opt_oper_ref -> prec_kwd name;
-class TOperRef : public TOptOperRef {
-  NO_COPY(TOperRef);
-  public:
-  TOperRef(TPrecKwd *prec_kwd, TName *name)
-      : PrecKwd(prec_kwd), Name(name) {
-    assert(prec_kwd);
-    assert(name);
-  }
-  virtual ~TOperRef();
-  virtual void Accept(const TOptOperRef::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TPrecKwd *GetPrecKwd() const {
-    assert(this);
-    return PrecKwd;
-  }
-  const TName *GetName() const {
-    assert(this);
-    return Name;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TPrecKwd *PrecKwd;
-  TName *Name;
-};  // TOperRef
-
-// no_oper_ref : opt_oper_ref -> empty;
-class TNoOperRef : public TOptOperRef {
-  NO_COPY(TNoOperRef);
-  public:
-  TNoOperRef() {}
-  virtual void Accept(const TOptOperRef::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-};  // TNoOperRef
-
-// no_rhs : opt_rhs -> arrow empty_kwd;
-class TNoRhs : public TOptRhs {
-  NO_COPY(TNoRhs);
-  public:
-  TNoRhs(TArrow *arrow, TEmptyKwd *empty_kwd)
-      : Arrow(arrow), EmptyKwd(empty_kwd) {
-    assert(arrow);
-    assert(empty_kwd);
-  }
-  virtual ~TNoRhs();
-  virtual void Accept(const TOptRhs::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TArrow *GetArrow() const {
-    assert(this);
-    return Arrow;
-  }
-  const TEmptyKwd *GetEmptyKwd() const {
-    assert(this);
-    return EmptyKwd;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TArrow *Arrow;
-  TEmptyKwd *EmptyKwd;
-};  // TNoRhs
-
-// empty_kwd = "empty" pri 0;
-class TEmptyKwd {
-  NO_COPY(TEmptyKwd);
-  public:
-  TEmptyKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TEmptyKwd
-
-// language : kind -> name opt_super opt_rhs open_angle opt_path close_angle opt_expected_sr opt_expected_rr semi;
-class TLanguage : public TKind {
-  NO_COPY(TLanguage);
-  public:
-  TLanguage(TName *name, TOptSuper *opt_super, TOptRhs *opt_rhs, TOpenAngle *open_angle, TOptPath *opt_path, TCloseAngle *close_angle, TOptExpectedSr *opt_expected_sr, TOptExpectedRr *opt_expected_rr, TSemi *semi)
-      : Name(name), OptSuper(opt_super), OptRhs(opt_rhs), OpenAngle(open_angle), OptPath(opt_path), CloseAngle(close_angle), OptExpectedSr(opt_expected_sr), OptExpectedRr(opt_expected_rr), Semi(semi) {
-    assert(name);
-    assert(opt_super);
-    assert(opt_rhs);
-    assert(open_angle);
-    assert(opt_path);
-    assert(close_angle);
-    assert(opt_expected_sr);
-    assert(opt_expected_rr);
-    assert(semi);
-  }
-  virtual ~TLanguage();
-  virtual void Accept(const TKind::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Accept(const TDecl::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TName *GetName() const {
-    assert(this);
-    return Name;
-  }
-  const TOptSuper *GetOptSuper() const {
-    assert(this);
-    return OptSuper;
-  }
-  const TOptRhs *GetOptRhs() const {
-    assert(this);
-    return OptRhs;
-  }
-  const TOpenAngle *GetOpenAngle() const {
-    assert(this);
-    return OpenAngle;
-  }
-  const TOptPath *GetOptPath() const {
-    assert(this);
-    return OptPath;
-  }
-  const TCloseAngle *GetCloseAngle() const {
-    assert(this);
-    return CloseAngle;
-  }
-  const TOptExpectedSr *GetOptExpectedSr() const {
-    assert(this);
-    return OptExpectedSr;
-  }
-  const TOptExpectedRr *GetOptExpectedRr() const {
-    assert(this);
-    return OptExpectedRr;
-  }
-  const TSemi *GetSemi() const {
-    assert(this);
-    return Semi;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TName *Name;
-  TOptSuper *OptSuper;
-  TOptRhs *OptRhs;
-  TOpenAngle *OpenAngle;
-  TOptPath *OptPath;
-  TCloseAngle *CloseAngle;
-  TOptExpectedSr *OptExpectedSr;
-  TOptExpectedRr *OptExpectedRr;
-  TSemi *Semi;
-};  // TLanguage
-
-// open_angle = "\"<\"" pri 0;
-class TOpenAngle {
-  NO_COPY(TOpenAngle);
-  public:
-  TOpenAngle(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TOpenAngle
-
-// opt_path;
-class TOptPath {
-  NO_COPY(TOptPath);
-  public:
-  class TVisitor {
-    public:
-      virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TPath *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TNoPath *that) const = 0;
-    protected:
-      TVisitor() {}
-    };  // TVisitor
-  virtual ~TOptPath() {}
-  virtual void Accept(const TVisitor &visitor) const = 0;
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
-  protected:
-  TOptPath() {}
-};  // TOptPath
-
-// path : opt_path -> name opt_path_tail;
-class TPath : public TOptPath {
-  NO_COPY(TPath);
-  public:
-  TPath(TName *name, TOptPathTail *opt_path_tail)
-      : Name(name), OptPathTail(opt_path_tail) {
-    assert(name);
-    assert(opt_path_tail);
-  }
-  virtual ~TPath();
-  virtual void Accept(const TOptPath::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TName *GetName() const {
-    assert(this);
-    return Name;
-  }
-  const TOptPathTail *GetOptPathTail() const {
-    assert(this);
-    return OptPathTail;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TName *Name;
-  TOptPathTail *OptPathTail;
-};  // TPath
-
-// opt_path_tail;
-class TOptPathTail {
-  NO_COPY(TOptPathTail);
-  public:
-  class TVisitor {
-    public:
-      virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TNoPathTail *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TPathTail *that) const = 0;
-    protected:
-      TVisitor() {}
-    };  // TVisitor
-  virtual ~TOptPathTail() {}
-  virtual void Accept(const TVisitor &visitor) const = 0;
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
-  protected:
-  TOptPathTail() {}
-};  // TOptPathTail
-
-// no_path_tail : opt_path_tail -> empty;
-class TNoPathTail : public TOptPathTail {
-  NO_COPY(TNoPathTail);
-  public:
-  TNoPathTail() {}
-  virtual void Accept(const TOptPathTail::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-};  // TNoPathTail
-
-// path_tail : opt_path_tail -> slash path;
-class TPathTail : public TOptPathTail {
-  NO_COPY(TPathTail);
-  public:
-  TPathTail(TSlash *slash, TPath *path)
-      : Slash(slash), Path(path) {
-    assert(slash);
-    assert(path);
-  }
-  virtual ~TPathTail();
-  virtual void Accept(const TOptPathTail::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TSlash *GetSlash() const {
-    assert(this);
-    return Slash;
-  }
-  const TPath *GetPath() const {
-    assert(this);
-    return Path;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TSlash *Slash;
-  TPath *Path;
-};  // TPathTail
-
-// slash = "\"/\"" pri 0;
-class TSlash {
-  NO_COPY(TSlash);
-  public:
-  TSlash(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TSlash
-
-// no_path : opt_path -> empty;
-class TNoPath : public TOptPath {
-  NO_COPY(TNoPath);
-  public:
-  TNoPath() {}
-  virtual void Accept(const TOptPath::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-};  // TNoPath
-
-// close_angle = "\">\"" pri 0;
-class TCloseAngle {
-  NO_COPY(TCloseAngle);
-  public:
-  TCloseAngle(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TCloseAngle
-
-// opt_expected_sr;
-class TOptExpectedSr {
-  NO_COPY(TOptExpectedSr);
-  public:
-  class TVisitor {
-    public:
-      virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TNoExpectedSr *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TExpectedSr *that) const = 0;
-    protected:
-      TVisitor() {}
-    };  // TVisitor
-  virtual ~TOptExpectedSr() {}
-  virtual void Accept(const TVisitor &visitor) const = 0;
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
-  protected:
-  TOptExpectedSr() {}
-};  // TOptExpectedSr
-
-// no_expected_sr : opt_expected_sr -> empty;
-class TNoExpectedSr : public TOptExpectedSr {
-  NO_COPY(TNoExpectedSr);
-  public:
-  TNoExpectedSr() {}
-  virtual void Accept(const TOptExpectedSr::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-};  // TNoExpectedSr
-
-// expected_sr : opt_expected_sr -> sr_kwd int_literal;
-class TExpectedSr : public TOptExpectedSr {
-  NO_COPY(TExpectedSr);
-  public:
-  TExpectedSr(TSrKwd *sr_kwd, TIntLiteral *int_literal)
-      : SrKwd(sr_kwd), IntLiteral(int_literal) {
-    assert(sr_kwd);
-    assert(int_literal);
-  }
-  virtual ~TExpectedSr();
-  virtual void Accept(const TOptExpectedSr::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TSrKwd *GetSrKwd() const {
-    assert(this);
-    return SrKwd;
-  }
-  const TIntLiteral *GetIntLiteral() const {
-    assert(this);
-    return IntLiteral;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TSrKwd *SrKwd;
-  TIntLiteral *IntLiteral;
-};  // TExpectedSr
-
-// sr_kwd = "sr" pri 0;
-class TSrKwd {
-  NO_COPY(TSrKwd);
-  public:
-  TSrKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TSrKwd
-
-// int_literal = "(\\+|\\-)?[[:digit:]]+" pri 0;
-class TIntLiteral {
-  NO_COPY(TIntLiteral);
-  public:
-  TIntLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TIntLiteral
-
-// opt_expected_rr;
-class TOptExpectedRr {
-  NO_COPY(TOptExpectedRr);
-  public:
-  class TVisitor {
-    public:
-      virtual ~TVisitor() {}
-      virtual void operator()(const ::Tools::Nycr::Syntax::TNoExpectedRr *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TExpectedRr *that) const = 0;
-    protected:
-      TVisitor() {}
-    };  // TVisitor
-  virtual ~TOptExpectedRr() {}
-  virtual void Accept(const TVisitor &visitor) const = 0;
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
-  protected:
-  TOptExpectedRr() {}
-};  // TOptExpectedRr
-
-// no_expected_rr : opt_expected_rr -> empty;
-class TNoExpectedRr : public TOptExpectedRr {
-  NO_COPY(TNoExpectedRr);
-  public:
-  TNoExpectedRr() {}
-  virtual void Accept(const TOptExpectedRr::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-};  // TNoExpectedRr
-
-// expected_rr : opt_expected_rr -> rr_kwd int_literal;
-class TExpectedRr : public TOptExpectedRr {
-  NO_COPY(TExpectedRr);
-  public:
-  TExpectedRr(TRrKwd *rr_kwd, TIntLiteral *int_literal)
-      : RrKwd(rr_kwd), IntLiteral(int_literal) {
-    assert(rr_kwd);
-    assert(int_literal);
-  }
-  virtual ~TExpectedRr();
-  virtual void Accept(const TOptExpectedRr::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TRrKwd *GetRrKwd() const {
-    assert(this);
-    return RrKwd;
-  }
-  const TIntLiteral *GetIntLiteral() const {
-    assert(this);
-    return IntLiteral;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TRrKwd *RrKwd;
-  TIntLiteral *IntLiteral;
-};  // TExpectedRr
-
-// rr_kwd = "rr" pri 0;
-class TRrKwd {
-  NO_COPY(TRrKwd);
-  public:
-  TRrKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TRrKwd
-
-// oper : kind -> name opt_super pattern prec_level_ref:name assoc semi;
-class TOper : public TKind {
-  NO_COPY(TOper);
-  public:
-  TOper(TName *name, TOptSuper *opt_super, TPattern *pattern, TName *prec_level_ref, TAssoc *assoc, TSemi *semi)
-      : Name(name), OptSuper(opt_super), Pattern(pattern), PrecLevelRef(prec_level_ref), Assoc(assoc), Semi(semi) {
-    assert(name);
-    assert(opt_super);
-    assert(pattern);
-    assert(prec_level_ref);
-    assert(assoc);
-    assert(semi);
-  }
-  virtual ~TOper();
-  virtual void Accept(const TKind::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  virtual void Accept(const TDecl::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const TName *GetName() const {
-    assert(this);
-    return Name;
-  }
-  const TOptSuper *GetOptSuper() const {
-    assert(this);
-    return OptSuper;
-  }
-  const TPattern *GetPattern() const {
-    assert(this);
-    return Pattern;
-  }
-  const TName *GetPrecLevelRef() const {
-    assert(this);
-    return PrecLevelRef;
-  }
-  const TAssoc *GetAssoc() const {
-    assert(this);
-    return Assoc;
-  }
-  const TSemi *GetSemi() const {
-    assert(this);
-    return Semi;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  TName *Name;
-  TOptSuper *OptSuper;
-  TPattern *Pattern;
-  TName *PrecLevelRef;
-  TAssoc *Assoc;
-  TSemi *Semi;
-};  // TOper
-
 // pattern -> eq str_literal opt_pri_level;
 class TPattern {
   NO_COPY(TPattern);
   public:
-  TPattern(TEq *eq, TStrLiteral *str_literal, TOptPriLevel *opt_pri_level)
-      : Eq(eq), StrLiteral(str_literal), OptPriLevel(opt_pri_level) {
-    assert(eq);
-    assert(str_literal);
-    assert(opt_pri_level);
+  TPattern(std::unique_ptr<TEq> &&eq, std::unique_ptr<TStrLiteral> &&str_literal, std::unique_ptr<TOptPriLevel> &&opt_pri_level)
+      : Eq(std::move(eq)), StrLiteral(std::move(str_literal)), OptPriLevel(std::move(opt_pri_level)) {
+    assert(Eq);
+    assert(StrLiteral);
+    assert(OptPriLevel);
   }
   virtual ~TPattern();
   const TEq *GetEq() const {
     assert(this);
-    return Eq;
+    return Eq.get();
   }
   const TStrLiteral *GetStrLiteral() const {
     assert(this);
-    return StrLiteral;
+    return StrLiteral.get();
   }
   const TOptPriLevel *GetOptPriLevel() const {
     assert(this);
-    return OptPriLevel;
+    return OptPriLevel.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
-  TEq *Eq;
-  TStrLiteral *StrLiteral;
-  TOptPriLevel *OptPriLevel;
+  std::unique_ptr<TEq> Eq;
+  std::unique_ptr<TStrLiteral> StrLiteral;
+  std::unique_ptr<TOptPriLevel> OptPriLevel;
 };  // TPattern
 
 // eq = "\"=\"" pri 0;
@@ -1377,12 +494,12 @@ class TEq {
 class TStrLiteral {
   NO_COPY(TStrLiteral);
   public:
-  class TVisitor {
+  class TVisitor { 
     public:
       virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TSingleQuotedStrLiteral *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TSingleQuotedRawStrLiteral *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TDoubleQuotedStrLiteral *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TSingleQuotedStrLiteral *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TDoubleQuotedRawStrLiteral *that) const = 0;
     protected:
       TVisitor() {}
@@ -1394,6 +511,27 @@ class TStrLiteral {
   protected:
   TStrLiteral() {}
 };  // TStrLiteral
+
+// single_quoted_str_literal : str_literal = "{SINGLE_QUOTED_STRING}" pri 0;
+class TSingleQuotedStrLiteral : public TStrLiteral {
+  NO_COPY(TSingleQuotedStrLiteral);
+  public:
+  TSingleQuotedStrLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  virtual void Accept(const TStrLiteral::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TSingleQuotedStrLiteral
 
 // single_quoted_raw_str_literal : str_literal = "{SINGLE_QUOTED_RAW_STRING}" pri 1;
 class TSingleQuotedRawStrLiteral : public TStrLiteral {
@@ -1437,27 +575,6 @@ class TDoubleQuotedStrLiteral : public TStrLiteral {
   ::Tools::Nycr::TLexeme Lexeme;
 };  // TDoubleQuotedStrLiteral
 
-// single_quoted_str_literal : str_literal = "{SINGLE_QUOTED_STRING}" pri 0;
-class TSingleQuotedStrLiteral : public TStrLiteral {
-  NO_COPY(TSingleQuotedStrLiteral);
-  public:
-  TSingleQuotedStrLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  virtual void Accept(const TStrLiteral::TVisitor &visitor) const {
-    assert(this);
-    assert(&visitor);
-    visitor(this);
-  }
-  const ::Tools::Nycr::TLexeme &GetLexeme() const {
-    assert(this);
-    return Lexeme;
-  }
-  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
-  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  private:
-  ::Tools::Nycr::TLexeme Lexeme;
-};  // TSingleQuotedStrLiteral
-
 // double_quoted_raw_str_literal : str_literal = "{DOUBLE_QUOTED_RAW_STRING}" pri 1;
 class TDoubleQuotedRawStrLiteral : public TStrLiteral {
   NO_COPY(TDoubleQuotedRawStrLiteral);
@@ -1483,7 +600,7 @@ class TDoubleQuotedRawStrLiteral : public TStrLiteral {
 class TOptPriLevel {
   NO_COPY(TOptPriLevel);
   public:
-  class TVisitor {
+  class TVisitor { 
     public:
       virtual ~TVisitor() {}
       virtual void operator()(const ::Tools::Nycr::Syntax::TPriLevel *that) const = 0;
@@ -1503,10 +620,10 @@ class TOptPriLevel {
 class TPriLevel : public TOptPriLevel {
   NO_COPY(TPriLevel);
   public:
-  TPriLevel(TPriKwd *pri_kwd, TIntLiteral *int_literal)
-      : PriKwd(pri_kwd), IntLiteral(int_literal) {
-    assert(pri_kwd);
-    assert(int_literal);
+  TPriLevel(std::unique_ptr<TPriKwd> &&pri_kwd, std::unique_ptr<TIntLiteral> &&int_literal)
+      : PriKwd(std::move(pri_kwd)), IntLiteral(std::move(int_literal)) {
+    assert(PriKwd);
+    assert(IntLiteral);
   }
   virtual ~TPriLevel();
   virtual void Accept(const TOptPriLevel::TVisitor &visitor) const {
@@ -1516,17 +633,17 @@ class TPriLevel : public TOptPriLevel {
   }
   const TPriKwd *GetPriKwd() const {
     assert(this);
-    return PriKwd;
+    return PriKwd.get();
   }
   const TIntLiteral *GetIntLiteral() const {
     assert(this);
-    return IntLiteral;
+    return IntLiteral.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
-  TPriKwd *PriKwd;
-  TIntLiteral *IntLiteral;
+  std::unique_ptr<TPriKwd> PriKwd;
+  std::unique_ptr<TIntLiteral> IntLiteral;
 };  // TPriLevel
 
 // pri_kwd = "pri" pri 0;
@@ -1544,6 +661,22 @@ class TPriKwd {
   private:
   ::Tools::Nycr::TLexeme Lexeme;
 };  // TPriKwd
+
+// int_literal = "(\\+|\\-)?[[:digit:]]+" pri 0;
+class TIntLiteral {
+  NO_COPY(TIntLiteral);
+  public:
+  TIntLiteral(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TIntLiteral
 
 // no_pri_level : opt_pri_level -> empty;
 class TNoPriLevel : public TOptPriLevel {
@@ -1563,12 +696,12 @@ class TNoPriLevel : public TOptPriLevel {
 class TAssoc {
   NO_COPY(TAssoc);
   public:
-  class TVisitor {
+  class TVisitor { 
     public:
       virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TRightKwd *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TNonassocKwd *that) const = 0;
       virtual void operator()(const ::Tools::Nycr::Syntax::TLeftKwd *that) const = 0;
-      virtual void operator()(const ::Tools::Nycr::Syntax::TRightKwd *that) const = 0;
     protected:
       TVisitor() {}
     };  // TVisitor
@@ -1579,6 +712,27 @@ class TAssoc {
   protected:
   TAssoc() {}
 };  // TAssoc
+
+// right_kwd : assoc = "right" pri 0;
+class TRightKwd : public TAssoc {
+  NO_COPY(TRightKwd);
+  public:
+  TRightKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  virtual void Accept(const TAssoc::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TRightKwd
 
 // nonassoc_kwd : assoc = "nonassoc" pri 0;
 class TNonassocKwd : public TAssoc {
@@ -1622,17 +776,145 @@ class TLeftKwd : public TAssoc {
   ::Tools::Nycr::TLexeme Lexeme;
 };  // TLeftKwd
 
-// right_kwd : assoc = "right" pri 0;
-class TRightKwd : public TAssoc {
-  NO_COPY(TRightKwd);
+// language : kind -> name opt_super opt_rhs open_angle opt_path close_angle opt_expected_sr opt_expected_rr semi;
+class TLanguage : public TKind {
+  NO_COPY(TLanguage);
   public:
-  TRightKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
-      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
-  virtual void Accept(const TAssoc::TVisitor &visitor) const {
+  TLanguage(std::unique_ptr<TName> &&name, std::unique_ptr<TOptSuper> &&opt_super, std::unique_ptr<TOptRhs> &&opt_rhs, std::unique_ptr<TOpenAngle> &&open_angle, std::unique_ptr<TOptPath> &&opt_path, std::unique_ptr<TCloseAngle> &&close_angle, std::unique_ptr<TOptExpectedSr> &&opt_expected_sr, std::unique_ptr<TOptExpectedRr> &&opt_expected_rr, std::unique_ptr<TSemi> &&semi)
+      : Name(std::move(name)), OptSuper(std::move(opt_super)), OptRhs(std::move(opt_rhs)), OpenAngle(std::move(open_angle)), OptPath(std::move(opt_path)), CloseAngle(std::move(close_angle)), OptExpectedSr(std::move(opt_expected_sr)), OptExpectedRr(std::move(opt_expected_rr)), Semi(std::move(semi)) {
+    assert(Name);
+    assert(OptSuper);
+    assert(OptRhs);
+    assert(OpenAngle);
+    assert(OptPath);
+    assert(CloseAngle);
+    assert(OptExpectedSr);
+    assert(OptExpectedRr);
+    assert(Semi);
+  }
+  virtual ~TLanguage();
+  virtual void Accept(const TKind::TVisitor &visitor) const {
     assert(this);
     assert(&visitor);
     visitor(this);
   }
+  virtual void Accept(const TDecl::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TName *GetName() const {
+    assert(this);
+    return Name.get();
+  }
+  const TOptSuper *GetOptSuper() const {
+    assert(this);
+    return OptSuper.get();
+  }
+  const TOptRhs *GetOptRhs() const {
+    assert(this);
+    return OptRhs.get();
+  }
+  const TOpenAngle *GetOpenAngle() const {
+    assert(this);
+    return OpenAngle.get();
+  }
+  const TOptPath *GetOptPath() const {
+    assert(this);
+    return OptPath.get();
+  }
+  const TCloseAngle *GetCloseAngle() const {
+    assert(this);
+    return CloseAngle.get();
+  }
+  const TOptExpectedSr *GetOptExpectedSr() const {
+    assert(this);
+    return OptExpectedSr.get();
+  }
+  const TOptExpectedRr *GetOptExpectedRr() const {
+    assert(this);
+    return OptExpectedRr.get();
+  }
+  const TSemi *GetSemi() const {
+    assert(this);
+    return Semi.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TName> Name;
+  std::unique_ptr<TOptSuper> OptSuper;
+  std::unique_ptr<TOptRhs> OptRhs;
+  std::unique_ptr<TOpenAngle> OpenAngle;
+  std::unique_ptr<TOptPath> OptPath;
+  std::unique_ptr<TCloseAngle> CloseAngle;
+  std::unique_ptr<TOptExpectedSr> OptExpectedSr;
+  std::unique_ptr<TOptExpectedRr> OptExpectedRr;
+  std::unique_ptr<TSemi> Semi;
+};  // TLanguage
+
+// opt_rhs;
+class TOptRhs {
+  NO_COPY(TOptRhs);
+  public:
+  class TVisitor { 
+    public:
+      virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TRhs *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TNoRhs *that) const = 0;
+    protected:
+      TVisitor() {}
+    };  // TVisitor
+  virtual ~TOptRhs() {}
+  virtual void Accept(const TVisitor &visitor) const = 0;
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
+  protected:
+  TOptRhs() {}
+};  // TOptRhs
+
+// rhs : opt_rhs -> arrow member_seq opt_oper_ref;
+class TRhs : public TOptRhs {
+  NO_COPY(TRhs);
+  public:
+  TRhs(std::unique_ptr<TArrow> &&arrow, std::unique_ptr<TMemberSeq> &&member_seq, std::unique_ptr<TOptOperRef> &&opt_oper_ref)
+      : Arrow(std::move(arrow)), MemberSeq(std::move(member_seq)), OptOperRef(std::move(opt_oper_ref)) {
+    assert(Arrow);
+    assert(MemberSeq);
+    assert(OptOperRef);
+  }
+  virtual ~TRhs();
+  virtual void Accept(const TOptRhs::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TArrow *GetArrow() const {
+    assert(this);
+    return Arrow.get();
+  }
+  const TMemberSeq *GetMemberSeq() const {
+    assert(this);
+    return MemberSeq.get();
+  }
+  const TOptOperRef *GetOptOperRef() const {
+    assert(this);
+    return OptOperRef.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TArrow> Arrow;
+  std::unique_ptr<TMemberSeq> MemberSeq;
+  std::unique_ptr<TOptOperRef> OptOperRef;
+};  // TRhs
+
+// arrow = "\"->\"" pri 0;
+class TArrow {
+  NO_COPY(TArrow);
+  public:
+  TArrow(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
   const ::Tools::Nycr::TLexeme &GetLexeme() const {
     assert(this);
     return Lexeme;
@@ -1641,18 +923,696 @@ class TRightKwd : public TAssoc {
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
   ::Tools::Nycr::TLexeme Lexeme;
-};  // TRightKwd
+};  // TArrow
+
+// opt_member_seq;
+class TOptMemberSeq {
+  NO_COPY(TOptMemberSeq);
+  public:
+  class TVisitor { 
+    public:
+      virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TNoMemberSeq *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TMemberSeq *that) const = 0;
+    protected:
+      TVisitor() {}
+    };  // TVisitor
+  virtual ~TOptMemberSeq() {}
+  virtual void Accept(const TVisitor &visitor) const = 0;
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
+  protected:
+  TOptMemberSeq() {}
+};  // TOptMemberSeq
+
+// no_member_seq : opt_member_seq -> empty;
+class TNoMemberSeq : public TOptMemberSeq {
+  NO_COPY(TNoMemberSeq);
+  public:
+  TNoMemberSeq() {}
+  virtual void Accept(const TOptMemberSeq::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+};  // TNoMemberSeq
+
+// member_seq : opt_member_seq -> member opt_member_seq;
+class TMemberSeq : public TOptMemberSeq {
+  NO_COPY(TMemberSeq);
+  public:
+  TMemberSeq(std::unique_ptr<TMember> &&member, std::unique_ptr<TOptMemberSeq> &&opt_member_seq)
+      : Member(std::move(member)), OptMemberSeq(std::move(opt_member_seq)) {
+    assert(Member);
+    assert(OptMemberSeq);
+  }
+  virtual ~TMemberSeq();
+  virtual void Accept(const TOptMemberSeq::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TMember *GetMember() const {
+    assert(this);
+    return Member.get();
+  }
+  const TOptMemberSeq *GetOptMemberSeq() const {
+    assert(this);
+    return OptMemberSeq.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TMember> Member;
+  std::unique_ptr<TOptMemberSeq> OptMemberSeq;
+};  // TMemberSeq
+
+// member;
+class TMember {
+  NO_COPY(TMember);
+  public:
+  class TVisitor { 
+    public:
+      virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TNamedMember *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TErrorMember *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TAnonymousMember *that) const = 0;
+    protected:
+      TVisitor() {}
+    };  // TVisitor
+  virtual ~TMember() {}
+  virtual void Accept(const TVisitor &visitor) const = 0;
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
+  protected:
+  TMember() {}
+};  // TMember
+
+// named_member : member -> name:name colon kind:name;
+class TNamedMember : public TMember {
+  NO_COPY(TNamedMember);
+  public:
+  TNamedMember(std::unique_ptr<TName> &&name, std::unique_ptr<TColon> &&colon, std::unique_ptr<TName> &&kind)
+      : Name(std::move(name)), Colon(std::move(colon)), Kind(std::move(kind)) {
+    assert(Name);
+    assert(Colon);
+    assert(Kind);
+  }
+  virtual ~TNamedMember();
+  virtual void Accept(const TMember::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TName *GetName() const {
+    assert(this);
+    return Name.get();
+  }
+  const TColon *GetColon() const {
+    assert(this);
+    return Colon.get();
+  }
+  const TName *GetKind() const {
+    assert(this);
+    return Kind.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TName> Name;
+  std::unique_ptr<TColon> Colon;
+  std::unique_ptr<TName> Kind;
+};  // TNamedMember
+
+// error_member : member -> error_kwd;
+class TErrorMember : public TMember {
+  NO_COPY(TErrorMember);
+  public:
+  TErrorMember(std::unique_ptr<TErrorKwd> &&error_kwd)
+      : ErrorKwd(std::move(error_kwd)) {
+    assert(ErrorKwd);
+  }
+  virtual ~TErrorMember();
+  virtual void Accept(const TMember::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TErrorKwd *GetErrorKwd() const {
+    assert(this);
+    return ErrorKwd.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TErrorKwd> ErrorKwd;
+};  // TErrorMember
+
+// error_kwd = "error" pri 0;
+class TErrorKwd {
+  NO_COPY(TErrorKwd);
+  public:
+  TErrorKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TErrorKwd
+
+// anonymous_member : member -> name;
+class TAnonymousMember : public TMember {
+  NO_COPY(TAnonymousMember);
+  public:
+  TAnonymousMember(std::unique_ptr<TName> &&name)
+      : Name(std::move(name)) {
+    assert(Name);
+  }
+  virtual ~TAnonymousMember();
+  virtual void Accept(const TMember::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TName *GetName() const {
+    assert(this);
+    return Name.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TName> Name;
+};  // TAnonymousMember
+
+// opt_oper_ref;
+class TOptOperRef {
+  NO_COPY(TOptOperRef);
+  public:
+  class TVisitor { 
+    public:
+      virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TOperRef *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TNoOperRef *that) const = 0;
+    protected:
+      TVisitor() {}
+    };  // TVisitor
+  virtual ~TOptOperRef() {}
+  virtual void Accept(const TVisitor &visitor) const = 0;
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
+  protected:
+  TOptOperRef() {}
+};  // TOptOperRef
+
+// oper_ref : opt_oper_ref -> prec_kwd name;
+class TOperRef : public TOptOperRef {
+  NO_COPY(TOperRef);
+  public:
+  TOperRef(std::unique_ptr<TPrecKwd> &&prec_kwd, std::unique_ptr<TName> &&name)
+      : PrecKwd(std::move(prec_kwd)), Name(std::move(name)) {
+    assert(PrecKwd);
+    assert(Name);
+  }
+  virtual ~TOperRef();
+  virtual void Accept(const TOptOperRef::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TPrecKwd *GetPrecKwd() const {
+    assert(this);
+    return PrecKwd.get();
+  }
+  const TName *GetName() const {
+    assert(this);
+    return Name.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TPrecKwd> PrecKwd;
+  std::unique_ptr<TName> Name;
+};  // TOperRef
+
+// no_oper_ref : opt_oper_ref -> empty;
+class TNoOperRef : public TOptOperRef {
+  NO_COPY(TNoOperRef);
+  public:
+  TNoOperRef() {}
+  virtual void Accept(const TOptOperRef::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+};  // TNoOperRef
+
+// no_rhs : opt_rhs -> arrow empty_kwd;
+class TNoRhs : public TOptRhs {
+  NO_COPY(TNoRhs);
+  public:
+  TNoRhs(std::unique_ptr<TArrow> &&arrow, std::unique_ptr<TEmptyKwd> &&empty_kwd)
+      : Arrow(std::move(arrow)), EmptyKwd(std::move(empty_kwd)) {
+    assert(Arrow);
+    assert(EmptyKwd);
+  }
+  virtual ~TNoRhs();
+  virtual void Accept(const TOptRhs::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TArrow *GetArrow() const {
+    assert(this);
+    return Arrow.get();
+  }
+  const TEmptyKwd *GetEmptyKwd() const {
+    assert(this);
+    return EmptyKwd.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TArrow> Arrow;
+  std::unique_ptr<TEmptyKwd> EmptyKwd;
+};  // TNoRhs
+
+// empty_kwd = "empty" pri 0;
+class TEmptyKwd {
+  NO_COPY(TEmptyKwd);
+  public:
+  TEmptyKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TEmptyKwd
+
+// open_angle = "\"<\"" pri 0;
+class TOpenAngle {
+  NO_COPY(TOpenAngle);
+  public:
+  TOpenAngle(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TOpenAngle
+
+// opt_path;
+class TOptPath {
+  NO_COPY(TOptPath);
+  public:
+  class TVisitor { 
+    public:
+      virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TPath *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TNoPath *that) const = 0;
+    protected:
+      TVisitor() {}
+    };  // TVisitor
+  virtual ~TOptPath() {}
+  virtual void Accept(const TVisitor &visitor) const = 0;
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
+  protected:
+  TOptPath() {}
+};  // TOptPath
+
+// path : opt_path -> name opt_path_tail;
+class TPath : public TOptPath {
+  NO_COPY(TPath);
+  public:
+  TPath(std::unique_ptr<TName> &&name, std::unique_ptr<TOptPathTail> &&opt_path_tail)
+      : Name(std::move(name)), OptPathTail(std::move(opt_path_tail)) {
+    assert(Name);
+    assert(OptPathTail);
+  }
+  virtual ~TPath();
+  virtual void Accept(const TOptPath::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TName *GetName() const {
+    assert(this);
+    return Name.get();
+  }
+  const TOptPathTail *GetOptPathTail() const {
+    assert(this);
+    return OptPathTail.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TName> Name;
+  std::unique_ptr<TOptPathTail> OptPathTail;
+};  // TPath
+
+// opt_path_tail;
+class TOptPathTail {
+  NO_COPY(TOptPathTail);
+  public:
+  class TVisitor { 
+    public:
+      virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TPathTail *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TNoPathTail *that) const = 0;
+    protected:
+      TVisitor() {}
+    };  // TVisitor
+  virtual ~TOptPathTail() {}
+  virtual void Accept(const TVisitor &visitor) const = 0;
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
+  protected:
+  TOptPathTail() {}
+};  // TOptPathTail
+
+// path_tail : opt_path_tail -> slash path;
+class TPathTail : public TOptPathTail {
+  NO_COPY(TPathTail);
+  public:
+  TPathTail(std::unique_ptr<TSlash> &&slash, std::unique_ptr<TPath> &&path)
+      : Slash(std::move(slash)), Path(std::move(path)) {
+    assert(Slash);
+    assert(Path);
+  }
+  virtual ~TPathTail();
+  virtual void Accept(const TOptPathTail::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TSlash *GetSlash() const {
+    assert(this);
+    return Slash.get();
+  }
+  const TPath *GetPath() const {
+    assert(this);
+    return Path.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TSlash> Slash;
+  std::unique_ptr<TPath> Path;
+};  // TPathTail
+
+// slash = "\"/\"" pri 0;
+class TSlash {
+  NO_COPY(TSlash);
+  public:
+  TSlash(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TSlash
+
+// no_path_tail : opt_path_tail -> empty;
+class TNoPathTail : public TOptPathTail {
+  NO_COPY(TNoPathTail);
+  public:
+  TNoPathTail() {}
+  virtual void Accept(const TOptPathTail::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+};  // TNoPathTail
+
+// no_path : opt_path -> empty;
+class TNoPath : public TOptPath {
+  NO_COPY(TNoPath);
+  public:
+  TNoPath() {}
+  virtual void Accept(const TOptPath::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+};  // TNoPath
+
+// close_angle = "\">\"" pri 0;
+class TCloseAngle {
+  NO_COPY(TCloseAngle);
+  public:
+  TCloseAngle(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TCloseAngle
+
+// opt_expected_sr;
+class TOptExpectedSr {
+  NO_COPY(TOptExpectedSr);
+  public:
+  class TVisitor { 
+    public:
+      virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TNoExpectedSr *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TExpectedSr *that) const = 0;
+    protected:
+      TVisitor() {}
+    };  // TVisitor
+  virtual ~TOptExpectedSr() {}
+  virtual void Accept(const TVisitor &visitor) const = 0;
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
+  protected:
+  TOptExpectedSr() {}
+};  // TOptExpectedSr
+
+// no_expected_sr : opt_expected_sr -> empty;
+class TNoExpectedSr : public TOptExpectedSr {
+  NO_COPY(TNoExpectedSr);
+  public:
+  TNoExpectedSr() {}
+  virtual void Accept(const TOptExpectedSr::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+};  // TNoExpectedSr
+
+// expected_sr : opt_expected_sr -> sr_kwd int_literal;
+class TExpectedSr : public TOptExpectedSr {
+  NO_COPY(TExpectedSr);
+  public:
+  TExpectedSr(std::unique_ptr<TSrKwd> &&sr_kwd, std::unique_ptr<TIntLiteral> &&int_literal)
+      : SrKwd(std::move(sr_kwd)), IntLiteral(std::move(int_literal)) {
+    assert(SrKwd);
+    assert(IntLiteral);
+  }
+  virtual ~TExpectedSr();
+  virtual void Accept(const TOptExpectedSr::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TSrKwd *GetSrKwd() const {
+    assert(this);
+    return SrKwd.get();
+  }
+  const TIntLiteral *GetIntLiteral() const {
+    assert(this);
+    return IntLiteral.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TSrKwd> SrKwd;
+  std::unique_ptr<TIntLiteral> IntLiteral;
+};  // TExpectedSr
+
+// sr_kwd = "sr" pri 0;
+class TSrKwd {
+  NO_COPY(TSrKwd);
+  public:
+  TSrKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TSrKwd
+
+// opt_expected_rr;
+class TOptExpectedRr {
+  NO_COPY(TOptExpectedRr);
+  public:
+  class TVisitor { 
+    public:
+      virtual ~TVisitor() {}
+      virtual void operator()(const ::Tools::Nycr::Syntax::TNoExpectedRr *that) const = 0;
+      virtual void operator()(const ::Tools::Nycr::Syntax::TExpectedRr *that) const = 0;
+    protected:
+      TVisitor() {}
+    };  // TVisitor
+  virtual ~TOptExpectedRr() {}
+  virtual void Accept(const TVisitor &visitor) const = 0;
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const = 0;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const = 0;
+  protected:
+  TOptExpectedRr() {}
+};  // TOptExpectedRr
+
+// no_expected_rr : opt_expected_rr -> empty;
+class TNoExpectedRr : public TOptExpectedRr {
+  NO_COPY(TNoExpectedRr);
+  public:
+  TNoExpectedRr() {}
+  virtual void Accept(const TOptExpectedRr::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+};  // TNoExpectedRr
+
+// expected_rr : opt_expected_rr -> rr_kwd int_literal;
+class TExpectedRr : public TOptExpectedRr {
+  NO_COPY(TExpectedRr);
+  public:
+  TExpectedRr(std::unique_ptr<TRrKwd> &&rr_kwd, std::unique_ptr<TIntLiteral> &&int_literal)
+      : RrKwd(std::move(rr_kwd)), IntLiteral(std::move(int_literal)) {
+    assert(RrKwd);
+    assert(IntLiteral);
+  }
+  virtual ~TExpectedRr();
+  virtual void Accept(const TOptExpectedRr::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TRrKwd *GetRrKwd() const {
+    assert(this);
+    return RrKwd.get();
+  }
+  const TIntLiteral *GetIntLiteral() const {
+    assert(this);
+    return IntLiteral.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TRrKwd> RrKwd;
+  std::unique_ptr<TIntLiteral> IntLiteral;
+};  // TExpectedRr
+
+// rr_kwd = "rr" pri 0;
+class TRrKwd {
+  NO_COPY(TRrKwd);
+  public:
+  TRrKwd(int start_line, int start_col, int limit_line, int limit_col, const char *text, int len)
+      : Lexeme(start_line, start_col, limit_line, limit_col, text, len) {}
+  const ::Tools::Nycr::TLexeme &GetLexeme() const {
+    assert(this);
+    return Lexeme;
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  ::Tools::Nycr::TLexeme Lexeme;
+};  // TRrKwd
+
+// rule : kind -> name opt_super opt_rhs semi;
+class TRule : public TKind {
+  NO_COPY(TRule);
+  public:
+  TRule(std::unique_ptr<TName> &&name, std::unique_ptr<TOptSuper> &&opt_super, std::unique_ptr<TOptRhs> &&opt_rhs, std::unique_ptr<TSemi> &&semi)
+      : Name(std::move(name)), OptSuper(std::move(opt_super)), OptRhs(std::move(opt_rhs)), Semi(std::move(semi)) {
+    assert(Name);
+    assert(OptSuper);
+    assert(OptRhs);
+    assert(Semi);
+  }
+  virtual ~TRule();
+  virtual void Accept(const TKind::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  virtual void Accept(const TDecl::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TName *GetName() const {
+    assert(this);
+    return Name.get();
+  }
+  const TOptSuper *GetOptSuper() const {
+    assert(this);
+    return OptSuper.get();
+  }
+  const TOptRhs *GetOptRhs() const {
+    assert(this);
+    return OptRhs.get();
+  }
+  const TSemi *GetSemi() const {
+    assert(this);
+    return Semi.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TName> Name;
+  std::unique_ptr<TOptSuper> OptSuper;
+  std::unique_ptr<TOptRhs> OptRhs;
+  std::unique_ptr<TSemi> Semi;
+};  // TRule
 
 // keyword : kind -> name opt_super pattern semi;
 class TKeyword : public TKind {
   NO_COPY(TKeyword);
   public:
-  TKeyword(TName *name, TOptSuper *opt_super, TPattern *pattern, TSemi *semi)
-      : Name(name), OptSuper(opt_super), Pattern(pattern), Semi(semi) {
-    assert(name);
-    assert(opt_super);
-    assert(pattern);
-    assert(semi);
+  TKeyword(std::unique_ptr<TName> &&name, std::unique_ptr<TOptSuper> &&opt_super, std::unique_ptr<TPattern> &&pattern, std::unique_ptr<TSemi> &&semi)
+      : Name(std::move(name)), OptSuper(std::move(opt_super)), Pattern(std::move(pattern)), Semi(std::move(semi)) {
+    assert(Name);
+    assert(OptSuper);
+    assert(Pattern);
+    assert(Semi);
   }
   virtual ~TKeyword();
   virtual void Accept(const TKind::TVisitor &visitor) const {
@@ -1667,36 +1627,77 @@ class TKeyword : public TKind {
   }
   const TName *GetName() const {
     assert(this);
-    return Name;
+    return Name.get();
   }
   const TOptSuper *GetOptSuper() const {
     assert(this);
-    return OptSuper;
+    return OptSuper.get();
   }
   const TPattern *GetPattern() const {
     assert(this);
-    return Pattern;
+    return Pattern.get();
   }
   const TSemi *GetSemi() const {
     assert(this);
-    return Semi;
+    return Semi.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
-  TName *Name;
-  TOptSuper *OptSuper;
-  TPattern *Pattern;
-  TSemi *Semi;
+  std::unique_ptr<TName> Name;
+  std::unique_ptr<TOptSuper> OptSuper;
+  std::unique_ptr<TPattern> Pattern;
+  std::unique_ptr<TSemi> Semi;
 };  // TKeyword
+
+// base : kind -> name opt_super semi;
+class TBase : public TKind {
+  NO_COPY(TBase);
+  public:
+  TBase(std::unique_ptr<TName> &&name, std::unique_ptr<TOptSuper> &&opt_super, std::unique_ptr<TSemi> &&semi)
+      : Name(std::move(name)), OptSuper(std::move(opt_super)), Semi(std::move(semi)) {
+    assert(Name);
+    assert(OptSuper);
+    assert(Semi);
+  }
+  virtual ~TBase();
+  virtual void Accept(const TKind::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  virtual void Accept(const TDecl::TVisitor &visitor) const {
+    assert(this);
+    assert(&visitor);
+    visitor(this);
+  }
+  const TName *GetName() const {
+    assert(this);
+    return Name.get();
+  }
+  const TOptSuper *GetOptSuper() const {
+    assert(this);
+    return OptSuper.get();
+  }
+  const TSemi *GetSemi() const {
+    assert(this);
+    return Semi.get();
+  }
+  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
+  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
+  private:
+  std::unique_ptr<TName> Name;
+  std::unique_ptr<TOptSuper> OptSuper;
+  std::unique_ptr<TSemi> Semi;
+};  // TBase
 
 // bad_decl : decl -> error semi;
 class TBadDecl : public TDecl {
   NO_COPY(TBadDecl);
   public:
-  TBadDecl(TSemi *semi)
-      : Semi(semi) {
-    assert(semi);
+  TBadDecl(std::unique_ptr<TSemi> &&semi)
+      : Semi(std::move(semi)) {
+    assert(Semi);
   }
   virtual ~TBadDecl();
   virtual void Accept(const TDecl::TVisitor &visitor) const {
@@ -1706,12 +1707,12 @@ class TBadDecl : public TDecl {
   }
   const TSemi *GetSemi() const {
     assert(this);
-    return Semi;
+    return Semi.get();
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
   private:
-  TSemi *Semi;
+  std::unique_ptr<TSemi> Semi;
 };  // TBadDecl
 
 }  // Syntax

@@ -15,38 +15,37 @@
 
 #include <iostream>
 extern FILE *tools_nycr_syntax__in;
-extern void tools_nycr_syntax__parse();
-
 extern void tools_nycr_syntax__NycrPrepStr(const char *str);
 extern void tools_nycr_syntax__NycrCleanStr();
+
 using namespace std;
 using namespace Tools::Nycr::Syntax;
-TNycr *Nycr_ = 0;
+extern void tools_nycr_syntax__parse(std::unique_ptr<TNycr> &cst_out);
 
-TNycr *TNycr::ParseFile(const char *path) {
+unique_ptr<TNycr> TNycr::ParseFile(const char *path) {
   tools_nycr_syntax__in = fopen(path, "r");
   if (!tools_nycr_syntax__in) {
     THROW << "could not open \"" << path << '\"';
   }
-  Nycr_ = 0;
   ::Tools::Nycr::TError::DeleteEach();
-  tools_nycr_syntax__parse();
-  return Nycr_;
+  std::unique_ptr<TNycr> cst;
+
+  tools_nycr_syntax__parse(cst);
+  return cst;
 }
 
-TNycr *TNycr::ParseStr(const char *str) {
-  Nycr_ = 0;
+unique_ptr<TNycr> TNycr::ParseStr(const char *str) {
   ::Tools::Nycr::TError::DeleteEach();
   tools_nycr_syntax__NycrPrepStr(str);
-  tools_nycr_syntax__parse();
+  std::unique_ptr<TNycr> cst;
+
+  tools_nycr_syntax__parse(cst);
   tools_nycr_syntax__NycrCleanStr();
-  return Nycr_;
+  return cst;
 }
 
-TNycr::~TNycr() {
-  assert(this);
-  delete OptDeclSeq;
-}
+TNycr::~TNycr() = default;
+
 
 void TNycr::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -103,11 +102,8 @@ bool TNoDeclSeq::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) c
   return true;
 }
 
-TDeclSeq::~TDeclSeq() {
-  assert(this);
-  delete Decl;
-  delete OptDeclSeq;
-}
+TDeclSeq::~TDeclSeq() = default;
+
 
 void TDeclSeq::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -149,12 +145,8 @@ bool TDeclSeq::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) con
   return true;
 }
 
-TPrecLevel::~TPrecLevel() {
-  assert(this);
-  delete PrecKwd;
-  delete Name;
-  delete Semi;
-}
+TPrecLevel::~TPrecLevel() = default;
+
 
 void TPrecLevel::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -273,35 +265,34 @@ bool TSemi::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const 
   return true;
 }
 
-TBase::~TBase() {
-  assert(this);
-  delete Name;
-  delete OptSuper;
-  delete Semi;
-}
+TOper::~TOper() = default;
 
-void TBase::Write(ostream &strm, size_t depth, const char *as_member) const {
+
+void TOper::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "Base" << endl;
+  strm << "Oper" << endl;
   ++depth;
   Name->Write(strm, depth, "Name");
   OptSuper->Write(strm, depth, "OptSuper");
+  Pattern->Write(strm, depth, "Pattern");
+  PrecLevelRef->Write(strm, depth, "PrecLevelRef");
+  Assoc->Write(strm, depth, "Assoc");
   Semi->Write(strm, depth, "Semi");
 }
 
-bool TBase::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TOper::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("Base" != that->GetName()) {
-    cout << "Base != " << that->GetName() << endl;
+  if ("Oper" != that->GetName()) {
+    cout << "Oper != " << that->GetName() << endl;
     return false;
   }
   ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
@@ -320,7 +311,28 @@ bool TBase::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const 
   }
   ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
   if (Child2) {
-    Semi->Test(Child2, "Semi");
+    Pattern->Test(Child2, "Pattern");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Pattern here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child3 = Child2->TryGetNextSibling();
+  if (Child3) {
+    PrecLevelRef->Test(Child3, "PrecLevelRef");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a PrecLevelRef here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child4 = Child3->TryGetNextSibling();
+  if (Child4) {
+    Assoc->Test(Child4, "Assoc");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Assoc here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child5 = Child4->TryGetNextSibling();
+  if (Child5) {
+    Semi->Test(Child5, "Semi");
   } else {
     cout << "Missing Child: The concrete syntax tree has a Semi here" << endl;
     return false;
@@ -328,11 +340,8 @@ bool TBase::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const 
   return true;
 }
 
-TSuper::~TSuper() {
-  assert(this);
-  delete Colon;
-  delete Name;
-}
+TSuper::~TSuper() = default;
+
 
 void TSuper::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -420,519 +429,355 @@ bool TNoSuper::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) con
   return true;
 }
 
-TRule::~TRule() {
-  assert(this);
-  delete Name;
-  delete OptSuper;
-  delete OptRhs;
-  delete Semi;
-}
+TPattern::~TPattern() = default;
 
-void TRule::Write(ostream &strm, size_t depth, const char *as_member) const {
+
+void TPattern::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "Rule" << endl;
+  strm << "Pattern" << endl;
   ++depth;
-  Name->Write(strm, depth, "Name");
-  OptSuper->Write(strm, depth, "OptSuper");
-  OptRhs->Write(strm, depth, "OptRhs");
-  Semi->Write(strm, depth, "Semi");
+  Eq->Write(strm, depth, "Eq");
+  StrLiteral->Write(strm, depth, "StrLiteral");
+  OptPriLevel->Write(strm, depth, "OptPriLevel");
 }
 
-bool TRule::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TPattern::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("Rule" != that->GetName()) {
-    cout << "Rule != " << that->GetName() << endl;
+  if ("Pattern" != that->GetName()) {
+    cout << "Pattern != " << that->GetName() << endl;
     return false;
   }
   ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
   if (Child0) {
-    Name->Test(Child0, "Name");
+    Eq->Test(Child0, "Eq");
   } else {
-    cout << "Missing Child: The concrete syntax tree has a Name here" << endl;
+    cout << "Missing Child: The concrete syntax tree has a Eq here" << endl;
     return false;
   }
   ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
   if (Child1) {
-    OptSuper->Test(Child1, "OptSuper");
+    StrLiteral->Test(Child1, "StrLiteral");
   } else {
-    cout << "Missing Child: The concrete syntax tree has a OptSuper here" << endl;
+    cout << "Missing Child: The concrete syntax tree has a StrLiteral here" << endl;
     return false;
   }
   ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
   if (Child2) {
-    OptRhs->Test(Child2, "OptRhs");
+    OptPriLevel->Test(Child2, "OptPriLevel");
   } else {
-    cout << "Missing Child: The concrete syntax tree has a OptRhs here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child3 = Child2->TryGetNextSibling();
-  if (Child3) {
-    Semi->Test(Child3, "Semi");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Semi here" << endl;
+    cout << "Missing Child: The concrete syntax tree has a OptPriLevel here" << endl;
     return false;
   }
   return true;
 }
 
-TRhs::~TRhs() {
-  assert(this);
-  delete Arrow;
-  delete MemberSeq;
-  delete OptOperRef;
-}
-
-void TRhs::Write(ostream &strm, size_t depth, const char *as_member) const {
+void TEq::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "Rhs" << endl;
-  ++depth;
-  Arrow->Write(strm, depth, "Arrow");
-  MemberSeq->Write(strm, depth, "MemberSeq");
-  OptOperRef->Write(strm, depth, "OptOperRef");
+  strm << "Eq" << ' ' << Lexeme << endl;
 }
 
-bool TRhs::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TEq::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("Rhs" != that->GetName()) {
-    cout << "Rhs != " << that->GetName() << endl;
+  if ("Eq" != that->GetName()) {
+    cout << "Eq != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+void TSingleQuotedStrLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "SingleQuotedStrLiteral" << ' ' << Lexeme << endl;
+}
+
+bool TSingleQuotedStrLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("SingleQuotedStrLiteral" != that->GetName()) {
+    cout << "SingleQuotedStrLiteral != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+void TSingleQuotedRawStrLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "SingleQuotedRawStrLiteral" << ' ' << Lexeme << endl;
+}
+
+bool TSingleQuotedRawStrLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("SingleQuotedRawStrLiteral" != that->GetName()) {
+    cout << "SingleQuotedRawStrLiteral != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+void TDoubleQuotedStrLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "DoubleQuotedStrLiteral" << ' ' << Lexeme << endl;
+}
+
+bool TDoubleQuotedStrLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("DoubleQuotedStrLiteral" != that->GetName()) {
+    cout << "DoubleQuotedStrLiteral != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+void TDoubleQuotedRawStrLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "DoubleQuotedRawStrLiteral" << ' ' << Lexeme << endl;
+}
+
+bool TDoubleQuotedRawStrLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("DoubleQuotedRawStrLiteral" != that->GetName()) {
+    cout << "DoubleQuotedRawStrLiteral != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+TPriLevel::~TPriLevel() = default;
+
+
+void TPriLevel::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "PriLevel" << endl;
+  ++depth;
+  PriKwd->Write(strm, depth, "PriKwd");
+  IntLiteral->Write(strm, depth, "IntLiteral");
+}
+
+bool TPriLevel::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("PriLevel" != that->GetName()) {
+    cout << "PriLevel != " << that->GetName() << endl;
     return false;
   }
   ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
   if (Child0) {
-    Arrow->Test(Child0, "Arrow");
+    PriKwd->Test(Child0, "PriKwd");
   } else {
-    cout << "Missing Child: The concrete syntax tree has a Arrow here" << endl;
+    cout << "Missing Child: The concrete syntax tree has a PriKwd here" << endl;
     return false;
   }
   ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
   if (Child1) {
-    MemberSeq->Test(Child1, "MemberSeq");
+    IntLiteral->Test(Child1, "IntLiteral");
   } else {
-    cout << "Missing Child: The concrete syntax tree has a MemberSeq here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
-  if (Child2) {
-    OptOperRef->Test(Child2, "OptOperRef");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a OptOperRef here" << endl;
+    cout << "Missing Child: The concrete syntax tree has a IntLiteral here" << endl;
     return false;
   }
   return true;
 }
 
-void TArrow::Write(ostream &strm, size_t depth, const char *as_member) const {
+void TPriKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "Arrow" << ' ' << Lexeme << endl;
+  strm << "PriKwd" << ' ' << Lexeme << endl;
 }
 
-bool TArrow::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TPriKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("Arrow" != that->GetName()) {
-    cout << "Arrow != " << that->GetName() << endl;
+  if ("PriKwd" != that->GetName()) {
+    cout << "PriKwd != " << that->GetName() << endl;
     return false;
   }
   return true;
 }
 
-void TNoMemberSeq::Write(ostream &strm, size_t depth, const char *as_member) const {
+void TIntLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "NoMemberSeq" << endl;
+  strm << "IntLiteral" << ' ' << Lexeme << endl;
 }
 
-bool TNoMemberSeq::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TIntLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("NoMemberSeq" != that->GetName()) {
-    cout << "NoMemberSeq != " << that->GetName() << endl;
+  if ("IntLiteral" != that->GetName()) {
+    cout << "IntLiteral != " << that->GetName() << endl;
     return false;
   }
   return true;
 }
 
-TMemberSeq::~TMemberSeq() {
-  assert(this);
-  delete Member;
-  delete OptMemberSeq;
-}
-
-void TMemberSeq::Write(ostream &strm, size_t depth, const char *as_member) const {
+void TNoPriLevel::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "MemberSeq" << endl;
-  ++depth;
-  Member->Write(strm, depth, "Member");
-  OptMemberSeq->Write(strm, depth, "OptMemberSeq");
+  strm << "NoPriLevel" << endl;
 }
 
-bool TMemberSeq::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TNoPriLevel::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("MemberSeq" != that->GetName()) {
-    cout << "MemberSeq != " << that->GetName() << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
-  if (Child0) {
-    Member->Test(Child0, "Member");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Member here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
-  if (Child1) {
-    OptMemberSeq->Test(Child1, "OptMemberSeq");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a OptMemberSeq here" << endl;
+  if ("NoPriLevel" != that->GetName()) {
+    cout << "NoPriLevel != " << that->GetName() << endl;
     return false;
   }
   return true;
 }
 
-TAnonymousMember::~TAnonymousMember() {
-  assert(this);
-  delete Name;
-}
-
-void TAnonymousMember::Write(ostream &strm, size_t depth, const char *as_member) const {
+void TRightKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "AnonymousMember" << endl;
-  ++depth;
-  Name->Write(strm, depth, "Name");
+  strm << "RightKwd" << ' ' << Lexeme << endl;
 }
 
-bool TAnonymousMember::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TRightKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("AnonymousMember" != that->GetName()) {
-    cout << "AnonymousMember != " << that->GetName() << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
-  if (Child0) {
-    Name->Test(Child0, "Name");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Name here" << endl;
+  if ("RightKwd" != that->GetName()) {
+    cout << "RightKwd != " << that->GetName() << endl;
     return false;
   }
   return true;
 }
 
-TErrorMember::~TErrorMember() {
-  assert(this);
-  delete ErrorKwd;
-}
-
-void TErrorMember::Write(ostream &strm, size_t depth, const char *as_member) const {
+void TNonassocKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "ErrorMember" << endl;
-  ++depth;
-  ErrorKwd->Write(strm, depth, "ErrorKwd");
+  strm << "NonassocKwd" << ' ' << Lexeme << endl;
 }
 
-bool TErrorMember::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TNonassocKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("ErrorMember" != that->GetName()) {
-    cout << "ErrorMember != " << that->GetName() << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
-  if (Child0) {
-    ErrorKwd->Test(Child0, "ErrorKwd");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a ErrorKwd here" << endl;
+  if ("NonassocKwd" != that->GetName()) {
+    cout << "NonassocKwd != " << that->GetName() << endl;
     return false;
   }
   return true;
 }
 
-void TErrorKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
+void TLeftKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "ErrorKwd" << ' ' << Lexeme << endl;
+  strm << "LeftKwd" << ' ' << Lexeme << endl;
 }
 
-bool TErrorKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TLeftKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("ErrorKwd" != that->GetName()) {
-    cout << "ErrorKwd != " << that->GetName() << endl;
+  if ("LeftKwd" != that->GetName()) {
+    cout << "LeftKwd != " << that->GetName() << endl;
     return false;
   }
   return true;
 }
 
-TNamedMember::~TNamedMember() {
-  assert(this);
-  delete Name;
-  delete Colon;
-  delete Kind;
-}
+TLanguage::~TLanguage() = default;
 
-void TNamedMember::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "NamedMember" << endl;
-  ++depth;
-  Name->Write(strm, depth, "Name");
-  Colon->Write(strm, depth, "Colon");
-  Kind->Write(strm, depth, "Kind");
-}
-
-bool TNamedMember::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("NamedMember" != that->GetName()) {
-    cout << "NamedMember != " << that->GetName() << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
-  if (Child0) {
-    Name->Test(Child0, "Name");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Name here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
-  if (Child1) {
-    Colon->Test(Child1, "Colon");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Colon here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
-  if (Child2) {
-    Kind->Test(Child2, "Kind");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Kind here" << endl;
-    return false;
-  }
-  return true;
-}
-
-TOperRef::~TOperRef() {
-  assert(this);
-  delete PrecKwd;
-  delete Name;
-}
-
-void TOperRef::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "OperRef" << endl;
-  ++depth;
-  PrecKwd->Write(strm, depth, "PrecKwd");
-  Name->Write(strm, depth, "Name");
-}
-
-bool TOperRef::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("OperRef" != that->GetName()) {
-    cout << "OperRef != " << that->GetName() << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
-  if (Child0) {
-    PrecKwd->Test(Child0, "PrecKwd");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a PrecKwd here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
-  if (Child1) {
-    Name->Test(Child1, "Name");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Name here" << endl;
-    return false;
-  }
-  return true;
-}
-
-void TNoOperRef::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "NoOperRef" << endl;
-}
-
-bool TNoOperRef::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("NoOperRef" != that->GetName()) {
-    cout << "NoOperRef != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-TNoRhs::~TNoRhs() {
-  assert(this);
-  delete Arrow;
-  delete EmptyKwd;
-}
-
-void TNoRhs::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "NoRhs" << endl;
-  ++depth;
-  Arrow->Write(strm, depth, "Arrow");
-  EmptyKwd->Write(strm, depth, "EmptyKwd");
-}
-
-bool TNoRhs::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("NoRhs" != that->GetName()) {
-    cout << "NoRhs != " << that->GetName() << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
-  if (Child0) {
-    Arrow->Test(Child0, "Arrow");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Arrow here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
-  if (Child1) {
-    EmptyKwd->Test(Child1, "EmptyKwd");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a EmptyKwd here" << endl;
-    return false;
-  }
-  return true;
-}
-
-void TEmptyKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "EmptyKwd" << ' ' << Lexeme << endl;
-}
-
-bool TEmptyKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("EmptyKwd" != that->GetName()) {
-    cout << "EmptyKwd != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-TLanguage::~TLanguage() {
-  assert(this);
-  delete Name;
-  delete OptSuper;
-  delete OptRhs;
-  delete OpenAngle;
-  delete OptPath;
-  delete CloseAngle;
-  delete OptExpectedSr;
-  delete OptExpectedRr;
-  delete Semi;
-}
 
 void TLanguage::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -1030,6 +875,422 @@ bool TLanguage::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) co
   return true;
 }
 
+TRhs::~TRhs() = default;
+
+
+void TRhs::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "Rhs" << endl;
+  ++depth;
+  Arrow->Write(strm, depth, "Arrow");
+  MemberSeq->Write(strm, depth, "MemberSeq");
+  OptOperRef->Write(strm, depth, "OptOperRef");
+}
+
+bool TRhs::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("Rhs" != that->GetName()) {
+    cout << "Rhs != " << that->GetName() << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
+  if (Child0) {
+    Arrow->Test(Child0, "Arrow");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Arrow here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
+  if (Child1) {
+    MemberSeq->Test(Child1, "MemberSeq");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a MemberSeq here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
+  if (Child2) {
+    OptOperRef->Test(Child2, "OptOperRef");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a OptOperRef here" << endl;
+    return false;
+  }
+  return true;
+}
+
+void TArrow::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "Arrow" << ' ' << Lexeme << endl;
+}
+
+bool TArrow::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("Arrow" != that->GetName()) {
+    cout << "Arrow != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+void TNoMemberSeq::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "NoMemberSeq" << endl;
+}
+
+bool TNoMemberSeq::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("NoMemberSeq" != that->GetName()) {
+    cout << "NoMemberSeq != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+TMemberSeq::~TMemberSeq() = default;
+
+
+void TMemberSeq::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "MemberSeq" << endl;
+  ++depth;
+  Member->Write(strm, depth, "Member");
+  OptMemberSeq->Write(strm, depth, "OptMemberSeq");
+}
+
+bool TMemberSeq::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("MemberSeq" != that->GetName()) {
+    cout << "MemberSeq != " << that->GetName() << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
+  if (Child0) {
+    Member->Test(Child0, "Member");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Member here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
+  if (Child1) {
+    OptMemberSeq->Test(Child1, "OptMemberSeq");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a OptMemberSeq here" << endl;
+    return false;
+  }
+  return true;
+}
+
+TNamedMember::~TNamedMember() = default;
+
+
+void TNamedMember::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "NamedMember" << endl;
+  ++depth;
+  Name->Write(strm, depth, "Name");
+  Colon->Write(strm, depth, "Colon");
+  Kind->Write(strm, depth, "Kind");
+}
+
+bool TNamedMember::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("NamedMember" != that->GetName()) {
+    cout << "NamedMember != " << that->GetName() << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
+  if (Child0) {
+    Name->Test(Child0, "Name");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Name here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
+  if (Child1) {
+    Colon->Test(Child1, "Colon");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Colon here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
+  if (Child2) {
+    Kind->Test(Child2, "Kind");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Kind here" << endl;
+    return false;
+  }
+  return true;
+}
+
+TErrorMember::~TErrorMember() = default;
+
+
+void TErrorMember::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "ErrorMember" << endl;
+  ++depth;
+  ErrorKwd->Write(strm, depth, "ErrorKwd");
+}
+
+bool TErrorMember::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("ErrorMember" != that->GetName()) {
+    cout << "ErrorMember != " << that->GetName() << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
+  if (Child0) {
+    ErrorKwd->Test(Child0, "ErrorKwd");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a ErrorKwd here" << endl;
+    return false;
+  }
+  return true;
+}
+
+void TErrorKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "ErrorKwd" << ' ' << Lexeme << endl;
+}
+
+bool TErrorKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("ErrorKwd" != that->GetName()) {
+    cout << "ErrorKwd != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+TAnonymousMember::~TAnonymousMember() = default;
+
+
+void TAnonymousMember::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "AnonymousMember" << endl;
+  ++depth;
+  Name->Write(strm, depth, "Name");
+}
+
+bool TAnonymousMember::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("AnonymousMember" != that->GetName()) {
+    cout << "AnonymousMember != " << that->GetName() << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
+  if (Child0) {
+    Name->Test(Child0, "Name");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Name here" << endl;
+    return false;
+  }
+  return true;
+}
+
+TOperRef::~TOperRef() = default;
+
+
+void TOperRef::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "OperRef" << endl;
+  ++depth;
+  PrecKwd->Write(strm, depth, "PrecKwd");
+  Name->Write(strm, depth, "Name");
+}
+
+bool TOperRef::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("OperRef" != that->GetName()) {
+    cout << "OperRef != " << that->GetName() << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
+  if (Child0) {
+    PrecKwd->Test(Child0, "PrecKwd");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a PrecKwd here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
+  if (Child1) {
+    Name->Test(Child1, "Name");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Name here" << endl;
+    return false;
+  }
+  return true;
+}
+
+void TNoOperRef::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "NoOperRef" << endl;
+}
+
+bool TNoOperRef::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("NoOperRef" != that->GetName()) {
+    cout << "NoOperRef != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+TNoRhs::~TNoRhs() = default;
+
+
+void TNoRhs::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "NoRhs" << endl;
+  ++depth;
+  Arrow->Write(strm, depth, "Arrow");
+  EmptyKwd->Write(strm, depth, "EmptyKwd");
+}
+
+bool TNoRhs::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("NoRhs" != that->GetName()) {
+    cout << "NoRhs != " << that->GetName() << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
+  if (Child0) {
+    Arrow->Test(Child0, "Arrow");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Arrow here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
+  if (Child1) {
+    EmptyKwd->Test(Child1, "EmptyKwd");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a EmptyKwd here" << endl;
+    return false;
+  }
+  return true;
+}
+
+void TEmptyKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "EmptyKwd" << ' ' << Lexeme << endl;
+}
+
+bool TEmptyKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("EmptyKwd" != that->GetName()) {
+    cout << "EmptyKwd != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
 void TOpenAngle::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
@@ -1053,11 +1314,8 @@ bool TOpenAngle::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) c
   return true;
 }
 
-TPath::~TPath() {
-  assert(this);
-  delete Name;
-  delete OptPathTail;
-}
+TPath::~TPath() = default;
+
 
 void TPath::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -1099,34 +1357,8 @@ bool TPath::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const 
   return true;
 }
 
-void TNoPathTail::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "NoPathTail" << endl;
-}
+TPathTail::~TPathTail() = default;
 
-bool TNoPathTail::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("NoPathTail" != that->GetName()) {
-    cout << "NoPathTail != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-TPathTail::~TPathTail() {
-  assert(this);
-  delete Slash;
-  delete Path;
-}
 
 void TPathTail::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -1186,6 +1418,29 @@ bool TSlash::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const
   }
   if ("Slash" != that->GetName()) {
     cout << "Slash != " << that->GetName() << endl;
+    return false;
+  }
+  return true;
+}
+
+void TNoPathTail::Write(ostream &strm, size_t depth, const char *as_member) const {
+  assert(this);
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "NoPathTail" << endl;
+}
+
+bool TNoPathTail::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("NoPathTail" != that->GetName()) {
+    cout << "NoPathTail != " << that->GetName() << endl;
     return false;
   }
   return true;
@@ -1260,11 +1515,8 @@ bool TNoExpectedSr::Test(::Tools::Nycr::Test::TNode *that, const char *as_member
   return true;
 }
 
-TExpectedSr::~TExpectedSr() {
-  assert(this);
-  delete SrKwd;
-  delete IntLiteral;
-}
+TExpectedSr::~TExpectedSr() = default;
+
 
 void TExpectedSr::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -1329,29 +1581,6 @@ bool TSrKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const
   return true;
 }
 
-void TIntLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "IntLiteral" << ' ' << Lexeme << endl;
-}
-
-bool TIntLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("IntLiteral" != that->GetName()) {
-    cout << "IntLiteral != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
 void TNoExpectedRr::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
@@ -1375,11 +1604,8 @@ bool TNoExpectedRr::Test(::Tools::Nycr::Test::TNode *that, const char *as_member
   return true;
 }
 
-TExpectedRr::~TExpectedRr() {
-  assert(this);
-  delete RrKwd;
-  delete IntLiteral;
-}
+TExpectedRr::~TExpectedRr() = default;
+
 
 void TExpectedRr::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -1444,41 +1670,32 @@ bool TRrKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const
   return true;
 }
 
-TOper::~TOper() {
-  assert(this);
-  delete Name;
-  delete OptSuper;
-  delete Pattern;
-  delete PrecLevelRef;
-  delete Assoc;
-  delete Semi;
-}
+TRule::~TRule() = default;
 
-void TOper::Write(ostream &strm, size_t depth, const char *as_member) const {
+
+void TRule::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
   assert(&strm);
   strm << ::Tools::Nycr::TIndent(depth);
   if (as_member) {
     strm << as_member << " -> ";
   }
-  strm << "Oper" << endl;
+  strm << "Rule" << endl;
   ++depth;
   Name->Write(strm, depth, "Name");
   OptSuper->Write(strm, depth, "OptSuper");
-  Pattern->Write(strm, depth, "Pattern");
-  PrecLevelRef->Write(strm, depth, "PrecLevelRef");
-  Assoc->Write(strm, depth, "Assoc");
+  OptRhs->Write(strm, depth, "OptRhs");
   Semi->Write(strm, depth, "Semi");
 }
 
-bool TOper::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+bool TRule::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
   assert(this);
   if (as_member && as_member != that->GetKind()) {
     cout << as_member << " != " << that->GetKind() << endl;
     return false;
   }
-  if ("Oper" != that->GetName()) {
-    cout << "Oper != " << that->GetName() << endl;
+  if ("Rule" != that->GetName()) {
+    cout << "Rule != " << that->GetName() << endl;
     return false;
   }
   ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
@@ -1497,28 +1714,14 @@ bool TOper::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const 
   }
   ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
   if (Child2) {
-    Pattern->Test(Child2, "Pattern");
+    OptRhs->Test(Child2, "OptRhs");
   } else {
-    cout << "Missing Child: The concrete syntax tree has a Pattern here" << endl;
+    cout << "Missing Child: The concrete syntax tree has a OptRhs here" << endl;
     return false;
   }
   ::Tools::Nycr::Test::TNode *Child3 = Child2->TryGetNextSibling();
   if (Child3) {
-    PrecLevelRef->Test(Child3, "PrecLevelRef");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a PrecLevelRef here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child4 = Child3->TryGetNextSibling();
-  if (Child4) {
-    Assoc->Test(Child4, "Assoc");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Assoc here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child5 = Child4->TryGetNextSibling();
-  if (Child5) {
-    Semi->Test(Child5, "Semi");
+    Semi->Test(Child3, "Semi");
   } else {
     cout << "Missing Child: The concrete syntax tree has a Semi here" << endl;
     return false;
@@ -1526,344 +1729,8 @@ bool TOper::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const 
   return true;
 }
 
-TPattern::~TPattern() {
-  assert(this);
-  delete Eq;
-  delete StrLiteral;
-  delete OptPriLevel;
-}
+TKeyword::~TKeyword() = default;
 
-void TPattern::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "Pattern" << endl;
-  ++depth;
-  Eq->Write(strm, depth, "Eq");
-  StrLiteral->Write(strm, depth, "StrLiteral");
-  OptPriLevel->Write(strm, depth, "OptPriLevel");
-}
-
-bool TPattern::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("Pattern" != that->GetName()) {
-    cout << "Pattern != " << that->GetName() << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
-  if (Child0) {
-    Eq->Test(Child0, "Eq");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a Eq here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
-  if (Child1) {
-    StrLiteral->Test(Child1, "StrLiteral");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a StrLiteral here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
-  if (Child2) {
-    OptPriLevel->Test(Child2, "OptPriLevel");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a OptPriLevel here" << endl;
-    return false;
-  }
-  return true;
-}
-
-void TEq::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "Eq" << ' ' << Lexeme << endl;
-}
-
-bool TEq::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("Eq" != that->GetName()) {
-    cout << "Eq != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-void TSingleQuotedRawStrLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "SingleQuotedRawStrLiteral" << ' ' << Lexeme << endl;
-}
-
-bool TSingleQuotedRawStrLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("SingleQuotedRawStrLiteral" != that->GetName()) {
-    cout << "SingleQuotedRawStrLiteral != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-void TDoubleQuotedStrLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "DoubleQuotedStrLiteral" << ' ' << Lexeme << endl;
-}
-
-bool TDoubleQuotedStrLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("DoubleQuotedStrLiteral" != that->GetName()) {
-    cout << "DoubleQuotedStrLiteral != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-void TSingleQuotedStrLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "SingleQuotedStrLiteral" << ' ' << Lexeme << endl;
-}
-
-bool TSingleQuotedStrLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("SingleQuotedStrLiteral" != that->GetName()) {
-    cout << "SingleQuotedStrLiteral != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-void TDoubleQuotedRawStrLiteral::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "DoubleQuotedRawStrLiteral" << ' ' << Lexeme << endl;
-}
-
-bool TDoubleQuotedRawStrLiteral::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("DoubleQuotedRawStrLiteral" != that->GetName()) {
-    cout << "DoubleQuotedRawStrLiteral != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-TPriLevel::~TPriLevel() {
-  assert(this);
-  delete PriKwd;
-  delete IntLiteral;
-}
-
-void TPriLevel::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "PriLevel" << endl;
-  ++depth;
-  PriKwd->Write(strm, depth, "PriKwd");
-  IntLiteral->Write(strm, depth, "IntLiteral");
-}
-
-bool TPriLevel::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("PriLevel" != that->GetName()) {
-    cout << "PriLevel != " << that->GetName() << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
-  if (Child0) {
-    PriKwd->Test(Child0, "PriKwd");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a PriKwd here" << endl;
-    return false;
-  }
-  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
-  if (Child1) {
-    IntLiteral->Test(Child1, "IntLiteral");
-  } else {
-    cout << "Missing Child: The concrete syntax tree has a IntLiteral here" << endl;
-    return false;
-  }
-  return true;
-}
-
-void TPriKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "PriKwd" << ' ' << Lexeme << endl;
-}
-
-bool TPriKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("PriKwd" != that->GetName()) {
-    cout << "PriKwd != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-void TNoPriLevel::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "NoPriLevel" << endl;
-}
-
-bool TNoPriLevel::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("NoPriLevel" != that->GetName()) {
-    cout << "NoPriLevel != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-void TNonassocKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "NonassocKwd" << ' ' << Lexeme << endl;
-}
-
-bool TNonassocKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("NonassocKwd" != that->GetName()) {
-    cout << "NonassocKwd != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-void TLeftKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "LeftKwd" << ' ' << Lexeme << endl;
-}
-
-bool TLeftKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("LeftKwd" != that->GetName()) {
-    cout << "LeftKwd != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-void TRightKwd::Write(ostream &strm, size_t depth, const char *as_member) const {
-  assert(this);
-  assert(&strm);
-  strm << ::Tools::Nycr::TIndent(depth);
-  if (as_member) {
-    strm << as_member << " -> ";
-  }
-  strm << "RightKwd" << ' ' << Lexeme << endl;
-}
-
-bool TRightKwd::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
-  assert(this);
-  if (as_member && as_member != that->GetKind()) {
-    cout << as_member << " != " << that->GetKind() << endl;
-    return false;
-  }
-  if ("RightKwd" != that->GetName()) {
-    cout << "RightKwd != " << that->GetName() << endl;
-    return false;
-  }
-  return true;
-}
-
-TKeyword::~TKeyword() {
-  assert(this);
-  delete Name;
-  delete OptSuper;
-  delete Pattern;
-  delete Semi;
-}
 
 void TKeyword::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
@@ -1921,10 +1788,59 @@ bool TKeyword::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) con
   return true;
 }
 
-TBadDecl::~TBadDecl() {
+TBase::~TBase() = default;
+
+
+void TBase::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);
-  delete Semi;
+  assert(&strm);
+  strm << ::Tools::Nycr::TIndent(depth);
+  if (as_member) {
+    strm << as_member << " -> ";
+  }
+  strm << "Base" << endl;
+  ++depth;
+  Name->Write(strm, depth, "Name");
+  OptSuper->Write(strm, depth, "OptSuper");
+  Semi->Write(strm, depth, "Semi");
 }
+
+bool TBase::Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const {
+  assert(this);
+  if (as_member && as_member != that->GetKind()) {
+    cout << as_member << " != " << that->GetKind() << endl;
+    return false;
+  }
+  if ("Base" != that->GetName()) {
+    cout << "Base != " << that->GetName() << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child0 = that->TryGetFirstChild();
+  if (Child0) {
+    Name->Test(Child0, "Name");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Name here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child1 = Child0->TryGetNextSibling();
+  if (Child1) {
+    OptSuper->Test(Child1, "OptSuper");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a OptSuper here" << endl;
+    return false;
+  }
+  ::Tools::Nycr::Test::TNode *Child2 = Child1->TryGetNextSibling();
+  if (Child2) {
+    Semi->Test(Child2, "Semi");
+  } else {
+    cout << "Missing Child: The concrete syntax tree has a Semi here" << endl;
+    return false;
+  }
+  return true;
+}
+
+TBadDecl::~TBadDecl() = default;
+
 
 void TBadDecl::Write(ostream &strm, size_t depth, const char *as_member) const {
   assert(this);

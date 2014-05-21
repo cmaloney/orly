@@ -29,21 +29,16 @@ int main(int argc, char *argv[]) {
       THROW << "multiple compilands not allowed";
     }
     auto cst = Tools::Nycr::Syntax::TNycr::ParseFile(argv[optind]);
-    try {
-      if (!Tools::Nycr::TError::GetFirstError()) {
-        cst->Write(cout, 0, 0);
-        result = EXIT_SUCCESS;
-      } else {
-        for (Tools::Nycr::TError *error = Tools::Nycr::TError::GetFirstError(); error; error = error->GetNextError()) {
-          cerr << error->GetPosRange() << ' ' << error->GetMsg() << endl;
-        }
-        result = EXIT_FAILURE;
+    if (!Tools::Nycr::TError::GetFirstError()) {
+      assert(cst);
+      cst->Write(cout, 0, 0);
+      result = EXIT_SUCCESS;
+    } else {
+      for (const Tools::Nycr::TError *error = Tools::Nycr::TError::GetFirstError(); error; error = error->GetNextError()) {
+        cerr << error->GetPosRange() << ' ' << error->GetMsg() << endl;
       }
-    } catch (...) {
-      delete cst;
-      throw;
+      result = EXIT_FAILURE;
     }
-    delete cst;
   } catch (const exception &ex) {
     cerr << "exception: " << ex.what() << endl;
     result = EXIT_FAILURE;
