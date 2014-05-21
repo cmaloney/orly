@@ -152,10 +152,7 @@ namespace Orly {
           private:
 
           /* TODO */
-          class TBlock {
-            NO_COPY(TBlock);
-            public:
-
+          struct TBlock {
             /* TODO */
             TBlock *NextBlock;
 
