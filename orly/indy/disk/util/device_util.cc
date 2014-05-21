@@ -29,29 +29,29 @@ using namespace std;
 bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
   try {
     Base::TFd fd = open(path, O_RDONLY);
-    Base::TMemAlignedPtr<uint64_t> buf (BlockSize, BlockSize);
+    auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
     try {
-      Base::IfLt0(pread(fd, buf, BlockSize, 0UL));
-      if (buf[MagicNumberPos] != OrlyFSMagicNumber) {
+      Base::IfLt0(pread(fd, buf.get(), BlockSize, 0UL));
+      if (buf.get()[MagicNumberPos] != OrlyFSMagicNumber) {
         return false;
       }
-      uint64_t check = Base::Murmur(buf, NumDataElem, 0UL);
-      if (check != buf[NumDataElem]) {
+      uint64_t check = Base::Murmur(buf.get(), NumDataElem, 0UL);
+      if (check != buf.get()[NumDataElem]) {
         throw std::runtime_error("Orly system block corrupt");
       }
-      memcpy(&(out_device.VolumeId), &buf[VolumeIdPos], sizeof(TVolumeId));
-      out_device.VolumeDeviceNumber = buf[VolumeDeviceNumberPos];
-      out_device.NumDevicesInVolume = buf[NumDevicesInVolumePos];
-      out_device.LogicalExtentStart = buf[LogicalExtentStartPos];
-      out_device.LogicalExtentSize = buf[LogicalExtentSizePos];
-      out_device.VolumeStrategy = buf[VolumeStrategyPos];
-      out_device.VolumeSpeed = buf[VolumeSpeedPos];
-      out_device.ReplicationFactor = buf[ReplicationFactorPos];
-      out_device.StripeSizeKB = buf[StripeSizeKBPos];
-      out_device.LogicalBlockSize = buf[LogicalBlockSizePos];
-      out_device.PhysicalBlockSize = buf[PhysicalBlockSizePos];
-      out_device.NumLogicalBlockExposed = buf[NumLogicalBlockExposedPos];
-      out_device.MinDiscardBlocks = buf[MinDiscardBlocksPos];
+      memcpy(&(out_device.VolumeId), &buf.get()[VolumeIdPos], sizeof(TVolumeId));
+      out_device.VolumeDeviceNumber = buf.get()[VolumeDeviceNumberPos];
+      out_device.NumDevicesInVolume = buf.get()[NumDevicesInVolumePos];
+      out_device.LogicalExtentStart = buf.get()[LogicalExtentStartPos];
+      out_device.LogicalExtentSize = buf.get()[LogicalExtentSizePos];
+      out_device.VolumeStrategy = buf.get()[VolumeStrategyPos];
+      out_device.VolumeSpeed = buf.get()[VolumeSpeedPos];
+      out_device.ReplicationFactor = buf.get()[ReplicationFactorPos];
+      out_device.StripeSizeKB = buf.get()[StripeSizeKBPos];
+      out_device.LogicalBlockSize = buf.get()[LogicalBlockSizePos];
+      out_device.PhysicalBlockSize = buf.get()[PhysicalBlockSizePos];
+      out_device.NumLogicalBlockExposed = buf.get()[NumLogicalBlockExposedPos];
+      out_device.MinDiscardBlocks = buf.get()[MinDiscardBlocksPos];
     } catch (...) {
       throw;
     }
@@ -63,25 +63,25 @@ bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
 
 void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
   Base::TFd fd = open(path, O_RDWR);
-  Base::TMemAlignedPtr<uint64_t> buf (BlockSize, BlockSize);
+  auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
   try {
-    memset(buf, 0, BlockSize);
-    buf[MagicNumberPos] = OrlyFSMagicNumber;
-    memcpy(&buf[VolumeIdPos], &(new_device_info.VolumeId), sizeof(TVolumeId));
-    buf[VolumeDeviceNumberPos] = new_device_info.VolumeDeviceNumber;
-    buf[NumDevicesInVolumePos] = new_device_info.NumDevicesInVolume;
-    buf[LogicalExtentStartPos] = new_device_info.LogicalExtentStart;
-    buf[LogicalExtentSizePos] = new_device_info.LogicalExtentSize;
-    buf[VolumeStrategyPos] = new_device_info.VolumeStrategy;
-    buf[VolumeSpeedPos] = new_device_info.VolumeSpeed;
-    buf[ReplicationFactorPos] = new_device_info.ReplicationFactor;
-    buf[StripeSizeKBPos] = new_device_info.StripeSizeKB;
-    buf[LogicalBlockSizePos] = new_device_info.LogicalBlockSize;
-    buf[PhysicalBlockSizePos] = new_device_info.PhysicalBlockSize;
-    buf[NumLogicalBlockExposedPos] = new_device_info.NumLogicalBlockExposed;
-    buf[MinDiscardBlocksPos] = new_device_info.MinDiscardBlocks;
-    buf[NumDataElem] = Base::Murmur(buf, NumDataElem, 0UL);
-    Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));
+    memset(buf.get(), 0, BlockSize);
+    buf.get()[MagicNumberPos] = OrlyFSMagicNumber;
+    memcpy(&buf.get()[VolumeIdPos], &(new_device_info.VolumeId), sizeof(TVolumeId));
+    buf.get()[VolumeDeviceNumberPos] = new_device_info.VolumeDeviceNumber;
+    buf.get()[NumDevicesInVolumePos] = new_device_info.NumDevicesInVolume;
+    buf.get()[LogicalExtentStartPos] = new_device_info.LogicalExtentStart;
+    buf.get()[LogicalExtentSizePos] = new_device_info.LogicalExtentSize;
+    buf.get()[VolumeStrategyPos] = new_device_info.VolumeStrategy;
+    buf.get()[VolumeSpeedPos] = new_device_info.VolumeSpeed;
+    buf.get()[ReplicationFactorPos] = new_device_info.ReplicationFactor;
+    buf.get()[StripeSizeKBPos] = new_device_info.StripeSizeKB;
+    buf.get()[LogicalBlockSizePos] = new_device_info.LogicalBlockSize;
+    buf.get()[PhysicalBlockSizePos] = new_device_info.PhysicalBlockSize;
+    buf.get()[NumLogicalBlockExposedPos] = new_device_info.NumLogicalBlockExposed;
+    buf.get()[MinDiscardBlocksPos] = new_device_info.MinDiscardBlocks;
+    buf.get()[NumDataElem] = Base::Murmur(buf.get(), NumDataElem, 0UL);
+    Base::IfLt0(pwrite(fd, buf.get(), BlockSize, 0UL));
     fsync(fd);
   } catch (...) {
     throw;
@@ -89,10 +89,10 @@ void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
 }
 void TDeviceUtil::ZeroSuperBlock(const char *path) {
   Base::TFd fd = open(path, O_RDWR);
-  Base::TMemAlignedPtr<uint64_t> buf (BlockSize, BlockSize);
+  auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
   try {
-    memset(buf, 0, BlockSize);
-    Base::IfLt0(pwrite(fd, buf, BlockSize, 0UL));
+    memset(buf.get(), 0, BlockSize);
+    Base::IfLt0(pwrite(fd, buf.get(), BlockSize, 0UL));
     fsync(fd);
   } catch (...) {
     throw;
