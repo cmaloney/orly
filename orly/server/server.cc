@@ -18,13 +18,7 @@
 
 #include <orly/server/server.h>
 
-#include <functional>
-#include <sstream>
-
-#include <fcntl.h>
 #include <poll.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 #include <sys/syscall.h>
 
 #include <base/booster.h>

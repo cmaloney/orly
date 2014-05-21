@@ -22,7 +22,6 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
-#include <netinet/in.h>
 
 #include <base/class_traits.h>
 #include <base/debug_log.h>
@@ -31,7 +30,6 @@
 #include <base/scheduler.h>
 #include <base/timer_fd.h>
 #include <base/uuid.h>
-#include <rpc/rpc.h>
 #include <socket/address.h>
 #include <orly/durable/kit.h>
 #include <orly/indy/manager.h>

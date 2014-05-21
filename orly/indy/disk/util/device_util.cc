@@ -21,9 +21,83 @@
 #include <stdexcept>
 
 #include <base/thrower.h>
+#include <base/mem_aligned_ptr.h>
 
 using namespace Orly::Indy::Disk::Util;
 using namespace std;
+
+bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
+  try {
+    Base::TFd fd = open(path, O_RDONLY);
+    auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
+    try {
+      Base::IfLt0(pread(fd, buf.get(), BlockSize, 0UL));
+      if (buf.get()[MagicNumberPos] != OrlyFSMagicNumber) {
+        return false;
+      }
+      uint64_t check = Base::Murmur(buf.get(), NumDataElem, 0UL);
+      if (check != buf.get()[NumDataElem]) {
+        throw std::runtime_error("Orly system block corrupt");
+      }
+      memcpy(&(out_device.VolumeId), &buf.get()[VolumeIdPos], sizeof(TVolumeId));
+      out_device.VolumeDeviceNumber = buf.get()[VolumeDeviceNumberPos];
+      out_device.NumDevicesInVolume = buf.get()[NumDevicesInVolumePos];
+      out_device.LogicalExtentStart = buf.get()[LogicalExtentStartPos];
+      out_device.LogicalExtentSize = buf.get()[LogicalExtentSizePos];
+      out_device.VolumeStrategy = buf.get()[VolumeStrategyPos];
+      out_device.VolumeSpeed = buf.get()[VolumeSpeedPos];
+      out_device.ReplicationFactor = buf.get()[ReplicationFactorPos];
+      out_device.StripeSizeKB = buf.get()[StripeSizeKBPos];
+      out_device.LogicalBlockSize = buf.get()[LogicalBlockSizePos];
+      out_device.PhysicalBlockSize = buf.get()[PhysicalBlockSizePos];
+      out_device.NumLogicalBlockExposed = buf.get()[NumLogicalBlockExposedPos];
+      out_device.MinDiscardBlocks = buf.get()[MinDiscardBlocksPos];
+    } catch (...) {
+      throw;
+    }
+  } catch (const std::exception &ex) {
+    return false;
+  }
+  return true;
+}
+
+void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
+  Base::TFd fd = open(path, O_RDWR);
+  auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
+  try {
+    memset(buf.get(), 0, BlockSize);
+    buf.get()[MagicNumberPos] = OrlyFSMagicNumber;
+    memcpy(&buf.get()[VolumeIdPos], &(new_device_info.VolumeId), sizeof(TVolumeId));
+    buf.get()[VolumeDeviceNumberPos] = new_device_info.VolumeDeviceNumber;
+    buf.get()[NumDevicesInVolumePos] = new_device_info.NumDevicesInVolume;
+    buf.get()[LogicalExtentStartPos] = new_device_info.LogicalExtentStart;
+    buf.get()[LogicalExtentSizePos] = new_device_info.LogicalExtentSize;
+    buf.get()[VolumeStrategyPos] = new_device_info.VolumeStrategy;
+    buf.get()[VolumeSpeedPos] = new_device_info.VolumeSpeed;
+    buf.get()[ReplicationFactorPos] = new_device_info.ReplicationFactor;
+    buf.get()[StripeSizeKBPos] = new_device_info.StripeSizeKB;
+    buf.get()[LogicalBlockSizePos] = new_device_info.LogicalBlockSize;
+    buf.get()[PhysicalBlockSizePos] = new_device_info.PhysicalBlockSize;
+    buf.get()[NumLogicalBlockExposedPos] = new_device_info.NumLogicalBlockExposed;
+    buf.get()[MinDiscardBlocksPos] = new_device_info.MinDiscardBlocks;
+    buf.get()[NumDataElem] = Base::Murmur(buf.get(), NumDataElem, 0UL);
+    Base::IfLt0(pwrite(fd, buf.get(), BlockSize, 0UL));
+    fsync(fd);
+  } catch (...) {
+    throw;
+  }
+}
+void TDeviceUtil::ZeroSuperBlock(const char *path) {
+  Base::TFd fd = open(path, O_RDWR);
+  auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
+  try {
+    memset(buf.get(), 0, BlockSize);
+    Base::IfLt0(pwrite(fd, buf.get(), BlockSize, 0UL));
+    fsync(fd);
+  } catch (...) {
+    throw;
+  }
+}
 
 bool TDeviceUtil::ForEachDevice(const function<bool(const char *)> &cb) {
   ifstream partitions("/proc/partitions");
@@ -79,4 +153,22 @@ std::string TDeviceUtil::GetPathToDeviceInfo(const std::string &dev_path) {
   path_to_partition_info += '/';
 
   return path_to_partition_info;
+}
+
+size_t TDeviceUtil::GetValFromDeviceInfo(const std::string &dev_name, const std::string &path_to_field) {
+  const std::string path_to_device_info = TDeviceUtil::GetPathToDeviceInfo(std::string(dev_name));
+  std::string info_path = path_to_device_info + path_to_field;
+  size_t val = 0UL;
+  try {
+    Base::TFd fd = open(info_path.c_str(), O_RDONLY);
+    Base::IfLt0(fd);
+    char buf[64];
+    char *ptr = buf;
+    Base::IfLt0(pread(fd, buf, 64, 0));
+    val = strtol(ptr, &ptr, 10);
+  } catch (const std::exception &ex) {
+    syslog(LOG_ERR, "Error while opening [%s] file [%s] for device [%s] : %s", path_to_field.c_str(), info_path.c_str(), dev_name.c_str(), ex.what());
+    throw;
+  }
+  return val;
 }

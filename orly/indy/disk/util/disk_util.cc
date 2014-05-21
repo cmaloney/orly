@@ -282,7 +282,7 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
   const std::vector<TLogicalExtent> &extent_vec = volume->GetLogicalExtentVec();
   TVolumeId vol_id;
   vol_id.Id = volume_id_num;
-  memset(vol_id.InstanceName, 0, MaxInstanceNameSize);
+  Base::Zero(vol_id.InstanceName);
   memcpy(vol_id.InstanceName, instance_name.c_str(), instance_name.size());
   VolumeById.emplace(vol_id, std::move(volume));
 

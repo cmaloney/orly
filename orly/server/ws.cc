@@ -19,9 +19,6 @@
 #include <orly/server/ws.h>
 
 #include <cassert>
-#include <map>
-#include <memory>
-#include <thread>
 #include <sstream>
 #include <string>
 
