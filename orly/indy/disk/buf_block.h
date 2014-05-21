@@ -79,7 +79,7 @@ namespace Orly {
             assert(MaxBlocks == 0UL);
             MaxBlocks = block_count;
             if (block_count) {
-              Blob = Base::MemAlignedAlloc<char>(getpagesize(), BlockSize * block_count);
+              Blob = Base::MemAlignedAlloc<TBlock>(getpagesize(), BlockSize * block_count);
               Base::MlockRaw(Blob.get(), BlockSize * block_count);
               #ifndef NDEBUG
               memset(Blob.get(), 0, BlockSize * block_count);
@@ -88,7 +88,7 @@ namespace Orly {
               syslog(LOG_INFO, "TBufBlock allocated [%ld] bytes for [%ld] blocks of size [%ld]", (BlockSize * block_count), block_count, BlockSize);
               TBlock
                   *prev_block = reinterpret_cast<TBlock *>(&FirstBlock),
-                  *block      = reinterpret_cast<TBlock *>(Blob.get());
+                  *block      = Blob.get();
               for (size_t i = 0; i < block_count; ++i) {
                 assert(block);
                 prev_block->NextBlock = block;
@@ -165,7 +165,7 @@ namespace Orly {
           const size_t BlockSize;
 
           /* TODO */
-          std::unique_ptr<char> Blob;
+          std::unique_ptr<TBlock> Blob;
 
           /* TODO */
           TBlock *FirstBlock;

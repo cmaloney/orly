@@ -47,18 +47,8 @@ namespace Orly {
               NumBlocks(num_blocks),
               WorksetBuf(nullptr),
               FlushBuf(nullptr) {
-          WorksetBuf = Base::MemAlignedAlloc<uint8_t>(getpagesize(), GetNumBytes());
-          try {
-            FlushBuf = Base::MemAlignedAlloc<uint8_t>(getpagesize(), GetNumBytes());
-            try {
-              memset(WorksetBuf.get(), 0, GetNumBytes());
-              memset(FlushBuf.get(), 0, GetNumBytes());
-            } catch (...) {
-              throw;
-            }
-          } catch (...) {
-            throw;
-          }
+          WorksetBuf = Base::MemAlignedAllocZeroInitialized<uint8_t>(getpagesize(), GetNumBytes());
+          FlushBuf = Base::MemAlignedAllocZeroInitialized<uint8_t>(getpagesize(), GetNumBytes());
         }
 
         /* TODO */

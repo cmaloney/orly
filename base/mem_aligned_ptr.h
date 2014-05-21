@@ -17,6 +17,8 @@
    limitations under the License. */
 #pragma once
 
+#include <cstring>
+
 #include <memory>
 #include <type_traits>
 
@@ -26,11 +28,19 @@ namespace Base {
   template <typename T>
   std::unique_ptr<T> MemAlignedAlloc(std::size_t align_to, std::size_t size) {
     static_assert(std::is_trivial<T>::value, "T must be a trivial type");
-    T* mem;
+    typename std::unique_ptr<T>::pointer mem;
     Base::IfNe0( posix_memalign(
           reinterpret_cast<void**>(&mem), align_to, size) );
 
     return std::unique_ptr<T>{mem};
   } // MemAlignedAlloc
+
+  template <typename T>
+  std::unique_ptr<T> MemAlignedAllocZeroInitialized(std::size_t align_to, std::size_t size) {
+    auto ptr = MemAlignedAlloc<T>(align_to, size);
+    memset(ptr.get(), 0, size);
+
+    return ptr;
+  } // MemAlignedAllocZeroInitialized
 
 } // Base

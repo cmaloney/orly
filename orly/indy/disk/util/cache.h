@@ -254,23 +254,19 @@ namespace Orly {
                 #ifndef NDEBUG
                 memset(PageData.get(), 0, PageSize * MaxCacheSize);
                 #endif
-                try {
-                  /* we're going to init max_cache_size slots with DummyStartSlot with a valid
-                     BuffAddr and put them in the LRU so they can be reclaimed using a unified strategy */
-                  for (size_t i = 0; i < MaxCacheSize; ++i) {
-                    TSlot &slot = SlotArray[i];
-                    std::atomic_store(&slot.PageId, DummyStartSlot);
-                    std::atomic_store(&slot.BufAddr, i);
-                    TLRU &lru = LRUArray[i % NumLRU];
-                    lru.SlotCollection.Insert(&slot.LRUMembership);
-                    #ifdef PERF_STATS
-                    ++lru.NumBufInLRU;
-                    #endif
-                  }
-                  TryRemoveSlotFunc = std::bind(&TCache::TryRemoveSlot, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-                } catch (...) {
-                  throw;
+                /* we're going to init max_cache_size slots with DummyStartSlot with a valid
+                   BuffAddr and put them in the LRU so they can be reclaimed using a unified strategy */
+                for (size_t i = 0; i < MaxCacheSize; ++i) {
+                  TSlot &slot = SlotArray[i];
+                  std::atomic_store(&slot.PageId, DummyStartSlot);
+                  std::atomic_store(&slot.BufAddr, i);
+                  TLRU &lru = LRUArray[i % NumLRU];
+                  lru.SlotCollection.Insert(&slot.LRUMembership);
+                  #ifdef PERF_STATS
+                  ++lru.NumBufInLRU;
+                  #endif
                 }
+                TryRemoveSlotFunc = std::bind(&TCache::TryRemoveSlot, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
               } catch (...) {
                 delete[] LRUArray;
                 LRUArray = nullptr;

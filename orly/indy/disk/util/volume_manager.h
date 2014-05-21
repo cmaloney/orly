@@ -691,13 +691,9 @@ namespace Orly {
           /* TODO */
           TMemoryDevice(size_t logical_block_size, size_t physical_block_size, size_t num_logical_block, bool fsync_on, bool do_corruption_check)
               : TDevice(TDesc{TDesc::Mem, logical_block_size, physical_block_size, num_logical_block, logical_block_size * num_logical_block}, fsync_on, do_corruption_check),
-                Data(Base::MemAlignedAlloc<char>(getpagesize(), PhysicalBlockSize /* super block */ + Desc.Capacity)) {
+                Data(Base::MemAlignedAllocZeroInitialized<char>(getpagesize(), PhysicalBlockSize /* super block */ + Desc.Capacity)) {
             assert(Desc.Capacity % getpagesize() == 0);
             Base::MlockRaw(Data.get(), PhysicalBlockSize + Desc.Capacity);
-            try {
-              memset(Data.get(), 0, PhysicalBlockSize /* super block */ + Desc.Capacity);
-            } catch (...) {
-            }
           }
 
           /* TODO */

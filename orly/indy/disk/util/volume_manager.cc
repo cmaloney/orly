@@ -844,9 +844,11 @@ namespace Orly {
             assert(this);
             /* acquire discard lock */ {
               std::lock_guard<std::mutex> lock(DiscardMapLock);
+              DiscardMapBuf.reset();
             }  // release discard lock
             /* acquire block lock */ {
               std::lock_guard<std::mutex> lock(BlockMapLock);
+              BlockMapBuf.reset();
             }  // release block lock
           }
 
@@ -912,19 +914,11 @@ namespace Orly {
                 BlockMapByteSize(ceil(static_cast<double>(NumBlocks) / 8)),
                 BlockMapBufByteSize(ceil(static_cast<double>(NumBlocks) / (getpagesize() * 64)) * getpagesize()) {
             assert(NumBlocks % Volume->GetDesc().NumLogicalExtent == 0UL);
-            try {
-              std::lock_guard<std::mutex> lock(BlockMapLock);
-              BlockMapBuf = Base::MemAlignedAlloc<size_t>(getpagesize(), BlockMapByteSize);
-              DiscardMapBuf = Base::MemAlignedAlloc<size_t>(getpagesize(), BlockMapByteSize);
-              Base::MlockRaw(BlockMapBuf.get(), BlockMapByteSize);
-              Base::MlockRaw(DiscardMapBuf.get(), BlockMapByteSize);
-              memset(BlockMapBuf.get(), 0, BlockMapByteSize);
-              memset(DiscardMapBuf.get(), 0, BlockMapByteSize);
-            } catch (...) {
-              DiscardMapBuf = nullptr;
-              BlockMapBuf = nullptr;
-              throw;
-            }
+            std::lock_guard<std::mutex> lock(BlockMapLock);
+            BlockMapBuf = Base::MemAlignedAllocZeroInitialized<size_t>(getpagesize(), BlockMapByteSize);
+            DiscardMapBuf = Base::MemAlignedAllocZeroInitialized<size_t>(getpagesize(), BlockMapByteSize);
+            Base::MlockRaw(BlockMapBuf.get(), BlockMapByteSize);
+            Base::MlockRaw(DiscardMapBuf.get(), BlockMapByteSize);
           }
 
           void PostCtor() {
