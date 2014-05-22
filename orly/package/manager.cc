@@ -56,12 +56,12 @@ TLoaded::TPtr TManager::Get(const TName &package) const {
   return it->second;
 }
 
-void TManager::Install(const TVersionedNames &packages, const std::function<void(TLoaded::TPtr)> &pre_install_step) {
+void TManager::Install(const TVersionedNames &packages, const std::function<void(TLoaded::TPtr, bool)> &pre_install_step) {
   assert(this);
   Load(packages, pre_install_step);
 }
 
-void TManager::Load(const TVersionedNames &packages, const std::function<void(TLoaded::TPtr)> &pre_install_step) {
+void TManager::Load(const TVersionedNames &packages, const std::function<void(TLoaded::TPtr, bool)> &pre_install_step) {
   assert(this);
   assert(&packages);
 
@@ -69,7 +69,7 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
 
   TInstalled installed(Installed);
 
-  list<TLoaded::TPtr> about_to_install;
+  list<std::tuple<TLoaded::TPtr, bool>> about_to_install;
 
   /* TODO: collect up errors, rather than throw on first. */
   //Ensure all package upgrades are actually upgrades, all files exist, build up map to swap in.
@@ -83,17 +83,17 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
       }
       installed_it->second = TLoaded::Load(PackageDir, package);
       //auto ret = installed.insert(make_pair(package.Name, TLoaded::Load(PackageDir, package)));
-      about_to_install.push_back(installed_it->second);
+      about_to_install.push_back(make_tuple(installed_it->second, package.Version > installed_it->second->GetName().Version));
     } else {
       auto ret = installed.insert(make_pair(package.Name, TLoaded::Load(PackageDir, package)));
-      about_to_install.push_back(ret.first->second);
+      about_to_install.push_back(make_tuple(ret.first->second, true));
     }
   }
 
   // Call back with each installed package so outside systems can do what they need to
   // NOTE: This doesn't get rolled back if the callback throws partway through the list...
   for(auto &package: about_to_install) {
-    pre_install_step(package);
+    pre_install_step(std::get<0>(package), std::get<1>(package));
   }
 
   // Guaranteed no-throw / the transaction will complete

@@ -73,12 +73,14 @@ namespace Orly {
       /* Install or upgrade a set of packages atomically. Packages can't have dependnecies, installers, uninstallers,
          etc, so currently this is identical to load. */
       void Install(const TVersionedNames &packages,
-                   const std::function<void(TLoaded::TPtr)> &pre_install_step = [](TLoaded::TPtr) {});
+                   const std::function<void(TLoaded::TPtr, bool is_new_version)> &pre_install_step = [](TLoaded::TPtr,
+                                                                                                        bool) {});
 
       /* Load a package. Packages don't have dependencies, so this is simply check that exists, build new installed
          map, and swap in. */
       void Load(const TVersionedNames &packages,
-                const std::function<void(TLoaded::TPtr)> &pre_install_step = [](TLoaded::TPtr) {});
+                const std::function<void(TLoaded::TPtr, bool is_new_version)> &pre_install_step = [](TLoaded::TPtr,
+                                                                                                     bool) {});
 
       /* Set the package directory. An explicit call, because TService statically constructs... */
       void SetPackageDir(const Jhm::TAbsBase &package_dir);
