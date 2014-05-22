@@ -57,11 +57,6 @@ namespace Orly {
           }
 
           /* TODO */
-          ~TPool() {
-            assert(this);
-          }
-
-          /* TODO */
           size_t GetNumBlocksUsed() const {
             assert(this);
             return NumBlocksUsed;

@@ -236,54 +236,33 @@ namespace Orly {
                 MaxCacheSize(max_cache_size),
                 NumSlots(SuggestHashSize(MaxCacheSize)),
                 NumLRU(num_lru),
-                SlotArray(nullptr),
-                LRUArray(nullptr),
+                SlotArray(new TSlot[NumSlots]),
+                LRUArray(new TLRU[NumLRU]),
                 PageData(nullptr) {
             ReadWait.tv_sec = 0;
             ReadWait.tv_nsec = 25000L;
-            SlotArray = new TSlot[NumSlots];
-            Base::MlockN(*SlotArray, NumSlots);
-            try {
-              LRUArray = new TLRU[NumLRU];
-              Base::MlockN(*LRUArray, NumLRU);
-              try {
-                assert(PageSize >= static_cast<size_t>(getpagesize()));
-                assert(PageSize % getpagesize() == 0);
-                PageData = Base::MemAlignedAlloc<char>(PageSize, PageSize * MaxCacheSize);
-                Base::MlockRaw(PageData.get(), PageSize * MaxCacheSize);
-                #ifndef NDEBUG
-                memset(PageData.get(), 0, PageSize * MaxCacheSize);
-                #endif
-                /* we're going to init max_cache_size slots with DummyStartSlot with a valid
-                   BuffAddr and put them in the LRU so they can be reclaimed using a unified strategy */
-                for (size_t i = 0; i < MaxCacheSize; ++i) {
-                  TSlot &slot = SlotArray[i];
-                  std::atomic_store(&slot.PageId, DummyStartSlot);
-                  std::atomic_store(&slot.BufAddr, i);
-                  TLRU &lru = LRUArray[i % NumLRU];
-                  lru.SlotCollection.Insert(&slot.LRUMembership);
-                  #ifdef PERF_STATS
-                  ++lru.NumBufInLRU;
-                  #endif
-                }
-                TryRemoveSlotFunc = std::bind(&TCache::TryRemoveSlot, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-              } catch (...) {
-                delete[] LRUArray;
-                LRUArray = nullptr;
-                throw;
-              }
-            } catch (...) {
-              delete[] SlotArray;
-              SlotArray = nullptr;
-              throw;
+            Base::MlockN(&SlotArray[0], NumSlots);
+            Base::MlockN(&LRUArray[0], NumLRU);
+            assert(PageSize >= static_cast<size_t>(getpagesize()));
+            assert(PageSize % getpagesize() == 0);
+            PageData = Base::MemAlignedAlloc<char>(PageSize, PageSize * MaxCacheSize);
+            Base::MlockRaw(PageData.get(), PageSize * MaxCacheSize);
+            #ifndef NDEBUG
+            memset(PageData.get(), 0, PageSize * MaxCacheSize);
+            #endif
+            /* we're going to init max_cache_size slots with DummyStartSlot with a valid
+               BuffAddr and put them in the LRU so they can be reclaimed using a unified strategy */
+            for (size_t i = 0; i < MaxCacheSize; ++i) {
+              TSlot &slot = SlotArray[i];
+              std::atomic_store(&slot.PageId, DummyStartSlot);
+              std::atomic_store(&slot.BufAddr, i);
+              TLRU &lru = LRUArray[i % NumLRU];
+              lru.SlotCollection.Insert(&slot.LRUMembership);
+              #ifdef PERF_STATS
+              ++lru.NumBufInLRU;
+              #endif
             }
-          }
-
-          /* TODO */
-          ~TCache() {
-            assert(this);
-            delete[] LRUArray;
-            delete[] SlotArray;
+            TryRemoveSlotFunc = std::bind(&TCache::TryRemoveSlot, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
           }
 
           /* STATS */
@@ -309,7 +288,7 @@ namespace Orly {
           /* TODO */
           inline void PreGet(size_t page_id) {
             const size_t slot_num = page_id % NumSlots;
-            TSlot *const my_slot = SlotArray + slot_num;
+            TSlot *const my_slot = &SlotArray[slot_num];
             _mm_prefetch(my_slot, _MM_HINT_T0);
             _mm_prefetch(reinterpret_cast<uint8_t *>(my_slot) + sizeof(TSlot), _MM_HINT_T0);
           }
@@ -941,10 +920,10 @@ namespace Orly {
           const size_t NumLRU;
 
           /* TODO */
-          TSlot *SlotArray;
+          std::unique_ptr<TSlot[]> SlotArray;
 
           /* TODO */
-          TLRU *LRUArray;
+          std::unique_ptr<TLRU[]> LRUArray;
 
           /* TODO */
           std::unique_ptr<char> PageData;

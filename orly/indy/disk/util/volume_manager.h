@@ -697,10 +697,6 @@ namespace Orly {
           }
 
           /* TODO */
-          virtual ~TMemoryDevice() {
-          }
-
-          /* TODO */
           virtual void Write(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf,
                              const TOffset offset, long long nbytes, DiskPriority priority, bool abort_on_error, const TOffset logical_start_offset,
                              TCompletionTrigger &trigger) override;

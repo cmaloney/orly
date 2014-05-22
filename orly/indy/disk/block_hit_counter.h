@@ -52,11 +52,6 @@ namespace Orly {
         }
 
         /* TODO */
-        ~TBlockHitCounter() {
-          assert(this);
-        }
-
-        /* TODO */
         inline void AddHits(size_t block_num, size_t num_hits) {
           assert(this);
           std::lock_guard<std::mutex> lock(CountLock);

@@ -18,9 +18,8 @@
 
 #include <orly/indy/disk/file_service.h>
 
-#include <orly/indy/disk/indy_util_reporter.h>
-
 #include <base/mem_aligned_ptr.h>
+#include <orly/indy/disk/indy_util_reporter.h>
 
 using namespace std;
 using namespace Orly::Indy::Disk;
