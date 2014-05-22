@@ -81,6 +81,10 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
         oss << "Cannot downgrade already installed package '" << package <<'\'';
         throw TManagerError(HERE, oss.str().c_str());
       }
+      if(installed_it->second->GetName().Version == package.Version) {
+        // If package has been previously installed at the same version, do nothing / noop.
+        continue;
+      }
       installed_it->second = TLoaded::Load(PackageDir, package);
       //auto ret = installed.insert(make_pair(package.Name, TLoaded::Load(PackageDir, package)));
       about_to_install.push_back(make_tuple(installed_it->second, package.Version > installed_it->second->GetName().Version));
