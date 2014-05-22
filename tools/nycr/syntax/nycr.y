@@ -6,18 +6,20 @@
 #include <tools/nycr/error.h>
 #include <tools/nycr/syntax/nycr.cst.h>
 using namespace Tools::Nycr::Syntax;
-extern TNycr *Nycr_;
 #define YYLOC_DEFAULT tools_nycr_syntax__yylloc_default
+#define YYMAXDEPTH 1000000
+#define YYINITDEPTH 1000000
 %}
 
 %code {
   int tools_nycr_syntax__lex(YYSTYPE *, YYLTYPE *);
-  void tools_nycr_syntax__error(const YYLTYPE *, char const *);
+  void tools_nycr_syntax__error(const YYLTYPE *, const std::unique_ptr<TNycr> &, char const *);
 }
 
 %defines
 %locations
-%pure-parser
+%parse-param {std::unique_ptr<TNycr> &cst_out}
+%define api.pure
 %name-prefix "tools_nycr_syntax__"
 %glr-parser
 %error-verbose
@@ -35,12 +37,28 @@ extern TNycr *Nycr_;
   TName *name;
   TSemi *semi;
   TKind *kind;
-  TBase *base;
+  TOper *oper;
   TOptSuper *opt_super;
   TSuper *super;
   TColon *colon;
   TNoSuper *no_super;
-  TRule *rule;
+  TPattern *pattern;
+  TEq *eq;
+  TStrLiteral *str_literal;
+  TSingleQuotedStrLiteral *single_quoted_str_literal;
+  TSingleQuotedRawStrLiteral *single_quoted_raw_str_literal;
+  TDoubleQuotedStrLiteral *double_quoted_str_literal;
+  TDoubleQuotedRawStrLiteral *double_quoted_raw_str_literal;
+  TOptPriLevel *opt_pri_level;
+  TPriLevel *pri_level;
+  TPriKwd *pri_kwd;
+  TIntLiteral *int_literal;
+  TNoPriLevel *no_pri_level;
+  TAssoc *assoc;
+  TRightKwd *right_kwd;
+  TNonassocKwd *nonassoc_kwd;
+  TLeftKwd *left_kwd;
+  TLanguage *language;
   TOptRhs *opt_rhs;
   TRhs *rhs;
   TArrow *arrow;
@@ -48,51 +66,35 @@ extern TNycr *Nycr_;
   TNoMemberSeq *no_member_seq;
   TMemberSeq *member_seq;
   TMember *member;
-  TAnonymousMember *anonymous_member;
+  TNamedMember *named_member;
   TErrorMember *error_member;
   TErrorKwd *error_kwd;
-  TNamedMember *named_member;
+  TAnonymousMember *anonymous_member;
   TOptOperRef *opt_oper_ref;
   TOperRef *oper_ref;
   TNoOperRef *no_oper_ref;
   TNoRhs *no_rhs;
   TEmptyKwd *empty_kwd;
-  TLanguage *language;
   TOpenAngle *open_angle;
   TOptPath *opt_path;
   TPath *path;
   TOptPathTail *opt_path_tail;
-  TNoPathTail *no_path_tail;
   TPathTail *path_tail;
   TSlash *slash;
+  TNoPathTail *no_path_tail;
   TNoPath *no_path;
   TCloseAngle *close_angle;
   TOptExpectedSr *opt_expected_sr;
   TNoExpectedSr *no_expected_sr;
   TExpectedSr *expected_sr;
   TSrKwd *sr_kwd;
-  TIntLiteral *int_literal;
   TOptExpectedRr *opt_expected_rr;
   TNoExpectedRr *no_expected_rr;
   TExpectedRr *expected_rr;
   TRrKwd *rr_kwd;
-  TOper *oper;
-  TPattern *pattern;
-  TEq *eq;
-  TStrLiteral *str_literal;
-  TSingleQuotedRawStrLiteral *single_quoted_raw_str_literal;
-  TDoubleQuotedStrLiteral *double_quoted_str_literal;
-  TSingleQuotedStrLiteral *single_quoted_str_literal;
-  TDoubleQuotedRawStrLiteral *double_quoted_raw_str_literal;
-  TOptPriLevel *opt_pri_level;
-  TPriLevel *pri_level;
-  TPriKwd *pri_kwd;
-  TNoPriLevel *no_pri_level;
-  TAssoc *assoc;
-  TNonassocKwd *nonassoc_kwd;
-  TLeftKwd *left_kwd;
-  TRightKwd *right_kwd;
+  TRule *rule;
   TKeyword *keyword;
+  TBase *base;
   TBadDecl *bad_decl;
 }
 
@@ -106,12 +108,28 @@ extern TNycr *Nycr_;
 %token <name> Name;
 %token <semi> Semi;
 %type <kind> Kind;
-%type <base> Base;
+%type <oper> Oper;
 %type <opt_super> OptSuper;
 %type <super> Super;
 %token <colon> Colon;
 %type <no_super> NoSuper;
-%type <rule> Rule;
+%type <pattern> Pattern;
+%token <eq> Eq;
+%type <str_literal> StrLiteral;
+%token <single_quoted_str_literal> SingleQuotedStrLiteral;
+%token <single_quoted_raw_str_literal> SingleQuotedRawStrLiteral;
+%token <double_quoted_str_literal> DoubleQuotedStrLiteral;
+%token <double_quoted_raw_str_literal> DoubleQuotedRawStrLiteral;
+%type <opt_pri_level> OptPriLevel;
+%type <pri_level> PriLevel;
+%token <pri_kwd> PriKwd;
+%token <int_literal> IntLiteral;
+%type <no_pri_level> NoPriLevel;
+%type <assoc> Assoc;
+%token <right_kwd> RightKwd;
+%token <nonassoc_kwd> NonassocKwd;
+%token <left_kwd> LeftKwd;
+%type <language> Language;
 %type <opt_rhs> OptRhs;
 %type <rhs> Rhs;
 %token <arrow> Arrow;
@@ -119,52 +137,40 @@ extern TNycr *Nycr_;
 %type <no_member_seq> NoMemberSeq;
 %type <member_seq> MemberSeq;
 %type <member> Member;
-%type <anonymous_member> AnonymousMember;
+%type <named_member> NamedMember;
 %type <error_member> ErrorMember;
 %token <error_kwd> ErrorKwd;
-%type <named_member> NamedMember;
+%type <anonymous_member> AnonymousMember;
 %type <opt_oper_ref> OptOperRef;
 %type <oper_ref> OperRef;
 %type <no_oper_ref> NoOperRef;
 %type <no_rhs> NoRhs;
 %token <empty_kwd> EmptyKwd;
-%type <language> Language;
 %token <open_angle> OpenAngle;
 %type <opt_path> OptPath;
 %type <path> Path;
 %type <opt_path_tail> OptPathTail;
-%type <no_path_tail> NoPathTail;
 %type <path_tail> PathTail;
 %token <slash> Slash;
+%type <no_path_tail> NoPathTail;
 %type <no_path> NoPath;
 %token <close_angle> CloseAngle;
 %type <opt_expected_sr> OptExpectedSr;
 %type <no_expected_sr> NoExpectedSr;
 %type <expected_sr> ExpectedSr;
 %token <sr_kwd> SrKwd;
-%token <int_literal> IntLiteral;
 %type <opt_expected_rr> OptExpectedRr;
 %type <no_expected_rr> NoExpectedRr;
 %type <expected_rr> ExpectedRr;
 %token <rr_kwd> RrKwd;
-%type <oper> Oper;
-%type <pattern> Pattern;
-%token <eq> Eq;
-%type <str_literal> StrLiteral;
-%token <single_quoted_raw_str_literal> SingleQuotedRawStrLiteral;
-%token <double_quoted_str_literal> DoubleQuotedStrLiteral;
-%token <single_quoted_str_literal> SingleQuotedStrLiteral;
-%token <double_quoted_raw_str_literal> DoubleQuotedRawStrLiteral;
-%type <opt_pri_level> OptPriLevel;
-%type <pri_level> PriLevel;
-%token <pri_kwd> PriKwd;
-%type <no_pri_level> NoPriLevel;
-%type <assoc> Assoc;
-%token <nonassoc_kwd> NonassocKwd;
-%token <left_kwd> LeftKwd;
-%token <right_kwd> RightKwd;
+%type <rule> Rule;
 %type <keyword> Keyword;
+%type <base> Base;
 %type <bad_decl> BadDecl;
+
+
+%destructor { delete $$; } <*>
+
 
 
 %start Nycr
@@ -173,8 +179,9 @@ extern TNycr *Nycr_;
 
 Nycr
   : OptDeclSeq {
-    $$ = new TNycr($1);
-    Nycr_ = $$;
+    $$ = new TNycr(std::unique_ptr<TOptDeclSeq>($1));
+    cst_out = std::unique_ptr<TNycr>($$);
+    $$ = nullptr;
   }
 ;
 
@@ -195,7 +202,7 @@ NoDeclSeq
 
 DeclSeq
   : Decl OptDeclSeq {
-    $$ = new TDeclSeq($1, $2);
+    $$ = new TDeclSeq(std::unique_ptr<TDecl>($1), std::unique_ptr<TOptDeclSeq>($2));
   }
 ;
 
@@ -213,31 +220,31 @@ Decl
 
 PrecLevel
   : PrecKwd Name Semi {
-    $$ = new TPrecLevel($1, $2, $3);
+    $$ = new TPrecLevel(std::unique_ptr<TPrecKwd>($1), std::unique_ptr<TName>($2), std::unique_ptr<TSemi>($3));
   }
 ;
 
 Kind
-  : Base {
-    $$ = $1;
-  }
-  | Rule {
+  : Oper {
     $$ = $1;
   }
   | Language {
     $$ = $1;
   }
-  | Oper {
+  | Rule {
     $$ = $1;
   }
   | Keyword {
     $$ = $1;
   }
+  | Base {
+    $$ = $1;
+  }
 ;
 
-Base
-  : Name OptSuper Semi {
-    $$ = new TBase($1, $2, $3);
+Oper
+  : Name OptSuper Pattern Name Assoc Semi {
+    $$ = new TOper(std::unique_ptr<TName>($1), std::unique_ptr<TOptSuper>($2), std::unique_ptr<TPattern>($3), std::unique_ptr<TName>($4), std::unique_ptr<TAssoc>($5), std::unique_ptr<TSemi>($6));
   }
 ;
 
@@ -252,7 +259,7 @@ OptSuper
 
 Super
   : Colon Name {
-    $$ = new TSuper($1, $2);
+    $$ = new TSuper(std::unique_ptr<TColon>($1), std::unique_ptr<TName>($2));
   }
 ;
 
@@ -262,9 +269,63 @@ NoSuper
   }
 ;
 
-Rule
-  : Name OptSuper OptRhs Semi {
-    $$ = new TRule($1, $2, $3, $4);
+Pattern
+  : Eq StrLiteral OptPriLevel {
+    $$ = new TPattern(std::unique_ptr<TEq>($1), std::unique_ptr<TStrLiteral>($2), std::unique_ptr<TOptPriLevel>($3));
+  }
+;
+
+StrLiteral
+  : SingleQuotedStrLiteral {
+    $$ = $1;
+  }
+  | SingleQuotedRawStrLiteral {
+    $$ = $1;
+  }
+  | DoubleQuotedStrLiteral {
+    $$ = $1;
+  }
+  | DoubleQuotedRawStrLiteral {
+    $$ = $1;
+  }
+;
+
+OptPriLevel
+  : PriLevel {
+    $$ = $1;
+  }
+  | NoPriLevel {
+    $$ = $1;
+  }
+;
+
+PriLevel
+  : PriKwd IntLiteral {
+    $$ = new TPriLevel(std::unique_ptr<TPriKwd>($1), std::unique_ptr<TIntLiteral>($2));
+  }
+;
+
+NoPriLevel
+  : /* empty */ {
+    $$ = new TNoPriLevel();
+  }
+;
+
+Assoc
+  : RightKwd {
+    $$ = $1;
+  }
+  | NonassocKwd {
+    $$ = $1;
+  }
+  | LeftKwd {
+    $$ = $1;
+  }
+;
+
+Language
+  : Name OptSuper OptRhs OpenAngle OptPath CloseAngle OptExpectedSr OptExpectedRr Semi {
+    $$ = new TLanguage(std::unique_ptr<TName>($1), std::unique_ptr<TOptSuper>($2), std::unique_ptr<TOptRhs>($3), std::unique_ptr<TOpenAngle>($4), std::unique_ptr<TOptPath>($5), std::unique_ptr<TCloseAngle>($6), std::unique_ptr<TOptExpectedSr>($7), std::unique_ptr<TOptExpectedRr>($8), std::unique_ptr<TSemi>($9));
   }
 ;
 
@@ -279,7 +340,7 @@ OptRhs
 
 Rhs
   : Arrow MemberSeq OptOperRef {
-    $$ = new TRhs($1, $2, $3);
+    $$ = new TRhs(std::unique_ptr<TArrow>($1), std::unique_ptr<TMemberSeq>($2), std::unique_ptr<TOptOperRef>($3));
   }
 ;
 
@@ -300,37 +361,37 @@ NoMemberSeq
 
 MemberSeq
   : Member OptMemberSeq {
-    $$ = new TMemberSeq($1, $2);
+    $$ = new TMemberSeq(std::unique_ptr<TMember>($1), std::unique_ptr<TOptMemberSeq>($2));
   }
 ;
 
 Member
-  : AnonymousMember {
+  : NamedMember {
     $$ = $1;
   }
   | ErrorMember {
     $$ = $1;
   }
-  | NamedMember {
+  | AnonymousMember {
     $$ = $1;
-  }
-;
-
-AnonymousMember
-  : Name {
-    $$ = new TAnonymousMember($1);
-  }
-;
-
-ErrorMember
-  : ErrorKwd {
-    $$ = new TErrorMember($1);
   }
 ;
 
 NamedMember
   : Name Colon Name {
-    $$ = new TNamedMember($1, $2, $3);
+    $$ = new TNamedMember(std::unique_ptr<TName>($1), std::unique_ptr<TColon>($2), std::unique_ptr<TName>($3));
+  }
+;
+
+ErrorMember
+  : ErrorKwd {
+    $$ = new TErrorMember(std::unique_ptr<TErrorKwd>($1));
+  }
+;
+
+AnonymousMember
+  : Name {
+    $$ = new TAnonymousMember(std::unique_ptr<TName>($1));
   }
 ;
 
@@ -345,7 +406,7 @@ OptOperRef
 
 OperRef
   : PrecKwd Name {
-    $$ = new TOperRef($1, $2);
+    $$ = new TOperRef(std::unique_ptr<TPrecKwd>($1), std::unique_ptr<TName>($2));
   }
 ;
 
@@ -357,13 +418,7 @@ NoOperRef
 
 NoRhs
   : Arrow EmptyKwd {
-    $$ = new TNoRhs($1, $2);
-  }
-;
-
-Language
-  : Name OptSuper OptRhs OpenAngle OptPath CloseAngle OptExpectedSr OptExpectedRr Semi {
-    $$ = new TLanguage($1, $2, $3, $4, $5, $6, $7, $8, $9);
+    $$ = new TNoRhs(std::unique_ptr<TArrow>($1), std::unique_ptr<TEmptyKwd>($2));
   }
 ;
 
@@ -378,28 +433,28 @@ OptPath
 
 Path
   : Name OptPathTail {
-    $$ = new TPath($1, $2);
+    $$ = new TPath(std::unique_ptr<TName>($1), std::unique_ptr<TOptPathTail>($2));
   }
 ;
 
 OptPathTail
-  : NoPathTail {
+  : PathTail {
     $$ = $1;
   }
-  | PathTail {
+  | NoPathTail {
     $$ = $1;
+  }
+;
+
+PathTail
+  : Slash Path {
+    $$ = new TPathTail(std::unique_ptr<TSlash>($1), std::unique_ptr<TPath>($2));
   }
 ;
 
 NoPathTail
   : /* empty */ {
     $$ = new TNoPathTail();
-  }
-;
-
-PathTail
-  : Slash Path {
-    $$ = new TPathTail($1, $2);
   }
 ;
 
@@ -426,7 +481,7 @@ NoExpectedSr
 
 ExpectedSr
   : SrKwd IntLiteral {
-    $$ = new TExpectedSr($1, $2);
+    $$ = new TExpectedSr(std::unique_ptr<TSrKwd>($1), std::unique_ptr<TIntLiteral>($2));
   }
 ;
 
@@ -447,84 +502,36 @@ NoExpectedRr
 
 ExpectedRr
   : RrKwd IntLiteral {
-    $$ = new TExpectedRr($1, $2);
+    $$ = new TExpectedRr(std::unique_ptr<TRrKwd>($1), std::unique_ptr<TIntLiteral>($2));
   }
 ;
 
-Oper
-  : Name OptSuper Pattern Name Assoc Semi {
-    $$ = new TOper($1, $2, $3, $4, $5, $6);
-  }
-;
-
-Pattern
-  : Eq StrLiteral OptPriLevel {
-    $$ = new TPattern($1, $2, $3);
-  }
-;
-
-StrLiteral
-  : SingleQuotedRawStrLiteral {
-    $$ = $1;
-  }
-  | DoubleQuotedStrLiteral {
-    $$ = $1;
-  }
-  | SingleQuotedStrLiteral {
-    $$ = $1;
-  }
-  | DoubleQuotedRawStrLiteral {
-    $$ = $1;
-  }
-;
-
-OptPriLevel
-  : PriLevel {
-    $$ = $1;
-  }
-  | NoPriLevel {
-    $$ = $1;
-  }
-;
-
-PriLevel
-  : PriKwd IntLiteral {
-    $$ = new TPriLevel($1, $2);
-  }
-;
-
-NoPriLevel
-  : /* empty */ {
-    $$ = new TNoPriLevel();
-  }
-;
-
-Assoc
-  : NonassocKwd {
-    $$ = $1;
-  }
-  | LeftKwd {
-    $$ = $1;
-  }
-  | RightKwd {
-    $$ = $1;
+Rule
+  : Name OptSuper OptRhs Semi {
+    $$ = new TRule(std::unique_ptr<TName>($1), std::unique_ptr<TOptSuper>($2), std::unique_ptr<TOptRhs>($3), std::unique_ptr<TSemi>($4));
   }
 ;
 
 Keyword
   : Name OptSuper Pattern Semi {
-    $$ = new TKeyword($1, $2, $3, $4);
+    $$ = new TKeyword(std::unique_ptr<TName>($1), std::unique_ptr<TOptSuper>($2), std::unique_ptr<TPattern>($3), std::unique_ptr<TSemi>($4));
+  }
+;
+
+Base
+  : Name OptSuper Semi {
+    $$ = new TBase(std::unique_ptr<TName>($1), std::unique_ptr<TOptSuper>($2), std::unique_ptr<TSemi>($3));
   }
 ;
 
 BadDecl
   : error Semi {
-    $$ = new TBadDecl($2);
+    $$ = new TBadDecl(std::unique_ptr<TSemi>($2));
   }
 ;
 
 %%
 
-void tools_nycr_syntax__error(const YYLTYPE *loc, char const *msg) {
+void tools_nycr_syntax__error(const YYLTYPE *loc, const std::unique_ptr<TNycr> &, char const *msg) {
   new ::Tools::Nycr::TError(loc->first_line, loc->first_column, loc->last_line, loc->last_column, msg);
 }

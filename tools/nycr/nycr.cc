@@ -70,16 +70,10 @@ class TNycr : public Base::TCmd {
         if(!Compiland.size()) {
           THROW << "no compiland";
         }
-        Syntax::TNycr *nycr = Syntax::TNycr::ParseFile(Compiland.c_str());
-        try {
-          if (!TError::GetFirstError()) {
-            Build(nycr);
-          }
-        } catch (...) {
-          delete nycr;
-          throw;
+        auto nycr = Syntax::TNycr::ParseFile(Compiland.c_str());
+        if (!TError::GetFirstError()) {
+          Build(nycr.get());
         }
-        delete nycr;
       } else {
         if (Compiland.size()) {
           THROW << "bootstrap option cannot be used with compilands";

@@ -12,7 +12,7 @@
 #include <tools/nycr/syntax/nycr.cst.h>
 using namespace Tools::Nycr::Syntax;
 #include <tools/nycr/syntax/nycr.bison.hh>
-void tools_nycr_syntax__error(const YYLTYPE *, char const *);
+void tools_nycr_syntax__error(const YYLTYPE *, const std::unique_ptr<TNycr> &, char const *);
 void tools_nycr_syntax__yylloc_default(YYLTYPE &lhs, YYLTYPE *rhs, int n) {
   if (n) {
     lhs.first_line   = rhs[1].first_line;
@@ -177,8 +177,8 @@ sr {
 }
 
 "/*" {
-  tools_nycr_syntax__depth = 1;
   BEGIN(COMMENT);
+  tools_nycr_syntax__depth = 1;
 }
 
 <COMMENT>"/*" {
@@ -199,9 +199,11 @@ sr {
 <COMMENT>. {}
 
 <COMMENT><<EOF>> {
-  tools_nycr_syntax__error(yylloc, "EOF in comment");
+  tools_nycr_syntax__error(yylloc, nullptr, "EOF in comment");
+  tools_nycr_syntax__depth = 0;
+  BEGIN(INITIAL);
 }
 
 . {
-  tools_nycr_syntax__error(yylloc, "illegal char");
+  tools_nycr_syntax__error(yylloc, nullptr, "illegal char");
 }

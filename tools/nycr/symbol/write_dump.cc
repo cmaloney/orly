@@ -56,21 +56,16 @@ void Tools::Nycr::Symbol::WriteDump(const char *root, const char *branch, const 
       << "      THROW << \"multiple compilands not allowed\";" << endl
       << "    }" << endl
       << "    auto cst = " << TScope(language) << TType(language->GetName()) << "::ParseFile(argv[optind]);" << endl
-      << "    try {" << endl
-      << "      if (!Tools::Nycr::TError::GetFirstError()) {" << endl
-      << "        cst->Write(cout, 0, 0);" << endl
-      << "        result = EXIT_SUCCESS;" << endl
-      << "      } else {" << endl
-      << "        for (const Tools::Nycr::TError *error = Tools::Nycr::TError::GetFirstError(); error; error = error->GetNextError()) {" << endl
-      << "          cerr << error->GetPosRange() << ' ' << error->GetMsg() << endl;" << endl
-      << "        }" << endl
-      << "        result = EXIT_FAILURE;" << endl
+      << "    if (!Tools::Nycr::TError::GetFirstError()) {" << endl
+      << "      assert(cst);" << endl
+      << "      cst->Write(cout, 0, 0);" << endl
+      << "      result = EXIT_SUCCESS;" << endl
+      << "    } else {" << endl
+      << "      for (const Tools::Nycr::TError *error = Tools::Nycr::TError::GetFirstError(); error; error = error->GetNextError()) {" << endl
+      << "        cerr << error->GetPosRange() << ' ' << error->GetMsg() << endl;" << endl
       << "      }" << endl
-      << "    } catch (...) {" << endl
-      << "      delete cst;" << endl
-      << "      throw;" << endl
+      << "      result = EXIT_FAILURE;" << endl
       << "    }" << endl
-      << "    delete cst;" << endl
       << "  } catch (const exception &ex) {" << endl
       << "    cerr << \"exception: \" << ex.what() << endl;" << endl
       << "    result = EXIT_FAILURE;" << endl

@@ -96,7 +96,7 @@ static void WriteFlexCc(const char *root, const char *branch, const char *atom, 
       << "#include <" << TPath(branch, atom, language) << ".cst.h>" << endl
       << TUsingNamespace(language)
       << "#include <" << TPath(branch, atom, language) << ".bison.hh>" << endl
-      << "void " << TUnderscore(language) << "error(const YYLTYPE *, char const *);" << endl
+      << "void " << TUnderscore(language) << "error(const YYLTYPE *, const std::unique_ptr<" << TType(language->GetName()) << "> &, char const *);" << endl
       << "void " << TUnderscore(language) << "yylloc_default(YYLTYPE &lhs, YYLTYPE *rhs, int n) {" << endl
       << "  if (n) {" << endl
       << "    lhs.first_line   = rhs[1].first_line;" << endl
@@ -178,12 +178,12 @@ static void WriteFlexCc(const char *root, const char *branch, const char *atom, 
       << '}' << endl << endl
       << "<COMMENT>. {}" << endl << endl
       << "<COMMENT><<EOF>> {" << endl
-      << "  " << TUnderscore(language) << "error(yylloc, \"EOF in comment\");" << endl
+      << "  " << TUnderscore(language) << "error(yylloc, nullptr, \"EOF in comment\");" << endl
       << "  " << TUnderscore(language) << "depth = 0;" << endl
       << "  BEGIN(INITIAL);" << endl
       << '}' << endl << endl
       << ". {" << endl
-      << "  " << TUnderscore(language) << "error(yylloc, \"illegal char\");" << endl
+      << "  " << TUnderscore(language) << "error(yylloc, nullptr, \"illegal char\");" << endl
       << '}' << endl;
 }
 

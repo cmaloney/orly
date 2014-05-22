@@ -40,11 +40,9 @@ static void ForStmt(const TProgram *program, const TForStmt &cb) {
 }
 
 void Orly::Client::Program::ParseStmtFile(const char *path, const TForStmt &cb) {
-  auto prog = TProgram::ParseFile(path);
-  ForStmt(prog.get(), cb);
+  ForStmt(TProgram::ParseFile(path).get(), cb);
 }
 
 void Orly::Client::Program::ParseStmtStr(const char *str, const TForStmt &cb) {
-  auto prog = TProgram::ParseStr(str);
-  ForStmt(prog.get(), cb);
+  ForStmt(TProgram::ParseStr(str).get(), cb);
 }
