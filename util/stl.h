@@ -111,8 +111,8 @@ namespace Util {
   }
 
   template <typename TContainer>
-  typename TContainer::value_type Pop(TContainer &container) {
-    typename TContainer::value_type res = container.front();
+  auto Pop(TContainer &container) {
+    auto res = container.front();
     container.pop();
     return res;
   }
