@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
 #include <sstream>
 
 #include <unistd.h>
@@ -139,6 +140,11 @@ bool Base::ExistsPath(const char *path) {
     result = true;
   }
   return result;
+}
+
+string Base::GetCwd() {
+  unique_ptr<char> cwd(getcwd(0, 0));
+  return string(cwd.get());
 }
 
 string Base::MakePath(bool is_absolute, initializer_list<const char *> dirs, initializer_list<const char *> parts) {

@@ -29,7 +29,6 @@
 /* TODO:
     Make these less copy happy, usually they all are derived from the same source text. This means a TTape style model.
     Name copy construction mutators (Replace extension, remove prefix, etc.). */
-
 namespace Jhm {
 
   /* Useful universal type defs. */

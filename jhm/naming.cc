@@ -27,6 +27,7 @@
 #include <utility>
 
 #include <base/not_implemented.h>
+#include <base/path_utils.h>
 #include <base/split.h>
 #include <base/syntax_error.h>
 
@@ -34,10 +35,6 @@ using namespace std;
 using namespace Base;
 using namespace Jhm;
 
-TStr GetCwd() {
-  unique_ptr<char> cwd(getcwd(0, 0));
-  return TStr(cwd.get());
-}
 
 TName::TName(const TStr &str) {
   assert(&str);
