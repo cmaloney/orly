@@ -27,6 +27,7 @@
 
 #include <base/class_traits.h>
 #include <base/error_utils.h>
+#include <base/mem_aligned_ptr.h>
 #include <base/mlock.h>
 #include <base/spin_lock.h>
 
@@ -56,12 +57,6 @@ namespace Orly {
           }
 
           /* TODO */
-          ~TPool() {
-            assert(this);
-            free(Blob);
-          }
-
-          /* TODO */
           size_t GetNumBlocksUsed() const {
             assert(this);
             return NumBlocksUsed;
@@ -79,16 +74,16 @@ namespace Orly {
             assert(MaxBlocks == 0UL);
             MaxBlocks = block_count;
             if (block_count) {
-              Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&Blob), getpagesize(), BlockSize * block_count));
-              Base::MlockRaw(Blob, BlockSize * block_count);
+              Blob = Base::MemAlignedAlloc<TBlock>(getpagesize(), BlockSize * block_count);
+              Base::MlockRaw(Blob.get(), BlockSize * block_count);
               #ifndef NDEBUG
-              memset(Blob, 0, BlockSize * block_count);
+              memset(Blob.get(), 0, BlockSize * block_count);
               #endif
               assert(Blob);
               syslog(LOG_INFO, "TBufBlock allocated [%ld] bytes for [%ld] blocks of size [%ld]", (BlockSize * block_count), block_count, BlockSize);
               TBlock
                   *prev_block = reinterpret_cast<TBlock *>(&FirstBlock),
-                  *block      = static_cast<TBlock *>(Blob);
+                  *block      = Blob.get();
               for (size_t i = 0; i < block_count; ++i) {
                 assert(block);
                 prev_block->NextBlock = block;
@@ -152,10 +147,7 @@ namespace Orly {
           private:
 
           /* TODO */
-          class TBlock {
-            NO_COPY(TBlock);
-            public:
-
+          struct TBlock {
             /* TODO */
             TBlock *NextBlock;
 
@@ -165,7 +157,7 @@ namespace Orly {
           const size_t BlockSize;
 
           /* TODO */
-          void *Blob;
+          std::unique_ptr<TBlock> Blob;
 
           /* TODO */
           TBlock *FirstBlock;

@@ -844,11 +844,11 @@ namespace Orly {
             assert(this);
             /* acquire discard lock */ {
               std::lock_guard<std::mutex> lock(DiscardMapLock);
-              free(DiscardMapBuf);
+              DiscardMapBuf.reset();
             }  // release discard lock
             /* acquire block lock */ {
               std::lock_guard<std::mutex> lock(BlockMapLock);
-              free(BlockMapBuf);
+              BlockMapBuf.reset();
             }  // release block lock
           }
 
@@ -914,21 +914,11 @@ namespace Orly {
                 BlockMapByteSize(ceil(static_cast<double>(NumBlocks) / 8)),
                 BlockMapBufByteSize(ceil(static_cast<double>(NumBlocks) / (getpagesize() * 64)) * getpagesize()) {
             assert(NumBlocks % Volume->GetDesc().NumLogicalExtent == 0UL);
-            try {
-              std::lock_guard<std::mutex> lock(BlockMapLock);
-              Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&BlockMapBuf), getpagesize(), BlockMapByteSize));
-              Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&DiscardMapBuf), getpagesize(), BlockMapByteSize));
-              Base::MlockRaw(BlockMapBuf, BlockMapByteSize);
-              Base::MlockRaw(DiscardMapBuf, BlockMapByteSize);
-              memset(BlockMapBuf, 0, BlockMapByteSize);
-              memset(DiscardMapBuf, 0, BlockMapByteSize);
-            } catch (...) {
-              free(DiscardMapBuf);
-              DiscardMapBuf = nullptr;
-              free(BlockMapBuf);
-              BlockMapBuf = nullptr;
-              throw;
-            }
+            std::lock_guard<std::mutex> lock(BlockMapLock);
+            BlockMapBuf = Base::MemAlignedAllocZeroInitialized<size_t>(getpagesize(), BlockMapByteSize);
+            DiscardMapBuf = Base::MemAlignedAllocZeroInitialized<size_t>(getpagesize(), BlockMapByteSize);
+            Base::MlockRaw(BlockMapBuf.get(), BlockMapByteSize);
+            Base::MlockRaw(DiscardMapBuf.get(), BlockMapByteSize);
           }
 
           void PostCtor() {
@@ -1025,10 +1015,10 @@ namespace Orly {
           Base::TScheduler *Scheduler;
 
           /* TODO */
-          size_t *BlockMapBuf;
+          std::unique_ptr<size_t> BlockMapBuf;
           std::mutex BlockMapLock;
           size_t CachedStart;
-          size_t *DiscardMapBuf;
+          std::unique_ptr<size_t> DiscardMapBuf;
           std::mutex DiscardMapLock;
 
           /* TODO */
@@ -1224,7 +1214,7 @@ namespace Orly {
 
 inline size_t TVolume::TStrategy::GetBlock() {
   assert(this);
-  size_t *buf_ref = BlockMapBuf + CachedStart;
+  size_t *buf_ref = BlockMapBuf.get() + CachedStart;
   constexpr size_t full = -1;
   for (size_t i = CachedStart; i < BlockMapByteSize / sizeof(size_t); ++i, ++buf_ref) {
     if (*buf_ref != full) {
@@ -1241,7 +1231,7 @@ inline size_t TVolume::TStrategy::GetBlock() {
     }
   }
   /* scan from the beginning */
-  buf_ref = BlockMapBuf;
+  buf_ref = BlockMapBuf.get();
   for (size_t i = 0; i < CachedStart; ++i, ++buf_ref) {
     if (*buf_ref != full) {
       size_t x = *buf_ref;
@@ -1261,7 +1251,7 @@ inline size_t TVolume::TStrategy::GetBlock() {
 
 size_t TVolume::TStrategy::TryGetSeqBlocks(const size_t num_blocks, size_t &start_out) {
   assert(this);
-  size_t *buf_ref = BlockMapBuf + CachedStart;
+  size_t *buf_ref = BlockMapBuf.get() + CachedStart;
   constexpr size_t full = -1;
   constexpr size_t empty = 0UL;
   constexpr size_t num_per_seg = 8 * sizeof(size_t);
@@ -1306,7 +1296,7 @@ size_t TVolume::TStrategy::TryGetSeqBlocks(const size_t num_blocks, size_t &star
     return cur_alloced;
   }
   /* scan from the beginning */
-  buf_ref = BlockMapBuf;
+  buf_ref = BlockMapBuf.get();
   for (size_t i = 0; i < CachedStart; ++i, ++buf_ref) {
     if (*buf_ref == empty && num_blocks - cur_alloced >= num_per_seg && likely(((i + 1) * num_per_seg) <= NumBlocks)) {
       const size_t block_id = (i * num_per_seg);
@@ -1404,7 +1394,7 @@ inline void TVolume::TStrategy::SetBlockBuf(size_t block_id, bool on) {
   }
   constexpr size_t num_per_seg = 8UL * sizeof(size_t);
   size_t index = block_id / num_per_seg;
-  size_t *offset = BlockMapBuf + index;
+  size_t *offset = BlockMapBuf.get() + index;
   size_t pos = block_id % num_per_seg;
   size_t u = 1;
   size_t mask = u << pos;
@@ -1431,7 +1421,7 @@ inline void TVolume::TStrategy::SetBlockBufSegment(size_t starting_block_id, boo
     throw std::runtime_error("Out of disk space.");
   }
   size_t index = starting_block_id / num_per_seg;
-  size_t *offset = BlockMapBuf + index;
+  size_t *offset = BlockMapBuf.get() + index;
   if (on) {
     assert(*offset == 0UL);
     *offset = -1UL;
@@ -1460,7 +1450,7 @@ inline void TVolume::TStrategy::SetBlockBufRange(size_t block_id, const size_t n
     SetBlockBuf(pos, on);
   }
   const size_t index = pos / num_per_seg;
-  size_t *offset = BlockMapBuf + index;
+  size_t *offset = BlockMapBuf.get() + index;
   for (; (pos < end) && ((end - pos) >= num_per_seg); pos += num_per_seg, ++offset) {
     assert(pos % num_per_seg == 0UL);
     #ifndef NDEBUG
@@ -1497,7 +1487,7 @@ inline void TVolume::TStrategy::SetDiscardRange(const size_t block_id, const siz
     SetDiscardBuf(pos, on);
   }
   const size_t index = pos / num_per_seg;
-  size_t *offset = DiscardMapBuf + index;
+  size_t *offset = DiscardMapBuf.get() + index;
   for (; (pos < end) && ((end - pos) >= num_per_seg); pos += num_per_seg, ++offset) {
     assert(pos % num_per_seg == 0UL);
     #ifndef NDEBUG
@@ -1529,7 +1519,7 @@ inline void TVolume::TStrategy::SetDiscardBuf(size_t block_id, bool on) {
   assert(block_id < NumBlocks);
   constexpr size_t num_per_seg = 8UL * sizeof(size_t);
   size_t index = block_id / num_per_seg;
-  size_t *offset = DiscardMapBuf + index;
+  size_t *offset = DiscardMapBuf.get() + index;
   size_t pos = block_id % num_per_seg;
   size_t u = 1;
   size_t mask = u << pos;
@@ -1551,7 +1541,7 @@ inline bool TVolume::TStrategy::CheckBufBlock(size_t block_id) const {
   assert(block_id < NumBlocks);
   constexpr size_t num_per_seg = 8UL * sizeof(size_t);
   size_t index = block_id / num_per_seg;
-  size_t *offset = BlockMapBuf + index;
+  size_t *offset = BlockMapBuf.get() + index;
   size_t pos = block_id % num_per_seg;
   size_t u = 1;
   size_t mask = u << pos;
@@ -1563,7 +1553,7 @@ inline bool TVolume::TStrategy::CheckDiscardBuf(size_t block_id) const {
   assert(block_id < NumBlocks);
   constexpr size_t num_per_seg = 8UL * sizeof(size_t);
   size_t index = block_id / num_per_seg;
-  size_t *offset = DiscardMapBuf + index;
+  size_t *offset = DiscardMapBuf.get() + index;
   size_t pos = block_id % num_per_seg;
   size_t u = 1;
   size_t mask = u << pos;
@@ -1852,7 +1842,7 @@ void TVolume::TStrategy::DiscardRunner() {
     /* acquire Discard lock */ {
       std::lock_guard<std::mutex> lock(DiscardMapLock);
       if (DiscardBlockWaiting > min_discard_blocks) {
-        uint8_t *buf_ref = reinterpret_cast<uint8_t *>(DiscardMapBuf);
+        uint8_t *buf_ref = reinterpret_cast<uint8_t *>(DiscardMapBuf.get());
         assert(((num_devices * NumBlocksPerExtent) / 8UL) % bytes_of_block_map_per_discard_range == 0UL);
         const size_t max_iter = ((num_devices * NumBlocksPerExtent) / 8UL) / bytes_of_block_map_per_discard_range;
         for (size_t i = 0; i < max_iter; ++i, buf_ref += bytes_of_block_map_per_discard_range) {
@@ -1864,7 +1854,7 @@ void TVolume::TStrategy::DiscardRunner() {
       }
       if (blocks_from_vec.empty() && (static_cast<double>(BlocksUsed) / NumBlocks) > Volume->GetDesc().HighUtilizationThreshold && DiscardBlockWaiting > 0UL) { /* our disk is getting close to full, start passing discard blocks to the free workset */
         std::lock_guard<std::mutex> block_lock(BlockMapLock);
-        size_t *buf_ref = DiscardMapBuf;
+        size_t *buf_ref = DiscardMapBuf.get();
         for (size_t i = 0; i < BlockMapByteSize / sizeof(size_t); ++i, ++buf_ref) {
           if (*buf_ref != empty) {
             size_t x = *buf_ref;
@@ -2400,7 +2390,7 @@ void TMemoryDevice::WriteImpl(const Base::TCodeLocation &/*code_location*/ /* DE
   assert(this);
   // we probably don't intend to abort on memory writes...
   ApplyCorruptionCheck(buf_kind, buf, offset, nbytes);
-  memcpy(Data + offset, buf, nbytes);
+  memcpy(Data.get() + offset, buf, nbytes);
 }
 
 void TMemoryDevice::Read(const Base::TCodeLocation &code_location /* DEBUG */, TBufKind buf_kind, uint8_t util_src, void *buf, const TOffset offset,
@@ -2477,7 +2467,7 @@ bool TMemoryDevice::ReadImpl(const Base::TCodeLocation &/*code_location*/ /* DEB
                              const TOffset offset, long long nbytes, DiskPriority /*priority*/, bool abort_on_error) {
   assert(this);
   assert(offset + nbytes <= Desc.Capacity);
-  memcpy(buf, Data + offset, nbytes);
+  memcpy(buf, Data.get() + offset, nbytes);
   bool ret = CheckCorruptCheck(buf_kind, buf, offset, nbytes);
   if (unlikely(!ret) && abort_on_error) {
     abort();
