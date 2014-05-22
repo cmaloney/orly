@@ -2003,7 +2003,8 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
     throw std::runtime_error("memcachememcache is a reserved package name.");
   }
 
-  auto post_install_cb = [this](Package::TLoaded::TPtr pckg_ptr) -> void {
+  // Callback for just before we make the packages installed / available for use.
+  auto pre_install_cb = [this](Package::TLoaded::TPtr pckg_ptr) -> void {
     std::lock_guard<std::mutex> lock(IndexMapMutex);
     const auto &type_by_index_map = pckg_ptr->GetTypeByIndexMap();
     for (const auto &addr_pair : type_by_index_map) {
@@ -2058,7 +2059,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       }
     }
   };
-  PackageManager.Install(unordered_set<Package::TVersionedName>{ Package::TVersionedName { package_name, version } }, post_install_cb);
+  PackageManager.Install({{package_name, version}}, pre_install_cb);
   ostringstream strm;
   for (const auto &name: package_name) {
     strm << '[' << name << ']';
