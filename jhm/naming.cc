@@ -304,11 +304,6 @@ bool TRelPath::VerifyStrLastNotSlash(const string &str) {
 TAbsBase TAbsBase::Find(const TStr &marker, bool &found_marker) {
   TStr working = GetCwd();
 
-  if (working.back() == '/') {
-    //NOTE: The call returns without a trailing slash, so we shouldn't have one...
-    NOT_IMPLEMENTED();
-  }
-
   struct stat st;
 
   do {
