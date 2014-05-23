@@ -129,6 +129,13 @@ namespace Base {
     return (iter != container.end()) ? &(iter->second) : 0;
   }
 
+  template <typename TContainer>
+  typename TContainer::value_type Pop(TContainer &container) {
+    typename TContainer::value_type res = container.front();
+    container.pop();
+    return res;
+  }
+
   /* Returns true if these two sets are equal, false otherwise. */
   template <typename TContainer>
   bool eqeq(const TContainer &lhs, const TContainer &rhs) {
