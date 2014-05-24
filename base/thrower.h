@@ -36,6 +36,24 @@
 #define THROW  (::Base::TThrower< ::Base::TNonSpecificRuntimeError>(HERE))
 
 namespace Base {
+  template <typename TError>
+  std::is_same<decltype(TError::GetDesc()), const char *> HasGetDescImpl(void *);
+
+  template <typename>
+  std::false_type HasGetDescImpl(...);
+
+  template <typename TError>
+  static constexpr bool HasGetDesc() {
+    return decltype(HasGetDescImpl<TError>(nullptr))::value;
+  }
+
+
+  /* Helper template so that we can prefix methods with a GetDesc() function if the error has one. Not if it doesn't. */
+  template <typename TError>
+  std::enable_if_t<HasGetDesc<TError>(), const char *> GetErrorDescHelper() { return TError::GetDesc(); }
+
+  template <typename TError>
+  std::enable_if_t<!HasGetDesc<TError>(), const char *> GetErrorDescHelper() { return nullptr; }
 
   /* A do-nothing singleton.  Insert this object onto a thrower to mark the end of a single piece of information. */
   extern const class TEndOfPart final {} EndOfPart;
@@ -54,7 +72,7 @@ namespace Base {
     TThrower(const TCodeLocation &code_location)
         : AtEndOfPart(false) {
       std::move(*this) << code_location << EndOfPart;
-      const char *desc = TError::GetDesc();
+      const char *desc = GetErrorDescHelper<TError>();
       if (desc) {
         std::move(*this) << desc << EndOfPart;
       }

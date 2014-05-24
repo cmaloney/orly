@@ -98,3 +98,9 @@ FIXTURE(Typical) {
   ThrowIt<TFoo, logic_error>();
   ThrowIt<TFoo, exception>();
 }
+
+FIXTURE(StdExcept) {
+  EXPECT_THROW(runtime_error, [](){
+    THROW_ERROR(runtime_error) << "foo bar baz";
+  });
+}
