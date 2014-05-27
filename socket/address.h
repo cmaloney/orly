@@ -340,7 +340,7 @@ namespace Socket {
 
   /* An async version of recvfrom() using TAddress.
      Returns false iff. it would block. */
-  inline size_t TryRecvFrom(int socket, void *buffer, size_t max_size, int flags, TAddress &address, size_t &size) {
+  inline bool TryRecvFrom(int socket, void *buffer, size_t max_size, int flags, TAddress &address, size_t &size) {
     assert(&address);
     assert(&size);
     socklen_t len = TAddress::MaxLen;
