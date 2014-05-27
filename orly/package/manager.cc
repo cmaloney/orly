@@ -83,6 +83,9 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
       }
       if(installed_it->second->GetName().Version == package.Version) {
         // If package has been previously installed at the same version, do nothing / noop.
+        std::ostringstream oss;
+        oss << package;
+        syslog(LOG_INFO, "Package already installed at requested version [%s]. No-op.", oss.str().c_str());
         continue;
       }
       installed_it->second = TLoaded::Load(PackageDir, package);
