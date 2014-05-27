@@ -188,6 +188,30 @@
         }
       }
     }
+    "orly/data/twitter.import.flex.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++1y";
+          "-pthread";
+        }
+      }
+    }
+    "orly/data/twitter.import.bison.cc" {
+      "g++" {
+        "flags" {
+          "-O3";
+          "-flto";
+          "-DNDEBUG";
+          "-U_FORTIFY_SOURCE"
+          "-std=c++1y";
+          "-pthread";
+        }
+      }
+    }
     "orly/server/orly.o" {
       "ld" {
         "flags" {

@@ -135,11 +135,12 @@ static void WriteFlexCc(const char *root, const char *branch, const char *atom, 
       << "DOUBLE_QUOTE \\\"" << endl
       << "BACKSLASH \\\\" << endl
       << "RAW_STRING_MARK (r|R)" << endl
-      << "ESCAPE_SEQUENCE {BACKSLASH}({SINGLE_QUOTE}|{DOUBLE_QUOTE}|{BACKSLASH}|n|r|t|x[[:xdigit:]]{2})" << endl
+      << "ESCAPE_SEQUENCE {BACKSLASH}({SINGLE_QUOTE}|{DOUBLE_QUOTE}|{BACKSLASH}|n|r|f|t|x[[:xdigit:]]{2})" << endl
       << "SINGLE_QUOTED_STRING {SINGLE_QUOTE}([^'\\n\\t\\\\]|{ESCAPE_SEQUENCE})*{SINGLE_QUOTE}" << endl
       << "DOUBLE_QUOTED_STRING {DOUBLE_QUOTE}([^\"\\n\\t\\\\]|{ESCAPE_SEQUENCE})*{DOUBLE_QUOTE}" << endl
       << "SINGLE_QUOTED_RAW_STRING {RAW_STRING_MARK}{SINGLE_QUOTE}[^'\\n\\t]*{SINGLE_QUOTE}" << endl
-      << "DOUBLE_QUOTED_RAW_STRING {RAW_STRING_MARK}{DOUBLE_QUOTE}[^\"\\n\\t]*{DOUBLE_QUOTE}" << endl << endl
+      << "DOUBLE_QUOTED_RAW_STRING {RAW_STRING_MARK}{DOUBLE_QUOTE}[^\"\\n\\t]*{DOUBLE_QUOTE}" << endl
+      << "DOUBLE_QUOTED_NON_MARK_RAW_STRING {DOUBLE_QUOTE}[^\"\\n\\t]*{DOUBLE_QUOTE}" << endl << endl
       << "%%" << endl;
   vector<const TAtom *> atoms;
   ForEachKnownKind(language, bind(CollectAtoms, _1, ref(atoms)));
