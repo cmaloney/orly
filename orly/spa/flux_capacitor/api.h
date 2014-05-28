@@ -819,7 +819,7 @@ namespace Orly {
         /* TODO: Lock the currently in use notifiers from being watched by anyone else. Currently handled by Service. */
 
         /* TODO */
-        /* TODO: Could/should be a read/write lock (<base/potato.h> */
+        /* TODO: Could/should be a read/write lock */
         std::recursive_mutex NotifierLock;
 
         /* TODO */

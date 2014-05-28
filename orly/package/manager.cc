@@ -36,8 +36,7 @@ using namespace Base;
 using namespace std;
 using namespace Orly::Package;
 
-TManager::TManager(const Jhm::TAbsBase &package_dir) : PackageDir(package_dir),
-    InstallLock(TPotato::New()) {}
+TManager::TManager(const Jhm::TAbsBase &package_dir) : PackageDir(package_dir) {}
 
 //When the installed map destructs, the shared pointers will naturally go away, unloading the packages.
 TManager::~TManager() {}
@@ -46,7 +45,7 @@ TLoaded::TPtr TManager::Get(const TName &package) const {
   assert(this);
   assert(&package);
 
-  TPotato::TSharedLock lock(InstallLock);
+  shared_lock<shared_timed_mutex> lock(InstallLock);
   auto it = Installed.find(package);
   if(it == Installed.end()) {
     std::ostringstream oss;
@@ -65,7 +64,7 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void (T
   assert(this);
   assert(&packages);
 
-  TPotato::TExclusiveLock lock(InstallLock);
+  unique_lock<shared_timed_mutex> lock(InstallLock);
 
   TInstalled installed(Installed);
 
@@ -101,7 +100,7 @@ void TManager::Uninstall(const TVersionedNames &packages) {
   assert(this);
   assert(&packages);
 
-  TPotato::TExclusiveLock lock(InstallLock);
+  unique_lock<shared_timed_mutex> lock(InstallLock);
   TInstalled installed(Installed);
 
   for(const TVersionedName &package: packages) {
@@ -119,7 +118,7 @@ void TManager::Uninstall(const TVersionedNames &packages) {
 
 void TManager::YieldInstalled(std::function<bool (const TVersionedName &name)> cb) const {
   assert(this);
-  TPotato::TSharedLock lock(InstallLock);
+  shared_lock<shared_timed_mutex> lock(InstallLock);
 
   for(const auto &it: Installed) {
     if(!cb(it.second->GetName())) {
