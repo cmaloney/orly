@@ -2003,9 +2003,14 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
     throw std::runtime_error("memcachememcache is a reserved package name.");
   }
 
-  auto post_install_cb = [this](Package::TLoaded::TPtr pckg_ptr) -> void {
+  // Callback for just before we make the packages installed / available for use.
+  auto pre_install_cb = [this](Package::TLoaded::TPtr pkg_ptr, bool is_new_version) -> void {
+    //TODO: This is broken badly if we install two independently-generated same-version packages.
+    if (!is_new_version) {
+      return;
+    }
     std::lock_guard<std::mutex> lock(IndexMapMutex);
-    const auto &type_by_index_map = pckg_ptr->GetTypeByIndexMap();
+    const auto &type_by_index_map = pkg_ptr->GetTypeByIndexMap();
     for (const auto &addr_pair : type_by_index_map) {
       void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
       void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
@@ -2014,7 +2019,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       Atom::TCore key_core(&IndexMapArena, *key_type_wrapper);
       Atom::TCore val_core(&IndexMapArena, *val_type_wrapper);
       stringstream ss;
-      ss << "Package[" << pckg_ptr->GetName() << "] Index [" << addr_pair.first << "]\t";
+      ss << "Package[" << pkg_ptr->GetName() << "] Index [" << addr_pair.first << "]\t";
       key_type_wrapper->Accept(Sabot::TTypeDumper(ss));
       ss << " <- ";
       val_type_wrapper->Accept(Sabot::TTypeDumper(ss));
@@ -2025,10 +2030,10 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       bool is_new = ret.second;
       if (!is_new) {
         stringstream ss;
-        ss << "Package [" << pckg_ptr->GetName() << "] Remapping index [" << addr_pair.first << "] to [" << ret.first->second << "]" << std::endl;
+        ss << "Package [" << pkg_ptr->GetName() << "] Remapping index [" << addr_pair.first << "] to [" << ret.first->second << "]" << std::endl;
         syslog(LOG_INFO, "%s", ss.str().c_str());
         bool found = false;
-        for (Base::TUuid *index_ptr : pckg_ptr->GetIndexIdSet()) {
+        for (Base::TUuid *index_ptr : pkg_ptr->GetIndexIdSet()) {
           if (*index_ptr == addr_pair.first) {
             *index_ptr = ret.first->second;
             found = true;
@@ -2041,7 +2046,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
         #ifndef NDEBUG
         bool found_prev = false;
         bool found_new = false;
-        for (Base::TUuid *index_ptr : pckg_ptr->GetIndexIdSet()) {
+        for (Base::TUuid *index_ptr : pkg_ptr->GetIndexIdSet()) {
           if (*index_ptr == addr_pair.first) {
             found_prev = true;
           } else if (*index_ptr == ret.first->second) {
@@ -2058,7 +2063,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       }
     }
   };
-  PackageManager.Install(unordered_set<Package::TVersionedName>{ Package::TVersionedName { package_name, version } }, post_install_cb);
+  PackageManager.Install({{package_name, version}}, pre_install_cb);
   ostringstream strm;
   for (const auto &name: package_name) {
     strm << '[' << name << ']';
