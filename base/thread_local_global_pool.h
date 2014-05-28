@@ -25,6 +25,7 @@
 #include <syslog.h>
 
 #include <base/assert_true.h>
+#include <base/demangle.h>
 #include <base/class_traits.h>
 #include <base/error_utils.h>
 #include <base/likely.h>
@@ -105,7 +106,7 @@ namespace Base {
         } else {
           alloc_obj = TryAllocUncommon();
           if (!alloc_obj) {
-            syslog(LOG_ERR, "Bad Alloc in TThreadLocalPool");
+            syslog(LOG_ERR, "Bad Alloc in TThreadLocalPool [%s]", Base::TDemangle(typeid(TObj)).Get());
             throw std::bad_alloc();
           }
         }
