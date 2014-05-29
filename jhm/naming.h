@@ -29,7 +29,6 @@
 /* TODO:
     Make these less copy happy, usually they all are derived from the same source text. This means a TTape style model.
     Name copy construction mutators (Replace extension, remove prefix, etc.). */
-
 namespace Jhm {
 
   /* Useful universal type defs. */
@@ -39,6 +38,7 @@ namespace Jhm {
   /* Forward Declarations */
   class TAbsPath;
   class TRelPath;
+  using TExtension = TStrList;
 
   /* TODO */
   class TNamingError : public Base::TFinalError<TNamingError> {
@@ -55,16 +55,16 @@ namespace Jhm {
 
     TName(const TStr &str); //str must be of the format base[.ext]*
     TName(const TStr &base, const TStrList &extensions);
-    TName(TStr &&base, TStrList &&extensions);
+    TName(TStr &&base, TExtension &&extensions);
 
     bool operator==(const TName &that) const;
     bool operator!=(const TName &that) const;
 
     const TStr &GetBase() const;
-    const TStrList &GetExtensions() const;
+    const TExtension &GetExtensions() const;
 
     TName SwapLastExtension(const TStr &new_ext) const;
-    TName SwapLastExtension(const TStrList &new_ext) const;
+    TName SwapLastExtension(const TExtension &new_ext) const;
 
     void Write(std::ostream &strm) const;
 
@@ -72,7 +72,7 @@ namespace Jhm {
     void Verify() const;
 
     TStr Base;
-    TStrList Extensions;
+    TExtension Extensions;
   };
 
   class TNamespace {

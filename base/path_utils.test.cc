@@ -212,3 +212,8 @@ FIXTURE(TmpCopyToFile) {
   }
   EXPECT_FALSE(ExistsPath(path.c_str()));
 }
+
+FIXTURE(GetCwd) {
+  // Basic sanity check
+  EXPECT_NE(GetCwd().back(), '/');
+}

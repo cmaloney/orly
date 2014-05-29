@@ -47,6 +47,9 @@ namespace Base {
   /* True iff. the given file or directory exists in the file system. */
   bool ExistsPath(const char *path);
 
+  /* Gets the current working directory as a std::string. The cwd never ends in '/' */
+  std::string GetCwd();
+
   /* Make a path string from the given directory names and file name parts.
      Any null c-string pointers or empty strings are skipped.
      The directory names may start or end in one or more slashes, but they will be ignored.

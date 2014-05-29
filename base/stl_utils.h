@@ -65,17 +65,6 @@ namespace Base {
     return (iter != container.end()) ? iter->second : def;
   }
 
-  /* Returns the value mapped to the given key.  If the value doesn't appear in the container, an assertion fails. */
-  template <typename TContainer>
-  const typename TContainer::mapped_type &FindOrElse(const TContainer &container, const typename TContainer::key_type &key) {
-    auto iter = container.find(key);
-    if (iter == container.end()) {
-      throw TImpossibleError(HERE);
-    }
-    assert(iter != container.end());
-    return iter->second;
-  }
-
   /* Returns the value mapped to the given key.  If the value doesn't appear in the container, the default value is inserted and returned. */
   template <typename TContainer>
   const typename TContainer::mapped_type &FindOrInsert(
@@ -127,6 +116,13 @@ namespace Base {
   const typename TContainer::mapped_type *TryFind(const TContainer &container, const typename TContainer::key_type &key) {
     auto iter = container.find(key);
     return (iter != container.end()) ? &(iter->second) : 0;
+  }
+
+  template <typename TContainer>
+  typename TContainer::value_type Pop(TContainer &container) {
+    typename TContainer::value_type res = container.front();
+    container.pop();
+    return res;
   }
 
   /* Returns true if these two sets are equal, false otherwise. */
