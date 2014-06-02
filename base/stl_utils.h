@@ -49,14 +49,6 @@ namespace Base {
     assert(result == 1);
   }
 
-  /* Returns the value mapped to the given key.  If the value doesn't appear in the container, an assertion fails. */
-  template <typename TContainer>
-  const typename TContainer::mapped_type &Find(const TContainer &container, const typename TContainer::key_type &key) {
-    auto iter = container.find(key);
-    assert(iter != container.end());
-    return iter->second;
-  }
-
   /* Returns the value mapped to the given key.  If the value doesn't appear in the container, returns a default. */
   template <typename TContainer>
   const typename TContainer::mapped_type &FindOrDefault(
