@@ -29,6 +29,9 @@ namespace Base {
   class TSubprocess final {
     public:
 
+    static int WaitAll();
+    // Returns the pid of the process which exited / work us up.
+
     /* Destroying this object won't stop the child process, we'll just stop talking to it. */
     ~TSubprocess() = default;
 
