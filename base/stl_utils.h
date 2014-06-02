@@ -115,7 +115,7 @@ namespace Base {
   template <typename TContainer>
   const typename TContainer::mapped_type *TryFind(const TContainer &container, const typename TContainer::key_type &key) {
     auto iter = container.find(key);
-    return (iter != container.end()) ? &(iter->second) : 0;
+    return (iter != container.end()) ? &(iter->second) : nullptr;
   }
 
   template <typename TContainer>
