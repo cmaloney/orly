@@ -182,6 +182,20 @@ FIXTURE(AbsBase) {
   TAbsBase("a/c/..d/");
   TAbsBase("a/c/.d/");
   */
+
+  // Contains tests
+  // Self
+  EXPECT_TRUE(ab1.Contains("/a/b/c"));
+  EXPECT_TRUE(ab1.Contains("/a/b/c/"));
+  // Child directories
+  EXPECT_TRUE(ab1.Contains("/a/b/c/d"));
+  EXPECT_TRUE(ab2.Contains("/b/d/e/f/g/h/i"));
+  // non-matching
+  EXPECT_FALSE(ab1.Contains("/a"));
+  EXPECT_FALSE(ab1.Contains("/a/c/b/d"));
+  EXPECT_FALSE(ab2.Contains("/f/g"));
+  EXPECT_FALSE(ab2.Contains("/b"));
+  EXPECT_FALSE(ab2.Contains("/d/b/e/f/g"));
 }
 
 FIXTURE(AbsPath) {

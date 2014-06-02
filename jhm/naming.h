@@ -143,6 +143,9 @@ namespace Jhm {
     bool operator==(const TAbsBase &that) const;
     bool operator!=(const TAbsBase &that) const;
 
+    // Returns true iff the abs base is a prefix of str
+    bool Contains(const TStr &str) const;
+
     const TStr &Get() const;
 
     /* Take the given path in the string and, using the */

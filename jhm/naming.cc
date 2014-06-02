@@ -337,6 +337,16 @@ bool TAbsBase::operator!=(const TAbsBase &that) const {
   return AbsBase != that.AbsBase;
 }
 
+bool TAbsBase::Contains(const TStr &that) const {
+  assert(this);
+  assert(&that);
+
+  if (that.size() < AbsBase.size()) {
+    return false;
+  }
+  return that.compare(1, AbsBase.size(), AbsBase) == 0;
+}
+
 const TStr &TAbsBase::Get() const {
   assert(this);
 
