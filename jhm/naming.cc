@@ -36,6 +36,20 @@ using namespace Base;
 using namespace Jhm;
 
 
+bool Jhm::EndsWith(const TExtension &full_ext, const TExtension &tail) {
+  if(full_ext.size() < tail.size()) {
+    return false;
+  }
+
+  for(uint32_t i=0; i < tail.size(); ++i) {
+    if (full_ext[full_ext.size()-(i+1)] != tail[tail.size()-(i+1)]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 TName::TName(const TStr &str) {
   assert(&str);
 
@@ -84,6 +98,13 @@ const TStrList &TName::GetExtensions() const {
   return Extensions;
 }
 
+TName TName::AddExtension(const TStrList &new_ext) const {
+  assert(this);
+  TStrList ext_list(Extensions);
+  ext_list.insert(ext_list.end(), new_ext.begin(), new_ext.end());
+  return TName(Base, move(ext_list));
+}
+
 TName TName::SwapLastExtension(const string &new_ext) const {
   assert(this);
   TStrList ext_list(Extensions);
@@ -96,6 +117,14 @@ TName TName::SwapLastExtension(const TStrList &new_ext) const {
   TStrList ext_list(Extensions);
   ext_list.pop_back();
   ext_list.insert(ext_list.end(), new_ext.begin(), new_ext.end());
+  return TName(Base, move(ext_list));
+}
+
+TName TName::DropExtension(uint32_t count) const {
+  assert(this);
+  assert(Extensions.size() >= count);
+  TStrList ext_list(Extensions);
+  ext_list.resize(Extensions.size() - count);
   return TName(Base, move(ext_list));
 }
 
@@ -265,6 +294,12 @@ const TName &TRelPath::GetName() const {
   return Name;
 }
 
+TRelPath TRelPath::AddExtension(const TStrList &new_ext) const {
+  assert(this);
+
+  return TRelPath(Namespaces, Name.AddExtension(new_ext));
+}
+
 TRelPath TRelPath::SwapLastExtension(const string &new_ext) const {
   assert(this);
 
@@ -274,6 +309,10 @@ TRelPath TRelPath::SwapLastExtension(const TStrList &new_ext) const {
   assert(this);
 
   return TRelPath(Namespaces, Name.SwapLastExtension(new_ext));
+}
+
+TRelPath TRelPath::DropExtension(uint32_t count) const {
+  return TRelPath(Namespaces, Name.DropExtension(count));
 }
 
 TNamespace TRelPath::ToNamespaceIncludingName() const {

@@ -40,6 +40,21 @@ namespace std {
     return strm;
   }
 }
+
+FIXTURE(EndsWith) {
+  EXPECT_TRUE(EndsWith({"a", "b", "c"}, {"c"}));
+  EXPECT_TRUE(EndsWith({"a", "b", "c"}, {"b", "c"}));
+  EXPECT_TRUE(EndsWith({"a", "b", "c"}, {"a", "b", "c"}));
+  EXPECT_TRUE(EndsWith({"bar", "asdf"}, {"asdf"}));
+  EXPECT_FALSE(EndsWith({"bar", "asdf"}, {"as", "df"}));
+
+  EXPECT_FALSE(EndsWith({"a", "b", "c"}, {"z", "a", "b", "c"}));
+  EXPECT_FALSE(EndsWith({"a", "b", "c"}, {"c", "c"}));
+  EXPECT_FALSE(EndsWith({"a", "b", "c"}, {"d"}));
+
+  EXPECT_TRUE(EndsWith({"a", "b", "c"}, {}));
+}
+
 FIXTURE(Name) {
   //Check that general parsing and construction work.
   TName n1("a.txt");
@@ -88,6 +103,12 @@ FIXTURE(Name) {
   EXPECT_EQ(n8a, TName("a.a"));
   EXPECT_EQ(n8a.SwapLastExtension("b").SwapLastExtension("a2"), TName("a.a2"));
 
+  // Dropping extensions
+  TName n9("a.b.c");
+  TName n9a("a.b");
+  EXPECT_EQ(n9.DropExtension(1), n9a);
+  EXPECT_EQ(n9.DropExtension(2), n2);
+  EXPECT_EQ(n9a.DropExtension(1), n2);
 
   //Check the const ref constructor works the same as the move constructor
   TStr base = "a";
