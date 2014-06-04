@@ -57,6 +57,10 @@ namespace Jhm {
     virtual const char *GetName() = 0;
     virtual const TSet<TFile*> GetNeeds() = 0;
 
+    /* Allows a job to verify that it's complete. If it returns false here, the command __WILL__ get run again when
+       all the files returned by GetNeeds() are all done. */
+    virtual bool IsComplete() = 0;
+
     TFile *GetInput() {
       assert(this);
       return Input;
@@ -65,6 +69,15 @@ namespace Jhm {
     const TSet<TFile*> &GetOutput() const {
       assert(this);
       return Output;
+    }
+
+    TFile *GetSoleOutput() const {
+      assert(this);
+      assert(Output.size() == 1);
+      for(TFile *f: GetOutput()) {
+        return f;
+      }
+      __builtin_unreachable();
     }
 
     virtual std::string GetCmd() = 0;

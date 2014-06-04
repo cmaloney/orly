@@ -32,9 +32,13 @@ namespace Jhm {
       virtual const char *GetName() final;
       virtual const TSet<TFile*> GetNeeds() final;
       virtual std::string GetCmd() final;
+      virtual bool IsComplete() final;
 
       private:
       TCDep(TEnv &env, TFile *input);
+
+      TEnv &Env;
+      TSet<TFile*> Needs;
 
     };
 

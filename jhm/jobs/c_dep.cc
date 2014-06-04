@@ -16,7 +16,11 @@
 
 #include <jhm/jobs/c_dep.h>
 
+#include <fstream>
+#include <iostream>
+
 #include <base/assert_true.h>
+#include <base/not_implemented.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
 
@@ -37,35 +41,6 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
   }
 }
 
-const char *TCDep::GetName() {
-  return "dependency_file";
-}
-
-const unordered_set<TFile*> TCDep::GetNeeds() {
-  assert(this);
-  return {GetInput()};
-}
-
-string TCDep::GetCmd() {
-  assert(this);
-  ostringstream oss;
-
-  // TODO: Make this into a helper function to go from output set -> output file (Asserting only one)
-  // TODO: Also add a helper for output set -> output directory
-  string out_path;
-  for(TFile *f: GetOutput()) {
-    assert(out_path.size() == 0); // We should only have one output
-    out_path = f->GetPath().AsStr();
-  }
-
-  oss << "make_dep_file " << GetInput()->GetPath() << ' ' << out_path;
-
-  //TODO: Append arguments which would be passed to compiler
-  //TODO: Add output directory
-  return oss.str();
-}
-
-
 TJobProducer TCDep::GetProducer() {
 
   return TJobProducer{
@@ -78,5 +53,72 @@ TJobProducer TCDep::GetProducer() {
   };
 }
 
+const char *TCDep::GetName() {
+  return "dependency_file";
+}
+
+const unordered_set<TFile*> TCDep::GetNeeds() {
+  assert(this);
+
+  return Needs;
+}
+
+string TCDep::GetCmd() {
+  assert(this);
+  ostringstream oss;
+
+  // TODO: add a helper for output set -> output directory
+  oss << "make_dep_file " << GetInput()->GetPath() << ' ' << GetSoleOutput()->GetPath().AsStr();
+
+  //TODO: Append arguments which would be passed to compiler
+  //TODO: Add output directory
+  return oss.str();
+}
+
+bool TCDep::IsComplete() {
+  assert(this);
+
+  bool needs_work = false;
+
+  // Load the json file and see if there are any new things in it which aren't yet done (We have work to do)
+  // TODO: This should be a call to Parse()... But that constructs an istringstream...
+  TJson deps;
+  ifstream in(GetSoleOutput()->GetPath().AsStr());
+  assert(in.is_open());
+  deps.Read(in);
+
+  deps.ForEachElem([this,&needs_work](const TJson &elem)->bool {
+
+    const string &dep = elem.GetString();
+
+    // If an include is less than one character, WTF!
+    assert(dep.size() >= 1);
+    TFile *f = nullptr;
+
+    if (dep[0] == '/') {
+      // Have to locate what tree it's in.
+      if (Env.GetSrc().Contains(dep)) {
+        f = Env.TryFindFile(Env.GetSrc().GetAbsPath(dep).GetRelPath());
+      } else if (Env.GetOut().Contains(dep)) {
+        f = Env.TryFindFile(Env.GetOut().GetAbsPath(dep).GetRelPath());
+      } else {
+        // File isn't in a known tree. Skip it.
+        return true;
+      }
+    } else {
+      // The file definitely doesn't exist according to GCC. Fortunately this means we have a nice relative path already.
+      f = Env.TryFindFile(TRelPath(dep));
+    }
+
+    // Add to needs. If it's new in the Needs array, we aren't done yet.
+    needs_work |= Needs.insert(f).second;
+
+    return true;
+  });
+
+  return !needs_work;
+}
+
+
 TCDep::TCDep(TEnv &env, TFile *in_file)
-    : TJob(in_file, {AssertTrue(env.TryFindFile(GetOutputName(in_file->GetPath().GetRelPath())))}) {}
+    : TJob(in_file, {AssertTrue(env.TryFindFile(GetOutputName(in_file->GetPath().GetRelPath())))}), Env(env) {}

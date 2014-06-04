@@ -83,11 +83,13 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
 
   vector<string> deps;
 
-  char *tok_start=nullptr;
+  char *tok_start = nullptr;
   bool eaten_start = false;
+  bool is_first_item = true;
 
   // Convert it to a happy format
   // Remove leading .o:
+  // Remove leading source file (Comes right after the ':')
   // Grab each token as a string.
   // If the string is '\' then it's a linebreak GCC added...
   for(uint32_t i=0; i < gcc_deps.length(); ++i) {
@@ -111,7 +113,11 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
       string dep(tok_start, &c-tok_start);
       tok_start = nullptr;
       if (dep != "\\") {
-        deps.emplace_back(move(dep));
+        if (is_first_item) {
+          is_first_item = false;
+        } else {
+          deps.emplace_back(move(dep));
+        }
       }
     } else {
       // Hit start of token?

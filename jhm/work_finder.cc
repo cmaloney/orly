@@ -109,18 +109,6 @@ void TJobRunner::Worker() {
       }
       EraseOrFail(Running, job);
 
-      // If we exited successfully, all output files should now exist.
-      // TODO: Write the check that jobs shouldn't have made/updated output.
-      if (returncode == 0) {
-        // Sanity check all outputs exist for job
-        for(const TFile *out_file : job->GetOutput()) {
-
-          if (!ExistsPath(out_file->GetPath().AsStr().c_str())) {
-            THROW_ERROR(logic_error) << "Job " << job << " Didn't produce the output file '" << out_file
-                                     << " which it was supposed to yet returned successfully...";
-          }
-        }
-      }
     }
   }
 
@@ -160,6 +148,11 @@ void TWorkFinder::ProcessReady() {
 
       TJob *job = Pop(Ready);
 
+      /* check input */ {
+        TFile *file = job->GetInput();
+        needed += AddNeededFile(file, job);
+      }
+
       for (TFile *file : job->GetNeeds()) {
         // Add each file. If any need jobs to complete, the job isn't ready yet.
         needed += AddNeededFile(file, job);
@@ -190,6 +183,20 @@ void TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
     cout << "STDERR: \n";
     Base::EchoOutput(move(result.Stderr));
   } else {
+    // Check if the job is actually complete or not
+    if (!result.Job->IsComplete()) {
+      Ready.push(result.Job);
+      return;
+    }
+
+    // If we exited successfully, Sanity check that all output files now exist.
+    for (const TFile *out_file : result.Job->GetOutput()) {
+      if (!ExistsPath(out_file->GetPath().AsStr().c_str())) {
+        THROW_ERROR(logic_error) << "Job " << result.Job << " Didn't produce the output file '" << out_file
+                                 << " which it was supposed to yet returned successfully...";
+      }
+    }
+
     // Update every job which was waiting on this job to be waiting on one less thing.
     // NOTE: If the job isn't waiting on anything, it gets pushed to the Ready queue.
     const auto range = ToFinish.equal_range(result.Job);
@@ -207,10 +214,10 @@ void TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
           Ready.push(job);
         }
       }
+      // TODO: Assert this succeeds (It should be guaranteed to)
+      ToFinish.erase(range.first, range.second);
     }
 
-    // TODO: Assert this succeeds (It should be guaranteed to)
-    ToFinish.erase(range.first, range.second);
     InsertOrFail(Finished, result.Job);
   }
 }
