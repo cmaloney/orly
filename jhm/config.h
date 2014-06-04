@@ -1,4 +1,4 @@
-/* <jhm/config.cc>
+/* <jhm/config.h>
 
    Configuration file loading / reading.
 
@@ -18,21 +18,119 @@
 
 #pragma once
 
+#include <deque>
+
+#include <base/opt.h>
 #include <base/json.h>
 
 namespace Jhm {
   /* Configuration system. Handles stacked configuration files ('parent', 'include' statements)
 
-     Wraps <base/json.h> as it's core config file format because that's so very simple. for now. */
-  //NOTE: Handles stacked config files ('parent', 'include' statements)
-  class TConfig {
+     Wraps <base/json.h> as it's core config file format.
+
+     Key prefixed with '+' means add/append '-' means remove, '=' means replace. Default behavior is '+'.
+
+     Allows configs to enter the stack either through explicitly including eachother (Useful for platform includes), by
+     being handwritten for a file which is an input or need of a job (Useful for bad headers with c style casts and the
+     like), or by having a job which is known to need special flags to process it's output (Useful for flex/bison and
+     the horrible C++ they output)
+
+     NOTE: Config cannot be machine generated __EVER__. Attached/used from producer and the like yes. But never a
+     generated file.
+
+     TODO: parent/include statements? */
+
+  Base::TJson ReadConfig(const std::string &filename);
+
+  template<typename TVal>
+  struct TJsonReader;
+
+  // Combines multiple configs into one coherent config
+  // Also resolves the config delta notation.
+  class TConfig final {
     public:
 
-    /* Read the given type out of the configuration file. Throws a runtime_error if the config option can't be parsed as
-       the given type */
-    template<typename TVal>
-    TVal Read(const char *str) const;
+    DEFINE_ERROR(TInvalidValue, std::runtime_error, "invalid config value");
 
-    std::vector<Base::TJson> Configs;
+    TConfig(Base::TJson base_config);
+
+    template<typename TVal>
+    static TVal ReadJson(const std::string &name, const Base::TJson &entry);
+
+    // TODO: All the partial  specializations
+    //NOTE: name may contain '.' which specifies entry into sub key.
+    template <typename TVal>
+    TVal Read(const std::string &name) const {
+      auto entry = GetEntry(name);
+      return TJsonReader<TVal>::Read(name, entry);
+    }
+
+    Base::TJson GetEntry(const std::string &name) const;
+    bool ForEachEntry(const std::string &name, const Base::TJson::TObjectCb &cb) const;
+
+    void Push(Base::TJson &&config);
+    void PushBack(Base::TJson &&config);
+
+    private:
+    std::deque<Base::TJson> ConfigStack;
+  };
+
+  template <>
+  struct TJsonReader<double> {
+    static double Read(const std::string &name, const Base::TJson &entry) {
+      if (entry.GetKind() != Base::TJson::Number) {
+        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name)
+                                            << ". Expected a number (double)";
+      }
+      return entry.GetNumber();
+    }
+  };
+
+  template <>
+  struct TJsonReader<std::string> {
+    static std::string Read(const std::string &name, const Base::TJson &entry) {
+      if (entry.GetKind() != Base::TJson::String) {
+        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name) << ". Expected a string";
+      }
+      return entry.GetString();
+    }
+  };
+
+  template <typename TVal>
+  struct TJsonReader<std::vector<TVal>> {
+    static std::vector<TVal> Read(const std::string &name, const Base::TJson &entry) {
+      if (entry.GetKind() != Base::TJson::Array) {
+        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name) << ". Expected an array";
+      }
+
+      // Walk the array, pulling out each element
+      std::vector<TVal> ret;
+      ret.reserve(entry.GetSize());
+      std::string elem_name = name + "[]";
+      entry.ForEachElem([&ret, &elem_name](const Base::TJson &json) -> bool {
+        ret.push_back(TJsonReader<TVal>::Read(elem_name, json));
+        return true;
+      });
+      return ret;
+    }
+  };
+
+
+  template <typename TVal>
+  struct TJsonReader<std::map<std::string, TVal>> {
+    static std::map<std::string, TVal> Read(const std::string &name, const Base::TJson &entry) {
+      if (entry.GetKind() != Base::TJson::Object) {
+        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name) << ". Expected a JSON object";
+      }
+
+      // Walk the array, pulling out each element
+      std::map<std::string, TVal> ret;
+      std::string elem_name = name + "[]";
+      entry.ForEachElem([&ret, &elem_name](const std::string &key, const Base::TJson &json) -> bool {
+        ret.emplace(key, TJsonReader<TVal>::Read(elem_name, json));
+        return true;
+      });
+      return ret;
+    }
   };
 }

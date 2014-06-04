@@ -20,11 +20,11 @@
 #include <base/path_utils.h>
 #include <jhm/jobs/c_dep.h>
 
-using namespace std;
 using namespace Base;
 using namespace Jhm;
+using namespace std;
 
-std::unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) {
+unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) {
   unordered_set<TJob *> ret;
 
   // Check the cache
@@ -81,7 +81,7 @@ TAbsBase TEnv::GetOutDirName(const string &root,
                                 const string &proj_name,
                                 const string &config,
                                 const string &config_mixin) {
-  string out = '/' + root + "/out";
+  string out = root + "/out";
   if (proj_name != "src") {
     out += '_' + proj_name;
   }
@@ -95,7 +95,27 @@ TAbsBase TEnv::GetOutDirName(const string &root,
 TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, const string &config_mixin)
     : Root(root),
       Src('/' + Root.Get() + '/' + proj_name),
-      Out(GetOutDirName(root.Get(), proj_name, config, config_mixin)) {
+      Out(GetOutDirName('/' + root.Get(), proj_name, config, config_mixin)),
+      Config(ReadConfig('/' + Src.Get() + '/' + config + ".jhm")) {
+
+  // Load the configuation
+  // root/src/config.jhm.mixin root/src/config.jhm -> root/config.jhm
+  auto add_conf_if_exists = [this] (const string &filename, bool back) {
+    if (ExistsPath(filename.c_str())) {
+      if (back) {
+        Config.PushBack(ReadConfig(filename));
+      } else {
+        Config.Push(ReadConfig(filename));
+      }
+    }
+  };
+
+  // Add the project root overrides if they exist (Comes after project config)
+  add_conf_if_exists('/' + Root.Get() + '/' + config_mixin + ".jhm_mixin", true);
+  add_conf_if_exists('/' + Root.Get() + '/' + config + ".jhm", true);
+
+  // Add config mixin if it exists (Comes before project config)
+  add_conf_if_exists('/' + Src.Get() + config_mixin + ".jhm_mixin", false);
 
   // TODO: Include trees (useful for multi-repo JHM)
 
@@ -110,12 +130,22 @@ TFile *TEnv::GetFile(TRelPath name) {
     return f;
   }
 
+
   // If doesn't exist in src, must be in out / generated
   TAbsPath src_path(Src, name);
+
+  TJson file_conf(TJson::Object);
+
+  // NOTE: It's a design decision that this can only come from src and can't be machine generated.
+  string conf_path = TAbsPath(Src, name.AddExtension({"jhm"})).AsStr();
+  if (ExistsPath(conf_path.c_str())) {
+    file_conf = ReadConfig(conf_path);
+  }
+
   if (ExistsPath(src_path.AsStr().c_str())) {
-    return Files.Add(std::move(name), make_unique<TFile>(std::move(src_path), true));
+    return Files.Add(move(name), make_unique<TFile>(move(src_path), true, move(file_conf)));
   } else {
     TAbsPath out_path(Out, name);
-    return Files.Add(std::move(name), make_unique<TFile>(std::move(out_path), false));
+    return Files.Add(move(name), make_unique<TFile>(move(out_path), false, move(file_conf)));
   }
 }

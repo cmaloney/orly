@@ -108,11 +108,9 @@ class TJhm : public TCmd {
 
     // Grab targets. If none on command line, then use default set from config. Mark all as needed.
     // TODO: Uncomment once we have config
-    /*
     if (Targets.size() == 0) {
       Targets = env.GetConfig().Read<vector<string>>("targets");
     }
-    */
 
     // Get the files for the targets
     TWorkFinder work_finder(WorkerCount, PrintCmd, bind(&TEnv::GetJobsProducingFile, &env, _1));
@@ -145,7 +143,7 @@ class TJhm : public TCmd {
             Optional,
             "worker-count\0",
             "Change the number of worker threads JHM uses to run jobs simultaneously");
-      Param(&TJhm::Targets, "targets", Required, "Targets to try to build");
+      Param(&TJhm::Targets, "targets", Optional, "Targets to try to build");
     }
 
     virtual void WriteAfterDesc(ostream &strm) const {

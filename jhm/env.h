@@ -125,12 +125,12 @@ namespace Jhm {
 
     private:
 
-    TConfig Config; // All the config files stacked up which we need.
-
     TInterner<TRelPath, TFile> Files;
 
     TAbsBase Root;
     TAbsBase Src, Out;
+
+    TConfig Config; // All the config files stacked up which we need.
 
     TJobFactory Jobs;
   };

@@ -38,7 +38,8 @@ namespace Jhm {
      should get written to a state file when the file is complete. */
   class TFile {
     public:
-    TFile(TAbsPath &&path, bool is_src) : Src(is_src), Path(std::move(path)) {}
+    TFile(TAbsPath &&path, bool is_src, Base::TJson &&config)
+        : Src(is_src), Path(std::move(path)), Config(std::move(config)) {}
 
     const TAbsPath &GetPath() const {
       return Path;
@@ -67,8 +68,6 @@ namespace Jhm {
     // TODO: Allow attaching things like producer config in a uniform manner.
     // TODO: Out files are defined by their producer id (in_file, producer)
     TConfig Config;
-
-    friend class TJob; // Only sets the producer.
   };
 
   inline std::ostream &operator<<(std::ostream &out, TFile *f) {
