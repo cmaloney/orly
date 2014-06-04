@@ -58,7 +58,7 @@ string ReadAll(TFd &&fd) {
 
 // TODO: mpark could probably do this cleaner.
 vector<string> ToVecStr(int argc, const char *argv[], int skip) {
-  assert(argc > skip);
+  assert(argc >= skip);
   vector<string> ret(argc - skip);
   for (int i = 0; skip + i < argc; ++i) {
     ret.at(i) = string(argv[skip + i]);
@@ -88,7 +88,8 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
 
   // Convert it to a happy format
   // Remove leading .o:
-  // For each token / word
+  // Grab each token as a string.
+  // If the string is '\' then it's a linebreak GCC added...
   for(uint32_t i=0; i < gcc_deps.length(); ++i) {
     char &c = gcc_deps[i];
 
@@ -142,19 +143,19 @@ TJson ToJson(vector<string> &&that) {
   return TJson(move(json_elems));
 }
 
-void MakeDepFile(const string &filename, const vector<string> &extra_args) {
+void MakeDepFile(const string &filename, const string &out_name, const vector<string> &extra_args) {
   TJson deps;
   // Check for extension to determine how we need to scan for dependencies
   if (EndsWith(filename, ".c")) {
     deps = ToJson(GetCDeps(filename, false, extra_args));
 
   } else if (EndsWith(filename, ".cc")) {
-    deps = ToJson(GetCDeps(filename, false, extra_args));
+    deps = ToJson(GetCDeps(filename, true, extra_args));
   } else {
     THROW_ERROR(runtime_error) << "Unknown file extension: " << quoted(filename);
   }
 
-  ofstream out(filename + ".dep", ios_base::out | ios_base::trunc);
+  ofstream out(out_name, ios_base::out | ios_base::trunc);
   if (!out.good()) {
     THROW_ERROR(runtime_error) << "Error creating/opening file for writing: " << filename + ".dep";
   }
@@ -163,16 +164,17 @@ void MakeDepFile(const string &filename, const vector<string> &extra_args) {
 }
 
 int main(int argc, const char *argv[]) {
-  if (argc < 2) {
-    cout << "USAGE: " << argv[0] << "filename [misc_flags]\n"
+  if (argc < 3) {
+    //TODO: add '-o' to specify output filename.
+    cout << "USAGE: " << argv[0] << "input_name output_name [misc_flags]\n"
          << " Produces a JSON dependency file (.dep) containing the headers/dependencies of a given source file";
     return -1;
   }
   try {
-    MakeDepFile(argv[1], ToVecStr(argc, argv, 1));
+    MakeDepFile(argv[1], argv[2], ToVecStr(argc, argv, 3));
   }
   catch (const exception &ex) {
-    cerr << "ERROR: " << ex.what();
+    cerr << "EXCEPTION: " << ex.what();
     return -1;
   }
   return 0;

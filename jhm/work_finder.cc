@@ -32,19 +32,13 @@ using namespace Base;
 using namespace Jhm;
 using namespace std;
 
-TJobRunner::TJobRunner(uint32_t worker_count)
-    : WorkerCount(worker_count), QueueRunner(bind(&TJobRunner::Worker, this)) {}
+TJobRunner::TJobRunner(uint32_t worker_count, bool print_cmd)
+    : PrintCmd(print_cmd), WorkerCount(worker_count), QueueRunner(bind(&TJobRunner::Worker, this)) {}
 
 TJobRunner::~TJobRunner() {
   ExitWorker = true;
   NewWork.notify_one();
   QueueRunner.join();
-}
-
-bool TJobRunner::HasWork() const {
-  //TODO: Does this need the lock?
-  lock_guard<mutex> lock(ToRunMutex);
-  return !ToRun.empty();
 }
 
 void TJobRunner::Queue(TJob *job) {
@@ -90,6 +84,9 @@ void TJobRunner::Worker() {
         while (free_cores > 0 && !ToRun.empty()) {
           TJob *job = Pop(ToRun);
           auto subproc = TSubprocess::New(pump, job->GetCmd().c_str());
+          if (PrintCmd) {
+            cout << job->GetCmd() << endl;
+          }
           PidMap[subproc->GetChildId()] = job;
           auto res = Running.emplace(job, move(subproc));
           assert(res.second);
@@ -149,7 +146,7 @@ bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
 
   // Queue the producer job as necessary to finish.
   bool res = Queue(producer);
-  if (res) {
+  if (res && job) {
     //TODO: Lots of copies (Although they're tiny)
     ToFinish.emplace(producer, job);
   }
@@ -171,34 +168,50 @@ void TWorkFinder::ProcessReady() {
         //TODO: Lots of copies (Although they're tiny)
         InsertOrFail(Waiting, make_pair(job, needed));
       } else {
+        // If we're about to run the job, ensure the output directories for it exist
+        //TODO: Move this to a more logical place.
+        for(TFile *out: job->GetOutput()) {
+          EnsureDirExists(out->GetPath().AsStr().c_str(), true);
+        }
         Runner.Queue(job);
+        InsertOrFail(Running, job);
       }
     }
 }
 
 void TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
+  // Job finished / no longer running
+  EraseOrFail(Running, result.Job);
+
   if (result.ExitCode != 0) {
+    // TODO: Test if stdout, stderr have text before pritning label and text for each.
     cout << "ERROR: " << result.Job << " returned " << result.ExitCode << '\n' << "STDOUT: \n";
     Base::EchoOutput(move(result.Stdout));
-    cout << "\n\nSTDERR: \n";
+    cout << "STDERR: \n";
     Base::EchoOutput(move(result.Stderr));
   } else {
-    const auto &range = ToFinish.equal_range(result.Job);
-    for(auto iter = range.first; iter != range.second; ++iter) {
-      // Update each job which was waiting on this job's waiting entry. Queue in ReadyJobs if needed.
-      TJob *job = iter->second;
-      auto &count = Waiting.at(job);
-      --count;
-      assert(count >= 0);
-      if (count == 0) {
-        // Move the job to waiting, as it has nothing left it's waiting on.
-        EraseOrFail(Waiting, job);
-        Ready.push(job);
+    // Update every job which was waiting on this job to be waiting on one less thing.
+    // NOTE: If the job isn't waiting on anything, it gets pushed to the Ready queue.
+    const auto range = ToFinish.equal_range(result.Job);
+    if (range.first != range.second) {
+      for(auto iter = range.first; iter != range.second; ++iter) {
+        // Update each job which was waiting on this job's waiting entry. Queue in ReadyJobs if needed.
+        TJob *job = iter->second;
+        assert(job);
+        auto &count = Waiting.at(job);
+        --count;
+        assert(count >= 0);
+        if (count == 0) {
+          // Move the job to ready, as it has nothing left it's waiting on.
+          EraseOrFail(Waiting, job);
+          Ready.push(job);
+        }
       }
     }
 
     // TODO: Assert this succeeds (It should be guaranteed to)
     ToFinish.erase(range.first, range.second);
+    InsertOrFail(Finished, result.Job);
   }
 }
 
@@ -246,20 +259,21 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
 bool TWorkFinder::FinishAll() {
   // Try running each job, process OnCmdComplete callbacks. Each time a job looks ready, ask what it needs as deps.
   // If it doesn't need any more dependencies, queue it as an OnCmdComplete.
-
   // As long as there is work to do, or the subprocess runner has more results for us.
-  while (!ToFinish.empty() && (Runner.HasWork() || !Ready.empty())) {
+  while (!Running.empty() || !ToFinish.empty() || !Ready.empty()) {
     ProcessReady();
 
     // Everything should have been emptied from the ready queue
     assert(Ready.empty());
 
+    //DEBUG: cout << Running.size() << " + " << Waiting.size() << " + " << Finished.size() << " == " << All.size() << endl;
+
     // If nothing has been queued by here as valid/good work, there's an issue / we'll wait forever...
-    assert(Runner.HasWork());
+    assert(!Running.empty());
 
     // Sanity check Ready, Finished, Waiting.
-    // Ready + Waiting + Finished == All
-    assert(Ready.size() + Waiting.size() + Finished.size() == All.size());
+    // Running + Waiting + Finished == All (Just a little while ago we emptied Ready)
+    assert(Running.size() + Waiting.size() + Finished.size() == All.size());
     // TODO: Assert Ready, Waiting, and Finished don't share any items.
 
     // TODO: The subprocess runner needs to automatically stop queueing things on error.
@@ -294,9 +308,9 @@ bool TWorkFinder::Queue(TJob *job) {
   // Queue the job if it isn't done
   if (IsDone(job)) {
     InsertOrFail(Finished, job);
-    return true;
+    return false;
   } else {
     Ready.push(job);
-    return false;
+    return true;
   }
 }

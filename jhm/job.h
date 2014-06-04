@@ -1,8 +1,6 @@
-/* <jhm/job_kind.h>
+/* <jhm/job.h>
 
-   A registry of job types.
-
-   Used for type checking between different job kinds / figuring out if an input is valid for a given job kind.
+   The generic form of a job.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -20,16 +18,27 @@
 
 #pragma once
 
+#include <cassert>
 #include <set>
 #include <string>
 #include <unordered_set>
 #include <vector>
 
+#include <base/opt.h>
 #include <jhm/naming.h>
 
 namespace Jhm {
 
+  class TEnv;
   class TFile;
+  class TJob;
+
+  struct TJobProducer {
+    // TODO: Should really be a set...
+    std::vector<TExtension> OutExtensions;
+    std::function<Base::TOpt<TRelPath> (const TRelPath &name)> TryGetInput;
+    std::function<std::unique_ptr<TJob> (TEnv &env, TFile *in_file)> MakeJob;
+  };
 
   /* Generic job. Jobs are strongly typed using classical inheritance to expose common attributes.
 
@@ -45,18 +54,32 @@ namespace Jhm {
 
     virtual ~TJob() = default;
 
-
+    virtual const char *GetName() = 0;
     virtual const TSet<TFile*> GetNeeds() = 0;
-    virtual TFile *GetInput() = 0;
-    virtual TSet<TFile*> GetOutput() = 0;
+
+    TFile *GetInput() {
+      assert(this);
+      return Input;
+    }
+
+    const TSet<TFile*> &GetOutput() const {
+      assert(this);
+      return Output;
+    }
+
     virtual std::string GetCmd() = 0;
 
     protected:
     // NOTE: In theory we can take multiple files in. In  Ppractice we have no instances of that.
-    TJob();
+    TJob(TFile *input, TSet<TFile*> output);
+
+    private:
+    TFile *Input;
+    TSet<TFile*> Output;
 
   };
 
+  std::ostream &operator<<(std::ostream &out, TJob *job);
   /* JobKind
     TStr &&name, TExtension &&core_in, std::set<TExtension> &&OutExtensions);
 

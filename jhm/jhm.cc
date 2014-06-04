@@ -78,7 +78,7 @@ TFile *FindFile(const string &cwd, TEnv &env, const string &name) {
 
 class TJhm : public TCmd {
   public:
-  TJhm(int argc, char *argv[]) : Config("debug"), WorkerCount(thread::hardware_concurrency()) {
+  TJhm(int argc, char *argv[]) : WorkerCount(thread::hardware_concurrency()) {
     Parse(argc, argv, TMeta());
   }
 
@@ -115,7 +115,7 @@ class TJhm : public TCmd {
     */
 
     // Get the files for the targets
-    TWorkFinder work_finder(WorkerCount, bind(&TEnv::GetJobsProducingFile, &env, _1));
+    TWorkFinder work_finder(WorkerCount, PrintCmd, bind(&TEnv::GetJobsProducingFile, &env, _1));
 
     // TODO: Gather exceptions here, rather than letting first one fly.
     for (const auto &target : Targets) {
@@ -123,6 +123,7 @@ class TJhm : public TCmd {
       work_finder.AddNeededFile(FindFile(cwd, env, target));
     }
 
+    // TODO: Add a single-line status message
     return work_finder.FinishAll();
 
     // TODO Verify all target files are built? (Extra safety check)
@@ -132,17 +133,18 @@ class TJhm : public TCmd {
   class TMeta : public TCmd::TMeta {
     public:
     TMeta() : TCmd::TMeta("JHM") {
-      Param(&TJhm::Config, "config", Optional, "config\0c\0", "Run starsha in a particular configuration");
+      Param(&TJhm::Config, "config", Optional, "config\0c\0", "Run JHM in a particular configuration");
       Param(&TJhm::ConfigMixin,
             "config_mixin",
             Optional,
             "mixin\0m\0",
             "Add a configuration mixin to the base configuration");
+      Param(&TJhm::PrintCmd, "print_cmd", Optional, "print-cmd\0p\0", "Print out the commands JHM runs to do work");
       Param(&TJhm::WorkerCount,
             "worker_count",
             Optional,
             "worker-count\0",
-            "Change the number of worker threads starsha users");
+            "Change the number of worker threads JHM uses to run jobs simultaneously");
       Param(&TJhm::Targets, "targets", Required, "Targets to try to build");
     }
 
@@ -154,7 +156,8 @@ class TJhm : public TCmd {
     }
   };
 
-  string Config;
+  bool PrintCmd = false;
+  string Config = "debug";
   string ConfigMixin;
   uint32_t WorkerCount = 0;
   vector<string> Targets;
@@ -165,7 +168,7 @@ int main(int argc, char *argv[]) {
     return TJhm(argc, argv).Run();
   }
   catch (const std::exception &ex) {
-    cerr << "ERROR:" << ex.what() << endl;
+    cerr << "EXCEPTION: " << ex.what() << endl;
     return -1;
   }
 }

@@ -61,19 +61,14 @@ namespace Jhm {
   class TJobFactory {
     public:
 
-    struct TJobProducer {
-      // TODO: Should really be a set...
-      std::vector<TExtension> OutExtensions;
-      std::function<TFile *(const TRelPath &name)> TryGetInput;
-      std::function<std::unique_ptr<TJob> (TFile *in_file)> &&MakeJob;
-    };
-
     // A Job registration can verify if they can indeed make a given output file
     // A job registration is used to do longest tail matches and see if the job's input can be produced
     //NOTE: We generate a job object when it's input can be produced
-    void Register(TJobProducer &&producer);
+    void Register(TJobProducer &&producer) {
+      JobProducers.emplace_back(std::move(producer));
+    }
 
-    std::unordered_set<TJob *> GetPotentialJobs(TFile *out_file);
+    std::unordered_set<TJob *> GetPotentialJobs(TEnv &env, TFile *out_file);
 
     private:
     TInterner<TFile*, TJob> Jobs;
@@ -121,17 +116,12 @@ namespace Jhm {
     }
 
     std::unordered_set<TJob*> GetJobsProducingFile(TFile *file) {
-      return Jobs.GetPotentialJobs(file);
+      return Jobs.GetPotentialJobs(*this, file);
     }
 
     /* Finds the file / builds a correct TFile object for it.
        NOTE: Does absolutely nothing for testing if file is producable, needs to be built, etc. */
     TFile *TryFindFile(TRelPath name);
-
-    //TODO
-    // Register factory function for producing a given set of output extensions. Used solely in processing command line
-    // arguments. Everything else uses type-safe TFile inheritors, as well as TJob inheritors
-    void Register(const char *desc, TExtension in_ext, std::function<TFile *(TAbsPath &abs_path)> get_file);
 
     private:
 

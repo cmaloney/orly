@@ -53,10 +53,8 @@ namespace Jhm {
 
     using TResults = std::vector<TResult>;
 
-    TJobRunner(uint32_t worker_count);
+    TJobRunner(uint32_t worker_count, bool print_cmd);
     ~TJobRunner();
-
-    bool HasWork() const;
 
     void Queue(TJob *job);
 
@@ -78,7 +76,8 @@ namespace Jhm {
     std::atomic<bool> Working;
     bool ExitWorker = false;
     uint64_t NumberJobsFailed = 0;
-    uint32_t WorkerCount;
+    const bool PrintCmd;
+    const uint32_t WorkerCount;
     TResults Results;
     std::mutex ResultsMutex;
     std::condition_variable NewResults;
@@ -97,8 +96,10 @@ namespace Jhm {
     NO_MOVE(TWorkFinder);
 
     public:
-    TWorkFinder(uint32_t worker_count, std::function<std::unordered_set<TJob *>(TFile *)> &&get_jobs_producing_file)
-        : GetJobsProducingFile(std::move(get_jobs_producing_file)), Runner(worker_count) {}
+    TWorkFinder(uint32_t worker_count,
+                bool print_cmd,
+                std::function<std::unordered_set<TJob *>(TFile *)> &&get_jobs_producing_file)
+        : GetJobsProducingFile(std::move(get_jobs_producing_file)), Runner(worker_count, print_cmd) {}
 
     /* Adds the jobs needed to produce the file. Returns true if there is work to be done for the file to exist.
        Adds to the ToFinish multimap of the given job if job is specified. */
@@ -134,7 +135,7 @@ namespace Jhm {
     std::unordered_multimap<TJob *, TJob *> ToFinish;
 
     // Keeps track of the full set of jobs which have ever been queued to run.
-    std::unordered_set<TJob *> All, Finished;
+    std::unordered_set<TJob *> All, Running, Finished;
 
     std::unordered_map<TJob *, uint64_t> Waiting;
 

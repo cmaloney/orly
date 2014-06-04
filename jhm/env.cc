@@ -18,12 +18,13 @@
 
 #include <base/not_implemented.h>
 #include <base/path_utils.h>
+#include <jhm/jobs/c_dep.h>
 
 using namespace std;
 using namespace Base;
 using namespace Jhm;
 
-std::unordered_set<TJob *> TJobFactory::GetPotentialJobs(TFile *out_file) {
+std::unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) {
   unordered_set<TJob *> ret;
 
   // Check the cache
@@ -40,14 +41,18 @@ std::unordered_set<TJob *> TJobFactory::GetPotentialJobs(TFile *out_file) {
     // No cache found. Build it
     // Find and instantiate possibilities based on extension
     for(auto &producer : JobProducers) {
-      TFile *in = producer.TryGetInput(out_file->GetPath().GetRelPath());
+      TOpt<TRelPath> opt_path = producer.TryGetInput(out_file->GetPath().GetRelPath());
+      if(!opt_path) {
+        continue;
+      }
+      TFile *in = env.TryFindFile(*opt_path);
       if (!in) {
         continue;
       }
 
-      //TODO: FIXME
+      //TODO: FIXME (We copy just to be extra-safe the move doesn't touch the in pointer we use as a different parameter)
       TFile *in_2 = in;
-      TJob *job = Jobs.Add(move(in_2), producer.MakeJob(in));
+      TJob *job = Jobs.Add(move(in_2), producer.MakeJob(env, in));
 
       // TODO: InsertOrFail.
       ret.insert(job);
@@ -76,7 +81,7 @@ TAbsBase TEnv::GetOutDirName(const string &root,
                                 const string &proj_name,
                                 const string &config,
                                 const string &config_mixin) {
-  string out = root + "/out";
+  string out = '/' + root + "/out";
   if (proj_name != "src") {
     out += '_' + proj_name;
   }
@@ -94,26 +99,8 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
 
   // TODO: Include trees (useful for multi-repo JHM)
 
-  /* TODO
-  // Register all the compilation jobs/tasks we know about
-  //NOTE: Each of these effectively builds up a theoretical path to creating the output file. The file is commited by calling "Register" on the root.
-  Register("Compile C++", {"cc"}, {{"o"}}, [this](const TAbsPath &path) -> TJob * {
-    return make_unique<TCFamilyJob>(*this, path);
-    if (job->InputCanExist()) {
-      Register(move(job));
-      job->RegisterInAndOut()
-    }
-    auto in_f = make_unique<TGenericFile>(input_file)
-
-
-    if(in_f->CanExist()) {
-      Register(move(in_f));
-    }
-  });
-  Register("Make C++ dependency file", {"cc"}, {{"cc", "dep"}}, [](const TAbsPath &path) -> TJob * { return new TCFamilyJob(path); });
-  Register("C++ dependency file", {"cc","dep"}, [](const TAbsPath &path) -> TFile * { return new TJsonFile(path); })
-  Register("C++ source file", {"cc"}, []())
-  */
+  // TODO: register all the known job kinds
+  Jobs.Register(Job::TCDep::GetProducer());
 }
 
 TFile *TEnv::TryFindFile(TRelPath name) {
@@ -123,11 +110,12 @@ TFile *TEnv::TryFindFile(TRelPath name) {
     return f;
   }
 
-  TAbsPath abs_path(Src, name);
-
-  //NOTE: seperate line because we move / steal the contents of abs_path in the make_unique call.
-  bool path_exists = ExistsPath(abs_path.AsStr().c_str());
-
-  // If in the source tree, then make a placeholder file for that particular extension.
-  return Files.Add(std::move(name), make_unique<TFile>(std::move(abs_path), path_exists));
+  // If doesn't exist in src, must be in out / generated
+  TAbsPath src_path(Src, name);
+  if (ExistsPath(src_path.AsStr().c_str())) {
+    return Files.Add(std::move(name), make_unique<TFile>(std::move(src_path), true));
+  } else {
+    TAbsPath out_path(Out, name);
+    return Files.Add(std::move(name), make_unique<TFile>(std::move(out_path), false));
+  }
 }
