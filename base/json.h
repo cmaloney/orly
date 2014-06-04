@@ -378,6 +378,13 @@ namespace Base {
       }
     }
 
+    const TString &GetString() const noexcept {
+      assert(this);
+      assert(Kind == String);
+
+      return String_;
+    }
+
     /* Parse from the stream. */
     void Read(std::istream &strm) {
       assert(this);
