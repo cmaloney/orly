@@ -121,7 +121,7 @@ namespace Jhm {
 
     /* Finds the file / builds a correct TFile object for it.
        NOTE: Does absolutely nothing for testing if file is producable, needs to be built, etc. */
-    TFile *TryFindFile(TRelPath name);
+    TFile *GetFile(TRelPath name);
 
     private:
 

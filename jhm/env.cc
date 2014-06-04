@@ -45,7 +45,7 @@ std::unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_f
       if(!opt_path) {
         continue;
       }
-      TFile *in = env.TryFindFile(*opt_path);
+      TFile *in = env.GetFile(*opt_path);
       if (!in) {
         continue;
       }
@@ -103,7 +103,7 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
   Jobs.Register(Job::TCDep::GetProducer());
 }
 
-TFile *TEnv::TryFindFile(TRelPath name) {
+TFile *TEnv::GetFile(TRelPath name) {
 
   // If we've been found before, just return what was found.
   if (TFile *f = Files.TryGet(name)) {

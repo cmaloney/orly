@@ -98,16 +98,16 @@ bool TCDep::IsComplete() {
     if (dep[0] == '/') {
       // Have to locate what tree it's in.
       if (Env.GetSrc().Contains(dep)) {
-        f = Env.TryFindFile(Env.GetSrc().GetAbsPath(dep).GetRelPath());
+        f = Env.GetFile(Env.GetSrc().GetAbsPath(dep).GetRelPath());
       } else if (Env.GetOut().Contains(dep)) {
-        f = Env.TryFindFile(Env.GetOut().GetAbsPath(dep).GetRelPath());
+        f = Env.GetFile(Env.GetOut().GetAbsPath(dep).GetRelPath());
       } else {
         // File isn't in a known tree. Skip it.
         return true;
       }
     } else {
       // The file definitely doesn't exist according to GCC. Fortunately this means we have a nice relative path already.
-      f = Env.TryFindFile(TRelPath(dep));
+      f = Env.GetFile(TRelPath(dep));
     }
 
     // Add to needs. If it's new in the Needs array, we aren't done yet.
@@ -121,4 +121,4 @@ bool TCDep::IsComplete() {
 
 
 TCDep::TCDep(TEnv &env, TFile *in_file)
-    : TJob(in_file, {AssertTrue(env.TryFindFile(GetOutputName(in_file->GetPath().GetRelPath())))}), Env(env) {}
+    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetPath().GetRelPath()))}), Env(env) {}

@@ -50,7 +50,7 @@ TFile *FindFile(const string &cwd, TEnv &env, const string &name) {
   TFile *file = nullptr;
   if (name[0] == '/') {
     // Starts with a '/', so relative to src / an absolute pathname
-    file = env.TryFindFile(TRelPath(name.substr(1)));
+    file = env.GetFile(TRelPath(name.substr(1)));
   } else {
     // Doesn't start with a '/' so relative to execution location name.
     string abs_path = cwd + '/' + name;
@@ -64,7 +64,7 @@ TFile *FindFile(const string &cwd, TEnv &env, const string &name) {
       THROW_ERROR(runtime_error) << "Target " << quoted(name)
                                  << " not relative to 'jhm' execution in either `src` or `out` directory";
     }
-    file = env.TryFindFile(TRelPath(rel_path));
+    file = env.GetFile(TRelPath(rel_path));
   }
 
 
