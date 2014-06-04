@@ -16,9 +16,6 @@
 
 #include <jhm/jobs/dep.h>
 
-#include <fstream>
-
-#include <base/split.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
 #include <jhm/jobs/compile_c_family.h>
@@ -64,24 +61,23 @@ const unordered_set<TFile*> TDep::GetNeeds() {
   return Needs;
 }
 
-string TDep::GetCmd() {
+vector<string> TDep::GetCmd() {
   assert(this);
-  ostringstream oss;
 
-  // TODO: add a helper for output set -> output directory
-  oss << "make_dep_file " << GetInput()->GetPath() << ' ' << GetSoleOutput()->GetPath();
+  vector<string> cmd{"make_dep_file", GetInput()->GetPath(), GetSoleOutput()->GetPath()};
 
   // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the compiler
   const auto &extensions = GetInput()->GetRelPath().Path.Extension;
   if (extensions.size() >= 1) {
     const string &ext = extensions.at(extensions.size()-1);
     if (ext == "cc" || ext == "c") {
-      oss << ' ';
-      TCompileCFamily::AddStandardArgs(GetInput(), ext == "cc", Env, oss);
+      //TODO: move array append
+      for(auto &arg: TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
+        cmd.push_back(move(arg));
+      }
     }
   }
-
-  return oss.str();
+  return cmd;
 }
 
 

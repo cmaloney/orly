@@ -92,7 +92,7 @@ namespace Jhm {
       __builtin_unreachable();
     }
 
-    virtual std::string GetCmd() = 0;
+    virtual std::vector<std::string> GetCmd() = 0;
 
     virtual Util::TTimestamp GetCmdTimestamp() const = 0;
 

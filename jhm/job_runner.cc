@@ -101,17 +101,19 @@ void TJobRunner::ProcessQueue() {
           while(Running.size() < WorkerCount && !ToRun.empty()) {
             // Get the job at the front of the queue
             TJob *job = nullptr;
-            string cmd;
+            vector<string> cmd;
             tie(job, cmd) = Pop(ToRun);
 
             if (PrintCmd) {
               // NOTE: We use '+' to make a new string (effectively as a back buffer), then a single operation to write it out
               // This makes it so that the line never gets broken / split / etc. because of threading.
-              cout << cmd + '\n';
+              //TODO: Join in a way that makes the difference between ' ' and passing the arguments
+              // as an array more obvious.
+              cout << AsStr(Join(cmd, ' ')) + '\n';
             }
 
             // Run the job
-            auto subproc = TSubprocess::New(Pump, cmd.c_str());
+            auto subproc = TSubprocess::New(Pump, cmd);
             PidMap[subproc->GetChildId()] = job;
             auto res = Running.emplace(job, move(subproc));
             assert(res.second);

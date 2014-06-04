@@ -16,8 +16,6 @@
 
 #include <jhm/jobs/compile_c_family.h>
 
-#include <sstream>
-
 #include <base/split.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
@@ -29,7 +27,7 @@ using namespace std;
 using namespace std::placeholders;
 using namespace Util;
 
-void TCompileCFamily::AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std::ostream &out) {
+vector<string> TCompileCFamily::GetStandardArgs(TFile *input, bool is_cpp, const TEnv &env) {
 
   // Add options from configuration. Per-file config overrides global config
   vector<string> options;
@@ -37,11 +35,16 @@ void TCompileCFamily::AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std:
   if (!input->GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options)) {
     env.GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options);
   }
-  out << Join(options, ' ')
-      // Add the src and out directories as sources of includes.
-      << " -I" << *env.GetSrc() << " -I" << *env.GetOut()
-         // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)
-      << " -D'SRC_ROOT=\"" << *env.GetSrc() << "/\"'";
+
+  const auto src_str = AsStr(*env.GetSrc());
+
+  // Add the src and out directories as sources of includes.
+  options.push_back("-I" + src_str);
+  options.push_back("-I" + AsStr(*env.GetOut()));
+
+  // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)
+  options.push_back("-DSRC_ROOT=\"" + src_str + "/\"");
+  return options;
 }
 
 static TRelPath GetOutputName(const TRelPath &input, bool is_cpp) {
@@ -97,27 +100,25 @@ const unordered_set<TFile*> TCompileCFamily::GetNeeds() {
   return {Need};
 }
 
-string TCompileCFamily::GetCmd() {
+vector<string> TCompileCFamily::GetCmd() {
   assert(this);
 
   // Build up the gcc call
-  ostringstream oss;
-  if (IsCpp) {
-    oss << "g++";
-  } else {
-    oss << "gcc";
+  // add output, input filenames
+  // Tell GCC we're only compiling to a .o
+  vector<string> cmd{IsCpp ? "g++" : "gcc", "-o" + GetSoleOutput()->GetPath(), GetInput()->GetPath(), "-c"};
+
+  /* Add standard arguments */ {
+    //TODO: Really need an insertion move here...
+    //TODO: Trivial vector append (Can we add an operator+ for rvalue rhs?)
+    auto std_args = GetStandardArgs(GetInput(), IsCpp, Env);
+    for(auto &arg: std_args) {
+      cmd.push_back(move(arg));
+    }
+
   }
 
-  // add output, input filenames
-  oss << " -o" << GetSoleOutput()->GetPath() << ' ' << GetInput()->GetPath();
-
-  // Tell GCC we're only compiling to a .o
-  oss << " -c ";
-
-  // Add standard arguments
-  AddStandardArgs(GetInput(), IsCpp, Env, oss);
-
-  return oss.str();
+  return cmd;
 }
 
 

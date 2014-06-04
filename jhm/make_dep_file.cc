@@ -18,7 +18,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -49,16 +48,19 @@ vector<string> ToVecStr(int argc, const char *argv[], int skip) {
 
 vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string> &extra_args) {
 
-  // Have GCC get all the dependencies for us
-  ostringstream cmd;
-  cmd << (is_cpp ? "g++ " : "gcc ") << extra_args << " -M -MG " << filename;
+  vector<string> cmd {is_cpp ? "g++" : "gcc"};
+  cmd.insert(cmd.end(), extra_args.begin(), extra_args.end());
+  cmd.push_back("-M");
+  cmd.push_back("-MG");
+  cmd.push_back(filename);
   TPump pump;
-  auto subproc = TSubprocess::New(pump, cmd.str().c_str());
+  auto subproc = TSubprocess::New(pump, cmd);
   auto ret = subproc->Wait();
   if (ret != 0) {
     EchoOutput(subproc->TakeStdOutFromChild());
     EchoOutput(subproc->TakeStdErrFromChild());
-    THROW_ERROR(runtime_error) << "Non-zero (" << ret << ") exit from command " << quoted(cmd.str());
+    //TODO: Join the arguments some less-mistrewn way than ' '
+    THROW_ERROR(runtime_error) << "Non-zero (" << ret << ") exit from command " << quoted(AsStr(Join(cmd,' ')));
   }
 
   // Read in the whole file / all the text from gcc

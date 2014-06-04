@@ -194,15 +194,15 @@ class TJhm : public TCmd {
     //      of ram, etc).
     TPump pump;
     auto RunTest = [this,&pump](TFile *test) {
-      // TODO: Make a status line context object, which automatically does the Cleanup() at end of scope?
-      auto cmd = AsStr(test->GetPath());
+      vector<string> cmd{test->GetPath()};
+      //NOTE: This is a seperate line because otherwise it breaks in release builds
       if (VerboseTests) {
-        cmd += " -v";
+        cmd.push_back("-v");
         cout << "TEST: " << test;
       } else {
         TStatusLine() << "TEST: " << test;
       }
-      auto subprocess = TSubprocess::New(pump, cmd.c_str());
+      auto subprocess = TSubprocess::New(pump, cmd);
       auto status = subprocess->Wait();
 
       if (VerboseTests || status) {

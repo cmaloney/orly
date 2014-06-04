@@ -124,7 +124,7 @@ namespace Jhm {
     TJob *Add(std::unique_ptr<TJob> &&job);
     TFile *Add(std::unique_ptr<TFile> &&file);
 
-    const TConfig &GetConfig() {
+    const TConfig &GetConfig() const {
       return Config;
     }
     const TTree *GetSrc() const {

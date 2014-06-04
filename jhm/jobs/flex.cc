@@ -16,8 +16,6 @@
 
 #include <jhm/jobs/flex.h>
 
-#include <sstream>
-
 #include <jhm/env.h>
 #include <jhm/file.h>
 #include <jhm/jobs/util.h>
@@ -64,12 +62,9 @@ const unordered_set<TFile*> TFlex::GetNeeds() {
   return unordered_set<TFile*>();
 }
 
-string TFlex::GetCmd() {
+vector<string> TFlex::GetCmd() {
   assert(this);
-  ostringstream oss;
-  oss << "flex -o " << GetSoleOutput()->GetPath() << ' ' << GetInput()->GetPath();
-
-  return oss.str();
+  return vector<string>{"flex", "-o" + GetSoleOutput()->GetPath(), GetInput()->GetPath()};
 }
 
 TTimestamp TFlex::GetCmdTimestamp() const {

@@ -16,8 +16,6 @@
 
 #include <jhm/jobs/bison.h>
 
-#include <sstream>
-
 #include <jhm/env.h>
 #include <jhm/file.h>
 #include <jhm/jobs/util.h>
@@ -65,12 +63,10 @@ const unordered_set<TFile*> TBison::GetNeeds() {
   return unordered_set<TFile*>();
 }
 
-string TBison::GetCmd() {
+vector<string> TBison::GetCmd() {
   assert(this);
-  ostringstream oss;
   TFile *primary_output = GetOutputWithExtension(GetOutput(), {"cc"});
-  oss << "bison -rall -o" << primary_output->GetPath() << ' ' << GetInput()->GetPath();
-  return oss.str();
+  return vector<string>{"bison","-rall","-o" + primary_output->GetPath(), GetInput()->GetPath()};
 }
 
 
