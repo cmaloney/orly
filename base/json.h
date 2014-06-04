@@ -50,7 +50,7 @@ namespace Base {
 
     /* The types of callbacks used by ForEachElem(). */
     using TArrayCb  = std::function<bool (const TJson &)>;
-    using TObjectCb = std::function<bool (const std::string, const TJson &)>;
+    using TObjectCb = std::function<bool (const std::string&, const TJson &)>;
 
     /* A visitor to our state. */
     struct TVisitor {
