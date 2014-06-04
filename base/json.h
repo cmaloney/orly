@@ -32,7 +32,12 @@
 #include <utility>
 #include <vector>
 
+#include <base/thrower.h>
+
 namespace Base {
+
+  /* Thrown when extracting from a malformed stream. */
+  DEFINE_ERROR(TSyntaxError, std::runtime_error, "json syntax error");
 
   /* A sum of the value types allowable in JSON. */
   class TJson final {
@@ -64,17 +69,6 @@ namespace Base {
       virtual void operator()(const TString &) const = 0;
 
     };  // TJson::TVisitor
-
-    /* Thrown when extracting from a malformed stream. */
-    class TSyntaxError final
-        : public std::runtime_error {
-      public:
-
-      /* Do-little. */
-      TSyntaxError()
-          : std::runtime_error("json syntax error") {}
-
-    };  // TJson::TSyntaxError
 
     /* The kinds of states we can be in. */
     enum TKind { Null, Bool, Number, Array, Object, String };
@@ -450,7 +444,7 @@ namespace Base {
             *this = temp;
             break;
           }
-          throw TSyntaxError();
+          THROW_ERROR(TSyntaxError) << "Unexpected character at start of input";
         }
       }  // switch
     }
@@ -559,7 +553,7 @@ namespace Base {
       }
       if (!at_start) {
         if (c != ',') {
-          throw TSyntaxError();
+          THROW_ERROR(TSyntaxError) << "Expected a ',' but didn't find one";
         }
         strm.ignore();
       }
@@ -570,7 +564,7 @@ namespace Base {
     static void Match(std::istream &strm, char expected) {
       assert(&strm);
       if (strm.peek() != expected) {
-        throw TSyntaxError();
+        THROW_ERROR(TSyntaxError) << "Expected '" << expected << "' but didn't find it";
       }
       strm.ignore();
     }
@@ -582,7 +576,7 @@ namespace Base {
       std::string actual;
       strm >> actual;
       if (actual != expected) {
-        throw TSyntaxError();
+        THROW_ERROR(TSyntaxError) << "Expected \"" << std::quoted(expected) << "\" But didn't find it";
       }
     }
 
