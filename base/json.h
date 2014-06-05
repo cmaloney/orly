@@ -315,6 +315,15 @@ namespace Base {
       }
     }
 
+    /* Returns true if the object contains the given key */
+    bool Contains(const TString &that) const {
+      assert(this);
+      assert(&that);
+      assert(Kind == Object);
+
+      return TryFind(that);
+    }
+
     /* Call back for each element contained in an array. */
     bool ForEachElem(const TArrayCb &cb) const {
       assert(this);
