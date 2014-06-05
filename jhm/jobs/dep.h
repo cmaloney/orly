@@ -1,4 +1,4 @@
-/* <jhm/jobs/c_dep.h>
+/* <jhm/jobs/dep.h>
 
    Job which calculates / generates a C dependency file
 
@@ -24,7 +24,7 @@ namespace Jhm {
 
   namespace Job {
 
-    class TCDep final : public TJob {
+    class TDep final : public TJob {
       public:
 
       static TJobProducer GetProducer();
@@ -35,7 +35,7 @@ namespace Jhm {
       virtual bool IsComplete() final;
 
       private:
-      TCDep(TEnv &env, TFile *input);
+      TDep(TEnv &env, TFile *input);
 
       TEnv &Env;
       TSet<TFile*> Needs;

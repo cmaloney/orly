@@ -1,4 +1,4 @@
-/* <jhm/jobs/c_dep.h>
+/* <jhm/jobs/dep.cc>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <jhm/jobs/c_dep.h>
+#include <jhm/jobs/dep.h>
 
 #include <fstream>
 #include <iostream>
@@ -41,29 +41,29 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
   }
 }
 
-TJobProducer TCDep::GetProducer() {
+TJobProducer TDep::GetProducer() {
 
   return TJobProducer{
     {{"dep"}},
     GetInputName,
     //TODO: Should be able to eliminate the lambda wrapper here...
     [] (TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
-      return unique_ptr<TCDep>(new TCDep(env, in_file));
+      return unique_ptr<TDep>(new TDep(env, in_file));
     }
   };
 }
 
-const char *TCDep::GetName() {
+const char *TDep::GetName() {
   return "dependency_file";
 }
 
-const unordered_set<TFile*> TCDep::GetNeeds() {
+const unordered_set<TFile*> TDep::GetNeeds() {
   assert(this);
 
   return Needs;
 }
 
-string TCDep::GetCmd() {
+string TDep::GetCmd() {
   assert(this);
   ostringstream oss;
 
@@ -75,7 +75,7 @@ string TCDep::GetCmd() {
   return oss.str();
 }
 
-bool TCDep::IsComplete() {
+bool TDep::IsComplete() {
   assert(this);
 
   bool needs_work = false;
@@ -120,5 +120,5 @@ bool TCDep::IsComplete() {
 }
 
 
-TCDep::TCDep(TEnv &env, TFile *in_file)
+TDep::TDep(TEnv &env, TFile *in_file)
     : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetPath().GetRelPath()))}), Env(env) {}

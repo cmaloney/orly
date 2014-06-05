@@ -18,7 +18,7 @@
 
 #include <base/not_implemented.h>
 #include <base/path_utils.h>
-#include <jhm/jobs/c_dep.h>
+#include <jhm/jobs/dep.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -120,7 +120,7 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
   // TODO: Include trees (useful for multi-repo JHM)
 
   // TODO: register all the known job kinds
-  Jobs.Register(Job::TCDep::GetProducer());
+  Jobs.Register(Job::TDep::GetProducer());
 }
 
 TFile *TEnv::GetFile(TRelPath name) {
