@@ -381,27 +381,23 @@ namespace Base {
     bool GetBool() const noexcept {
       assert(this);
       assert(Kind == Bool);
-
       return Bool_;
     }
 
     double GetNumber() const noexcept {
       assert(this);
       assert(Kind == Number);
-
       return Number_;
     }
 
     const TString &GetString() const noexcept {
       assert(this);
       assert(Kind == String);
-
       return String_;
     }
 
     bool IsNull() const noexcept {
       assert(this);
-
       return Kind == Null;
     }
 
