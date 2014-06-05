@@ -601,12 +601,14 @@ namespace Orly {
 
         operator bool() const {
           assert(this);
-
           return Cur != End;
         }
 
         TVal &operator*() const {
           assert(this);
+          if (!*this) {
+            throw TPastEndError(HERE);
+          }
           return *Cur;
         }
 
@@ -615,9 +617,7 @@ namespace Orly {
           if(!*this) {
             throw TPastEndError(HERE);
           }
-
           ++Cur;
-
           return *this;
         }
 
@@ -693,7 +693,6 @@ namespace Orly {
 
         Base::TIter<TVal> &operator++() {
           assert(this);
-          assert(this);
           if (Cur == End) {
             throw TPastEndError(HERE);
           }
@@ -737,6 +736,104 @@ namespace Orly {
       const std::vector<bool> Data;
 
     }; // TStlGenerator<std::vector<bool>>
+
+    /* An explicit specialization for TDict<TKey, TVal>.
+       It uses the same technique as std::vector<bool> of caching the result and
+       returning the reference to it. TDict<TKey, TVal>'s iterator returns a
+       reference to std::pair<const TKey, TVal>, but we need to return
+       std::tuple<TKey, TVal>. Rather than copying every time operator* is
+       invoked, we copy once and cache the result. */
+    template <typename TKey, typename TVal>
+    class TStlGenerator<TDict<TKey, TVal>>
+        : public TGenerator<std::tuple<TKey, TVal>>,
+          public std::enable_shared_from_this<TStlGenerator<TDict<TKey, TVal>>> {
+      NO_COPY(TStlGenerator);
+      public:
+
+      using TPtr = std::shared_ptr<const TStlGenerator>;
+      using TTuple = std::tuple<TKey, TVal>;
+
+      static TStlGenerator::TPtr New(const TDict<TKey, TVal> &data) {
+        return TPtr(new TStlGenerator(data));
+      }
+
+      static TStlGenerator::TPtr New(TDict<TKey, TVal> &&data) {
+        return TPtr(new TStlGenerator(std::move(data)));
+      }
+
+      class TCursor : public Base::TIter<const TTuple> {
+        public:
+
+        TCursor(const TPtr &ptr) : Ptr(ptr), Cur(ptr->GetContainer().begin()), End(ptr->GetContainer().end()) {
+          UpdateCachedVal();
+        }
+
+        TCursor(const TCursor &that) : Ptr(that.Ptr), Cur(that.Cur), End(that.End) {
+          UpdateCachedVal();
+        }
+
+        TCursor(TCursor &&that) : Ptr(std::move(that.Ptr)), Cur(std::move(that.Cur)), End(std::move(that.End)) {
+          UpdateCachedVal();
+        }
+
+        operator bool() const {
+          assert(this);
+          return Cur != End;
+        }
+
+        const TTuple &operator*() const {
+          assert(this);
+          if (Cur == End) {
+            throw TPastEndError(HERE);
+          }
+          return CachedVal;
+        }
+
+        Base::TIter<const TTuple> &operator++() {
+          assert(this);
+          if (Cur == End) {
+            throw TPastEndError(HERE);
+          }
+          ++Cur;
+          UpdateCachedVal();
+          return *this;
+        }
+
+        private:
+
+        void UpdateCachedVal() {
+          assert(this);
+          if (Cur != End) {
+            CachedVal = *Cur;
+          }
+        }
+
+        /* Pointer to the generator because it holds what we are iterating over. */
+        TPtr Ptr;
+
+        typename TDict<TKey, TVal>::const_iterator Cur, End;
+
+        mutable TTuple CachedVal;
+
+      };
+
+      const TDict<TKey, TVal> &GetContainer() const {
+        assert(this);
+        return Data;
+      }
+
+      virtual Base::TIterHolder<const TTuple> NewCursor() const {
+        return MakeHolder(new TCursor(this->shared_from_this()));
+      }
+
+      private:
+
+      TStlGenerator(const TDict<TKey, TVal> &data) : Data(data) {}
+      TStlGenerator(TDict<TKey, TVal> &&data) : Data(std::move(data)) {}
+
+      const TDict<TKey, TVal> Data;
+
+    }; // TStlGenerator<TDict<TKey, TVal>>
 
     template <typename TRes>
     class TTakeGenerator
