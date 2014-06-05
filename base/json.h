@@ -318,9 +318,6 @@ namespace Base {
     /* Returns true if the object contains the given key */
     bool Contains(const TString &that) const {
       assert(this);
-      assert(&that);
-      assert(Kind == Object);
-
       return TryFind(that);
     }
 
