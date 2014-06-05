@@ -80,8 +80,6 @@ string TDep::GetCmd() {
     }
   }
 
-  //TODO: Append arguments which would be passed to compiler
-  //TODO: Add output directory
   return oss.str();
 }
 
