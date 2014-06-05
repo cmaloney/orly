@@ -33,7 +33,7 @@ using namespace Jhm;
 using namespace std;
 
 TJobRunner::TJobRunner(uint32_t worker_count, bool print_cmd)
-    : PrintCmd(print_cmd), WorkerCount(worker_count), QueueRunner(bind(&TJobRunner::Worker, this)) {}
+    : Working(true), PrintCmd(print_cmd), WorkerCount(worker_count), QueueRunner(bind(&TJobRunner::Worker, this)) {}
 
 TJobRunner::~TJobRunner() {
   ExitWorker = true;
@@ -71,15 +71,12 @@ void TJobRunner::Worker() {
     // If there's no work to queue and nothing is running, wait for something to finish.
     if (!ExitWorker) {
       if (free_cores == WorkerCount) {
-        Working = false; // we're out of work
-        NewResults.notify_all();
         unique_lock<mutex> lock(NewWorkMutex);
         NewWork.wait(lock);
       }
 
       //NOTE: This has a seperate ExitWorker test because NewWork fires when ExitWorker goes from false -> true.
       if (free_cores > 0 && !ExitWorker) {
-        Working = true;
         lock_guard<mutex> lock(ToRunMutex);
         while (free_cores > 0 && !ToRun.empty()) {
           TJob *job = Pop(ToRun);
@@ -142,34 +139,34 @@ bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
 }
 
 void TWorkFinder::ProcessReady() {
-      while (!Ready.empty()) {
-      // For each ReadyJob, see if there are any deps we now need.
-      uint64_t needed = 0;
+  while (!Ready.empty()) {
+    // For each ReadyJob, see if there are any deps we now need.
+    uint64_t needed = 0;
 
-      TJob *job = Pop(Ready);
+    TJob *job = Pop(Ready);
 
-      /* check input */ {
-        TFile *file = job->GetInput();
-        needed += AddNeededFile(file, job);
-      }
-
-      for (TFile *file : job->GetNeeds()) {
-        // Add each file. If any need jobs to complete, the job isn't ready yet.
-        needed += AddNeededFile(file, job);
-      }
-      if (needed) {
-        //TODO: Lots of copies (Although they're tiny)
-        InsertOrFail(Waiting, make_pair(job, needed));
-      } else {
-        // If we're about to run the job, ensure the output directories for it exist
-        //TODO: Move this to a more logical place.
-        for(TFile *out: job->GetOutput()) {
-          EnsureDirExists(out->GetPath().AsStr().c_str(), true);
-        }
-        Runner.Queue(job);
-        InsertOrFail(Running, job);
-      }
+    /* check input */ {
+      TFile *file = job->GetInput();
+      needed += AddNeededFile(file, job);
     }
+
+    for (TFile *file : job->GetNeeds()) {
+      // Add each file. If any need jobs to complete, the job isn't ready yet.
+      needed += AddNeededFile(file, job);
+    }
+    if (needed) {
+      // TODO: Lots of copies (Although they're tiny)
+      InsertOrFail(Waiting, make_pair(job, needed));
+    } else {
+      // If we're about to run the job, ensure the output directories for it exist
+      // TODO: Move this to a more logical place.
+      for (TFile *out : job->GetOutput()) {
+        EnsureDirExists(out->GetPath().AsStr().c_str(), true);
+      }
+      Runner.Queue(job);
+      InsertOrFail(Running, job);
+    }
+  }
 }
 
 void TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
@@ -267,13 +264,14 @@ bool TWorkFinder::FinishAll() {
   // Try running each job, process OnCmdComplete callbacks. Each time a job looks ready, ask what it needs as deps.
   // If it doesn't need any more dependencies, queue it as an OnCmdComplete.
   // As long as there is work to do, or the subprocess runner has more results for us.
-  while (!Running.empty() || !ToFinish.empty() || !Ready.empty()) {
+  while ((!Running.empty() || !ToFinish.empty() || !Ready.empty()) && Runner.IsWorking()) {
     ProcessReady();
 
     // Everything should have been emptied from the ready queue
     assert(Ready.empty());
 
     //DEBUG: cout << Running.size() << " + " << Waiting.size() << " + " << Finished.size() << " == " << All.size() << endl;
+    //DEBUG: Base::Join(", ", Running, cout); cout << '\n';
 
     // If nothing has been queued by here as valid/good work, there's an issue / we'll wait forever...
     assert(!Running.empty());
@@ -286,7 +284,7 @@ bool TWorkFinder::FinishAll() {
     // TODO: The subprocess runner needs to automatically stop queueing things on error.
     // TODO: We should make WaitForResults just return the result set for us.
     // Wait for 1+ of the subprocesses to return results we can process
-    while (Runner.IsWorking()) {
+    if (Runner.IsWorking()) {
       for(auto &result: Runner.WaitForResults()) {
         ProcessResult(result);
       }
@@ -306,7 +304,7 @@ bool TWorkFinder::IsDone(TJob *job) const {
 bool TWorkFinder::Queue(TJob *job) {
   // We know about the job. Just look up its status and exit.
   if (Contains(All, job)) {
-    return IsDone(job);
+    return !IsDone(job);
   }
 
   // New job, add it.
