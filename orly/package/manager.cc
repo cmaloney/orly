@@ -89,10 +89,13 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
       }
       installed_it->second = TLoaded::Load(PackageDir, package);
       //auto ret = installed.insert(make_pair(package.Name, TLoaded::Load(PackageDir, package)));
-      about_to_install.push_back(make_tuple(installed_it->second, package.Version > installed_it->second->GetName().Version));
+      about_to_install.push_back(
+          make_tuple(installed_it->second, true /* is_new_version */));
     } else {
-      auto ret = installed.insert(make_pair(package.Name, TLoaded::Load(PackageDir, package)));
-      about_to_install.push_back(make_tuple(ret.first->second, true));
+      auto ret = installed.insert(
+          make_pair(package.Name, TLoaded::Load(PackageDir, package)));
+      about_to_install.push_back(
+          make_tuple(ret.first->second, true /* is_new_version */));
     }
   }
 
