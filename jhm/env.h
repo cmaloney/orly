@@ -34,7 +34,7 @@ namespace Jhm {
   using TSet = std::unordered_set<TVal>;
 
   // Simple memory management by making one object (The registry) own all the pointers/memory.
-  template <typename TKey, typename TValue>
+  template <typename TKey, typename TValue, typename Hash = std::hash<TKey>>
   class TInterner {
 
     public:
@@ -55,11 +55,29 @@ namespace Jhm {
     }
 
     private:
-    std::unordered_map<TKey, std::unique_ptr<TValue>> ManagedThings;
+    std::unordered_map<TKey, std::unique_ptr<TValue>, Hash> ManagedThings;
   };
 
   class TJobFactory {
     public:
+
+    // NOTE: We don't just use a tuple because we want a specialized hash
+    struct TJobDesc {
+      TFile *f;
+      const char *job_name;
+
+      bool operator==(const TJobDesc &that) const noexcept {
+        return f == that.f && job_name == that.job_name;
+      }
+    };
+
+    struct TJobDescHash {
+      size_t operator()(const TJobDesc &that) const noexcept {
+        // TODO: Write a better hash...
+        return size_t(that.f) + size_t(that.job_name);
+      }
+
+    };
 
     // A Job registration can verify if they can indeed make a given output file
     // A job registration is used to do longest tail matches and see if the job's input can be produced
@@ -71,7 +89,8 @@ namespace Jhm {
     std::unordered_set<TJob *> GetPotentialJobs(TEnv &env, TFile *out_file);
 
     private:
-    TInterner<TFile*, TJob> Jobs;
+    //TODO: Make a better hash function.
+    TInterner<TJobDesc, TJob, TJobDescHash> Jobs;
 
     // NOTE: This is used purely for caching the reverse-lookups used by  GetPotentialJobs.
     // Entry in this map simply means a job exists, not that it's possible to get it's input.

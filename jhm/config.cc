@@ -74,6 +74,8 @@ bool AddDeltas(const TJson &config, const vector<string> &chunks, TJson &entry) 
       }
       return true;
     });
+  } else if (entry.GetKind() == TJson::Array) {
+    NOT_IMPLEMENTED_S("Merge multiple arrays at different configuration levels");
   } else {
     entry = *cur_elem;
   }

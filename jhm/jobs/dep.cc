@@ -19,8 +19,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <base/assert_true.h>
-#include <base/not_implemented.h>
+#include <base/split.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
 
@@ -44,6 +43,7 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
 TJobProducer TDep::GetProducer() {
 
   return TJobProducer{
+    "dep",
     {{"dep"}},
     GetInputName,
     //TODO: Should be able to eliminate the lambda wrapper here...
@@ -69,6 +69,16 @@ string TDep::GetCmd() {
 
   // TODO: add a helper for output set -> output directory
   oss << "make_dep_file " << GetInput()->GetPath() << ' ' << GetSoleOutput()->GetPath().AsStr();
+
+  // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the compiler
+  const auto &extensions = GetInput()->GetPath().GetRelPath().GetName().GetExtensions();
+  if (extensions.size() >= 1) {
+    const string &ext = extensions.at(extensions.size()-1);
+    if (ext == "cc" || ext == "c") {
+      oss << ' ';
+      Join(" ", Env.GetConfig().Read<vector<string>>(ext == "cc" ? "cmd.g++" : "cmd.gcc"), oss);
+    }
+  }
 
   //TODO: Append arguments which would be passed to compiler
   //TODO: Add output directory

@@ -1,3 +1,42 @@
 {
-  "targets": ["starsha/starsha"]
+  "targets": ["starsha/starsha"],
+  "cmd": {
+    "g++" : [
+      "-std=c++1y",
+      "-Wall",
+      "-Werror",
+      "-Wextra",
+      "-Wold-style-cast",
+      "-Wno-type-limits",
+      "-Wno-parentheses",
+      "-Wno-delete-non-virtual-dtor",
+      "-msse2",
+      "-pthread",
+
+      "-DTEST_OUTPUT_DIR=\"/tmp/\"",
+      "-DORLY_HOST",
+
+      "-D_WEBSOCKETPP_CPP11_STL_",
+      "-isystem third_party/websocketpp/",
+
+      "-DDEBUG",
+      "-g"
+    ],
+    "gcc": [
+      "-std=c11",
+      "-Werror",
+      "-Wall",
+      "-Wextra",
+      "-Wno-type-limits",
+      "-Wno-parentheses",
+      "-pthread",
+
+      "-DTEST_OUTPUT_DIR=\"/tmp/\"",
+
+      "-Wno-unused-but-set-parameter",
+      "-Wno-strict-aliasing",
+      "-DDEBUG",
+      "-g"
+    ]
+  }
 }

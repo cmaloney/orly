@@ -34,6 +34,7 @@ namespace Jhm {
   class TJob;
 
   struct TJobProducer {
+    const char *Name;
     // TODO: Should really be a set...
     std::vector<TExtension> OutExtensions;
     std::function<Base::TOpt<TRelPath> (const TRelPath &name)> TryGetInput;

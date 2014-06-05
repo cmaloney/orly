@@ -18,6 +18,7 @@
 
 #include <base/not_implemented.h>
 #include <base/path_utils.h>
+#include <jhm/jobs/compile_c_family.h>
 #include <jhm/jobs/dep.h>
 
 using namespace Base;
@@ -51,8 +52,7 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
       }
 
       //TODO: FIXME (We copy just to be extra-safe the move doesn't touch the in pointer we use as a different parameter)
-      TFile *in_2 = in;
-      TJob *job = Jobs.Add(move(in_2), producer.MakeJob(env, in));
+      TJob *job = Jobs.Add(TJobDesc{in, producer.Name}, producer.MakeJob(env, in));
 
       // TODO: InsertOrFail.
       ret.insert(job);
@@ -119,8 +119,9 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
 
   // TODO: Include trees (useful for multi-repo JHM)
 
-  // TODO: register all the known job kinds
   Jobs.Register(Job::TDep::GetProducer());
+  Jobs.Register(Job::TCompileCFamily::GetCProducer());
+  Jobs.Register(Job::TCompileCFamily::GetCppProducer());
 }
 
 TFile *TEnv::GetFile(TRelPath name) {

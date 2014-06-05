@@ -1,4 +1,4 @@
-/* <jhm/file_kind.h>
+/* <jhm/file.h>
 
    A registry of file types (Generally based on extension).
 
