@@ -36,12 +36,13 @@
 
 namespace Base {
 
-  /* Thrown when extracting from a malformed stream. */
-  DEFINE_ERROR(TSyntaxError, std::runtime_error, "json syntax error");
-
   /* A sum of the value types allowable in JSON. */
   class TJson final {
     public:
+
+    /* Thrown when extracting from a malformed stream. */
+    DEFINE_ERROR(TSyntaxError, std::runtime_error, "json syntax error");
+
 
     /* Aliases for constructed types from which we may construct. */
     using TArray  = std::vector<TJson>;
