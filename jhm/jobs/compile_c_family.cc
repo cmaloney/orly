@@ -98,9 +98,9 @@ string TCompileCFamily::GetCmd() {
   // Build up the gcc call
   ostringstream oss;
   if (IsCpp) {
-    oss << "g++ ";
+    oss << "g++";
   } else {
-    oss << "gcc ";
+    oss << "gcc";
   }
   oss << " -c ";
 
