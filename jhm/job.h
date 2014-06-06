@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <base/opt.h>
+#include <base/stl_utils.h>
 #include <jhm/naming.h>
 
 namespace Jhm {
@@ -58,6 +59,11 @@ namespace Jhm {
     virtual const char *GetName() = 0;
     virtual const TSet<TFile*> GetNeeds() = 0;
 
+    void AddOutput(TFile *file) {
+      assert(UnknownOutputs);
+      Base::InsertOrFail(Output, file);
+    }
+
     /* Allows a job to verify that it's complete. If it returns false here, the command __WILL__ get run again when
        all the files returned by GetNeeds() are all done. */
     virtual bool IsComplete() = 0;
@@ -83,14 +89,25 @@ namespace Jhm {
 
     virtual std::string GetCmd() = 0;
 
+    bool HasUnknownOutputs() const {
+      assert(this);
+      return UnknownOutputs;
+    }
+
     protected:
     // NOTE: In theory we can take multiple files in. In  Ppractice we have no instances of that.
-    TJob(TFile *input, TSet<TFile*> output);
+    TJob(TFile *input, TSet<TFile*> output, bool unknown_outputs=false);
+
+    void MarkAllOutputsKnown() {
+      assert(UnknownOutputs);
+      UnknownOutputs = false;
+    }
 
     private:
+    // True iff we have outputs we don't know about initially (Ex: nycr). This enables adding more outputs later.
     TFile *Input;
     TSet<TFile*> Output;
-
+    bool UnknownOutputs;
   };
 
   std::ostream &operator<<(std::ostream &out, TJob *job);

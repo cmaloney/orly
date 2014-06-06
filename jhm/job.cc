@@ -28,7 +28,8 @@
 using namespace Base;
 using namespace Jhm;
 
-TJob::TJob(TFile *input, TSet<TFile *> output) : Input(input), Output(move(output)) {
+TJob::TJob(TFile *input, TSet<TFile *> output, bool unknown_outputs)
+    : Input(input), Output(move(output)), UnknownOutputs(unknown_outputs) {
   assert(input);
   for (TFile *f : Output) {
     assert(f);

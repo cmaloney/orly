@@ -52,8 +52,20 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
         continue;
       }
 
-      //TODO: FIXME (We copy just to be extra-safe the move doesn't touch the in pointer we use as a different parameter)
-      TJob *job = Jobs.Add(TJobDesc{in, producer.Name}, producer.MakeJob(env, in));
+      TJobDesc job_desc{in, producer.Name};
+      TJob *job = Jobs.TryGet(job_desc);
+
+      // We've found this job before, which means we're an additional unstated output of the job.
+      if (job) {
+        job->AddOutput(out_file);
+      } else {
+        // Make the new job
+        job = Jobs.Add(TJobDesc{in, producer.Name}, producer.MakeJob(env, in));
+        if (job->HasUnknownOutputs()) {
+          job->AddOutput(out_file);
+        }
+      }
+
 
       // TODO: InsertOrFail.
       ret.insert(job);
