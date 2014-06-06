@@ -62,6 +62,15 @@ FIXTURE(Stl) {
   EXPECT_EQ(count, Set.size());
 }
 
+FIXTURE(Dict) {
+  const TDict<int64_t, int64_t> dict = {{0, 0}, {1, 1}, {2, 2}};
+  size_t index = 0;
+  for (auto it = MakeCursor(TStlGenerator<TDict<int64_t, int64_t>>::New(dict)); it; ++it, ++index) {
+    EXPECT_TRUE(*it == std::make_tuple(index, index));
+  }
+  EXPECT_EQ(index, dict.size());
+}
+
 FIXTURE(VectorOfBool) {
   const std::vector<bool> vec = { true, false, false, true, false, false, true, false };
   size_t index = 0;

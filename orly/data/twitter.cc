@@ -58,8 +58,8 @@ class TTweetObj {
   int64_t UserId;
   std::string UserName;
   std::string Text;
-  Base::TOpt<int64_t> ReplyToUserId;
-  Base::TOpt<int64_t> ReplyToStatusId;
+  int64_t ReplyToUserId;
+  int64_t ReplyToStatusId;
   int64_t FavoriteCount;
   int64_t RetweetCount;
 };
@@ -106,18 +106,18 @@ void GetStr(string &val, const TExpr *expr) {
     expr->Accept(vis);
 }
 
-void GetOptInt(Base::TOpt<int64_t> &val, const TExpr *expr) {
+void GetOptInt(int64_t &val, const TExpr *expr) {
   class TExprVisitor : public TExpr::TVisitor {
     NO_COPY(TExprVisitor);
     public:
-    TExprVisitor(Base::TOpt<int64_t> &val) : Val(val) {}
+    TExprVisitor(int64_t &val) : Val(val) {}
     virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TRefExpr */*that*/) const override {assert(false);}
     virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TParenExpr */*that*/) const override {assert(false);}
     virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TLiteralExpr *that) const override {
       class TVisitor : public TLiteral::TVisitor {
         NO_COPY(TVisitor);
         public:
-        TVisitor(Base::TOpt<int64_t> &val) : Val(val) {}
+        TVisitor(int64_t &val) : Val(val) {}
         virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TTimeDiffLiteral */*that*/) const override {assert(false);}
         virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TTimePntLiteral */*that*/) const override {assert(false);}
         virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TRealLiteral */*that*/) const override {assert(false);}
@@ -130,10 +130,10 @@ void GetOptInt(Base::TOpt<int64_t> &val, const TExpr *expr) {
         virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TTrueKwd */*that*/) const override {assert(false);}
         virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TFalseKwd */*that*/) const override {assert(false);}
         virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TNullLiteral */*that*/) const override {
-          Val.Reset();
+          Val = -1;
         }
         private:
-        Base::TOpt<int64_t> &Val;
+        int64_t &Val;
       };  // TVisitor
       that->GetLiteral()->Accept(TVisitor(Val));
     }
@@ -142,17 +142,17 @@ void GetOptInt(Base::TOpt<int64_t> &val, const TExpr *expr) {
     virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TObjCtor */*that*/) const override {assert(false);}
     virtual void operator()(const ::Orly::Data::Twitter::Import::Syntax::TDictCtor */*that*/) const override {assert(false);}
     private:
-    Base::TOpt<int64_t> &Val;
+    int64_t &Val;
   };  // TExprVisitor
   TExprVisitor vis(val);
   expr->Accept(vis);
 }
 
 int64_t GetInt(const TExpr *expr) {
-  Base::TOpt<int64_t> val;
+  int64_t val;
   GetOptInt(val, expr);
-  assert(val);
-  return *val;
+  assert(val != -1);
+  return val;
 }
 
 void GetUserObj(TUserObj &val, const TExpr *expr) {
@@ -298,7 +298,7 @@ class TImportStmtVisitor : public TImportStmt::TVisitor {
            tweet.FavoriteCount,
            tweet.Text.c_str());
            */
-    const int64_t num_kv = 2 + (tweet.ReplyToStatusId ? 1 : 0) + (tweet.ReplyToUserId ? 2 : 0);
+    const int64_t num_kv = 2 + ((tweet.ReplyToStatusId != -1) ? 1 : 0) + ((tweet.ReplyToUserId != -1) ? 2 : 0);
     Builder.Push(TUuid(TUuid::Twister));  // transaction id
     Builder.Push(1L);  // meta id
     Builder.Push(num_kv);  // num KV
@@ -309,17 +309,17 @@ class TImportStmtVisitor : public TImportStmt::TVisitor {
     Builder.Push(make_tuple(UserTweetInt, tweet.UserId, tweet.Id));  // key
     Builder.Push(make_tuple(tweet.Id, tweet.Text, tweet.UserName, tweet.RetweetCount, tweet.FavoriteCount, tweet.ReplyToStatusId, tweet.ReplyToUserId));  // val
     //printf("UserId [%ld][%s]\n", tweet.UserId, tweet.Text.c_str());
-    if (tweet.ReplyToStatusId) {
+    if (tweet.ReplyToStatusId != -1) {
       Builder.Push(UserReplyStatusIndexId);  // kv idx id
-      Builder.Push(make_tuple(tweet.UserId, *tweet.ReplyToStatusId, tweet.Id));  // key
+      Builder.Push(make_tuple(tweet.UserId, tweet.ReplyToStatusId, tweet.Id));  // key
       Builder.Push(true);  // val (different type used to specify different index)
     }
-    if (tweet.ReplyToUserId) {
+    if (tweet.ReplyToUserId != -1) {
       Builder.Push(UserReplyUserIndexId);  // kv idx id
-      Builder.Push(make_tuple(tweet.UserId, *tweet.ReplyToUserId, tweet.Id));  // key
+      Builder.Push(make_tuple(tweet.UserId, tweet.ReplyToUserId, tweet.Id));  // key
       Builder.Push(0L);  // val (different type used to specify different index)
       Builder.Push(ReplyUserToUserIndexId);  // kv idx id
-      Builder.Push(make_tuple(*tweet.ReplyToUserId, tweet.UserId, tweet.Id));  // key
+      Builder.Push(make_tuple(tweet.ReplyToUserId, tweet.UserId, tweet.Id));  // key
       Builder.Push("");  // val (different type used to specify different index)
     }
   }

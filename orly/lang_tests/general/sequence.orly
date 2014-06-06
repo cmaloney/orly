@@ -75,6 +75,7 @@ test {
   tlmap10: ((((x + 5) - 2) * 2) as [int] == [8, 10, 12, 14, 16, 18, 20, 22, 24, 26]) where {
     x = [1..10];
   };
+  **{"a": 1, "b": 2, "c": 3} as [<[str, int]>] == [<["a", 1]>, <["b", 2]>, <["c", 3]>];
 };
 
 /* test reading sequences from the database */

@@ -51,7 +51,10 @@ Type::TType TSequenceOf::GetType() const {
         : Type::TUnwrapVisitor(type, pos_range) {}
     virtual void operator()(const Type::TAddr     *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TBool     *) const { throw TExprError(HERE, PosRange); }
-    virtual void operator()(const Type::TDict     *) const { throw TExprError(HERE, PosRange); }
+    virtual void operator()(const Type::TDict *that) const {
+      Type = Type::TSeq::Get(Type::TAddr::Get(
+          {{TAddrDir::Asc, that->GetKey()}, {TAddrDir::Asc, that->GetVal()}}));
+    }
     virtual void operator()(const Type::TId       *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TInt      *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TList     *that) const {
