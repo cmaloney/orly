@@ -107,8 +107,10 @@ namespace Jhm {
 
     bool FinishAll();
 
-    private:
     bool IsBuildable(TFile *file);
+    bool IsFileDone(TFile *file);
+
+    private:
     bool IsDone(TJob *job) const;
 
     void ProcessReady();

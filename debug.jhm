@@ -37,6 +37,28 @@
       "-Wno-strict-aliasing",
       "-DDEBUG",
       "-g"
-    ]
+    ],
+    "ld": {
+      "libs": [
+        "-luuid",
+        "-pthread",
+        "-lrt",
+        "-ldl",
+        "-laio",
+        "-lgmp",
+        "-lgmpxx",
+        "-lz",
+        "-lreadline",
+        "-lsnappy",
+        "-lboost_system"
+      ],
+      "flags": [
+        "-rdynamic",
+        "-Wl,--hash-style=gnu",
+        "-Wl,--no-copy-dt-needed-entries",
+        "-Wl,-z,relro",
+        "-Wl,--no-as-needed"
+      ]
+    }
   }
 }

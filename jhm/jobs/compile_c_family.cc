@@ -28,6 +28,17 @@ using namespace Jhm::Job;
 using namespace std;
 using namespace std::placeholders;
 
+
+void TCompileCFamily::AddStandardArgs(bool is_cpp, TEnv &env, std::ostream &out) {
+  Join(" ", env.GetConfig().Read<vector<string>>(is_cpp ? "cmd.g++" : "cmd.gcc"), out);
+
+  // Add the src and out directories as sources of includes.
+  out << " -I" << env.GetSrc() << " -I" << env.GetOut()
+      // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)
+      << " -D'SRC_ROOT=\"" << env.GetSrc() << "/\"'";
+
+}
+
 static TRelPath GetOutputName(const TRelPath &input, bool is_cpp) {
   assert(EndsWith(input.GetName().GetExtensions(), {is_cpp ? "cc" : "c"}));
   return input.SwapLastExtension("o");
@@ -78,7 +89,7 @@ const unordered_set<TFile*> TCompileCFamily::GetNeeds() {
 
   // Only thing needed is the dep file. The dep file by being done enusures
   // all includes exist for C/C++. Set is constructed in ctor so that we don't construct it all the time.
-  return Needs;
+  return {Need};
 }
 
 string TCompileCFamily::GetCmd() {
@@ -93,20 +104,43 @@ string TCompileCFamily::GetCmd() {
   }
   oss << " -c ";
 
-  // Add configuration
-  Join(" ", Env.GetConfig().Read<vector<string>>(IsCpp ? "cmd.g++" : "cmd.gcc"), oss);
+  // Add standard arguments
+  AddStandardArgs(IsCpp, Env, oss);
 
-  // The SRC and OUT directories are includes
-  oss << " -I" << Env.GetSrc() << " -I" << Env.GetOut()
-      // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)
-      << " -D'SRC_ROOT=\"" << Env.GetSrc() << "/\"'"
-      << " -o" << GetSoleOutput()->GetPath() << ' ' << GetInput()->GetPath().GetRelPath();
+  // add output, input filenames
+  oss << " -o" << GetSoleOutput()->GetPath() << ' ';
+  TFile *input = GetInput();
+  if (input->IsSrc()) {
+    oss << input->GetPath().GetRelPath();
+  } else {
+    oss << input->GetPath();
+  }
 
   return oss.str();
 }
 
 bool TCompileCFamily::IsComplete() {
   assert(this);
+
+  // Calculate the files which need to be linked against to make a binary with this file.
+  // TODO: capture the negative (Does not exist / unproducable) .o information which is inherent in the final list as
+  //       when those files come into existence, we need to recompute the list.
+
+  // TODO: We needlessly jump to strings here. Really should be able to stash away TFile * within a TFile's config.
+  TJson::TArray link_needs;
+  for (const string &include : Need->GetConfig().Read<vector<string>>("c++.include")) {
+    // TODO: We really only need the TRelPaths here, not jumping all the way to the file objects.
+    TFile *include_file = Env.TryGetFileFromPath(include);
+    if (include_file) {
+      TFile *obj_file = Env.GetFile(include_file->GetPath().GetRelPath().SwapLastExtension("o"));
+      if (Env.IsBuildable(obj_file)) {
+        link_needs.push_back(obj_file->GetPath().AsStr());
+      }
+    }
+  }
+
+  GetSoleOutput()->PushComputedConfig(TJson::TObject{{"ld", TJson::TObject{{"link", move(link_needs)}}}});
+
   return true;
 }
 
@@ -114,4 +148,4 @@ TCompileCFamily::TCompileCFamily(TEnv &env, TFile *in_file, bool is_cpp)
     : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetPath().GetRelPath(), is_cpp))}),
       Env(env),
       IsCpp(is_cpp),
-      Needs({Env.GetFile(GetInput()->GetPath().GetRelPath().AddExtension({"dep"}))}) {}
+      Need(Env.GetFile(GetInput()->GetPath().GetRelPath().AddExtension({"dep"}))) {}

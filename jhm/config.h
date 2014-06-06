@@ -65,6 +65,18 @@ namespace Jhm {
       return TJsonReader<TVal>::Read(name, entry);
     }
 
+    template <typename TVal>
+    bool TryRead(const std::string &name, TVal &out) const {
+      // Try reading a config value. If it exists, must be of the right type.
+      Base::TJson entry;
+      if(!TryGetEntry(name, entry)) {
+        return false;
+      }
+      out = TJsonReader<TVal>::Read(name, entry);
+      return true;
+    }
+
+    bool TryGetEntry(const std::string &name, Base::TJson &out) const;
     Base::TJson GetEntry(const std::string &name) const;
     bool ForEachEntry(const std::string &name, const Base::TJson::TObjectCb &cb) const;
 

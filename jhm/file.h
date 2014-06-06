@@ -45,8 +45,11 @@ namespace Jhm {
       return Path;
     }
 
-    TConfig &GetConfig() {
-      return Config;
+    void PushComputedConfig(Base::TJson &&config) {
+      assert(this);
+
+      ++computed_config_count;
+      Config.Push(std::move(config));
     }
 
     const TConfig &GetConfig() const  {
@@ -62,6 +65,10 @@ namespace Jhm {
     private:
     bool Src;
     TAbsPath Path;
+
+    //NOTE: We keep track of the number of computer configurations pushed onto the file because the computed configs
+    // must be stored when we try cache completing a file.
+    uint32_t computed_config_count = 0;
 
     // Config: Stack of file-based config for the file (file.jhm), as well as producer-added config.
     // NOTE: JHM cannont and will not allow generated config. That isn't how you should pass in that info.

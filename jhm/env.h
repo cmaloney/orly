@@ -107,6 +107,8 @@ namespace Jhm {
     NO_COPY(TEnv);
     NO_MOVE(TEnv);
 
+    using TFileCheckFunc = std::function<bool (TFile*)>;
+
     static Jhm::TAbsBase GetOutDirName(const std::string &root,
                                      const std::string &proj_name,
                                      const std::string &config,
@@ -125,11 +127,9 @@ namespace Jhm {
     const TConfig &GetConfig() {
       return Config;
     }
-
     const TAbsBase &GetSrc() const {
       return Src;
     }
-
     const TAbsBase &GetOut() const {
       return Out;
     }
@@ -142,7 +142,17 @@ namespace Jhm {
        NOTE: Does absolutely nothing for testing if file is producable, needs to be built, etc. */
     TFile *GetFile(TRelPath name);
 
+    bool IsBuildable(TFile *file) const;
+    bool IsDone(TFile *file) const;
+    void SetFuncs(TFileCheckFunc &&buildable, TFileCheckFunc &&done);
+
+    /* Gets a file from the given path, which is either an absolute filesystem path (starts with '/') or relative within
+       the project (a TRelPath) */
+    TFile *TryGetFileFromPath(const std::string &name);
+
     private:
+    TFileCheckFunc Buildable;
+    TFileCheckFunc Done;
 
     TInterner<TRelPath, TFile> Files;
 

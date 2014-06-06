@@ -20,6 +20,7 @@
 #include <base/path_utils.h>
 #include <jhm/jobs/compile_c_family.h>
 #include <jhm/jobs/dep.h>
+#include <jhm/jobs/link.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -41,7 +42,7 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
   } else {
     // No cache found. Build it
     // Find and instantiate possibilities based on extension
-    for(auto &producer : JobProducers) {
+    for(const auto &producer : JobProducers) {
       TOpt<TRelPath> opt_path = producer.TryGetInput(out_file->GetPath().GetRelPath());
       if(!opt_path) {
         continue;
@@ -122,6 +123,7 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
   Jobs.Register(Job::TDep::GetProducer());
   Jobs.Register(Job::TCompileCFamily::GetCProducer());
   Jobs.Register(Job::TCompileCFamily::GetCppProducer());
+  Jobs.Register(Job::TLink::GetProducer());
 }
 
 TFile *TEnv::GetFile(TRelPath name) {
@@ -148,5 +150,47 @@ TFile *TEnv::GetFile(TRelPath name) {
   } else {
     TAbsPath out_path(Out, name);
     return Files.Add(move(name), make_unique<TFile>(move(out_path), false, move(file_conf)));
+  }
+}
+
+bool TEnv::IsBuildable(TFile *file) const {
+  assert(this);
+  assert(Buildable);
+
+  return Buildable(file);
+}
+
+bool TEnv::IsDone(TFile *file) const {
+  assert(this);
+  assert(Done);
+
+  return Done(file);
+}
+
+void TEnv::SetFuncs(TFileCheckFunc &&buildable, TFileCheckFunc &&done) {
+  assert(!Buildable);
+  assert(!Done);
+  assert(buildable);
+  assert(done);
+
+  Buildable = move(buildable);
+  Done = move(done);
+}
+
+TFile *TEnv::TryGetFileFromPath(const std::string &name) {
+  assert(&name);
+  assert(name.size()); // Name must be non-empty.
+  // If the name starts with a '/' it's an absolute filesystem path
+  if(name[0] == '/') {
+    if (Src.Contains(name)) {
+      return GetFile(Src.GetAbsPath(name).GetRelPath());
+    } else if (Out.Contains(name)) {
+      return GetFile(Out.GetAbsPath(name).GetRelPath());
+    } else {
+      // File isn't in a known tree, so we can't possibly get it.
+      return nullptr;
+    }
+  } else {
+    return GetFile(TRelPath(name));
   }
 }

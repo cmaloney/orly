@@ -40,7 +40,7 @@ using namespace std;
 using namespace std::placeholders;
 
 /* Converts relative file to absolute path if needed, then has the environment find/make the actual file object. */
-TFile *FindFile(const string &cwd, TEnv &env, const string &name) {
+TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const string &name) {
   if (name.size() < 1) {
     THROW_ERROR(runtime_error) << "Invalid target name " << quoted(name);
   }
@@ -71,6 +71,11 @@ TFile *FindFile(const string &cwd, TEnv &env, const string &name) {
   if (!file) {
     // TODO: Do we want to report the relative path to the file here rather than the provided name?
     THROW_ERROR(runtime_error) << "Error finding target" << quoted(name);
+  }
+
+  // If the file isn't buildable as is, try making it an executable (Add an empty extension to the end)
+  if (!work_finder.IsBuildable(file)) {
+    file = env.GetFile(file->GetPath().GetRelPath().AddExtension({""}));
   }
 
   return file;
@@ -115,10 +120,14 @@ class TJhm : public TCmd {
     // Get the files for the targets
     TWorkFinder work_finder(WorkerCount, PrintCmd, bind(&TEnv::GetJobsProducingFile, &env, _1));
 
+    // Break the cyclic dependency by registering these back.
+    // TODO: Find a cleaner way to do this (Or remove it altogether)
+    env.SetFuncs(bind(&TWorkFinder::IsBuildable, &work_finder, _1), bind(&TWorkFinder::IsFileDone, &work_finder, _1));
+
     // TODO: Gather exceptions here, rather than letting first one fly.
     for (const auto &target : Targets) {
       // Walks down the tree, adding the mappings for all the events we need to handle.
-      work_finder.AddNeededFile(FindFile(cwd, env, target));
+      work_finder.AddNeededFile(FindFile(cwd, env, work_finder, target));
     }
 
     // TODO: Add a single-line status message

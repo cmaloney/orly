@@ -84,6 +84,15 @@ bool AddDeltas(const TJson &config, const vector<string> &chunks, TJson &entry) 
 }
 
 TJson TConfig::GetEntry(const string &name) const {
+  TJson ret;
+  if (!TryGetEntry(name, ret)) {
+    THROW_ERROR(runtime_error) << "Didn't find config entry for " << quoted(name);
+  }
+  return ret;
+}
+
+
+bool TConfig::TryGetEntry(const string &name, TJson &out) const {
   vector<string> chunks;
   Base::Split(".", name, chunks);
 
@@ -99,13 +108,10 @@ TJson TConfig::GetEntry(const string &name) const {
       break;
     }
   }
-
-  // Didn't find the config. Raise an error
-  if (!found_something) {
-    THROW_ERROR(runtime_error) << "Didn't find config entry for " << quoted(name);
+  if (found_something) {
+    out = entry;
   }
-
-  return entry;
+  return found_something;
 }
 
 void TConfig::Push(Base::TJson &&config) {

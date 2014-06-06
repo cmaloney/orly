@@ -22,6 +22,7 @@
 #include <base/split.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
+#include <jhm/jobs/compile_c_family.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -76,7 +77,7 @@ string TDep::GetCmd() {
     const string &ext = extensions.at(extensions.size()-1);
     if (ext == "cc" || ext == "c") {
       oss << ' ';
-      Join(" ", Env.GetConfig().Read<vector<string>>(ext == "cc" ? "cmd.g++" : "cmd.gcc"), oss);
+      TCompileCFamily::AddStandardArgs(ext == "cc", Env, oss);
     }
   }
 
@@ -96,33 +97,19 @@ bool TDep::IsComplete() {
   deps.Read(in);
 
   deps.ForEachElem([this,&needs_work](const TJson &elem)->bool {
-
-    const string &dep = elem.GetString();
-
-    // If an include is less than one character, WTF!
-    assert(dep.size() >= 1);
-    TFile *f = nullptr;
-
-    if (dep[0] == '/') {
-      // Have to locate what tree it's in.
-      if (Env.GetSrc().Contains(dep)) {
-        f = Env.GetFile(Env.GetSrc().GetAbsPath(dep).GetRelPath());
-      } else if (Env.GetOut().Contains(dep)) {
-        f = Env.GetFile(Env.GetOut().GetAbsPath(dep).GetRelPath());
-      } else {
-        // File isn't in a known tree. Skip it.
-        return true;
-      }
-    } else {
-      // The file definitely doesn't exist according to GCC. Fortunately this means we have a nice relative path already.
-      f = Env.GetFile(TRelPath(dep));
+    TFile *file = Env.TryGetFileFromPath(elem.GetString());
+    if (file) {
+      // Add to needs. If it's new in the Needs array, we aren't done yet.
+      needs_work |= Needs.insert(file).second;
     }
-
-    // Add to needs. If it's new in the Needs array, we aren't done yet.
-    needs_work |= Needs.insert(f).second;
-
     return true;
   });
+
+  // If we found everything, stash the info on the input file as computed config
+  // TODO: In pushing this as strings, we effectively discard all the file lookups we've already done
+  if (!needs_work) {
+    GetSoleOutput()->PushComputedConfig(TJson::TObject{{"c++", TJson::TObject{{"include", move(deps)}}}});
+  }
 
   return !needs_work;
 }

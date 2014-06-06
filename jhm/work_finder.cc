@@ -48,15 +48,22 @@ void TJobRunner::Queue(TJob *job) {
 }
 
 TJobRunner::TResults TJobRunner::WaitForResults() {
-  /* cv */ {
+  /* Fast results exit */ {
+    lock_guard<mutex> lock(ResultsMutex);
+    if (Results.size() > 0) {
+      TResults ret = move(Results);
+      return ret;
+    }
+  }
+
+  /* cv to wait for results (if there aren't already results ready) */ {
     unique_lock<mutex> lock(NewResultsMutex);
     NewResults.wait(lock);
   }
 
-  lock_guard<mutex> lock(ResultsMutex);
   // Move out the results.
+  lock_guard<mutex> lock(ResultsMutex);
   TResults ret = move(Results);
-
   return ret;
 }
 
@@ -186,12 +193,30 @@ void TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
       return;
     }
 
-    // If we exited successfully, Sanity check that all output files now exist.
-    for (const TFile *out_file : result.Job->GetOutput()) {
+    TJson::TArray job_output;
+    for(TFile *f: result.Job->GetOutput()) {
+      job_output.push_back(f->GetPath().AsStr());
+    }
+
+
+    TJson job_info(TJson::TObject{
+        {"build_info", TJson::TObject{
+          {"job", TJson::TObject{
+            {"name", result.Job->GetName()},
+            {"input", result.Job->GetInput()->GetPath().AsStr()},
+            {"output", job_output}
+          }}
+        }}});
+
+    for (TFile *out_file : result.Job->GetOutput()) {
+      // Sanity check that all output files now exist.
       if (!ExistsPath(out_file->GetPath().AsStr().c_str())) {
         THROW_ERROR(logic_error) << "Job " << result.Job << " Didn't produce the output file '" << out_file
                                  << " which it was supposed to yet returned successfully...";
       }
+
+      // Attach to each output file it's build info
+      out_file->PushComputedConfig(TJson(job_info));
     }
 
     // Update every job which was waiting on this job to be waiting on one less thing.
@@ -221,6 +246,10 @@ void TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
 
 bool TWorkFinder::IsBuildable(TFile *file) {
   return file->IsSrc() || TryGetProducer(file);
+}
+
+bool TWorkFinder::IsFileDone(TFile *file) {
+  return file->IsSrc() || IsDone(TryGetProducer(file));
 }
 
 TJob *TWorkFinder::TryGetProducer(TFile *file) {
@@ -296,8 +325,6 @@ bool TWorkFinder::FinishAll() {
 }
 
 bool TWorkFinder::IsDone(TJob *job) const {
-  assert(All.find(job) != All.end());
-
   return Finished.find(job) != Finished.end();
 }
 
