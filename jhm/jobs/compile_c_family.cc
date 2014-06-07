@@ -102,10 +102,6 @@ string TCompileCFamily::GetCmd() {
   } else {
     oss << "gcc";
   }
-  oss << " -c ";
-
-  // Add standard arguments
-  AddStandardArgs(IsCpp, Env, oss);
 
   // add output, input filenames
   oss << " -o" << GetSoleOutput()->GetPath() << ' ';
@@ -115,6 +111,12 @@ string TCompileCFamily::GetCmd() {
   } else {
     oss << input->GetPath();
   }
+
+  // Tell GCC we're only compiling to a .o
+  oss << " -c ";
+
+  // Add standard arguments
+  AddStandardArgs(IsCpp, Env, oss);
 
   return oss.str();
 }
