@@ -18,10 +18,12 @@
 
 #include <cassert>
 #include <exception>
+#include <fstream>
 #include <iostream>
 #include <unistd.h>
 
 #include <base/cmd.h>
+#include <base/split.h>
 #include <base/thrower.h>
 #include <tools/nycr/error.h>
 #include <tools/nycr/build.h>
@@ -84,10 +86,25 @@ class TNycr : public Base::TCmd {
       // if we have no errors, write output; otherwise, show the errors
       if (!TError::GetFirstError()) {
         const Symbol::TLanguage::TLanguages &languages = Symbol::TLanguage::GetLanguages();
+        if (LanguageReport && !LanguageReportFile.empty()) {
+          ofstream out(LanguageReportFile);
+          if (!out.is_open()) {
+            THROW << "Unable to open language report output file " << LanguageReportFile;
+          }
+
+          // NOTE: We're hand-converting the list into json, because that's wayyyy easier for now
+          out << '[';
+          Base::Join(", ", languages, [](const Symbol::TLanguage *language, ostream &out) {
+            out << '"' << Symbol::TLower(language->GetName()) << '"';
+          }, out);
+          out << ']';
+        }
         while (!languages.empty()) {
           Symbol::TLanguage *language = *languages.begin();
           if (LanguageReport) {
-            cout << Symbol::TLower(language->GetName()) << endl;
+            if (LanguageReportFile.empty()) {
+              cout << Symbol::TLower(language->GetName()) << endl;
+            }
           } else {
             //TODO: Should probably change this to constant ref in the std::string.
             WriteCst(Root.c_str(), Branch.c_str(), Atom.c_str(), language);
@@ -119,6 +136,11 @@ class TNycr : public Base::TCmd {
       Param(&TNycr::Atom, "atom", Optional, "atom\0a\0", "The JHM atom to use for output");
       Param(&TNycr::Bootstrap, "bootstrap", Optional, "bootstra\0b\0", "Run in bootstrap mode");
       Param(&TNycr::LanguageReport, "language_report", Optional, "language-report\0l\0", "Show language report");
+      Param(&TNycr::LanguageReportFile,
+            "language_report_file",
+            Optional,
+            "language-report-file\0",
+            "Write language report to the given file instead of stdout. '-l' must be given.");
       Param(&TNycr::Branch, "branch", Optional, "branch\0p\0", "The JHM branch name to use for output");
       Param(&TNycr::Root, "root", Optional, "root\0r\0", "The JHM root to use");
       Param(&TNycr::Compiland, "compiland", Required, "The source file to use");
@@ -142,6 +164,7 @@ class TNycr : public Base::TCmd {
   }
 
   bool Bootstrap, LanguageReport;
+  std::string LanguageReportFile;
   std::string Atom, Branch, Compiland, Root;
 };
 
