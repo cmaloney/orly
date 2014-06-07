@@ -104,9 +104,9 @@ namespace Jhm {
     }
 
     private:
-    // True iff we have outputs we don't know about initially (Ex: nycr). This enables adding more outputs later.
     TFile *Input;
     TSet<TFile*> Output;
+    // True iff we have outputs we don't know about initially (Ex: nycr). This enables adding more outputs later.
     bool UnknownOutputs;
   };
 

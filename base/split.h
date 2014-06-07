@@ -25,6 +25,38 @@
 
 namespace Base {
 
+  // TODO: Add a variant of the stream insertion that allows passing an element callback.
+  template <typename TSepType, typename TContainer>
+  class TJoin {
+    public:
+    TJoin(const TSepType &sep, const TContainer &container) : Sep(sep), Container(container) {}
+
+    const TSepType &Sep;
+    const TContainer &Container;
+  };
+
+  template <typename TSepType, typename TContainer>
+  std::ostream &operator<<(std::ostream &out, const TJoin<TSepType, TContainer> &join) {
+    bool first = true;
+    for(const auto &elem: join.Container) {
+      if (first) {
+        first = false;
+      } else {
+        out << join.Sep;
+      }
+
+      out << elem;
+    }
+
+    return out;
+  }
+
+  // TODO: Migrate other uses of Join to this one which is more fluid to use in stream insertions.
+  template <typename TSepType, typename TContainer>
+  auto Join(const TSepType &sep, const TContainer &container) {
+    return TJoin<TSepType, TContainer>(sep, container);
+  }
+
   //NOTE: pieces_container must be able to have foreach run over it, and what it contains must
   template<typename TSepType, typename TVal, typename TStrm>
   TStrm &Join(const TSepType &sep, const TVal &pieces_container, TStrm &out) {

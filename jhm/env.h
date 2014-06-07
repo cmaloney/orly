@@ -134,6 +134,10 @@ namespace Jhm {
       return Out;
     }
 
+    const TAbsBase &GetRoot() const {
+      return Root;
+    }
+
     std::unordered_set<TJob*> GetJobsProducingFile(TFile *file) {
       return Jobs.GetPotentialJobs(*this, file);
     }

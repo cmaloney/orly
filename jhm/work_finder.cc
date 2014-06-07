@@ -22,6 +22,7 @@
 #include <stdexcept>
 
 #include <base/path_utils.h>
+#include <base/split.h>
 #include <base/stl_utils.h>
 #include <base/subprocess.h>
 #include <base/thrower.h>
@@ -106,6 +107,10 @@ void TJobRunner::Worker() {
       auto &subproc = Running.at(job);
       //NOTE: the subproc.Wait() here shouldn't hang, since we already found it to have terminated in the WaitAll()
       auto returncode = subproc->Wait();
+      if(returncode != 0) {
+        ++NumberJobsFailed;
+        ExitWorker = true;
+      }
       /* lock */ {
         lock_guard<mutex> lock(ResultsMutex);
         Results.emplace_back(job, returncode, subproc->TakeStdOutFromChild(), subproc->TakeStdErrFromChild());
@@ -176,7 +181,7 @@ void TWorkFinder::ProcessReady() {
   }
 }
 
-void TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
+bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
   // Job finished / no longer running
   EraseOrFail(Running, result.Job);
 
@@ -186,62 +191,63 @@ void TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
     Base::EchoOutput(move(result.Stdout));
     cout << "STDERR: \n";
     Base::EchoOutput(move(result.Stderr));
-  } else {
-    // Check if the job is actually complete or not
-    if (!result.Job->IsComplete()) {
-      Ready.push(result.Job);
-      return;
-    }
-
-    TJson::TArray job_output;
-    for(TFile *f: result.Job->GetOutput()) {
-      job_output.push_back(f->GetPath().AsStr());
-    }
-
-
-    TJson job_info(TJson::TObject{
-        {"build_info", TJson::TObject{
-          {"job", TJson::TObject{
-            {"name", result.Job->GetName()},
-            {"input", result.Job->GetInput()->GetPath().AsStr()},
-            {"output", job_output}
-          }}
-        }}});
-
-    for (TFile *out_file : result.Job->GetOutput()) {
-      // Sanity check that all output files now exist.
-      if (!ExistsPath(out_file->GetPath().AsStr().c_str())) {
-        THROW_ERROR(logic_error) << "Job " << result.Job << " Didn't produce the output file '" << out_file
-                                 << " which it was supposed to yet returned successfully...";
-      }
-
-      // Attach to each output file it's build info
-      out_file->PushComputedConfig(TJson(job_info));
-    }
-
-    // Update every job which was waiting on this job to be waiting on one less thing.
-    // NOTE: If the job isn't waiting on anything, it gets pushed to the Ready queue.
-    const auto range = ToFinish.equal_range(result.Job);
-    if (range.first != range.second) {
-      for(auto iter = range.first; iter != range.second; ++iter) {
-        // Update each job which was waiting on this job's waiting entry. Queue in ReadyJobs if needed.
-        TJob *job = iter->second;
-        assert(job);
-        auto &count = Waiting.at(job);
-        --count;
-        assert(count >= 0);
-        if (count == 0) {
-          // Move the job to ready, as it has nothing left it's waiting on.
-          EraseOrFail(Waiting, job);
-          Ready.push(job);
-        }
-      }
-      // TODO: Assert this succeeds (It should be guaranteed to)
-      ToFinish.erase(range.first, range.second);
-    }
-
-    InsertOrFail(Finished, result.Job);
+    return true;
   }
+  // Check if the job is actually complete or not
+  if (!result.Job->IsComplete()) {
+    Ready.push(result.Job);
+    return false;
+  }
+
+  TJson::TArray job_output;
+  for(TFile *f: result.Job->GetOutput()) {
+    job_output.push_back(f->GetPath().AsStr());
+  }
+
+
+  TJson job_info(TJson::TObject{
+      {"build_info", TJson::TObject{
+        {"job", TJson::TObject{
+          {"name", result.Job->GetName()},
+          {"input", result.Job->GetInput()->GetPath().AsStr()},
+          {"output", job_output}
+        }}
+      }}});
+
+  for (TFile *out_file : result.Job->GetOutput()) {
+    // Sanity check that all output files now exist.
+    if (!ExistsPath(out_file->GetPath().AsStr().c_str())) {
+      THROW_ERROR(logic_error) << "Job " << result.Job << " Didn't produce the output file '" << out_file
+                               << " which it was supposed to yet returned successfully...";
+    }
+
+    // Attach to each output file it's build info
+    out_file->PushComputedConfig(TJson(job_info));
+  }
+
+  // Update every job which was waiting on this job to be waiting on one less thing.
+  // NOTE: If the job isn't waiting on anything, it gets pushed to the Ready queue.
+  const auto range = ToFinish.equal_range(result.Job);
+  if (range.first != range.second) {
+    for(auto iter = range.first; iter != range.second; ++iter) {
+      // Update each job which was waiting on this job's waiting entry. Queue in ReadyJobs if needed.
+      TJob *job = iter->second;
+      assert(job);
+      auto &count = Waiting.at(job);
+      --count;
+      assert(count >= 0);
+      if (count == 0) {
+        // Move the job to ready, as it has nothing left it's waiting on.
+        EraseOrFail(Waiting, job);
+        Ready.push(job);
+      }
+    }
+    // TODO: Assert this succeeds (It should be guaranteed to)
+    ToFinish.erase(range.first, range.second);
+  }
+
+  InsertOrFail(Finished, result.Job);
+  return false;
 }
 
 bool TWorkFinder::IsBuildable(TFile *file) {
@@ -271,9 +277,12 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
     if (IsBuildable(input_file)) {
       bool found_self = false;
       //TODO: Collect / hold errors at this loop, re throw after last iteration.
-      for(TFile *f: job->GetOutput()) {
-        if(!Producers.emplace(f, job).second) {
-          THROW_ERROR(runtime_error) << "Multiple producers for file" << file;
+      for (TFile *f : job->GetOutput()) {
+        if (!Producers.emplace(f, job).second) {
+          if (Producers.at(f) != job) {
+            THROW_ERROR(runtime_error) << "Multiple producers for file "
+                                       << file <<  ". Producers: " << Producers.at(f) << ", " << job;
+          }
         }
         found_self |= f == file;
       }
@@ -290,6 +299,7 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
 }
 
 bool TWorkFinder::FinishAll() {
+  bool has_failed = false;
   // Try running each job, process OnCmdComplete callbacks. Each time a job looks ready, ask what it needs as deps.
   // If it doesn't need any more dependencies, queue it as an OnCmdComplete.
   // As long as there is work to do, or the subprocess runner has more results for us.
@@ -305,18 +315,18 @@ bool TWorkFinder::FinishAll() {
     // If nothing has been queued by here as valid/good work, there's an issue / we'll wait forever...
     assert(!Running.empty());
 
-    // Sanity check Ready, Finished, Waiting.
-    // Running + Waiting + Finished == All (Just a little while ago we emptied Ready)
-    assert(Running.size() + Waiting.size() + Finished.size() == All.size());
-    // TODO: Assert Ready, Waiting, and Finished don't share any items.
+    if(!has_failed) {
+      // Sanity check Ready, Finished, Waiting.
+      // Running + Waiting + Finished == All (Just a little while ago we emptied Ready)
+      assert(Running.size() + Waiting.size() + Finished.size() == All.size());
+      // TODO: Assert Ready, Waiting, and Finished don't share any items.
+    }
 
     // TODO: The subprocess runner needs to automatically stop queueing things on error.
     // TODO: We should make WaitForResults just return the result set for us.
     // Wait for 1+ of the subprocesses to return results we can process
-    if (Runner.IsWorking()) {
-      for(auto &result: Runner.WaitForResults()) {
-        ProcessResult(result);
-      }
+    for(auto &result: Runner.WaitForResults()) {
+      has_failed |= ProcessResult(result);
     }
   }
 

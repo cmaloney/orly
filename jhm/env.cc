@@ -16,11 +16,14 @@
 
 #include <jhm/env.h>
 
+#include <cassert>
+
 #include <base/not_implemented.h>
 #include <base/path_utils.h>
 #include <jhm/jobs/compile_c_family.h>
 #include <jhm/jobs/dep.h>
 #include <jhm/jobs/link.h>
+#include <jhm/jobs/nycr.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -57,7 +60,9 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
 
       // We've found this job before, which means we're an additional unstated output of the job.
       if (job) {
-        job->AddOutput(out_file);
+        if (!Contains(job->GetOutput(), out_file)) {
+          job->AddOutput(out_file);
+        }
       } else {
         // Make the new job
         job = Jobs.Add(TJobDesc{in, producer.Name}, producer.MakeJob(env, in));
@@ -65,19 +70,13 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
           job->AddOutput(out_file);
         }
       }
+      // We better be produced by the job....
+      assert(Contains(job->GetOutput(), out_file));
 
-
+      // Add ourself to the cache map, as well as the set of jobs being returned.
       // TODO: InsertOrFail.
       ret.insert(job);
-
-      // Fill cache
-      bool found_self = false;
-      for(TFile *job_out : job->GetOutput()) {
-        // TODO: InsertOrFail.
-        JobsByOutput.emplace(job_out, job);
-        found_self |= (job_out == out_file);
-      }
-      assert(found_self); // Job must output the file it said it would.
+      JobsByOutput.emplace(out_file, job);
     }
 
     // If no entries have been added to cache, then insert a nullptr to indicate we did try
@@ -136,6 +135,8 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
   Jobs.Register(Job::TCompileCFamily::GetCProducer());
   Jobs.Register(Job::TCompileCFamily::GetCppProducer());
   Jobs.Register(Job::TLink::GetProducer());
+  Jobs.Register(Job::TNycr::GetProducer());
+  Jobs.Register(Job::TNycrLang::GetProducer());
 }
 
 TFile *TEnv::GetFile(TRelPath name) {

@@ -114,7 +114,9 @@ namespace Jhm {
     bool IsDone(TJob *job) const;
 
     void ProcessReady();
-    void ProcessResult(TJobRunner::TResult &result);
+
+    /* Process the given result. Returns true if the result of the job is failure / we're shutting down now. */
+    bool ProcessResult(TJobRunner::TResult &result);
 
     bool Queue(TJob *job);
 
