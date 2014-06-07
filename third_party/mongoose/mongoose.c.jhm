@@ -1,0 +1,9 @@
+{
+  "cmd": {
+    "gcc": [
+      "-g",
+      "-DDEBUG",
+      "-pthread"
+    ]
+  }
+}
