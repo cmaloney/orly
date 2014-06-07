@@ -27,6 +27,7 @@
 #include <base/thrower.h>
 #include <jhm/file.h>
 #include <jhm/job.h>
+#include <starsha/status_line.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -218,6 +219,8 @@ bool TWorkFinder::FinishAll() {
     // If we haven't failed, then the running, ready, and finished sets should make up the 'all' set.
     // If we've failed 1+ job, then the number failed will be missing.
     if (!has_failed) {
+      Starsha::TStatusLine() << '[' << Finished.size() << '/' << All.size() << "]. Waiting for cores: ["
+                             << Running.size() << "].";
       assert(Running.size() + Waiting.size() + Finished.size() == All.size());
     }
 
