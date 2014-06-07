@@ -18,77 +18,16 @@
 
 #pragma once
 
-#include <atomic>
-#include <condition_variable>
-#include <mutex>
-#include <queue>
 #include <string>
-#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 
-#include <base/fd.h>
-#include <base/subprocess.h>
+#include <jhm/job_runner.h>
 
 namespace Jhm {
 
   class TJob;
   class TFile;
-
-  // TODO: This class' fundamental 'Do data associated subprocesses up to n at a time' should be extracted.
-  class TJobRunner {
-    NO_MOVE(TJobRunner);
-    NO_COPY(TJobRunner);
-    public:
-    class TResult {
-      public:
-      MOVE_ONLY(TResult);
-      TResult(TJob *job, int exit_code, Base::TFd &&stdout, Base::TFd &&stderr)
-          : ExitCode(exit_code), Job(job), Stdout(stdout), Stderr(stderr) {}
-
-      int ExitCode;
-      TJob *Job;
-      Base::TFd Stdout, Stderr;
-    };
-
-    using TResults = std::vector<TResult>;
-
-    TJobRunner(uint32_t worker_count, bool print_cmd);
-    ~TJobRunner();
-
-    void Queue(TJob *job);
-
-    TResults WaitForResults();
-
-    /* Returns true IFF there are no more jobs running, and none of the jobs run exited with a non-zero exit code */
-    uint64_t GetNumberJobsFailed() const {
-      return NumberJobsFailed;
-    }
-
-    bool IsWorking() const {
-      return Working;
-    }
-
-    private:
-
-    void Worker();
-
-    std::atomic<bool> Working;
-    bool ExitWorker = false;
-    uint64_t NumberJobsFailed = 0;
-    const bool PrintCmd;
-    const uint32_t WorkerCount;
-    TResults Results;
-    std::mutex ResultsMutex;
-    std::condition_variable NewResults;
-    std::mutex NewResultsMutex;
-    std::queue<TJob *> ToRun;
-    mutable std::mutex ToRunMutex;
-    std::thread QueueRunner;
-    std::mutex NewWorkMutex;
-    std::condition_variable NewWork;
-    Base::TPump pump;
-  };
 
   /* Finds all the currently buildable leaves and queues them for the subproc_runner to fire off. */
   class TWorkFinder {
@@ -105,6 +44,7 @@ namespace Jhm {
        Adds to the ToFinish multimap of the given job if job is specified. */
     bool AddNeededFile(TFile *file, TJob *job = nullptr);
 
+    /* Runs jobs to make all the needed files, queuing more jobs as needed. Returns true on success*/
     bool FinishAll();
 
     bool IsBuildable(TFile *file);

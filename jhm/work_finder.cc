@@ -1,6 +1,6 @@
 /* <jhm/work_finder.h>
 
-   Finds and then runs all the work needed to get out all needed files.
+   Finds and runs all jobs necessary to create the needed files.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -24,7 +24,6 @@
 #include <base/path_utils.h>
 #include <base/split.h>
 #include <base/stl_utils.h>
-#include <base/subprocess.h>
 #include <base/thrower.h>
 #include <jhm/file.h>
 #include <jhm/job.h>
@@ -32,102 +31,6 @@
 using namespace Base;
 using namespace Jhm;
 using namespace std;
-
-TJobRunner::TJobRunner(uint32_t worker_count, bool print_cmd)
-    : Working(true), PrintCmd(print_cmd), WorkerCount(worker_count), QueueRunner(bind(&TJobRunner::Worker, this)) {}
-
-TJobRunner::~TJobRunner() {
-  ExitWorker = true;
-  NewWork.notify_one();
-  QueueRunner.join();
-}
-
-void TJobRunner::Queue(TJob *job) {
-  lock_guard<mutex> lock(ToRunMutex);
-  ToRun.push(job);
-  NewWork.notify_one();
-}
-
-TJobRunner::TResults TJobRunner::WaitForResults() {
-  /* Fast results exit */ {
-    lock_guard<mutex> lock(ResultsMutex);
-    if (Results.size() > 0) {
-      TResults ret = move(Results);
-      return ret;
-    }
-  }
-
-  /* cv to wait for results (if there aren't already results ready) */ {
-    unique_lock<mutex> lock(NewResultsMutex);
-    NewResults.wait(lock);
-  }
-
-  // Move out the results.
-  lock_guard<mutex> lock(ResultsMutex);
-  TResults ret = move(Results);
-  return ret;
-}
-
-void TJobRunner::Worker() {
-  //NOTE: we keep two maps because we want to go from subprocess -> job. We also only get to know the first pid to return...
-  unordered_map<int, TJob*> PidMap;
-  unordered_map<TJob*, unique_ptr<TSubprocess>> Running;
-  //NOTE: We wait for running to empty always whe emptying the queue.
-  while(!ExitWorker || !Running.empty()) {
-    auto free_cores = WorkerCount - Running.size();
-    // Queue more work until we're out of cores (Unless we've been told to stop)
-    // If there's no work to queue and nothing is running, wait for something to finish.
-    if (!ExitWorker) {
-      if (free_cores == WorkerCount) {
-        unique_lock<mutex> lock(NewWorkMutex);
-        NewWork.wait(lock);
-      }
-
-      //NOTE: This has a seperate ExitWorker test because NewWork fires when ExitWorker goes from false -> true.
-      if (free_cores > 0 && !ExitWorker) {
-        lock_guard<mutex> lock(ToRunMutex);
-        while (free_cores > 0 && !ToRun.empty()) {
-          TJob *job = Pop(ToRun);
-          auto subproc = TSubprocess::New(pump, job->GetCmd().c_str());
-          if (PrintCmd) {
-            cout << job->GetCmd() << endl;
-          }
-          PidMap[subproc->GetChildId()] = job;
-          auto res = Running.emplace(job, move(subproc));
-          assert(res.second);
-        }
-      }
-    }
-
-    // Wait for work to complete
-    if (!Running.empty()) {
-      auto pid = TSubprocess::WaitAll();
-      TJob *job = PidMap.at(pid);
-      EraseOrFail(PidMap, pid);
-      auto &subproc = Running.at(job);
-      //NOTE: the subproc.Wait() here shouldn't hang, since we already found it to have terminated in the WaitAll()
-      auto returncode = subproc->Wait();
-      if(returncode != 0) {
-        ++NumberJobsFailed;
-        ExitWorker = true;
-      }
-      /* lock */ {
-        lock_guard<mutex> lock(ResultsMutex);
-        Results.emplace_back(job, returncode, subproc->TakeStdOutFromChild(), subproc->TakeStdErrFromChild());
-        NewResults.notify_all();
-      }
-      EraseOrFail(Running, job);
-
-    }
-  }
-
-  Working = false;
-
-  NewResults.notify_all();
-
-  assert(PidMap.empty());
-  assert(Running.empty());
-}
 
 bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
   // If the file both doesn't exist and isn't buildable, error.
@@ -281,7 +184,7 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
         if (!Producers.emplace(f, job).second) {
           if (Producers.at(f) != job) {
             THROW_ERROR(runtime_error) << "Multiple producers for file "
-                                       << file <<  ". Producers: " << Producers.at(f) << ", " << job;
+                                       << f <<  ". Producers: " << Producers.at(f) << ", " << job;
           }
         }
         found_self |= f == file;
@@ -300,37 +203,34 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
 
 bool TWorkFinder::FinishAll() {
   bool has_failed = false;
-  // Try running each job, process OnCmdComplete callbacks. Each time a job looks ready, ask what it needs as deps.
-  // If it doesn't need any more dependencies, queue it as an OnCmdComplete.
-  // As long as there is work to do, or the subprocess runner has more results for us.
-  while ((!Running.empty() || !ToFinish.empty() || !Ready.empty()) && Runner.IsWorking()) {
+  // Continue as long as the runner is returning us more results still, or we have some jobs ready to be processed.
+  while (Runner.HasMoreResults() || (!Ready.empty() && Runner.IsReady())) {
+    // Either queue the job to run or find what it's depending upon / waiting on, and queue those to run.
     ProcessReady();
 
     // Everything should have been emptied from the ready queue
     assert(Ready.empty());
 
+    // Something should be in the running queue at this point. Or we're just waiting for more results from the runner.
+    assert(!Running.empty() || Runner.HasMoreResults());
+
+    // Sanity check
+    // If we haven't failed, then the running, ready, and finished sets should make up the 'all' set.
+    // If we've failed 1+ job, then the number failed will be missing.
+    if (!has_failed) {
+      assert(Running.size() + Waiting.size() + Finished.size() == All.size());
+    }
+
     //DEBUG: cout << Running.size() << " + " << Waiting.size() << " + " << Finished.size() << " == " << All.size() << endl;
     //DEBUG: Base::Join(", ", Running, cout); cout << '\n';
 
-    // If nothing has been queued by here as valid/good work, there's an issue / we'll wait forever...
-    assert(!Running.empty());
-
-    if(!has_failed) {
-      // Sanity check Ready, Finished, Waiting.
-      // Running + Waiting + Finished == All (Just a little while ago we emptied Ready)
-      assert(Running.size() + Waiting.size() + Finished.size() == All.size());
-      // TODO: Assert Ready, Waiting, and Finished don't share any items.
-    }
-
-    // TODO: The subprocess runner needs to automatically stop queueing things on error.
-    // TODO: We should make WaitForResults just return the result set for us.
-    // Wait for 1+ of the subprocesses to return results we can process
+    // Wait for 1+ results from the job runner. Process every result returned.
     for(auto &result: Runner.WaitForResults()) {
       has_failed |= ProcessResult(result);
     }
   }
 
-  return Runner.GetNumberJobsFailed() > 0;
+  return !has_failed;
   // Find the jobs with no dependencies,)
 }
 

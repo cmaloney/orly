@@ -131,7 +131,7 @@ class TJhm : public TCmd {
     }
 
     // TODO: Add a single-line status message
-    return work_finder.FinishAll();
+    return work_finder.FinishAll() ? 0 : -1;
 
     // TODO Verify all target files are built? (Extra safety check)
   }
