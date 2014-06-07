@@ -97,7 +97,7 @@ TNycrLang::TNycrLang(TEnv &env, TFile *input)
       foo.lang.cst.h
       foo.lang.cst.cc
       foo.lang.dump.cc
-      foo.lang.bison.y
+      foo.lang.y
       foo.lang.bison.h
       foo.lang.l
       foo.lang.flex.h

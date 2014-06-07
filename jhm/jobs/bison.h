@@ -1,6 +1,6 @@
-/* <jhm/jobs/compile_c_family.h>
+/* <jhm/jobs/bison.h>
 
-   Job which compiles a C family file (.c, .cc) to a .o file
+   Runs flex
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -18,21 +18,16 @@
 
 #pragma once
 
-#include <ostream>
-
 #include <jhm/job.h>
 
 namespace Jhm {
 
   namespace Job {
 
-    class TCompileCFamily final : public TJob {
+    class TBison final : public TJob {
       public:
 
-      static void AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std::ostream &out);
-
-      static TJobProducer GetCProducer();
-      static TJobProducer GetCppProducer();
+      static TJobProducer GetProducer();
 
       virtual const char *GetName() final;
       virtual const TSet<TFile*> GetNeeds() final;
@@ -40,13 +35,8 @@ namespace Jhm {
       virtual bool IsComplete() final;
 
       private:
-      TCompileCFamily(TEnv &env, TFile *input, bool is_cpp);
-
+      TBison(TEnv &env, TFile *input);
       TEnv &Env;
-      // NOTE: We could make IsCpp be constant / CompileCFamily be templated on it
-      // But that results in more ug than the tiny perf benefit is worth.
-      bool IsCpp;
-      TFile *Need;
     };
 
   }

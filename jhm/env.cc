@@ -20,8 +20,10 @@
 
 #include <base/not_implemented.h>
 #include <base/path_utils.h>
+#include <jhm/jobs/bison.h>
 #include <jhm/jobs/compile_c_family.h>
 #include <jhm/jobs/dep.h>
+#include <jhm/jobs/flex.h>
 #include <jhm/jobs/link.h>
 #include <jhm/jobs/nycr.h>
 
@@ -137,6 +139,8 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
   Jobs.Register(Job::TLink::GetProducer());
   Jobs.Register(Job::TNycr::GetProducer());
   Jobs.Register(Job::TNycrLang::GetProducer());
+  Jobs.Register(Job::TFlex::GetProducer());
+  Jobs.Register(Job::TBison::GetProducer());
 }
 
 TFile *TEnv::GetFile(TRelPath name) {

@@ -77,7 +77,7 @@ string TDep::GetCmd() {
     const string &ext = extensions.at(extensions.size()-1);
     if (ext == "cc" || ext == "c") {
       oss << ' ';
-      TCompileCFamily::AddStandardArgs(ext == "cc", Env, oss);
+      TCompileCFamily::AddStandardArgs(GetInput(), ext == "cc", Env, oss);
     }
   }
 

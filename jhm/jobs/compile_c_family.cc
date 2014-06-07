@@ -29,11 +29,17 @@ using namespace std;
 using namespace std::placeholders;
 
 
-void TCompileCFamily::AddStandardArgs(bool is_cpp, TEnv &env, std::ostream &out) {
-  Join(" ", env.GetConfig().Read<vector<string>>(is_cpp ? "cmd.g++" : "cmd.gcc"), out);
+void TCompileCFamily::AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std::ostream &out) {
 
-  // Add the src and out directories as sources of includes.
-  out << " -I" << env.GetSrc() << " -I" << env.GetOut()
+  // Add options from configuration. Per-file config overrides global config
+  const char *config_section = is_cpp ? "cmd.g++" : "cmd.gcc";
+  vector<string> options;
+  if (!input->GetConfig().TryRead(config_section, options)) {
+    env.GetConfig().TryRead(config_section, options);
+  }
+  out << Join(' ' , options)
+      // Add the src and out directories as sources of includes.
+      << " -I" << env.GetSrc() << " -I" << env.GetOut()
       // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)
       << " -D'SRC_ROOT=\"" << env.GetSrc() << "/\"'";
 
@@ -116,7 +122,7 @@ string TCompileCFamily::GetCmd() {
   oss << " -c ";
 
   // Add standard arguments
-  AddStandardArgs(IsCpp, Env, oss);
+  AddStandardArgs(GetInput(), IsCpp, Env, oss);
 
   return oss.str();
 }

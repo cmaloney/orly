@@ -38,6 +38,24 @@
       "-DDEBUG",
       "-g"
     ],
+    "flex": {
+      "g++": [
+        "-DTEST_OUTPUT_DIR=\"/tmp/\"",
+        "-g",
+        "-DDEBUG",
+        "-std=c++1y",
+        "-pthread"
+      ]
+    },
+    "bison": {
+      "g++": [
+        "-DTEST_OUTPUT_DIR=\"/tmp/\"",
+        "-g",
+        "-DDEBUG",
+        "-std=c++1y",
+        "-pthread"
+      ]
+    },
     "ld": {
       "libs": [
         "-luuid",
