@@ -54,7 +54,8 @@ namespace Orly {
            frames, we'll make one now, using the given pool manager. */
         void operator()(TFramePoolMngr *frame_pool_mngr, Indy::Fiber::TRunner *runner) {
           assert(this);
-          /* Make sure we have a frame pool. */
+          /* Make this thread has a frame pool and a disk event pool. */
+          EnsureLocalDiskEventPool();
           EnsureLocalFramePool(frame_pool_mngr);
           /* The fiber will set this flag when it's done. */
           Flag = false;
@@ -71,6 +72,19 @@ namespace Orly {
           std::unique_lock<std::mutex> lock(Mutex);
           while (!Flag) {
             FlagSet.wait(lock);
+          }
+        }
+
+        /* If the calling thread doesn't already have a local pool of disk events, make one for it;
+           otherwise, do nothing. */
+        static void EnsureLocalDiskEventPool() {
+          /* Alias make this a little easier to read. */
+          using event_t = Disk::Util::TDiskController::TEvent;
+          using pool_mngr_t = Base::TThreadLocalGlobalPoolManager<event_t>;
+          using pool_t = pool_mngr_t::TThreadLocalPool;
+          pool_t *&pool = event_t::LocalEventPool;
+          if (!pool) {
+            pool = new pool_t(event_t::DiskEventPoolManager.get());
           }
         }
 
