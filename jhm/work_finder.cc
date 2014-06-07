@@ -233,6 +233,9 @@ bool TWorkFinder::FinishAll() {
     }
   }
 
+  // Clear any remaining status line
+  Starsha::TStatusLine::Cleanup();
+
   return !has_failed;
   // Find the jobs with no dependencies,)
 }

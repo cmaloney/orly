@@ -23,29 +23,32 @@
 using namespace std;
 using namespace Starsha;
 
-bool IsRealTty() {
+bool Starsha::IsRealTty() {
   static bool is_real_tty = isatty(STDOUT_FILENO);
   return is_real_tty;
 }
 
-TStatusLine::TStatusLine() {
-   static bool first = true;
-   if(first) {
-      first = false;
-      return;
-   }
+void TStatusLine::Cleanup() {
+  cout << "\n";
+}
 
-   if (IsRealTty()) {
-     cout << "\r\e[K";
-   } else {
-      cout << "\n";
-   }
+TStatusLine::TStatusLine() {
+  static bool first = true;
+  if (first) {
+    first = false;
+    return;
+  }
+
+  if (IsRealTty()) {
+    cout << "\e[2K";
+  } else {
+    cout << "\n";
+  }
 }
 TStatusLine::~TStatusLine() {
-   if (IsRealTty()) {
-      cout<<std::flush;
-   } else {
-      cout<<'\n';
-   }
+  if (IsRealTty()) {
+    cout << '\r' << std::flush;
+  } else {
+    cout << '\n';
+  }
 }
-

@@ -21,27 +21,30 @@
 #include <iostream>
 
 namespace Starsha {
+  /* Returns true if STDOUT is a tty. */
+  bool IsRealTty();
 
-   // On construction sets up line, on destruction terminates the line.
-   class TStatusLine {
-      public:
+  // On construction sets up line, on destruction terminates the line.
+  class TStatusLine {
+    public:
+    static void Cleanup();
 
-      TStatusLine();
-      ~TStatusLine();
+    TStatusLine();
+    ~TStatusLine();
 
-      // Move only
-      TStatusLine(TStatusLine &&) = default;
-      TStatusLine(const TStatusLine &) = delete;
+    // Move only
+    TStatusLine(TStatusLine &&) = default;
+    TStatusLine(const TStatusLine &) = delete;
 
-      template<typename TVal>
-      void Write(const TVal &that) const {
-         std::cout<<that;
-      }
-   };
+    template <typename TVal>
+    void Write(const TVal &that) const {
+      std::cout << that;
+    }
+  };
 
-   template<typename TVal>
-   const TStatusLine &operator<<(const TStatusLine &out, const TVal &that) {
-      out.Write(that);
-      return out;
-   }
+  template <typename TVal>
+  const TStatusLine &operator<<(const TStatusLine &out, const TVal &that) {
+    out.Write(that);
+    return out;
+  }
 }

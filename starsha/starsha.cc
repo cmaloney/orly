@@ -228,6 +228,7 @@ class TStarsha
           }  // for (targets...)
         }  // if (we're going to try to run tests...)
       }
+      TStatusLine::Cleanup();
       corpus.WriteNote();
       result = is_ok ? EXIT_SUCCESS : EXIT_FAILURE;
     } catch (const exception &ex) {
