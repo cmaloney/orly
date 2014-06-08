@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstdint>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <istream>
@@ -73,6 +74,16 @@ namespace Base {
 
     /* The kinds of states we can be in. */
     enum TKind { Null, Bool, Number, Array, Object, String };
+
+    static TJson Read(const char *filename) {
+      std::ifstream in(filename);
+      if (!in.is_open()) {
+        THROW_ERROR(std::runtime_error) << "Unable to open file " << std::quoted(filename);
+      }
+      TJson ret;
+      ret.Read(in);
+      return ret;
+    }
 
     /* Construct as a default instance of the given kind. */
     TJson(TKind kind = Null) noexcept {
