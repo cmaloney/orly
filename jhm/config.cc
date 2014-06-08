@@ -21,27 +21,17 @@
 #include <fstream>
 #include <iostream>
 
+#include <base/not_implemented.h>
 #include <base/split.h>
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
 
-TJson Jhm::ReadConfig(const string &filename) {
-  ifstream in(filename);
-  if(!in.is_open()) {
-    THROW_ERROR(runtime_error) << "Unable to open config file " << quoted(filename);
-  }
-  TJson ret;
-  ret.Read(in);
-  return ret;
-}
-
 TConfig::TConfig(TJson base_config) {
-  Push(move(base_config));
+  assert(base_config.GetKind() == TJson::Object);
+  ConfigStack.emplace_front(move(base_config));
 }
-
-#include <base/not_implemented.h>
 
 // Returns true if it added at least one item to entry.
 // Searches down the config, finding entries that begin with the chunk key ('+'/'-'/'=' prefix just means deltas for the key)
@@ -114,12 +104,39 @@ bool TConfig::TryGetEntry(const string &name, TJson &out) const {
   return found_something;
 }
 
-void TConfig::Push(Base::TJson &&config) {
+void TConfig::AddComputed(TJson &&config) {
   assert(config.GetKind() == TJson::Object);
+  assert(!ConfigLocked);
+
   ConfigStack.emplace_front(move(config));
 }
 
-void TConfig::PushBack(Base::TJson &&config) {
-  assert(config.GetKind() == TJson::Object);
-  ConfigStack.emplace_back(move(config));
+void TConfig::WriteComputed(ostream &out) const {
+  ConfigLocked = true;
+  // Write all but the initial non-computed config
+  //NOTE: We hand-roll the outer json array, because that's considerably cheaper than building a TJson and having that
+  // pretty-print for us.
+  out << '[';
+  for(uint32_t i=0; i < ConfigStack.size()-1; ++i) {
+    if (i > 0) {
+      out << ',';
+    }
+    ConfigStack[i].Write(out);
+  }
+  out << ']';
+}
+
+#include <iostream>
+
+void TConfig::LoadComputed(const string &filename) {
+  assert(!ConfigLocked);
+  Base::TJson computed = TJson::Read(filename.c_str());
+  assert(computed.GetKind() == TJson::Array);
+
+  // Read backwards building up stack
+  uint32_t computed_size = computed.GetSize();
+  for(uint32_t i=0; i < computed_size; ++i) {
+    AddComputed(move(computed[computed_size - (i+1)]));
+  }
+  ConfigLocked = true;
 }

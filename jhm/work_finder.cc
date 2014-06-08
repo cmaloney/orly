@@ -18,20 +18,27 @@
 
 #include <jhm/work_finder.h>
 
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
 
+#include <base/error_utils.h>
 #include <base/path_utils.h>
 #include <base/split.h>
 #include <base/stl_utils.h>
 #include <base/thrower.h>
 #include <jhm/file.h>
 #include <jhm/job.h>
+#include <jhm/timestamp.h>
 #include <starsha/status_line.h>
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
+
+string GetCacheFilename(const TFile *file) {
+  return file->GetPath().AsStr() + ".jhm-cache";
+}
 
 bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
   // If the file both doesn't exist and isn't buildable, error.
@@ -85,6 +92,19 @@ void TWorkFinder::ProcessReady() {
   }
 }
 
+TJson::TArray BuildNeedsArray(TJob *job) {
+
+  unordered_set<TFile*> needs = job->GetNeeds();
+
+  TJson::TArray ret;
+  ret.reserve(needs.size());
+
+  for(TFile *f: needs) {
+    ret.emplace_back(f->GetPath().AsStr());
+  }
+  return ret;
+}
+
 bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
   // Job finished / no longer running
   EraseOrFail(Running, result.Job);
@@ -108,13 +128,13 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
     job_output.push_back(f->GetPath().AsStr());
   }
 
-
   TJson job_info(TJson::TObject{
       {"build_info", TJson::TObject{
         {"job", TJson::TObject{
           {"name", result.Job->GetName()},
           {"input", result.Job->GetInput()->GetPath().AsStr()},
-          {"output", job_output}
+          {"output", job_output},
+          {"needs",  BuildNeedsArray(result.Job) }
         }}
       }}});
 
@@ -127,6 +147,16 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
 
     // Attach to each output file it's build info
     out_file->PushComputedConfig(TJson(job_info));
+
+    // Write out a job cache file containing the job info
+    string cache_filename = GetCacheFilename(out_file);
+    ofstream cache_out_name(cache_filename);
+    if (!cache_out_name.is_open()) {
+      THROW_ERROR(runtime_error) << "Unable to open cache output file \"" << quoted(cache_filename) << '"';
+    }
+    //NOTE: This locks the config stack, because once we've written the cache, if more things were to add to
+    // the config stack, they wouldn't be in the cache file, and that would be :(
+    out_file->WriteConfig(cache_out_name);
   }
 
   // Update every job which was waiting on this job to be waiting on one less thing.
@@ -198,7 +228,6 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
   }
 
   // Check that we actually found a valid producer
-  // TODO: Could
   return found_producer;
 }
 
@@ -246,8 +275,151 @@ bool TWorkFinder::FinishAll() {
   // Find the jobs with no dependencies,)
 }
 
-bool TWorkFinder::IsDone(TJob *job) const {
-  return Finished.find(job) != Finished.end();
+bool TWorkFinder::IsDone(TJob *job) {
+  assert(this);
+
+  if (!Contains(Cache, job)) {
+    CacheCheck(job);
+  }
+
+  return Contains(Finished, job);
+}
+
+//TODO: Lots of generic helper functions (Esp. dealing with nanosecond timestamps), should be factored into library.
+template<typename TVal>
+auto GrabOne(const std::unordered_set<TVal> &container) {
+  assert(container.size() > 0);
+  for(const TVal &item : container) {
+    return item;
+  }
+  __builtin_unreachable();
+}
+
+TOpt<timespec> TryGetOutTimestamp(TFile *file) {
+  return Newer(TryGetTimestamp(file->GetPath().AsStr()), TryGetTimestamp(GetCacheFilename(file)));
+}
+
+timespec GetSrcTimestamp(TFile *file) {
+  auto in_path = file->GetPath().AsStr();
+  return Newer(GetTimestamp(in_path), TryGetTimestamp(in_path + ".jhm"));
+}
+
+TFile *TWorkFinder::TryGetOutputFileFromPath(const std::string &filename) {
+  TFile *ret = TryGetFileFromPath(filename);
+  // If we aren't buildable, try finding the executable form.
+  if (ret && !IsBuildable(ret)) {
+    ret = GetFile(ret->GetPath().GetRelPath().AddExtension({""}));
+  }
+  return ret;
+}
+
+void TWorkFinder::CacheCheck(TJob *job) {
+  /* For a job to cache-complete, it must meet several requirements
+     1. The environmental config must be older than the newest output
+     2. The oldest input or need must be newer than the newest output
+     3. Every input/need's job must be finished (If they're in out/)
+     4. Every output has a cache file which matches the file. Said cache file has an equal or newer timestamp.
+     5. Every output's producer job matches this job.
+
+    NOTES:
+      - For jobs with unknown outputs, read the set of outputs in from the out file. If we succeed in finding them all,
+        set them for the job.
+      - A file is considered to have the timstamp of newest('file', 'file.jhm'), if file.jhm exists */
+
+  // We've now checked this job for cache. Mark it so.
+  InsertOrFail(Cache, job);
+
+  // TODO: There will be a lot of redundant stat() calls on input files... Make TFile hold a timestamp which is set
+  // by the cache checking process.
+
+  // Input must be finished.
+  // Also: Grab the timestamp while we're at it.
+  TFile *in = job->GetInput();
+  if (!IsFileDone(in)) {
+    return;
+  }
+  timespec in_timestamp = Newer(ConfigTimestamp, GetSrcTimestamp(in));
+
+  // For all known outputs (There is always at least one), choose one at random and load it's cache file / treat it as
+  // the magic cache entry.
+  TFile *base_out = GrabOne(job->GetOutput());
+
+  // Read the cache as our ideal cache contents.
+  string cache_filename = GetCacheFilename(base_out);
+  if (!ExistsPath(cache_filename.c_str())) {
+    return;
+  }
+  TConfig ideal_out(TJson::Object);
+  ideal_out.LoadComputed(cache_filename);
+
+  // Check the ideal out matches the job
+  if (ideal_out.Read<string>("build_info.job.name") != job->GetName() ||
+      ideal_out.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr()) {
+    return;
+  }
+
+  // Every needs must exist, be done. in_timestamp is the newest of all the needs and the input file.
+  for (const string &need_filename : ideal_out.Read<vector<string>>("build_info.job.needs")) {
+    TFile *need = TryGetFileFromPath(need_filename);
+    if (!need || !IsFileDone(need)) {
+      return;
+    }
+
+    in_timestamp = Newer(in_timestamp, GetSrcTimestamp(need));
+  }
+
+  vector<string> output_filename_list = ideal_out.Read<vector<string>>("build_info.job.output");
+
+  // The output sets should match. We first check here they're the same size
+  // Then in the output loop immediately following this, we ensure that one contains every item in the other.
+  if (!job->HasUnknownOutputs()) {
+    if (output_filename_list.size() != job->GetOutput().size()) {
+      return;
+    }
+  }
+
+  // Make sure every output is older than the input
+  // Also ensure it's basic build info matches.
+  for (const string &output_filename : output_filename_list) {
+    // TODO: If all the job's outputs are known, iterate over that set rather than trying to infer the filenames from
+    // the string representations (Saves us a lot of hassle on execz`utables)
+    TFile *output = TryGetOutputFileFromPath(output_filename);
+    if (!output || IsNewer(in_timestamp, TryGetOutTimestamp(output))) {
+      return;
+    }
+
+    // NOTE: Technically all build info should match exactly. But this should be good enough (and faster).
+    // Check the ideal out matches the job
+    TConfig output_cache(TJson::Object);
+    output_cache.LoadComputed(cache_filename);
+    if (output_cache.Read<string>("build_info.job.name") != job->GetName() ||
+        output_cache.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr()) {
+      return;
+    }
+  }
+
+  // Wohoo! Everything checked out.
+  // If the input job doesn't have it's full output set, add it.
+  // For every file in the output set, add the cached config
+  for (const string &output_filename : output_filename_list) {
+    TFile *out_file = TryGetFileFromPath(output_filename);
+    if (job->HasUnknownOutputs()) {
+      if (!Contains(job->GetOutput(), out_file)) {
+        job->AddOutput(out_file);
+      }
+    }
+    out_file->LoadConfig(GetCacheFilename(out_file));
+  }
+
+  if (job->HasUnknownOutputs()) {
+    job->MarkAllOutputsKnown();
+  }
+
+  // Mark job as finished.
+  InsertOrFail(Finished, job);
+  // Ensure sure job is part of 'All' (all jobs in Finished must be in All).
+  // TODO: Cache finished jobs shouldn't need to be in all (This means that all != finished + ready + waiting);
+  All.insert(job);
 }
 
 bool TWorkFinder::Queue(TJob *job) {
@@ -261,7 +433,6 @@ bool TWorkFinder::Queue(TJob *job) {
 
   // Queue the job if it isn't done
   if (IsDone(job)) {
-    InsertOrFail(Finished, job);
     return false;
   } else {
     Ready.push(job);

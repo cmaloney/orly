@@ -118,7 +118,12 @@ class TJhm : public TCmd {
     }
 
     // Get the files for the targets
-    TWorkFinder work_finder(WorkerCount, PrintCmd, bind(&TEnv::GetJobsProducingFile, &env, _1));
+    TWorkFinder work_finder(WorkerCount,
+                            PrintCmd,
+                            env.GetConfigTimestamp(),
+                            bind(&TEnv::GetJobsProducingFile, &env, _1),
+                            bind(&TEnv::GetFile, &env, _1),
+                            bind(&TEnv::TryGetFileFromPath, &env, _1));
 
     // Break the cyclic dependency by registering these back.
     // TODO: Find a cleaner way to do this (Or remove it altogether)

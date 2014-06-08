@@ -94,14 +94,14 @@ namespace Jhm {
       return UnknownOutputs;
     }
 
-    protected:
-    // NOTE: In theory we can take multiple files in. In  Ppractice we have no instances of that.
-    TJob(TFile *input, TSet<TFile*> output, bool unknown_outputs=false);
-
     void MarkAllOutputsKnown() {
       assert(UnknownOutputs);
       UnknownOutputs = false;
     }
+
+    protected:
+    // NOTE: In theory we can take multiple files in. In  Ppractice we have no instances of that.
+    TJob(TFile *input, TSet<TFile*> output, bool unknown_outputs=false);
 
     private:
     TFile *Input;

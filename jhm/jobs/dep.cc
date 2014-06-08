@@ -91,11 +91,7 @@ bool TDep::IsComplete() {
 
   // Load the json file and see if there are any new things in it which aren't yet done (We have work to do)
   // TODO: This should be a call to Parse()... But that constructs an istringstream...
-  TJson deps;
-  ifstream in(GetSoleOutput()->GetPath().AsStr());
-  assert(in.is_open());
-  deps.Read(in);
-
+  TJson deps = TJson::Read(GetSoleOutput()->GetPath().AsStr().c_str());
   deps.ForEachElem([this,&needs_work](const TJson &elem)->bool {
     TFile *file = Env.TryGetFileFromPath(elem.GetString());
     if (file) {

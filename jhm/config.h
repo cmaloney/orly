@@ -39,9 +39,6 @@ namespace Jhm {
      generated file.
 
      TODO: parent/include statements? */
-
-  Base::TJson ReadConfig(const std::string &filename);
-
   template<typename TVal>
   struct TJsonReader;
 
@@ -76,14 +73,18 @@ namespace Jhm {
       return true;
     }
 
+    void AddComputed(Base::TJson &&config);
     bool TryGetEntry(const std::string &name, Base::TJson &out) const;
     Base::TJson GetEntry(const std::string &name) const;
-    bool ForEachEntry(const std::string &name, const Base::TJson::TObjectCb &cb) const;
 
-    void Push(Base::TJson &&config);
-    void PushBack(Base::TJson &&config);
+    /* Write out the computed configuration instructions */
+    void WriteComputed(std::ostream &out) const;
+
+    /* Read in computed configuration from the given file */
+    void LoadComputed(const std::string &in);
 
     private:
+    mutable bool ConfigLocked = false; // This is purely an internal safety check / correctness check
     std::deque<Base::TJson> ConfigStack;
   };
 

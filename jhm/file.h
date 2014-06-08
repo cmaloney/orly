@@ -34,8 +34,7 @@ namespace Jhm {
 
      Config relating to a file can be retrieved from the file.
 
-     TODO: Allow various metadata to be attached external of this class / annotated onto this class. This metadata
-     should get written to a state file when the file is complete. */
+     TODO: make the config for file point to the config of the environment as fallback. */
   class TFile {
     public:
     TFile(TAbsPath &&path, bool is_src, Base::TJson &&config)
@@ -47,9 +46,17 @@ namespace Jhm {
 
     void PushComputedConfig(Base::TJson &&config) {
       assert(this);
+      Config.AddComputed(std::move(config));
+    }
 
-      ++computed_config_count;
-      Config.Push(std::move(config));
+    void WriteConfig(std::ostream &out) {
+      assert(this);
+      Config.WriteComputed(out);
+    }
+
+    void LoadConfig(const std::string &filename) {
+      assert(this);
+      Config.LoadComputed(filename);
     }
 
     const TConfig &GetConfig() const  {
@@ -65,10 +72,6 @@ namespace Jhm {
     private:
     bool Src;
     TAbsPath Path;
-
-    //NOTE: We keep track of the number of computer configurations pushed onto the file because the computed configs
-    // must be stored when we try cache completing a file.
-    uint32_t computed_config_count = 0;
 
     // Config: Stack of file-based config for the file (file.jhm), as well as producer-added config.
     // NOTE: JHM cannont and will not allow generated config. That isn't how you should pass in that info.

@@ -26,6 +26,7 @@
 #include <jhm/jobs/flex.h>
 #include <jhm/jobs/link.h>
 #include <jhm/jobs/nycr.h>
+#include <jhm/timestamp.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -110,16 +111,19 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
     : Root(root),
       Src('/' + Root.Get() + '/' + proj_name),
       Out(GetOutDirName('/' + root.Get(), proj_name, config, config_mixin)),
-      Config(ReadConfig('/' + Src.Get() + '/' + config + ".jhm")) {
+      // TODO: Make the timestamp a property of TConfig
+      Config(TJson::Read(('/' + Src.Get() + '/' + config + ".jhm").c_str())),
+      ConfigTimestamp(GetTimestamp('/' + Src.Get() + '/' + config + ".jhm")) {
 
+  /* TODO: Allow parents of env config
   // Load the configuation
   // root/src/config.jhm.mixin root/src/config.jhm -> root/config.jhm
   auto add_conf_if_exists = [this] (const string &filename, bool back) {
     if (ExistsPath(filename.c_str())) {
       if (back) {
-        Config.PushBack(ReadConfig(filename));
+        Config.PushBack(TJson::Read(filename));
       } else {
-        Config.Push(ReadConfig(filename));
+        Config.Push(TJson::Read(filename));
       }
     }
   };
@@ -130,6 +134,7 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
 
   // Add config mixin if it exists (Comes before project config)
   add_conf_if_exists('/' + Src.Get() + config_mixin + ".jhm_mixin", false);
+  */
 
   // TODO: Include trees (useful for multi-repo JHM)
 
@@ -157,9 +162,9 @@ TFile *TEnv::GetFile(TRelPath name) {
   TJson file_conf(TJson::Object);
 
   // NOTE: It's a design decision that this can only come from src and can't be machine generated.
-  string conf_path = TAbsPath(Src, name.AddExtension({"jhm"})).AsStr();
+  string conf_path = src_path.AsStr() + ".jhm";
   if (ExistsPath(conf_path.c_str())) {
-    file_conf = ReadConfig(conf_path);
+    file_conf = TJson::Read(conf_path.c_str());
   }
 
   if (ExistsPath(src_path.AsStr().c_str())) {

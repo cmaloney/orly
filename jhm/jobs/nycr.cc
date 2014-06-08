@@ -73,14 +73,7 @@ std::string TNycrLang::GetCmd() {
 
 bool TNycrLang::IsComplete() {
   // Stash the languages in a machine-readable form.
-  TJson languages;
-  /* in */ {
-    ifstream in(GetSoleOutput()->GetPath().AsStr());
-    if (!in.is_open()) {
-      THROW_ERROR(runtime_error) << "Unable to open output file which should exist " << GetSoleOutput()->GetPath();
-    }
-    languages.Read(in);
-  }
+  TJson languages = TJson::Read(GetSoleOutput()->GetPath().AsStr().c_str());
   assert(languages.GetKind() == TJson::Array);
   GetSoleOutput()->PushComputedConfig(TJson::TObject{{"nycr", TJson::TObject{{"languages", move(languages)}}}});
   return true;
