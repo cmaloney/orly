@@ -51,6 +51,9 @@ namespace Jhm {
     bool IsFileDone(TFile *file);
 
     private:
+    /* Writes a single-line status message. */
+    void WriteStatusLine() const;
+
     bool IsDone(TJob *job) const;
 
     void ProcessReady();

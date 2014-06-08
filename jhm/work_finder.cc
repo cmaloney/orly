@@ -202,6 +202,10 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
   return found_producer;
 }
 
+void TWorkFinder::WriteStatusLine() const {
+  Starsha::TStatusLine() << '[' << Finished.size() << '/' << All.size() << "] waiting: " << Running.size();
+}
+
 bool TWorkFinder::FinishAll() {
   bool has_failed = false;
   // Continue as long as the runner is returning us more results still, or we have some jobs ready to be processed.
@@ -219,8 +223,7 @@ bool TWorkFinder::FinishAll() {
     // If we haven't failed, then the running, ready, and finished sets should make up the 'all' set.
     // If we've failed 1+ job, then the number failed will be missing.
     if (!has_failed) {
-      Starsha::TStatusLine() << '[' << Finished.size() << '/' << All.size() << "]. Waiting for cores: ["
-                             << Running.size() << "].";
+      WriteStatusLine();
       assert(Running.size() + Waiting.size() + Finished.size() == All.size());
     }
 
@@ -233,8 +236,11 @@ bool TWorkFinder::FinishAll() {
     }
   }
 
-  // Clear any remaining status line
-  Starsha::TStatusLine::Cleanup();
+  // Write the last update (Otherwise we sit at one less than complete on successful completion)
+  if (!has_failed) {
+    WriteStatusLine();
+    Starsha::TStatusLine::Cleanup();
+  }
 
   return !has_failed;
   // Find the jobs with no dependencies,)
