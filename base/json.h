@@ -443,9 +443,9 @@ namespace Base {
               break;
             }
             elem.Read(strm);
-            temp.push_back(std::move(elem));
+            temp.emplace_back(std::move(elem));
           }
-          *this = temp;
+          *this = TJson(std::move(temp));
           break;
         }
         case '{': {
@@ -462,20 +462,20 @@ namespace Base {
             val.Read(strm);
             temp[std::move(key)] = std::move(val);
           }
-          *this = temp;
+          *this = TJson(std::move(temp));
           break;
         }
         case '"': {
           std::string temp;
           strm >> std::quoted(temp);
-          *this = temp;
+          *this = TJson(std::move(temp));
           break;
         }
         default: {
           if (c == '+' || c == '-' || isdigit(c)) {
             double temp;
             strm >> temp;
-            *this = temp;
+            *this = TJson(std::move(temp));
             break;
           }
           THROW_ERROR(TSyntaxError) << "Unexpected character at start of input";
