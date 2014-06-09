@@ -65,14 +65,15 @@ namespace Util {
   }
 
   /* Insert the given value into the container.  If the value is already in the container, fail an assertion. */
-  template <typename TContainer>
-  void InsertOrFail(TContainer &container, const typename TContainer::value_type &value) {
-    auto result = container.insert(value);
-    if (!result.second) {
-      syslog(LOG_ERR, "[InsertOrFail]");
-      Server::BacktraceToLog();
+  template <typename TContainer, typename... TArgs>
+  void InsertOrFail(TContainer &container, TArgs &&...args) {
+    bool res = false;
+    std::tie(std::ignore, res) = container.emplace(std::forward<TArgs>(args)...);
+    if (!res) {
+      syslog(LOG_ERR, "[InsertOrFail");
+        Server::BacktraceToLog();
     }
-    assert(result.second);
+    assert(res);
   }
 
   /* Inserts the pointer-type value into the associative container under the given key.  If the container already contains a value for the key,

@@ -83,6 +83,9 @@ namespace Jhm {
     /* Read in computed configuration from the given file */
     void LoadComputed(const std::string &in);
 
+    const std::vector<Base::TJson> GetComputed() const;
+    void SetComputed(std::vector<Base::TJson> &&conf);
+
     private:
     mutable bool ConfigLocked = false; // This is purely an internal safety check / correctness check
     std::deque<Base::TJson> ConfigStack;

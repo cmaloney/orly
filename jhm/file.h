@@ -59,6 +59,11 @@ namespace Jhm {
       Config.LoadComputed(filename);
     }
 
+    void SetComputed(std::vector<Base::TJson> &&config) {
+      assert(this);
+      Config.SetComputed(move(config));
+    }
+
     const TConfig &GetConfig() const  {
       return Config;
     }

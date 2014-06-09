@@ -140,3 +140,19 @@ void TConfig::LoadComputed(const string &filename) {
   }
   ConfigLocked = true;
 }
+const std::vector<Base::TJson> TConfig::GetComputed() const {
+  vector<Base::TJson> ret;
+  ret.reserve(ConfigStack.size()-1);
+  auto stop = ConfigStack.end()-1;
+  for(auto it = ConfigStack.begin(); it != stop; ++it) {
+    ret.push_back(*it);
+  }
+  return ret;
+}
+void TConfig::SetComputed(std::vector<Base::TJson> &&conf_stack) {
+  assert(!ConfigLocked);
+  for(auto &config: conf_stack) {
+    ConfigStack.emplace_back(move(config));
+  }
+  ConfigLocked = true;
+}

@@ -378,6 +378,9 @@ void TWorkFinder::CacheCheck(TJob *job) {
     }
   }
 
+  // Cache the computed config we've loaded so we only load it once.
+  unordered_map<TFile *, vector<Base::TJson>> conf_cache;
+
   // Make sure every output is older than the input
   // Also ensure it's basic build info matches.
   for (const string &output_filename : output_filename_list) {
@@ -390,25 +393,28 @@ void TWorkFinder::CacheCheck(TJob *job) {
 
     // NOTE: Technically all build info should match exactly. But this should be good enough (and faster).
     // Check the ideal out matches the job
+    //TODO: Make it so we only load computed once, rather than twice (LoadComputed is our main perf bottleneneck).
     TConfig output_cache(TJson::Object);
     output_cache.LoadComputed(cache_filename);
     if (output_cache.Read<string>("build_info.job.name") != job->GetName() ||
         output_cache.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr()) {
       return;
     }
+
+    InsertOrFail(conf_cache, output, output_cache.GetComputed());
   }
 
   // Wohoo! Everything checked out.
   // If the input job doesn't have it's full output set, add it.
   // For every file in the output set, add the cached config
   for (const string &output_filename : output_filename_list) {
-    TFile *out_file = TryGetFileFromPath(output_filename);
+    TFile *out_file = TryGetOutputFileFromPath(output_filename);
     if (job->HasUnknownOutputs()) {
       if (!Contains(job->GetOutput(), out_file)) {
         job->AddOutput(out_file);
       }
     }
-    out_file->LoadConfig(GetCacheFilename(out_file));
+    out_file->SetComputed(move(conf_cache.at(out_file)));
   }
 
   if (job->HasUnknownOutputs()) {
