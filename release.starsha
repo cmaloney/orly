@@ -14,8 +14,8 @@
         "-Wl,--no-as-needed";
         "-O3";
         "-flto";
-        "-s";
         "-U_FORTIFY_SOURCE";
+        "-g1";
       }
       "libs" {
         "-luuid";
