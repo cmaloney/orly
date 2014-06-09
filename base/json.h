@@ -587,7 +587,7 @@ namespace Base {
       }
       if (!at_start) {
         if (c != ',') {
-          THROW_ERROR(TSyntaxError) << "Expected a ',' but didn't find one";
+          THROW_ERROR(TSyntaxError) << "Expected a ',' but found a '" << char(c) << '\'';
         }
         strm.ignore();
       }
@@ -598,7 +598,8 @@ namespace Base {
     static void Match(std::istream &strm, char expected) {
       assert(&strm);
       if (strm.peek() != expected) {
-        THROW_ERROR(TSyntaxError) << "Expected '" << expected << "' but didn't find it";
+        THROW_ERROR(TSyntaxError) << "Expected '" << expected << "' but didn't find it. Found '" << char(strm.peek())
+                                  << '\'';
       }
       strm.ignore();
     }
@@ -610,7 +611,8 @@ namespace Base {
       std::string actual;
       strm >> actual;
       if (actual != expected) {
-        THROW_ERROR(TSyntaxError) << "Expected \"" << std::quoted(expected) << "\" But didn't find it";
+        THROW_ERROR(TSyntaxError) << "Expected \"" << std::quoted(expected) << "\" But didn't find it. Found"
+                                  << quoted(actual);
       }
     }
 
