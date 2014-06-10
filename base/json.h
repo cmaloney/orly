@@ -605,14 +605,17 @@ namespace Base {
     }
 
     /* The stream must yield given string or throw a syntax error. */
-    static void Match(std::istream &strm, const char *expected) {
+    static void Match(std::istream &strm, const std::string &expected) {
       assert(&strm);
-      assert(expected);
-      std::string actual;
-      strm >> actual;
-      if (actual != expected) {
-        THROW_ERROR(TSyntaxError) << "Expected \"" << std::quoted(expected) << "\" But didn't find it. Found"
-                                  << quoted(actual);
+      assert(&expected);
+
+      char actual[expected.size() + 1];
+      actual[expected.size()] = '\0';
+      strm.read(actual, expected.size());
+
+      if (expected != actual) {
+        THROW_ERROR(TSyntaxError) << "Expected " << std::quoted(expected) << " But didn't find it. Found "
+                                  << std::quoted(actual);
       }
     }
 
