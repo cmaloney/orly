@@ -32,12 +32,16 @@
 #include <base/path_utils.h>
 #include <base/thrower.h>
 #include <jhm/env.h>
+#include <jhm/test.h>
 #include <jhm/work_finder.h>
+#include <starsha/status_line.h>
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
 using namespace std::placeholders;
+
+#include <base/split.h>
 
 /* Converts relative file to absolute path if needed, then has the environment find/make the actual file object. */
 TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const string &name) {
@@ -111,12 +115,6 @@ class TJhm : public TCmd {
       IfLt0(chdir(abs_root.c_str()));
     }
 
-    // Grab targets. If none on command line, then use default set from config. Mark all as needed.
-    // TODO: Uncomment once we have config
-    if (Targets.size() == 0) {
-      Targets = env.GetConfig().Read<vector<string>>("targets");
-    }
-
     // Get the files for the targets
     TWorkFinder work_finder(WorkerCount,
                             PrintCmd,
@@ -130,15 +128,109 @@ class TJhm : public TCmd {
     env.SetFuncs(bind(&TWorkFinder::IsBuildable, &work_finder, _1), bind(&TWorkFinder::IsFileDone, &work_finder, _1));
 
     // TODO: Gather exceptions here, rather than letting first one fly.
-    for (const auto &target : Targets) {
-      // Walks down the tree, adding the mappings for all the events we need to handle.
-      work_finder.AddNeededFile(FindFile(cwd, env, work_finder, target));
+    TSet<TFile *> target_files;
+
+    // Either build the explicitly specified targets, or the default targets
+    if (!Targets.empty()) {
+      for(const auto &target: Targets) {
+        InsertOrFail(target_files, FindFile(cwd, env, work_finder, target));
+      }
+    } else {
+      // Add the default targets
+      for(const auto &target: env.GetConfig().Read<vector<string>>("targets")) {
+        InsertOrFail(target_files, FindFile(cwd, env, work_finder, target));
+      }
+
+      // Add the tests if we're supposed to by default
+      bool build_tests = false;
+      env.GetConfig().TryRead("test.build_with_default_targets", build_tests);
+      if (build_tests || !PrintTests.empty()) {
+        auto tests = FindTests(env);
+
+        // If the file is not buildable, skip the test. This prevents us from trying to test things that are
+        // untestable.
+        // NOTE: If this excludes something that should be tested, we should be able to catch that in test reports.
+        //TODO: This should be a std::remove_if...
+        /* filter */ {
+          TSet<TFile *> filtered_tests;
+          for (TFile *test : tests) {
+            if (work_finder.IsBuildable(test)) {
+              InsertOrFail(filtered_tests, test);
+            }
+          }
+          tests = move(filtered_tests);
+        }
+        if (!PrintTests.empty()) {
+          ofstream out(PrintTests);
+          if (!out.is_open()) {
+            THROW_ERROR(runtime_error) << "Unable to open file " << quoted(PrintTests) << "to write tests out to.";
+          }
+          // NOTE: We're hand-rolling the writing json because it's easier.
+          out << '[';
+          Join(", ", tests, [](TFile *file, ostream &out) { out << quoted(file->GetPath().AsStr()); }, out);
+          out << ']';
+          out.close();
+        }
+
+        if (build_tests) {
+          target_files.insert(tests.begin(), tests.end());
+        }
+      }
+    }
+
+    // Add all target files as needed
+    for (TFile *f : target_files) {
+      work_finder.AddNeededFile(f);
     }
 
     // TODO: Add a single-line status message
-    return work_finder.FinishAll() ? 0 : -1;
+    if (!work_finder.FinishAll()) {
+      return 1;
+    }
 
-    // TODO Verify all target files are built? (Extra safety check)
+    // Run all the tests if requested
+    if (!RunTests) {
+      return 0;
+    }
+
+    // Run every test which should have been built
+    //TODO: We really should make it a job to produce a test report, and let the job runner run them in parallel. But
+    //      that requires teaching the job runner about resource needs of various kinds of jobs (Ex. Run only one, 512MB
+    //      of ram, etc).
+    TPump pump;
+    auto RunTest = [this,&pump](TFile *test) {
+      // TODO: Make a status line context object, which automatically does the Cleanup() at end of scope?
+      auto cmd = test->GetPath().AsStr();
+      if (VerboseTests) {
+        cmd += " -v";
+        cout << "TEST: " << test->GetPath().GetRelPath();
+      } else {
+        Starsha::TStatusLine() << "TEST: " << test->GetPath().GetRelPath();
+      }
+      auto subprocess = TSubprocess::New(pump, cmd.c_str());
+      auto status = subprocess->Wait();
+
+      if (VerboseTests || status) {
+        EchoOutput(subprocess->TakeStdOutFromChild());
+        EchoOutput(subprocess->TakeStdErrFromChild());
+      }
+
+      if (status) {
+        cout << "\n\nEXITCODE: " << status << '\n';
+        return false;
+      }
+      return true;
+    };
+
+    for (TFile *f: target_files) {
+      if (EndsWith(f->GetPath().GetRelPath().GetName().GetExtensions(), {"test",""})) {
+        if(!RunTest(f)) {
+          return 2;
+        }
+      }
+    }
+    Starsha::TStatusLine::Cleanup();
+    return 0;
   }
 
   private:
@@ -151,7 +243,11 @@ class TJhm : public TCmd {
             Optional,
             "mixin\0m\0",
             "Add a configuration mixin to the base configuration");
-      Param(&TJhm::PrintCmd, "print_cmd", Optional, "print-cmd\0p\0", "Print out the commands JHM runs to do work");
+      Param(&TJhm::PrintCmd, "print_cmd", Optional, "print-cmd\0p\0", "Print out all commands run");
+      Param(
+          &TJhm::PrintTests, "print_tests", Optional, "print-test\0", "Write a list of tests to the given filename.");
+      Param(&TJhm::RunTests, "run_tests", Optional, "test\0", "Run the unit tests");
+      Param(&TJhm::VerboseTests, "verbose_tests", Optional, "verbose-test\0", "Run tests in verbose mode");
       Param(&TJhm::WorkerCount,
             "worker_count",
             Optional,
@@ -171,6 +267,9 @@ class TJhm : public TCmd {
   bool PrintCmd = false;
   string Config = "debug";
   string ConfigMixin;
+  string PrintTests;
+  bool RunTests = false;
+  bool VerboseTests = false;
   uint32_t WorkerCount = 0;
   vector<string> Targets;
 };

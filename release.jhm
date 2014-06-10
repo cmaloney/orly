@@ -6,6 +6,7 @@
       "orly/client/orly_client",
       "orly/indy/disk/util/orly_dm",
       "starsha/starsha",
+      "jhm/jhm",
       "orly/core_import",
       "tools/nycr/nycr",
       "orly/data/beer",
@@ -58,8 +59,11 @@
 
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
 
+      "-Wno-unused-but-set-parameter",
+      "-Wno-unused-but-set-variable",
+      "-Wno-strict-aliasing",
       "-U_FORTIFY_SOURCE",
-      "-03",
+      "-O3",
       "-DNDEBUG",
       "-flto"
     ],

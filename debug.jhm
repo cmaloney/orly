@@ -1,4 +1,11 @@
 {
+  "test": {
+    "build_with_default_targets": true,
+    "excluded": [
+      "third_party",
+      ".git"
+    ]
+  },
   "targets": [
       "orly/orlyc",
       "orly/server/orlyi",
@@ -6,6 +13,7 @@
       "orly/client/orly_client",
       "orly/indy/disk/util/orly_dm",
       "starsha/starsha",
+      "jhm/jhm",
       "orly/core_import",
       "tools/nycr/nycr",
       "orly/data/beer",
@@ -53,6 +61,7 @@
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
 
       "-Wno-unused-but-set-parameter",
+      "-Wno-unused-but-set-variable",
       "-Wno-strict-aliasing",
       "-DDEBUG",
       "-g"
