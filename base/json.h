@@ -478,7 +478,7 @@ namespace Base {
             *this = TJson(std::move(temp));
             break;
           }
-          THROW_ERROR(TSyntaxError) << "Unexpected character at start of input";
+          THROW_ERROR(TSyntaxError) << "Unexpected '" << char(c) << "' at start of input";
         }
       }  // switch
     }
