@@ -92,6 +92,17 @@ namespace Jhm {
   };
 
   template <>
+  struct TJsonReader<bool> {
+    static bool Read(const std::string &name, const Base::TJson &entry) {
+      if (entry.GetKind() != Base::TJson::Bool) {
+        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name)
+                                            << ". Expected a number (double)";
+      }
+      return entry.GetBool();
+    }
+  };
+
+  template <>
   struct TJsonReader<double> {
     static double Read(const std::string &name, const Base::TJson &entry) {
       if (entry.GetKind() != Base::TJson::Number) {
