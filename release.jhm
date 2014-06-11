@@ -5,7 +5,6 @@
       "orly/spa/spa",
       "orly/client/orly_client",
       "orly/indy/disk/util/orly_dm",
-      "starsha/starsha",
       "jhm/jhm",
       "orly/core_import",
       "tools/nycr/nycr",

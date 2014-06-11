@@ -12,7 +12,6 @@
       "orly/spa/spa",
       "orly/client/orly_client",
       "orly/indy/disk/util/orly_dm",
-      "starsha/starsha",
       "jhm/jhm",
       "jhm/make_dep_file",
       "orly/core_import",

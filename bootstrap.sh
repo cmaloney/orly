@@ -24,7 +24,7 @@ common_flags=(                                                                  
   -Wno-unused -Wno-unused-parameter                                                                                    \
   )
 
-#Build starsha
+#Build JHM
 $CC -o tools/jhm                                                                                                       \
  "${common_flags[@]}"                                                                                                  \
   base/time.cc jhm/jobs/util.cc jhm/job.cc base/slice.cc jhm/test.cc jhm/jobs/flex.cc server/daemonize.cc              \
@@ -33,7 +33,7 @@ $CC -o tools/jhm                                                                
   base/demangle.cc base/piece.cc jhm/job_runner.cc base/subprocess.cc util/path.cc strm/bin/var_int.cc                 \
   jhm/env.cc jhm/jobs/compile_c_family.cc util/error.cc starsha/status_line.cc io/input_producer.cc                    \
   jhm/work_finder.cc base/fd.cc base/pump.cc util/io.cc base/split.cc jhm/config.cc jhm/jobs/link.cc                   \
-  jhm/jobs/bison.cc strm/syntax_error.cc jhm/jobs/nycr.cc base/dir_walker.cc starsha/note.cc jhm/jobs/dep.cc           \
+  jhm/jobs/bison.cc strm/syntax_error.cc jhm/jobs/nycr.cc base/dir_walker.cc jhm/jobs/dep.cc                           \
   strm/out.cc base/event_semaphore.cc strm/in.cc strm/past_end.cc                                                      \
   -I./ -DSRC_ROOT=\"`pwd`\"                                                                                            \
   -msse2 -pthread
