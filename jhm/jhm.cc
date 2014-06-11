@@ -32,9 +32,9 @@
 #include <base/path_utils.h>
 #include <base/thrower.h>
 #include <jhm/env.h>
+#include <jhm/status_line.h>
 #include <jhm/test.h>
 #include <jhm/work_finder.h>
-#include <starsha/status_line.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -205,7 +205,7 @@ class TJhm : public TCmd {
         cmd += " -v";
         cout << "TEST: " << test->GetPath().GetRelPath();
       } else {
-        Starsha::TStatusLine() << "TEST: " << test->GetPath().GetRelPath();
+        TStatusLine() << "TEST: " << test->GetPath().GetRelPath();
       }
       auto subprocess = TSubprocess::New(pump, cmd.c_str());
       auto status = subprocess->Wait();
@@ -229,7 +229,7 @@ class TJhm : public TCmd {
         }
       }
     }
-    Starsha::TStatusLine::Cleanup();
+    TStatusLine::Cleanup();
     return 0;
   }
 

@@ -31,7 +31,7 @@ $CC -o tools/jhm                                                                
   io/input_consumer.cc io/output_consumer.cc base/thrower.cc base/error.cc strm/bin/in.cc jhm/naming.cc jhm/jhm.cc     \
   io/output_producer.cc io/chunk_and_pool.cc base/pos.cc base/code_location.cc util/string.cc base/cmd.cc              \
   base/demangle.cc base/piece.cc jhm/job_runner.cc base/subprocess.cc util/path.cc strm/bin/var_int.cc                 \
-  jhm/env.cc jhm/jobs/compile_c_family.cc util/error.cc starsha/status_line.cc io/input_producer.cc                    \
+  jhm/env.cc jhm/jobs/compile_c_family.cc util/error.cc jhm/status_line.cc io/input_producer.cc                        \
   jhm/work_finder.cc base/fd.cc base/pump.cc util/io.cc base/split.cc jhm/config.cc jhm/jobs/link.cc                   \
   jhm/jobs/bison.cc strm/syntax_error.cc jhm/jobs/nycr.cc base/dir_walker.cc jhm/jobs/dep.cc                           \
   strm/out.cc base/event_semaphore.cc strm/in.cc strm/past_end.cc                                                      \

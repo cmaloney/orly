@@ -29,8 +29,8 @@
 #include <base/thrower.h>
 #include <jhm/file.h>
 #include <jhm/job.h>
+#include <jhm/status_line.h>
 #include <jhm/timestamp.h>
-#include <starsha/status_line.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -232,7 +232,7 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
 }
 
 void TWorkFinder::WriteStatusLine() const {
-  Starsha::TStatusLine() << '[' << Finished.size() << '/' << All.size() << "] waiting: " << Running.size();
+  TStatusLine() << '[' << Finished.size() << '/' << All.size() << "] waiting: " << Running.size();
 }
 
 bool TWorkFinder::FinishAll() {
@@ -268,7 +268,7 @@ bool TWorkFinder::FinishAll() {
   // Write the last update (Otherwise we sit at one less than complete on successful completion)
   if (!has_failed) {
     WriteStatusLine();
-    Starsha::TStatusLine::Cleanup();
+    TStatusLine::Cleanup();
   }
 
   return !has_failed;

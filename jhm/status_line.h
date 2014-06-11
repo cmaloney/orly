@@ -1,4 +1,4 @@
-/* <starsha/status_line.h>
+/* <jhm/status_line.h>
 
    Maintains a line of text which states the status
 
@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-namespace Starsha {
+namespace Jhm {
   /* Returns true if STDOUT is a tty. */
   bool IsRealTty();
 

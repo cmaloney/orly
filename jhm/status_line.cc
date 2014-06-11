@@ -1,6 +1,6 @@
-/* <starsha/status_line.cc>
+/* <jhm/status_line.cc>
 
-   Implements <starsha/status_line.h>
+   Implements <jhm/status_line.h>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,14 +16,14 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <starsha/status_line.h>
+#include <jhm/status_line.h>
 
 #include <unistd.h>
 
 using namespace std;
-using namespace Starsha;
+using namespace Jhm;
 
-bool Starsha::IsRealTty() {
+bool Jhm::IsRealTty() {
   static bool is_real_tty = isatty(STDOUT_FILENO);
   return is_real_tty;
 }
