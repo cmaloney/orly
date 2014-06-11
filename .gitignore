@@ -2,6 +2,8 @@
 *.swp
 *~
 *.*~
+tools/jhm
+tools/make_dep_file
 tools/starsha
 tools/clang
 tools/clang++

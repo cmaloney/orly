@@ -14,6 +14,7 @@
       "orly/indy/disk/util/orly_dm",
       "starsha/starsha",
       "jhm/jhm",
+      "jhm/make_dep_file",
       "orly/core_import",
       "tools/nycr/nycr",
       "orly/data/beer",
