@@ -143,15 +143,8 @@ bool Base::ExistsPath(const char *path) {
 }
 
 string Base::GetCwd() {
-  string ret;
-  char *cwd = getcwd(0, 0);
-  try {
-    ret = cwd;
-  } catch (...) {
-    free(cwd);
-    throw;
-  }
-  return ret;
+  unique_ptr<char, void (*)(void*)> cwd(getcwd(0, 0), &free);
+  return string(cwd.get());
 }
 
 string Base::MakePath(bool is_absolute, initializer_list<const char *> dirs, initializer_list<const char *> parts) {
