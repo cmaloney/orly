@@ -155,7 +155,7 @@ void TFunction::WriteBody(TCppPrinter &out) const {
             can_write = false;
           }
         }
-        if (can_write) {
+        if (can_write || working_set.size() == 1) {
           ordered_funcs.push_back(func);
           finished.insert(func->Body);
           working_set.erase(func);
