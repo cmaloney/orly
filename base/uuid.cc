@@ -25,5 +25,38 @@ using namespace Base;
 
 const TUuid TUuid::Null;
 
-std::mt19937_64 TUuid::TwisterEngine(std::chrono::system_clock::now().time_since_epoch().count());
-Base::TSpinLock TUuid::TwisterLock;
+TUuid::TUuid(TAlgo that) {
+  /* TODO */
+  static std::mt19937_64 TwisterEngine(std::chrono::system_clock::now().time_since_epoch().count());
+  static Base::TSpinLock TwisterLock;
+
+  switch (that) {
+    case Best: {
+      uuid_generate(Data);
+      break;
+    }
+    case Random: {
+      uuid_generate_random(Data);
+      break;
+    }
+    case TimeAndMAC: {
+      uuid_generate_time(Data);
+      break;
+    }
+    case TimeAndMACSafe: {
+      /* TODO: We cannot currently support this mode because uuid_generate_time_safe() isn't in our OS build.
+         When it becomes available, call it here and only throw TUnsafeError if the function returns an error. */
+      throw TUnsafeError();
+    }
+    case Twister: {
+      /* acquire Twister lock */ {
+        Base::TSpinLock::TSoftLock lock(TwisterLock);
+        *reinterpret_cast<uint_fast64_t *>(Data) = TwisterEngine();
+        *(reinterpret_cast<uint_fast64_t *>(Data) + 1) = TwisterEngine();
+      }  // release twister lock
+      break;
+    }
+    NO_DEFAULT_CASE;
+  }
+}
+
