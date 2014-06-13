@@ -39,10 +39,10 @@ using namespace Orly;
 using namespace Orly::Data::Twitter;
 using namespace Orly::Data::Twitter::Import::Syntax;
 
-static const TUuid TweetUserIndexId(TUuid(TUuid::Best));
-static const TUuid UserReplyStatusIndexId(TUuid(TUuid::Best));
-static const TUuid UserReplyUserIndexId(TUuid(TUuid::Best));
-static const TUuid ReplyUserToUserIndexId(TUuid(TUuid::Best));
+static const TUuid TweetUserIndexId(TUuid(TUuid::Twister));
+static const TUuid UserReplyStatusIndexId(TUuid(TUuid::Twister));
+static const TUuid UserReplyUserIndexId(TUuid(TUuid::Twister));
+static const TUuid ReplyUserToUserIndexId(TUuid(TUuid::Twister));
 static const int64_t UserTweetInt = 13;
 static const int64_t TweetUserInt = 17;
 
