@@ -42,14 +42,10 @@ namespace Base {
     public:
 
     /* The size of a string representation of a uuid. */
-    static const size_t StrSize = 36;
+    static const constexpr size_t StrSize = 36;
 
     /* The minimum size, in bytes, of the buffers used by Format() and Parse(). */
-    static const size_t MinBufSize = StrSize + 1;
-
-    /* TODO */
-    static std::mt19937_64 TwisterEngine;
-    static Base::TSpinLock TwisterLock;
+    static const constexpr size_t MinBufSize = StrSize + 1;
 
     /* The algorithm to use when generating a new uuid. */
     enum TAlgo {
@@ -131,36 +127,7 @@ namespace Base {
     }
 
     /* Construct with a unique state. */
-    TUuid(TAlgo that) {
-      switch (that) {
-        case Best: {
-          uuid_generate(Data);
-          break;
-        }
-        case Random: {
-          uuid_generate_random(Data);
-          break;
-        }
-        case TimeAndMAC: {
-          uuid_generate_time(Data);
-          break;
-        }
-        case TimeAndMACSafe: {
-          /* TODO: We cannot currently support this mode because uuid_generate_time_safe() isn't in our OS build.
-             When it becomes available, call it here and only throw TUnsafeError if the function returns an error. */
-          throw TUnsafeError();
-        }
-        case Twister: {
-          /* acquire Twister lock */ {
-            Base::TSpinLock::TSoftLock lock(TwisterLock);
-            *reinterpret_cast<uint_fast64_t *>(Data) = TwisterEngine();
-            *(reinterpret_cast<uint_fast64_t *>(Data) + 1) = TwisterEngine();
-          }  // release twister lock
-          break;
-        }
-        NO_DEFAULT_CASE;
-      }
-    }
+    TUuid(TAlgo that);
 
     /* Construct from a 36-character, null-terminated string.
        See the comment at the top of this file for more information about text formatting. */

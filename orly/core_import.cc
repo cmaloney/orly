@@ -52,19 +52,19 @@ class TCmd final
   Base::TOpt<Base::TUuid> SessionId;
 
   /* The minimum number of seconds our session should live after we leave. */
-  uint32_t TimeToLive;
+  uint32_t TimeToLive = 0;
 
   /* The file pattern from which to import. */
   string ImportPattern;
 
   /* TODO */
-  int64_t NumLoadThreads;
+  int64_t NumLoadThreads = 0;
 
   /* TODO */
-  int64_t NumMergeThreads;
+  int64_t NumMergeThreads = 0;
 
   /* TODO */
-  int64_t NumSimMerge;
+  int64_t NumSimMerge = 0;
 
   private:
 
