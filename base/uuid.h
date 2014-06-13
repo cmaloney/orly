@@ -42,10 +42,10 @@ namespace Base {
     public:
 
     /* The size of a string representation of a uuid. */
-    static const size_t StrSize = 36;
+    static const constexpr size_t StrSize = 36;
 
     /* The minimum size, in bytes, of the buffers used by Format() and Parse(). */
-    static const size_t MinBufSize = StrSize + 1;
+    static const constexpr size_t MinBufSize = StrSize + 1;
 
     /* The algorithm to use when generating a new uuid. */
     enum TAlgo {
