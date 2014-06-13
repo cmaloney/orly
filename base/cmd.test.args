@@ -1,6 +1,5 @@
-args {
-  filled;
-  outlined;
-  lw = 3.0;
+{
+  "filled":true,
+  outlined:true,
+  "lw": 3.0,
 }
-
