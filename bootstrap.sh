@@ -17,11 +17,11 @@
 set -e
 
 CC=g++
-common_flags=(                                                                                                         \
-  -O3 -DNDEBUG -flto                                                                                                   \
-  -std=c++1y                                                                                                           \
-  -Wall -Werror -Wextra -Wold-style-cast                                                                               \
-  -Wno-unused -Wno-unused-parameter                                                                                    \
+common_flags=(
+  -O3 -DNDEBUG -flto
+  -std=c++1y
+  -Wall -Werror -Wextra -Wold-style-cast
+  -Wno-unused -Wno-unused-parameter -Wno-unused-result
   )
 
 #Build JHM
