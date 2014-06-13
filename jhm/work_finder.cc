@@ -344,13 +344,15 @@ void TWorkFinder::CacheCheck(TJob *job) {
   // the magic cache entry.
   TFile *base_out = GrabOne(job->GetOutput());
 
-  // Read the cache as our ideal cache contents.
-  string cache_filename = GetCacheFilename(base_out);
-  if (!ExistsPath(cache_filename.c_str())) {
-    return;
-  }
   TConfig ideal_out(TJson::Object);
-  ideal_out.LoadComputed(cache_filename);
+  /* Read the cache as what we want  / need for build_info sections. */ {
+    // Read the cache as our ideal cache contents.
+    string cache_filename = GetCacheFilename(base_out);
+    if (!ExistsPath(cache_filename.c_str())) {
+      return;
+    }
+    ideal_out.LoadComputed(cache_filename);
+  }
 
   // Check the ideal out matches the job
   if (ideal_out.Read<string>("build_info.job.name") != job->GetName() ||
@@ -393,9 +395,8 @@ void TWorkFinder::CacheCheck(TJob *job) {
 
     // NOTE: Technically all build info should match exactly. But this should be good enough (and faster).
     // Check the ideal out matches the job
-    //TODO: Make it so we only load computed once, rather than twice (LoadComputed is our main perf bottleneneck).
     TConfig output_cache(TJson::Object);
-    output_cache.LoadComputed(cache_filename);
+    output_cache.LoadComputed(GetCacheFilename(output));
     if (output_cache.Read<string>("build_info.job.name") != job->GetName() ||
         output_cache.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr()) {
       return;
