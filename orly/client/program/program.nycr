@@ -83,6 +83,7 @@ tail_kwd          = '"tail"';
 session_kwd       = '"session"';
 resume_kwd        = '"resume"';
 compile_kwd       = '"compile"';
+list_package_kwd  = '"list_packages"';
 
 unary_placeholder = '' unary_prec right;
 name = '[_a-zA-Z][_a-zA-Z0-9]*' pri 2;
@@ -136,6 +137,7 @@ tail_stmt           : stmt -> tail_kwd semi;
 new_session_stmt    : stmt -> new_kwd session_kwd semi;
 resume_session_stmt : stmt -> resume_kwd session_kwd id_expr semi;
 compile_stmt        : stmt -> compile_kwd str_expr semi;
+list_package_stmt        : stmt -> list_package_kwd semi;
 
 image : top -> image_kwd open_brace opt_xact_seq close_brace;
 
