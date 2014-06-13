@@ -46,3 +46,5 @@ $CC -o tools/make_dep_file                                                      
   jhm/make_dep_file.cc base/thrower.cc base/fd.cc base/split.cc base/subprocess.cc base/error.cc base/pump.cc          \
   -I./ -DSRC_ROOT=\"`pwd`\"                                                                                            \
   -msse2 -pthread
+
+mkdir -p ../.jhm

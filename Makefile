@@ -30,6 +30,7 @@ test_lang: debug
 
 clean:
 	rm -rf ../out/
+	rm -rf ../.jhm
 	rm -f tools/jhm
 	rm -f tools/make_dep_file
 
