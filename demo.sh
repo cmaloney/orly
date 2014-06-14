@@ -42,13 +42,23 @@ PACKAGE_DIR="$ROOT/orly/packages"
 SRC_DIR="$ROOT/orly/src"
 WEB_DIR="$ROOT/orly/web"
 
-#TODO: Download all the bin files we want if twitter. Otherwise run the generator utility, to make the .bin file.
 FILENAME="$DATA_DIR/$DATA_FILE"
-NUM_FILES=`ls -1 $FILENAME | wc -l`
-if [ -z $NUM_FILES ]; then
-  echo "Requested dataset not ready for importing."
-  echo "Run the importer for the dataset and place the resulting bin files as $FILENAME"
-  exit -1
+
+NUM_FILES=1
+if [ "$DATASET" = "twitter" ]; then
+  for twitter_datafile in "twitter0"{0..6}".bin"
+  do
+    TWITTER_FILENAME="$DATA_DIR/$twitter_datafile"
+    echo $TWITTER_FILENAME
+    if [ ! -f $TWITTER_FILENAME ]; then
+      wget -O"$TWITTER_FILENAME" "http://vagrantcloud.orlyatomics.com/box/virtualbox/data/$twitter_datafile"
+    fi
+  done
+  NUM_FILES=7
+elif [ ! -f "$FILENAME" ]; then
+  #Non-twitter datasets run the generator, then move the bin file
+  "$DATASET"
+  mv "$DATASET.bin" "$FILENAME"
 fi
 
 #Start orlyi
