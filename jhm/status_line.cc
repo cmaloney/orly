@@ -41,8 +41,6 @@ TStatusLine::TStatusLine() {
 
   if (IsRealTty()) {
     cout << "\e[2K";
-  } else {
-    cout << "\n";
   }
 }
 TStatusLine::~TStatusLine() {
