@@ -126,8 +126,6 @@ void TConfig::WriteComputed(ostream &out) const {
   out << ']';
 }
 
-#include <iostream>
-
 void TConfig::LoadComputed(const string &filename) {
   assert(!ConfigLocked);
   Base::TJson computed = TJson::Read(filename.c_str());
