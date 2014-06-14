@@ -426,7 +426,7 @@ namespace Base {
     }
 
     /* Exchange the states of this piece with that one.  This is a guranteed no-throw. */
-    TPiece &Swap(TPiece &that) {
+    TPiece &Swap(TPiece &that) noexcept {
       assert(this);
       assert(&that);
       std::swap(Start, that.Start);
@@ -487,6 +487,12 @@ namespace Base {
     }
 
   };
+
+  /* A standard swapper for Base::TPiece<>. */
+  template <typename TVal>
+  void swap(Base::TPiece<TVal> &lhs, Base::TPiece<TVal> &rhs) noexcept {
+    lhs.Swap(rhs);
+  }
 
   /* Implementation of global Empty. */
   template <typename TVal>
@@ -779,11 +785,5 @@ namespace std {
     typedef size_t result_type;
     typedef Base::TPiece<TVal> argument_type;
   };
-
-  /* A standard swapper for Base::TPiece<>. */
-  template <typename TVal>
-  void swap(Base::TPiece<TVal> &lhs, Base::TPiece<TVal> &rhs) {
-    lhs.Swap(rhs);
-  }
 
 }

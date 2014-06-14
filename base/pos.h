@@ -186,6 +186,11 @@ namespace Base {
 
   };
 
+  /* A standard swapper for Base::TPos. */
+  inline void swap(Base::TPos &lhs, Base::TPos &rhs) {
+    lhs.Swap(rhs);
+  }
+
   /* Standard stream inserter for Base::TPos.  NOTE: This should go away when we switch to our own I/O classes. */
   inline std::ostream &operator<<(std::ostream &strm, const TPos &that) {
     char dir_char;
@@ -201,15 +206,6 @@ namespace Base {
       NO_DEFAULT_CASE;
     }
     return strm << that.Offset << dir_char;
-  }
-
-}
-
-namespace std {
-
-  /* A standard swapper for Base::TPos. */
-  inline void swap(Base::TPos &lhs, Base::TPos &rhs) {
-    lhs.Swap(rhs);
   }
 
 }

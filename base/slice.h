@@ -119,7 +119,7 @@ namespace Base {
     }
 
     /* Swap this slice with that one. */
-    TSlice &Swap(TSlice &that) {
+    TSlice &Swap(TSlice &that) noexcept {
       assert(this);
       std::swap(Start, that.Start);
       std::swap(Limit, that.Limit);
@@ -154,17 +154,13 @@ namespace Base {
     }
   };
 
+  /* A standard swapper for Base::TSlice. */
+  inline void swap(Base::TSlice &lhs, Base::TSlice &rhs) noexcept {
+    lhs.Swap(rhs);
+  }
+
   /* Standard stream inserter for Base::TSlice.  NOTE: This should go away when we switch to our own I/O classes. */
   inline std::ostream &operator<<(std::ostream &strm, const TSlice &that) {
     return strm << '[' << that.Start << ", " << that.Limit << ')';
   }
-}
-
-namespace std {
-
-  /* A standard swapper for Base::TSlice. */
-  inline void swap(Base::TSlice &lhs, Base::TSlice &rhs) {
-    lhs.Swap(rhs);
-  }
-
 }
