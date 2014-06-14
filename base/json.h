@@ -690,7 +690,7 @@ namespace std {
 
   /* Standard swapper. */
   template <>
-  inline void swap<Base::TJson>(Base::TJson &lhs, Base::TJson &rhs) {
+  inline void swap<Base::TJson>(Base::TJson &lhs, Base::TJson &rhs) noexcept {
     lhs.Swap(rhs);
   }
 
