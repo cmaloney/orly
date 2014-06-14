@@ -23,6 +23,7 @@
 
 #include <jhm/config.h>
 #include <jhm/naming.h>
+#include <jhm/timestamp.h>
 
 namespace Jhm {
   class TEnv;
@@ -37,11 +38,16 @@ namespace Jhm {
      TODO: make the config for file point to the config of the environment as fallback. */
   class TFile {
     public:
-    TFile(TAbsPath &&path, bool is_src, Base::TJson &&config)
-        : Src(is_src), Path(std::move(path)), Config(std::move(config)) {}
+    TFile(TAbsPath &&path, bool is_src, const std::string &config_filename)
+        : Src(is_src), Path(std::move(path)), Config(config_filename) {}
 
     const TAbsPath &GetPath() const {
       return Path;
+    }
+
+    /* Computes (and doesn't cache!) the timestamp for the given file. Newest of either it's config or file in the tree) */
+    Base::TOpt<timespec> GetTimestamp() const {
+      return Newer(TryGetTimestamp(Path.AsStr()), Config.GetTimestamp());
     }
 
     void PushComputedConfig(Base::TJson &&config) {

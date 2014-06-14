@@ -118,7 +118,8 @@ class TJhm : public TCmd {
     // Get the files for the targets
     TWorkFinder work_finder(WorkerCount,
                             PrintCmd,
-                            env.GetConfigTimestamp(),
+                            //NOTE: Env is guaranteed to always have a timestamp, so derefrencing it here is safe.
+                            *env.GetConfig().GetTimestamp(),
                             bind(&TEnv::GetJobsProducingFile, &env, _1),
                             bind(&TEnv::GetFile, &env, _1),
                             bind(&TEnv::TryGetFileFromPath, &env, _1));

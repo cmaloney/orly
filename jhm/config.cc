@@ -18,21 +18,29 @@
 
 #include <jhm/config.h>
 
-#include <base/not_implemented.h>
+#include <base/path_utils.h>
 #include <base/split.h>
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
 
-TConfig::TConfig(TJson base_config) {
-  AddConfig(move(base_config));
+TConfig::TConfig() {}
+
+TConfig::TConfig(const string &filename) {
+  AddFile(filename);
+}
+
+TConfig::TConfig(const vector<string> &files) {
+  for(const string &filename: files) {
+    AddFile(filename);
+  }
 }
 
 TJson TConfig::GetEntry(const string &name) const {
   TJson ret;
   if (!TryGetEntry(name, ret)) {
-    THROW_ERROR(runtime_error) << "Didn't find config entry for " << quoted(name);
+    THROW_ERROR(TNotFound) << "Didn't find config entry for " << quoted(name);
   }
   return ret;
 }
@@ -67,13 +75,6 @@ bool TConfig::TryGetEntry(const string &name, TJson &out) const {
     }
   }
   return false;
-}
-
-void TConfig::AddBase(TJson &&config, bool top) {
-  assert(!ComputedStart);
-  assert(!ComputedLocked);
-
-  AddConfig(move(config), top);
 }
 
 void TConfig::AddComputed(TJson &&config) {
@@ -155,5 +156,13 @@ void TConfig::AddConfig(TJson &&config, bool top) {
     assert(!ComputedStart);
     assert(!ComputedLocked);
     Config.emplace_back(move(config));
+  }
+}
+
+void TConfig::AddFile(const string &filename) {
+  auto timestamp = TryGetTimestamp(filename);
+  if (timestamp) {
+    Timestamp = Newer(Timestamp, timestamp);
+    AddConfig(TJson::Read(filename.c_str()));
   }
 }

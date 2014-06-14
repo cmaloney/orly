@@ -135,7 +135,8 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
           {"input", result.Job->GetInput()->GetPath().AsStr()},
           {"output", job_output},
           {"needs",  BuildNeedsArray(result.Job) }
-        }}
+        }},
+        {"config_timestamp", ConfigTimestampStr}
       }}});
 
   for (TFile *out_file : result.Job->GetOutput()) {
@@ -295,15 +296,6 @@ auto GrabOne(const std::unordered_set<TVal> &container) {
   __builtin_unreachable();
 }
 
-TOpt<timespec> TryGetOutTimestamp(TFile *file) {
-  return Newer(TryGetTimestamp(file->GetPath().AsStr()), TryGetTimestamp(GetCacheFilename(file)));
-}
-
-timespec GetSrcTimestamp(TFile *file) {
-  auto in_path = file->GetPath().AsStr();
-  return Newer(GetTimestamp(in_path), TryGetTimestamp(in_path + ".jhm"));
-}
-
 TFile *TWorkFinder::TryGetOutputFileFromPath(const std::string &filename) {
   TFile *ret = TryGetFileFromPath(filename);
   // If we aren't buildable, try finding the executable form.
@@ -311,6 +303,18 @@ TFile *TWorkFinder::TryGetOutputFileFromPath(const std::string &filename) {
     ret = GetFile(ret->GetPath().GetRelPath().AddExtension({""}));
   }
   return ret;
+}
+
+TOpt<timespec> GetTimestampOutput(TFile *file) {
+  TOpt<timespec> ret = file->GetTimestamp();
+  if (!file->IsSrc()) {
+    ret = Older(ret, TryGetTimestamp(GetCacheFilename(file)));
+  }
+  return ret;
+}
+
+timespec GetTimestampInput(TFile *file) {
+  return *GetTimestampOutput(file);
 }
 
 void TWorkFinder::CacheCheck(TJob *job) {
@@ -329,6 +333,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
   // We've now checked this job for cache. Mark it so.
   InsertOrFail(Cache, job);
 
+  // TODO: We don't handle removal of a configuration file. Only addition.
   // TODO: There will be a lot of redundant stat() calls on input files... Make TFile hold a timestamp which is set
   // by the cache checking process.
 
@@ -338,13 +343,27 @@ void TWorkFinder::CacheCheck(TJob *job) {
   if (!IsFileDone(in)) {
     return;
   }
-  timespec in_timestamp = Newer(ConfigTimestamp, GetSrcTimestamp(in));
+
+  // If config is newer than the source, exit fast.
+  timespec in_timestamp = GetTimestampInput(in);
+
+  // If the input file is in the source tree, then it's timestamp relative to the config doesn't matter.
+  // The newest of the two is considered the file's timestamp for comparison to the output files.
+  // NOTE: All job outputs are always not src, so they don't need this check.
+  if (in->IsSrc()) {
+    in_timestamp = Newer(ConfigTimestamp, in_timestamp);
+  } else {
+    // If we're in output, we must be newer than the config timestamp, or we need ot be rebuilt
+    if (IsNewer(ConfigTimestamp, in_timestamp)) {
+      return;
+    }
+  }
 
   // For all known outputs (There is always at least one), choose one at random and load it's cache file / treat it as
   // the magic cache entry.
   TFile *base_out = GrabOne(job->GetOutput());
 
-  TConfig ideal_out(TJson::Object);
+  TConfig ideal_out;
   /* Read the cache as what we want  / need for build_info sections. */ {
     // Read the cache as our ideal cache contents.
     string cache_filename = GetCacheFilename(base_out);
@@ -354,55 +373,64 @@ void TWorkFinder::CacheCheck(TJob *job) {
     ideal_out.LoadComputed(cache_filename);
   }
 
-  // Check the ideal out matches the job
-  if (ideal_out.Read<string>("build_info.job.name") != job->GetName() ||
-      ideal_out.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr()) {
-    return;
-  }
-
-  // Every needs must exist, be done. in_timestamp is the newest of all the needs and the input file.
-  for (const string &need_filename : ideal_out.Read<vector<string>>("build_info.job.needs")) {
-    TFile *need = TryGetFileFromPath(need_filename);
-    if (!need || !IsFileDone(need)) {
-      return;
-    }
-
-    in_timestamp = Newer(in_timestamp, GetSrcTimestamp(need));
-  }
-
-  vector<string> output_filename_list = ideal_out.Read<vector<string>>("build_info.job.output");
-
-  // The output sets should match. We first check here they're the same size
-  // Then in the output loop immediately following this, we ensure that one contains every item in the other.
-  if (!job->HasUnknownOutputs()) {
-    if (output_filename_list.size() != job->GetOutput().size()) {
-      return;
-    }
-  }
-
   // Cache the computed config we've loaded so we only load it once.
   unordered_map<TFile *, vector<Base::TJson>> conf_cache;
+  // List of expected outputs
+  vector<string> output_filename_list;
 
-  // Make sure every output is older than the input
-  // Also ensure it's basic build info matches.
-  for (const string &output_filename : output_filename_list) {
-    // TODO: If all the job's outputs are known, iterate over that set rather than trying to infer the filenames from
-    // the string representations (Saves us a lot of hassle on execz`utables)
-    TFile *output = TryGetOutputFileFromPath(output_filename);
-    if (!output || IsNewer(in_timestamp, TryGetOutTimestamp(output))) {
-      return;
-    }
-
-    // NOTE: Technically all build info should match exactly. But this should be good enough (and faster).
+  try {
     // Check the ideal out matches the job
-    TConfig output_cache(TJson::Object);
-    output_cache.LoadComputed(GetCacheFilename(output));
-    if (output_cache.Read<string>("build_info.job.name") != job->GetName() ||
-        output_cache.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr()) {
+    if (ideal_out.Read<string>("build_info.job.name") != job->GetName() ||
+        ideal_out.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr() ||
+        ideal_out.Read<string>("build_info.config_timestamp") != ConfigTimestampStr) {
       return;
     }
 
-    InsertOrFail(conf_cache, output, output_cache.GetComputed());
+    // Every needs must exist, be done. in_timestamp is the newest of all the needs and the input file.
+    for (const string &need_filename : ideal_out.Read<vector<string>>("build_info.job.needs")) {
+      TFile *need = TryGetFileFromPath(need_filename);
+      if (!need || !IsFileDone(need)) {
+        return;
+      }
+
+      in_timestamp = Newer(in_timestamp, GetTimestampInput  (need));
+    }
+
+    output_filename_list = ideal_out.Read<vector<string>>("build_info.job.output");
+
+    // The output sets should match. We first check here they're the same size
+    // Then in the output loop immediately following this, we ensure that one contains every item in the other.
+    if (!job->HasUnknownOutputs()) {
+      if (output_filename_list.size() != job->GetOutput().size()) {
+        return;
+      }
+    }
+
+
+    // Make sure every output is older than the input
+    // Also ensure it's basic build info matches.
+    for (const string &output_filename : output_filename_list) {
+      // TODO: If all the job's outputs are known, iterate over that set rather than trying to infer the filenames from
+      // the string representations (Saves us a lot of hassle on execz`utables)
+      TFile *output = TryGetOutputFileFromPath(output_filename);
+      if (!output || IsNewer(in_timestamp, GetTimestampOutput(output))) {
+        return;
+      }
+
+      // NOTE: Technically all build info should match exactly. But this should be good enough (and faster).
+      // Check the ideal out matches the job
+      TConfig output_cache;
+      output_cache.LoadComputed(GetCacheFilename(output));
+      if (output_cache.Read<string>("build_info.job.name") != job->GetName() ||
+          output_cache.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr()) {
+        return;
+      }
+
+      InsertOrFail(conf_cache, output, output_cache.GetComputed());
+    }
+  } catch (const TConfig::TNotFound &ex) {
+    // If any of the config files don't contain the requested key(s), then exit / the config must be out of date.
+    return;
   }
 
   // Wohoo! Everything checked out.

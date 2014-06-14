@@ -32,6 +32,9 @@ namespace Jhm {
   class TJob;
   class TFile;
 
+  //TODO: Make a generic templated "AsStr"?
+  std::string AsStr(timespec &that);
+
   /* Finds all the currently buildable leaves and queues them for the subproc_runner to fire off. */
   class TWorkFinder {
     NO_COPY(TWorkFinder);
@@ -45,6 +48,7 @@ namespace Jhm {
                 std::function<TFile *(TRelPath name)> &&get_file,
                 std::function<TFile *(const std::string &)> &&try_get_file_from_path)
         : ConfigTimestamp(config_timestamp),
+          ConfigTimestampStr(AsStr(config_timestamp)),
           GetJobsProducingFile(std::move(get_jobs_producing_file)),
           GetFile(move(get_file)),
           TryGetFileFromPath(move(try_get_file_from_path)),
@@ -111,7 +115,8 @@ namespace Jhm {
     // input file.
     std::unordered_map<TFile *, TJob *> Producers;
 
-    timespec ConfigTimestamp;
+    const timespec ConfigTimestamp;
+    const std::string ConfigTimestampStr;
     std::function<std::unordered_set<TJob*> (TFile *)> GetJobsProducingFile;
     std::function<TFile *(TRelPath name)> GetFile;
     std::function<TFile *(const std::string &)> TryGetFileFromPath;

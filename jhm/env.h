@@ -144,10 +144,6 @@ namespace Jhm {
       return Jobs.GetPotentialJobs(*this, file);
     }
 
-    timespec GetConfigTimestamp() const {
-      return ConfigTimestamp;
-    }
-
     /* Finds the file / builds a correct TFile object for it.
        NOTE: Does absolutely nothing for testing if file is producable, needs to be built, etc. */
     TFile *GetFile(TRelPath name);
@@ -169,8 +165,7 @@ namespace Jhm {
     TAbsBase Root;
     TAbsBase Src, Out;
 
-    TConfig Config; // All the config files stacked up which we need.
-    timespec ConfigTimestamp;
+    TConfig Config;
 
     TJobFactory Jobs;
   };

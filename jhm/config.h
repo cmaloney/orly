@@ -20,8 +20,10 @@
 
 #include <deque>
 
-#include <base/opt.h>
+#include <base/class_traits.h>
 #include <base/json.h>
+#include <base/opt.h>
+#include <jhm/timestamp.h>
 
 namespace Jhm {
   /* Configuration system. Handles stacked configuration files ('parent', 'include' statements)
@@ -45,11 +47,20 @@ namespace Jhm {
   // Combines multiple configs into one coherent config
   // Also resolves the config delta notation.
   class TConfig final {
+    NO_COPY(TConfig);
+    NO_MOVE(TConfig);
     public:
 
     DEFINE_ERROR(TInvalidValue, std::runtime_error, nullptr);
+    DEFINE_ERROR(TNotFound, std::runtime_error, nullptr);
 
-    TConfig(Base::TJson base_config);
+    explicit TConfig();
+    TConfig(const std::string &filename);
+    TConfig(const std::vector<std::string> &files);
+
+    bool HasConfig() const {
+      return !Config.empty();
+    }
 
     //NOTE: name may contain '.' which specifies entry into sub key.
     template <typename TVal>
@@ -78,14 +89,16 @@ namespace Jhm {
     bool TryGetEntry(const std::string &name, Base::TJson &out) const;
     Base::TJson GetEntry(const std::string &name) const;
 
-    /* Add a config that has been loaded from a file. */
-    void AddBase(Base::TJson &&config, bool top=true);
-
     /* Add a config that has been computed. */
     void AddComputed(Base::TJson &&config);
 
     /* Call back the given function for each computed config (in order). */
     bool ForEachComputed(const std::function<bool (const Base::TJson &conf)> &cb) const;
+
+    const Base::TOpt<timespec> &GetTimestamp() const {
+      assert(this);
+      return Timestamp;
+    }
 
     /* Write out the computed configuration instructions */
     void WriteComputed(std::ostream &out) const;
@@ -98,7 +111,9 @@ namespace Jhm {
 
     private:
     void AddConfig(Base::TJson &&config, bool top=true);
+    void AddFile(const std::string &filename);
 
+    Base::TOpt<timespec> Timestamp;
     Base::TOpt<uint32_t> ComputedStart;
     mutable bool ComputedLocked = false; // This is purely an internal safety check / correctness check
     std::deque<Base::TJson> Config;

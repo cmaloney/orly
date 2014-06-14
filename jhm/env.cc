@@ -107,34 +107,60 @@ TAbsBase TEnv::GetOutDirName(const string &root,
   return TAbsBase(move(out));
 }
 
+vector<string> GetConfigList(const string &root,
+                             const string &proj_name,
+                             const string &config,
+                             const string &config_mixin) {
+  // root/project/config.jhm.mixin -> root/project/config.jhm -> root/config.jhm.mixin ->root/config.jhm
+  //NOTE: At least one mixin file must be present if a config mixin is specified.
+  vector<string> ret;
+  ret.reserve(4);
+  bool mixin_exists = false;
+  auto add_mixin = [&mixin_exists,&ret,&config_mixin] (string mixin_path) {
+    if (!config_mixin.empty())
+    mixin_exists |= ExistsPath(mixin_path.c_str());
+    ret.push_back(move(mixin_path));
+  };
+  add_mixin(root + '/' + config_mixin + ".jhm_mixin");
+  ret.push_back(root + '/' + config + ".jhm");
+  add_mixin(root + '/' + proj_name + '/' + config_mixin + ".jhm_mixin");
+  ret.push_back(root + '/' + proj_name + '/' + config + ".jhm");
+
+  return ret;
+}
+
+//TODO:
 TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, const string &config_mixin)
     : Root(root),
       Src('/' + Root.Get() + '/' + proj_name),
       Out(GetOutDirName('/' + root.Get(), proj_name, config, config_mixin)),
       // TODO: Make the timestamp a property of TConfig
-      Config(TJson::Read(('/' + Src.Get() + '/' + config + ".jhm").c_str())),
-      ConfigTimestamp(GetTimestamp('/' + Src.Get() + '/' + config + ".jhm")) {
+      Config(GetConfigList('/' + root.Get(), proj_name, config, config_mixin)) {
 
+  // NOTE: Technically not a hard error. But usually indicates something went wrong.
+  if (!Config.HasConfig()) {
+    THROW_ERROR(runtime_error) << "No configuration found. At least one config looked for must exist";
+  }
+  //TODO: Assert the config stack contains at least one config
+  /*
   // Load the configuation
-  // root/src/config.jhm.mixin root/src/config.jhm -> root/config.jhm
-  auto add_conf_if_exists = [this] (const string &filename, bool back) {
+  // TODO: Gracefully degrade on removal of a config.
+  auto add_conf_if_exists = [this] (const string &filename, bool top) {
     if (ExistsPath(filename.c_str())) {
-      if (back) {
-        Config.PushBack(TJson::Read(filename));
-      } else {
-        Config.Push(TJson::Read(filename));
-      }
+      Config.AddBase(TJson::Read(filename.c_str()), top);
+      ConfigTimestamp = Newer(GetTimestamp(filename), ConfigTimestamp);
     }
   };
 
   // Add the project root overrides if they exist (Comes after project config)
-  add_conf_if_exists('/' + Root.Get() + '/' + config_mixin + ".jhm_mixin", true);
-  add_conf_if_exists('/' + Root.Get() + '/' + config + ".jhm", true);
+  add_conf_if_exists('/' + Root.Get() + '/' + config_mixin + ".jhm_mixin", false);
+  add_conf_if_exists('/' + Root.Get() + '/' + config + ".jhm", false);
 
   // Add config mixin if it exists (Comes before project config)
-  add_conf_if_exists('/' + Src.Get() + config_mixin + ".jhm_mixin", false);
+  add_conf_if_exists('/' + Src.Get() + config_mixin + ".jhm_mixin", true);
 
   // TODO: Include trees (useful for multi-repo JHM)
+  */
 
   Jobs.Register(Job::TDep::GetProducer());
   Jobs.Register(Job::TCompileCFamily::GetCProducer());
@@ -161,15 +187,12 @@ TFile *TEnv::GetFile(TRelPath name) {
 
   // NOTE: It's a design decision that this can only come from src and can't be machine generated.
   string conf_path = src_path.AsStr() + ".jhm";
-  if (ExistsPath(conf_path.c_str())) {
-    file_conf = TJson::Read(conf_path.c_str());
-  }
 
   if (ExistsPath(src_path.AsStr().c_str())) {
-    return Files.Add(move(name), make_unique<TFile>(move(src_path), true, move(file_conf)));
+    return Files.Add(move(name), make_unique<TFile>(move(src_path), true, conf_path));
   } else {
     TAbsPath out_path(Out, name);
-    return Files.Add(move(name), make_unique<TFile>(move(out_path), false, move(file_conf)));
+    return Files.Add(move(name), make_unique<TFile>(move(out_path), false, conf_path));
   }
 }
 
