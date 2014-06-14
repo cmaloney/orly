@@ -47,19 +47,21 @@ namespace Jhm {
   class TConfig final {
     public:
 
-    DEFINE_ERROR(TInvalidValue, std::runtime_error, "invalid config value");
+    DEFINE_ERROR(TInvalidValue, std::runtime_error, nullptr);
 
     TConfig(Base::TJson base_config);
 
-    template<typename TVal>
-    static TVal ReadJson(const std::string &name, const Base::TJson &entry);
-
-    // TODO: All the partial  specializations
     //NOTE: name may contain '.' which specifies entry into sub key.
     template <typename TVal>
     TVal Read(const std::string &name) const {
       auto entry = GetEntry(name);
-      return TJsonReader<TVal>::Read(name, entry);
+      try {
+        return TJsonReader<TVal>::Read(entry);
+      } catch (const TInvalidValue &ex) {
+        THROW_ERROR(TInvalidValue) << "Invalid for " << quoted(name) << ". " << ex.what();
+      }
+      // TODO: GCC BUG
+      __builtin_unreachable();
     }
 
     template <typename TVal>
@@ -69,7 +71,7 @@ namespace Jhm {
       if(!TryGetEntry(name, entry)) {
         return false;
       }
-      out = TJsonReader<TVal>::Read(name, entry);
+      out = TJsonReader<TVal>::Read(entry);
       return true;
     }
 
@@ -91,53 +93,52 @@ namespace Jhm {
     std::deque<Base::TJson> ConfigStack;
   };
 
+  // Helper function
+  inline void ThrowIfWrongKind(const Base::TJson::TKind expected, const Base::TJson &json) {
+    if (json.GetKind() != expected) {
+      THROW_ERROR(TConfig::TInvalidValue) << "Expected a " << expected << "but found a " << json.GetKind();
+    }
+  }
+
   template <>
   struct TJsonReader<bool> {
-    static bool Read(const std::string &name, const Base::TJson &entry) {
-      if (entry.GetKind() != Base::TJson::Bool) {
-        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name)
-                                            << ". Expected a number (double)";
-      }
+    static bool Read(const Base::TJson &entry) {
+      ThrowIfWrongKind(Base::TJson::Bool, entry);
       return entry.GetBool();
     }
   };
 
   template <>
   struct TJsonReader<double> {
-    static double Read(const std::string &name, const Base::TJson &entry) {
-      if (entry.GetKind() != Base::TJson::Number) {
-        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name)
-                                            << ". Expected a number (double)";
-      }
+    static double Read(const Base::TJson &entry) {
+      ThrowIfWrongKind(Base::TJson::Number, entry);
       return entry.GetNumber();
     }
   };
 
   template <>
   struct TJsonReader<std::string> {
-    static std::string Read(const std::string &name, const Base::TJson &entry) {
-      if (entry.GetKind() != Base::TJson::String) {
-        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name) << ". Expected a string";
-      }
+    static std::string Read(const Base::TJson &entry) {
+      ThrowIfWrongKind(Base::TJson::String, entry);
       return entry.GetString();
     }
   };
 
   template <typename TVal>
   struct TJsonReader<std::vector<TVal>> {
-    static std::vector<TVal> Read(const std::string &name, const Base::TJson &entry) {
-      if (entry.GetKind() != Base::TJson::Array) {
-        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name) << ". Expected an array";
-      }
-
+    static std::vector<TVal> Read(const Base::TJson &entry) {
+      ThrowIfWrongKind(Base::TJson::Array, entry);
       // Walk the array, pulling out each element
       std::vector<TVal> ret;
       ret.reserve(entry.GetSize());
-      std::string elem_name = name + "[]";
-      entry.ForEachElem([&ret, &elem_name](const Base::TJson &json) -> bool {
-        ret.push_back(TJsonReader<TVal>::Read(elem_name, json));
-        return true;
-      });
+      try {
+        entry.ForEachElem([&ret](const Base::TJson &json) -> bool {
+          ret.push_back(TJsonReader<TVal>::Read(json));
+          return true;
+        });
+      } catch (const TConfig::TInvalidValue &ex) {
+        THROW_ERROR(TConfig::TInvalidValue) << "Element in list. " << ex.what();
+      }
       return ret;
     }
   };
@@ -145,18 +146,18 @@ namespace Jhm {
 
   template <typename TVal>
   struct TJsonReader<std::map<std::string, TVal>> {
-    static std::map<std::string, TVal> Read(const std::string &name, const Base::TJson &entry) {
-      if (entry.GetKind() != Base::TJson::Object) {
-        THROW_ERROR(TConfig::TInvalidValue) << "Invalid value for key " << std::quoted(name) << ". Expected a JSON object";
-      }
-
+    static std::map<std::string, TVal> Read(const Base::TJson &entry) {
+      ThrowIfWrongKind(Base::TJson::Object, entry);
       // Walk the array, pulling out each element
       std::map<std::string, TVal> ret;
-      std::string elem_name = name + "[]";
-      entry.ForEachElem([&ret, &elem_name](const std::string &key, const Base::TJson &json) -> bool {
-        ret.emplace(key, TJsonReader<TVal>::Read(elem_name, json));
-        return true;
-      });
+      try {
+        entry.ForEachElem([&ret](const std::string &key, const Base::TJson &json) -> bool {
+          ret.emplace(key, TJsonReader<TVal>::Read(json));
+          return true;
+        });
+      } catch (const TConfig::TInvalidValue &ex) {
+        THROW_ERROR(TConfig::TInvalidValue) << "Element in object/map. " << ex.what();
+      }
       return ret;
     }
   };
