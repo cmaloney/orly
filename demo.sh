@@ -37,10 +37,10 @@ case $DATASET in
 esac
 
 ROOT="$PWD"
-DATA_DIR="$ROOT/orly/data"
-PACKAGE_DIR="$ROOT/orly/packages"
-SRC_DIR="$ROOT/orly/src"
-WEB_DIR="$ROOT/orly/web"
+DATA_DIR="$ROOT/data"
+PACKAGE_DIR="$ROOT/packages"
+SRC_DIR="$ROOT/src"
+WEB_DIR="$ROOT/web"
 
 FILENAME="$DATA_DIR/$DATA_FILE"
 
@@ -63,16 +63,16 @@ fi
 
 #Start orlyi
 #TODO: Persistent state files / hard drive
-orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le                                           \
-  --package_dir="$PACKAGE_DIR"                                                                                         \
-  --temp_file_consol_thresh=4                                                                                          \
-  --mem_sim=true --mem_sim_mb=768  --page_cache_size=256 --block_cache_size=256                                        \
+orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le \
+  --package_dir="$PACKAGE_DIR" \
+  --temp_file_consol_thresh=4 \
+  --mem_sim=true --mem_sim_mb=768  --page_cache_size=256 --block_cache_size=256 \
   --update_pool_size=55000 --update_entry_pool_size=275000 &
 ORLY_PID=$!
 #TODO : Make a better way to test for the server being up rather than just assuming it starts up in 5 seconds
 sleep 5
 
-core_import --num_load_threads=1 --num_merge_threads=1 --la --le                                                       \
+core_import --num_load_threads=1 --num_merge_threads=1 --la --le \
   --num_sim_merge="$NUM_FILES" --import_pattern="$FILENAME"
 CORE_IMPORT_RETURN=$?
 
