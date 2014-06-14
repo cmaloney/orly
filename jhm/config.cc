@@ -18,9 +18,6 @@
 
 #include <jhm/config.h>
 
-#include <fstream>
-#include <iostream>
-
 #include <base/not_implemented.h>
 #include <base/split.h>
 
