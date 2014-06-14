@@ -21,6 +21,7 @@
 #include <base/dir_walker.h>
 #include <base/stl_utils.h>
 #include <jhm/naming.h>
+#include <iostream>
 
 using namespace Base;
 using namespace Jhm;
@@ -64,8 +65,7 @@ TSet<TFile *> Jhm::FindTests(TEnv &env) {
       auto f_it = find(ext_list.begin(), ext_list.end(), "test");
       if (f_it != ext_list.end()) {
         // We found a test! Get the executable variant / actual test file
-        InsertOrFail(
-            Out,
+        Out.insert(
             Env.GetFile(f->GetPath().GetRelPath().DropExtension(ext_list.end() - f_it).AddExtension({"test", ""})));
       }
       return true;
