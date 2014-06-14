@@ -115,7 +115,6 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
       Config(TJson::Read(('/' + Src.Get() + '/' + config + ".jhm").c_str())),
       ConfigTimestamp(GetTimestamp('/' + Src.Get() + '/' + config + ".jhm")) {
 
-  /* TODO: Allow parents of env config
   // Load the configuation
   // root/src/config.jhm.mixin root/src/config.jhm -> root/config.jhm
   auto add_conf_if_exists = [this] (const string &filename, bool back) {
@@ -134,7 +133,6 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
 
   // Add config mixin if it exists (Comes before project config)
   add_conf_if_exists('/' + Src.Get() + config_mixin + ".jhm_mixin", false);
-  */
 
   // TODO: Include trees (useful for multi-repo JHM)
 

@@ -26,8 +26,7 @@ using namespace Jhm;
 using namespace std;
 
 TConfig::TConfig(TJson base_config) {
-  assert(base_config.GetKind() == TJson::Object);
-  ConfigStack.emplace_front(move(base_config));
+  AddConfig(move(base_config));
 }
 
 TJson TConfig::GetEntry(const string &name) const {
@@ -57,7 +56,7 @@ bool TConfig::TryGetEntry(const string &name, TJson &out) const {
 
   // For each config, starting at the top of the stack. If the config contains the entry, use it.
   // TODO: Add delta support
-  for(auto &config: ConfigStack) {
+  for(auto &config: Config) {
     const TJson *val = ResolveName(&config, chunks);
     if (val) {
       // NOTE: We have no choice but to copy
@@ -70,30 +69,55 @@ bool TConfig::TryGetEntry(const string &name, TJson &out) const {
   return false;
 }
 
-void TConfig::AddComputed(TJson &&config) {
-  assert(config.GetKind() == TJson::Object);
-  assert(!ConfigLocked);
+void TConfig::AddBase(TJson &&config, bool top) {
+  assert(!ComputedStart);
+  assert(!ComputedLocked);
 
-  ConfigStack.emplace_front(move(config));
+  AddConfig(move(config), top);
+}
+
+void TConfig::AddComputed(TJson &&config) {
+  assert(!ComputedLocked);
+
+  if(!ComputedStart) {
+    ComputedStart = Config.size();
+  }
+
+  AddConfig(move(config));
+}
+
+bool TConfig::ForEachComputed(const function<bool (const TJson &conf)> &cb) const {
+  auto last_it = Config.end() - *ComputedStart;
+  for(auto it = Config.begin(); it != last_it; ++it) {
+    if (!cb(*it)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void TConfig::WriteComputed(ostream &out) const {
-  ConfigLocked = true;
-  // Write all but the initial non-computed config
+  ComputedLocked = true;
+  // Write all but the non-computed config
   //NOTE: We hand-roll the outer json array, because that's considerably cheaper than building a TJson and having that
   // pretty-print for us.
+  //NOTE: WE hand do the join, because Join doesn't know iterators / ranges.
   out << '[';
-  for(uint32_t i=0; i < ConfigStack.size()-1; ++i) {
-    if (i > 0) {
+  bool first = true;
+  ForEachComputed([&first,&out] (const TJson &config) {
+    if (first) {
+      first = false;
+    } else {
       out << ',';
     }
-    ConfigStack[i].Write(out);
-  }
+    config.Write(out);
+    return true;
+  });
   out << ']';
 }
 
 void TConfig::LoadComputed(const string &filename) {
-  assert(!ConfigLocked);
+  assert(!ComputedLocked);
   Base::TJson computed = TJson::Read(filename.c_str());
   assert(computed.GetKind() == TJson::Array);
 
@@ -102,21 +126,34 @@ void TConfig::LoadComputed(const string &filename) {
   for(uint32_t i=0; i < computed_size; ++i) {
     AddComputed(move(computed[computed_size - (i+1)]));
   }
-  ConfigLocked = true;
+  ComputedLocked = true;
 }
 const std::vector<Base::TJson> TConfig::GetComputed() const {
   vector<Base::TJson> ret;
-  ret.reserve(ConfigStack.size()-1);
-  auto stop = ConfigStack.end()-1;
-  for(auto it = ConfigStack.begin(); it != stop; ++it) {
-    ret.push_back(*it);
-  }
+  assert(ComputedStart);
+  ret.reserve(Config.size()-ComputedStart);
+  ForEachComputed([&ret](const TJson &json) {
+    ret.emplace_back(json);
+    return true;
+  });
   return ret;
 }
 void TConfig::SetComputed(std::vector<Base::TJson> &&conf_stack) {
-  assert(!ConfigLocked);
+  assert(!ComputedLocked);
   for(auto &config: conf_stack) {
-    ConfigStack.emplace_back(move(config));
+    Config.emplace_back(move(config));
   }
-  ConfigLocked = true;
+  ComputedLocked = true;
+}
+
+void TConfig::AddConfig(TJson &&config, bool top) {
+  assert(config.GetKind() == TJson::Object);
+
+  if (top) {
+    Config.emplace_front(move(config));
+  } else {
+    assert(!ComputedStart);
+    assert(!ComputedLocked);
+    Config.emplace_back(move(config));
+  }
 }

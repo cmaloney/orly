@@ -75,9 +75,17 @@ namespace Jhm {
       return true;
     }
 
-    void AddComputed(Base::TJson &&config);
     bool TryGetEntry(const std::string &name, Base::TJson &out) const;
     Base::TJson GetEntry(const std::string &name) const;
+
+    /* Add a config that has been loaded from a file. */
+    void AddBase(Base::TJson &&config, bool top=true);
+
+    /* Add a config that has been computed. */
+    void AddComputed(Base::TJson &&config);
+
+    /* Call back the given function for each computed config (in order). */
+    bool ForEachComputed(const std::function<bool (const Base::TJson &conf)> &cb) const;
 
     /* Write out the computed configuration instructions */
     void WriteComputed(std::ostream &out) const;
@@ -89,8 +97,11 @@ namespace Jhm {
     void SetComputed(std::vector<Base::TJson> &&conf);
 
     private:
-    mutable bool ConfigLocked = false; // This is purely an internal safety check / correctness check
-    std::deque<Base::TJson> ConfigStack;
+    void AddConfig(Base::TJson &&config, bool top=true);
+
+    Base::TOpt<uint32_t> ComputedStart;
+    mutable bool ComputedLocked = false; // This is purely an internal safety check / correctness check
+    std::deque<Base::TJson> Config;
   };
 
   // Helper function
