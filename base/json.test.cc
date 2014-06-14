@@ -159,3 +159,18 @@ FIXTURE(Parse) {
   EXPECT_EQ(TJson::Parse(R"(["/usr/include/stdc-predef.h","/usr/include/c++/4.9.0/ostream"])"),
             TJson::TArray({"/usr/include/stdc-predef.h", "/usr/include/c++/4.9.0/ostream"}));
 }
+
+std::string AsStr(Base::TJson::TKind kind) {
+  std::ostringstream oss;
+  oss << kind;
+  return oss.str();
+}
+
+FIXTURE(KindToStr) {
+  EXPECT_EQ(AsStr(TJson::Bool), "bool");
+  EXPECT_EQ(AsStr(TJson::Null), "null");
+  EXPECT_EQ(AsStr(TJson::Number), "number");
+  EXPECT_EQ(AsStr(TJson::Array), "array");
+  EXPECT_EQ(AsStr(TJson::Object), "object");
+  EXPECT_EQ(AsStr(TJson::String), "string");
+}

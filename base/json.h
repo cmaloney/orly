@@ -652,4 +652,46 @@ namespace Base {
     return strm;
   }
 
+  inline std::ostream &operator<<(std::ostream &strm, const TJson::TKind &kind) {
+    assert(&kind);
+      switch (kind) {
+        case TJson::Null:   {
+          strm << "null";
+          break;
+        }
+        case TJson::Bool:   {
+          strm << "bool";
+          break;
+        }
+        case TJson::Number: {
+          strm << "number";
+          break;
+        }
+        case TJson::Array:  {
+          strm << "array";
+          break;
+        }
+        case TJson::Object: {
+          strm << "object";
+          break;
+        }
+        case TJson::String: {
+          strm << "string";
+          break;
+        }
+      }
+      return strm;
+  }
+
 }  // Base
+
+
+namespace std {
+
+  /* Standard swapper. */
+  template <>
+  inline void swap<Base::TJson>(Base::TJson &lhs, Base::TJson &rhs) {
+    lhs.Swap(rhs);
+  }
+
+}
