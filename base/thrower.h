@@ -27,7 +27,7 @@
 
 /* Use this macro to define a new error class, like this:  DEFINE(TSomethingBad, std::runtime_error, "something bad happened"); */
 #define DEFINE_ERROR(error_t, base_t, desc)  \
-  class error_t final : public base_t { public: error_t(const char *msg) : base_t(msg) {} static const char *GetDesc() { return desc; } };
+  class error_t : public base_t { public: error_t(const char *msg) : base_t(msg) {} static const char *GetDesc() { return desc; } };
 
 /* Use this macro to throw an error, like this: THROW_ERROR(TSomethingBad) << "more info" << Base::EndOfPart << "yet more info"; */
 #define THROW_ERROR(error_t)  (::Base::TThrower<error_t>(HERE))
