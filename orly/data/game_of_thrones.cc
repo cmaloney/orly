@@ -99,8 +99,8 @@ using namespace Orly;
 (28)-[:CHILD_OF]->(9)
 */
 
-static const TUuid NodeIndexId(TUuid(TUuid::Twister));
-static const TUuid EdgeIndexId(TUuid(TUuid::Twister));
+static const TUuid NodeIndexId{TUuid::Twister};
+static const TUuid EdgeIndexId{TUuid::Twister};
 
 void Node(Atom::TCoreVectorBuilder &builder, int64_t id, const string &kind, const string &val) {
   builder.Push(TUuid(TUuid::Twister));
