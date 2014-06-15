@@ -155,6 +155,9 @@ FIXTURE(Parse) {
   EXPECT_EQ(TJson::Parse(R"({ "a": 1, "b": 2, "c": 3} )"), Object);
   EXPECT_EQ(TJson::Parse(R"("")"), "");
   EXPECT_EQ(TJson::Parse(R"("hello")"), "hello");
+  EXPECT_EQ(TJson::Parse(R"(hello)"), "hello");
+  EXPECT_EQ(TJson::Parse(R"([hello,world,null,no,truest,falser,nullary])"),
+            TJson::TArray({"hello", "world", TJson(), "no", "truest", "falser","nullary"}));
 
   EXPECT_EQ(TJson::Parse(R"(["/usr/include/stdc-predef.h","/usr/include/c++/4.9.0/ostream"])"),
             TJson::TArray({"/usr/include/stdc-predef.h", "/usr/include/c++/4.9.0/ostream"}));

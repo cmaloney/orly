@@ -126,7 +126,7 @@ namespace Base {
 
     /* Read from the given input string to find a JSON string which starts/ends with '"' and properly unescape escaped
        characters. */
-    static std::string ReadString(std::istream &strm) {
+    static std::string ReadQuotedString(std::istream &strm) {
       DEFINE_ERROR(not_implemented_t, TSyntaxError, "not currently implemented");
       std::string text;
       //NOTE: Tested adding a reserve() call here. Didn't greatly effect compile time
@@ -174,6 +174,7 @@ namespace Base {
               THROW_ERROR(TSyntaxError) << "Invalid escape sequence '\\" << c << '\'';
           }
           assert(false);
+          __builtin_unreachable();
         };
         // Loop over each input character processing escape sequences and
         while(true) {
@@ -191,6 +192,33 @@ namespace Base {
       }
       //Reset flags to what they were
       strm.flags(flags);
+      return text;
+    }
+
+    /* Read our extension to JSON, a raw string. */
+    static std::string ReadRawString(std::istream &strm) {
+      // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
+      // NOTE: null, true, and false are all found by matching raw strings.
+      std::string text;
+      for (;;) {
+        int c = strm.peek();
+        if (!strm.good() || isspace(c) || c == '[' || c == '{' || c == '}' || c == ']' || c == ',' || c == ':' ||
+            c == '"') {
+          break;
+        }
+        strm.ignore();
+        text += char(c);
+      }
+      return text;
+    }
+
+    static std::string ReadString(std::istream &strm) {
+      std::string text;
+      if (strm.peek() == '"') {
+        text = ReadQuotedString(strm);
+      } else {
+        text = ReadRawString(strm);
+      }
       return text;
     }
 
@@ -538,21 +566,6 @@ namespace Base {
       assert(&strm);
       int c = std::ws(strm).peek();
       switch (c) {
-        case 'n': {
-          Match(strm, "null");
-          Reset();
-          break;
-        }
-        case 't': {
-          Match(strm, "true");
-          *this = true;
-          break;
-        }
-        case 'f': {
-          Match(strm, "false");
-          *this = false;
-          break;
-        }
         case '[': {
           strm.ignore();
           TJson elem;
@@ -587,7 +600,7 @@ namespace Base {
           break;
         }
         case '"': {
-          *this = TJson(ReadString(strm));
+          *this = TJson(ReadQuotedString(strm));
           break;
         }
         default: {
@@ -595,6 +608,20 @@ namespace Base {
             double temp;
             strm >> temp;
             *this = TJson(std::move(temp));
+            break;
+          } else {
+            // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
+            // NOTE: null, true, and false are all found by matching raw strings.
+            std::string text = ReadRawString(strm);
+            if (text == "null") {
+              Reset();
+            } else if (text == "true") {
+              *this = true;
+            } else if (text == "false") {
+              *this = false;
+            } else {
+              *this = TJson(move(text));
+            }
             break;
           }
           THROW_ERROR(TSyntaxError) << "Unexpected '" << char(c) << "' at start of input";
@@ -722,21 +749,6 @@ namespace Base {
                                   << '\'';
       }
       strm.ignore();
-    }
-
-    /* The stream must yield given string or throw a syntax error. */
-    static void Match(std::istream &strm, const std::string &expected) {
-      assert(&strm);
-      assert(&expected);
-
-      char actual[expected.size() + 1];
-      actual[expected.size()] = '\0';
-      strm.read(actual, expected.size());
-
-      if (expected != actual) {
-        THROW_ERROR(TSyntaxError) << "Expected " << std::quoted(expected) << " But didn't find it. Found "
-                                  << std::quoted(actual);
-      }
     }
 
     /* See accessor. */
