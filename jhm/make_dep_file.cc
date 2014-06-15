@@ -51,7 +51,7 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
 
   // Have GCC get all the dependencies for us
   ostringstream cmd;
-  cmd << (is_cpp ? "g++ " : "gcc ") << extra_args << " -M -MG " << filename;
+  cmd << (is_cpp ? "clang++ " : "clang ") << extra_args << " -M -MG " << filename;
   TPump pump;
   auto subproc = TSubprocess::New(pump, cmd.str().c_str());
   auto ret = subproc->Wait();

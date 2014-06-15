@@ -103,9 +103,9 @@ string TCompileCFamily::GetCmd() {
   // Build up the gcc call
   ostringstream oss;
   if (IsCpp) {
-    oss << "g++";
+    oss << "clang++";
   } else {
-    oss << "gcc";
+    oss << "clang";
   }
 
   // add output, input filenames

@@ -121,10 +121,9 @@ string TLink::GetCmd() {
   assert(this);
   ostringstream oss;
 
-  //TODO: If there are no C++ files, use 'gcc' to link instead of g++
-  oss
-    << "g++ -o " << GetSoleOutput()->GetPath() << ' '
-    << Join(Env.GetConfig().Read<vector<string>>({"cmd","ld","flags"}), ' ');
+  //TODO: If there are no C++ files, use 'clang' to link instead of clang++
+  oss << "clang++ -o " << GetSoleOutput()->GetPath() << ' '
+      << Join(Env.GetConfig().Read<vector<string>>({"cmd", "ld", "flags"}), ' ');
 
   oss << ' ';
 

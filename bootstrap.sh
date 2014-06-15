@@ -16,7 +16,7 @@
 
 set -e
 
-CC=g++
+CC=clang++
 common_flags=(
   -O3 -DNDEBUG -flto
   -std=c++1y

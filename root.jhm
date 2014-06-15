@@ -37,6 +37,7 @@
       "-msse2",
       "-pthread",
       "-fno-strict-aliasing",
+      "-ftemplate-depth=1024",
 
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
       "-DORLY_HOST",
@@ -55,8 +56,7 @@
 
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
 
-      "-Wno-unused-but-set-parameter",
-      "-Wno-unused-but-set-variable"
+      "-Wno-unused"
     ],
     "flex": {
       "g++": [
