@@ -123,6 +123,7 @@ vector<string> GetConfigList(const string &root,
   };
   add_mixin(root + '/' + config_mixin + ".jhm_mixin");
   ret.push_back(root + '/' + config + ".jhm");
+  ret.push_back(root + '/' + proj_name + '/' + "root.jhm");
   add_mixin(root + '/' + proj_name + '/' + config_mixin + ".jhm_mixin");
   ret.push_back(root + '/' + proj_name + '/' + config + ".jhm");
 
@@ -136,6 +137,10 @@ TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, 
       Out(GetOutDirName('/' + root.Get(), proj_name, config, config_mixin)),
       // TODO: Make the timestamp a property of TConfig
       Config(GetConfigList('/' + root.Get(), proj_name, config, config_mixin)) {
+
+  if (config == "root") {
+    THROW_ERROR(runtime_error) << "the config 'root' is reserved / special. Use a different config.";
+  }
 
   // NOTE: Technically not a hard error. But usually indicates something went wrong.
   if (!Config.HasConfig()) {
