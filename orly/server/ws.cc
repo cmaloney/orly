@@ -35,6 +35,7 @@
 #include <orly/indy/key.h>
 #include <orly/sabot/state_dumper.h>
 #include <orly/sabot/type_dumper.h>
+#include <orly/type/orlyify.h>
 #include <orly/var/jsonify.h>
 #include <orly/var/sabot_to_var.h>
 
@@ -329,6 +330,52 @@ class TWsImpl final
           reply["kind"] = "std exception";
           reply["msg"] = ex.what();
         }
+        Strm << reply;
+      }
+
+      virtual void operator()(const TListPackageStmt *) const override {
+        assert(this);
+        TJson::TArray packages;
+        auto &package_manager = Conn->Ws->SessionManager->GetPackageManager();
+        package_manager.YieldInstalled([&packages, &package_manager](const Package::TVersionedName &versioned_name) {
+          TJson::TObject package_info;
+          package_info["name"] = versioned_name.Name.AsStr();
+          package_info["version"] = versioned_name.Version;
+
+          /* get each function's info */ {
+            TJson::TObject functions;
+            package_manager.Get(versioned_name.Name)
+                ->ForEachFunction([&functions](const string &name, auto func) {
+              TJson::TObject func_info;
+              /* params */ {
+                TJson::TObject parameters;
+                for (const auto &param: func->GetParameters()) {
+                  // TODO: Change to jsonify
+                  ostringstream oss;
+                  Orly::Type::Orlyify(oss, param.second);
+                  parameters[param.first] = oss.str();
+                }
+
+                func_info["parameters"] = TJson(move(parameters));
+              }
+              /* oss for return */ {
+                ostringstream oss;
+                Orly::Type::Orlyify(oss, func->GetReturnType());
+                func_info["return"] = oss.str();
+              }
+              functions[name] = TJson(move(func_info));
+              return true;
+                  });
+
+            package_info["functions"] = TJson(move(functions));
+          }
+
+          packages.emplace_back(move(package_info));
+          return true;
+        });
+        TJson reply(TJson::Object);
+        reply["packages"] = TJson(move(packages));
+
         Strm << reply;
       }
 

@@ -70,6 +70,9 @@ namespace Orly {
 
       std::shared_ptr<const TFuncHolder> GetFunctionInfo(const Base::TPiece<const char> &func) const;
 
+      bool ForEachFunction(
+          const std::function<bool(const std::string &name, const std::shared_ptr<const TFuncHolder> &func)> &cb) const;
+
       const TVersionedName &GetName() const;
 
       const TTypeByIndexIdMap &GetTypeByIndexMap() const;

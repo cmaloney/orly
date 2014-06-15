@@ -74,6 +74,16 @@ TFuncHolder::TPtr TLoaded::GetFunctionInfo(const Base::TPiece<const char> &func)
   return TFuncHolder::TPtr(new TFuncHolder(shared_from_this(), iter->second));
 }
 
+bool TLoaded::ForEachFunction(
+    const std::function<bool(const std::string &name, const std::shared_ptr<const TFuncHolder> &func)> &cb) const {
+  for (const auto &func : LinkInfo->PrimaryInfo->Functions) {
+    if (!cb(func.first, GetFunctionInfo(AsPiece(func.first)))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const TVersionedName &TLoaded::GetName() const {
   assert(this);
   return Name;

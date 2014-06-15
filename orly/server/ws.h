@@ -29,6 +29,7 @@
 #include <base/uuid.h>
 #include <orly/method_request.h>
 #include <orly/method_result.h>
+#include <orly/package/manager.h>
 
 namespace Orly {
 
@@ -111,6 +112,9 @@ namespace Orly {
 
           /* The root of the directory tree where packages are installed. */
           virtual const std::string &GetPackageDir() const = 0;
+
+          /* Get the package manager. Useful for things like iterating over all installed packages. */
+          virtual const Package::TManager &GetPackageManager() const = 0;
 
           /* Called when the connection wishes to create a new session. */
           virtual TSessionPin *NewSession() = 0;

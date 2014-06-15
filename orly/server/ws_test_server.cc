@@ -51,6 +51,11 @@ class TWsTestServer::TSessionManager
     return dummy;
   }
 
+  virtual const Package::TManager &GetPackageManager() const final {
+    static const Package::TManager package_manager(Jhm::TAbsBase(""));
+    return package_manager;
+  }
+
   /* Construct a new session and pin it. */
   virtual TWs::TSessionPin *NewSession() override {
     assert(this);
