@@ -28,21 +28,19 @@ using namespace Jhm::Job;
 using namespace std;
 using namespace std::placeholders;
 
-
 void TCompileCFamily::AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std::ostream &out) {
 
   // Add options from configuration. Per-file config overrides global config
-  const char *config_section = is_cpp ? "cmd.g++" : "cmd.gcc";
   vector<string> options;
-  if (!input->GetConfig().TryRead(config_section, options)) {
-    env.GetConfig().TryRead(config_section, options);
+  // TODO: Make file configuration automatically attach environment to the tail of it's list for lookups / fallback?
+  if (!input->GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options)) {
+    env.GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options);
   }
-  out << Join(' ' , options)
+  out << Join(' ', options)
       // Add the src and out directories as sources of includes.
       << " -I" << env.GetSrc() << " -I" << env.GetOut()
-      // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)
+         // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)
       << " -D'SRC_ROOT=\"" << env.GetSrc() << "/\"'";
-
 }
 
 static TRelPath GetOutputName(const TRelPath &input, bool is_cpp) {
@@ -136,7 +134,7 @@ bool TCompileCFamily::IsComplete() {
 
   // TODO: We needlessly jump to strings here. Really should be able to stash away TFile * within a TFile's config.
   TJson::TArray link_needs;
-  for (const string &include : Need->GetConfig().Read<vector<string>>("c++.include")) {
+  for (const string &include : Need->GetConfig().Read<vector<string>>({"c++","include"})) {
     // TODO: We really only need the TRelPaths here, not jumping all the way to the file objects.
     TFile *include_file = Env.TryGetFileFromPath(include);
     if (include_file) {

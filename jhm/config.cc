@@ -19,7 +19,6 @@
 #include <jhm/config.h>
 
 #include <base/path_utils.h>
-#include <base/split.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -37,18 +36,18 @@ TConfig::TConfig(const vector<string> &files) {
   }
 }
 
-TJson TConfig::GetEntry(const string &name) const {
+TJson TConfig::GetEntry(const initializer_list<string> &name) const {
   TJson ret;
   if (!TryGetEntry(name, ret)) {
-    THROW_ERROR(TNotFound) << "Didn't find config entry for " << quoted(name);
+    THROW_ERROR(TNotFound) << "Didn't find config entry for \"" << Join('.', name) << '\"';
   }
   return ret;
 }
 
 /* Resolves a scope / sequence of names to a json blob. */
-static const TJson *ResolveName(const TJson *start, const vector<string> &chunks) {
+static const TJson *ResolveName(const TJson *start, const initializer_list<string> &name) {
   // Walk through
-  for(const auto &chunk : chunks) {
+  for(const auto &chunk : name) {
     if (!start->Contains(chunk)) {
       return nullptr;
     }
@@ -58,14 +57,11 @@ static const TJson *ResolveName(const TJson *start, const vector<string> &chunks
 }
 
 //TODO: Switch to vector<string> for name always, rather than splitting apart?
-bool TConfig::TryGetEntry(const string &name, TJson &out) const {
-  vector<string> chunks;
-  Base::Split(".", name, chunks);
-
+bool TConfig::TryGetEntry(const initializer_list<string> &name, TJson &out) const {
   // For each config, starting at the top of the stack. If the config contains the entry, use it.
   // TODO: Add delta support
   for(auto &config: Config) {
-    const TJson *val = ResolveName(&config, chunks);
+    const TJson *val = ResolveName(&config, name);
     if (val) {
       // NOTE: We have no choice but to copy
       // We don't return a const pointer to the object because we're going to merge deltas shortly, which means building

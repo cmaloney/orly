@@ -47,7 +47,7 @@ TSet<TFile *> Jhm::FindTests(TEnv &env) {
     public:
     test_walker_t(TEnv &env, TSet<TFile *> &out)
         : Env(env), Out(out) {
-          env.GetConfig().TryRead("test.excluded", ExcludedDirs);
+          env.GetConfig().TryRead({"test","excluded"}, ExcludedDirs);
         }
 
     TAction OnDirBegin(const TEntry &entry) final {

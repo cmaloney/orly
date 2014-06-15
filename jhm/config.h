@@ -23,6 +23,7 @@
 #include <base/class_traits.h>
 #include <base/json.h>
 #include <base/opt.h>
+#include <base/split.h>
 #include <jhm/timestamp.h>
 
 namespace Jhm {
@@ -64,19 +65,19 @@ namespace Jhm {
 
     //NOTE: name may contain '.' which specifies entry into sub key.
     template <typename TVal>
-    TVal Read(const std::string &name) const {
+    TVal Read(const std::initializer_list<std::string> &name) const {
       auto entry = GetEntry(name);
       try {
         return TJsonReader<TVal>::Read(entry);
       } catch (const TInvalidValue &ex) {
-        THROW_ERROR(TInvalidValue) << "Invalid for " << quoted(name) << ". " << ex.what();
+        THROW_ERROR(TInvalidValue) << "Invalid for \"" << Base::Join('.', name) << "\". " << ex.what();
       }
       // TODO: GCC BUG
       __builtin_unreachable();
     }
 
     template <typename TVal>
-    bool TryRead(const std::string &name, TVal &out) const {
+    bool TryRead(const std::initializer_list<std::string> &name, TVal &out) const {
       // Try reading a config value. If it exists, must be of the right type.
       Base::TJson entry;
       if(!TryGetEntry(name, entry)) {
@@ -86,8 +87,8 @@ namespace Jhm {
       return true;
     }
 
-    bool TryGetEntry(const std::string &name, Base::TJson &out) const;
-    Base::TJson GetEntry(const std::string &name) const;
+    bool TryGetEntry(const std::initializer_list<std::string> &name, Base::TJson &out) const;
+    Base::TJson GetEntry(const std::initializer_list<std::string> &name) const;
 
     /* Add a config that has been computed. */
     void AddComputed(Base::TJson &&config);

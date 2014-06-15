@@ -380,14 +380,14 @@ void TWorkFinder::CacheCheck(TJob *job) {
 
   try {
     // Check the ideal out matches the job
-    if (ideal_out.Read<string>("build_info.job.name") != job->GetName() ||
-        ideal_out.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr() ||
-        ideal_out.Read<string>("build_info.config_timestamp") != ConfigTimestampStr) {
+    if (ideal_out.Read<string>({"build_info","job","name"}) != job->GetName() ||
+        ideal_out.Read<string>({"build_info","job","input"}) != job->GetInput()->GetPath().AsStr() ||
+        ideal_out.Read<string>({"build_info","config_timestamp"}) != ConfigTimestampStr) {
       return;
     }
 
     // Every needs must exist, be done. in_timestamp is the newest of all the needs and the input file.
-    for (const string &need_filename : ideal_out.Read<vector<string>>("build_info.job.needs")) {
+    for (const string &need_filename : ideal_out.Read<vector<string>>({"build_info","job","needs"})) {
       TFile *need = TryGetFileFromPath(need_filename);
       if (!need || !IsFileDone(need)) {
         return;
@@ -396,7 +396,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
       in_timestamp = Newer(in_timestamp, GetTimestampInput  (need));
     }
 
-    output_filename_list = ideal_out.Read<vector<string>>("build_info.job.output");
+    output_filename_list = ideal_out.Read<vector<string>>({"build_info","job","output"});
 
     // The output sets should match. We first check here they're the same size
     // Then in the output loop immediately following this, we ensure that one contains every item in the other.
@@ -421,8 +421,8 @@ void TWorkFinder::CacheCheck(TJob *job) {
       // Check the ideal out matches the job
       TConfig output_cache;
       output_cache.LoadComputed(GetCacheFilename(output));
-      if (output_cache.Read<string>("build_info.job.name") != job->GetName() ||
-          output_cache.Read<string>("build_info.job.input") != job->GetInput()->GetPath().AsStr()) {
+      if (output_cache.Read<string>({"build_info","job","name"}) != job->GetName() ||
+          output_cache.Read<string>({"build_info","job","input"}) != job->GetInput()->GetPath().AsStr()) {
         return;
       }
 

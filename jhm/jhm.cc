@@ -138,13 +138,13 @@ class TJhm : public TCmd {
       }
     } else {
       // Add the default targets
-      for(const auto &target: env.GetConfig().Read<vector<string>>("targets")) {
+      for(const auto &target: env.GetConfig().Read<vector<string>>({"targets"})) {
         InsertOrFail(target_files, FindFile(cwd, env, work_finder, target));
       }
 
       // Add the tests if we're supposed to by default
       bool build_tests = false;
-      env.GetConfig().TryRead("test.build_with_default_targets", build_tests);
+      env.GetConfig().TryRead({"test","build_with_default_targets"}, build_tests);
       if (build_tests || !PrintTests.empty()) {
         auto tests = FindTests(env);
 

@@ -86,7 +86,7 @@ const unordered_set<TFile*> TLink::GetNeeds() {
     }
 
     // Read out the cached link args, add them to our link set.
-    if (!obj->GetConfig().TryRead("ld.link", link_deps)) {
+    if (!obj->GetConfig().TryRead({"ld","link"}, link_deps)) {
       continue;
     }
 
@@ -109,7 +109,7 @@ string TLink::GetCmd() {
   //TODO: If there are no C++ files, use 'gcc' to link instead of g++
   oss << "g++ -o " << GetSoleOutput()->GetPath() << ' ';
 
-  Join(' ', Env.GetConfig().Read<vector<string>>("cmd.ld.flags"), oss);
+  Join(' ', Env.GetConfig().Read<vector<string>>({"cmd","ld","flags"}), oss);
 
   oss << ' ';
 
@@ -120,7 +120,7 @@ string TLink::GetCmd() {
 
   // TODO: Be more intelligent / selective about link flags
   oss << ' ';
-  Join(' ', Env.GetConfig().Read<vector<string>>("cmd.ld.libs"), oss);
+  Join(' ', Env.GetConfig().Read<vector<string>>({"cmd","ld","libs"}), oss);
 
   return oss.str();
 }

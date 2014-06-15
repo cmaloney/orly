@@ -75,7 +75,8 @@ string TBison::GetCmd() {
 
 bool TBison::IsComplete() {
   TFile *cc = GetOutputWithExtension(GetOutput(), {"cc"});
-  cc->PushComputedConfig(TJson::TObject{{"cmd", TJson::TObject{{"g++",  Env.GetConfig().GetEntry("cmd.bison.g++")}}}});
+  cc->PushComputedConfig(
+      TJson::TObject{{"cmd", TJson::TObject{{"g++", Env.GetConfig().GetEntry({"cmd", "bison", "g++"})}}}});
   return true;
 }
 

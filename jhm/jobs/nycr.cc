@@ -146,7 +146,7 @@ string TNycr::GetCmd() {
   assert(this);
 
   // Use the need to get the list of languages, finalize our output set.
-  vector<string> languages = Need->GetConfig().Read<vector<string>>("nycr.languages");
+  vector<string> languages = Need->GetConfig().Read<vector<string>>({"nycr","languages"});
 
   // Verify that everything in our stated output set is indeed produced by the file.
   // Also add all the files which aren't mentioned.
