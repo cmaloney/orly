@@ -75,6 +75,54 @@ namespace Base {
     /* The kinds of states we can be in. */
     enum TKind { Null, Bool, Number, Array, Object, String };
 
+    static void WriteString(std::ostream &strm, const std::string &text) {
+      strm << '"';
+      const auto end = text.end();
+
+      //TODO: We build a lot of these escape / unescape things. Should have a <base/> library function for doing it.
+      for(auto it = text.begin(); it != end; ++it) {
+        char c = *it;
+        switch(c) {
+          case '\\': {
+            strm << R"(\\)";
+            break;
+          }
+          case '\"': {
+            strm << R"(\")";
+            break;
+          }
+          case '/': {
+            strm << R"(\/)";
+            break;
+          }
+          case '\b': {
+            strm << R"(\b)";
+            break;
+          }
+          case '\f': {
+            strm << R"(\f)";
+            break;
+          }
+          case '\n': {
+            strm << R"(\n)";
+            break;
+          }
+          case '\r': {
+            strm << R"(\r)";
+            break;
+          }
+          case '\t': {
+            strm << R"(\t)";
+            break;
+          }
+          default: {
+            strm << c;
+          }
+        }
+      }
+      strm << '"';
+    }
+
     static TJson Read(const char *filename) {
       std::ifstream in(filename);
       if (!in.is_open()) {
@@ -550,14 +598,15 @@ namespace Base {
             } else {
               sep = true;
             }
-            strm << std::quoted(elem.first) << ':';
+            WriteString(strm, elem.first);
+            strm << ':';
             elem.second.Write(strm);
           }
           strm << '}';
           break;
         }
         case String: {
-          strm << std::quoted(String_);
+          WriteString(strm, String_);
           break;
         }
       }
