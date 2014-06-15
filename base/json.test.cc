@@ -161,9 +161,7 @@ FIXTURE(Parse) {
 }
 
 FIXTURE(EscapeSequences) {
-  //TODO: Properly unescape things json.org says we should.
-  //EXPECT_EQ(TJson::Parse(R"foo("\"\\\/\b\f\n\r\t\u0037")foo").GetString(), "\\/\b\f\n\r\t7");
-  //NOTE: For now we're not formatting / escaping unicode sequences.
+  EXPECT_EQ(TJson::Parse(R"foo("\"\\\/\b\f\n\r\t")foo").GetString(), "\"\\/\b\f\n\r\t");
   EXPECT_EQ(TJson("\"\\/\b\f\n\r\t7").Format(), R"foo("\"\\\/\b\f\n\r\t7")foo");
 }
 

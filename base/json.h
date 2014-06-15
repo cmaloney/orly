@@ -75,6 +75,7 @@ namespace Base {
     /* The kinds of states we can be in. */
     enum TKind { Null, Bool, Number, Array, Object, String };
 
+    //TODO: We don't currently escape unicode sequences / wide characters
     static void WriteString(std::ostream &strm, const std::string &text) {
       strm << '"';
       const auto end = text.end();
@@ -121,6 +122,76 @@ namespace Base {
         }
       }
       strm << '"';
+    }
+
+    /* Read from the given input string to find a JSON string which starts/ends with '"' and properly unescape escaped
+       characters. */
+    static std::string ReadString(std::istream &strm) {
+      DEFINE_ERROR(not_implemented_t, TSyntaxError, "not currently implemented");
+      std::string text;
+      //NOTE: Tested adding a reserve() call here. Didn't greatly effect compile time
+
+      // Keep around the old flags so we can put strm back how we found it;
+      auto flags = strm.flags(strm.flags() & ~std::ios_base::skipws);
+      try  {
+        // Helper function
+        auto read_character = [&strm] () {
+          char ret;
+          strm >> ret;
+          if (!strm.good()) {
+            THROW_ERROR(TSyntaxError) << "Unexpected I/O error while reading string (likely end of string)";
+          }
+          return ret;
+        };
+
+        if (read_character() != '"') {
+          THROW_ERROR(TSyntaxError) << "Expected '\"' at start of string but didn't find it.";
+        }
+
+        // Escape character processing helper. In it's own function to make the core loop simpler.
+        auto get_escape = [&read_character]() {
+          char c = read_character();
+          switch(c) {
+            case '\\':
+              return '\\';
+            case '"':
+              return '"';
+            case '/':
+              return '/';
+            case 'b':
+              return '\b';
+            case 'f':
+              return '\f';
+            case 'n':
+              return '\n';
+            case 'r':
+              return '\r';
+            case 't':
+              return '\t';
+            case 'u':
+              THROW_ERROR(not_implemented_t) << " parsing of unicode escape sequences '\\u four-hex-digits'";
+            default:
+              THROW_ERROR(TSyntaxError) << "Invalid escape sequence '\\" << c << '\'';
+          }
+          assert(false);
+        };
+        // Loop over each input character processing escape sequences and
+        while(true) {
+          char c = read_character();
+          if (c == '"') {
+            break;
+          } else if (c == '\\') {
+            c = get_escape();
+          }
+          text += c;
+        }
+      } catch (...) {
+        strm.flags(flags);
+        throw;
+      }
+      //Reset flags to what they were
+      strm.flags(flags);
+      return text;
     }
 
     static TJson Read(const char *filename) {
@@ -505,7 +576,9 @@ namespace Base {
             if (!ParseSep(strm, '}', temp.empty())) {
               break;
             }
-            strm >> std::ws >> std::quoted(key) >> std::ws;
+            strm >> std::ws;
+            key = ReadString(strm);
+            strm >> std::ws;
             Match(strm, ':');
             val.Read(strm);
             temp[std::move(key)] = std::move(val);
@@ -514,9 +587,7 @@ namespace Base {
           break;
         }
         case '"': {
-          std::string temp;
-          strm >> std::quoted(temp);
-          *this = TJson(std::move(temp));
+          *this = TJson(ReadString(strm));
           break;
         }
         default: {
