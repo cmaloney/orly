@@ -53,6 +53,8 @@ namespace Base {
     /* The types of callbacks used by ForEachElem(). */
     using TArrayCb  = std::function<bool (const TJson &)>;
     using TObjectCb = std::function<bool (const std::string&, const TJson &)>;
+    using TArrayCbNonConst  = std::function<bool (TJson &)>;
+    using TObjectCbNonConst = std::function<bool (const std::string&, TJson &)>;
 
     /* A visitor to our state. */
     struct TVisitor {
@@ -508,6 +510,34 @@ namespace Base {
       return true;
     }
 
+    /* Call back for each element contained in an array. */
+    bool ForEachElem(const TArrayCbNonConst &cb) {
+      assert(this);
+      assert(&cb);
+      assert(cb);
+      assert(Kind == Array);
+      for (auto &elem: Array_) {
+        if (!cb(elem)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /* Call back for each element contained in an object. */
+    bool ForEachElem(const TObjectCbNonConst &cb) {
+      assert(this);
+      assert(&cb);
+      assert(cb);
+      assert(Kind == Object);
+      for (auto &elem: Object_) {
+        if (!cb(elem.first, elem.second)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     /* A string formatted from our state. */
     std::string Format() const {
       assert(this);
@@ -535,6 +565,12 @@ namespace Base {
           return 0;
         }
       }
+    }
+
+    TArray &GetArray() {
+      assert(this);
+      assert(Kind == Array);
+      return Array_;
     }
 
     bool GetBool() const noexcept {
