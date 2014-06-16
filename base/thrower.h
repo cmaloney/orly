@@ -23,7 +23,9 @@
 #include <stdexcept>
 #include <utility>
 
+#include <base/class_traits.h>
 #include <base/code_location.h>
+#include <base/demangle.h>
 
 /* Use this macro to define a new error class, like this:  DEFINE(TSomethingBad, std::runtime_error, "something bad happened"); */
 #define DEFINE_ERROR(error_t, base_t, desc)  \
@@ -67,14 +69,21 @@ namespace Base {
   template <typename TError>
   class TThrower final {
     public:
+    MOVE_ONLY(TThrower);
 
     /* Begin the error message with the code location and the description provided by TError (if any). */
     TThrower(const TCodeLocation &code_location)
         : AtEndOfPart(false) {
-      std::move(*this) << code_location << EndOfPart;
+      Write(code_location);
+      Write(EndOfPart);
       const char *desc = GetErrorDescHelper<TError>();
       if (desc) {
-        std::move(*this) << desc << EndOfPart;
+        Write(desc);
+        Write(EndOfPart);
+      } else if (!HasGetDesc<TError>()) {
+        // If the GetDesc() doesn't exist, provide the typename for the user (It's probably an STL exception).
+        Write(Demangle<TError>());
+        Write(EndOfPart);
       }
     }
 
@@ -129,7 +138,6 @@ namespace Base {
 
   };  // TNonSpecificRuntimeError
 
-  /* Inserts a value onto a thrower. */
   template <typename TError, typename TVal>
   Base::TThrower<TError> &&operator<<(Base::TThrower<TError> &&thrower, const TVal &val) {
     assert(&thrower);

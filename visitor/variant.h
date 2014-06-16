@@ -100,7 +100,6 @@
 #include <type_traits>
 
 #include <base/class_traits.h>
-#include <base/demangle.h>
 #include <mpl/contains.h>
 #include <mpl/enable_if.h>
 #include <mpl/get_difference.h>
@@ -444,7 +443,7 @@ namespace Visitor {
             << "Error attempting to copy- or move- construct variants across "
             << "families. The type of the value held by the other variant "
                "was "
-            << Base::TDemangle(typeid(TElem)).Get()
+            << Demangle<TElem>()
             << ", which is not a member of this family." << std::endl;*/
         throw std::bad_cast();
       }

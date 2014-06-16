@@ -287,8 +287,7 @@ namespace Test {
     /* TODO */
     template <typename TArg>
     static void WriteType(std::ostream &strm) {
-      Base::TDemangle demangled(typeid(TArg));
-      strm << '(' << demangled.Get() << ')';
+      strm << '(' << Base::Demangle<TArg>() << ')';
     }
 
     /* TODO */

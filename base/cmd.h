@@ -276,7 +276,7 @@ namespace Base {
             /* Write a human-readable description of the value type. */
             static void WriteType(std::ostream &strm) {
               assert(&strm);
-              strm << TDemangle(typeid(TVal)).Get();
+              strm << Base::Demangle<TVal>();
             }
 
           };  // ValInfo<TVal>
@@ -495,7 +495,7 @@ namespace Base {
         /* See base class. */
         virtual void WriteCmd(std::ostream &strm) const {
           assert(&strm);
-          strm << TDemangle(typeid(TSomeCmd)).Get();
+          strm << Base::Demangle<TSomeCmd>();
         }
 
         private:
@@ -568,7 +568,7 @@ namespace Base {
         /* See base class. */
         virtual void WriteCmd(std::ostream &strm) const {
           assert(&strm);
-          strm << TDemangle(typeid(TSomeCmd)).Get();
+          strm << Base::Demangle<TSomeCmd>();
         }
 
         private:

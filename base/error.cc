@@ -40,14 +40,7 @@ void TError::PostCtor(const TCodeLocation &code_location, const char *details) {
   try {
     CodeLocation = code_location;
     stringstream out_strm;
-    out_strm << CodeLocation << ", ";
-
-    try {
-      TDemangle demangle(GetTypeInfo());
-      out_strm<<demangle.Get();
-    } catch (const TDemangleError &ex) {
-      out_strm<<GetTypeInfo().name();
-    }
+    out_strm << CodeLocation << ", " << Demangle(GetTypeInfo());
 
     if (details) {
       out_strm << ", " << details;
@@ -67,14 +60,7 @@ void TError::PostCtor(const TCodeLocation &code_location, const char *details_st
   try {
     CodeLocation = code_location;
     stringstream out_strm;
-    out_strm << CodeLocation << ", ";
-
-    try {
-      TDemangle demangle(GetTypeInfo());
-      out_strm<<demangle.Get();
-    } catch (const TDemangleError &ex) {
-      out_strm<<GetTypeInfo().name();
-    }
+    out_strm << CodeLocation << ", " << Demangle(GetTypeInfo());
 
     if (details_start) {
       out_strm << ", ";
@@ -85,27 +71,4 @@ void TError::PostCtor(const TCodeLocation &code_location, const char *details_st
   } catch (...) {
     Abort(HERE);
   }
-}
-
-TDemangleError::TDemangleError(const TCodeLocation &code_location, int ret) {
-  const char *details = 0;
-  switch (ret) {
-    case 0:
-      details = "The demangling operation succeeded";
-      break;
-    case -1:
-      details = "A memory allocation failure occured";
-      break;
-    case -2:
-      details = "mangled name is not a valid name under the C++ ABI name mangling rules";
-      break;
-    case -3:
-      details = "One of the arguments is invalid";
-      break;
-    NO_DEFAULT_CASE;
-  }
-
-  assert(details);
-
-  PostCtor(code_location, details);
 }
