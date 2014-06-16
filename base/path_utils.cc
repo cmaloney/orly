@@ -143,7 +143,7 @@ bool Base::ExistsPath(const char *path) {
 }
 
 string Base::GetCwd() {
-  unique_ptr<char> cwd(getcwd(0, 0));
+  unique_ptr<char, void (*)(void*)> cwd(getcwd(0, 0), &free);
   return string(cwd.get());
 }
 

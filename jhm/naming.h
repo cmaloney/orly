@@ -40,6 +40,8 @@ namespace Jhm {
   class TRelPath;
   using TExtension = TStrList;
 
+  bool EndsWith(const TExtension &full_ext, const TExtension &tail);
+
   /* TODO */
   class TNamingError : public Base::TFinalError<TNamingError> {
     public:
@@ -63,8 +65,11 @@ namespace Jhm {
     const TStr &GetBase() const;
     const TExtension &GetExtensions() const;
 
+    TName AddExtension(const TExtension &new_ext) const;
     TName SwapLastExtension(const TStr &new_ext) const;
     TName SwapLastExtension(const TExtension &new_ext) const;
+
+    TName DropExtension(uint32_t count) const;
 
     void Write(std::ostream &strm) const;
 
@@ -115,8 +120,14 @@ namespace Jhm {
     const TNamespace &GetNamespace() const;
     const TName &GetName() const;
 
+    TRelPath AddExtension(const TStrList &new_ext) const;
+
     TRelPath SwapLastExtension(const TStr &new_ext) const;
     TRelPath SwapLastExtension(const TStrList &new_ext) const;
+
+    /* Drops the last count chunks of the extension */
+    TRelPath DropExtension(uint32_t count) const;
+
     TNamespace ToNamespaceIncludingName() const;
 
     void Write(std::ostream &strm) const;
@@ -142,6 +153,9 @@ namespace Jhm {
 
     bool operator==(const TAbsBase &that) const;
     bool operator!=(const TAbsBase &that) const;
+
+    // Returns true iff the abs base is a prefix of str
+    bool Contains(const TStr &str) const;
 
     const TStr &Get() const;
 

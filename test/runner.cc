@@ -22,7 +22,6 @@
 #include <exception>
 
 #include <base/demangle.h>
-
 #include <test/fixture.h>
 
 using namespace std;
@@ -67,7 +66,7 @@ void TRunner::Run() {
     TApp::TLogger logger(true);
     logger << "exception";
     try {
-      logger<<"("<<TDemangle(typeid(ex)).Get()<<")";
+      logger<<"("<<Demangle(typeid(ex)).get()<<")";
     } catch (const std::exception &ex) {
     }
 

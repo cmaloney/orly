@@ -105,8 +105,6 @@ namespace Base {
     const char *WhatPtr;
   };
 
-  class TDemangleError;
-
   /* TODO */
   template <typename TFinal>
   class TFinalError : public virtual TError {
@@ -127,12 +125,5 @@ namespace Base {
 
     /* TODO */
     TFinalError() {}
-  };
-
-  //This lives here instead of <base/demangle.h> because that would cause a circular dependency.
-  class TDemangleError : public TFinalError<TDemangleError> {
-    public:
-
-    TDemangleError(const TCodeLocation &code_location, int ret);
   };
 }

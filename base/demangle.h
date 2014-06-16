@@ -1,6 +1,6 @@
 /* <base/demangle.h>
 
-   Container to make it safe to demangle C++ names.
+   Demangle C++ names.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -18,33 +18,33 @@
 
 #pragma once
 
+#include <memory>
+#include <ostream>
 #include <typeinfo>
-
-#include <base/class_traits.h>
 
 namespace Base {
 
-  class TDemangle {
-    NO_COPY(TDemangle);
-  public:
+  /* Wrap a unique_ptr pointing to the name. Note the name may or may not be allocated (The deleter may just noop).
+     Also: Don't edit the string under any circumstances (It might be in the RO section of the binary frome the typeinfo
+     struct.
 
-
-    //NOTE: This can throw a TDemangleError, defined in <base/error.h>
-    TDemangle(const std::type_info &t);
-
-    //NOTE: This can throw a TDemangleError, defined in <base/error.h>
-    TDemangle(const char *mangled_str);
-
-    ~TDemangle();
-
-    const char *Get() const;
-
-  private:
-
-    void DoDemangle(const char *str);
-
-    char *Buf;
+     NOTE: We make our own type because the internals are possibly inthe RO section of the binary so const casting this
+     string may in some cases SIGSEGV your application.
+     */
+  class TDemanlgeStr : public std::unique_ptr<const char, void (*)(const char*)> {
+    using TParent = std::unique_ptr<const char, void (*)(const char*)>;
+    using TParent::TParent;
   };
 
+  TDemanlgeStr Demangle(const std::type_info &t);
+  TDemanlgeStr Demangle(const char *name);
 
-}
+  /* Return the type ot TVal demangled. Always returns a value. */
+  template<typename TVal>
+  TDemanlgeStr Demangle() {
+    return Demangle(typeid(TVal));
+  }
+
+  std::ostream &operator<<(std::ostream &out, const TDemanlgeStr &ptr);
+
+} // Base

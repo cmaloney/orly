@@ -618,6 +618,10 @@ namespace Base {
 
   };  // TJson
 
+  inline void swap(Base::TJson &lhs, Base::TJson &rhs) noexcept {
+    lhs.Swap(rhs);
+  }
+
   /* Std stream extractor. */
   inline std::istream &operator>>(std::istream &strm, TJson &that) {
     assert(&that);
@@ -633,14 +637,3 @@ namespace Base {
   }
 
 }  // Base
-
-
-namespace std {
-
-  /* Standard swapper. */
-  template <>
-  inline void swap<Base::TJson>(Base::TJson &lhs, Base::TJson &rhs) {
-    lhs.Swap(rhs);
-  }
-
-}

@@ -20,6 +20,7 @@
 
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/types.h>
 
 #include <iostream>
 
@@ -29,6 +30,12 @@
 
 using namespace std;
 using namespace Base;
+
+int TSubprocess::WaitAll() {
+  siginfo_t status;
+  IfNe0(waitid(P_ALL, 0, &status, WEXITED | WNOWAIT));
+  return status.si_pid;
+}
 
 int TSubprocess::Wait() const {
   assert(this);

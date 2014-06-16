@@ -17,41 +17,32 @@
    limitations under the License. */
 
 #include <base/demangle.h>
-#include <base/error.h>
 
-#include <cxxabi.h> //To demangle the true name of the exception type.
+#include <cxxabi.h>
 
 using namespace Base;
 
-
-//NOTE: This can throw a TDemangleError
-TDemangle::TDemangle(const std::type_info &t) : Buf(0) {
-  DoDemangle(t.name());
-}
-
-TDemangle::TDemangle(const char *mangled) : Buf(0) {
-  DoDemangle(mangled);
-}
-
-TDemangle::~TDemangle() {
-  assert(this);
-  assert(Buf);
-  free(Buf); //The gcc man pages use free, so we use free.
-}
-
-const char *TDemangle::Get() const {
-  assert(this);
-  assert(Buf);
-
-  return Buf;
-}
-
-void TDemangle::DoDemangle(const char *str) {
-  int st = 0;
-
-  Buf = abi::__cxa_demangle(str, nullptr, nullptr, &st);
-
-  if(st != 0) {
-    throw TDemangleError(HERE, st);
+TDemanlgeStr Base::Demangle(const std::type_info &t) {
+  auto ret = Demangle(t.name());
+  if (!ret) {
+    ret = TDemanlgeStr(t.name(), [](const char*){});
   }
+  return ret;
+}
+
+TDemanlgeStr Base::Demangle(const char *name) {
+  int status;
+  TDemanlgeStr ret(abi::__cxa_demangle(name, nullptr, nullptr, &status),
+                     [](const char *ptr) { free(const_cast<char *>(ptr)); });
+  if (status != 0) {
+    ret.reset();
+  }
+  return ret;
+}
+
+std::ostream &Base::operator<<(std::ostream &out, const TDemanlgeStr &ptr) {
+  if (ptr) {
+    out << ptr.get();
+  }
+  return out;
 }

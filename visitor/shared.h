@@ -711,6 +711,21 @@ namespace Visitor {
 
   };  // TWeak<TElem>
 
+  /* std::swap<> specialization. */
+  template <typename TElem>
+  void swap(Visitor::TShared<TElem> &lhs, Visitor::TShared<TElem> &rhs) noexcept {
+    assert(&lhs);
+    lhs.Swap(rhs);
+  }
+
+  /* std::swap<> specialization. */
+  template <typename TElem>
+  void swap(Visitor::TWeak<TElem> &lhs, Visitor::TWeak<TElem> &rhs) noexcept {
+    assert(&lhs);
+    lhs.Swap(rhs);
+  }
+
+
 }  // Visitor
 
 namespace std {
@@ -728,20 +743,4 @@ namespace std {
     }
 
   };  // hash<Visitor::TShared<TElem>>
-
-  /* std::swap<> specialization. */
-  template <typename TElem>
-  void swap(Visitor::TShared<TElem> &lhs,
-            Visitor::TShared<TElem> &rhs) noexcept {
-    assert(&lhs);
-    lhs.Swap(rhs);
-  }
-
-  /* std::swap<> specialization. */
-  template <typename TElem>
-  void swap(Visitor::TWeak<TElem> &lhs, Visitor::TWeak<TElem> &rhs) noexcept {
-    assert(&lhs);
-    lhs.Swap(rhs);
-  }
-
 }  // std
