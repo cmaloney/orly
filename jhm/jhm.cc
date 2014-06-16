@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) {
     return TJhm(argc, argv).Run();
   }
   catch (const std::exception &ex) {
-    cerr << "EXCEPTION: " << ex.what() << endl;
+    cout << "EXCEPTION: " << ex.what() << endl;
     return -1;
   }
 }
