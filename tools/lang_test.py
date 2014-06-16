@@ -48,7 +48,7 @@ class TPool(Pool):
         return TProcess(
                  filepath,
                  subprocess.Popen(
-                     '../../../out/debug/orly/orlyc -m -d ' + filepath + ' -o ' + self.__out_dir,
+                     '../out/debug/orly/orlyc -m -d ' + filepath + ' -o ' + self.__out_dir,
                      shell=True,
                      stderr=subprocess.STDOUT,
                      stdout=subprocess.PIPE))
@@ -62,6 +62,7 @@ def GetArgParser():
       help='The list of orlyscript files to use, defaults to all *.orly files in the current directory')
   parser.add_argument('--update', '-u', action='store_true', help='Update the state files for the given orlyscript files')
   parser.add_argument('--changes', '-c', action='store_true', help='Print out the changes')
+  parser.add_argument('--directories', '-d', action='store_true', help='Treat filepaths as directories containing files rather than files');
   parser.add_argument(
       '--worker-count', '-w',
       default=default_worker_count,
@@ -93,18 +94,18 @@ def Main():
   lil = TPool(out_dir, workers=args.worker_count)
 
 
-  def OnDirectory(none, dirname, filenames):
-    orly_filenames = filter(lambda filename: os.path.splitext(filename)[-1] == '.orly', filenames)
-    filepaths.extend(map(lambda filename: os.path.join(dirname, filename), orly_filenames))
 
   # List of filepaths.
-  filepaths = args.filepaths
+  filepaths = list();
 
-  if len(filepaths) == 0:
-    cwd = os.getcwd()
-    prefix_len = len(cwd) + 1
-    os.path.walk(os.getcwd(), OnDirectory, None)
-    filepaths = map(lambda x: x[prefix_len:] if x.startswith(cwd) else x, filepaths)
+  if args.directories:
+    for path in args.filepaths:
+      def OnDirectory(_, dirname, filenames):
+        orly_filenames = filter(lambda filename: os.path.splitext(filename)[-1] == '.orly', filenames)
+        filepaths.extend(map(lambda filename: os.path.join(dirname, filename), orly_filenames))
+      os.path.walk(path, OnDirectory, None);
+  else:
+    filepaths = args.filepaths
 
   changed_files = []
   passed_files = []
@@ -186,7 +187,8 @@ def Main():
         failed_files.append(filepath)
       return
 
-  lil.run(filepaths, callback=Callback)
+  if len(filepaths) != 0:
+    lil.run(filepaths, callback=Callback)
 
   if args.update:
     return 0

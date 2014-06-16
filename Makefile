@@ -31,7 +31,7 @@ test_build: apps
 	$(STARSHA) --all="*.test"
 
 test_lang: apps
-	cd orly/lang_tests; ./run_tests.py
+	lang_test.py -d orly/data orly/lang_tests
 
 clean:
 	rm -f ../.starsha/.notes
