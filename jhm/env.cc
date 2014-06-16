@@ -18,8 +18,6 @@
 
 #include <cassert>
 
-#include <base/not_implemented.h>
-#include <base/path_utils.h>
 #include <jhm/jobs/bison.h>
 #include <jhm/jobs/compile_c_family.h>
 #include <jhm/jobs/dep.h>
@@ -27,10 +25,12 @@
 #include <jhm/jobs/link.h>
 #include <jhm/jobs/nycr.h>
 #include <jhm/timestamp.h>
+#include <util/path.h>
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
+using namespace Util;
 
 unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) {
   unordered_set<TJob *> ret;

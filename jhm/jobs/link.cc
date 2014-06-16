@@ -27,6 +27,7 @@ using namespace Base;
 using namespace Jhm;
 using namespace Jhm::Job;
 using namespace std;
+using namespace Util;
 
 static TRelPath GetOutputName(const TRelPath &input) {
   assert(EndsWith(input.GetName().GetExtensions(), {"o"}));

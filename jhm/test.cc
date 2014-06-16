@@ -18,14 +18,16 @@
 
 #include <jhm/test.h>
 
-#include <base/dir_walker.h>
-#include <base/stl_utils.h>
-#include <jhm/naming.h>
 #include <iostream>
+
+#include <base/dir_walker.h>
+#include <jhm/naming.h>
+#include <util/stl.h>
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
+using namespace Util;
 
 //NOTE: We override const char * to prevent excess construction of vectors.
 bool Contains(const vector<string> &vec, const char *str) {

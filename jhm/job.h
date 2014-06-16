@@ -25,8 +25,8 @@
 #include <vector>
 
 #include <base/opt.h>
-#include <base/stl_utils.h>
 #include <jhm/naming.h>
+#include <util/stl.h>
 
 namespace Jhm {
 
@@ -61,7 +61,7 @@ namespace Jhm {
 
     void AddOutput(TFile *file) {
       assert(UnknownOutputs);
-      Base::InsertOrFail(Output, file);
+      Util::InsertOrFail(Output, file);
     }
 
     /* Allows a job to verify that it's complete. If it returns false here, the command __WILL__ get run again when

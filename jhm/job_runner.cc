@@ -25,6 +25,7 @@
 using namespace Base;
 using namespace Jhm;
 using namespace std;
+using namespace Util;
 
 TJobRunner::TJobRunner(uint32_t worker_count, bool print_cmd)
     : ExitWorker(false),

@@ -16,13 +16,13 @@
 
 #include <jhm/jobs/util.h>
 
-#include <base/stl_utils.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
+#include <util/stl.h>
 
-using namespace Base;
 using namespace Jhm;
 using namespace std;
+using namespace Util;
 
 unordered_set<TFile *> Jhm::GetOutputSet(const vector<TExtension> &out_exts, TEnv &env, const TRelPath &input) {
   unordered_set<TFile *> out_set;

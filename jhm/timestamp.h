@@ -24,8 +24,8 @@
 #include <ostream>
 #include <string>
 
-#include <base/error_utils.h>
 #include <base/opt.h>
+#include <util/error.h>
 
 namespace Jhm {
 
@@ -36,13 +36,13 @@ namespace Jhm {
       if (errno == ENOENT) {
         return *Base::TOpt<timespec>::Unknown;
       }
-      Base::ThrowSystemError(errno);
+      Util::ThrowSystemError(errno);
     }
     return st.st_mtim;
   }
   inline timespec GetTimestamp(const std::string &name) {
     struct stat st;
-    Base::IfLt0(stat(name.c_str(), &st));
+    Util::IfLt0(stat(name.c_str(), &st));
     return st.st_mtim;
   }
 
