@@ -37,32 +37,42 @@ case $DATASET in
 esac
 
 ROOT="$PWD"
-DATA_DIR="$ROOT/orly/data"
-PACKAGE_DIR="$ROOT/orly/packages"
-SRC_DIR="$ROOT/orly/src"
-WEB_DIR="$ROOT/orly/web"
+DATA_DIR="$ROOT/data"
+PACKAGE_DIR="$ROOT/packages"
+SRC_DIR="$ROOT/src"
+WEB_DIR="$ROOT/web"
 
-#TODO: Download all the bin files we want if twitter. Otherwise run the generator utility, to make the .bin file.
 FILENAME="$DATA_DIR/$DATA_FILE"
-NUM_FILES=`ls -1 $FILENAME | wc -l`
-if [ -z $NUM_FILES ]; then
-  echo "Requested dataset not ready for importing."
-  echo "Run the importer for the dataset and place the resulting bin files as $FILENAME"
-  exit -1
+
+NUM_FILES=1
+if [ "$DATASET" = "twitter" ]; then
+  for twitter_datafile in "twitter0"{0..6}".bin"
+  do
+    TWITTER_FILENAME="$DATA_DIR/$twitter_datafile"
+    echo $TWITTER_FILENAME
+    if [ ! -f $TWITTER_FILENAME ]; then
+      wget -O"$TWITTER_FILENAME" "http://vagrantcloud.orlyatomics.com/box/virtualbox/data/$twitter_datafile"
+    fi
+  done
+  NUM_FILES=7
+elif [ ! -f "$FILENAME" ]; then
+  #Non-twitter datasets run the generator, then move the bin file
+  "$DATASET"
+  mv "$DATASET.bin" "$FILENAME"
 fi
 
 #Start orlyi
 #TODO: Persistent state files / hard drive
-orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le                                           \
-  --package_dir="$PACKAGE_DIR"                                                                                         \
-  --temp_file_consol_thresh=4                                                                                          \
-  --mem_sim=true --mem_sim_mb=768  --page_cache_size=256 --block_cache_size=256                                        \
+orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le \
+  --package_dir="$PACKAGE_DIR" \
+  --temp_file_consol_thresh=4 \
+  --mem_sim=true --mem_sim_mb=768  --page_cache_size=256 --block_cache_size=256 \
   --update_pool_size=55000 --update_entry_pool_size=275000 &
 ORLY_PID=$!
 #TODO : Make a better way to test for the server being up rather than just assuming it starts up in 5 seconds
 sleep 5
 
-core_import --num_load_threads=1 --num_merge_threads=1 --la --le                                                       \
+core_import --num_load_threads=1 --num_merge_threads=1 --la --le \
   --num_sim_merge="$NUM_FILES" --import_pattern="$FILENAME"
 CORE_IMPORT_RETURN=$?
 
