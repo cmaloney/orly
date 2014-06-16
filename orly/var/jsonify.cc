@@ -18,10 +18,10 @@
 
 #include <orly/var/jsonify.h>
 
+#include <base/json.h>
 #include <base/not_implemented.h>
 #include <orly/type/orlyify.h>
 #include <orly/var.h>
-#include <tools/nycr/escape.h>
 
 using namespace std;
 using namespace Orly;
@@ -134,7 +134,7 @@ void Orly::Var::Jsonify(ostream &strm, const TVar &var) {
     }
     virtual void operator()(const TStr *that) const {
       //TODO: Escape the string!?!
-      Strm << Tools::Nycr::TEscape(that->GetVal());
+      Base::TJson::WriteString(Strm, that->GetVal());
     }
     virtual void operator()(const TTimeDiff *that) const {
       Strm << that->GetVal().count();

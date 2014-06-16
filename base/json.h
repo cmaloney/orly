@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstdint>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <istream>
@@ -52,6 +53,8 @@ namespace Base {
     /* The types of callbacks used by ForEachElem(). */
     using TArrayCb  = std::function<bool (const TJson &)>;
     using TObjectCb = std::function<bool (const std::string&, const TJson &)>;
+    using TArrayCbNonConst  = std::function<bool (TJson &)>;
+    using TObjectCbNonConst = std::function<bool (const std::string&, TJson &)>;
 
     /* A visitor to our state. */
     struct TVisitor {
@@ -73,6 +76,167 @@ namespace Base {
 
     /* The kinds of states we can be in. */
     enum TKind { Null, Bool, Number, Array, Object, String };
+
+    //TODO: We don't currently escape unicode sequences / wide characters
+    static void WriteString(std::ostream &strm, const std::string &text) {
+      strm << '"';
+      const auto end = text.end();
+
+      //TODO: We build a lot of these escape / unescape things. Should have a <base/> library function for doing it.
+      for(auto it = text.begin(); it != end; ++it) {
+        char c = *it;
+        switch(c) {
+          case '\\': {
+            strm << R"(\\)";
+            break;
+          }
+          case '\"': {
+            strm << R"(\")";
+            break;
+          }
+          case '/': {
+            strm << R"(\/)";
+            break;
+          }
+          case '\b': {
+            strm << R"(\b)";
+            break;
+          }
+          case '\f': {
+            strm << R"(\f)";
+            break;
+          }
+          case '\n': {
+            strm << R"(\n)";
+            break;
+          }
+          case '\r': {
+            strm << R"(\r)";
+            break;
+          }
+          case '\t': {
+            strm << R"(\t)";
+            break;
+          }
+          default: {
+            strm << c;
+          }
+        }
+      }
+      strm << '"';
+    }
+
+    /* Read from the given input string to find a JSON string which starts/ends with '"' and properly unescape escaped
+       characters. */
+    static std::string ReadQuotedString(std::istream &strm) {
+      DEFINE_ERROR(not_implemented_t, TSyntaxError, "not currently implemented");
+      std::string text;
+      //NOTE: Tested adding a reserve() call here. Didn't greatly effect compile time
+
+      // Keep around the old flags so we can put strm back how we found it;
+      auto flags = strm.flags(strm.flags() & ~std::ios_base::skipws);
+      try  {
+        // Helper function
+        auto read_character = [&strm] () {
+          char ret;
+          strm >> ret;
+          if (!strm.good()) {
+            THROW_ERROR(TSyntaxError) << "Unexpected I/O error while reading string (likely end of string)";
+          }
+          return ret;
+        };
+
+        if (read_character() != '"') {
+          THROW_ERROR(TSyntaxError) << "Expected '\"' at start of string but didn't find it.";
+        }
+
+        // Escape character processing helper. In it's own function to make the core loop simpler.
+        auto get_escape = [&read_character]() {
+          char c = read_character();
+          switch(c) {
+            case '\\':
+              return '\\';
+            case '"':
+              return '"';
+            case '/':
+              return '/';
+            case 'b':
+              return '\b';
+            case 'f':
+              return '\f';
+            case 'n':
+              return '\n';
+            case 'r':
+              return '\r';
+            case 't':
+              return '\t';
+            case 'u':
+              THROW_ERROR(not_implemented_t) << " parsing of unicode escape sequences '\\u four-hex-digits'";
+            default:
+              THROW_ERROR(TSyntaxError) << "Invalid escape sequence '\\" << c << '\'';
+          }
+          assert(false);
+          __builtin_unreachable();
+        };
+        // Loop over each input character processing escape sequences and
+        while(true) {
+          char c = read_character();
+          if (c == '"') {
+            break;
+          } else if (c == '\\') {
+            c = get_escape();
+          }
+          text += c;
+        }
+      } catch (...) {
+        strm.flags(flags);
+        throw;
+      }
+      //Reset flags to what they were
+      strm.flags(flags);
+      return text;
+    }
+
+    /* Read our extension to JSON, a raw string. */
+    static std::string ReadRawString(std::istream &strm) {
+      // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
+      // NOTE: null, true, and false are all found by matching raw strings.
+      std::string text;
+      for (;;) {
+        int c = strm.peek();
+        if (!strm.good() || isspace(c) || c == '[' || c == '{' || c == '}' || c == ']' || c == ',' || c == ':' ||
+            c == '"') {
+          break;
+        }
+        strm.ignore();
+        text += char(c);
+      }
+      return text;
+    }
+
+    static std::string ReadString(std::istream &strm) {
+      std::string text;
+      if (strm.peek() == '"') {
+        text = ReadQuotedString(strm);
+      } else {
+        text = ReadRawString(strm);
+      }
+      return text;
+    }
+
+    static TJson Read(const char *filename) {
+      std::ifstream in(filename);
+      if (!in.is_open()) {
+        THROW_ERROR(std::runtime_error) << "Unable to open file " << std::quoted(filename);
+      }
+      TJson ret;
+      try {
+        ret.Read(in);
+      } catch (const TSyntaxError &ex) {
+        THROW_ERROR(std::runtime_error) << "in " << std::quoted(filename) << ':' << ex.what();
+      }
+      return ret;
+    }
 
     /* Construct as a default instance of the given kind. */
     TJson(TKind kind = Null) noexcept {
@@ -350,6 +514,34 @@ namespace Base {
       return true;
     }
 
+    /* Call back for each element contained in an array. */
+    bool ForEachElem(const TArrayCbNonConst &cb) {
+      assert(this);
+      assert(&cb);
+      assert(cb);
+      assert(Kind == Array);
+      for (auto &elem: Array_) {
+        if (!cb(elem)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /* Call back for each element contained in an object. */
+    bool ForEachElem(const TObjectCbNonConst &cb) {
+      assert(this);
+      assert(&cb);
+      assert(cb);
+      assert(Kind == Object);
+      for (auto &elem: Object_) {
+        if (!cb(elem.first, elem.second)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     /* A string formatted from our state. */
     std::string Format() const {
       assert(this);
@@ -377,6 +569,12 @@ namespace Base {
           return 0;
         }
       }
+    }
+
+    TArray &GetArray() {
+      assert(this);
+      assert(Kind == Array);
+      return Array_;
     }
 
     bool GetBool() const noexcept {
@@ -408,21 +606,6 @@ namespace Base {
       assert(&strm);
       int c = std::ws(strm).peek();
       switch (c) {
-        case 'n': {
-          Match(strm, "null");
-          Reset();
-          break;
-        }
-        case 't': {
-          Match(strm, "true");
-          *this = true;
-          break;
-        }
-        case 'f': {
-          Match(strm, "false");
-          *this = false;
-          break;
-        }
         case '[': {
           strm.ignore();
           TJson elem;
@@ -432,9 +615,9 @@ namespace Base {
               break;
             }
             elem.Read(strm);
-            temp.push_back(std::move(elem));
+            temp.emplace_back(std::move(elem));
           }
-          *this = temp;
+          *this = TJson(std::move(temp));
           break;
         }
         case '{': {
@@ -446,28 +629,42 @@ namespace Base {
             if (!ParseSep(strm, '}', temp.empty())) {
               break;
             }
-            strm >> std::ws >> std::quoted(key) >> std::ws;
+            strm >> std::ws;
+            key = ReadString(strm);
+            strm >> std::ws;
             Match(strm, ':');
             val.Read(strm);
             temp[std::move(key)] = std::move(val);
           }
-          *this = temp;
+          *this = TJson(std::move(temp));
           break;
         }
         case '"': {
-          std::string temp;
-          strm >> std::quoted(temp);
-          *this = temp;
+          *this = TJson(ReadQuotedString(strm));
           break;
         }
         default: {
           if (c == '+' || c == '-' || isdigit(c)) {
             double temp;
             strm >> temp;
-            *this = temp;
+            *this = TJson(std::move(temp));
+            break;
+          } else {
+            // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
+            // NOTE: null, true, and false are all found by matching raw strings.
+            std::string text = ReadRawString(strm);
+            if (text == "null") {
+              Reset();
+            } else if (text == "true") {
+              *this = true;
+            } else if (text == "false") {
+              *this = false;
+            } else {
+              *this = TJson(move(text));
+            }
             break;
           }
-          THROW_ERROR(TSyntaxError) << "Unexpected character at start of input";
+          THROW_ERROR(TSyntaxError) << "Unexpected '" << char(c) << "' at start of input";
         }
       }  // switch
     }
@@ -539,14 +736,15 @@ namespace Base {
             } else {
               sep = true;
             }
-            strm << std::quoted(elem.first) << ':';
+            WriteString(strm, elem.first);
+            strm << ':';
             elem.second.Write(strm);
           }
           strm << '}';
           break;
         }
         case String: {
-          strm << std::quoted(String_);
+          WriteString(strm, String_);
           break;
         }
       }
@@ -576,7 +774,7 @@ namespace Base {
       }
       if (!at_start) {
         if (c != ',') {
-          THROW_ERROR(TSyntaxError) << "Expected a ',' but didn't find one";
+          THROW_ERROR(TSyntaxError) << "Expected a ',' but found a '" << char(c) << '\'';
         }
         strm.ignore();
       }
@@ -587,20 +785,10 @@ namespace Base {
     static void Match(std::istream &strm, char expected) {
       assert(&strm);
       if (strm.peek() != expected) {
-        THROW_ERROR(TSyntaxError) << "Expected '" << expected << "' but didn't find it";
+        THROW_ERROR(TSyntaxError) << "Expected '" << expected << "' but didn't find it. Found '" << char(strm.peek())
+                                  << '\'';
       }
       strm.ignore();
-    }
-
-    /* The stream must yield given string or throw a syntax error. */
-    static void Match(std::istream &strm, const char *expected) {
-      assert(&strm);
-      assert(expected);
-      std::string actual;
-      strm >> actual;
-      if (actual != expected) {
-        THROW_ERROR(TSyntaxError) << "Expected \"" << std::quoted(expected) << "\" But didn't find it";
-      }
     }
 
     /* See accessor. */
@@ -636,4 +824,46 @@ namespace Base {
     return strm;
   }
 
+  inline std::ostream &operator<<(std::ostream &strm, const TJson::TKind &kind) {
+    assert(&kind);
+      switch (kind) {
+        case TJson::Null:   {
+          strm << "null";
+          break;
+        }
+        case TJson::Bool:   {
+          strm << "bool";
+          break;
+        }
+        case TJson::Number: {
+          strm << "number";
+          break;
+        }
+        case TJson::Array:  {
+          strm << "array";
+          break;
+        }
+        case TJson::Object: {
+          strm << "object";
+          break;
+        }
+        case TJson::String: {
+          strm << "string";
+          break;
+        }
+      }
+      return strm;
+  }
+
 }  // Base
+
+
+namespace std {
+
+  /* Standard swapper. */
+  template <>
+  inline void swap<Base::TJson>(Base::TJson &lhs, Base::TJson &rhs) noexcept {
+    lhs.Swap(rhs);
+  }
+
+}
