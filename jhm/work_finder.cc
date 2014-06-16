@@ -190,7 +190,15 @@ bool TWorkFinder::IsBuildable(TFile *file) {
 }
 
 bool TWorkFinder::IsFileDone(TFile *file) {
-  return file->IsSrc() || IsDone(TryGetProducer(file));
+  if (file->IsSrc()) {
+    return true;
+  }
+  TJob *job = TryGetProducer(file);
+  if (job) {
+    return IsDone(job);
+  } else {
+    return false;
+  }
 }
 
 TJob *TWorkFinder::TryGetProducer(TFile *file) {
@@ -297,6 +305,7 @@ auto GrabOne(const std::unordered_set<TVal> &container) {
 }
 
 TFile *TWorkFinder::TryGetOutputFileFromPath(const std::string &filename) {
+  assert(&filename);
   TFile *ret = TryGetFileFromPath(filename);
   // If we aren't buildable, try finding the executable form.
   if (ret && !IsBuildable(ret)) {
@@ -306,6 +315,7 @@ TFile *TWorkFinder::TryGetOutputFileFromPath(const std::string &filename) {
 }
 
 TOpt<timespec> GetTimestampOutput(TFile *file) {
+  assert(file);
   TOpt<timespec> ret = file->GetTimestamp();
   if (!file->IsSrc()) {
     ret = Older(ret, TryGetTimestamp(GetCacheFilename(file)));
@@ -318,6 +328,7 @@ timespec GetTimestampInput(TFile *file) {
 }
 
 void TWorkFinder::CacheCheck(TJob *job) {
+  assert(job);
   /* For a job to cache-complete, it must meet several requirements
      1. The environmental config must be older than the newest output
      2. The oldest input or need must be newer than the newest output
