@@ -230,7 +230,11 @@ namespace Base {
         THROW_ERROR(std::runtime_error) << "Unable to open file " << std::quoted(filename);
       }
       TJson ret;
-      ret.Read(in);
+      try {
+        ret.Read(in);
+      } catch (const TSyntaxError &ex) {
+        THROW_ERROR(std::runtime_error) << "in " << std::quoted(filename) << ':' << ex.what();
+      }
       return ret;
     }
 
