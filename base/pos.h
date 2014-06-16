@@ -108,7 +108,7 @@ namespace Base {
     }
 
     /* Swap this pos with that one. */
-    TPos &Swap(TPos &that) {
+    TPos &Swap(TPos &that) noexcept {
       assert(this);
       std::swap(Offset, that.Offset);
       std::swap(Dir, that.Dir);
@@ -187,7 +187,7 @@ namespace Base {
   };
 
   /* A standard swapper for Base::TPos. */
-  inline void swap(Base::TPos &lhs, Base::TPos &rhs) {
+  inline void swap(Base::TPos &lhs, Base::TPos &rhs) noexcept {
     lhs.Swap(rhs);
   }
 
