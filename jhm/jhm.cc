@@ -29,17 +29,18 @@
 #include <thread>
 
 #include <base/cmd.h>
-#include <base/path_utils.h>
 #include <base/thrower.h>
 #include <jhm/env.h>
 #include <jhm/status_line.h>
 #include <jhm/test.h>
 #include <jhm/work_finder.h>
+#include <util/path.h>
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
 using namespace std::placeholders;
+using namespace Util;
 
 #include <base/split.h>
 
@@ -139,7 +140,7 @@ class TJhm : public TCmd {
     } else {
       // Add the default targets
       for(const auto &target: env.GetConfig().Read<vector<string>>({"targets"})) {
-        InsertOrFail(target_files, FindFile(cwd, env, work_finder, target));
+        InsertOrFail(target_files, FindFile(cwd, env, work_finder, '/' + target));
       }
 
       // Add the tests if we're supposed to by default
