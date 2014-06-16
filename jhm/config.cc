@@ -45,32 +45,91 @@ TJson TConfig::GetEntry(const initializer_list<string> &name) const {
 }
 
 /* Resolves a scope / sequence of names to a json blob. */
-static const TJson *ResolveName(const TJson *start, const initializer_list<string> &name) {
+static const TJson *ResolveName(const TJson *start, const initializer_list<string> &name, bool &is_delta) {
   // Walk through
-  for(const auto &chunk : name) {
-    if (!start->Contains(chunk)) {
-      return nullptr;
+  auto end = name.end();
+  for(auto it = name.begin(); it != end; ++it) {
+    if (!start->Contains(*it)) {
+      // Check for deltas. NOTE: Deltas must be at the last layer of the config asked for only.
+      //NOTE: Currently only adding deltas are supported.
+      string delta_name = '+' + *it;
+      if (start->Contains(delta_name)) {
+        if (it != end - 1) {
+          THROW_ERROR(TJson::TSyntaxError)
+              << "Explicit delta configuration can only be specified at the last part of a config option";
+        }
+        is_delta = true;
+        return &((*start)[delta_name]);
+      } else {
+        return nullptr;
+      }
     }
-    start = &((*start)[chunk]);
+    start = &((*start)[*it]);
   }
   return start;
+}
+
+//NOTE: The delta is also the return
+TJson ApplyDelta(const TJson &base, TJson &&delta) {
+  TJson ret(base);
+
+  if (ret.GetKind() != delta.GetKind()) {
+    THROW_ERROR(TJson::TSyntaxError) << "Delta configuration must always be between same type. base type: " << ret.GetKind()
+                              << " delta type: " << delta.GetKind();
+  }
+
+  if (ret.GetKind() == TJson::Object) {
+    // Add / replace keys in base with the delta's values.
+    delta.ForEachElem([&ret](const string &name, TJson &elem) {
+      ret[name] = move(elem);
+      return true;
+    });
+  } else if (ret.GetKind() == TJson::Array) {
+    // Append our array to their array
+    TJson::TArray &that = ret.GetArray();
+    delta.ForEachElem([&that](TJson &elem) {
+      that.emplace_back(move(elem));
+      return true;
+    });
+  } else {
+    THROW_ERROR(TJson::TSyntaxError) << "Delta configuration is only supported on JSON arrays and objects. Got a "
+                              << ret.GetKind();
+  }
+
+  return ret;
+
 }
 
 //TODO: Switch to vector<string> for name always, rather than splitting apart?
 bool TConfig::TryGetEntry(const initializer_list<string> &name, TJson &out) const {
   // For each config, starting at the top of the stack. If the config contains the entry, use it.
   // TODO: Add delta support
+  TJson ret;
+  bool has_delta = false;
   for(auto &config: Config) {
-    const TJson *val = ResolveName(&config, name);
+    bool is_delta = false;
+    const TJson *val = ResolveName(&config, name, is_delta);
     if (val) {
-      // NOTE: We have no choice but to copy
-      // We don't return a const pointer to the object because we're going to merge deltas shortly, which means building
-      // a new temporary.
-      out = *val;
-      return true;
+      if (has_delta || is_delta) {
+        if (!has_delta) {
+          ret = *val;
+          has_delta = true;
+          continue;
+        }
+        // Apply the delta to the given object
+        ret = ApplyDelta(*val, move(ret));
+        // TODO: Cope with the delta
+      } else {
+        // Raw assign. End of stack / return.
+        out = *val;
+        return true;
+      }
     }
   }
-  return false;
+  if (has_delta) {
+    out = move(ret);
+  }
+  return has_delta;
 }
 
 void TConfig::AddComputed(TJson &&config) {
