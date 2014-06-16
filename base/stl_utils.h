@@ -25,7 +25,6 @@
 #include <syslog.h>
 
 #include <base/class_traits.h>
-#include <base/impossible_error.h>
 #include <server/daemonize.h>
 
 namespace Base {
