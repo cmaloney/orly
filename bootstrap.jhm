@@ -1,122 +1,48 @@
 {
-  "targets": [
-      "tools/nycr/nycr"
-    ],
   "cmd": {
-    "g++" : [
-      "-std=c++1y",
-      "-Wall",
-      "-Werror",
-      "-Wextra",
-      "-Wold-style-cast",
-      "-Wno-type-limits",
-      "-Wno-parentheses",
-      "-Wno-delete-non-virtual-dtor",
-      "-msse2",
-      "-pthread",
-
-      "-DTEST_OUTPUT_DIR=\"/tmp/\"",
-      "-DORLY_HOST",
-
-      "-D_WEBSOCKETPP_CPP11_STL_",
-      "-isystem third_party/websocketpp/",
-
-      "-DBOOTSTRAP",
-
+    "+g++" : [
       "-U_FORTIFY_SOURCE",
       "-O3",
+      "-g1",
       "-DNDEBUG",
       "-flto",
       "-Wno-unused",
       "-Wno-unused-parameter",
       "-Wno-unused-result",
-      "-Wno-strict-aliasing"
+      "-DBOOTSTRAP"
     ],
-    "gcc": [
-      "-std=c11",
-      "-Werror",
-      "-Wall",
-      "-Wextra",
-      "-Wno-type-limits",
-      "-Wno-parentheses",
-      "-pthread",
-
-      "-DTEST_OUTPUT_DIR=\"/tmp/\"",
-
-      "-DBOOTSTRAP",
-
-      "-Wno-unused-but-set-parameter",
-      "-Wno-unused-but-set-variable",
-      "-Wno-strict-aliasing",
+    "+gcc": [
       "-U_FORTIFY_SOURCE",
       "-O3",
+      "-g1",
       "-DNDEBUG",
-      "-flto"
+      "-flto",
+      "-DBOOTSTRAP"
     ],
     "flex": {
-      "g++": [
-        "-std=c++1y",
-        "-msse2",
-        "-pthread",
-
-        "-DTEST_OUTPUT_DIR=\"/tmp/\"",
-        "-DORLY_HOST",
-
-        "-D_WEBSOCKETPP_CPP11_STL_",
-        "-isystem third_party/websocketpp/",
-
-        "-DBOOTSTRAP",
-
+      "+g++": [
         "-U_FORTIFY_SOURCE",
         "-O3",
+        "-g1",
         "-DNDEBUG",
-        "-flto"
+        "-flto",
+        "-DBOOTSTRAP"
       ]
     },
     "bison": {
-      "g++": [
-        "-std=c++1y",
-        "-msse2",
-        "-pthread",
-
-        "-DTEST_OUTPUT_DIR=\"/tmp/\"",
-        "-DORLY_HOST",
-
-        "-D_WEBSOCKETPP_CPP11_STL_",
-        "-isystem third_party/websocketpp/",
-
-        "-DBOOTSTRAP",
-
+      "+g++": [
         "-U_FORTIFY_SOURCE",
         "-O3",
+        "-g1",
         "-DNDEBUG",
-        "-flto"
+        "-flto",
+        "-DBOOTSTRAP"
       ]
     },
     "ld": {
-      "libs": [
-        "-luuid",
-        "-pthread",
-        "-lrt",
-        "-ldl",
-        "-laio",
-        "-lgmp",
-        "-lgmpxx",
-        "-lz",
-        "-lreadline",
-        "-lsnappy",
-        "-lboost_system"
-      ],
-      "flags": [
-        "-rdynamic",
-        "-Wl,--hash-style=gnu",
-        "-Wl,--no-copy-dt-needed-entries",
-        "-Wl,-z,relro",
-        "-Wl,--no-as-needed",
+      "+flags": [
         "-O3",
-        "-flto",
-        "-U_FORTIFY_SOURCE",
-        "-g1"
+        "-flto"
       ]
     }
   }

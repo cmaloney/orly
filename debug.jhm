@@ -6,104 +6,25 @@
       ".git"
     ]
   },
-  "targets": [
-      "orly/orlyc",
-      "orly/server/orlyi",
-      "orly/spa/spa",
-      "orly/client/orly_client",
-      "orly/indy/disk/util/orly_dm",
-      "jhm/jhm",
-      "jhm/make_dep_file",
-      "orly/core_import",
-      "tools/nycr/nycr",
-      "orly/data/beer",
-      "orly/data/complete_graph",
-      "orly/data/game_of_thrones",
-      "orly/data/money_laundering",
-      "orly/data/belgian_beer",
-      "orly/data/friends_of_friends",
-      "orly/data/matrix",
-      "orly/data/shakespeare",
-      "orly/data/twitter",
-      "orly/data/twitter_query"
-    ],
   "cmd": {
-    "g++" : [
-      "-std=c++1y",
-      "-Wall",
-      "-Werror",
-      "-Wextra",
-      "-Wold-style-cast",
-      "-Wno-type-limits",
-      "-Wno-parentheses",
-      "-Wno-delete-non-virtual-dtor",
-      "-msse2",
-      "-pthread",
-
-      "-DTEST_OUTPUT_DIR=\"/tmp/\"",
-      "-DORLY_HOST",
-
-      "-D_WEBSOCKETPP_CPP11_STL_",
-      "-isystem third_party/websocketpp/",
-
+    "+g++" : [
       "-DDEBUG",
       "-g"
     ],
-    "gcc": [
-      "-std=c11",
-      "-Werror",
-      "-Wall",
-      "-Wextra",
-      "-Wno-type-limits",
-      "-Wno-parentheses",
-      "-pthread",
-
-      "-DTEST_OUTPUT_DIR=\"/tmp/\"",
-
-      "-Wno-unused-but-set-parameter",
-      "-Wno-unused-but-set-variable",
-      "-Wno-strict-aliasing",
+    "+gcc": [
       "-DDEBUG",
       "-g"
     ],
     "flex": {
-      "g++": [
-        "-DTEST_OUTPUT_DIR=\"/tmp/\"",
+      "+g++": [
         "-g",
-        "-DDEBUG",
-        "-std=c++1y",
-        "-pthread"
+        "-DDEBUG"
       ]
     },
     "bison": {
-      "g++": [
-        "-DTEST_OUTPUT_DIR=\"/tmp/\"",
+      "+g++": [
         "-g",
-        "-DDEBUG",
-        "-std=c++1y",
-        "-pthread"
-      ]
-    },
-    "ld": {
-      "libs": [
-        "-luuid",
-        "-pthread",
-        "-lrt",
-        "-ldl",
-        "-laio",
-        "-lgmp",
-        "-lgmpxx",
-        "-lz",
-        "-lreadline",
-        "-lsnappy",
-        "-lboost_system"
-      ],
-      "flags": [
-        "-rdynamic",
-        "-Wl,--hash-style=gnu",
-        "-Wl,--no-copy-dt-needed-entries",
-        "-Wl,-z,relro",
-        "-Wl,--no-as-needed"
+        "-DDEBUG"
       ]
     }
   }
