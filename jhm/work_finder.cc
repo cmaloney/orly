@@ -22,19 +22,20 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <base/error_utils.h>
-#include <base/path_utils.h>
 #include <base/split.h>
-#include <base/stl_utils.h>
 #include <base/thrower.h>
 #include <jhm/file.h>
 #include <jhm/job.h>
 #include <jhm/status_line.h>
 #include <jhm/timestamp.h>
+#include <util/error.h>
+#include <util/path.h>
+#include <util/stl.h>
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
+using namespace Util;
 
 string GetCacheFilename(const TFile *file) {
   return file->GetPath().AsStr() + ".jhm-cache";
@@ -49,7 +50,7 @@ bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
   // Ensure the file has a producer
   TJob *producer = TryGetProducer(file);
   if (!producer) {
-    THROW_ERROR(runtime_error) << "No known way to produce file " << file;
+    THROW_ERROR(runtime_error) << "No known way to produce file \"" << file << '"';
   }
 
   // Queue the producer job as necessary to finish.
@@ -74,8 +75,13 @@ void TWorkFinder::ProcessReady() {
     }
 
     for (TFile *file : job->GetNeeds()) {
-      // Add each file. If any need jobs to complete, the job isn't ready yet.
-      needed += AddNeededFile(file, job);
+      try {
+        // Add each file. If any need jobs to complete, the job isn't ready yet.
+        needed += AddNeededFile(file, job);
+      } catch (const exception &ex) {
+        // Add additional information of what needed the file which errored.
+        THROW_ERROR(std::runtime_error) << "Needed for job " << job << EndOfPart << ex.what();
+      }
     }
     if (needed) {
       // TODO: Lots of copies (Although they're tiny)
