@@ -1,6 +1,6 @@
-/* <base/tuple_utils.test.cc>
+/* <util/tuple.test.cc>
 
-   Unit test for <base/tuple_utils.h>
+   Unit test for <util/tuple.h>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,14 +16,14 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/tuple_utils.h>
+#include <util/tuple.h>
 
 #include <string>
 #include <sstream>
 
 #include <test/kit.h>
 
-using namespace Base;
+using namespace Util;
 
 template <typename TElem>
 struct TPrint {

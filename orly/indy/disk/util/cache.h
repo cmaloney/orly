@@ -26,7 +26,6 @@
 #include <iostream> /* TODO: GET RID OF */
 
 #include <base/class_traits.h>
-#include <base/error_utils.h>
 #include <base/likely.h>
 #include <base/mem_aligned_ptr.h>
 #include <base/mlock.h>

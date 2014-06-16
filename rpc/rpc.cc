@@ -21,14 +21,15 @@
 #include <poll.h>
 
 #include <base/debug_log.h>
-#include <base/error_utils.h>
 #include <base/no_default_case.h>
 #include <base/thrower.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
 using namespace Io;
 using namespace Rpc;
+using namespace Util;
 
 TContext::TUnexpectedResult::TUnexpectedResult()
     : runtime_error("unexpected result") {}

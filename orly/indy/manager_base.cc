@@ -26,6 +26,7 @@
 using namespace std;
 using namespace Base;
 using namespace Orly::Indy::L0;
+using namespace Util;
 
 TManager::TRepo::~TRepo() {
   assert(this);
@@ -296,7 +297,7 @@ void TManager::RunMergeMem() {
   for (size_t core : MergeMemCores) {
     CPU_SET(core, &mask);
   }
-  Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
+  IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
   if (Engine->IsDiskBased()) {
     /* if this is a disk based engine, allocate event pools */
     assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
@@ -309,8 +310,8 @@ void TManager::RunMergeMem() {
     lock_guard<mutex> lock(MergeThreadCPUMutex);
     timespec start_val;
     clockid_t cid;
-    Base::IfNe0(pthread_getcpuclockid(pthread_self(), &cid));
-    Base::IfLt0(clock_gettime(cid, &start_val));
+    IfNe0(pthread_getcpuclockid(pthread_self(), &cid));
+    IfLt0(clock_gettime(cid, &start_val));
     MergeMemThreadCPUMap.insert(make_pair(pthread_self(), start_val));
   }
   for (; !ShuttingDown;) {
@@ -375,7 +376,7 @@ void TManager::RunMergeDisk() {
   for (size_t core : MergeDiskCores) {
     CPU_SET(core, &mask);
   }
-  Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
+  IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
   if (Engine->IsDiskBased()) {
     /* if this is a disk based engine, allocate event pools */
     assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
@@ -388,8 +389,8 @@ void TManager::RunMergeDisk() {
     lock_guard<mutex> lock(MergeThreadCPUMutex);
     timespec start_val;
     clockid_t cid;
-    Base::IfNe0(pthread_getcpuclockid(pthread_self(), &cid));
-    Base::IfLt0(clock_gettime(cid, &start_val));
+    IfNe0(pthread_getcpuclockid(pthread_self(), &cid));
+    IfLt0(clock_gettime(cid, &start_val));
     MergeDiskThreadCPUMap.insert(make_pair(pthread_self(), start_val));
   }
   for (; !ShuttingDown;) {
@@ -454,16 +455,16 @@ void TManager::ReportMergeCPUTime(double &out_merge_mem, double &out_merge_disk)
   for (auto &iter : MergeMemThreadCPUMap) {
     timespec cur_val;
     clockid_t cid;
-    Base::IfNe0(pthread_getcpuclockid(iter.first, &cid));
-    Base::IfLt0(clock_gettime(cid, &cur_val));
+    IfNe0(pthread_getcpuclockid(iter.first, &cid));
+    IfLt0(clock_gettime(cid, &cur_val));
     out_merge_mem += ((cur_val.tv_sec - iter.second.tv_sec) * 1000000000L) + (cur_val.tv_nsec - iter.second.tv_nsec);
     std::swap(iter.second, cur_val);
   }
   for (auto &iter : MergeDiskThreadCPUMap) {
     timespec cur_val;
     clockid_t cid;
-    Base::IfNe0(pthread_getcpuclockid(iter.first, &cid));
-    Base::IfLt0(clock_gettime(cid, &cur_val));
+    IfNe0(pthread_getcpuclockid(iter.first, &cid));
+    IfLt0(clock_gettime(cid, &cur_val));
     out_merge_disk += ((cur_val.tv_sec - iter.second.tv_sec) * 1000000000L) + (cur_val.tv_nsec - iter.second.tv_nsec);
     std::swap(iter.second, cur_val);
   }

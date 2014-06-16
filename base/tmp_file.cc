@@ -23,9 +23,10 @@
 
 #include <unistd.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 using namespace Base;
+using namespace Util;
 
 TTmpFile::TTmpFile(const char *name_template, bool delete_on_destroy)
     : Name(name_template, name_template + std::strlen(name_template) + 1),

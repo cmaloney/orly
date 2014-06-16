@@ -31,9 +31,9 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#include <base/error_utils.h>
 #include <base/thrower.h>
 #include <socket/db/error.h>
+#include <util/error.h>
 
 namespace Socket {
 
@@ -250,7 +250,7 @@ namespace Socket {
     assert(&address);
     int result;
     socklen_t len = TAddress::MaxLen;
-    Base::IfLt0(result = accept(socket, address, &len));
+    Util::IfLt0(result = accept(socket, address, &len));
     address.Verify();
     return result;
   }
@@ -258,7 +258,7 @@ namespace Socket {
   /* A version of bind() using TAddress. */
   inline void Bind(int socket, const TAddress &address) {
     assert(&address);
-    Base::IfLt0(bind(socket, address, address.GetLen()));
+    Util::IfLt0(bind(socket, address, address.GetLen()));
   }
 
   /* A version of bind() using TAddress that is specifically intended for
@@ -268,14 +268,14 @@ namespace Socket {
   /* A version of connect() using TAddress. */
   inline void Connect(int socket, const TAddress &address) {
     assert(&address);
-    Base::IfLt0(connect(socket, address, address.GetLen()));
+    Util::IfLt0(connect(socket, address, address.GetLen()));
   }
 
   /* A version of getpeername() using TAddress. */
   inline TAddress GetPeerName(int socket) {
     TAddress result;
     socklen_t len = TAddress::MaxLen;
-    Base::IfLt0(getpeername(socket, result, &len));
+    Util::IfLt0(getpeername(socket, result, &len));
     result.Verify();
     return result;
   }
@@ -284,7 +284,7 @@ namespace Socket {
   inline TAddress GetSockName(int socket) {
     TAddress result;
     socklen_t len = TAddress::MaxLen;
-    Base::IfLt0(getsockname(socket, result, &len));
+    Util::IfLt0(getsockname(socket, result, &len));
     result.Verify();
     return result;
   }
@@ -294,7 +294,7 @@ namespace Socket {
     assert(&address);
     ssize_t result;
     socklen_t len = TAddress::MaxLen;
-    Base::IfLt0(result = recvfrom(socket, buffer, max_size, flags, address, &len));
+    Util::IfLt0(result = recvfrom(socket, buffer, max_size, flags, address, &len));
     address.Verify();
     return result;
   }
@@ -303,7 +303,7 @@ namespace Socket {
   inline size_t SendTo(int socket, const void *buffer, size_t max_size, int flags, const TAddress &address) {
     assert(&address);
     ssize_t result;
-    Base::IfLt0(result = sendto(socket, buffer, max_size, flags, address, address.GetLen()));
+    Util::IfLt0(result = sendto(socket, buffer, max_size, flags, address, address.GetLen()));
     return result;
   }
 
@@ -318,7 +318,7 @@ namespace Socket {
       if (errno == EWOULDBLOCK) {
         return false;
       }
-      Base::ThrowSystemError(errno);
+      Util::ThrowSystemError(errno);
     }
     address.Verify();
     new_socket = result;
@@ -333,7 +333,7 @@ namespace Socket {
       if (errno == EWOULDBLOCK) {
         return false;
       }
-      Base::ThrowSystemError(errno);
+      Util::ThrowSystemError(errno);
     }
     return true;
   }
@@ -349,7 +349,7 @@ namespace Socket {
       if (errno == EWOULDBLOCK) {
         return false;
       }
-      Base::ThrowSystemError(errno);
+      Util::ThrowSystemError(errno);
     }
     address.Verify();
     size = result;
@@ -366,7 +366,7 @@ namespace Socket {
       if (errno == EWOULDBLOCK) {
         return false;
       }
-      Base::ThrowSystemError(errno);
+      Util::ThrowSystemError(errno);
     }
     size = result;
     return true;

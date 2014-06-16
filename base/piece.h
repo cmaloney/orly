@@ -57,7 +57,7 @@
 #include <base/not_found_error.h>
 #include <base/safe_global.h>
 #include <base/slice.h>
-#include <base/stl_utils.h>
+#include <util/stl.h>
 
 namespace Base {
 
@@ -390,7 +390,7 @@ namespace Base {
       assert(this);
       size_t result = 0;
       for (TVal *csr = Start; csr < Limit; ++csr) {
-        result = RotatedRight(result, 5) ^ GetHashHelper(*csr);
+        result = Util::RotatedRight(result, 5) ^ GetHashHelper(*csr);
       }
       return result;
     }
@@ -453,7 +453,7 @@ namespace Base {
       assert(this);
       assert(&val_set);
       for (auto cur = Start; cur < Limit; ++cur) {
-        if (Base::Contains(val_set, *cur)) {
+        if (Util::Contains(val_set, *cur)) {
           return cur;
         }
       }

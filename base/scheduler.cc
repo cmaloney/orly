@@ -23,15 +23,16 @@
 #include <sched.h>
 
 #include <base/debug_log.h>
-#include <base/error_utils.h>
 #include <base/zero.h>
 #include <io/input_consumer.h>
 #include <signal/masker.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Signal;
+using namespace Util;
 
 TScheduler::TPolicy::TPolicy()
     : MinWorkerCount(0), MaxWorkerCount(0), IdleTimeout(0), RealTime(false) {}

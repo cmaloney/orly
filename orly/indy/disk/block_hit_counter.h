@@ -27,7 +27,6 @@
 #include <unistd.h>
 
 #include <base/class_traits.h>
-#include <base/error_utils.h>
 #include <base/mem_aligned_ptr.h>
 
 namespace Orly {

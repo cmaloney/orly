@@ -23,7 +23,6 @@
 #include <base/class_traits.h>
 #include <base/cmd.h>
 #include <base/fd.h>
-#include <base/io_utils.h>
 #include <base/log.h>
 #include <base/scheduler.h>
 #include <socket/address.h>

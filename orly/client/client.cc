@@ -25,12 +25,12 @@
 #include <sys/socket.h>
 
 #include <base/debug_log.h>
-#include <base/io_utils.h>
 #include <base/no_default_case.h>
 #include <io/binary_output_only_stream.h>
 #include <io/device.h>
 #include <io/recorder_and_player.h>
 #include <orly/protocol.h>
+#include <util/io.h>
 
 using namespace std;
 using namespace chrono;
@@ -38,6 +38,7 @@ using namespace Base;
 using namespace Io;
 using namespace Rpc;
 using namespace Socket;
+using namespace Util;
 using namespace Orly;
 using namespace Orly::Client;
 using namespace Orly::Handshake;

@@ -23,9 +23,9 @@
 
 #include <cstring>
 
-#include <base/path_utils.h>
 #include <strm/bin/in.h>
 #include <strm/bin/out.h>
+#include <util/path.h>
 
 #include <test/kit.h>
 
@@ -34,6 +34,7 @@ using namespace Strm;
 const char *filename = "/tmp/orly_strm_fd.test_tmp_file";
 
 FIXTURE(Unidirectional) {
+  //TODO: Use one of the temp file things from <base/tmp*>
   constexpr auto filename_len = 32;
   assert(filename_len == strlen(filename) + 1);
 
@@ -55,5 +56,5 @@ FIXTURE(Unidirectional) {
   EXPECT_EQ(std::string(Buffer), filename);
 
   // It's nice to cleanup
-  Base::Delete(filename);
+  Util::Delete(filename);
 }

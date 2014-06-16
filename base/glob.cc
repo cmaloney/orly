@@ -29,10 +29,11 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 bool Base::Glob(const char *pattern, const function<bool (const char *)> &cb) {
   assert(pattern);

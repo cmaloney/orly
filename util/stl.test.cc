@@ -1,6 +1,6 @@
-/* <base/stl_utils.test.cc>
+/* <util/stl.test.cc>
 
-   Unit test for <base/stl_utils.h>.
+   Unit test for <util/stl.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,7 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/stl_utils.h>
+#include <util/stl.h>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -26,7 +26,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace Base;
+using namespace Util;
 
 FIXTURE(Contains) {
   unordered_set<int> container;

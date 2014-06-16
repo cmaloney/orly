@@ -23,10 +23,11 @@
 
 #include <sys/resource.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 TAnyBgGenerator::~TAnyBgGenerator() noexcept {
   assert(this);

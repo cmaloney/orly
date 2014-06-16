@@ -23,7 +23,7 @@
 #include <signal.h>
 
 #include <base/class_traits.h>
-#include <base/error_utils.h>
+#include <util/error.h>
 
 namespace Signal {
 
@@ -34,7 +34,7 @@ namespace Signal {
 
     /* Set the mask to the given set. */
     TMasker(const sigset_t &new_set) {
-      Base::IfNe0(pthread_sigmask(SIG_SETMASK, &new_set, &OldSet));
+      Util::IfNe0(pthread_sigmask(SIG_SETMASK, &new_set, &OldSet));
     }
 
     /* Restore the mask. */

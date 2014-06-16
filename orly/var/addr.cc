@@ -56,7 +56,7 @@ void TAddr::SetHash() {
   size_t rotate = 0;
   //TODO: Really need to normalize the TAddr hash functions...
   for (auto iter = Val.begin(); iter != Val.end(); ++iter, rotate += 5) {
-    Hash ^= Base::RotatedLeft(iter->second.GetHash(), rotate + ToInt(iter->first));
+    Hash ^= Util::RotatedLeft(iter->second.GetHash(), rotate + ToInt(iter->first));
   }
 }
 

@@ -58,8 +58,8 @@
 #include <sys/time.h>
 
 #include <base/class_traits.h>
-#include <base/error_utils.h>
 #include <base/opt.h>
+#include <util/error.h>
 
 namespace Socket {
 
@@ -74,7 +74,7 @@ namespace Socket {
   void GetSockOpt(int sock, int code, TArg &arg) {
     assert(&arg);
     socklen_t dummy = sizeof(arg);
-    Base::IfLt0(getsockopt(sock, SOL_SOCKET, code, &arg, &dummy));
+    Util::IfLt0(getsockopt(sock, SOL_SOCKET, code, &arg, &dummy));
   }
 
   /* A typesafe wrapper for setsockopt(), q.v.
@@ -83,7 +83,7 @@ namespace Socket {
   template <typename TArg>
   void SetSockOpt(int sock, int code, const TArg &arg) {
     assert(&arg);
-    Base::IfLt0(setsockopt(sock, SOL_SOCKET, code, &arg, sizeof(arg)));
+    Util::IfLt0(setsockopt(sock, SOL_SOCKET, code, &arg, sizeof(arg)));
   }
 
   /**
@@ -271,14 +271,14 @@ namespace Socket {
       assert(&val);
       char temp[MaxSize];
       socklen_t size = MaxSize;
-      Base::IfLt0(getsockopt(sock, SOL_SOCKET, code, temp, &size));
+      Util::IfLt0(getsockopt(sock, SOL_SOCKET, code, temp, &size));
       val.assign(temp, size);
     }
 
     /* See forward declaration of generic Conv<>. */
     static void SetSockOpt(int sock, int code, const TVal &val) {
       assert(&val);
-      Base::IfLt0(setsockopt(sock, SOL_SOCKET, code, val.c_str(), val.size()));
+      Util::IfLt0(setsockopt(sock, SOL_SOCKET, code, val.c_str(), val.size()));
     }
 
   };  // Conv<TLinger>

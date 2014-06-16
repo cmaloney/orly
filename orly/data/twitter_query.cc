@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include <base/error_utils.h>
 #include <base/log.h>
 #include <base/sigma_calc.h>
 #include <base/time.h>

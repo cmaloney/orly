@@ -1,4 +1,4 @@
-/* <base/string_utils.h>
+/* <util/string.h>
 
    Utilities for working with strings.
 
@@ -25,7 +25,7 @@
 #include <string>
 #include <sstream>
 
-namespace Base {
+namespace Util {
 
   /* The string ", ".  We use this commonly as a separator sequence in a string join. */
   extern const char *CommaSep;
@@ -88,4 +88,4 @@ namespace Base {
      For example: "a, b, c". */
   void WriteJoin(std::ostream &strm, const TCStrGen &c_str_gen, const char *sep = CommaSep);
 
-}  // Base
+}  // Util

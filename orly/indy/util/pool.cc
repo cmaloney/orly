@@ -22,7 +22,6 @@
 #include <cstdlib>
 #include <string.h>
 
-#include <base/error_utils.h>
 #include <base/mlock.h>
 
 using namespace std;

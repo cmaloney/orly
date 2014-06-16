@@ -7,7 +7,7 @@
    The entries are in the order in which they appear in the directory stucture,
    which isn't something you should rely on.
 
-   See <base/path_utils.test.cc> for tests of this unit.
+   See <util/path.test.cc> for tests of this unit.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

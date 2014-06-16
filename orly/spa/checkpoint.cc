@@ -36,6 +36,7 @@ using namespace Orly::Checkpoint::Syntax;
 using namespace Orly::Spa;
 using namespace Orly::Spa::FluxCapacitor;
 using namespace Tools::Nycr;
+using namespace Util;
 
 /* TODO */
 class TTypeVisitor : public Orly::Checkpoint::Syntax::TType::TVisitor {
@@ -473,7 +474,7 @@ class TCheckpointStmtVisitor : public TCheckpointStmt::TVisitor {
     assert(val);
 
     //NOTE: If this fails, that means that there are repeated keys in the checkpoint file.
-    Base::InsertOrFail(Stmts, make_pair(TKV(key, index_id), Var::TNew::New(val)));
+    InsertOrFail(Stmts, make_pair(TKV(key, index_id), Var::TNew::New(val)));
   }
   virtual void operator()(const TBadCheckpointStmt *) const {
     throw Rt::TSystemError(HERE, "Bad statement in checkpoint file");
@@ -488,7 +489,7 @@ class TCheckpointStmtVisitor : public TCheckpointStmt::TVisitor {
       return true;
     });
 
-    Base::InsertOrFail(Packages, Package::TVersionedName{Package::TName(final_name),
+    InsertOrFail(Packages, Package::TVersionedName{Package::TName(final_name),
         package_name->GetPackageVersion()->GetIntLiteral()->GetLexeme().AsUInt32()});
   }
 

@@ -23,11 +23,12 @@
 #include <stdexcept>
 #include <string>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
-using namespace std;
 using namespace Base;
+using namespace std;
 using namespace Socket;
+using namespace Util;
 
 TFactory::TFactory()
     : IPv4(true), IPv6(true),

@@ -22,14 +22,14 @@
 #include <memory>
 #include <type_traits>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 namespace Base {
   template <typename T>
   std::unique_ptr<T> MemAlignedAlloc(std::size_t align_to, std::size_t size) {
     static_assert(std::is_trivial<T>::value, "T must be a trivial type");
     typename std::unique_ptr<T>::pointer mem;
-    Base::IfNe0( posix_memalign(
+    Util::IfNe0( posix_memalign(
           reinterpret_cast<void**>(&mem), align_to, size) );
 
     return std::unique_ptr<T>{mem};

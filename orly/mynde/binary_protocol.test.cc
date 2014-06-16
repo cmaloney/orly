@@ -24,7 +24,6 @@
 #include <signal.h>
 #include <sys/socket.h>
 
-#include <base/error_utils.h>
 #include <base/subprocess.h>
 #include <base/zero.h>
 #include <socket/address.h>
@@ -32,6 +31,8 @@
 #include <strm/fd.h>
 #include <strm/bin/in.h>
 #include <strm/bin/out.h>
+#include <util/error.h>
+
 #include <test/kit.h>
 
 using namespace std;
@@ -41,6 +42,7 @@ using namespace Socket;
 using namespace Orly;
 using namespace Orly::Mynde;
 using namespace Orly::Server;
+using namespace Util;
 
 /* Runs a Orly server in a child process. */
 class TSubprocServer final {

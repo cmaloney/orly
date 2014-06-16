@@ -35,12 +35,12 @@
 
 #include <base/assert_true.h>
 #include <base/class_traits.h>
-#include <base/error_utils.h>
 #include <base/likely.h>
 #include <base/spin_lock.h>
 #include <base/thread_local_global_pool.h>
 #include <base/zero.h>
 #include <inv_con/unordered_list.h>
+#include <util/error.h>
 
 namespace Orly {
 
@@ -81,7 +81,7 @@ namespace Orly {
       inline void create_fiber(fiber_t &fib, void(*ufnc)(void *), void *uctx, size_t stack_size) {
         getcontext(&fib.fib);
         fib.fib.uc_stack.ss_sp = malloc(stack_size);
-        Base::IfLt0(mlock(fib.fib.uc_stack.ss_sp, stack_size));
+        Util::IfLt0(mlock(fib.fib.uc_stack.ss_sp, stack_size));
         //printf("ss_sp=[%p], [%p]\n", fib.fib.uc_stack.ss_sp, reinterpret_cast<uint8_t *>(fib.fib.uc_stack.ss_sp) + stack_size);
         fib.fib.uc_stack.ss_size = stack_size;
         fib.fib.uc_link = 0;

@@ -2,7 +2,7 @@
 
    Creates a directory path on construction and destroys it on destruction.
 
-   See <base/path_utils.test.cc> for tests of this unit.
+   See <util/path.test.cc> for tests of this unit.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -25,7 +25,7 @@
 #include <utility>
 
 #include <base/class_traits.h>
-#include <base/path_utils.h>
+#include <util/path.h>
 
 namespace Base {
 
@@ -38,13 +38,13 @@ namespace Base {
     template <typename TPath>
     explicit TTmpDirMaker(TPath &&path)
         : Path(std::forward<TPath>(path)) {
-      EnsureDirExists(Path.c_str());
+      Util::EnsureDirExists(Path.c_str());
     }
 
     /* Ensures the dir is gone. */
     ~TTmpDirMaker() {
       assert(this);
-      EnsureDirIsGone(Path.c_str());
+      Util::EnsureDirIsGone(Path.c_str());
     }
 
     /* The path to the dir we manage. */

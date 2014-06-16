@@ -23,9 +23,9 @@
 #include <cassert>
 
 #include <base/fd.h>
-#include <base/io_utils.h>
 #include <strm/in.h>
 #include <strm/out.h>
+#include <util/io.h>
 
 namespace Strm {
 
@@ -67,7 +67,7 @@ namespace Strm {
       // The buffer must be released from the pervious use for us to refill it with data
       assert(!InLimit);
 
-      size_t num_bytes = Base::ReadAtMost(Fd, InBuffer, MaxInSize);
+      size_t num_bytes = Util::ReadAtMost(Fd, InBuffer, MaxInSize);
 
       // If num_bytes is zero, then we're at EOF
       if (num_bytes == 0) {
@@ -92,7 +92,7 @@ namespace Strm {
 
         // If cursor is not at start of buffer consume the data
         if(cursor != OutBuffer) {
-          WriteExactly(Fd, OutBuffer, cursor - OutBuffer);
+          Util::WriteExactly(Fd, OutBuffer, cursor - OutBuffer);
         }
       }
 

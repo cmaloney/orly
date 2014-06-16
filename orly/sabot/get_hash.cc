@@ -21,6 +21,7 @@
 using namespace std;
 using namespace Orly;
 using namespace Orly::Sabot;
+using namespace Util;
 
 size_t Orly::Sabot::GetHash(const State::TAny &state) {
   size_t ret = 0;
@@ -75,7 +76,7 @@ void THashVisitor::OnArrayOfSingle(const State::TArrayOfSingleStates &single) co
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   for (size_t elem_idx = 0; elem_idx < pin->GetElemCount(); ++elem_idx) {
     Sabot::State::TAny::TWrapper(pin->NewElem(elem_idx, state_alloc))->Accept(*this);
-    total_hash ^= Base::RotatedRight(Hash, elem_idx * 5);
+    total_hash ^= RotatedRight(Hash, elem_idx * 5);
   }
   Hash = total_hash;
 }
@@ -87,9 +88,9 @@ void THashVisitor::OnArrayOfPairs(const State::TArrayOfPairsOfStates &that) cons
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   for (size_t elem_idx = 0; elem_idx < pin->GetElemCount(); ++elem_idx) {
     Sabot::State::TAny::TWrapper(pin->NewLhs(elem_idx, state_alloc))->Accept(*this);
-    total_hash ^= Base::RotatedRight(Hash, elem_idx * 5);
+    total_hash ^= RotatedRight(Hash, elem_idx * 5);
     Sabot::State::TAny::TWrapper(pin->NewRhs(elem_idx, state_alloc))->Accept(*this);
-    total_hash ^= Base::RotatedRight(Hash, elem_idx * 7);
+    total_hash ^= RotatedRight(Hash, elem_idx * 7);
   }
   Hash = total_hash;
 }

@@ -28,8 +28,9 @@
 #include <vector>
 
 #include <base/class_traits.h>
-#include <base/stl_utils.h>
-#include <base/tuple_utils.h>
+
+#include <util/stl.h>
+#include <util/tuple.h>
 
 namespace Base {
 
@@ -38,7 +39,7 @@ namespace Base {
     bool operator()(const TElem &elem, size_t index, size_t &out) {
       assert(&elem);
       assert(&out);
-      out ^= Base::RotatedLeft(std::hash<TElem>()(elem), index * 5);
+      out ^= Util::RotatedLeft(std::hash<TElem>()(elem), index * 5);
       return true;
     }
   };  // THash
@@ -90,7 +91,7 @@ namespace std {
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
-      Base::ForEachElem<Base::THash>(that, result);
+      Util::ForEachElem<Base::THash>(that, result);
       return result;
     }
 
@@ -152,7 +153,7 @@ namespace std {
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
-      Base::ForEachElem<Base::THash>(that, result);
+      Util::ForEachElem<Base::THash>(that, result);
       return result;
     }
 

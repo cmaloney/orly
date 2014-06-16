@@ -21,11 +21,12 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include <base/io_utils.h>
-#include <base/error_utils.h>
+#include <util/error.h>
+#include <util/io.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 TRigidSubprocess::TRigidSubprocess(const char *cmd) {
   /* Save copies of the current in/out/err. */

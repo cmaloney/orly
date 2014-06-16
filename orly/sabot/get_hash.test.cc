@@ -25,9 +25,10 @@
 #include <orly/native/point.h>
 #include <test/kit.h>
 
-using namespace std;
 using namespace Base;
 using namespace Orly;
+using namespace std;
+using namespace Util;
 
 /* SCALAR */
 static const int8_t Int8Val = -8;
@@ -114,13 +115,13 @@ FIXTURE(ArrayOfSingleStates) {
   size_t expected_set_hash = 0U;
   size_t pos = 0UL;
   for (const auto &iter : SetVal) {
-    expected_set_hash ^= Base::RotatedRight(GetHash(iter), pos * 5);
+    expected_set_hash ^= RotatedRight(GetHash(iter), pos * 5);
     ++pos;
   }
   size_t expected_vec_hash = 0U;
   pos = 0UL;
   for (const auto &iter : VectorVal) {
-    expected_vec_hash ^= Base::RotatedRight(GetHash(iter), pos * 5);
+    expected_vec_hash ^= RotatedRight(GetHash(iter), pos * 5);
     ++pos;
   }
   EXPECT_EQ(GetHash<TDesc<int32_t>>(DescVal), expected_desc_hash);
@@ -133,8 +134,8 @@ FIXTURE(ArrayOfPairStates) {
   size_t expected_map_hash = 0U;
   size_t pos = 0U;
   for (const auto &iter : MapVal) {
-    expected_map_hash ^= Base::RotatedRight(GetHash(iter.first), pos * 5);
-    expected_map_hash ^= Base::RotatedRight(GetHash(iter.second), pos * 7);
+    expected_map_hash ^= RotatedRight(GetHash(iter.first), pos * 5);
+    expected_map_hash ^= RotatedRight(GetHash(iter.second), pos * 7);
     ++pos;
   }
   EXPECT_EQ((GetHash<map<bool, char>>(MapVal)), expected_map_hash);
@@ -143,11 +144,11 @@ FIXTURE(ArrayOfPairStates) {
 FIXTURE(ArrayOfStaticStates) {
   size_t expected_record_hash = 0U;
   expected_record_hash = GetHash(PointVal.GetX());
-  expected_record_hash ^= Base::RotatedRight(GetHash(PointVal.GetY()), 5);
+  expected_record_hash ^= RotatedRight(GetHash(PointVal.GetY()), 5);
   EXPECT_EQ((GetHash<TPoint>(PointVal)), expected_record_hash);
   size_t expected_tuple_hash = 0U;
   expected_tuple_hash = GetHash(get<0>(TupleVal));
-  expected_tuple_hash ^= Base::RotatedRight(GetHash(get<1>(TupleVal)), 5);
+  expected_tuple_hash ^= RotatedRight(GetHash(get<1>(TupleVal)), 5);
   EXPECT_EQ((GetHash<tuple<bool, int32_t>>(TupleVal)), expected_tuple_hash);
 }
 

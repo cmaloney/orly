@@ -18,9 +18,8 @@
 
 #include <orly/indy/disk/util/corruption_detector.h>
 
+#include <cstring>
 #include <random>
-
-#include <string.h>
 
 #include <base/scheduler.h>
 #include <base/timer.h>
@@ -31,6 +30,7 @@ using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Orly::Indy::Disk::Util;
+using namespace Util;
 
 FIXTURE(Typical) {
   const size_t offset = 512;
@@ -38,8 +38,8 @@ FIXTURE(Typical) {
   size_t *data_cpy = nullptr;
   const size_t data_size = getpagesize();
   const size_t user_data_per_block = (data_size - sizeof(size_t)) / sizeof(size_t);
-  Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&data), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
-  Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&data_cpy), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
+  IfNe0(posix_memalign(reinterpret_cast<void **>(&data), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
+  IfNe0(posix_memalign(reinterpret_cast<void **>(&data_cpy), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
   std::mt19937_64 engine;
   for (size_t i = 0; i < user_data_per_block; ++i) {
     data[i] = engine();
@@ -64,8 +64,8 @@ FIXTURE(ManyRandom) {
   size_t *data_cpy = nullptr;
   const size_t data_size = getpagesize();
   const size_t user_data_per_block = (data_size - sizeof(size_t)) / sizeof(size_t);
-  Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&data), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
-  Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&data_cpy), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
+  IfNe0(posix_memalign(reinterpret_cast<void **>(&data), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
+  IfNe0(posix_memalign(reinterpret_cast<void **>(&data_cpy), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
   std::mt19937_64 engine;
   for (size_t iter = 0; iter < num_iter; ++iter) {
     const size_t offset = iter * 512;
@@ -122,8 +122,8 @@ FIXTURE(ParallelErrorChecking) {
     size_t *data_cpy = nullptr;
     const size_t data_size = getpagesize();
     const size_t user_data_per_block = (data_size - sizeof(size_t)) / sizeof(size_t);
-    Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&data), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
-    Base::IfNe0(posix_memalign(reinterpret_cast<void **>(&data_cpy), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
+    IfNe0(posix_memalign(reinterpret_cast<void **>(&data), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
+    IfNe0(posix_memalign(reinterpret_cast<void **>(&data_cpy), getpagesize(), std::max(static_cast<int>(data_size), getpagesize())));
     for (size_t iter = 0; iter < num_iter; ++iter) {
       const size_t offset = iter * 512;
       for (size_t i = 0; i < user_data_per_block; ++i) {

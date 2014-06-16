@@ -20,11 +20,12 @@
 
 #include <algorithm>
 
-#include <base/error_utils.h>
 #include <base/zero.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 TTimerFd::TTimerFd(size_t milliseconds)
     : Fd(timerfd_create(CLOCK_MONOTONIC, 0)) {

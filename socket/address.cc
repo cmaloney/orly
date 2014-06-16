@@ -36,6 +36,7 @@ using namespace std;
 using namespace Base;
 using namespace Io;
 using namespace Socket;
+using namespace Util;
 
 TAddress::TAddress(TSpecial special, in_port_t port) {
   switch (special) {

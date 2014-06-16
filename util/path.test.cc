@@ -1,6 +1,6 @@
-/* <base/path_utils.test.cc>
+/* <util/path.test.cc>
 
-   Unit test for <base/path_utils.h>.
+   Unit test for <util/path.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,7 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/path_utils.h>
+#include <util/path.h>
 
 #include <sstream>
 #include <string>
@@ -27,16 +27,16 @@
 #include <test/kit.h>
 #include <base/dir_iter.h>
 #include <base/dir_walker.h>
-#include <base/error_utils.h>
 #include <base/fd.h>
-#include <base/io_utils.h>
 #include <base/tmp_copy_to_file.h>
 #include <base/tmp_dir_maker.h>
-
-using namespace std;
-using namespace placeholders;
+#include <util/error.h>
+#include <util/io.h>
 
 using namespace Base;
+using namespace std;
+using namespace std::placeholders;
+using namespace Util;
 
 /* Creates an empty file. */
 static void CreateDummyFile(const char *path) {

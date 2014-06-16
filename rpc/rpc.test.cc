@@ -29,6 +29,7 @@ using namespace std;
 using namespace Base;
 using namespace Io;
 using namespace Rpc;
+using namespace Util;
 
 class TSequence {
   public:

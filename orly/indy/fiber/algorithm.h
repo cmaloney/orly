@@ -19,8 +19,8 @@
 #include <algorithm>
 #include <type_traits>
 
-#include <base/stl_utils.h>
 #include <orly/indy/fiber/fiber.h>
+#include <util/stl.h>
 
 namespace Orly {
 
@@ -31,7 +31,7 @@ namespace Orly {
       /* TODO */
       template <
           typename TRandomAccessIterator,
-          typename TVal = typename Base::ForIter<TRandomAccessIterator>::TVal,
+          typename TVal = typename Util::ForIter<TRandomAccessIterator>::TVal,
           typename TComparator = std::less<TVal>>
       class TSubSortRunnable
           : public TRunnable {
@@ -78,7 +78,7 @@ namespace Orly {
       /* TODO */
       template <
           typename TRandomAccessIterator,
-          typename TVal = typename Base::ForIter<TRandomAccessIterator>::TVal,
+          typename TVal = typename Util::ForIter<TRandomAccessIterator>::TVal,
           typename TComparator = std::less<TVal>>
       class TInplaceMergeRunnable
           : public TRunnable {
@@ -131,7 +131,7 @@ namespace Orly {
       template <
           size_t ParallelThreshold,
           typename TRandomAccessIterator,
-          typename TVal = typename Base::ForIter<TRandomAccessIterator>::TVal,
+          typename TVal = typename Util::ForIter<TRandomAccessIterator>::TVal,
           typename TComparator = std::less<TVal>>
       void Sort(TRunnerPool &work_pool,
                 TRandomAccessIterator begin,

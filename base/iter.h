@@ -24,7 +24,7 @@
 #include <memory>
 
 #include <base/assert_true.h>
-#include <base/stl_utils.h>
+#include <util/stl.h>
 
 namespace Base {
 
@@ -125,7 +125,7 @@ namespace Base {
     std::hash<TVal> hasher;
 
     for (; iter; ++iter) {
-      result = Base::RotatedRight(result, 5) ^ hasher(*iter);
+      result = Util::RotatedRight(result, 5) ^ hasher(*iter);
     }
     return result;
   }

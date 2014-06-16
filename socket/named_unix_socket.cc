@@ -22,10 +22,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
-using namespace Base;
 using namespace Socket;
+using namespace Util;
 
 TNamedUnixSocket::TNamedUnixSocket(int type, int protocol)
     : Fd(IfLt0(socket(AF_LOCAL, type, protocol)))

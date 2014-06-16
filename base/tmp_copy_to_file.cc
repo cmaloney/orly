@@ -2,7 +2,7 @@
 
    Implements <base/tmp_copy_to_file.h>.
 
-   See <base/path_utils.test.cc> for tests of this unit.
+   See <util/path.test.cc> for tests of this unit.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -23,11 +23,12 @@
 #include <fcntl.h>
 
 #include <base/fd.h>
-#include <base/io_utils.h>
-#include <base/path_utils.h>
+#include <util/io.h>
+#include <util/path.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 TTmpCopyToFile::TTmpCopyToFile(
     const string &tmp_dir, const string &text,

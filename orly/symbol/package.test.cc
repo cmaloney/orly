@@ -38,6 +38,6 @@ FIXTURE(Package) {
   /* GetFunctions */
   const auto &functions = package->GetFunctions();
   EXPECT_EQ(functions.size(), 2U);
-  EXPECT_TRUE(Base::Contains(functions, foo));
-  EXPECT_TRUE(Base::Contains(functions, bar));
+  EXPECT_TRUE(Util::Contains(functions, foo));
+  EXPECT_TRUE(Util::Contains(functions, bar));
 }

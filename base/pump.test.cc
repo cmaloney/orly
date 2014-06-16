@@ -23,12 +23,14 @@
 #include <thread>
 #include <vector>
 
-#include <base/io_utils.h>
+#include <util/io.h>
+
 #include <test/kit.h>
 
-using namespace std;
-using namespace chrono;
 using namespace Base;
+using namespace std;
+using namespace std::chrono;
+using namespace Util;
 
 static const char *Msg = "Mofo the Psychic Gorilla!";
 

@@ -20,11 +20,11 @@
 
 #include <cerrno>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
-using namespace std;
-using namespace Base;
 using namespace Gz;
+using namespace std;
+using namespace Util;
 
 TFile::TFile(const char *path, const char *mode) {
   assert(path);
@@ -50,7 +50,7 @@ TFile::TFile(int fd, const char *mode) {
   }
 }
 
-TFile::TFile(TFd &&fd, const char *mode) {
+TFile::TFile(Base::TFd &&fd, const char *mode) {
   assert(&fd);
   assert(fd.IsOpen());
   assert(mode);

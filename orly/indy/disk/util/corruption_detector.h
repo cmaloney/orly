@@ -18,13 +18,13 @@
 
 #pragma once
 
-#include <cassert>
-#include <cstdint>
-
 #include <unistd.h>
 
+#include <cassert>
+#include <cstdint>
+#include <stdexcept>
+
 #include <base/class_traits.h>
-#include <base/error_utils.h>
 #include <base/murmur.h>
 
 namespace Orly {

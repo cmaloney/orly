@@ -25,10 +25,10 @@
 #include <sys/socket.h>
 #include <sys/timerfd.h>
 
-#include <base/error_utils.h>
 #include <base/zero.h>
 #include <signal/masker.h>
 #include <signal/set.h>
+#include <util/error.h>
 
 /* Standard namespaces. */
 using namespace std;
@@ -39,6 +39,7 @@ using namespace placeholders;
 using namespace Base;
 using namespace Signal;
 using namespace Socket;
+using namespace Util;
 
 /* Orly namespaces. */
 using namespace Orly;

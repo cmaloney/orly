@@ -2,7 +2,7 @@
 
    Walks directories in the file system.
 
-   See <base/path_utils.test.cc> for tests of this unit.
+   See <util/path.test.cc> for tests of this unit.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 

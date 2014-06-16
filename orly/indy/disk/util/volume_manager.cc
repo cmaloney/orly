@@ -34,6 +34,7 @@
 using namespace std;
 using namespace Base;
 using namespace Orly::Indy::Disk::Util;
+using namespace ::Util;
 
 std::unique_ptr<Base::TThreadLocalGlobalPoolManager<TDiskController::TEvent>> TDiskController::TEvent::DiskEventPoolManager;
 __thread Base::TThreadLocalGlobalPoolManager<TDiskController::TEvent>::TThreadLocalPool *TDiskController::TEvent::LocalEventPool = nullptr;
@@ -146,7 +147,7 @@ void TDiskController::QueueRunner(std::vector<TPersistentDevice *> device_vec, b
 
   io_context_t ctxp(0);
   try {
-    Base::IfWeird(io_setup(max_aio_num, &ctxp));
+    IfWeird(io_setup(max_aio_num, &ctxp));
   } catch (const std::exception &ex) {
     syslog(LOG_ERR, "Error in io_setup: [%s]", ex.what());
     throw;
@@ -154,7 +155,7 @@ void TDiskController::QueueRunner(std::vector<TPersistentDevice *> device_vec, b
   cpu_set_t mask;
   CPU_ZERO(&mask);
   CPU_SET(core, &mask);
-  Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
+  IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
   TOpt<TBooster> booster;
   if (!no_realtime) {
     booster.MakeKnown(SCHED_FIFO);
@@ -1830,7 +1831,7 @@ void TVolume::TStrategy::DiscardRunner() {
           continue;
         }
       } else {
-        Base::IfLt0(ret);
+        IfLt0(ret);
         assert(ret < 2);
         if (ret == 1) {
           DiscardSem.Pop();
@@ -2656,8 +2657,8 @@ void TPersistentDevice::AsyncSyncFlush(std::mutex &mut, std::condition_variable 
 
 void TPersistentDevice::Sync() {
   if (FsyncOn) {
-    Base::IfLt0(fsync(DiskFd));
-    Base::IfLt0(ioctl(DiskFd, BLKFLSBUF, 0));
+    IfLt0(fsync(DiskFd));
+    IfLt0(ioctl(DiskFd, BLKFLSBUF, 0));
   }
 }
 

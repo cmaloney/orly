@@ -1,4 +1,4 @@
-/* <base/struct_utils.h>
+/* <util/struct.h>
 
    Utilities for working with structures.
 
@@ -21,12 +21,12 @@
 #include <cstddef>
 
 /* A typesafe replacement for the C-style offsetof(). */
-#define OFFSET_OF(st, m) ::Base::OffsetOf(&st::m)
+#define OFFSET_OF(st, m) ::Util::OffsetOf(&st::m)
 
 /* A typesafe replacement for the C-style containerof(). */
-#define CONTAINER_OF(p, st, m) ::Base::ContainerOf(p, &st::m)
+#define CONTAINER_OF(p, st, m) ::Util::ContainerOf(p, &st::m)
 
-namespace Base {
+namespace Util {
 
   /* The offset (in bytes) of a member of a struct. */
   template <typename TStruct, typename TVal>

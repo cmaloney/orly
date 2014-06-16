@@ -25,6 +25,7 @@ using namespace Base;
 using namespace Io;
 using namespace Orly::Indy;
 using namespace Rpc;
+using namespace ::Util;
 
 TConnectionFailed::TConnectionFailed(const string &error_msg)
     : runtime_error(error_msg) {}

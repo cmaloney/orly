@@ -19,11 +19,13 @@
 #include <orly/balancer/balancer.h>
 
 #include <base/epoll.h>
+#include <util/io.h>
 
 using namespace std;
 using namespace Base;
 using namespace Socket;
 using namespace Orly::Balancer;
+using namespace Util;
 
 TBalancer::TBalancer(TScheduler *scheduler, const TCmd &cmd)
     : Scheduler(scheduler) {

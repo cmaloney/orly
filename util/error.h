@@ -1,4 +1,4 @@
-/* <base/error_utils.h>
+/* <util/error.h>
 
    Error utilities.
 
@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <system_error>
 
-namespace Base {
+namespace Util {
 
   /* Throw the given code as an error in the system category. */
   template <typename TCode>
@@ -76,4 +76,4 @@ namespace Base {
      return value must be assumed to not exceed the lifetime of 'buf'. */
   const char *Strerror(int errno_value, char *buf, size_t buf_size);
 
-}  // Base
+}  // Util

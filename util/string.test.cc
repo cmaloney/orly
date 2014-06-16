@@ -1,6 +1,6 @@
-/* <base/string_utils.test.cc>
+/* <util/string.test.cc>
 
-   Unit test for <base/string_utils.h>.
+   Unit test for <util/string.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,7 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/string_utils.h>
+#include <util/string.h>
 
 #include <vector>
 
@@ -25,7 +25,7 @@
 using namespace std;
 using namespace placeholders;
 
-using namespace Base;
+using namespace Util;
 
 FIXTURE(ConcatCStrArray) {
   static const char *c_strs[] = {

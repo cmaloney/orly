@@ -26,7 +26,6 @@
 #include <unistd.h>
 
 #include <base/class_traits.h>
-#include <base/error_utils.h>
 #include <base/mem_aligned_ptr.h>
 #include <base/mlock.h>
 #include <base/spin_lock.h>

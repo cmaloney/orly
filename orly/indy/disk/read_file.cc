@@ -18,16 +18,14 @@
 
 #include <orly/indy/disk/read_file.h>
 
-using namespace std;
-using namespace Orly;
-using namespace Orly::Atom;
 using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 template<>
-__thread size_t TReadFile<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage>::HashHitCount;
+__thread size_t TReadFile<LogicalPageSize, LogicalBlockSize, PhysicalBlockSize, CheckedPage>::HashHitCount;
 
 template<>
-__thread size_t TReadFile<Util::LogicalBlockSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage>::HashHitCount;
+__thread size_t TReadFile<LogicalBlockSize, LogicalBlockSize, PhysicalBlockSize, CheckedPage>::HashHitCount;
 
 template<>
-__thread TLocalReadFileCache<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage, true> *TLocalReadFileCache<Util::LogicalPageSize, Util::LogicalBlockSize, Util::PhysicalBlockSize, Util::CheckedPage, true>::Cache = nullptr;
+__thread TLocalReadFileCache<LogicalPageSize, LogicalBlockSize, PhysicalBlockSize, CheckedPage, true> *TLocalReadFileCache<LogicalPageSize, LogicalBlockSize, PhysicalBlockSize, CheckedPage, true>::Cache = nullptr;

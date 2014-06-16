@@ -42,7 +42,7 @@ $CC "${common_flags[@]}"                                                        
   $SRC/base/error.cc $SRC/starsha/exe_file.cc $SRC/starsha/note.cc $SRC/starsha/hdr_file.cc $SRC/base/demangle.cc      \
   $SRC/base/code_location.cc $SRC/starsha/thread_pool.cc $SRC/starsha/status_line.cc $SRC/starsha/corpus.cc            \
   $SRC/starsha/flex_file.cc $SRC/starsha/runner.cc $SRC/base/make_dir.cc $SRC/base/thrower.cc $SRC/base/subprocess.cc  \
-  $SRC/base/pump.cc $SRC/strm/in.cc $SRC/strm/bin/in.cc $SRC/strm/out.cc $SRC/base/io_utils.cc $SRC/strm/bin/var_int.cc\
+  $SRC/base/pump.cc $SRC/strm/in.cc $SRC/strm/bin/in.cc $SRC/strm/out.cc $SRC/util/io.cc $SRC/strm/bin/var_int.cc      \
   $SRC/base/event_semaphore.cc $SRC/strm/past_end.cc $SRC/strm/syntax_error.cc $SRC/base/time.cc                       \
   -luuid -ldl -o $SRC/tools/starsha
 

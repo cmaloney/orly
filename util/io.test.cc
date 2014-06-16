@@ -1,6 +1,6 @@
-/* <base/io_utils.test.cc>
+/* <util/io.test.cc>
 
-   Unit test for <base/io_utils.h>.
+   Unit test for <util/io.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,7 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/io_utils.h>
+#include <util/io.h>
 
 #include <cerrno>
 #include <cstring>
@@ -29,8 +29,9 @@
 #include <base/zero.h>
 #include <test/kit.h>
 
-using namespace std;
 using namespace Base;
+using namespace std;
+using namespace Util;
 
 static const char *ExpectedData = "Mofo the Psychic Gorilla";
 static const size_t ExpectedSize = strlen(ExpectedData);

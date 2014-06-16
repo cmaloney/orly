@@ -20,11 +20,12 @@
 
 #include <utility>
 
-#include <base/error_utils.h>
-#include <base/io_utils.h>
+#include <util/error.h>
+#include <util/io.h>
 
-using namespace std;
 using namespace Base;
+using namespace std;
+using namespace Util;
 
 TPump::TPump()
     : FirstPipe(nullptr), LastPipe(nullptr),

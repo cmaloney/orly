@@ -29,7 +29,7 @@ bool TFd::IsReadable(int timeout) const {
   p.fd = OsHandle;
   p.events = POLLIN;
   int result;
-  IfLt0(result = poll(&p, 1, timeout));
+  Util::IfLt0(result = poll(&p, 1, timeout));
   return result != 0;
 }
 

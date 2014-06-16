@@ -25,7 +25,7 @@
 
 #include <orly/rt/mutable.h>
 #include <orly/rt/opt.h>
-#include <base/stl_utils.h>
+#include <util/stl.h>
 
 namespace Orly {
 
@@ -140,7 +140,7 @@ namespace Orly {
         return false;
       }
       for (auto iter : lhs) {
-        if (!Base::Contains(rhs, iter)) {
+        if (!Util::Contains(rhs, iter)) {
           return false;
         }
       }
@@ -264,7 +264,7 @@ template <typename TVal>
 Orly::Rt::TSet<TVal> operator&(const Orly::Rt::TSet<TVal> &lhs, const Orly::Rt::TSet<TVal> &rhs) {
   Orly::Rt::TSet<TVal> result;
   for (auto elem : lhs) {
-    if (Base::Contains(rhs, elem)) {
+    if (Util::Contains(rhs, elem)) {
       result.insert(elem);
     }
   }
@@ -287,12 +287,12 @@ template <typename TVal>
 Orly::Rt::TSet<TVal> operator^(const Orly::Rt::TSet<TVal> &lhs, const Orly::Rt::TSet<TVal> &rhs) {
   Orly::Rt::TSet<TVal> result;
   for (auto elem : lhs) {
-    if (!Base::Contains(rhs, elem)) {
+    if (!Util::Contains(rhs, elem)) {
       result.insert(elem);
     }
   }
   for (auto elem : rhs) {
-    if (!Base::Contains(lhs, elem)) {
+    if (!Util::Contains(lhs, elem)) {
       result.insert(elem);
     }
   }

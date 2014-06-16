@@ -20,11 +20,12 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <base/io_utils.h>
 
-using namespace std;
-using namespace Base;
+#include <util/io.h>
+
 using namespace Io;
+using namespace std;
+using namespace Util;
 
 TChunk::~TChunk() {
   assert(this);

@@ -1,6 +1,6 @@
-/* <base/struct_utils.test.cc>
+/* <util/struct.test.cc>
 
-   Unit test for <base/struct_utils.h>.
+   Unit test for <util/struct.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,11 +16,9 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/struct_utils.h>
+#include <util/struct.h>
 
 #include <test/kit.h>
-
-using namespace Base;
 
 /* The type of an ordinal. */
 using TOrd = double;

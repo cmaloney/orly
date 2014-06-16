@@ -23,8 +23,8 @@
 #include <signal.h>
 
 #include <base/class_traits.h>
-#include <base/error_utils.h>
 #include <base/zero.h>
+#include <util/error.h>
 
 namespace Signal {
 
@@ -39,7 +39,7 @@ namespace Signal {
       struct sigaction new_act;
       Base::Zero(new_act);
       new_act.sa_handler = handler;
-      Base::IfLt0(sigaction(sig, &new_act, &OldAct));
+      Util::IfLt0(sigaction(sig, &new_act, &OldAct));
     }
 
     /* Restore the old action. */

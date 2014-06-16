@@ -20,13 +20,13 @@
 #include <unordered_set>
 #include <sys/wait.h>
 
-#include <base/error_utils.h>
 #include <base/hash.h>
 #include <base/log.h>
 #include <base/time.h>
 #include <base/timer.h>
 #include <orly/protocol.h>
 #include <orly/client/client.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace chrono;
@@ -34,6 +34,7 @@ using namespace Base;
 using namespace Socket;
 using namespace Orly;
 using namespace Client;
+using namespace Util;
 
 class TExerciseClient final
     : public TClient {

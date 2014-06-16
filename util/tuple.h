@@ -1,6 +1,6 @@
-/* <base/tuple_utils.h>
+/* <util/tuple.h>
 
-   TODO
+   Utilities for working with tuples
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -21,7 +21,7 @@
 #include <array>
 #include <tuple>
 
-namespace Base {
+namespace Util {
 
   /* NOTE: The current version only supports 0 or 1 out parameters.
            This is ok for now since we don't have a particular use case for them.
@@ -141,4 +141,4 @@ namespace Base {
     return std::_Tuple_impl<N, THead, TRest...>::_M_tail(that);
   }
 
-}  // Base
+}  // Util
