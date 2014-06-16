@@ -35,19 +35,11 @@ using namespace std;
 using namespace Base;
 using namespace Jhm;
 
-
 bool Jhm::EndsWith(const TExtension &full_ext, const TExtension &tail) {
-  if(full_ext.size() < tail.size()) {
+  if (full_ext.size() < tail.size()) {
     return false;
   }
-
-  for(uint32_t i=0; i < tail.size(); ++i) {
-    if (full_ext[full_ext.size()-(i+1)] != tail[tail.size()-(i+1)]) {
-      return false;
-    }
-  }
-
-  return true;
+  return std::equal(std::begin(tail), std::end(tail), std::end(full_ext) - tail.size());
 }
 
 TName::TName(const TStr &str) {
