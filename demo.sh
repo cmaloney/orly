@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#NOTE: This script should live in the user's home folder
-#      All binaries for orly should be in PATH (Add the bin/ directory to PATH)
+# NOTE: This script should live in the user's home folder
+#       All binaries for orly should be in PATH (Add the bin/ directory to PATH)
 #
 # SETUP folder hierarchy
 # orly/
@@ -69,8 +69,8 @@ orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le \
   --mem_sim=true --mem_sim_mb=768  --page_cache_size=256 --block_cache_size=256 \
   --update_pool_size=55000 --update_entry_pool_size=275000 &
 ORLY_PID=$!
-#TODO : Make a better way to test for the server being up rather than just assuming it starts up in 5 seconds
-sleep 5
+#TODO : Make a better way to test for the server being up rather than just assuming it starts up in 15 seconds
+sleep 15
 
 core_import --num_load_threads=1 --num_merge_threads=1 --la --le \
   --num_sim_merge="$NUM_FILES" --import_pattern="$FILENAME"
@@ -84,7 +84,7 @@ fi
 
 ##TODO: Run orlyc on sample queries to compile
 
-php $WEB_DIR/artisan serve --host &
+/usr/bin/php5 -S 0.0.0.0:8000 -t web/public web/server.php &
 WEB_PID=$!
 
 echo "==========================================================="
@@ -98,7 +98,7 @@ echo "==========================================================="
 control_c()
 {
   kill -9 $ORLY_PID
-  kill $WEB_PID
+  kill -s INT $WEB_PID
   exit 0
 }
 
