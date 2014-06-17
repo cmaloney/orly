@@ -23,14 +23,11 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <memory>
-#include <sstream>
 
 #include <sys/ioctl.h>
 
 #include <base/no_default_case.h>
 #include <base/zero.h>
-#include <starsha/note.h>
 
 using namespace std;
 using namespace placeholders;
@@ -155,6 +152,25 @@ bool TCmd::TMeta::TParam::TArg::Parse(TCmd *cmd, const char *arg_text, const TMe
         DEFINE_ERROR(error_t, invalid_argument, "syntax error");
         THROW_ERROR(error_t);
       }
+    } catch (const exception &ex) {
+      ostringstream strm;
+      strm << '"' << Name << "\": " << ex.what();
+      if (!cb(strm.str())) {
+        return false;
+      }
+    }
+  } else {
+    AssignDefault(cmd);
+  }
+  return true;
+}
+
+//TODO: Factor out commonalities with text version
+bool TCmd::TMeta::TParam::TArg::Parse(TCmd *cmd, const TJson &json, const TMessageConsumer &cb) const {
+  assert(this);
+  if (!json.IsNull()) {
+    try {
+      Read(json, cmd);
     } catch (const exception &ex) {
       ostringstream strm;
       strm << '"' << Name << "\": " << ex.what();
@@ -495,24 +511,23 @@ bool TCmd::TMeta::TParser::TRun::operator()(const TParser *parser, TCmd *cmd, in
     }
   }
   for (const string &args_file: cmd->ArgsFiles) {
-    using note_t = Starsha::TNote;
-    ifstream strm(args_file.c_str());
-    unique_ptr<note_t> root(note_t::Read(strm));
-    root->ForEachChild(
-        [this, parser, cmd, &cb, &args_file](const note_t *note) {
-          bool keep_going;
-          const TParam *param = parser->TryFindParam(note->GetKey().c_str());
-          if (param) {
-            const string &value = note->GetValue();
-            keep_going = OnRecognition(param, cmd, value.size() ? value.c_str() : nullptr, cb);
-          } else {
-            ostringstream strm;
-            strm << '"' << note->GetKey() << "\": unknown option in \"" << args_file << '"';
-            keep_going = cb(strm.str());
-          }
-          return keep_going;
-        }
-    );
+    TJson args = TJson::Read(args_file.c_str());
+    //TODO: Call cb() here rather than throwing (Throwing matches the old behavior)?
+    if (args.GetKind() != TJson::Object) {
+      THROW_ERROR(std::invalid_argument) << "Invalid argument file " << quoted(args_file) << ". Must be a JSON object.";
+    }
+    args.ForEachElem([this, parser, cmd, &cb, &args_file](const string &name, const TJson &val) {
+      bool keep_going;
+      const TParam *param = parser->TryFindParam(name.c_str());
+      if (param) {
+        keep_going = OnRecognition(param, cmd, val, cb);
+      } else {
+        ostringstream strm;
+        strm << '"' << name << "\": unknown option in \"" << args_file << '"';
+        keep_going = cb(strm.str());
+      }
+      return keep_going;
+    });
   }
   return CheckForRequired(parser->ByName, cb) && CheckForRequired(parser->ByPos, cb) && cmd->CheckArgs(cb);
 }
@@ -531,20 +546,6 @@ bool TCmd::TMeta::TParser::TRun::CheckForRequired(const vector<const TParam *> &
     }
   }
   return true;
-}
-
-bool TCmd::TMeta::TParser::TRun::OnRecognition(const TParam *param, TCmd *cmd, const char *arg_text, const TMessageConsumer &cb) {
-  assert(this);
-  assert(param);
-  assert(&cb);
-  size_t &count = CountByParam.insert(make_pair(param, Zero)).first->second;
-  ++count;
-  if (count > 1 && param->GetRecurrence() == Once) {
-    ostringstream strm;
-    strm << '"' << param->GetDiagnosticName() << "\": given more than once";
-    return cb(strm.str());
-  }
-  return param->OnRecognition(cmd, arg_text, cb);
 }
 
 mutex TCmd::TMeta::TParser::TRun::Mutex;

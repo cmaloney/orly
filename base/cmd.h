@@ -68,6 +68,7 @@
 #include <mutex>
 #include <ostream>
 #include <set>
+#include <sstream>
 #include <string>
 #include <typeinfo>
 #include <unordered_map>
@@ -78,6 +79,7 @@
 
 #include <base/class_traits.h>
 #include <base/demangle.h>
+#include <base/json.h>
 #include <base/thrower.h>
 
 namespace Base {
@@ -231,6 +233,7 @@ namespace Base {
              If the text is null, assign the argument a default value.
              Note: The text should not be null if GetIsRequired() returns true. */
           bool Parse(TCmd *cmd, const char *arg_text, const TMessageConsumer &cb) const;
+          bool Parse(TCmd *cmd, const TJson &arg_text, const TMessageConsumer &cb) const;
 
           /* Write the current value of this argument. */
           virtual void Write(std::ostream &strm, const TCmd *cmd) const = 0;
@@ -259,6 +262,19 @@ namespace Base {
               assert(&strm);
               assert(&val);
               strm >> val;
+            }
+
+            /* Read a value from a JSON object. For unknown json types, treat it as a string. */
+            static void Read(const TJson &json, TVal &val) {
+              assert(&json);
+              if (json.GetKind() != TJson::String) {
+                THROW_ERROR(std::invalid_argument) << "expected a json string";
+              }
+              std::istringstream strm(json.GetString());
+              Read(strm, val);
+              if (strm.fail()) {
+                THROW_ERROR(std::invalid_argument) << "syntax error";
+              }
             }
 
             /* Most values have no default state. */
@@ -295,6 +311,7 @@ namespace Base {
 
           /* Assign to the argument a value read from the stream. */
           virtual void Read(std::istream &strm, TCmd *cmd) const = 0;
+          virtual void Read(const TJson &json, TCmd *cmd) const = 0;
 
           private:
 
@@ -367,6 +384,7 @@ namespace Base {
            The 'arg_text' can be null if the command line didn't provide any such text.
            Call back with errors, and short-circuit of the callback says to do so. */
         virtual bool OnRecognition(TCmd *cmd, const char *arg_text, const TMessageConsumer &cb) const = 0;
+        virtual bool OnRecognition(TCmd *cmd, const TJson &json, const TMessageConsumer &cb) const = 0;
 
         /* Return the argument delegate, if any.
            A parameter which takes no argument will return null. */
@@ -440,6 +458,10 @@ namespace Base {
             assert(this);
             ValInfo<TVal>::Read(strm, GetVal(cmd));
           }
+          virtual void Read(const TJson &json, TCmd *cmd) const {
+            assert(this);
+            ValInfo<TVal>::Read(json, GetVal(cmd));
+          }
 
         };  // TTypedArg<TVal>
 
@@ -484,6 +506,10 @@ namespace Base {
         virtual bool OnRecognition(TCmd *cmd, const char *arg_text, const TMessageConsumer &cb) const {
           assert(this);
           return Arg.Parse(cmd, arg_text, cb);
+        }
+        virtual bool OnRecognition(TCmd *cmd, const TJson &json, const TMessageConsumer &cb) const {
+          assert(this);
+          return Arg.Parse(cmd, json, cb);
         }
 
         /* See base class. */
@@ -556,6 +582,12 @@ namespace Base {
 
         /* See base class. */
         virtual bool OnRecognition(TCmd *cmd, const char *, const TMessageConsumer &cb) const {
+          assert(this);
+          return (cmd->*Handler)(cb);
+        }
+
+        /* See base class. */
+        virtual bool OnRecognition(TCmd *cmd, const TJson &, const TMessageConsumer &cb) const {
           assert(this);
           return (cmd->*Handler)(cb);
         }
@@ -638,7 +670,20 @@ namespace Base {
 
           /* Count this recognition of the parameter, calling back if we violate the recurrence rule for it.
              Otherwise, deletgate to the parameter's OnRecognition() action. */
-          bool OnRecognition(const TParam *param, TCmd *cmd, const char *arg_text, const TMessageConsumer &cb);
+          template<typename TSource>
+          bool OnRecognition(const TParam *param, TCmd *cmd, TSource &&source, const TMessageConsumer &cb) {
+            assert(this);
+            assert(param);
+            assert(&cb);
+            size_t &count = CountByParam.insert(std::make_pair(param, Zero)).first->second;
+            ++count;
+            if (count > 1 && param->GetRecurrence() == Once) {
+              std::ostringstream strm;
+              strm << '"' << param->GetDiagnosticName() << "\": given more than once";
+              return cb(strm.str());
+            }
+            return param->OnRecognition(cmd, std::forward<TSource>(source), cb);
+          }
 
           /* The parameters we've seen and the number of times we've seen them. */
           std::unordered_map<const TParam *, size_t> CountByParam;
@@ -711,6 +756,16 @@ namespace Base {
       strm >> std::boolalpha >> val;
     }
 
+    static void Read(const TJson &json, bool &val) {
+      assert(&json);
+      assert(&val);
+      if (json.GetKind() != TJson::Bool) {
+        DEFINE_ERROR(error_t, std::invalid_argument, "incorrect type");
+        THROW_ERROR(error_t) << "expected bool";
+      }
+      val = json.GetBool();
+    }
+
     static const bool *TryGetDefault() {
       return &Default;
     }
@@ -732,6 +787,50 @@ namespace Base {
 
   };  // TCmd::TMeta::TParam::TArg::ValInfo<bool>
 
+
+  /* Explicit specialization of TCmd::TMeta::TParam::TArg::ValInfo<>
+     for double arguments. */
+  template <>
+  class TCmd::TMeta::TParam::TArg::ValInfo<double> {
+    NO_CONSTRUCTION(ValInfo);
+    public:
+
+    static TRecurrence GetRecurrence() {
+      return Once;
+    }
+
+    static void Read(std::istream &strm, double &val) {
+      assert(&strm);
+      assert(&val);
+      strm >> val;
+    }
+
+    static void Read(const TJson &json, double &val) {
+      assert(&json);
+      assert(&val);
+      if (json.GetKind() != TJson::Number) {
+        DEFINE_ERROR(error_t, std::invalid_argument, "incorrect type");
+        THROW_ERROR(error_t) << "expected double";
+      }
+      val = json.GetNumber();
+    }
+
+    static const double *TryGetDefault() {
+      return nullptr;
+    }
+
+    static void Write(std::ostream &strm, const double &val) {
+      assert(&strm);
+      assert(&val);
+      strm << val;
+    }
+
+    static void WriteType(std::ostream &strm) {
+      assert(&strm);
+      strm << "double";
+    }
+  };  // TCmd::TMeta::TParam::TArg::ValInfo<double>
+
   /* Explicit specialization of TCmd::TMeta::TParam::TArg::ValInfo<>
      for std::string arguments. */
   template <>
@@ -747,6 +846,16 @@ namespace Base {
       assert(&strm);
       assert(&val);
       strm >> val;
+    }
+
+    static void Read(const TJson &json, std::string &val) {
+      assert(&json);
+      assert(&val);
+      if (json.GetKind() != TJson::String) {
+        DEFINE_ERROR(error_t, std::invalid_argument, "incorrect type");
+        THROW_ERROR(error_t) << "expected string";
+      }
+      val = json.GetString();
     }
 
     static const std::string *TryGetDefault() {
@@ -777,11 +886,11 @@ namespace Base {
       return Many;
     }
 
-    static void Read(std::istream &strm, std::vector<TVal> &vals) {
-      assert(&strm);
+    template<typename TSource>
+    static void Read(TSource &&src, std::vector<TVal> &vals) {
       assert(&vals);
       TVal val;
-      ValInfo<TVal>::Read(strm, val);
+      ValInfo<TVal>::Read(std::forward<TSource>(src), val);
       vals.push_back(val);
     }
 
@@ -812,12 +921,12 @@ namespace Base {
       return NoDupes;
     }
 
-    static void Read(std::istream &strm, std::set<TVal> &vals) {
+    template<typename TSource>
+    static void Read(TSource &&src, std::set<TVal> &vals) {
       DEFINE_ERROR(error_t, std::invalid_argument, "duplicate value");
-      assert(&strm);
       assert(&vals);
       TVal val;
-      ValInfo<TVal>::Read(strm, val);
+      ValInfo<TVal>::Read(std::forward<TSource>(src), val);
       if (!vals.insert(val).second) {
         THROW_ERROR(error_t) << '"' << val << '"';
       }
