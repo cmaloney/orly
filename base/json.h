@@ -94,10 +94,6 @@ namespace Base {
             strm << R"(\")";
             break;
           }
-          case '/': {
-            strm << R"(\/)";
-            break;
-          }
           case '\b': {
             strm << R"(\b)";
             break;
