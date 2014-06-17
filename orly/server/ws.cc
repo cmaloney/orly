@@ -28,6 +28,7 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
+#include <base/fd.h>
 #include <base/json.h>
 #include <base/tmp_copy_to_file.h>
 #include <base/tmp_dir_maker.h>
@@ -453,6 +454,22 @@ class TWsImpl final
         TJson reply(TJson::Object);
         reply["packages"] = TJson(move(packages));
 
+        Strm << reply;
+      }
+
+      virtual void operator()(const TGetSourceStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+
+        vector<string> package_name;
+        TranslatePathName(package_name, stmt->GetNameList());
+
+        string rel_path = Orly::Package::TName(package_name).ToRelPath({"orly"}).AsStr();
+        string src_filename = Conn->Ws->SessionManager->GetPackageDir() + rel_path;
+        syslog(LOG_INFO, "filename = \"%s\"", src_filename.c_str());
+        TJson reply(TJson::Object);
+        reply["code"] = ReadAll(TFd(open(src_filename.c_str(), O_RDONLY)));
+        reply["filename"] = move(rel_path);
         Strm << reply;
       }
 

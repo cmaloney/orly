@@ -156,6 +156,9 @@ bool Orly::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TC
     virtual void operator()(const TListPackageStmt *) const override {
       throw runtime_error("Listing packages is not implemented in this interface");
     }
+    virtual void operator()(const TGetSourceStmt *) const override {
+      throw runtime_error("Listing packages is not implemented in this interface");
+    }
     private:
     bool &Result;
     const shared_ptr<TClient> &Client;
