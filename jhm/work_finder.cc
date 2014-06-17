@@ -98,14 +98,11 @@ void TWorkFinder::ProcessReady() {
   }
 }
 
-TJson::TArray BuildNeedsArray(TJob *job) {
-
-  unordered_set<TFile*> needs = job->GetNeeds();
-
+TJson::TArray BuildJsonArray(const unordered_set<TFile *> &files) {
   TJson::TArray ret;
-  ret.reserve(needs.size());
+  ret.reserve(files.size());
 
-  for(TFile *f: needs) {
+  for(TFile *f: files) {
     ret.emplace_back(f->GetPath().AsStr());
   }
   return ret;
@@ -140,7 +137,8 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
           {"name", result.Job->GetName()},
           {"input", result.Job->GetInput()->GetPath().AsStr()},
           {"output", job_output},
-          {"needs",  BuildNeedsArray(result.Job) }
+          {"needs",  BuildJsonArray(result.Job->GetNeeds()) },
+          {"anti_needs", BuildJsonArray(result.Job->GetAntiNeeds()) }
         }},
         {"config_timestamp", ConfigTimestampStr}
       }}});
@@ -409,8 +407,15 @@ void TWorkFinder::CacheCheck(TJob *job) {
       if (!need || !IsFileDone(need)) {
         return;
       }
-
       in_timestamp = Newer(in_timestamp, GetTimestampInput  (need));
+    }
+
+    // Any files which weren't buildable that need to stay not buildable should stay not buildable.
+    for (const string &filename : ideal_out.Read<vector<string>>({"build_info","job","anti_needs"})) {
+      TFile *anti_need = TryGetFileFromPath(filename);
+      if (anti_need && IsBuildable(anti_need)) {
+        return;
+      }
     }
 
     output_filename_list = ideal_out.Read<vector<string>>({"build_info","job","output"});

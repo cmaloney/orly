@@ -31,6 +31,7 @@ namespace Jhm {
 
       virtual const char *GetName() final;
       virtual const TSet<TFile*> GetNeeds() final;
+      virtual TSet<TFile*> GetAntiNeeds() final;
       virtual std::string GetCmd() final;
       virtual bool IsComplete() final;
 
@@ -38,8 +39,8 @@ namespace Jhm {
       TLink(TEnv &env, TFile *input);
 
       TEnv &Env;
-      bool StartedNeeds = false;
       std::unordered_map<TFile*, TFile*> NeededDepToObj;
+      TSet<TFile*> AntiNeeds;
       TSet<TFile*> ObjToCheck;
       TSet<TFile*> ObjFiles;
     };

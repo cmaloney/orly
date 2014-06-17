@@ -59,6 +59,10 @@ namespace Jhm {
     virtual const char *GetName() = 0;
     virtual const TSet<TFile*> GetNeeds() = 0;
 
+    /* This is used purely for cache completion. Return a set of things where, if any of them can exist, the job's
+       output must be invalidated. Calle only after the job has returned true from IsComplete. */
+    virtual TSet<TFile*> GetAntiNeeds() { return TSet<TFile*>(); }
+
     void AddOutput(TFile *file) {
       assert(UnknownOutputs);
       Util::InsertOrFail(Output, file);

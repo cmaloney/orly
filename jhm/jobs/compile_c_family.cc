@@ -133,19 +133,17 @@ bool TCompileCFamily::IsComplete() {
   //       when those files come into existence, we need to recompute the list.
 
   // TODO: We needlessly jump to strings here. Really should be able to stash away TFile * within a TFile's config.
-  TJson::TArray link_needs;
+  TJson::TArray filtered_includes;
   for (const string &include : Need->GetConfig().Read<vector<string>>({"c++","include"})) {
     // TODO: We really only need the TRelPaths here, not jumping all the way to the file objects.
     TFile *include_file = Env.TryGetFileFromPath(include);
     if (include_file) {
-      TFile *obj_file = Env.GetFile(include_file->GetPath().GetRelPath().SwapLastExtension("o"));
-      if (Env.IsBuildable(obj_file)) {
-        link_needs.push_back(obj_file->GetPath().AsStr());
-      }
+      filtered_includes.push_back(include_file->GetPath().AsStr());
     }
   }
 
-  GetSoleOutput()->PushComputedConfig(TJson::TObject{{"ld", TJson::TObject{{"link", move(link_needs)}}}});
+  GetSoleOutput()->PushComputedConfig(
+      TJson::TObject{{"c++", TJson::TObject{{"filtered_includes", move(filtered_includes)}}}});
 
   return true;
 }

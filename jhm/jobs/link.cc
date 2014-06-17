@@ -64,7 +64,7 @@ const unordered_set<TFile*> TLink::GetNeeds() {
   assert(this);
 
   // Seed the link search with the core input file.
-  if (!StartedNeeds) {
+  if (ObjFiles.empty()) {
     TFile *input = GetInput();
     ObjToCheck.insert(input);
     ObjFiles.insert(input);
@@ -78,7 +78,7 @@ const unordered_set<TFile*> TLink::GetNeeds() {
   ObjToCheck.clear();
 
   // Get all the link objects of every link object until we have a complete set of link objects.
-  vector<string> link_deps; // Hoisted out of loop
+  vector<string> filtered_includes; // Hoisted out of loop
   while (!to_check.empty()) {
     TFile *obj = Pop(to_check);
     if (!Env.IsDone(obj)) {
@@ -87,20 +87,34 @@ const unordered_set<TFile*> TLink::GetNeeds() {
     }
 
     // Read out the cached link args, add them to our link set.
-    if (!obj->GetConfig().TryRead({"ld","link"}, link_deps)) {
+    if (!obj->GetConfig().TryRead({"c++","filtered_includes"}, filtered_includes)) {
       continue;
     }
 
-    for(const auto &link_name: link_deps) {
-      // Add the link. If it's new, queue it to be checked for new links that we need
-      TFile *link = Env.TryGetFileFromPath(link_name);
-      if (ObjFiles.insert(link).second) {
-        to_check.push(link);
+    for(const auto &include: filtered_includes) {
+      TFile *include_file = Env.TryGetFileFromPath(include);
+      assert(include_file);
+      if (!include_file) {
+        THROW_ERROR(std::logic_error)
+            << "Internal Error; We didn't find the C++ source file which should be in the src tre...";
+      }
+      TFile *obj_file = Env.GetFile(include_file->GetPath().GetRelPath().SwapLastExtension("o"));
+      if (Env.IsBuildable(obj_file)) {
+        // Add the link. If it's new, queue it to be checked for new links that we need
+        if (ObjFiles.insert(obj_file).second) {
+          to_check.push(obj_file);
+        }
+      } else {
+        AntiNeeds.insert(obj_file);
       }
     }
   }
 
   return ObjFiles;
+}
+
+unordered_set<TFile*> TLink::GetAntiNeeds() {
+  return AntiNeeds;
 }
 
 string TLink::GetCmd() {
