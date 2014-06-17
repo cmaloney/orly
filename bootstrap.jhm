@@ -1,4 +1,5 @@
 {
+  targets: [tools/nycr/nycr],
   "cmd": {
     "+g++" : [
       "-U_FORTIFY_SOURCE",
