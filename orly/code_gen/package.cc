@@ -197,10 +197,7 @@ void TPackage::Emit(const Jhm::TAbsBase &out_dir) const {;
 
   /* EXTRA */ {
     std::ostringstream s;
-    //TODO: Very fug. MakeDirs should really make all the way out the filename. But that would change the current starsha
-    //behavior. For now string mangling is the pain.
-    s << '/' << out_dir << '/';
-    Join('/',dir,s) << '/';
+    s << '/' << out_dir << '/' << Join('/',dir) << '/';
     MakeDirs(s.str().c_str());
   }
 

@@ -1,0 +1,50 @@
+{
+  targets: [tools/nycr/nycr],
+  "cmd": {
+    "+g++" : [
+      "-U_FORTIFY_SOURCE",
+      "-O3",
+      "-g1",
+      "-DNDEBUG",
+      "-flto",
+      "-Wno-unused",
+      "-Wno-unused-parameter",
+      "-Wno-unused-result",
+      "-DBOOTSTRAP"
+    ],
+    "+gcc": [
+      "-U_FORTIFY_SOURCE",
+      "-O3",
+      "-g1",
+      "-DNDEBUG",
+      "-flto",
+      "-DBOOTSTRAP"
+    ],
+    "flex": {
+      "+g++": [
+        "-U_FORTIFY_SOURCE",
+        "-O3",
+        "-g1",
+        "-DNDEBUG",
+        "-flto",
+        "-DBOOTSTRAP"
+      ]
+    },
+    "bison": {
+      "+g++": [
+        "-U_FORTIFY_SOURCE",
+        "-O3",
+        "-g1",
+        "-DNDEBUG",
+        "-flto",
+        "-DBOOTSTRAP"
+      ]
+    },
+    "ld": {
+      "+flags": [
+        "-O3",
+        "-flto"
+      ]
+    }
+  }
+}

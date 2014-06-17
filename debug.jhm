@@ -1,0 +1,31 @@
+{
+  "test": {
+    "build_with_default_targets": true,
+    "excluded": [
+      "third_party",
+      ".git"
+    ]
+  },
+  "cmd": {
+    "+g++" : [
+      "-DDEBUG",
+      "-g"
+    ],
+    "+gcc": [
+      "-DDEBUG",
+      "-g"
+    ],
+    "flex": {
+      "+g++": [
+        "-g",
+        "-DDEBUG"
+      ]
+    },
+    "bison": {
+      "+g++": [
+        "-g",
+        "-DDEBUG"
+      ]
+    }
+  }
+}

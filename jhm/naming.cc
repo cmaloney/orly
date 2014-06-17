@@ -101,7 +101,11 @@ TName TName::AddExtension(const TStrList &new_ext) const {
 TName TName::SwapLastExtension(const string &new_ext) const {
   assert(this);
   TStrList ext_list(Extensions);
-  ext_list.back() = new_ext;
+  if (ext_list.size() > 0) {
+    ext_list.back() = new_ext;
+  } else {
+    ext_list = {new_ext};
+  }
 
   return TName(Base, move(ext_list));
 }
@@ -126,9 +130,16 @@ void TName::Write(ostream &strm) const {
   assert(&strm);
 
   strm << Base;
-  if(Extensions.size() > 0) {
-    strm << '.';
-    Join('.', Extensions, strm);
+
+  // Print out the extensions, each prefixed by a '.'
+  // NOTE: If the last extension is empty, then omit it and it's dot.
+  auto ext_count = Extensions.size();
+  for(auto &ext: Extensions) {
+    if(ext_count == 1 && ext == "") {
+      continue;
+    }
+    strm << '.' << ext;
+    --ext_count;
   }
 }
 

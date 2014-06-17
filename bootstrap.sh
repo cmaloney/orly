@@ -16,59 +16,36 @@
 
 set -e
 
-SRC=`pwd`
-OUT=$SRC/../out/debug
-OUT_BOOTSTRAP=$SRC/../out/bootstrap
 CC=g++
-
-if [ -z "$PREFIX" ]; then
-  PREFIX="/usr/local"
-fi
-
-common_flags=(-O2 -flto -s
-  -Wall -Werror -Wextra -Wl,--no-as-needed
-  -Wno-type-limits -Wno-delete-non-virtual-dtor -Wno-parentheses -Wno-unused-result
-  -DTEST_OUTPUT_DIR="/tmp/"
-  -std=c++1y -I$SRC -D"SRC_ROOT=\"$SRC\""
-  -pthread -lpthread
-  -lrt
+common_flags=(
+  -O3 -DNDEBUG -flto
+  -std=c++1y
+  -Wall -Werror -Wextra -Wold-style-cast
+  -Wno-unused -Wno-unused-parameter -Wno-unused-result
+  -Wl,--hash-style=gnu -Wl,--no-copy-dt-needed-entries -Wl,-z,relro -Wl,--no-as-needed
   )
 
-#Build starsha
-$CC "${common_flags[@]}"                                                                                               \
-  -DNDEBUG -Wold-style-cast                                                                                            \
-  $SRC/starsha/walk.cc $SRC/starsha/obj_file.cc $SRC/starsha/nycr_file.cc $SRC/starsha/c_family_file.cc                \
-  $SRC/starsha/cc_file.cc $SRC/starsha/bison_file.cc $SRC/starsha/starsha.cc $SRC/base/cmd.cc $SRC/starsha/c_file.cc   \
-  $SRC/base/error.cc $SRC/starsha/exe_file.cc $SRC/starsha/note.cc $SRC/starsha/hdr_file.cc $SRC/base/demangle.cc      \
-  $SRC/base/code_location.cc $SRC/starsha/thread_pool.cc $SRC/starsha/status_line.cc $SRC/starsha/corpus.cc            \
-  $SRC/starsha/flex_file.cc $SRC/starsha/runner.cc $SRC/base/make_dir.cc $SRC/base/thrower.cc $SRC/base/subprocess.cc  \
-  $SRC/base/pump.cc $SRC/strm/in.cc $SRC/strm/bin/in.cc $SRC/strm/out.cc $SRC/util/io.cc $SRC/strm/bin/var_int.cc      \
-  $SRC/base/event_semaphore.cc $SRC/strm/past_end.cc $SRC/strm/syntax_error.cc $SRC/base/time.cc                       \
-  -luuid -ldl -o $SRC/tools/starsha
+#Build JHM
+$CC -o tools/jhm                                                                                                       \
+ "${common_flags[@]}"                                                                                                  \
+  base/time.cc jhm/jobs/util.cc jhm/job.cc base/slice.cc jhm/test.cc jhm/jobs/flex.cc server/daemonize.cc              \
+  io/input_consumer.cc io/output_consumer.cc base/thrower.cc base/error.cc strm/bin/in.cc jhm/naming.cc jhm/jhm.cc     \
+  io/output_producer.cc io/chunk_and_pool.cc base/pos.cc base/code_location.cc util/string.cc base/cmd.cc              \
+  base/demangle.cc base/piece.cc jhm/job_runner.cc base/subprocess.cc util/path.cc strm/bin/var_int.cc                 \
+  jhm/env.cc jhm/jobs/compile_c_family.cc util/error.cc jhm/status_line.cc io/input_producer.cc                        \
+  jhm/work_finder.cc base/fd.cc base/pump.cc util/io.cc base/split.cc jhm/config.cc jhm/jobs/link.cc                   \
+  jhm/jobs/bison.cc strm/syntax_error.cc jhm/jobs/nycr.cc base/dir_walker.cc jhm/jobs/dep.cc                           \
+  strm/out.cc base/event_semaphore.cc strm/in.cc strm/past_end.cc                                                      \
+  -I./ -DSRC_ROOT=\"`pwd`\"                                                                                            \
+  -msse2 -pthread
 
-#Build nycr
-mkdir -p $OUT_BOOTSTRAP/tools/nycr/syntax/
-bison -rall -o $OUT_BOOTSTRAP/tools/nycr/syntax/nycr.bison.cc $SRC/tools/nycr/syntax/nycr.y
-flex -o $OUT_BOOTSTRAP/tools/nycr/syntax/nycr.flex.cc $SRC/tools/nycr/syntax/nycr.l
-$CC "${common_flags[@]}" \
-  -DBOOTSTRAP -Wno-maybe-uninitialized -Wno-sign-compare -Wno-unused-function -Wno-old-style-cast                      \
-  -Wno-overloaded-virtual -I$OUT_BOOTSTRAP                                                                             \
-  $SRC/tools/nycr/error.cc $SRC/tools/nycr/symbol/write_nycr.cc $SRC/tools/nycr/operator.cc $SRC/tools/nycr/final.cc   \
-  $SRC/base/error.cc $SRC/tools/nycr/kind.cc $SRC/tools/nycr/symbol/named_member.cc $SRC/tools/nycr/symbol/write_cst.cc\
-  $SRC/tools/nycr/compound.cc $SRC/tools/nycr/symbol/write_xml.cc $SRC/tools/nycr/symbol/write_bison.cc                \
-  $SRC/tools/nycr/base.cc $SRC/tools/nycr/syntax/nycr.cst.cc $SRC/tools/nycr/symbol/kind.cc $SRC/base/demangle.cc      \
-  $OUT_BOOTSTRAP/tools/nycr/syntax/nycr.flex.cc $SRC/tools/nycr/keyword.cc $SRC/tools/nycr/symbol/language.cc          \
-  $SRC/tools/nycr/symbol/bootstrap.cc $SRC/base/pos.cc $SRC/tools/nycr/symbol/for_each_final.cc                        \
-  $SRC/tools/nycr/symbol/prec_level.cc $SRC/tools/nycr/symbol/member_with_kind.cc $SRC/tools/nycr/symbol/write_flex.cc \
-  $SRC/base/cmd.cc $SRC/tools/nycr/rule.cc $SRC/base/piece.cc $SRC/tools/nycr/nycr.cc                                  \
-  $SRC/tools/nycr/symbol/compound.cc $SRC/tools/nycr/symbol/rule.cc $SRC/tools/nycr/symbol/for_each_known_kind.cc      \
-  $SRC/tools/nycr/symbol/keyword.cc $SRC/base/code_location.cc $SRC/tools/nycr/symbol/operator.cc                      \
-  $SRC/tools/nycr/decl.cc $SRC/tools/nycr/lexeme.cc $SRC/base/slice.cc $SRC/tools/nycr/symbol/anonymous_member.cc      \
-  $SRC/tools/nycr/build.cc $OUT_BOOTSTRAP/tools/nycr/syntax/nycr.bison.cc $SRC/tools/nycr/prec_level.cc                \
-  $SRC/base/chrono.cc $SRC/tools/nycr/symbol/error_member.cc $SRC/tools/nycr/language.cc                               \
-  $SRC/tools/nycr/symbol/write_dump.cc $SRC/tools/nycr/symbol/name.cc $SRC/tools/nycr/symbol/base.cc                   \
-  $SRC/tools/nycr/indent.cc $SRC/tools/nycr/escape.cc $SRC/server/daemonize.cc $SRC/tools/nycr/symbol/output_file.cc   \
-  $SRC/tools/nycr/atom.cc $SRC/base/thrower.cc $SRC/starsha/note.cc                                                    \
-  -o $OUT_BOOTSTRAP/tools/nycr/nycr
-mkdir -p $SRC/../.starsha
-mkdir -p $OUT
+#Build make_dep_file
+$CC -o tools/make_dep_file                                                                                             \
+  "${common_flags[@]}"                                                                                                 \
+  strm/bin/var_int.cc strm/syntax_error.cc strm/out.cc base/time.cc strm/past_end.cc strm/in.cc strm/bin/in.cc         \
+  util/io.cc base/demangle.cc base/code_location.cc base/event_semaphore.cc util/error.cc                              \
+  jhm/make_dep_file.cc base/thrower.cc base/fd.cc base/split.cc base/subprocess.cc base/error.cc base/pump.cc          \
+  -I./ -DSRC_ROOT=\"`pwd`\"                                                                                            \
+  -msse2 -pthread
+
+mkdir -p ../.jhm
