@@ -1,4 +1,4 @@
-/* <orly/type/assoc_infix_visitor.h>
+/* <orly/type/commutative_infix_visitor.h>
 
    TODO
 
@@ -24,13 +24,13 @@ namespace Orly {
 
   namespace Type {
 
-    class TAssocInfixVisitor
+    class TCommutativeInfixVisitor
         : public TInfixVisitor {
-      NO_COPY(TAssocInfixVisitor);
+      NO_COPY(TCommutativeInfixVisitor);
       protected:
 
       /* TODO */
-      TAssocInfixVisitor(TType &type, const TPosRange &pos_range)
+      TCommutativeInfixVisitor(TType &type, const TPosRange &pos_range)
           : TInfixVisitor(type, pos_range) {}
 
       /* TODO */

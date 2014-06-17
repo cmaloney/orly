@@ -20,7 +20,7 @@
 
 #include <orly/error.h>
 #include <orly/pos_range.h>
-#include <orly/type/assoc_infix_visitor.h>
+#include <orly/type/commutative_infix_visitor.h>
 #include <orly/type/unwrap.h>
 
 namespace Orly {
@@ -29,12 +29,12 @@ namespace Orly {
 
     /* Defines basic behaviours for add. */
     class TAddVisitor
-        : public TAssocInfixVisitor {
+        : public TCommutativeInfixVisitor {
       NO_COPY(TAddVisitor);
       protected:
 
       TAddVisitor(TType &type, const TPosRange &pos_range)
-          : TAssocInfixVisitor(type, pos_range) {}
+          : TCommutativeInfixVisitor(type, pos_range) {}
 
       private:
 
