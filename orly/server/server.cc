@@ -22,8 +22,6 @@
 #include <sys/syscall.h>
 
 #include <base/booster.h>
-#include <base/error_utils.h>
-#include <base/io_utils.h>
 #include <base/glob.h>
 #include <base/not_implemented.h>
 #include <gz/input_producer.h>
@@ -35,11 +33,13 @@
 #include <orly/mynde/binary_protocol.h>
 #include <orly/mynde/protocol.h>
 #include <orly/mynde/value.h>
-#include <strm/past_end.h>
 #include <orly/protocol.h>
 #include <strm/fd.h>
 #include <strm/bin/in.h>
 #include <strm/bin/out.h>
+#include <strm/past_end.h>
+#include <util/error.h>
+#include <util/io.h>
 
 using namespace std;
 using namespace chrono;
@@ -51,6 +51,7 @@ using namespace Orly;
 using namespace Orly::Handshake;
 using namespace Orly::Indy;
 using namespace Orly::Server;
+using namespace ::Util;
 
 const Orly::Indy::TMasterContext::TProtocol Orly::Indy::TMasterContext::TProtocol::Protocol;
 const Orly::Indy::TSlaveContext::TProtocol Orly::Indy::TSlaveContext::TProtocol::Protocol;
@@ -680,7 +681,7 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
     cpu_set_t mask;
     CPU_ZERO(&mask);
     CPU_SET(core, &mask);
-    Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
+    IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
     syslog(LOG_INFO, "Slow Scheduler TID=[%ld] on core [%ld]", syscall(SYS_gettid), core); /* TEMP */
     if (!Fiber::TFrame::LocalFramePool) {
       Fiber::TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(FramePoolManager.get());
@@ -708,7 +709,7 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
     cpu_set_t mask;
     CPU_ZERO(&mask);
     CPU_SET(core, &mask);
-    Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
+    IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
     syslog(LOG_INFO, "Fast Scheduler TID=[%ld] on core [%ld]", syscall(SYS_gettid), core); /* TEMP */
     //Base::TBooster booster; /* TODO : We can only boost when we are sure we are the only thread assigned to a core! */
     if (!Fiber::TFrame::LocalFramePool) {
@@ -2539,7 +2540,7 @@ void TIndyReporter::ServeClient(TFd &fd) {
   assert(this);
   char buf[8192];
   for (;;) {
-    Base::IfLt0(read(fd, buf, 8192));
+    IfLt0(read(fd, buf, 8192));
     stringstream ss;
     ss << "HTTP/1.1 200 OK" << endl;
     stringstream report;
@@ -2549,11 +2550,11 @@ void TIndyReporter::ServeClient(TFd &fd) {
     ss << report.str();
     std::streamsize num_read = ss.readsome(buf, 8192);
     while (num_read > 0) {
-      Base::IfLt0(write(fd, buf, num_read));
+      IfLt0(write(fd, buf, num_read));
       num_read = ss.readsome(buf, 8192);
     }
     int ret = read(fd, buf, 8192);
-    Base::IfLt0(ret);
+    IfLt0(ret);
     if (!ret) {
       break;
     }

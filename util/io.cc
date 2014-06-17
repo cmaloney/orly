@@ -1,6 +1,6 @@
-/* <base/io_utils.cc>
+/* <util/io.cc>
 
-   Implements <base/io_utils.h>.
+   Implements <util/io.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,7 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/io_utils.h>
+#include <util/io.h>
 
 #include <cassert>
 #include <cerrno>
@@ -27,20 +27,21 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 
-#include <base/error_utils.h>
 #include <base/time.h>
+#include <util/error.h>
 
+using namespace Base;
 using namespace std;
 
-bool Base::IsValidFd(int fd) {
+bool Util::IsValidFd(int fd) {
   return fcntl(fd, F_GETFD) >= 0;
 }
 
-size_t Base::ReadAtMost(int fd, void *buf, size_t max_size) {
+size_t Util::ReadAtMost(int fd, void *buf, size_t max_size) {
   return IfLt0(read(fd, buf, max_size));
 }
 
-size_t Base::ReadAtMost(int fd, void *buf, size_t max_size, int timeout_ms) {
+size_t Util::ReadAtMost(int fd, void *buf, size_t max_size, int timeout_ms) {
   if (timeout_ms >= 0) {
     struct pollfd event;
     event.fd = fd;
@@ -56,13 +57,13 @@ size_t Base::ReadAtMost(int fd, void *buf, size_t max_size, int timeout_ms) {
   return ReadAtMost(fd, buf, max_size);
 }
 
-size_t Base::WriteAtMost(int fd, const void *buf, size_t max_size) {
+size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
   struct stat stat;
   IfLt0(fstat(fd, &stat));
   return IfLt0(S_ISSOCK(stat.st_mode) ? send(fd, buf, max_size, MSG_NOSIGNAL) : write(fd, buf, max_size));
 }
 
-size_t Base::WriteAtMost(int fd, const void *buf, size_t max_size,
+size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size,
     int timeout_ms) {
   if (timeout_ms >= 0) {
     struct pollfd event;
@@ -79,7 +80,7 @@ size_t Base::WriteAtMost(int fd, const void *buf, size_t max_size,
   return WriteAtMost(fd, buf, max_size);
 }
 
-bool Base::TryReadExactly(int fd, void *buf, size_t size) {
+bool Util::TryReadExactly(int fd, void *buf, size_t size) {
   char
       *csr = static_cast<char *>(buf),
       *end = csr + size;;
@@ -96,7 +97,7 @@ bool Base::TryReadExactly(int fd, void *buf, size_t size) {
   return true;
 }
 
-bool Base::TryReadExactly(int fd, void *buf, size_t size, int timeout_ms) {
+bool Util::TryReadExactly(int fd, void *buf, size_t size, int timeout_ms) {
   if (timeout_ms < 0) {
     return TryReadExactly(fd, buf, size);
   }
@@ -138,7 +139,7 @@ bool Base::TryReadExactly(int fd, void *buf, size_t size, int timeout_ms) {
   return true;
 }
 
-bool Base::TryWriteExactly(int fd, const void *buf,
+bool Util::TryWriteExactly(int fd, const void *buf,
     size_t size) {
   const char
       *csr = static_cast<const char *>(buf),
@@ -156,7 +157,7 @@ bool Base::TryWriteExactly(int fd, const void *buf,
   return true;
 }
 
-bool Base::TryWriteExactly(int fd, const void *buf, size_t size,
+bool Util::TryWriteExactly(int fd, const void *buf, size_t size,
     int timeout_ms) {
   if (timeout_ms < 0) {
     return TryWriteExactly(fd, buf, size);
@@ -199,13 +200,13 @@ bool Base::TryWriteExactly(int fd, const void *buf, size_t size,
   return true;
 }
 
-void Base::SetCloseOnExec(int fd) {
+void Util::SetCloseOnExec(int fd) {
   int flags;
   IfLt0(flags = fcntl(fd, F_GETFD, 0));
   IfLt0(fcntl(fd, F_SETFD, flags | O_CLOEXEC));
 }
 
-void Base::SetNonBlocking(int fd) {
+void Util::SetNonBlocking(int fd) {
   int flags;
   IfLt0(flags = fcntl(fd, F_GETFL, 0));
   IfLt0(fcntl(fd, F_SETFL, flags | O_NONBLOCK));

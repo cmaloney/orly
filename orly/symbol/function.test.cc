@@ -18,6 +18,8 @@
 
 #include <orly/expr/test_kit.h>
 
+using namespace Util;
+
 FIXTURE(Function) {
   /* package scope; */
   TPackage::TPtr package = TPackage::New({"foo"}, 1);
@@ -83,8 +85,9 @@ FIXTURE(Function) {
   /* ParamDefs */
   const auto &bar_param_defs = bar->GetParamDefs();
   EXPECT_EQ(bar_param_defs.size(), 2U);
-  EXPECT_TRUE(Base::Contains(bar_param_defs, x_def));
-  EXPECT_TRUE(Base::Contains(bar_param_defs, y_def));
+  EXPECT_TRUE(Contains(bar_param_defs, x_def));
+  EXPECT_TRUE(
+    Contains(bar_param_defs, y_def));
   /* GetScope */
   EXPECT_EQ(bar->GetScope(), package);
   /* GetReturnType */

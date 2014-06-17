@@ -1,6 +1,6 @@
-/* <base/path_utils.cc>
+/* <util/path.cc>
 
-   Implements <base/path_utils.h>.
+   Implements <util/path.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,7 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/path_utils.h>
+#include <util/path.h>
 
 #include <cassert>
 #include <cstring>
@@ -25,21 +25,22 @@
 
 #include <unistd.h>
 
-#include <base/error_utils.h>
 #include <base/dir_walker.h>
+#include <util/error.h>
 
-using namespace std;
 using namespace Base;
+using namespace std;
+using namespace Util;
 
-void Base::Delete(const char *path) {
+void Util::Delete(const char *path) {
   IfLt0(unlink(path));
 }
 
-void Base::EnsureDirExists(const char *path, mode_t mode) {
+void Util::EnsureDirExists(const char *path, mode_t mode) {
   EnsureDirExists(path, false, mode);
 }
 
-void Base::EnsureDirExists(const char *path, bool skip_last, mode_t mode) {
+void Util::EnsureDirExists(const char *path, bool skip_last, mode_t mode) {
   assert(path);
   /* Make a copy of the path so we can drop c-string terminators into it where we like.
      Point at the start of the copy and to its first non-slash character, which might be
@@ -75,7 +76,7 @@ void Base::EnsureDirExists(const char *path, bool skip_last, mode_t mode) {
   }  // for
 }
 
-void Base::EnsureDirIsGone(const char *path) {
+void Util::EnsureDirIsGone(const char *path) {
   assert(path);
   class dir_walker_t final : public TDirWalker {
     virtual bool OnBlockDev(const TEntry &entry) override {
@@ -127,7 +128,7 @@ void Base::EnsureDirIsGone(const char *path) {
   dir_walker_t().Walk(path);
 }
 
-bool Base::ExistsPath(const char *path) {
+bool Util::ExistsPath(const char *path) {
   assert(path);
   struct stat st;
   bool result;
@@ -142,12 +143,12 @@ bool Base::ExistsPath(const char *path) {
   return result;
 }
 
-string Base::GetCwd() {
+string Util::GetCwd() {
   unique_ptr<char, void (*)(void*)> cwd(getcwd(0, 0), &free);
   return string(cwd.get());
 }
 
-string Base::MakePath(bool is_absolute, initializer_list<const char *> dirs, initializer_list<const char *> parts) {
+string Util::MakePath(bool is_absolute, initializer_list<const char *> dirs, initializer_list<const char *> parts) {
   ostringstream strm;
   for (const char *start: dirs) {
     if (start) {
@@ -179,7 +180,7 @@ string Base::MakePath(bool is_absolute, initializer_list<const char *> dirs, ini
   return strm.str();
 }
 
-string Base::MakePath(initializer_list<const char *> dirs, initializer_list<const char *> parts) {
+string Util::MakePath(initializer_list<const char *> dirs, initializer_list<const char *> parts) {
   bool is_absolute = false;
   if (dirs.begin() != dirs.end()) {
     const char *dir = *dirs.begin();

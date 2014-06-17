@@ -23,6 +23,7 @@
 
 using namespace std;
 using namespace Orly::Indy::Disk;
+using namespace Orly::Indy::Disk::Util;
 
 class TMetaRewriteInFile
     : public TInFile {
@@ -34,7 +35,7 @@ class TMetaRewriteInFile
 
   virtual size_t GetFileLength() const override {
     assert(this);
-    return BlockVec.Size() * Util::LogicalBlockSize;
+    return BlockVec.Size() * LogicalBlockSize;
   }
 
   virtual size_t GetStartingBlock() const override {
@@ -49,7 +50,7 @@ class TMetaRewriteInFile
 
   virtual size_t FindPageIdOfByte(size_t offset) const override {
     assert(offset <= GetFileLength());
-    return ((BlockVec[offset / Util::LogicalBlockSize]) * Util::PagesPerBlock) + ((offset % Util::LogicalBlockSize) / Util::LogicalPageSize);
+    return ((BlockVec[offset / LogicalBlockSize]) * PagesPerBlock) + ((offset % LogicalBlockSize) / LogicalPageSize);
   }
 
   private:

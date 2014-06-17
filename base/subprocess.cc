@@ -24,12 +24,13 @@
 
 #include <iostream>
 
-#include <base/error_utils.h>
 #include <strm/bin/in.h>
 #include <strm/fd.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 int TSubprocess::WaitAll() {
   siginfo_t status;

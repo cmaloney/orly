@@ -23,6 +23,7 @@
 
 using namespace Orly;
 using namespace Var;
+using namespace Util;
 
 void TDict::Insert(const TDictType::const_iterator &begin, const TDictType::const_iterator &end) {
   assert(this);
@@ -70,7 +71,7 @@ void TDict::SetHash() {
   Hash = 0;
   for (auto iter = Val.begin(); iter != Val.end(); ++iter) {
     Hash ^= iter->first.GetHash();
-    Hash ^= Base::RotatedLeft(iter->second.GetHash(), 5);
+    Hash ^= RotatedLeft(iter->second.GetHash(), 5);
   }
 }
 

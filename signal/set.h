@@ -24,8 +24,8 @@
 
 #include <signal.h>
 
-#include <base/error_utils.h>
 #include <base/no_default_case.h>
+#include <util/error.h>
 
 namespace Signal {
 
@@ -62,15 +62,15 @@ namespace Signal {
     TSet(TOp0 op = Empty) {
       switch (op) {
         case Empty: {
-          Base::IfLt0(sigemptyset(&OsObj));
+          Util::IfLt0(sigemptyset(&OsObj));
           break;
         }
         case Full: {
-          Base::IfLt0(sigfillset(&OsObj));
+          Util::IfLt0(sigfillset(&OsObj));
           break;
         }
         case Mask: {
-          Base::IfNe0(pthread_sigmask(0, nullptr, &OsObj));
+          Util::IfNe0(pthread_sigmask(0, nullptr, &OsObj));
           break;
         }
         NO_DEFAULT_CASE;
@@ -81,16 +81,16 @@ namespace Signal {
     TSet(TOp1 op, std::initializer_list<int> sigs) {
       switch (op) {
         case Include: {
-          Base::IfLt0(sigemptyset(&OsObj));
+          Util::IfLt0(sigemptyset(&OsObj));
           for (int sig: sigs) {
-            Base::IfLt0(sigaddset(&OsObj, sig));
+            Util::IfLt0(sigaddset(&OsObj, sig));
           }
           break;
         }
         case Exclude: {
-          Base::IfLt0(sigfillset(&OsObj));
+          Util::IfLt0(sigfillset(&OsObj));
           for (int sig: sigs) {
-            Base::IfLt0(sigdelset(&OsObj, sig));
+            Util::IfLt0(sigdelset(&OsObj, sig));
           }
           break;
         }
@@ -114,14 +114,14 @@ namespace Signal {
     /* Add the signal to the set. */
     TSet &operator+=(int sig) {
       assert(this);
-      Base::IfLt0(sigaddset(&OsObj, sig));
+      Util::IfLt0(sigaddset(&OsObj, sig));
       return *this;
     }
 
     /* Remove the signal from the set. */
     TSet &operator-=(int sig) {
       assert(this);
-      Base::IfLt0(sigdelset(&OsObj, sig));
+      Util::IfLt0(sigdelset(&OsObj, sig));
       return *this;
     }
 
@@ -141,7 +141,7 @@ namespace Signal {
     bool operator[](int sig) const {
       assert(this);
       int result;
-      Base::IfLt0(result = sigismember(&OsObj, sig));
+      Util::IfLt0(result = sigismember(&OsObj, sig));
       return result != 0;
     }
 

@@ -35,8 +35,8 @@
 #include <base/class_traits.h>
 #include <base/past_end_error.h>
 #include <base/peekable.h>
-#include <base/stl_utils.h>
 #include <server/half_latch.h>
+#include <util/stl.h>
 #include <orly/context_base.h>
 #include <orly/indy/key.h>
 #include <orly/key_generator.h>
@@ -1219,7 +1219,7 @@ namespace Orly {
         /* The tour associated with the given key, if any. */
         TTour<TKey> *TryGetTour(const TKey &key) const {
           assert(this);
-          return Base::FindOrDefault(TourByKey, key, 0);
+          return Util::FindOrDefault(TourByKey, key, 0);
         }
 
         protected:
@@ -1630,7 +1630,7 @@ namespace Orly {
             : Op(op), Cluster(cluster), Tour(0), OlderVersion(0), NewerVersion(0) {
           assert(cluster);
           LinkToTour(key);
-          Base::InsertOrFail(cluster->VersionByKey, std::pair<TKey, TVersion<TKey> *>(key, this));
+          Util::InsertOrFail(cluster->VersionByKey, std::pair<TKey, TVersion<TKey> *>(key, this));
         }
 
         /* Unlink from our cluster and from our tour.
@@ -1739,7 +1739,7 @@ namespace Orly {
         /* The version we keep for the given key, if any. */
         TVersion<TKey> *TryGetVersion(const TKey &key) const {
           assert(this);
-          return Base::FindOrDefault(VersionByKey, key, 0);
+          return Util::FindOrDefault(VersionByKey, key, 0);
         }
 
         private:

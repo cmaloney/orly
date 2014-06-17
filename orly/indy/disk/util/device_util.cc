@@ -25,13 +25,14 @@
 
 using namespace Orly::Indy::Disk::Util;
 using namespace std;
+using namespace ::Util;
 
 bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
   try {
     Base::TFd fd = open(path, O_RDONLY);
     auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
     try {
-      Base::IfLt0(pread(fd, buf.get(), BlockSize, 0UL));
+      IfLt0(pread(fd, buf.get(), BlockSize, 0UL));
       if (buf.get()[MagicNumberPos] != OrlyFSMagicNumber) {
         return false;
       }
@@ -81,7 +82,7 @@ void TDeviceUtil::ModifyDevice(const char *path, TOrlyDevice &new_device_info) {
     buf.get()[NumLogicalBlockExposedPos] = new_device_info.NumLogicalBlockExposed;
     buf.get()[MinDiscardBlocksPos] = new_device_info.MinDiscardBlocks;
     buf.get()[NumDataElem] = Base::Murmur(buf.get(), NumDataElem, 0UL);
-    Base::IfLt0(pwrite(fd, buf.get(), BlockSize, 0UL));
+    IfLt0(pwrite(fd, buf.get(), BlockSize, 0UL));
     fsync(fd);
   } catch (...) {
     throw;
@@ -92,7 +93,7 @@ void TDeviceUtil::ZeroSuperBlock(const char *path) {
   auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
   try {
     memset(buf.get(), 0, BlockSize);
-    Base::IfLt0(pwrite(fd, buf.get(), BlockSize, 0UL));
+    IfLt0(pwrite(fd, buf.get(), BlockSize, 0UL));
     fsync(fd);
   } catch (...) {
     throw;
@@ -161,10 +162,10 @@ size_t TDeviceUtil::GetValFromDeviceInfo(const std::string &dev_name, const std:
   size_t val = 0UL;
   try {
     Base::TFd fd = open(info_path.c_str(), O_RDONLY);
-    Base::IfLt0(fd);
+    IfLt0(fd);
     char buf[64];
     char *ptr = buf;
-    Base::IfLt0(pread(fd, buf, 64, 0));
+    IfLt0(pread(fd, buf, 64, 0));
     val = strtol(ptr, &ptr, 10);
   } catch (const std::exception &ex) {
     syslog(LOG_ERR, "Error while opening [%s] file [%s] for device [%s] : %s", path_to_field.c_str(), info_path.c_str(), dev_name.c_str(), ex.what());

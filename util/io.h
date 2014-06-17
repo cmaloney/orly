@@ -1,4 +1,4 @@
-/* <base/io_utils.h>
+/* <util/io.h>
 
    I/O utilities.
 
@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 
-namespace Base {
+namespace Util {
 
   /* Returns true iff the fd is valid. */
   bool IsValidFd(int fd);
@@ -146,4 +146,4 @@ namespace Base {
   /* Sets the given fd to non-blocking I/O. */
   void SetNonBlocking(int fd);
 
-}  // Base
+}  // Util

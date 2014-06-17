@@ -29,6 +29,7 @@ using namespace placeholders;
 using namespace Base;
 using namespace Orly::Spa;
 using namespace Orly::Spa::FluxCapacitor;
+using namespace Util;
 
 /* These are used in the ForEachTour() functions in TNodeIndex and TEdgeIndex. */
 static const string EmptyString;

@@ -1,4 +1,4 @@
-/* <base/stl_utils.h>
+/* <util/stl.h>
 
    Some utilities for working with STL containers.
 
@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <initializer_list>
 #include <limits>
 #include <type_traits>
@@ -27,7 +28,7 @@
 #include <base/class_traits.h>
 #include <server/daemonize.h>
 
-namespace Base {
+namespace Util {
 
   /* Return true iff. a given value is in a container. */
   template <typename TContainer>

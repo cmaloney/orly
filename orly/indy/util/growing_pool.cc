@@ -22,7 +22,6 @@
 #include <cstdlib>
 #include <string.h>
 
-#include <base/error_utils.h>
 #include <base/mlock.h>
 
 using namespace std;
@@ -75,7 +74,7 @@ void *TGrowingPool::TryAlloc(size_t size) {
       syslog(LOG_EMERG, "TGrowingPool::TryAlloc() [%s] bad_alloc while trying to allocate block [%ld bytes]", Name, BlockSize);
       throw std::bad_alloc();
     }
-    MlockRaw(block, BlockSize);
+    Base::MlockRaw(block, BlockSize);
     #ifndef NDEBUG
     memset(block, 0, BlockSize);
     #endif

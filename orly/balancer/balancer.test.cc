@@ -18,13 +18,13 @@
 
 #include <orly/balancer/balancer.h>
 
-#include <base/io_utils.h>
 #include <base/epoll.h>
 #include <base/event_counter.h>
 #include <base/timer_fd.h>
 #include <base/uuid.h>
 #include <io/device.h>
 #include <rpc/rpc.h>
+#include <util/io.h>
 
 #include <test/kit.h>
 
@@ -34,6 +34,7 @@ using namespace Base;
 using namespace Io;
 using namespace Socket;
 using namespace Orly::Balancer;
+using namespace Util;
 
 class TRouter : public TBalancer {
   NO_COPY(TRouter);

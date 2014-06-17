@@ -36,7 +36,6 @@
 
 #include <base/class_traits.h>
 #include <base/code_location.h>
-#include <base/error_utils.h>
 #include <base/event_semaphore.h>
 #include <base/likely.h>
 #include <base/mem_aligned_ptr.h>
@@ -50,6 +49,7 @@
 #include <orly/indy/disk/priority.h>
 #include <orly/indy/disk/result.h>
 #include <orly/indy/disk/util/device_util.h>
+#include <util/error.h>
 
 namespace Orly {
 
@@ -796,7 +796,7 @@ namespace Orly {
             assert(Desc.Capacity % getpagesize() == 0);
             try {
               DiskFd = open(device_path, O_RDWR | O_DIRECT);
-              Base::IfLt0(DiskFd);
+              ::Util::IfLt0(DiskFd);
             } catch (const std::exception &ex) {
               syslog(LOG_ERR, "Error while opening block device [%s] : %s", device_path, ex.what());
               throw;
@@ -856,7 +856,7 @@ namespace Orly {
               range[0] = from;
               range[1] = num_bytes;
               try {
-                Base::IfLt0(ioctl(DiskFd, BLKDISCARD, &range));
+                ::Util::IfLt0(ioctl(DiskFd, BLKDISCARD, &range));
               } catch (const std::exception &ex) {
                 syslog(LOG_ERR, "Error calling BLKDISCARD from [%ld] for [%ld] bytes on device [%s]", range[0], range[1], DevicePath.c_str());
                 throw;

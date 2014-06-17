@@ -30,11 +30,13 @@
 #include <linux/limits.h>
 #include <sys/stat.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
+
 #include <test/kit.h>
 
-using namespace std;
 using namespace Base;
+using namespace std;
+using namespace Util;
 
 /* Create an empty file with the given name in the given directory. */
 static void CreateFile(const char *dir, const char *name) {

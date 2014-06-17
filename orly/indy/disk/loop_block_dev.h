@@ -20,7 +20,7 @@
 
 #include <sstream>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 namespace Orly {
 
@@ -43,10 +43,10 @@ namespace Orly {
           cmd3 << "sudo /sbin/losetup /dev/" << LoopName << " /tmp/" << FileName;
           std::stringstream cmd4;
           cmd4 << "sudo /bin/chown $USER /dev/" << LoopName;
-          Base::IfLt0(system(cmd1.str().c_str()));
-          Base::IfLt0(system(cmd2.str().c_str()));
-          Base::IfLt0(system(cmd3.str().c_str()));
-          Base::IfLt0(system(cmd4.str().c_str()));
+          ::Util::IfLt0(system(cmd1.str().c_str()));
+          ::Util::IfLt0(system(cmd2.str().c_str()));
+          ::Util::IfLt0(system(cmd3.str().c_str()));
+          ::Util::IfLt0(system(cmd4.str().c_str()));
         }
 
         ~TBlockDev() {
@@ -54,8 +54,8 @@ namespace Orly {
           cmd1 << "sudo /sbin/losetup -d /dev/" << LoopName;
           std::stringstream cmd2;
           cmd2 << "rm -f /tmp/" << FileName;
-          Base::IfLt0(system(cmd1.str().c_str()));
-          Base::IfLt0(system(cmd2.str().c_str()));
+          ::Util::IfLt0(system(cmd1.str().c_str()));
+          ::Util::IfLt0(system(cmd2.str().c_str()));
         }
 
         private:

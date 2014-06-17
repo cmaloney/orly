@@ -28,6 +28,7 @@ using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Orly::Indy::Disk::Util;
+using namespace ::Util;
 
 TDiskUtil::TDiskUtil(Base::TScheduler *scheduler,
                      TDiskController *controller,
@@ -218,7 +219,7 @@ void TDiskUtil::CreateVolume(const std::string &instance_name,
     }
     char size_max_bytes[64];
     char *ptr = size_max_bytes;
-    Base::IfLt0(pread(size_fd, size_max_bytes, 64, 0));
+    IfLt0(pread(size_fd, size_max_bytes, 64, 0));
     size_t num_logical_blocks = strtol(ptr, &ptr, 10);
     min_logical_blocks = std::min(min_logical_blocks, num_logical_blocks);
   }

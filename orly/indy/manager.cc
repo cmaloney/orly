@@ -30,6 +30,8 @@ using namespace Base;
 using namespace Io;
 using namespace Orly::Atom;
 using namespace Orly::Indy;
+using namespace Orly::Indy::Util;
+using namespace ::Util;
 
 const int TManager::SavedRepoMagicNumber = 8754321;
 
@@ -191,7 +193,7 @@ void TManager::RunReplicationQueue() {
             continue;
           }
         } else {
-          Base::IfLt0(ret);
+          IfLt0(ret);
           break;
         }
       }
@@ -252,7 +254,7 @@ void TManager::RunReplicationWork() {
             continue;
           }
         } else {
-          Base::IfLt0(ret);
+          IfLt0(ret);
           break;
         }
       }
@@ -301,7 +303,7 @@ void TManager::RunReplicateTransaction() {
             continue;
           }
         } else {
-          Base::IfLt0(ret);
+          IfLt0(ret);
           break;
         }
       }
@@ -518,7 +520,7 @@ void TManager::TMaster::NotifyFinishSyncInventory() {
   Manager->SlaveNotifyCond.notify_all();
 }
 
-Util::TContextInputStreamer TManager::TMaster::FetchUpdates(const TUuid &repo_id, TSequenceNumber lowest, TSequenceNumber highest) {
+TContextInputStreamer TManager::TMaster::FetchUpdates(const TUuid &repo_id, TSequenceNumber lowest, TSequenceNumber highest) {
   assert(this);
   std::cout << "TMaster::FetchUpdates(" << repo_id << ") [" << lowest << " -> " << highest << "]" << std::endl;
   Base::TTimer timer;
@@ -527,7 +529,7 @@ Util::TContextInputStreamer TManager::TMaster::FetchUpdates(const TUuid &repo_id
   assert(Manager->SlaveSyncViewMap.find(repo_id) != Manager->SlaveSyncViewMap.end());
   const auto &view = Manager->SlaveSyncViewMap.find(repo_id)->second;
   auto walker_ptr = repo->NewUpdateWalker(view, lowest, highest);
-  Util::TContextInputStreamer context;
+  TContextInputStreamer context;
   for (TUpdateWalker &walker = *walker_ptr; walker; ++walker) {
     context.AppendUpdate(repo_id, *walker);
   }
@@ -702,7 +704,7 @@ void TManager::TSlave::PullUpdateRange(const Base::TUuid &repo_id, TManager::TPt
     for (size_t i = from; i <= to; i += (max_update_pull + 1UL)) {
       TSequenceNumber cur_from = i;
       TSequenceNumber cur_to = std::min(i + max_update_pull, to);
-      auto future = Write<Util::TContextInputStreamer>(TMaster::FetchUpdatesId, repo_id, cur_from, cur_to);
+      auto future = Write<TContextInputStreamer>(TMaster::FetchUpdatesId, repo_id, cur_from, cur_to);
       assert(future);
       Util::TContextInputStreamer context = **future;
       Base::TTimer timer;

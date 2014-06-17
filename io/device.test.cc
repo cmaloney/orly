@@ -18,14 +18,16 @@
 
 #include <io/device.h>
 
-#include <base/tuple_utils.h>
 #include <io/binary_input_only_stream.h>
 #include <io/binary_output_only_stream.h>
+#include <util/tuple.h>
+
 #include <test/kit.h>
 
 using namespace std;
 using namespace Base;
 using namespace Io;
+using namespace Util;
 
 template <size_t N, typename... TArgs>
 class TTupleWriter;

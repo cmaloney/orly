@@ -21,12 +21,13 @@
 #include <cstdlib>
 #include <new>
 
-#include <base/error_utils.h>
 #include <base/shutting_down.h>
 #include <base/zero.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 TEpoll::TEpoll()
     : Fd(epoll_create1(0)), Events(nullptr), MaxEventCount(0), EventCount(0), FdCount(0) {}

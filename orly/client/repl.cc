@@ -27,12 +27,12 @@
 
 #include <unistd.h>
 
-#include <base/error_utils.h>
-#include <base/io_utils.h>
 #include <orly/protocol.h>
 #include <orly/client/program/interpret_stmt.h>
 #include <orly/client/program/parse_stmt.h>
 #include <tools/nycr/error.h>
+#include <util/io.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace chrono;
@@ -42,6 +42,7 @@ using namespace Orly;
 using namespace Orly::Client;
 using namespace Orly::Client::Program;
 using namespace Tools;
+using namespace Util;
 
 int TRepl::Main(int argc, char *argv[]) NO_THROW {
   int result;

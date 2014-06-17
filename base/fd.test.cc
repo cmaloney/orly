@@ -22,12 +22,14 @@
 
 #include <cstring>
 
-#include <base/io_utils.h>
 #include <base/zero.h>
+#include <util/io.h>
+
 #include <test/kit.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 static const char *ExpectedData = "hello";
 static const size_t ExpectedSize = strlen(ExpectedData);

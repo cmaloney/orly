@@ -20,11 +20,11 @@
 
 #include <netdb.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 using namespace std;
-using namespace Base;
 using namespace Socket::Db;
+using namespace Util;
 
 TError::TError(int error_code)
     : runtime_error(gai_strerror(error_code)) {}

@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
     }
     return EXIT_SUCCESS;
   }
-  Util::TCacheCb cache_cb = [](TCacheInstr /*cache_instr*/, const TOffset /*logical_start_offset*/, void */*buf*/, size_t /*count*/) {};
+  TCacheCb cache_cb = [](TCacheInstr /*cache_instr*/, const TOffset /*logical_start_offset*/, void */*buf*/, size_t /*count*/) {};
   TDiskController controller;
   TDiskUtil disk_util(&scheduler, &controller, Base::TOpt<std::string>(), false /*fsync*/, cache_cb, true);
   if (cmd.List) {

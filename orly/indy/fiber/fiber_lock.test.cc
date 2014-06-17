@@ -25,14 +25,15 @@
 
 #include <unistd.h>
 
-#include <base/error_utils.h>
 #include <base/timer.h>
+#include <util/error.h>
 
 #include <test/kit.h>
 
 using namespace std;
 using namespace Base;
 using namespace Orly::Indy::Fiber;
+using namespace Util;
 
 std::mutex Mutex;
 Base::TSpinLock SpinLock;
@@ -122,7 +123,7 @@ FIXTURE(Typical) {
     cpu_set_t mask;
     CPU_ZERO(&mask);
     CPU_SET(i, &mask);
-    Base::IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
+    IfLt0(sched_setaffinity(syscall(SYS_gettid), sizeof(cpu_set_t), &mask));
     assert(runner);
     /* wait for start */ {
       std::unique_lock<std::mutex> lock(mut);

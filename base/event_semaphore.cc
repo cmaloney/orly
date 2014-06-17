@@ -23,10 +23,11 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 
-#include <base/error_utils.h>
-#include <base/io_utils.h>
+#include <util/error.h>
+#include <util/io.h>
 
 using namespace Base;
+using namespace Util;
 
 TEventSemaphore::TEventSemaphore(uint64_t initial_count, bool nonblocking)
     : Fd(eventfd(initial_count, EFD_SEMAPHORE)) {

@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 
 #include <base/class_traits.h>
-#include <base/error_utils.h>
+#include <util/error.h>
 
 namespace Base {
 
@@ -63,14 +63,14 @@ namespace Base {
     /* Copy-construct, duplicating the file descriptor with the OS call dup(), if necessary. */
     TFd(const TFd &that) {
       assert(&that);
-      OsHandle = that.IsSystemFd() ? that.OsHandle : IfLt0(dup(that.OsHandle));
+      OsHandle = that.IsSystemFd() ? that.OsHandle : Util::IfLt0(dup(that.OsHandle));
     }
 
     /* Construct from a naked file descriptor, which the new instance will own.  Use this constructor to capture the result of an OS function, such as
        socket(), which returns a newly created file descriptor.  If the result is not a legal file descriptor, this function will throw the
        appropriate error.  */
     TFd(int os_handle) {
-      OsHandle = IfLt0(os_handle);
+      OsHandle = Util::IfLt0(os_handle);
     }
 
     /* Close the file descriptor we own, if any.  If the descriptor is in the stdio range (0-2), then don't close it. */
@@ -146,7 +146,7 @@ namespace Base {
       assert(&readable);
       assert(&writeable);
       int fds[2];
-      IfLt0(pipe2(fds, flags) < 0);
+      Util::IfLt0(pipe2(fds, flags) < 0);
       readable = TFd(fds[0], NoThrow);
       writeable = TFd(fds[1], NoThrow);
     }
@@ -156,7 +156,7 @@ namespace Base {
       assert(&lhs);
       assert(&rhs);
       int fds[2];
-      IfLt0(socketpair(domain, type, proto, fds));
+      Util::IfLt0(socketpair(domain, type, proto, fds));
       lhs = TFd(fds[0], NoThrow);
       rhs = TFd(fds[1], NoThrow);
     }

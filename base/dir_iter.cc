@@ -23,10 +23,11 @@
 #include <stack>
 #include <string>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
-using namespace std;
 using namespace Base;
+using namespace std;
+using namespace Util;
 
 TDirIter::TDirIter(const char *dir)
     : Handle(opendir(dir)), Pos(NotFresh) {

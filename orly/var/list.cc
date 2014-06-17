@@ -23,6 +23,7 @@
 #include <orly/var/int.h>
 
 using namespace Orly;
+using namespace Util;
 using namespace Var;
 
 size_t TList::GetHash() const {
@@ -62,7 +63,7 @@ void TList::SetHash() {
   Hash = 0;
   size_t rotate = 0;
   for (auto iter = Val.begin(); iter != Val.end(); ++iter, rotate += 5) {
-    Hash ^= Base::RotatedLeft(iter->GetHash(), rotate);
+    Hash ^= RotatedLeft(iter->GetHash(), rotate);
   }
 }
 

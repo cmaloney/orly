@@ -20,9 +20,10 @@
 
 #include <sys/eventfd.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 using namespace Base;
+using namespace Util;
 
 TEventCounter::TEventCounter(uint64_t initial_count)
     : Fd(eventfd(initial_count, 0)) {}

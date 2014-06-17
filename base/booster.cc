@@ -23,11 +23,13 @@
 
 #include <pthread.h>
 
-#include <base/error_utils.h>
 #include <base/zero.h>
+
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 TBooster::TIneffective::TIneffective()
     : runtime_error("priority boost ineffective; probably not running with sufficient privilege") {}

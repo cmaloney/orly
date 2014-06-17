@@ -30,11 +30,13 @@
 
 #include <unistd.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
+
 #include <test/kit.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 /* A synchronized counter.  We'll use this to manage the thundering herd of threads we'll use for tests. */
 class TCounter {

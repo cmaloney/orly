@@ -1,4 +1,4 @@
-/* <base/path_utils.h>
+/* <util/path.h>
 
    Utilities for working with file system paths.
 
@@ -21,11 +21,9 @@
 #include <initializer_list>
 #include <string>
 
-#include <base/string_utils.h>
-
 #include <sys/stat.h>
 
-namespace Base {
+namespace Util {
 
   /* Deletes the given file (unlink it from the filesystem) */
   void Delete(const char *path);
@@ -36,7 +34,7 @@ namespace Base {
   void EnsureDirExists(const char *path, mode_t mode = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
   /* As above, but with the option to skip the last (right-most) part of the path.
-     Useful for when the path includes the file name but you just want to create the
+     Useful for when the pathz includes the file name but you just want to create the
      directory portion. */
   void EnsureDirExists(const char *path, bool skip_last, mode_t mode = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
@@ -63,4 +61,4 @@ namespace Base {
      If 'dirs' is empty, the path is relative. */
   std::string MakePath(std::initializer_list<const char *> dirs, std::initializer_list<const char *> parts);
 
-}  // Base
+}  // Util

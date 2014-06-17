@@ -27,7 +27,6 @@
 #include <base/assert_true.h>
 #include <base/demangle.h>
 #include <base/class_traits.h>
-#include <base/error_utils.h>
 #include <base/likely.h>
 #include <base/mlock.h>
 #include <base/spin_lock.h>

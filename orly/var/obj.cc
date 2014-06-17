@@ -25,6 +25,7 @@
 using namespace std;
 using namespace Orly;
 using namespace Orly::Var;
+using namespace Util;
 
 /* TODO */
 size_t TObj::GetHash() const {
@@ -55,7 +56,7 @@ void TObj::SetHash() {
   Hash = 0;
   for (auto iter = FieldsByName.begin(); iter != FieldsByName.end(); ++iter) {
     Hash ^= std::hash<std::string>()(iter->first);
-    Hash ^= Base::RotatedLeft(iter->second.GetHash(), 5);
+    Hash ^= RotatedLeft(iter->second.GetHash(), 5);
   }
 }
 

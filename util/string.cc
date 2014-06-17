@@ -1,6 +1,6 @@
-/* <base/string_utils.cc>
+/* <util/string.cc>
 
-   Implements <base/string_utils.h>.
+   Implements <util/string.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,14 +16,14 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/string_utils.h>
+#include <util/string.h>
 
 using namespace std;
-using namespace Base;
+using namespace Util;
 
-const char *Base::CommaSep = ", ";
+const char *Util::CommaSep = ", ";
 
-string Base::ConcatCStrArray(const char *c_strs[]) {
+string Util::ConcatCStrArray(const char *c_strs[]) {
   assert(c_strs);
   ostringstream strm;
   for (const char *const *c_str = c_strs; *c_str; ++c_str) {
@@ -32,7 +32,7 @@ string Base::ConcatCStrArray(const char *c_strs[]) {
   return strm.str();
 }
 
-string Base::ConcatCStrList(initializer_list<const char *> c_strs) {
+string Util::ConcatCStrList(initializer_list<const char *> c_strs) {
   ostringstream strm;
   for (const char *c_str: c_strs) {
     strm << c_str;
@@ -40,7 +40,7 @@ string Base::ConcatCStrList(initializer_list<const char *> c_strs) {
   return strm.str();
 }
 
-bool Base::GenCStrArray(const TCStrUser &c_str_user, const char *c_strs[]) {
+bool Util::GenCStrArray(const TCStrUser &c_str_user, const char *c_strs[]) {
   assert(c_str_user);
   assert(c_strs);
   for (const char *const *c_str = c_strs; *c_str; ++c_str) {
@@ -51,7 +51,7 @@ bool Base::GenCStrArray(const TCStrUser &c_str_user, const char *c_strs[]) {
   return true;
 }
 
-bool Base::GenCStrList(const TCStrUser &c_str_user, initializer_list<const char *> c_strs) {
+bool Util::GenCStrList(const TCStrUser &c_str_user, initializer_list<const char *> c_strs) {
   assert(c_str_user);
   for (const char *c_str: c_strs) {
     if (!c_str_user(c_str)) {
@@ -61,14 +61,14 @@ bool Base::GenCStrList(const TCStrUser &c_str_user, initializer_list<const char 
   return true;
 }
 
-string Base::ToString(const TWriter &writer) {
+string Util::ToString(const TWriter &writer) {
   assert(writer);
   ostringstream strm;
   writer(strm);
   return strm.str();
 }
 
-void Base::WriteBracketedJoin(ostream &strm, const TCStrGen &c_str_gen, char open_c, char close_c, const char *sep) {
+void Util::WriteBracketedJoin(ostream &strm, const TCStrGen &c_str_gen, char open_c, char close_c, const char *sep) {
   assert(&strm);
   assert(c_str_gen);
   assert(sep);
@@ -94,7 +94,7 @@ void Base::WriteBracketedJoin(ostream &strm, const TCStrGen &c_str_gen, char ope
   strm << close_c;
 }
 
-void Base::WriteJoin(ostream &strm, const TCStrGen &c_str_gen, const char *sep) {
+void Util::WriteJoin(ostream &strm, const TCStrGen &c_str_gen, const char *sep) {
   assert(&strm);
   assert(c_str_gen);
   assert(sep);

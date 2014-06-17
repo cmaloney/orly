@@ -20,7 +20,6 @@
 
 #include <tuple>
 
-#include <base/tuple_utils.h>
 #include <test/kit.h>
 
 using namespace std;

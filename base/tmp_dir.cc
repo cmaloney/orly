@@ -25,9 +25,9 @@
 
 #include <unistd.h>
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
-using namespace Base;
+using namespace Util;
 
 TTmpDir::TTmpDir(const char *name_template, bool delete_on_destroy)
     : Name(1 + std::strlen(name_template)),

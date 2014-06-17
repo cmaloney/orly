@@ -36,6 +36,7 @@ using namespace Io;
 using namespace Orly;
 using namespace Orly::Indy;
 using namespace Orly::Indy::Util;
+using namespace ::Util;
 
 Orly::Indy::Util::TPool TUpdate::Pool(sizeof(TUpdate), "Update", 100UL);
 Orly::Indy::Util::TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), "Update Entry", 200UL);

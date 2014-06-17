@@ -18,12 +18,12 @@
 
 #include <io/device.h>
 
-#include <base/io_utils.h>
 #include <io/chunk_and_pool.h>
+#include <util/io.h>
 
-using namespace std;
-using namespace Base;
 using namespace Io;
+using namespace std;
+using namespace Util;
 
 TDevice::TTimeout::TTimeout()
     : runtime_error("timeout") {}

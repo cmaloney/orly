@@ -18,8 +18,8 @@
 
 #include <sys/mman.h>
 
-#include <base/error_utils.h>
 #include <test/is_in_test.h>
+#include <util/error.h>
 
 void Base::MlockRaw(const void *val, uint64_t len) {
   int res = mlock(val, len);
@@ -30,5 +30,5 @@ void Base::MlockRaw(const void *val, uint64_t len) {
     return;
   }
 
-  Base::IfLt0(res);
+  Util::IfLt0(res);
 }

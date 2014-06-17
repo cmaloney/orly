@@ -1,6 +1,6 @@
-/* <base/error_utils.cc>
+/* <util/error.cc>
 
-   Implements <base/error_utils.h>.
+   Implements <util/error.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,12 +16,12 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 #include <cassert>
 #include <cstring>
 
-namespace Base {
+namespace Util {
 
   const char *Strerror(int errno_value, char *buf, size_t buf_size) {
     assert(buf);
@@ -48,4 +48,4 @@ namespace Base {
 #endif
   }
 
-}  // Base
+}  // Util

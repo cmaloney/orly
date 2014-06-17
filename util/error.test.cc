@@ -1,6 +1,6 @@
-/* <base/error_utils.test.cc>
+/* <util/error.test.cc>
 
-   Unit test for <base/error_utils.h>.
+   Unit test for <util/error.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,7 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/error_utils.h>
+#include <util/error.h>
 
 #include <condition_variable>
 #include <mutex>
@@ -30,6 +30,7 @@
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 
 FIXTURE(LibraryGenerated) {
   bool caught = false;
