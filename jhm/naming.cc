@@ -27,13 +27,14 @@
 #include <utility>
 
 #include <base/not_implemented.h>
-#include <base/path_utils.h>
 #include <base/split.h>
 #include <base/syntax_error.h>
+#include <util/path.h>
 
 using namespace std;
 using namespace Base;
 using namespace Jhm;
+using namespace Util;
 
 bool Jhm::EndsWith(const TExtension &full_ext, const TExtension &tail) {
   if (full_ext.size() < tail.size()) {
