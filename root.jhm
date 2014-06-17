@@ -8,7 +8,7 @@
       "jhm/jhm",
       "orly/core_import",
       "tools/nycr/nycr",
-      "tools/make_dep_file",
+      "jhm/make_dep_file",
       "orly/data/beer",
       "orly/data/complete_graph",
       "orly/data/game_of_thrones",
