@@ -164,7 +164,7 @@ FIXTURE(Parse) {
 
 FIXTURE(EscapeSequences) {
   EXPECT_EQ(TJson::Parse(R"foo("\"\\\/\b\f\n\r\t")foo").GetString(), "\"\\/\b\f\n\r\t");
-  EXPECT_EQ(TJson("\"\\/\b\f\n\r\t7").Format(), R"foo("\"\\\/\b\f\n\r\t7")foo");
+  EXPECT_EQ(TJson("\"\\/\b\f\n\r\t7").Format(), R"foo("\"\\/\b\f\n\r\t7")foo");
 }
 
 std::string AsStr(Base::TJson::TKind kind) {
