@@ -5,14 +5,14 @@ BINDIR=$(PREFIX)/bin
 RELEASE_OUT=../out/release
 #Apps get installed on 'make install'
 ORLY_APPS=orly/orlyc orly/server/orlyi orly/spa/spa orly/client/orly_client orly/indy/disk/util/orly_dm
-
+JHM_CMD=jhm $(JHM_FLAGS)
 .PHONY: apps debug release bootstrap nycr test test_lang clean install
 
 debug: bootstrap
-	jhm
+	$(JHM_CMD)
 
 release: bootstrap
-	jhm -c release
+	$(JHM_CMD) -c release
 
 bootstrap: tools/jhm nycr
 
@@ -20,10 +20,10 @@ tools/jhm:
 	./bootstrap.sh
 
 nycr: tools/jhm
-	jhm -c bootstrap
+	$(JHM_CMD) -c bootstrap
 
 test: bootstrap
-	jhm --test
+	$(JHM_CMD) --test
 
 test_lang: debug
 	lang_test.py -d orly/data orly/lang_tests
