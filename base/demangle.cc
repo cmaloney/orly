@@ -22,17 +22,17 @@
 
 using namespace Base;
 
-TDemanlgeStr Base::Demangle(const std::type_info &t) {
+TDemangleStr Base::Demangle(const std::type_info &t) {
   auto ret = Demangle(t.name());
   if (!ret) {
-    ret = TDemanlgeStr(t.name(), [](const char*){});
+    ret = TDemangleStr(t.name(), [](const char*){});
   }
   return ret;
 }
 
-TDemanlgeStr Base::Demangle(const char *name) {
+TDemangleStr Base::Demangle(const char *name) {
   int status;
-  TDemanlgeStr ret(abi::__cxa_demangle(name, nullptr, nullptr, &status),
+  TDemangleStr ret(abi::__cxa_demangle(name, nullptr, nullptr, &status),
                      [](const char *ptr) { free(const_cast<char *>(ptr)); });
   if (status != 0) {
     ret.reset();
@@ -40,7 +40,7 @@ TDemanlgeStr Base::Demangle(const char *name) {
   return ret;
 }
 
-std::ostream &Base::operator<<(std::ostream &out, const TDemanlgeStr &ptr) {
+std::ostream &Base::operator<<(std::ostream &out, const TDemangleStr &ptr) {
   if (ptr) {
     out << ptr.get();
   }

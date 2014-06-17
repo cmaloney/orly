@@ -31,20 +31,20 @@ namespace Base {
      NOTE: We make our own type because the internals are possibly inthe RO section of the binary so const casting this
      string may in some cases SIGSEGV your application.
      */
-  class TDemanlgeStr : public std::unique_ptr<const char, void (*)(const char*)> {
+  class TDemangleStr : public std::unique_ptr<const char, void (*)(const char*)> {
     using TParent = std::unique_ptr<const char, void (*)(const char*)>;
     using TParent::TParent;
   };
 
-  TDemanlgeStr Demangle(const std::type_info &t);
-  TDemanlgeStr Demangle(const char *name);
+  TDemangleStr Demangle(const std::type_info &t);
+  TDemangleStr Demangle(const char *name);
 
   /* Return the type ot TVal demangled. Always returns a value. */
   template<typename TVal>
-  TDemanlgeStr Demangle() {
+  TDemangleStr Demangle() {
     return Demangle(typeid(TVal));
   }
 
-  std::ostream &operator<<(std::ostream &out, const TDemanlgeStr &ptr);
+  std::ostream &operator<<(std::ostream &out, const TDemangleStr &ptr);
 
 } // Base
