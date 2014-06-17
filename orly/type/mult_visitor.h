@@ -20,18 +20,18 @@
 
 #include <orly/error.h>
 #include <orly/pos_range.h>
-#include <orly/type/assoc_infix_visitor.h>
+#include <orly/type/commutative_infix_visitor.h>
 
 namespace Orly {
 
   namespace Type {
 
     class TMultVisitor
-        : public Type::TAssocInfixVisitor {
+        : public Type::TCommutativeInfixVisitor {
       protected:
 
       TMultVisitor(Type::TType &type, const TPosRange &pos_range)
-          : Type::TAssocInfixVisitor(type, pos_range) {}
+          : Type::TCommutativeInfixVisitor(type, pos_range) {}
 
       private:
 

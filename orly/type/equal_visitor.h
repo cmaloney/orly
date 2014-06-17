@@ -18,19 +18,19 @@
 
 #pragma once
 
-#include <orly/type/assoc_infix_visitor.h>
+#include <orly/type/commutative_infix_visitor.h>
 
 namespace Orly {
 
   namespace Type {
 
     class TEqualVisitor
-        : public TAssocInfixVisitor {
+        : public TCommutativeInfixVisitor {
       NO_COPY(TEqualVisitor);
       protected:
 
       TEqualVisitor(TType &type, const TPosRange &pos_range)
-          : TAssocInfixVisitor(type, pos_range) {}
+          : TCommutativeInfixVisitor(type, pos_range) {}
 
       virtual void operator()(const TAddr     *, const TAddr     *) const = 0;
       virtual void operator()(const TBool     *, const TBool     *) const = 0;
