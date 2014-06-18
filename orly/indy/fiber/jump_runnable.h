@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <condition_variable>
+#include <exception>
 #include <functional>
 #include <mutex>
 
@@ -48,6 +49,12 @@ namespace Orly {
         TJumpRunnable(TFunc &&func)
             : Func(move(func)) {
           assert(Func);
+        }
+
+        ~TJumpRunnable() noexcept(false) {
+          if (ExceptionPtr) {
+            std::rethrow_exception(ExceptionPtr);
+          }
         }
 
         /* Calls the closure in the given fiber runner.  If this thread has no local pool of fiber
@@ -103,7 +110,11 @@ namespace Orly {
         /* Entry point of the fiber. */
         void Main() {
           assert(this);
-          Func();
+          try {
+            Func();
+          } catch (...) {
+            ExceptionPtr = std::current_exception();
+          }
           Flag = true;
           FlagSet.notify_one();
         }
@@ -113,6 +124,9 @@ namespace Orly {
 
         /* Covers 'Flag', below. */
         std::mutex Mutex;
+
+        /* Rethrows exceptions on destruction if an exception terminated the fiber. */
+        std::exception_ptr ExceptionPtr;
 
         /* Notifies when 'Flag', below, is set. */
         std::condition_variable FlagSet;
