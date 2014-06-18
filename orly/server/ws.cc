@@ -19,8 +19,11 @@
 #include <orly/server/ws.h>
 
 #include <cassert>
+#include <memory>
+#include <mutex>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
@@ -58,33 +61,100 @@ class TWsImpl final
   /* Starts up the server. */
   TWsImpl(TSessionManager *session_mngr, in_port_t port_number)
       : SessionManager(session_mngr),
-        TmpDirMaker(MakePath({ P_tmpdir, "orly_ws_compile" }, {})) {
+        TmpDirMaker(MakePath({ P_tmpdir, "orly_ws_compile" }, {})),
+        BgThreads(4) {
     assert(session_mngr);
     syslog(LOG_INFO, "ws compile tmp dir = \"%s\"", TmpDirMaker.GetPath().c_str());
-    AsioServer.clear_access_channels(websocketpp::log::alevel::all);
-    AsioServer.clear_error_channels(websocketpp::log::elevel::all);
-    AsioServer.init_asio();
-    AsioServer.set_reuse_addr(true);
-    AsioServer.set_open_handler(bind(&TWsImpl::OnOpen, this, _1));
-    AsioServer.set_close_handler(bind(&TWsImpl::OnClose, this, _1));
-    AsioServer.set_message_handler(bind(&TWsImpl::OnMsg, this, _1, _2));
-    AsioServer.listen(port_number);
-    AsioServer.start_accept();
-    BgThread = thread(&TWsImpl::BgMain, this);
+    WsServer.clear_access_channels(websocketpp::log::alevel::all);
+    WsServer.clear_error_channels(websocketpp::log::elevel::all);
+    WsServer.init_asio();
+    WsServer.set_reuse_addr(true);
+    WsServer.set_open_handler(bind(&TWsImpl::OnOpen, this, _1));
+    WsServer.set_close_handler(bind(&TWsImpl::OnClose, this, _1));
+    WsServer.set_message_handler(bind(&TWsImpl::OnMsg, this, _1, _2));
+    WsServer.set_socket_init_handler(
+          [] (websocketpp::connection_hdl /*hdl*/, boost::asio::ip::tcp::socket &s) {
+            boost::asio::ip::tcp::no_delay option(true);
+            s.set_option(option);
+          }
+    );
+    WsServer.set_listen_backlog(8192);
+    WsServer.listen(port_number);
+    WsServer.start_accept();
+    try {
+      for (auto &bg_thread: BgThreads) {
+        bg_thread = thread(&TWsServer::run, &WsServer);
+      }
+    } catch (...) {
+      this->~TWsImpl();
+      throw;
+    }
   }
 
   /* Shuts down the server. */
   virtual ~TWsImpl() {
     assert(this);
-    AsioServer.stop();
-    BgThread.join();
+    WsServer.stop();
+    for (auto &bg_thread: BgThreads) {
+      if (bg_thread.joinable()) {
+        bg_thread.join();
+      }
+    }
+    Conns.clear();
   }
 
   private:
 
+  /* TODO */
+  using TAsioConfig = websocketpp::config::asio;
+
+  /* TODO */
+  struct TServerConfig : TAsioConfig {
+
+    /* Suck in default types. */
+    using concurrency_type          = TAsioConfig::concurrency_type;
+    using request_type              = TAsioConfig::request_type;
+    using response_type             = TAsioConfig::response_type;
+    using message_type              = TAsioConfig::message_type;
+    using con_msg_manager_type      = TAsioConfig::con_msg_manager_type;
+    using endpoint_msg_manager_type = TAsioConfig::endpoint_msg_manager_type;
+
+    /* Suck in more default types. */
+    using alog_type     = TAsioConfig::alog_type;
+    using elog_type     = TAsioConfig::elog_type;
+    using rng_type      = TAsioConfig::rng_type;
+    using endpoint_base = TAsioConfig::endpoint_base;
+
+    /* TODO */
+    static bool const enable_multithreading = true;
+
+    /* TODO */
+    struct TTransportConfig : TAsioConfig::transport_config {
+
+      /* Suck in yet more default types. */
+      using concurrency_type = TAsioConfig::concurrency_type;
+      using elog_type        = TAsioConfig::elog_type;
+      using alog_type        = TAsioConfig::alog_type;
+      using request_type     = TAsioConfig::request_type;
+      using response_type    = TAsioConfig::response_type;
+
+      /* TODO */
+      static bool const enable_multithreading = true;
+
+      /* TODO */
+      static const websocketpp::log::level elog_level = websocketpp::log::elevel::none;
+      static const websocketpp::log::level alog_level = websocketpp::log::alevel::none;
+
+    };  // TWsImpl::TServerConfig::TTransportConfig
+
+    /* TODO */
+    using transport_type = websocketpp::transport::asio::endpoint<TTransportConfig>;
+
+  };  // TWsImpl::TServerConfig
+
   /* Pull in some types from the websocket ASIO implementation. */
-  using TAsioServer = websocketpp::server<websocketpp::config::asio>;
-  using TMsgPtr = TAsioServer::message_ptr;
+  using TWsServer = websocketpp::server<TServerConfig>;
+  using TMsgPtr = TWsServer::message_ptr;
   using TConnHndl = websocketpp::connection_hdl;
 
   /* Constructed by TWsImpl::OnOpen(), destroyed by TWsImpl::OnClose(). */
@@ -457,35 +527,24 @@ class TWsImpl final
 
   };  // TWsImpl::TConn
 
-  /* The entry point of the background thread launched from the ctor.
-     This will run until stopped by the dtor. */
-  void BgMain() {
-    assert(this);
-    AsioServer.run();
-    for (const auto &item: Conns) {
-      delete item.second;
-    }
-  }
-
   /* Called by the ws framework when it accepts a new TCP connection. */
   void OnOpen(TConnHndl conn_hndl) {
     assert(this);
-    unique_ptr<TConn> temp(new TConn(this, conn_hndl));
-    if (!Conns.insert(make_pair(conn_hndl, temp.get())).second) {
+    lock_guard<mutex> lock(Mutex);
+    if (!Conns.insert(make_pair(conn_hndl, make_shared<TConn>(this, conn_hndl))).second) {
       throw invalid_argument("cannot reopen open connection");
     }
-    temp.release();
   }
 
   /* Called by the ws framework when it closes a TCP connection (or when the
      connection is closed by the client). */
   void OnClose(TConnHndl conn_hndl) {
     assert(this);
+    lock_guard<mutex> lock(Mutex);
     auto iter = Conns.find(conn_hndl);
     if (iter == Conns.end()) {
       throw invalid_argument("cannot close unopen connection");
     }
-    delete iter->second;
     Conns.erase(iter);
   }
 
@@ -493,12 +552,16 @@ class TWsImpl final
   void OnMsg(TConnHndl conn_hndl, TMsgPtr msg) {
     assert(this);
     /* Find the connection object established by the OnOpen() call. */
-    auto iter = Conns.find(conn_hndl);
-    if (iter == Conns.end()) {
-      throw invalid_argument("cannot use unopen connection");
+    shared_ptr<TConn> conn;
+    /* extra */ {
+      lock_guard<mutex> lock(Mutex);
+      auto iter = Conns.find(conn_hndl);
+      if (iter == Conns.end()) {
+        throw invalid_argument("cannot use unopen connection");
+      }
+      conn = iter->second;
     }
     /* Pass the message to the connection object for processing. */
-    TConn *conn = iter->second;
     const char *status;
     string reply;
     try {
@@ -515,9 +578,9 @@ class TWsImpl final
       strm << ",\"result\":" << reply;
     }
     strm << '}';
-    AsioServer.send(conn_hndl, strm.str(), websocketpp::frame::opcode::text);
+    WsServer.send(conn_hndl, strm.str(), websocketpp::frame::opcode::text);
     if (conn->IsExiting()) {
-      AsioServer.close(conn_hndl, websocketpp::close::status::normal, "");
+      WsServer.close(conn_hndl, websocketpp::close::status::normal, "");
     }
   }
 
@@ -528,13 +591,16 @@ class TWsImpl final
   TTmpDirMaker TmpDirMaker;
 
   /* This object handles the mechanics of the websocket protocol. */
-  TAsioServer AsioServer;
+  TWsServer WsServer;
 
   /* The background thread launched by the ctor. */
-  thread BgThread;
+  vector<thread> BgThreads;
+
+  /* Convers Conns. */
+  mutex Mutex;
 
   /* The sessions currently open. */
-  map<TConnHndl, TConn *, owner_less<TConnHndl>> Conns;
+  map<TConnHndl, shared_ptr<TConn>, owner_less<TConnHndl>> Conns;
 
 };  // TWsImpl
 
