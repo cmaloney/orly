@@ -60,7 +60,7 @@ namespace Orly {
 
       const TVersionedName &GetName() const;
 
-      const TTypeByIndexIdMap &GetTypeByIndexMap() const;
+      const TIndexByIndexId &GetIndexByIndexId() const;
 
       const TIndexIdSet &GetIndexIdSet() const;
 

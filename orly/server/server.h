@@ -760,7 +760,7 @@ namespace Orly {
       std::unordered_set<Indy::Fiber::TRunner *> ForEachSchedCallbackExtraSet;
 
       /* TODO */
-      std::unordered_map<TIndexType, Base::TUuid> IndexTypeByIdMap;
+      std::unordered_map<TIndexType, Base::TUuid> IndexByIndexId;
       std::unordered_set<Base::TUuid> IndexIdSet;
       Atom::TSuprena IndexMapArena;
       std::mutex IndexMapMutex;

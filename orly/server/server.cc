@@ -836,7 +836,7 @@ void TServer::Init() {
       std::lock_guard<std::mutex> lock(IndexMapMutex);
       Sabot::Type::TAny::TWrapper key_type_wrapper(key.GetCore().GetType(key.GetArena(), key_type_alloc));
       Sabot::Type::TAny::TWrapper val_type_wrapper(val.GetCore().GetType(val.GetArena(), val_type_alloc));
-      auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(Atom::TCore(&IndexMapArena, *key_type_wrapper), &IndexMapArena),
+      auto ret = IndexByIndexId.emplace(TIndexType(TKey(Atom::TCore(&IndexMapArena, *key_type_wrapper), &IndexMapArena),
                                                      TKey(Atom::TCore(&IndexMapArena, *val_type_wrapper), &IndexMapArena)),
                                           idx_id);
       bool is_new = ret.second;
@@ -853,7 +853,7 @@ void TServer::Init() {
     };
     auto for_each_index_cb = [this](const std::function<void (const Base::TUuid &, const Indy::TKey &, const Indy::TKey &)> &cb) {
       std::lock_guard<std::mutex> lock(IndexMapMutex);
-      for (const auto &iter : IndexTypeByIdMap) {
+      for (const auto &iter : IndexByIndexId) {
         cb(iter.second, iter.first.GetKey(), iter.first.GetVal());
       }
     };
@@ -967,7 +967,7 @@ void TServer::Init() {
 
                   Sabot::Type::TAny::TWrapper key_type_wrapper(key.GetCore().GetType(index_arena.get(), key_type_alloc));
                   Sabot::Type::TAny::TWrapper val_type_wrapper(val.GetCore().GetType(main_arena.get(), val_type_alloc));
-                  auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(Atom::TCore(&IndexMapArena, *key_type_wrapper), &IndexMapArena),
+                  auto ret = IndexByIndexId.emplace(TIndexType(TKey(Atom::TCore(&IndexMapArena, *key_type_wrapper), &IndexMapArena),
                                                                  TKey(Atom::TCore(&IndexMapArena, *val_type_wrapper), &IndexMapArena)),
                                                       idx_pair.first);
                   bool is_new = ret.second;
@@ -1126,7 +1126,7 @@ void TServer::Init() {
         Sabot::Type::TAny::TWrapper val_type_wrapper(Orly::Native::Type::For<Mynde::TValue>::GetType(val_type_alloc));
         Atom::TCore key_core(&IndexMapArena, *key_type_wrapper);
         Atom::TCore val_core(&IndexMapArena, *val_type_wrapper);
-        auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)),
+        auto ret = IndexByIndexId.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)),
                                             Mynde::MemcachedIndexUuid);
         if (ret.second) {
           /* TODO: clean up the index_id_replication obj... refactor this logic into a function */
@@ -1746,7 +1746,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
                   /* this does not exist yet, uncommon case: at this point we grab the lock, recheck against the master copy (possibly update it),
                      and update our copy. */ {
                     std::lock_guard<std::mutex> lock(Server->IndexMapMutex);
-                    auto new_ret = Server->IndexTypeByIdMap.emplace(TIndexType(TKey(&Server->IndexMapArena, lhs_state_alloc, TKey(key_core, &temp_arena)), TKey(&Server->IndexMapArena, rhs_state_alloc, TKey(val_core, &temp_arena))), index_id);
+                    auto new_ret = Server->IndexByIndexId.emplace(TIndexType(TKey(&Server->IndexMapArena, lhs_state_alloc, TKey(key_core, &temp_arena)), TKey(&Server->IndexMapArena, rhs_state_alloc, TKey(val_core, &temp_arena))), index_id);
                     if (!new_ret.second) {
                       /* it's already there, use the id that was inserted before us */
                       index_id_remapper.emplace(index_id, new_ret.first->second);
@@ -2031,7 +2031,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       return;
     }
     std::lock_guard<std::mutex> lock(IndexMapMutex);
-    const auto &type_by_index_map = pkg_ptr->GetTypeByIndexMap();
+    const auto &type_by_index_map = pkg_ptr->GetIndexByIndexId();
     for (const auto &addr_pair : type_by_index_map) {
       void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
       void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
@@ -2047,7 +2047,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       ss << std::endl;
       syslog(LOG_INFO, "%s", ss.str().c_str());
 
-      auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)), addr_pair.first);
+      auto ret = IndexByIndexId.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)), addr_pair.first);
       bool is_new = ret.second;
       if (!is_new) {
         stringstream ss;

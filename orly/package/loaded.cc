@@ -84,9 +84,9 @@ const TVersionedName &TLoaded::GetName() const {
   return Name;
 }
 
-const TTypeByIndexIdMap &TLoaded::GetTypeByIndexMap() const {
+const TIndexByIndexId &TLoaded::GetIndexByIndexId() const {
   assert(this);
-  return LinkInfo->TypeByIndexIdMap;
+  return LinkInfo->IndexByIndexId;
 }
 
 const TIndexIdSet &TLoaded::GetIndexIdSet() const {
