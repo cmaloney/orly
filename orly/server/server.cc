@@ -217,6 +217,10 @@ TServer::TCmd::TMeta::TMeta(const char *desc)
       "The number of threads merging disk layers in repos."
   );
   Param(
+      &TCmd::NumWsThreads, "num_ws_threads", Optional, "num_ws_threads\0",
+      "The number of threads to use to answer websocket requests."
+  );
+  Param(
       &TCmd::MaxRepoCacheSize, "max_repo_cache_size", Optional, "max_repo_cache_size\0",
       "The maximum number of unused repos that can be held in memory."
   );
@@ -395,6 +399,7 @@ TServer::TCmd::TCmd()
       DurableMergeInterval(10),
       NumMemMergeThreads(3),
       NumDiskMergeThreads(8),
+      NumWsThreads(4),
       MaxRepoCacheSize(10000),
       NumFiberFrames(1000UL),
       NumDiskEvents(10000UL),
@@ -768,7 +773,7 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
   }
 
   /* Launch the websockets server. */
-  Ws.reset(TWs::New(this, cmd.WsPortNumber));
+  Ws.reset(TWs::New(this, cmd.NumWsThreads, cmd.WsPortNumber));
 }
 
 void TServer::Init() {

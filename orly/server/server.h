@@ -266,6 +266,9 @@ namespace Orly {
         /* TODO */
         size_t NumDiskMergeThreads;
 
+        /* The number of threads to use for answering websocket requests. */
+        size_t NumWsThreads;
+
         /* TODO */
         size_t MaxRepoCacheSize;
 

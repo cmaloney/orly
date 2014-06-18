@@ -138,7 +138,9 @@ namespace Orly {
         /* Use this factory to construct an instance of this class.
            The server will be open for business by the time this function
            returns.  To shut down the server, destroy the object. */
-        static TWs *New(TSessionManager *session_mngr, in_port_t port_number = 8080);
+        static TWs *New(
+            TSessionManager *session_mngr, size_t thread_count,
+            in_port_t port_number = 8080);
 
         protected:
 

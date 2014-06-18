@@ -1,10 +1,6 @@
 /* <orly/server/ws.exercise.cc>
 
-<<<<<<< HEAD
    Runs the <orly/server/ws_test_server.h> until SIGINT.
-=======
-   Exercise for <orly/server/ws.h>.
->>>>>>> 5f15a8e88df451920867161421b709ef01e9ce35
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -22,6 +18,8 @@
 
 #include <orly/server/ws.h>
 
+#include <iostream>
+
 #include <unistd.h>
 
 #include <orly/server/ws_test_server.h>
@@ -35,6 +33,7 @@ using namespace Signal;
 
 /* Very main.  So running.  Wow. */
 int main(int argc, char *argv[]) {
+  cout << "starting" << endl;
   /* Get our port number and probe size from the command line,
      or use the defaults. */
   in_port_t port_number = (argc >= 2) ? atoi(argv[1]) : 8080;
@@ -45,6 +44,8 @@ int main(int argc, char *argv[]) {
   /* Make an el-fake-o server and run the websocket interface against it. */
   TWsTestServer ws_test_server(port_number, probe_size);
   /* Wait to be told to stop. */
+  cout << "started on port " << ws_test_server.GetPortNumber() << endl;
   pause();
+  cout << "\nstopped" << endl;
   return EXIT_SUCCESS;
 }
