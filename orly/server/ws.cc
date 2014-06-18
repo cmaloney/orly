@@ -59,10 +59,12 @@ class TWsImpl final
   public:
 
   /* Starts up the server. */
-  TWsImpl(TSessionManager *session_mngr, in_port_t port_number)
+  TWsImpl(
+      TSessionManager *session_mngr, size_t thread_count,
+      in_port_t port_number)
       : SessionManager(session_mngr),
         TmpDirMaker(MakePath({ P_tmpdir, "orly_ws_compile" }, {})),
-        BgThreads(4) {
+        BgThreads(thread_count ? thread_count : 1) {
     assert(session_mngr);
     syslog(LOG_INFO, "ws compile tmp dir = \"%s\"", TmpDirMaker.GetPath().c_str());
     WsServer.clear_access_channels(websocketpp::log::alevel::all);
@@ -105,13 +107,17 @@ class TWsImpl final
 
   private:
 
-  /* TODO */
+  /* We use ASIO for our socket I/O. */
   using TAsioConfig = websocketpp::config::asio;
 
-  /* TODO */
+  /* This somewhat awkward structure contains the definitions used by the
+     websocket lirbary.  It differs from TAsioConfig only in that it turns
+     the multithreading protection on.  Everything else is just copied in
+     from the standard ASIO config.  This is fragile but follows the
+     example given by the library. */
   struct TServerConfig : TAsioConfig {
 
-    /* Suck in default types. */
+    /* Copy in default types. */
     using concurrency_type          = TAsioConfig::concurrency_type;
     using request_type              = TAsioConfig::request_type;
     using response_type             = TAsioConfig::response_type;
@@ -119,35 +125,35 @@ class TWsImpl final
     using con_msg_manager_type      = TAsioConfig::con_msg_manager_type;
     using endpoint_msg_manager_type = TAsioConfig::endpoint_msg_manager_type;
 
-    /* Suck in more default types. */
+    /* Copy in more default types. */
     using alog_type     = TAsioConfig::alog_type;
     using elog_type     = TAsioConfig::elog_type;
     using rng_type      = TAsioConfig::rng_type;
     using endpoint_base = TAsioConfig::endpoint_base;
 
-    /* TODO */
+    /* Do acquire and release mutexes within the server. */
     static bool const enable_multithreading = true;
 
-    /* TODO */
+    /* As TServerConfig, but for the transport layer. */
     struct TTransportConfig : TAsioConfig::transport_config {
 
-      /* Suck in yet more default types. */
+      /* Copy in yet more default types. */
       using concurrency_type = TAsioConfig::concurrency_type;
       using elog_type        = TAsioConfig::elog_type;
       using alog_type        = TAsioConfig::alog_type;
       using request_type     = TAsioConfig::request_type;
       using response_type    = TAsioConfig::response_type;
 
-      /* TODO */
+      /* Do acquire and release mutexes within the transport layer. */
       static bool const enable_multithreading = true;
 
-      /* TODO */
+      /* Default log levels. */
       static const websocketpp::log::level elog_level = websocketpp::log::elevel::none;
       static const websocketpp::log::level alog_level = websocketpp::log::alevel::none;
 
     };  // TWsImpl::TServerConfig::TTransportConfig
 
-    /* TODO */
+    /* Our configured transport type. */
     using transport_type = websocketpp::transport::asio::endpoint<TTransportConfig>;
 
   };  // TWsImpl::TServerConfig
@@ -604,6 +610,8 @@ class TWsImpl final
 
 };  // TWsImpl
 
-TWs *TWs::New(TSessionManager *session_mngr, in_port_t port_number) {
-  return new TWsImpl(session_mngr, port_number);
+TWs *TWs::New(
+    TSessionManager *session_mngr, size_t thread_count,
+    in_port_t port_number) {
+  return new TWsImpl(session_mngr, thread_count, port_number);
 }

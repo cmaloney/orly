@@ -217,7 +217,7 @@ TWsTestServer::TWsTestServer(in_port_t port_start, size_t probe_size)
     SessionManager = new TSessionManager;
     for (;;) {
       try {
-        Ws = TWs::New(SessionManager, PortNumber);
+        Ws = TWs::New(SessionManager, 4, PortNumber);
         break;
       } catch (...) {
         --probe_size;
