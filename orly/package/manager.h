@@ -24,6 +24,7 @@
 #include <unordered_set>
 
 #include <base/error.h>
+#include <base/rw_locked.h>
 #include <orly/package/loaded.h>
 #include <orly/package/name.h>
 
@@ -98,11 +99,8 @@ namespace Orly {
       private:
       Jhm::TAbsBase PackageDir;
 
-      //TODO: Engineer the lock out of existence as much as possible.
-      mutable std::shared_timed_mutex InstallLock;
-
       /* Map of all the installed packages. We work aside to build/change the package map, then swap it out. */
-      TInstalled Installed;
+      mutable Base::TRwLocked<TInstalled> Installed;
 
       friend class TPackageHandle;
     }; // TManager

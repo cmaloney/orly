@@ -45,9 +45,9 @@ TLoaded::TPtr TManager::Get(const TName &package) const {
   assert(this);
   assert(&package);
 
-  shared_lock<shared_timed_mutex> lock(InstallLock);
-  auto it = Installed.find(package);
-  if(it == Installed.end()) {
+  TRwLocked<TInstalled>::TSharedLock locked(Installed);
+  auto it = locked->find(package);
+  if(it == locked->end()) {
     std::ostringstream oss;
     oss << " Cannot get non-installed package '" << package << "'";
     throw TManagerError(HERE, oss.str().c_str());
@@ -64,9 +64,8 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
   assert(this);
   assert(&packages);
 
-  unique_lock<shared_timed_mutex> lock(InstallLock);
-
-  TInstalled installed(Installed);
+  TRwLocked<TInstalled>::TUniqueLock locked(Installed);
+  TInstalled installed(*locked);
 
   list<std::tuple<TLoaded::TPtr, bool>> about_to_install;
 
@@ -106,7 +105,7 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
   }
 
   // Guaranteed no-throw / the transaction will complete
-  std::swap(Installed, installed);
+  std::swap(*locked, installed);
 }
 
 void TManager::SetPackageDir(const Jhm::TAbsBase &package_dir) {
@@ -119,8 +118,8 @@ void TManager::Uninstall(const TVersionedNames &packages) {
   assert(this);
   assert(&packages);
 
-  unique_lock<shared_timed_mutex> lock(InstallLock);
-  TInstalled installed(Installed);
+  TRwLocked<TInstalled>::TUniqueLock locked(Installed);
+  TInstalled installed(*locked);
 
   for(const TVersionedName &package: packages) {
     auto installed_it = installed.find(package.Name);
@@ -132,14 +131,13 @@ void TManager::Uninstall(const TVersionedNames &packages) {
     installed.erase(installed_it);
   }
 
-  std::swap(Installed, installed);
+  std::swap(*locked, installed);
 }
 
 void TManager::YieldInstalled(std::function<bool (const TVersionedName &name)> cb) const {
   assert(this);
-  shared_lock<shared_timed_mutex> lock(InstallLock);
-
-  for(const auto &it: Installed) {
+  TRwLocked<TInstalled>::TSharedLock locked(Installed);
+  for(const auto &it: *locked) {
     if(!cb(it.second->GetName())) {
       break;
     }
