@@ -29,7 +29,9 @@ bool Jhm::IsRealTty() {
 }
 
 void TStatusLine::Cleanup() {
-  cout << "\n";
+  if (IsRealTty()) {
+    cout << "\n";
+  }
 }
 
 TStatusLine::TStatusLine() {
