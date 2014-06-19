@@ -56,5 +56,5 @@ FIXTURE(Typical) {
       UriPrefix + to_string(ws_test_server.GetPortNumber()), ec);
   client.connect(conn);
   client.run();
-  EXPECT_EQ(reply, R"({"status":"ok","result":"hello"})");
+  EXPECT_EQ(Base::TJson::Parse(reply), Base::TJson::Parse(R"({"status":"ok","result":"hello"})"));
 }

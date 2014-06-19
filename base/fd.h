@@ -18,11 +18,13 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cassert>
 
 #include <unistd.h>
 #include <sys/socket.h>
+
+#include <algorithm>
+#include <cassert>
+#include <string>
 
 #include <base/class_traits.h>
 #include <util/error.h>
@@ -174,6 +176,11 @@ namespace Base {
     int OsHandle;
 
   };  // TFd
+
+  /* Read everything on the fd.
+     Puts it into a giant buffer in a string.
+     NOTE: Don't do this with untrusted sources, for obvious reasons. */
+  std::string ReadAll(TFd &&fd);
 
   /* Wrappers of stdin (0), stdout (1), and stderr (2). */
   extern const TFd In, Out, Err;

@@ -28,6 +28,8 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
+#include <base/as_str.h>
+#include <base/fd.h>
 #include <base/json.h>
 #include <base/tmp_copy_to_file.h>
 #include <base/tmp_dir_maker.h>
@@ -181,17 +183,17 @@ class TWsImpl final
 
     /* Called by TWsImpl::OnMsg(). Parses and interprets a statement sent
        to us as a text message. */
-    string OnMsg(TMsgPtr msg) {
+    TJson OnMsg(TMsgPtr msg) {
       assert(this);
       assert(msg);
-      ostringstream strm;
+      TJson ret;
       ParseStmtStr(
           msg->get_payload().c_str(),
-          [this, &strm](const TStmt *stmt) {
-             stmt->Accept(TStmtVisitor(this, strm));
+          [this, &ret](const TStmt *stmt) {
+             stmt->Accept(TStmtVisitor(this, ret));
           }
       );
-      return strm.str();
+      return ret;
     }
 
     private:
@@ -202,15 +204,17 @@ class TWsImpl final
       public:
 
       /* Cache the args. */
-      TStmtVisitor(TConn *conn, ostream &strm)
-          : Conn(conn), Strm(strm) {}
+      TStmtVisitor(TConn *conn, TJson &result)
+          : Conn(conn), Result(result) {}
 
       /* Echo. */
       virtual void operator()(const TEchoStmt *stmt) const override {
         assert(this);
         assert(stmt);
         void *alloc = alloca(SabotStateSize);
-        Var::Jsonify(Strm, Var::ToVar(*TWrapper(NewStateSabot(stmt->GetExpr(), alloc))));
+        //NOTE: That we parse apart the json is very fugly here.
+        //TODO: Push TJson down into Var::Jsonify
+        Result = TJson::Parse(AsStrFunc(&Var::Jsonify, Var::ToVar(*TWrapper(NewStateSabot(stmt->GetExpr(), alloc)))));
       }
 
       /* Exit. */
@@ -226,7 +230,7 @@ class TWsImpl final
           throw invalid_argument("session already established");
         }
         Conn->Session.reset(Conn->Ws->SessionManager->NewSession());
-        Strm << '"' << Conn->Session->GetId() << '"';
+        Result = AsStr(Conn->Session->GetId());
       }
 
       /* Resume session. */
@@ -237,7 +241,7 @@ class TWsImpl final
           throw invalid_argument("session already established");
         }
         Conn->Session.reset(Conn->Ws->SessionManager->ResumeSession(Translate(stmt->GetIdExpr())));
-        Strm << '"' << Conn->Session->GetId() << '"';
+        Result = AsStr(Conn->Session->GetId());
       }
 
       /* Set user id. */
@@ -288,7 +292,7 @@ class TWsImpl final
         if (parent) {
           parent_id = Translate(parent->GetIdExpr());
         }
-        Strm << '"' << GetSession()->NewPov(is_safe, is_shared, parent_id) << '"';
+        Result = AsStr(GetSession()->NewPov(is_safe, is_shared, parent_id));
       }
 
       /* Try call. */
@@ -310,8 +314,9 @@ class TWsImpl final
         }
         TMethodResult result = GetSession()->Try(TMethodRequest(pov_id, fq_name, closure));
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-        Var::Jsonify(
-            Strm, Var::ToVar(*TWrapper(Indy::TKey(result.GetValue(), result.GetArena().get()).GetState(state_alloc))));
+        Result = AsStrFunc(
+            &Var::Jsonify,
+            Var::ToVar(*TWrapper(Indy::TKey(result.GetValue(), result.GetArena().get()).GetState(state_alloc))));
       }
 
       /* Pause or unpause a pov. */
@@ -322,10 +327,10 @@ class TWsImpl final
         TUuid pov_id = Translate(stmt->GetIdExpr());
         if (is_pause) {
           GetSession()->PausePov(pov_id);
-          Strm << "\"paused\"";
+          Result = "paused";
         } else {
           GetSession()->UnpausePov(pov_id);
-          Strm << "\"unpaused\"";
+          Result = "unpaused";
         }
       }
 
@@ -364,7 +369,7 @@ class TWsImpl final
         assert(this);
         assert(stmt);
         ostringstream out_strm;
-        TJson reply = TJson::Object;
+        Result = TJson::Object;
         try {
           TTmpCopyToFile tmp_file(
               Conn->Ws->TmpDirMaker.GetPath(), Translate(stmt->GetStrExpr()),
@@ -383,31 +388,30 @@ class TWsImpl final
           auto pkg = Compiler::Compile(
               abs_path_to_src, abs_base_to_dir,
               true, true, false, out_strm);
-          reply["status"] = "ok";
-          reply["name"] = pkg.Name.ToRelPath().AsStr();
-          reply["version"] = pkg.Version;
+          Result["status"] = "ok";
+          Result["name"] = pkg.Name.ToRelPath().AsStr();
+          Result["version"] = pkg.Version;
         } catch (const Compiler::TCompileFailure &ex) {
-          reply["status"] = "error";
-          reply["kind"] = "compiler";
-          reply["diagnostics"] = out_strm.str();
+          Result["status"] = "error";
+          Result["kind"] = "compiler";
+          Result["diagnostics"] = out_strm.str();
         } catch (const TSourceError &src_error) {
-          reply["status"] = "error";
-          reply["kind"] = "compiler internal";
-          reply["msg"] = src_error.what();
-          reply["pos"] = src_error.GetPosRange().AsStr();
+          Result["status"] = "error";
+          Result["kind"] = "compiler internal";
+          Result["msg"] = src_error.what();
+          Result["pos"] = src_error.GetPosRange().AsStr();
         } catch (const Base::TError &ex) {
           const auto &code_loc = ex.GetCodeLocation();
-          reply["status"] = "error";
-          reply["kind"] = "server system";
-          reply["msg"] = ex.what();
-          reply["file"] = code_loc.GetFile();
-          reply["line"] = code_loc.GetLineNumber();
+          Result["status"] = "error";
+          Result["kind"] = "server system";
+          Result["msg"] = ex.what();
+          Result["file"] = code_loc.GetFile();
+          Result["line"] = code_loc.GetLineNumber();
         } catch (const exception &ex) {
-          reply["status"] = "error";
-          reply["kind"] = "std exception";
-          reply["msg"] = ex.what();
+          Result["status"] = "error";
+          Result["kind"] = "std exception";
+          Result["msg"] = ex.what();
         }
-        Strm << reply;
       }
 
       virtual void operator()(const TListPackageStmt *) const override {
@@ -450,10 +454,23 @@ class TWsImpl final
           packages.emplace_back(move(package_info));
           return true;
         });
-        TJson reply(TJson::Object);
-        reply["packages"] = TJson(move(packages));
+        Result = TJson::Object;
+        Result["packages"] = TJson(move(packages));
+      }
 
-        Strm << reply;
+      virtual void operator()(const TGetSourceStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+
+        vector<string> package_name;
+        TranslatePathName(package_name, stmt->GetNameList());
+
+        string rel_path = Orly::Package::TName(package_name).ToRelPath({"orly"}).AsStr();
+        string src_filename = Conn->Ws->SessionManager->GetPackageDir() + rel_path;
+        syslog(LOG_INFO, "filename = \"%s\"", src_filename.c_str());
+        Result = TJson::Object;
+        Result["code"] = ReadAll(TFd(open(src_filename.c_str(), O_RDONLY)));
+        Result["filename"] = move(rel_path);
       }
 
       private:
@@ -514,8 +531,8 @@ class TWsImpl final
       /* The connection on whose behalf we're translating. */
       TConn *Conn;
 
-      /* The stream to which to write the result of our interpretation. */
-      ostream &Strm;
+      /* The JSON blob to which to write the result of our interpretation. */
+      TJson &Result;
 
     };  // TWsImpl::TStmtVisitor
 
@@ -568,23 +585,16 @@ class TWsImpl final
       conn = iter->second;
     }
     /* Pass the message to the connection object for processing. */
-    const char *status;
-    string reply;
+    TJson reply = TJson::Object;
     try {
-      reply = conn->OnMsg(msg);
-      status = "ok";
+      reply["result"] = conn->OnMsg(msg);
+      reply["status"] = "ok";
     } catch (const exception &ex) {
-      reply = ex.what();
-      status = "exception";
+      reply["result"] = ex.what();
+      reply["status"] = "exception";
     }
     /* Format the reply and send it back to the client. */
-    ostringstream strm;
-    strm << "{\"status\":\"" << status << '"';
-    if(!reply.empty()) {
-      strm << ",\"result\":" << reply;
-    }
-    strm << '}';
-    WsServer.send(conn_hndl, strm.str(), websocketpp::frame::opcode::text);
+    WsServer.send(conn_hndl, AsStr(reply), websocketpp::frame::opcode::text);
     if (conn->IsExiting()) {
       WsServer.close(conn_hndl, websocketpp::close::status::normal, "");
     }

@@ -38,24 +38,6 @@ using namespace std;
 
 ostream &operator<<(ostream &out, const vector<string> &that) { return Base::Join(' ', that, out); }
 
-
-// TODO: This is a utility that should live in base/
-/* Read all the data at fd into one giant buffer in string. Not super efficient, but should be good enough, and
-   sufficiently dangerous if the data is coming from an untrustworthy source */
-string ReadAll(TFd &&fd) {
-  string out;
-  Strm::TFdDefault in_prod(move(fd));
-  Strm::Bin::TIn in_cons(&in_prod);
-  uint8_t buf[4096];
-  while(size_t read = in_cons.TryRead(buf, 4096)) {
-    out.append(reinterpret_cast<char*>(buf), read);
-  }
-
-  // NOTE: nrvo
-  return out;
-}
-
-
 // TODO: mpark could probably do this cleaner.
 vector<string> ToVecStr(int argc, const char *argv[], int skip) {
   assert(argc >= skip);
