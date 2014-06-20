@@ -121,10 +121,13 @@ void TFunction::WriteArgs(TCppPrinter &out) const {
   assert(this);
   assert(&out);
 
-  Join(", ", Args, [](const TArgs::value_type &arg, TCppPrinter &out) {
-    //TODO: The double GetId is fugly.
-    out << "const " << arg.second->GetType() << " &" << arg.second->GetId() << "/* " << arg.first << " */";
-  }, out);
+  out << Join(Args,
+              ", ",
+              [](TCppPrinter &out, TArgs::const_reference arg) {
+                //TODO: The double GetId is fugly.
+                out << "const " << arg.second->GetType() << " &"
+                    << arg.second->GetId() << "/* " << arg.first << " */";
+              });
 }
 
 void TFunction::WriteBody(TCppPrinter &out) const {

@@ -39,7 +39,7 @@ TConfig::TConfig(const vector<string> &files) {
 TJson TConfig::GetEntry(const initializer_list<string> &name) const {
   TJson ret;
   if (!TryGetEntry(name, ret)) {
-    THROW_ERROR(TNotFound) << "Didn't find config entry for \"" << Join('.', name) << '\"';
+    THROW_ERROR(TNotFound) << "Didn't find config entry for \"" << Join(name, '.') << '\"';
   }
   return ret;
 }

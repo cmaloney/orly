@@ -108,13 +108,17 @@ namespace Orly {
 
       void WriteExpr(TCppPrinter &out) const {
         WriteCtorStart(*this, out);
-        out << '(' << GetReturnType() << "{";
+        out
+          << '(' << GetReturnType() << "{"
         //Iterate over the list, writing out the elements, C++ making us call the right overload.
-        Base::Join(", ", Elements, [](typename TContainer::const_reference elem, TCppPrinter &out) {
-          //Stupid c++ templates + overloaded funcs.
-          WriteCtorElem(elem, out);
-        }, out);
-        out << "})";
+          << Base::Join(Elements,
+                        ", ",
+                        [](TCppPrinter &out,
+                           typename TContainer::const_reference elem) {
+                          //Stupid c++ templates + overloaded funcs.
+                          WriteCtorElem(elem, out);
+                        })
+          << "})";
       }
 
       /* Dependency graph */

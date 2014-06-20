@@ -16,15 +16,13 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
+#include <base/as_str.h>
 #include <base/split.h>
 
 #include <test/kit.h>
 
-
 using namespace std;
 using namespace Base;
-
-//TODO: Add test cases for join
 
 FIXTURE(Typical) {
   vector<string> out;
@@ -52,4 +50,24 @@ FIXTURE(Typical) {
   Split(":", "::", out);
   cout<<endl;
   EXPECT_TRUE(out==res4);
+}
+
+FIXTURE(Join) {
+  std::vector<int> ints = {101, 202, 303};
+  EXPECT_EQ(AsStr(Join(ints, ", ")), "101, 202, 303");
+  EXPECT_EQ(AsStr(Join(ints,
+                       ", ",
+                       [](ostream &strm, int elem) {
+                         strm << '(' << elem << ')';
+                       })),
+            "(101), (202), (303)");
+  auto tuple = std::make_tuple(101, 1.1, "hello");
+  EXPECT_EQ(AsStr(Join(tuple, ", ")), "101, 1.1, hello");
+  EXPECT_EQ(AsStr(Join(tuple,
+                       ", ",
+                       [](ostream &strm, const auto &elem) {
+                         strm << '(' << elem << ')';
+                       })),
+            "(101), (1.1), (hello)");
+  EXPECT_EQ(AsStr(Join(std::string("abc"), '/')), "a/b/c");
 }

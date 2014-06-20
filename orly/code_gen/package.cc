@@ -197,7 +197,7 @@ void TPackage::Emit(const Jhm::TAbsBase &out_dir) const {;
 
   /* EXTRA */ {
     std::ostringstream s;
-    s << '/' << out_dir << '/' << Join('/',dir) << '/';
+    s << '/' << out_dir << '/' << Join(dir, '/') << '/';
     MakeDirs(s.str().c_str());
   }
 
@@ -322,14 +322,15 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
       if(!it->GetArgs().empty()) {
         out << ", ";
       }
-      Join(", ",
-           it->GetArgs(),
-           [](TFunction::TArgs::const_reference arg, TCppPrinter &out) {
-             out << "Sabot::AsNative<" << arg.second->GetType() << ">(*Sabot::State::TAny::TWrapper(args.at(\""
-                 << arg.first << "\").GetState(alloca(Sabot::State::GetMaxStateSize()))))";
-           },
-           out);
-      out << "), state_alloc));" << Eol;
+      out
+        << Join(it->GetArgs(),
+                ", ",
+                [](TCppPrinter &out, TFunction::TArgs::const_reference arg) {
+                  out << "Sabot::AsNative<" << arg.second->GetType()
+                      << ">(*Sabot::State::TAny::TWrapper(args.at(\"" << arg.first
+                      << "\").GetState(alloca(Sabot::State::GetMaxStateSize()))))";
+                })
+        << "), state_alloc));" << Eol;
     }
     out << '}' << Eol;
   }
@@ -343,14 +344,17 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
     out << "static const Package::TFuncInfo IF_" << it->GetName() << "{" << Eol;
     /* indent*/ {
       TIndent indent(out);
-      out << "Package::TParamMap{";
-      Join(", ", it->GetArgs(), [](TFunction::TArgs::const_reference arg, TCppPrinter &out) {
-        out << "{\"" << arg.first << "\", ";
-        Type::GenCode(out.GetOstream(), arg.second->GetType());
-        out << '}';
-      }, out);
-      out << "}," << Eol
-          << "/* ret */ "; //NOTE: GetOstream at the start of a line will cause indent to not be printed.
+      out
+        << "Package::TParamMap{"
+        << Join(it->GetArgs(),
+                ", ",
+                [](TCppPrinter &out, TFunction::TArgs::const_reference arg) {
+                  out << "{\"" << arg.first << "\", ";
+                  Type::GenCode(out.GetOstream(), arg.second->GetType());
+                  out << '}';
+                })
+        << "}," << Eol
+        << "/* ret */ "; //NOTE: GetOstream at the start of a line will cause indent to not be printed.
       Type::GenCode(out.GetOstream(), it->GetReturnType());
       out << ',' << Eol
           << "RF_" << it->GetName() << Eol;
@@ -393,19 +397,23 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
       }
     }
     out << "}," << Eol
-        << "/* tests */ std::vector<const Package::TTest*>{" << Eol;
-        Join(',', Tests, [](const std::unique_ptr<TTest> &test, TCppPrinter &out) {
-          out << "&TI_" << test->GetId() << Eol;
-        }, out);
-    out << "}," << Eol
+        << "/* tests */ std::vector<const Package::TTest*>{" << Eol
+        << Join(Tests,
+                ',',
+                [](TCppPrinter &out, const std::unique_ptr<TTest> &test) {
+                  out << "&TI_" << test->GetId() << Eol;
+                })
+        << "}," << Eol
         << "/* index ids */ std::unordered_set<Base::TUuid *>{" << Eol;
     /* indent */ {
       TIndent indent(out);
-          Join(',', AddrMap, [](const TAddrMap::value_type &addr_pair, TCppPrinter &out) {
-            char uuid[37];
-            addr_pair.first.FormatUnderscore(uuid);
-            out << "&My" << uuid << Eol;
-          }, out);
+      out << Join(AddrMap,
+                  ',',
+                  [](TCppPrinter &out, const TAddrMap::value_type &addr_pair) {
+                    char uuid[37];
+                    addr_pair.first.FormatUnderscore(uuid);
+                    out << "&My" << uuid << Eol;
+                  });
     }
     out << '}' << Eol;
 
@@ -446,115 +454,127 @@ void TPackage::WriteLink(TCppPrinter &out, const TRelPath &path) const {
         << "std::unordered_map<std::vector<std::string>, const Orly::Package::TInfo *>{" << Eol;
     /* included packages */ {
       TIndent package_indent(out);
-      Join(", ", NeededPackages, [](const Package::TName &name, TCppPrinter &out) {
-        out << "{{\"";
-        Join("\", \"", name.Get(), out);
-        out << "\"}, &" << TOrlyNamespace(name.Get()) << "::PackageInfo}";
-      }, out);
+      out << Join(NeededPackages,
+                  ", ",
+                  [](TCppPrinter &out, const Package::TName &name) {
+                    out
+                      << "{{\""
+                      << Join(name.Get(), "\", \"")
+                      << "\"}, &" << TOrlyNamespace(name.Get()) << "::PackageInfo}";
+                  });
     }
-    out << "}," << Eol;
-    out << "std::unordered_map<Base::TUuid, std::pair<Orly::Type::TType, Orly::Type::TType>>{" << Eol;
-      Join(", \n", AddrMap, [](const TAddrMap::value_type &pair, TCppPrinter &out) {
-        class t_addr_printer final
-          : public Type::TType::TVisitor {
-          public:
+    out
+      << "}," << Eol
+      << "std::unordered_map<Base::TUuid, std::pair<Orly::Type::TType, Orly::Type::TType>>{" << Eol
+      << Join(AddrMap,
+              ", \n",
+              [](TCppPrinter &out, const TAddrMap::value_type &pair) {
+                class t_addr_printer final
+                  : public Type::TType::TVisitor {
+                  public:
 
-          t_addr_printer(TCppPrinter &out)
-            : Out(out) {}
+                  t_addr_printer(TCppPrinter &out)
+                    : Out(out) {}
 
-          virtual void operator()(const Type::TAddr     *that) const {
-            bool is_sequence = false;
-            for (auto member : that->GetElems()) {
-              is_sequence |= member.second.Is<Type::TSeq>();
-            }
+                  virtual void operator()(const Type::TAddr     *that) const {
+                    bool is_sequence = false;
+                    for (auto member : that->GetElems()) {
+                      is_sequence |= member.second.Is<Type::TSeq>();
+                    }
 
-            if (is_sequence) {
-              Out << "Orly::Type::TSeq::Get(";
-            }
+                    if (is_sequence) {
+                      Out << "Orly::Type::TSeq::Get(";
+                    }
 
-            Out << "Orly::Type::TAddr::Get(std::vector<std::pair<Orly::TAddrDir, Orly::Type::TType>> {\n";
-            Join(", \n", that->GetElems(), [this](const std::pair<TAddrDir, Type::TType> &elem, TCppPrinter &out) {
-              out << "          std::make_pair<Orly::TAddrDir, Orly::Type::TType>(" <<
-                  ((elem.first == Orly::TAddrDir::Asc) ?
-                    "Orly::TAddrDir::Asc, " :
-                    "Orly::TAddrDir::Desc, ");
-              elem.second.Accept(*this);
-              out << ")";
-            }, Out);
-            Out << "})";
+                    Out
+                      << "Orly::Type::TAddr::Get(std::vector<std::pair<Orly::TAddrDir, Orly::Type::TType>> {\n"
+                      << Join(that->GetElems(),
+                              ", \n",
+                              [this](TCppPrinter &out, const std::pair<TAddrDir, Type::TType> &elem) {
+                                out << "          std::make_pair<Orly::TAddrDir, Orly::Type::TType>(" <<
+                                    ((elem.first == Orly::TAddrDir::Asc) ?
+                                      "Orly::TAddrDir::Asc, " :
+                                      "Orly::TAddrDir::Desc, ");
+                                elem.second.Accept(*this);
+                                out << ")";
+                              })
+                      << "})";
 
-            if (is_sequence) {
-              /* Close off the extra open paren introduced to make a sequence*/
-              Out << ")";
-            }
-          };
-          virtual void operator()(const Type::TAny      *) const { Out << "Orly::Type::TAny::Get()"; };
-          virtual void operator()(const Type::TBool     *) const { Out << "Orly::Type::TBool::Get()"; };
-          virtual void operator()(const Type::TDict     *that) const {
-            Out << "Orly::Type::TDict::Get(";
-            that->GetKey().Accept(*this);
-            Out << ", ";
-            that->GetVal().Accept(*this);
-            Out << ")";
-          };
-          virtual void operator()(const Type::TErr      *) const {};
-          virtual void operator()(const Type::TFunc     *) const {};
-          virtual void operator()(const Type::TId       *) const { Out << "Orly::Type::TId::Get()"; };
-          virtual void operator()(const Type::TInt      *) const { Out << "Orly::Type::TInt::Get()"; };
-          virtual void operator()(const Type::TList     *that) const {
-            Out << "Orly::Type::TList::Get(";
-            that->GetElem().Accept(*this);
-            Out << ")";
-          };
-          virtual void operator()(const Type::TMutable  *that) const { that->GetSrcAtAddr().Accept(*this); };
-          virtual void operator()(const Type::TObj      *that) const {
-            Out << "Orly::Type::TObj::Get(std::map<std::string, Orly::Type::TType> {";
-            Join(", ", that->GetElems(), [this](const std::pair<string, Type::TType> &elem, TCppPrinter &out) {
-              out << "{"
-                  << "\"" << elem.first << "\""
-                  << ",";
-              elem.second.Accept(*this);
-              out << "}";
-            }, Out);
-            Out << "})";
-          };
-          virtual void operator()(const Type::TOpt      *that) const {
-            Out << "Orly::Type::TOpt::Get(";
-            that->GetElem().Accept(*this);
-            Out << ")";
-          };
-          virtual void operator()(const Type::TReal     *) const { Out << "Orly::Type::TReal::Get()"; };
-          virtual void operator()(const Type::TSeq      *that) const {
-            Out << "Orly::Type::TSeq::Get(";
-            that->GetElem().Accept(*this);
-            Out << ")";
-          };
-          virtual void operator()(const Type::TSet      *that) const {
-            Out << "Orly::Type::TSet::Get(";
-            that->GetElem().Accept(*this);
-            Out << ")";
-          };
-          virtual void operator()(const Type::TStr      *) const { Out << "Orly::Type::TStr::Get()"; };
-          virtual void operator()(const Type::TTimeDiff *) const { Out << "Orly::Type::TTimeDiff::Get()"; };
-          virtual void operator()(const Type::TTimePnt  *) const { Out << "Orly::Type::TTimePnt::Get()"; };
+                    if (is_sequence) {
+                      /* Close off the extra open paren introduced to make a sequence*/
+                      Out << ")";
+                    }
+                  };
+                  virtual void operator()(const Type::TAny      *) const { Out << "Orly::Type::TAny::Get()"; };
+                  virtual void operator()(const Type::TBool     *) const { Out << "Orly::Type::TBool::Get()"; };
+                  virtual void operator()(const Type::TDict     *that) const {
+                    Out << "Orly::Type::TDict::Get(";
+                    that->GetKey().Accept(*this);
+                    Out << ", ";
+                    that->GetVal().Accept(*this);
+                    Out << ")";
+                  };
+                  virtual void operator()(const Type::TErr      *) const {};
+                  virtual void operator()(const Type::TFunc     *) const {};
+                  virtual void operator()(const Type::TId       *) const { Out << "Orly::Type::TId::Get()"; };
+                  virtual void operator()(const Type::TInt      *) const { Out << "Orly::Type::TInt::Get()"; };
+                  virtual void operator()(const Type::TList     *that) const {
+                    Out << "Orly::Type::TList::Get(";
+                    that->GetElem().Accept(*this);
+                    Out << ")";
+                  };
+                  virtual void operator()(const Type::TMutable  *that) const { that->GetSrcAtAddr().Accept(*this); };
+                  virtual void operator()(const Type::TObj      *that) const {
+                    Out
+                      << "Orly::Type::TObj::Get(std::map<std::string, Orly::Type::TType> {"
+                      << Join(that->GetElems(),
+                              ", ",
+                              [this](TCppPrinter &out, const std::pair<string, Type::TType> &elem) {
+                                out << "{"
+                                    << "\"" << elem.first << "\""
+                                    << ",";
+                                elem.second.Accept(*this);
+                                out << "}";
+                              })
+                      << "})";
+                  };
+                  virtual void operator()(const Type::TOpt      *that) const {
+                    Out << "Orly::Type::TOpt::Get(";
+                    that->GetElem().Accept(*this);
+                    Out << ")";
+                  };
+                  virtual void operator()(const Type::TReal     *) const { Out << "Orly::Type::TReal::Get()"; };
+                  virtual void operator()(const Type::TSeq      *that) const {
+                    Out << "Orly::Type::TSeq::Get(";
+                    that->GetElem().Accept(*this);
+                    Out << ")";
+                  };
+                  virtual void operator()(const Type::TSet      *that) const {
+                    Out << "Orly::Type::TSet::Get(";
+                    that->GetElem().Accept(*this);
+                    Out << ")";
+                  };
+                  virtual void operator()(const Type::TStr      *) const { Out << "Orly::Type::TStr::Get()"; };
+                  virtual void operator()(const Type::TTimeDiff *) const { Out << "Orly::Type::TTimeDiff::Get()"; };
+                  virtual void operator()(const Type::TTimePnt  *) const { Out << "Orly::Type::TTimePnt::Get()"; };
 
-          private:
-          TCppPrinter &Out;
-        };
-        /* Keys */
-        char uuid[37];
-        pair.first.Format(uuid);
-        out << "    { Base::TUuid(\"" << uuid << "\"), \n";
-        /* Value*/
-        out << "      std::make_pair<Orly::Type::TType, Orly::Type::TType>(" << Eol;
-        out << "        ";
-        pair.second.first.Accept(t_addr_printer(out));
-        out << "," << Eol;
-        out << "        ";
-        pair.second.second.Accept(t_addr_printer(out));
-        out << ") }";
-      }, out);
-    out << "}" << Eol;
+                  private:
+                  TCppPrinter &Out;
+                };
+                /* Keys */
+                char uuid[37];
+                pair.first.Format(uuid);
+                out << "    { Base::TUuid(\"" << uuid << "\"), \n";
+                /* Value*/
+                out << "      std::make_pair<Orly::Type::TType, Orly::Type::TType>(" << Eol;
+                out << "        ";
+                pair.second.first.Accept(t_addr_printer(out));
+                out << "," << Eol;
+                out << "        ";
+                pair.second.second.Accept(t_addr_printer(out));
+                out << ") }";
+              })
+      << "}" << Eol;
   }
   out << "};" << Eol
       << Eol

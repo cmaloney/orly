@@ -70,7 +70,7 @@ namespace Jhm {
       try {
         return TJsonReader<TVal>::Read(entry);
       } catch (const TInvalidValue &ex) {
-        THROW_ERROR(TInvalidValue) << "Invalid for \"" << Base::Join('.', name) << "\". " << ex.what();
+        THROW_ERROR(TInvalidValue) << "Invalid for \"" << Base::Join(name, '.') << "\". " << ex.what();
       }
       // TODO: GCC BUG
       __builtin_unreachable();

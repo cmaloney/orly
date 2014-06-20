@@ -39,10 +39,14 @@ TObjCtor::TObjCtor(const L0::TPackage *package, const Type::TType &type, TArgs &
 void TObjCtor::WriteExpr(TCppPrinter &out) const {
   assert(&out);
 
-  out << GetReturnType() << '(';
-  Base::Join(", ", Args, [](const TArgs::value_type &it, TCppPrinter &out){
-    out << it.second;
-  }, out) << ')';
+  out
+    << GetReturnType() << '('
+    << Base::Join(Args,
+                  ", ",
+                  [](TCppPrinter &out, const TArgs::value_type &it) {
+                    out << it.second;
+                  })
+    << ')';
 }
 
 
@@ -129,37 +133,50 @@ void Orly::CodeGen::GenObjHeader(const Jhm::TAbsBase &out_dir, const Type::TType
         if(!obj_core_type->GetElems().empty()) {
           out << " : ";
         }
-        Base::Join(", ", obj_core_type->GetElems(), [](const TObj::TElems::value_type &it, TCppPrinter &out) {
-          out << 'V' << it.first << "(Sabot::AsNative<" << it.second << ">(*Sabot::State::TAny::TWrapper(m.at(\"" << it.first << "\").GetState(alloca(Sabot::State::GetMaxStateSize())))))";
-        }, out);
-        out << " {}" << Eol
-            << obj_class_name << '(';
-
-        Base::Join(", ", obj_core_type->GetElems(), [](const TObj::TElems::value_type &it, TCppPrinter &out) {
-          //Two lower case v's, because there are some C++ keywords that start with one lower case 'v', and those should still
-          //be valid object member names.
-          //TODO: This manual prefixing ugly.
-          out << "const " << it.second <<" &vv" << it.first;
-        }, out);
-        out << ")";
+        out << Base::Join(
+                   obj_core_type->GetElems(),
+                   ", ",
+                   [](TCppPrinter &out, const TObj::TElems::value_type &it) {
+                     out << 'V' << it.first << "(Sabot::AsNative<" << it.second
+                         << ">(*Sabot::State::TAny::TWrapper(m.at(\""
+                         << it.first << "\").GetState(alloca(Sabot::State::GetMaxStateSize())))))";
+                   })
+            << " {}" << Eol
+            << obj_class_name << '('
+            << Base::Join(obj_core_type->GetElems(),
+                          ", ",
+                          [](TCppPrinter &out, const TObj::TElems::value_type &it) {
+                            // Two lower case v's, because there are some C++
+                            // keywords that start with one lower case 'v', and
+                            // those should still be valid object member names.
+                            // TODO: This manual prefixing ugly.
+                            out << "const " << it.second <<" &vv" << it.first;
+                          })
+            << ")";
         if(!obj_core_type->GetElems().empty()) {
           out << " : ";
         }
-        Base::Join(", ", obj_core_type->GetElems(), [](const TObj::TElems::value_type &it, TCppPrinter &out) {
-          out << 'V' << it.first << "(vv" << it.first << ')';
-        }, out);
-        out << " {}" << Eol
+        out
+          << Base::Join(obj_core_type->GetElems(),
+                        ", ",
+                        [](TCppPrinter &out, const TObj::TElems::value_type &it) {
+                          out << 'V' << it.first << "(vv" << it.first << ')';
+                        })
+          << " {}" << Eol
 
         /* TODO: Move Ctor? */
             << obj_class_name << "(const " << obj_class_name << " &that)";
         if(!obj_core_type->GetElems().empty()) {
           out << " : ";
         }
-        Base::Join(", ", obj_core_type->GetElems(), [](const TObj::TElems::value_type &it, TCppPrinter &out) {
-          out << 'V' << it.first << "(that.V" << it.first << ')';
-        }, out);
-        out << " {}" << Eol
-            << Eol
+        out
+          << Base::Join(obj_core_type->GetElems(),
+                        ", ",
+                        [](TCppPrinter &out, const TObj::TElems::value_type &it) {
+                          out << 'V' << it.first << "(that.V" << it.first << ')';
+                        })
+          << " {}" << Eol
+          << Eol
         #if 0
             << "Var::TVar AsVar() const final {" << Eol
             << "  assert(this);" << Eol
@@ -181,10 +198,13 @@ void Orly::CodeGen::GenObjHeader(const Jhm::TAbsBase &out_dir, const Type::TType
         if(obj_core_type->GetElems().empty()) {
           out << "0";
         }
-        Base::Join(" ^ ", obj_core_type->GetElems(), [](const TObj::TElems::value_type &it, TCppPrinter &out) {
-          out << "std::hash<" << it.second << ">()(V" << it.first << ')';
-        }, out);
-        out << ';' << Eol
+        out << Base::Join(obj_core_type->GetElems(),
+                          " ^ ",
+                          [](TCppPrinter &out,
+                             const TObj::TElems::value_type &it) {
+                            out << "std::hash<" << it.second << ">()(V" << it.first << ')';
+                          })
+            << ';' << Eol
             << '}' << Eol
             << Eol
             << (Type::HasOptional(obj_type) ? "TOpt<bool>" : "bool") << " EqEq(const " << obj_class_name
@@ -206,10 +226,12 @@ void Orly::CodeGen::GenObjHeader(const Jhm::TAbsBase &out_dir, const Type::TType
         if(obj_core_type->GetElems().empty()) {
           out << "true";
         }
-        Base::Join(" && ", obj_core_type->GetElems(), [](const TObj::TElems::value_type &it, TCppPrinter &out) {
-          out << "Rt::Match(V" << it.first << ", that.V" << it.first << ')';
-        }, out);
-        out << ';' << Eol
+        out << Base::Join(obj_core_type->GetElems(),
+                          " && ",
+                          [](TCppPrinter &out, const TObj::TElems::value_type &it) {
+                            out << "Rt::Match(V" << it.first << ", that.V" << it.first << ')';
+                          })
+            << ';' << Eol
             << '}' << Eol;
         /* MatchLess */
         out << "bool MatchLess(const " << obj_class_name << " &that) const {" << Eol
@@ -300,13 +322,15 @@ void Orly::CodeGen::GenObjHeader(const Jhm::TAbsBase &out_dir, const Type::TType
         << "struct TDt<Rt::Objects::" << obj_class_name << "> {" << Eol
         << Eol
         << "  static TType GetType() {" << Eol
-        << "    return TObj::Get({";
-    Base::Join(", ", obj_core_type->GetElems(), [](const TObj::TElems::value_type &it, TCppPrinter &out) {
-      out << "{\"" << it.first << "\", ";
-      Type::GenCode(out.GetOstream(), it.second);
-      out << '}';
-    }, out);
-    out << "});" << Eol
+        << "    return TObj::Get({"
+        << Base::Join(obj_core_type->GetElems(),
+                      ", ",
+                      [](TCppPrinter &out, const TObj::TElems::value_type &it) {
+                        out << "{\"" << it.first << "\", ";
+                        Type::GenCode(out.GetOstream(), it.second);
+                        out << '}';
+                      })
+        << "});" << Eol
         << "  }" << Eol
         << Eol
         << "};" << Eol;

@@ -20,12 +20,15 @@
 
 #include <cassert>
 #include <cstring>
+#include <utility>
+#include <type_traits>
 
 #include <base/class_traits.h>
 #include <orly/native/type.h>
 #include <orly/rt/mutable.h>
 #include <orly/sabot/state.h>
 #include <orly/uuid.h>
+#include <util/tuple.h>
 
 namespace Orly {
 
@@ -67,14 +70,6 @@ namespace Orly {
         }
 
       };  // State::Factory<TVal>
-
-      /* A helper for TTuple. */
-      template <size_t Idx, typename... TElems>
-      class ForTuple;
-
-      /* A helper for TRTTuple. */
-      template <size_t Idx, typename... TElems>
-      class ForRTTuple;
 
       /*
        *    Base classes.
@@ -681,24 +676,43 @@ namespace Orly {
           : public TStaticArrayOfSingleStates<Sabot::State::TTuple> {
         public:
 
+        using TStdTuple = std::tuple<TElems...>;
+
         /* Do-little. */
-        TTuple(const std::tuple<TElems...> &val)
+        TTuple(const TStdTuple &val)
             : Val(val) {}
 
         /* See Sabot::State::TTuple. */
         virtual Sabot::Type::TTuple *GetTupleType(void *type_alloc) const override {
-          return Type::For<std::tuple<TElems...>>::GetType(type_alloc);
+          return Type::For<TStdTuple>::GetType(type_alloc);
         }
 
         private:
 
+        template <std::size_t I>
+        static TAny *NewElemFn(const TStdTuple &that, void *state_alloc) {
+          using TElem = typename std::tuple_element<I, TStdTuple>::type;
+          return Factory<TElem>::New(std::get<I>(that), state_alloc);
+        }
+
+        template <std::size_t... Is>
+        static TAny *NewElemImpl(const TStdTuple &that,
+                                 size_t elem_idx,
+                                 void *state_alloc,
+                                 std::index_sequence<Is...>) {
+          using TFn = TAny *(*)(const TStdTuple &, void *);
+          constexpr const std::array<TFn, sizeof...(Is)> fns = { NewElemFn<Is>... };
+          return fns.at(elem_idx)(that, state_alloc);
+        }
+
         /* See TArrayOfSingleStates<TElems...>. */
         virtual TAny *NewElem(size_t elem_idx, void *state_alloc) const override {
-          return ForTuple<0, TElems...>::NewElem(elem_idx, Val, state_alloc);
+          return NewElemImpl(
+              Val, elem_idx, state_alloc, std::index_sequence_for<TElems...>());
         }
 
         /* Cached reference to the value we are sabot to. */
-        const std::tuple<TElems...> &Val;
+        const TStdTuple &Val;
 
       };  // TTuple<TElems...>
 
@@ -918,41 +932,6 @@ namespace Orly {
       }
 
     };  // State::Factory<std::tuple<TElems...>>
-
-    /*
-     *    Specializations of State::ForTuple<> and special case for State::TTuple<>.
-     */
-
-    /* Specialization for a non-empty partial tuple. */
-    template <size_t Idx, typename TElem, typename... TMoreElems>
-    class State::ForTuple<Idx, TElem, TMoreElems...> {
-      NO_CONSTRUCTION(ForTuple);
-      public:
-
-      /* Our non-empty partial tuple type. */
-      using TPartialTuple = std::_Tuple_impl<Idx, TElem, TMoreElems...>;
-
-      /* If we want the 0th element, return the head of this partial tuple; otherwise, decrement the requested index and recurse. */
-      static TAny *NewElem(size_t elem_idx, const TPartialTuple &partial_tuple, void *state_alloc) {
-        return elem_idx
-            ? ForTuple<Idx + 1, TMoreElems...>::NewElem(elem_idx - 1, TPartialTuple::_M_tail(partial_tuple), state_alloc)
-            : Factory<TElem>::New(TPartialTuple::_M_head(partial_tuple), state_alloc);
-      }
-
-    };  // State::ForTuple<Idx, TElem, TMoreElems...>
-
-    /* Specialization for an empty partial tuple. */
-    template <size_t Idx>
-    class State::ForTuple<Idx> {
-      NO_CONSTRUCTION(ForTuple);
-      public:
-
-      /* Our partial tuple has no data, so referring to any element is always out-of-bounds. */
-      static TAny *NewElem(size_t, const std::_Tuple_impl<Idx> &, void */*state_alloc*/) {
-        throw Sabot::TIdxTooBig();
-      }
-
-    };  // State::ForTuple<Idx>
 
     /* State used for std::tuple<>. */
     template <>

@@ -1,6 +1,6 @@
 /* <util/tuple.h>
 
-   Utilities for working with tuples
+   Utilities for working with tuples.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -18,127 +18,90 @@
 
 #pragma once
 
-#include <array>
 #include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace Util {
 
-  /* NOTE: The current version only supports 0 or 1 out parameters.
-           This is ok for now since we don't have a particular use case for them.
-
-           We can use variadic templates on the out parameter to support 0 to N out parameters,
-           In which case we can simply have 2 versions (const and non-const) of each (recursive, base case, wrapper)
-           However G++ 4.7 currently doesn't seem to support this fully. */
-
-  // Compile-time counter
-
-  template <size_t index>
-  struct TIndex {};
-
-  // Recursive
-
-  template <template <typename> class TCb, typename TTuple, size_t index>
-  bool ForEachElem(TTuple &that, TIndex<index>) {
-    typedef typename std::tuple_element<index, TTuple>::type TType; // Type of the current element
-    if (ForEachElem<TCb>(that, TIndex<index - 1>())) {
-      return TCb<TType>()(std::get<index>(that), index);
-    }
-    return false;
+  template <typename TTuple, typename TUnaryFn, std::size_t... Is>
+  auto ForEachImpl(TTuple &&tuple,
+                   TUnaryFn &&unary_fn,
+                   std::index_sequence<Is...>)
+      -> decltype(std::initializer_list<int>(
+                      {(std::forward<TUnaryFn>(unary_fn)(
+                            std::get<Is>(std::forward<TTuple>(tuple))),
+                        0)...}),
+                  std::forward<TUnaryFn>(unary_fn)) {
+    std::initializer_list<int>(
+        {(std::forward<TUnaryFn>(unary_fn)(
+              std::get<Is>(std::forward<TTuple>(tuple))),
+          0)...});
+    return std::forward<TUnaryFn>(unary_fn);
   }
 
-  template <template <typename> class TCb, typename TTuple, size_t index, typename TOut>
-  bool ForEachElem(TTuple &that, TIndex<index>, TOut &out) {
-    typedef typename std::tuple_element<index, TTuple>::type TType; // Type of the current element
-    if (ForEachElem<TCb>(that, TIndex<index - 1>(), out)) {
-      return TCb<TType>()(std::get<index>(that), index, out);
-    }
-    return false;
+  template <typename TTuple, typename TUnaryFn, std::size_t... Is>
+  auto ForEachImpl(TTuple &&tuple,
+                   TUnaryFn &&unary_fn,
+                   std::index_sequence<Is...>)
+      -> decltype(std::initializer_list<int>({(
+                      std::forward<TUnaryFn>(unary_fn).template operator()<Is>(
+                          std::get<Is>(std::forward<TTuple>(tuple))),
+                      0)...}),
+                  std::forward<TUnaryFn>(unary_fn)) {
+    std::initializer_list<int>(
+        {(std::forward<TUnaryFn>(unary_fn).template operator()<Is>(
+              std::get<Is>(std::forward<TTuple>(tuple))),
+          0)...});
+    return std::forward<TUnaryFn>(unary_fn);
   }
 
-  template <template <typename> class TCb, typename TTuple, size_t index>
-  bool ForEachElem(const TTuple &that, TIndex<index>) {
-    typedef typename std::tuple_element<index, TTuple>::type TType; // Type of the current element
-    if (ForEachElem<TCb>(that, TIndex<index - 1>())) {
-      return TCb<TType>()(std::get<index>(that), index);
-    }
-    return false;
+  /**
+   *   Examples:
+   *   If you don't need the index: Use a lambda
+   *
+   *     ForEach(std::make_tuple(42, 1.1, "hello"),
+   *             [](const auto &elem) {
+   *               std::cout << elem << std::endl;
+   *             });
+   *
+   *   If you need the index, use a functor with an `operator()` like:
+   *
+   *     struct TPrint {
+   *
+   *       explicit TPrint(std::ostream &strm) : Strm(strm) {}
+   *
+   *       template <std::size_t Idx, typename TElem>
+   *       void operator()(const TElem &elem) const {
+   *         if (Idx) {
+   *           Strm << ", ";
+   *         }  // if
+   *         Strm << elem;
+   *       }
+   *
+   *       private:
+   *
+   *       std::ostream &Strm;
+   *
+   *     };  // TPrint
+   *
+   *     ForEach(std::make_tuple(42, 1.1, "hello"), TPrint(std::cout));
+   *
+   **/
+
+  template <typename TTuple, typename TUnaryFn>
+  std::enable_if_t<std::tuple_size<std::decay_t<TTuple>>::value == 0,
+  TUnaryFn> ForEach(TTuple &&, TUnaryFn &&unary_fn) {
+    return std::forward<TUnaryFn>(unary_fn);
   }
 
-  template <template <typename> class TCb, typename TTuple, size_t index, typename TOut>
-  bool ForEachElem(const TTuple &that, TIndex<index>, TOut &out) {
-    typedef typename std::tuple_element<index, TTuple>::type TType; // Type of the current element
-    if (ForEachElem<TCb>(that, TIndex<index - 1>(), out)) {
-      return TCb<TType>()(std::get<index>(that), index, out);
-    }
-    return false;
-  }
-
-  // Base case
-
-  template <template <typename> class TCb, typename TTuple>
-  bool ForEachElem(TTuple &that, TIndex<0>) {
-    typedef typename std::tuple_element<0, TTuple>::type TType; // Type of the first element
-    return TCb<TType>()(std::get<0>(that), 0); // Call callback function
-  }
-
-  template <template <typename> class TCb, typename TTuple, typename TOut>
-  bool ForEachElem(TTuple &that, TIndex<0>, TOut &out) {
-    typedef typename std::tuple_element<0, TTuple>::type TType; // Type of the first element
-    return TCb<TType>()(std::get<0>(that), 0, out); // Call callback function
-  }
-
-  template <template <typename> class TCb, typename TTuple>
-  bool ForEachElem(const TTuple &that, TIndex<0>) {
-    typedef typename std::tuple_element<0, TTuple>::type TType; // Type of the first element
-    return TCb<TType>()(std::get<0>(that), 0); // Call callback function
-  }
-
-  template <template <typename> class TCb, typename TTuple, typename TOut>
-  bool ForEachElem(const TTuple &that, TIndex<0>, TOut &out) {
-    typedef typename std::tuple_element<0, TTuple>::type TType; // Type of the first element
-    return TCb<TType>()(std::get<0>(that), 0, out); // Call callback function
-  }
-
-  // These are the one that gets used by the caller
-
-  template <template <typename> class TCb, typename TTuple>
-  void ForEachElem(TTuple &that) {
-    ForEachElem<TCb>(that, TIndex<std::tuple_size<TTuple>::value - 1>());
-  }
-
-  template <template <typename> class TCb, typename TTuple, typename TOut>
-  void ForEachElem(TTuple &that, TOut &out) {
-    ForEachElem<TCb>(that, TIndex<std::tuple_size<TTuple>::value - 1>(), out);
-  }
-
-  template <template <typename> class TCb, typename TTuple>
-  void ForEachElem(const TTuple &that) {
-    ForEachElem<TCb>(that, TIndex<std::tuple_size<TTuple>::value - 1>());
-  }
-
-  template <template <typename> class TCb, typename TTuple, typename TOut>
-  void ForEachElem(const TTuple &that, TOut &out) {
-    ForEachElem<TCb>(that, TIndex<std::tuple_size<TTuple>::value - 1>(), out);
-  }
-
-  template <typename THead, typename... TRest>
-  const THead &GetHead(const std::tuple<THead, TRest...> &that) {
-    return std::_Tuple_impl<0, THead, TRest...>::_M_head(that);
-  }
-
-  template <size_t N, typename THead, typename... TRest>
-  const THead &GetHead(const std::_Tuple_impl<N, THead, TRest...> &that) {
-    return std::_Tuple_impl<N, THead, TRest...>::_M_head(that);
-  }
-
-  template <typename THead, typename... TRest>
-  const std::_Tuple_impl<1, TRest...> &GetTail(const std::tuple<THead, TRest...> &that) {
-    return std::_Tuple_impl<0, THead, TRest...>::_M_tail(that);
-  }
-
-  template <size_t N, typename THead, typename... TRest>
-  const std::_Tuple_impl<N + 1, TRest...> &GetTail(const std::_Tuple_impl<N, THead, TRest...> &that) {
-    return std::_Tuple_impl<N, THead, TRest...>::_M_tail(that);
+  template <typename TTuple, typename TUnaryFn>
+  std::enable_if_t<std::tuple_size<std::decay_t<TTuple>>::value != 0,
+  TUnaryFn> ForEach(TTuple &&tuple, TUnaryFn &&unary_fn) {
+    return ForEachImpl(std::forward<TTuple>(tuple),
+                       std::forward<TUnaryFn>(unary_fn),
+                       std::make_index_sequence<
+                           std::tuple_size<std::decay_t<TTuple>>::value>());
   }
 
 }  // Util

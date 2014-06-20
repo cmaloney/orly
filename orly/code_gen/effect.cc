@@ -304,9 +304,11 @@ void TIf::Write(TCppPrinter &out) const {
   assert(this);
   assert(&out);
 
-  Base::Join(" else ", IfClauses, [](TPredicatedBlocks::const_reference it, TCppPrinter &out) {
-    it->Write(out);
-  }, out);
+  out << Base::Join(IfClauses,
+                    " else ",
+                    [](TCppPrinter &out, TPredicatedBlocks::const_reference it) {
+                      it->Write(out);
+                    });
 
   if(OptElseClause) {
     out << " else {" << Eol;

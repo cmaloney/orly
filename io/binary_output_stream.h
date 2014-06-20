@@ -36,6 +36,7 @@
 #include <base/class_traits.h>
 #include <io/binary_stream.h>
 #include <io/output_producer.h>
+#include <util/tuple.h>
 
 namespace Io {
 
@@ -96,13 +97,11 @@ namespace Io {
     template <typename TVal, typename TAlloc>
     void Write(const std::vector<TVal, TAlloc> &that) { WriteContainer(that); }
 
-    /* Read STL tuples. */
-    void Write(const std::tuple<> &) {}
     template <typename... TArgs>
     void Write(const std::tuple<TArgs...> &that) {
       assert(this);
       assert(&that);
-      TTupleWriter<0, TArgs...>::Write(this, that);
+      Util::ForEach(that, [this](const auto &elem) { *this << elem; });
     }
 
     protected:
@@ -118,12 +117,6 @@ namespace Io {
         : TOutputProducer(output_consumer, pool) {}
 
     private:
-
-    /* A helper class for writing tuples.
-       NOTE: We're invading the implementation of std::tuple here because the API doesn't support head/tail abstractions.
-       If this bothers you, please feel free to beat your head against the brick wall of the ISO committee. */
-    template <size_t N, typename... TArgs>
-    class TTupleWriter;
 
     /* Write an STL container. */
     template <typename TThat>
@@ -159,32 +152,6 @@ namespace Io {
     }
 
   };  // TBinaryOutputStream
-
-  /* Specialization for empty tuples. */
-  template <size_t N>
-  class TBinaryOutputStream::TTupleWriter<N> {
-    NO_CONSTRUCTION(TTupleWriter);
-    public:
-
-    /* Write the tuple. */
-    static void Write(TBinaryOutputStream *, const std::_Tuple_impl<N> &) {}
-
-  };  // TBinaryOutputStream::TTupleWriter<N>
-
-  /* Specialization for non-empty tuples. */
-  template <size_t N, typename THead, typename... TRest>
-  class TBinaryOutputStream::TTupleWriter<N, THead, TRest...> {
-    NO_CONSTRUCTION(TTupleWriter);
-    public:
-
-    /* Write the tuple. */
-    static void Write(TBinaryOutputStream *strm, const std::_Tuple_impl<N, THead, TRest...> &that) {
-      *strm << std::_Tuple_impl<N, THead, TRest...>::_M_head(that);
-      //strm->Write(std::_Tuple_impl<N, THead, TRest...>::_M_head(that));
-      TTupleWriter<N + 1, TRest...>::Write(strm, std::_Tuple_impl<N, THead, TRest...>::_M_tail(that));
-    }
-
-  };  // TBinaryOutputStream::TTupleWriter<N>
 
   /* Stream inserters for built-in types. */
   inline TBinaryOutputStream &operator<<(TBinaryOutputStream &strm, bool that    ) { strm.Write(that); return strm; }

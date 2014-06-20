@@ -31,12 +31,16 @@ void Orly::Type::Orlyify(ostream &strm, const TType &type) {
     public:
     TVisitor(ostream &strm) : Strm(strm) {}
     virtual void operator()(const TAddr *that) const {
-      Strm << "<[";
-      Base::Join(',', that->GetElems(), [this] (const std::pair<TAddr::TDir, TType> &elem, std::ostream &strm) {
-        strm << elem.first << ' ';
-        elem.second.Accept(*this);
-      }, Strm);
-      Strm << "]>";
+    Strm
+      << "<["
+      << Base::Join(that->GetElems(),
+                    ',',
+                    [this](ostream &strm,
+                           const pair<TAddr::TDir, TType> &elem) {
+                      strm << elem.first << ' ';
+                      elem.second.Accept(*this);
+                    })
+      << "]>";
     }
     virtual void operator()(const TAny *) const {throw Base::TImpossibleError(HERE);}
     virtual void operator()(const TBool *) const {
@@ -77,11 +81,15 @@ void Orly::Type::Orlyify(ostream &strm, const TType &type) {
       that->GetVal().Accept(*this);
     }
     virtual void operator()(const TObj *that) const {
-      Strm << "<{";
-      Base::Join(", ", that->GetElems(), [this](const TObj::TElems::value_type &elem, std::ostream &out) {
-        out << '.' << elem.first << ':';
-        elem.second.Accept(*this);
-      }, Strm) << "}>";
+      Strm
+        << "<{"
+        << Base::Join(that->GetElems(),
+                      ", ",
+                      [this](ostream &strm, TObj::TElems::const_reference elem) {
+                        strm << '.' << elem.first << ':';
+                        elem.second.Accept(*this);
+                      })
+        << "}>";
     }
     virtual void operator()(const TOpt *that) const {
       that->GetElem().Accept(*this);

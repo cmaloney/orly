@@ -53,6 +53,7 @@
 #include <strm/out.h>
 #include <strm/bin/var_int.h>
 #include <strm/bin/zig_zag.h>
+#include <util/tuple.h>
 
 namespace Strm {
 
@@ -215,7 +216,7 @@ namespace Strm {
          that inserting the empty tuple writes nothing at all. */
       template <typename... TElems>
       TOut &operator<<(const std::tuple<TElems...> &that) {
-        WriteTuple(that, std::make_index_sequence<sizeof...(TElems)>());
+        Util::ForEach(that, [this](const auto &elem) { *this << elem; });
         return *this;
       }
 
@@ -455,13 +456,6 @@ namespace Strm {
       }
 
       private:
-
-      /* Used by the operator<< overload for tuples. */
-      template <typename TSomeTuple, size_t... Idx>
-      void WriteTuple(const TSomeTuple &that, std::index_sequence<Idx...>) {
-        int x[] = { (*this << std::get<Idx>(that), 0)... };
-        (void)x;
-      }
 
       /* Used by the operator<< overloads for multi-byte integers. */
       void WriteVarInt(uint64_t that) {

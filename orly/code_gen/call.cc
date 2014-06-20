@@ -43,6 +43,6 @@ void TCall::WriteExpr(TCppPrinter &out) const {
     }
   }
 
-  Base::Join(", ", Args, out) << ')';
+  out << Base::Join(Args, ", ") << ')';
 
 }

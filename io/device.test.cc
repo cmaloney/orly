@@ -18,6 +18,7 @@
 
 #include <io/device.h>
 
+#include <base/split.h>
 #include <io/binary_input_only_stream.h>
 #include <io/binary_output_only_stream.h>
 #include <util/tuple.h>
@@ -29,69 +30,29 @@ using namespace Base;
 using namespace Io;
 using namespace Util;
 
-template <size_t N, typename... TArgs>
-class TTupleWriter;
-
-template <size_t N>
-class TTupleWriter<N> {
-  public:
-  static void WriteTuple(ostream &, const _Tuple_impl<N> &) {}
-};
-
-template <size_t N, typename THead, typename... TRest>
-class TTupleWriter<N, THead, TRest...> {
-  public:
-  static void WriteTuple(ostream &strm, const _Tuple_impl<N, THead, TRest...> &that) {
-    if (N) {
-      strm << ", ";
-    }
-    strm << GetHead(that);
-    TTupleWriter<N + 1, TRest...>::WriteTuple(strm, GetTail(that));
-  }
-};
-
 namespace std {
-  template <typename... TArgs>
-  ostream &operator<<(ostream &strm, const tuple<TArgs...> &that) {
-    strm << '(';
-    TTupleWriter<0, TArgs...>::WriteTuple(strm, that);
-    return strm << ')';
+
+  template <typename TLhs, typename TRhs>
+  ostream &operator<<(ostream &strm, const pair<TLhs, TRhs> &that) {
+    return strm << '(' << that.first << ", " << that.second << ')';
   }
 
-  template <typename TFirst, typename TSecond>
-  ostream &operator<<(ostream &strm, const pair<TFirst, TSecond> &that) {
-    return strm << that.first << ": " << that.second;
-  }
-}
-
-template <typename TThat>
-static void WriteContainer(ostream &strm, const TThat &that) {
-  strm << '{';
-  bool sep = false;
-  for (const typename TThat::value_type &val: that) {
-    if (sep) {
-      strm << ", ";
-    } else {
-      sep = true;
-    }
-    strm << val;
-  }
-  strm << '}';
-}
-
-namespace std {
-  template <typename TVal>
-  ostream &operator<<(ostream &strm, const vector<TVal> &that) {
-    WriteContainer(strm, that);
-    return strm;
+  template <typename TElem>
+  ostream &operator<<(ostream &strm, const set<TElem> &that) {
+    return strm << '(' << Join(that, ", ") << ')';
   }
 
-  template <typename TVal>
-  ostream &operator<<(ostream &strm, const set<TVal> &that) {
-    WriteContainer(strm, that);
-    return strm;
+  template <typename... TElems>
+  ostream &operator<<(ostream &strm, const tuple<TElems...> &that) {
+    return strm << '(' << Join(that, ", ") << ')';
   }
-}
+
+  template <typename TElem>
+  ostream &operator<<(ostream &strm, const vector<TElem> &that) {
+    return strm << '(' << Join(that, ", ") << ')';
+  }
+
+}  // std
 
 template <typename TExpected, typename TActual = TExpected>
 static void RoundTrip(TBinaryOutputStream &out_strm, TBinaryInputStream &in_strm, const TExpected &expected) {
@@ -105,28 +66,12 @@ static void RoundTrip(TBinaryOutputStream &out_strm, TBinaryInputStream &in_strm
   EXPECT_EQ(actual, expected);
 }
 
-template <size_t N, typename... TArgs>
-class TTupleTester;
-
-template <size_t N>
-class TTupleTester<N> {
-  public:
-  static void TestTuple(TBinaryOutputStream &, TBinaryInputStream &, const _Tuple_impl<N> &) {}
-};
-
-template <size_t N, typename THead, typename... TRest>
-class TTupleTester<N, THead, TRest...> {
-  public:
-
-  static void TestTuple(TBinaryOutputStream &out_strm, TBinaryInputStream &in_strm, const _Tuple_impl<N, THead, TRest...> &that) {
-    RoundTrip(out_strm, in_strm, GetHead(that));
-    TTupleTester<N + 1, TRest...>::TestTuple(out_strm, in_strm, GetTail(that));
-  }
-};
-
 template <typename... TArgs>
-void TestTuple(TBinaryOutputStream &out_strm, TBinaryInputStream &in_strm, const tuple<TArgs...> &that) {
-  TTupleTester<0, TArgs...>::TestTuple(out_strm, in_strm, that);
+void TestTuple(TBinaryOutputStream &out_strm,
+               TBinaryInputStream &in_strm,
+               const tuple<TArgs...> &that) {
+  Util::ForEach(that,
+                [&](const auto &elem) { RoundTrip(out_strm, in_strm, elem); });
 }
 
 FIXTURE(Typical) {

@@ -37,11 +37,14 @@ Type::TType TAddr::GetType() const {
 
 void TAddr::Write(std::ostream &strm) const {
   assert(this);
-  strm << GetType() << '(';
-  Base::Join(", ", Val, [](const std::pair<TAddrDir, Var::TVar> &elem, std::ostream &strm) {
-    strm << elem.second;
-  }, strm);
-  strm << ')';
+  strm
+    << GetType() << '('
+    << Base::Join(Val,
+                  ", ",
+                  [](std::ostream &strm, TAddrType::const_reference elem) {
+                    strm << elem.second;
+                  })
+    << ')';
 }
 
 void TAddr::Accept(const TVisitor &visitor) const {

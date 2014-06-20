@@ -187,11 +187,14 @@ void TTestBlock::WriteMeta(TCppPrinter &out) const {
   assert(this);
   assert(&out);
 
-  out << "Package::TTestBlock{";
-  Base::Join(", ", Children, [](const TTestCase *test, TCppPrinter &out) {
-    out << "&TI_" << test->GetId();
-  }, out);
-  out << '}';
+  out
+    << "Package::TTestBlock{"
+    << Base::Join(Children,
+                  ", ",
+                  [](TCppPrinter &out, const TTestCase *test) {
+                    out << "&TI_" << test->GetId();
+                  })
+    << '}';
 }
 
 void TWith::Write(TCppPrinter &out) const {

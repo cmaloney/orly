@@ -24,16 +24,15 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <base/as_str.h>
 #include <jhm/job_runner.h>
 #include <jhm/naming.h>
+#include <jhm/timestamp.h>
 
 namespace Jhm {
 
   class TJob;
   class TFile;
-
-  //TODO: Make a generic templated "AsStr"?
-  std::string AsStr(timespec &that);
 
   /* Finds all the currently buildable leaves and queues them for the subproc_runner to fire off. */
   class TWorkFinder {
@@ -48,7 +47,7 @@ namespace Jhm {
                 std::function<TFile *(TRelPath name)> &&get_file,
                 std::function<TFile *(const std::string &)> &&try_get_file_from_path)
         : ConfigTimestamp(config_timestamp),
-          ConfigTimestampStr(AsStr(config_timestamp)),
+          ConfigTimestampStr(Base::AsStr(config_timestamp)),
           GetJobsProducingFile(std::move(get_jobs_producing_file)),
           GetFile(move(get_file)),
           TryGetFileFromPath(move(try_get_file_from_path)),

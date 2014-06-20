@@ -36,6 +36,7 @@
 #include <base/class_traits.h>
 #include <io/binary_stream.h>
 #include <io/input_consumer.h>
+#include <util/tuple.h>
 
 namespace Io {
 
@@ -104,12 +105,11 @@ namespace Io {
     }
 
     /* Read STL tuples. */
-    void Read(std::tuple<> &) {}
     template <typename... TArgs>
     void Read(std::tuple<TArgs...> &that) {
       assert(this);
       assert(&that);
-      TTupleReader<0, TArgs...>::Read(this, that);
+      Util::ForEach(that, [this](auto &elem) { *this >> elem; });
     }
 
     protected:
@@ -123,12 +123,6 @@ namespace Io {
     /* TODO */
     template <typename TVal>
     class TypeHelper;
-
-    /* A helper class for reading tuples.
-       NOTE: We're invading the implementation of std::tuple here because the API doesn't support head/tail abstractions.
-       If this bothers you, please feel free to beat your head against the brick wall of the ISO committee. */
-    template <size_t N, typename... TArgs>
-    class TTupleReader;
 
     /* Read an STL container that supports insert(). */
     template <typename TThat>
@@ -207,32 +201,6 @@ namespace Io {
       that.insert(val);
     }
   }
-
-  /* Specialization for empty tuples. */
-  template <size_t N>
-  class TBinaryInputStream::TTupleReader<N> {
-    NO_CONSTRUCTION(TTupleReader);
-    public:
-
-    /* Read the tuple. */
-    static void Read(TBinaryInputStream *, std::_Tuple_impl<N> &) {}
-
-  };  // TBinaryInputStream::TTupleReader<N>
-
-  /* Specialization for non-empty tuples. */
-  template <size_t N, typename THead, typename... TRest>
-  class TBinaryInputStream::TTupleReader<N, THead, TRest...> {
-    NO_CONSTRUCTION(TTupleReader);
-    public:
-
-    /* Read the tuple. */
-    static void Read(TBinaryInputStream *strm, std::_Tuple_impl<N, THead, TRest...> &that) {
-      *strm >> std::_Tuple_impl<N, THead, TRest...>::_M_head(that);
-      //strm->Read(std::_Tuple_impl<N, THead, TRest...>::_M_head(that));
-      TTupleReader<N + 1, TRest...>::Read(strm, std::_Tuple_impl<N, THead, TRest...>::_M_tail(that));
-    }
-
-  };  // TBinaryInputStream::TTupleReader<N>
 
   /* Used to stream in enumerated types. */
   template <typename TSomeEnum, typename TSomeInt = int32_t>

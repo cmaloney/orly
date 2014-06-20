@@ -168,9 +168,14 @@ class TJhm : public TCmd {
             THROW_ERROR(runtime_error) << "Unable to open file " << quoted(PrintTests) << "to write tests out to.";
           }
           // NOTE: We're hand-rolling the writing json because it's easier.
-          out << '[';
-          Join(", ", tests, [](TFile *file, ostream &out) { out << quoted(file->GetPath().AsStr()); }, out);
-          out << ']';
+          out
+            << '['
+            << Join(tests,
+                    ", ",
+                    [](ostream &strm, TFile *file) {
+                      strm << quoted(file->GetPath().AsStr());
+                    })
+            << ']';
           out.close();
         }
 

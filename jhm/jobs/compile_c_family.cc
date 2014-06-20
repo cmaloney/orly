@@ -36,7 +36,7 @@ void TCompileCFamily::AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std:
   if (!input->GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options)) {
     env.GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options);
   }
-  out << Join(' ', options)
+  out << Join(options, ' ')
       // Add the src and out directories as sources of includes.
       << " -I" << env.GetSrc() << " -I" << env.GetOut()
          // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)

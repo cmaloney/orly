@@ -89,14 +89,9 @@ namespace Jhm {
     return rhs;
   }
 
-  inline std::ostream &operator<<(std::ostream &out, const timespec &that) {
-    return out << that.tv_sec << '.' << that.tv_nsec;
-  }
-
-  //TODO: Make a generic templated "AsStr"?
-  inline std::string AsStr(timespec &that) {
-    std::ostringstream oss;
-    oss << that;
-    return oss.str();
-  }
 }
+
+inline std::ostream &operator<<(std::ostream &out, const timespec &that) {
+  return out << that.tv_sec << '.' << that.tv_nsec;
+}
+
