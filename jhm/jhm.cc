@@ -213,6 +213,7 @@ class TJhm : public TCmd {
       auto status = subprocess->Wait();
 
       if (VerboseTests || status) {
+        TStatusLine::Cleanup(); // Make sure the TEST: line stays at the top.
         EchoOutput(subprocess->TakeStdOutFromChild());
         EchoOutput(subprocess->TakeStdErrFromChild());
       }
