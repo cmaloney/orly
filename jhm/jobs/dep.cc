@@ -36,7 +36,7 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
   if (EndsWith(output.GetName().GetExtensions(), {"dep"})) {
     return output.DropExtension(1);
   } else {
-    return *TOpt<TRelPath>::Unknown;
+    return TOpt<TRelPath>();
   }
 }
 

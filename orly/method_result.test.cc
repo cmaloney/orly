@@ -35,7 +35,7 @@ using namespace Orly;
 using namespace Orly::Atom;
 
 template <typename TValue>
-static void RoundTrip(const TValue &value, const TOpt<TTracker> &actual_tracker = *TOpt<TTracker>::Unknown) {
+static void RoundTrip(const TValue &value, const TOpt<TTracker> &actual_tracker = TOpt<TTracker>::GetUnknown()) {
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   auto recorder = make_shared<TRecorder>();
   /* write */ {

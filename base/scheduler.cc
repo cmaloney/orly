@@ -66,7 +66,7 @@ void TScheduler::TPolicy::RunUntilCtrlC(TMainJob &&main_job) const {
 const TScheduler::TPolicy TScheduler::TPolicy::Shutdown;
 
 TScheduler::TScheduler(const TPolicy &policy)
-    : TScheduler(policy, *TOpt<pthread_t>::Unknown) {
+    : TScheduler(policy, TOpt<pthread_t>::GetUnknown()) {
   ShuttingDown = false;
 }
 

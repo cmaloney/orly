@@ -69,7 +69,7 @@ TAssertExpr::TAssertExpr(const TExprFactory *expr_factory, const Package::Syntax
       AddAssertCase(TName(that->GetName()).GetText(), that->GetExpr());
     }
     virtual void operator()(const Package::Syntax::TUnlabeledAssertion *that) const {
-      AddAssertCase(*Base::TOpt<std::string>::Unknown, that->GetExpr());
+      AddAssertCase(Base::TOpt<std::string>::GetUnknown(), that->GetExpr());
     }
     private:
     void AddAssertCase(const Base::TOpt<std::string> &opt_name, const Package::Syntax::TExpr *expr) const {

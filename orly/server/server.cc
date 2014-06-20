@@ -938,7 +938,11 @@ void TServer::Init() {
                                                     Cmd.DiskMergeCoreVec,
                                                     Cmd.Create);
     auto global_ttl = TTtl::max();
-    GlobalRepo = RepoManager->GetRepo(TSession::GlobalPovId, global_ttl, *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, true, Cmd.Create);
+    GlobalRepo = RepoManager->GetRepo(TSession::GlobalPovId,
+                                      global_ttl,
+                                      TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::GetUnknown(),
+                                      true,
+                                      Cmd.Create);
 
     void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
     void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
@@ -2204,7 +2208,7 @@ void TServer::ServeMemcacheClient(TFd &&fd_original, const TAddress &client_addr
   // TODO: Only make this when needed. Should live with the session as a pooled resource. Recycle only when failed.
 
   // TODO: Switch to this / the wrapped variant?
-  // auto pov = session->NewFastPrivatePov(this, TOpt<TUuid>::Unknown, zero_ttl);
+  // auto pov = session->NewFastPrivatePov(this, TOpt<TUuid>::GetUnknown(), zero_ttl);
   // The problem is then we jump through a lot of uuid objects for no good reason...
   // TODO: Same as above but not all wrapped up
   auto pov = DurableManager->New<TPov>(TUuid::Twister,

@@ -96,7 +96,7 @@ FIXTURE(KnownVsUnknown) {
   EXPECT_FALSE(opt);
   EXPECT_FALSE(opt.IsKnown());
   EXPECT_TRUE(opt.IsUnknown());
-  EXPECT_FALSE(*opt.Unknown);
+  EXPECT_FALSE(opt.GetUnknown());
 }
 
 FIXTURE(TokenBasics) {
@@ -142,5 +142,5 @@ FIXTURE(MoveAndCopy) {
 }
 
 FIXTURE(UnknownGlobal) {
-  EXPECT_TRUE(TOpt<int>::Unknown->IsUnknown());
+  EXPECT_TRUE(TOpt<int>::GetUnknown().IsUnknown());
 }

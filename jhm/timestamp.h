@@ -34,7 +34,7 @@ namespace Jhm {
     struct stat st;
     if (stat(name.c_str(), &st) != 0) {
       if (errno == ENOENT) {
-        return *Base::TOpt<timespec>::Unknown;
+        return Base::TOpt<timespec>::GetUnknown();
       }
       Util::ThrowSystemError(errno);
     }

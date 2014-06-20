@@ -24,7 +24,6 @@
 #include <ostream>  // NOTE: This should go away when we switch to our own I/O classes.
 
 #include <base/no_default_case.h>
-#include <base/safe_global.h>
 
 namespace Base {
 
@@ -122,67 +121,19 @@ namespace Base {
     TDir Dir;
 
     /* Get the start position for the given direction of iteration. */
-    static const TPos &GetStart(TDir dir) {
-      const TSafeGlobal<TPos> *result;
-      switch (dir) {
-        case Forward: {
-          result = &Start;
-          break;
-        }
-        case Reverse: {
-          result = &ReverseStart;
-          break;
-        }
-        NO_DEFAULT_CASE;
-      }
-      return **result;
-    }
+    static const TPos &GetStart(TDir dir);
 
     /* Get the limit position for the given direction of iteration. */
-    static const TPos &GetLimit(TDir dir) {
-      const TSafeGlobal<TPos> *result;
-      switch (dir) {
-        case Forward: {
-          result = &Limit;
-          break;
-        }
-        case Reverse: {
-          result = &ReverseLimit;
-          break;
-        }
-        NO_DEFAULT_CASE;
-      }
-      return **result;
-    }
+    static const TPos &GetLimit(TDir dir);
 
     /* A pair of constants referring to the start and limit of a sequence when iterating forward.  Forward iteration is so much more common than the reverse
        that we drop the 'Forward' prefix for these names. */
-    static const TSafeGlobal<TPos> Start, Limit;
+    static const TPos &GetStart();
+    static const TPos &GetLimit();
 
     /* A pair of constants referring to the start and limit of a sequence when iterating backward. */
-    static const TSafeGlobal<TPos> ReverseStart, ReverseLimit;
-
-    private:
-
-    /* Factory for Start global. */
-    static TPos *NewStart() {
-      return new TPos(0, Forward);
-    }
-
-    /* Factory for Limit global. */
-    static TPos *NewLimit() {
-      return new TPos(-1, Reverse);
-    }
-
-    /* Factory for ReverseStart global. */
-    static TPos *NewReverseStart() {
-      return new TPos(0, Reverse);
-    }
-
-    /* Factory for ReverseLimit global. */
-    static TPos *NewReverseLimit() {
-      return new TPos(-1, Forward);
-    }
+    static const TPos &GetReverseStart();
+    static const TPos &GetReverseLimit();
 
   };
 

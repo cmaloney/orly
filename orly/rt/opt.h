@@ -22,7 +22,6 @@
 
 #include <base/error.h>
 #include <base/opt.h>  // For conversion from Base::TOpt to Rt::TOpt
-#include <base/safe_global.h>
 #include <orly/rt/runtime_error.h>
 
 namespace Orly {
@@ -47,8 +46,6 @@ namespace Orly {
 
       /* Typedef the template parameter into scope. */
       typedef _TVal TVal;
-
-      static const Base::TSafeGlobal<TOpt> Unknown;
 
       /* Default-construct as an unknown. */
       TOpt()
@@ -220,11 +217,6 @@ namespace Orly {
       TVal *Val;
 
     };  // TOpt
-
-    /* The constant unknown instance. */
-    template <typename TVal>
-    const Base::TSafeGlobal<TOpt<TVal>> TOpt<TVal>::Unknown(
-        []() -> TOpt * { return new TOpt<TVal>(); });
 
   }  // Rt
 

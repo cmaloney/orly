@@ -18,8 +18,54 @@
 
 #include <base/pos.h>
 
+#include <base/unreachable.h>
+
 using namespace Base;
 
-const TSafeGlobal<TPos> TPos::Start(NewStart), TPos::Limit(NewLimit);
+const TPos &TPos::GetStart(TDir dir) {
+  switch (dir) {
+    case Forward: {
+      return GetStart();
+    }
+    case Reverse: {
+      return GetReverseStart();
+    }
+  }
 
-const TSafeGlobal<TPos> TPos::ReverseStart(NewReverseStart), TPos::ReverseLimit(NewReverseLimit);
+  Unreachable(HERE);
+}
+
+/* Get the limit position for the given direction of iteration. */
+const TPos &TPos::GetLimit(TDir dir) {
+  switch (dir) {
+    case Forward: {
+      return GetLimit();
+    }
+    case Reverse: {
+      return GetReverseLimit();
+    }
+  }
+
+  Unreachable(HERE);
+}
+
+const TPos &TPos::GetStart() {
+  static TPos pos(0, TPos::Forward);
+  return pos;
+}
+const TPos &TPos::GetLimit() {
+  static TPos pos(-1, TPos::Reverse);
+  return pos;
+}
+
+/* Factory for ReverseStart global. */
+const TPos &TPos::GetReverseStart() {
+  static TPos pos(0, TPos::Reverse);
+  return pos;
+}
+
+/* Factory for ReverseLimit global. */
+const TPos &TPos::GetReverseLimit() {
+  static TPos pos(-1, TPos::Forward);
+  return pos;
+}

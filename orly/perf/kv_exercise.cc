@@ -168,9 +168,9 @@ void Runner(int64_t start, int64_t limit, const ::TCmd &cmd) {
   std::vector<uint64_t> inserted_id_vec;
   inserted_id_vec.reserve(100000000);
   try {
-    Base::TOpt<TUuid> session_id = *TOpt<TUuid>::Unknown;
+    Base::TOpt<TUuid> session_id();
     auto client = make_shared<TExerciseClient>(session_id, cmd.Addr);
-    auto pov_id = client->NewFastPrivatePov(*TOpt<TUuid>::Unknown, seconds(10));
+    auto pov_id = client->NewFastPrivatePov(TOpt<TUuid>::GetUnknown(), seconds(10));
     printf("Runner() new fast pov \n");
     Base::TUuid id_to_use = **pov_id;
     printf("Runner() has POV \n");
@@ -247,7 +247,7 @@ int main(int argc, char *argv[]) {
   TLog log(cmd);
   sleep(5);
   /* install kv.1 */ {
-    auto client = make_shared<TExerciseClient>(*TOpt<TUuid>::Unknown, cmd.Addr);
+    auto client = make_shared<TExerciseClient>(TOpt<TUuid>::GetUnknown(), cmd.Addr);
     auto ack = client->InstallPackage({ "kv" }, 1);
     assert(ack);
     ack->Sync();

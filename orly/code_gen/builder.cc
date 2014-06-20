@@ -645,9 +645,9 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
 
       // This is overloaded so you have to check structurally which type you have
       if (result) {
-        if (result->GetElems() == *Base::Chrono::TimeDiffMap) {
+        if (result->GetElems() == Base::Chrono::GetTimeDiffMap()) {
 	  Unary(Package, TUnary::TimeDiffObj, that);
-	} else if (result->GetElems() == *Base::Chrono::TimePntMap) {
+	} else if (result->GetElems() == Base::Chrono::GetTimePntMap()) {
 	  Unary(Package, TUnary::TimePntObj, that);
 	} else {
 	  throw TCompileError(HERE, that->GetPosRange(), "Tried to turn a non-time type into a time object");

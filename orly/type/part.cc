@@ -4,35 +4,27 @@
 
 #include <orly/type/part.h>
 
+using namespace Base;
 using namespace Orly;
 using namespace Orly::Type;
 
-namespace Orly {
+TAddrMember::TPtr TAddrMember::Get(size_t index) {
+  static TInterner<TAddrMember, size_t> interner;
+  return interner.Get(index);
+}
 
-  namespace Type {
+TListIndex::TPtr TListIndex::Get() {
+  static TListIndex::TPtr list_idx(new TListIndex());
+  return list_idx;
+}
 
-    TListIndex::TPtr *GetNewListIndex() {
-      return new TListIndex::TPtr(new TListIndex());
-    }
 
-  }  // Type
+TDictMember::TPtr TDictMember::Get(const Type::TType &key_type) {
+  static TInterner<TDictMember, TType> interner;
+  return interner.Get(key_type);
+}
 
-}  // Orly
-
-Base::TSafeGlobal<Base::TInterner<TAddrMember, size_t>> TAddrMember::Interner(
-    []() -> Base::TInterner<TAddrMember, size_t> * {
-      return new Base::TInterner<TAddrMember, size_t>();
-    });
-
-const Base::TSafeGlobal<TListIndex::TPtr> TListIndex::ListIndex(GetNewListIndex);
-
-Base::TSafeGlobal<Base::TInterner<TDictMember, TType>> TDictMember::Interner(
-    []() -> Base::TInterner<TDictMember, TType> * {
-      return new Base::TInterner<TDictMember, TType>();
-    });
-
-Base::TSafeGlobal<Base::TInterner<TObjMember, std::string>> TObjMember::Interner(
-    []() -> Base::TInterner<TObjMember, std::string> * {
-      return new Base::TInterner<TObjMember, std::string>();
-    });
-
+TObjMember::TPtr TObjMember::Get(const std::string &name) {
+  static TInterner<TObjMember, std::string> interner;
+  return interner.Get(name);
+}

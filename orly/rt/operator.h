@@ -214,7 +214,7 @@ namespace Orly {
       assert(&lhs);
       assert(&rhs);
       return IsKnownFalse(lhs) || IsKnownFalse(rhs) ? false
-          : IsKnown(lhs) && IsKnown(rhs) ? And(GetVal(lhs), GetVal(rhs)) : *TOpt<bool>::Unknown;
+          : IsKnown(lhs) && IsKnown(rhs) ? And(GetVal(lhs), GetVal(rhs)) : TOpt<bool>();
     }
 
     template <typename TLhs, typename TRhsFunction>
@@ -226,7 +226,7 @@ namespace Orly {
 
     inline TOpt<bool> Not(const TOpt<bool> &opt_val) {
       assert(&opt_val);
-      return opt_val.IsKnown() ? Not(opt_val.GetVal()) : *TOpt<bool>::Unknown;
+      return opt_val.IsKnown() ? Not(opt_val.GetVal()) : TOpt<bool>();
     }
 
     inline bool Or(bool lhs, bool rhs) { return lhs || rhs; }
@@ -236,7 +236,7 @@ namespace Orly {
       assert(&lhs);
       assert(&rhs);
       return IsKnownTrue(lhs) || IsKnownTrue(rhs) ? true
-          : IsKnown(lhs) && IsKnown(rhs) ? Or(GetVal(lhs), GetVal(rhs)) : *TOpt<bool>::Unknown;
+          : IsKnown(lhs) && IsKnown(rhs) ? Or(GetVal(lhs), GetVal(rhs)) : TOpt<bool>();
     }
 
     template <typename TLhs, typename TRhsFunction>
@@ -250,7 +250,7 @@ namespace Orly {
     TOpt<bool> Xor(TLhs &&lhs, TRhs &&rhs) {
       assert(&lhs);
       assert(&rhs);
-      return IsKnown(lhs) && IsKnown(rhs) ? Xor(GetVal(lhs), GetVal(rhs)) : *TOpt<bool>::Unknown;
+      return IsKnown(lhs) && IsKnown(rhs) ? Xor(GetVal(lhs), GetVal(rhs)) : TOpt<bool>();
     }
 
     /* TODO */
@@ -271,7 +271,7 @@ namespace Orly {
         assert(&rhs);
         assert(&comp);
         assert(comp);
-        return IsKnown(lhs) && IsKnown(rhs) ? comp(GetVal(lhs), GetVal(rhs)) : *TOpt<bool>::Unknown;
+        return IsKnown(lhs) && IsKnown(rhs) ? comp(GetVal(lhs), GetVal(rhs)) : TOpt<bool>();
       }
 
     }  // Opt
@@ -1265,13 +1265,13 @@ namespace Orly {
         return TOpt<bool>(false);
       }
       if (IsUnknown(val)) {
-        return *TOpt<bool>::Unknown;
+        return TOpt<bool>();
       }
       if (container.count(val)) {
         return TOpt<bool>(true);
       }
-      if (container.count(*TOpt<TLhs>::Unknown)) {
-        return *TOpt<bool>::Unknown;
+      if (container.count(TOpt<TLhs>())) {
+        return TOpt<bool>();
       }
       return TOpt<bool>(false);
     }
@@ -1300,13 +1300,13 @@ namespace Orly {
         return TOpt<bool>(false);
       }
       if (IsUnknown(key)) {
-        return *TOpt<bool>::Unknown;
+        return TOpt<bool>();
       }
       if (container.count(key)) {
         return TOpt<bool>(true);
       }
-      if (container.count(*TOpt<TLhsKey>::Unknown)) {
-        return *TOpt<bool>::Unknown;
+      if (container.count(TOpt<TLhsKey>())) {
+        return TOpt<bool>();
       }
       return TOpt<bool>(false);
     }
@@ -1330,14 +1330,14 @@ namespace Orly {
     template <typename TContainer, typename TVal>
     TOpt<bool> Contains(const TOpt<TContainer> &container, const TVal &val) {
       assert(&container);
-      return container.IsKnown() ? Contains(container.GetVal(), val) : *TOpt<bool>::Unknown;
+      return container.IsKnown() ? Contains(container.GetVal(), val) : TOpt<bool>();
     }
 
     /* TODO */
     template <typename TKey, typename TVal>
     TOpt<bool> Contains(const TOpt<TDict<TKey, TVal>> &container, const TKey &val) {
       assert(&container);
-      return container.IsKnown() ? Contains(container.GetVal(), val) : *TOpt<bool>::Unknown;
+      return container.IsKnown() ? Contains(container.GetVal(), val) : TOpt<bool>();
     }
 
   }  // Rt

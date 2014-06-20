@@ -137,7 +137,7 @@ FIXTURE(Typical) {
 
   TVar opt_int(Rt::TOpt<int64_t>(5));
   EXPECT_TRUE(opt_int.GetType() == Type::TOpt::Get(Type::TInt::Get()));
-  TVar opt_int_unknown(*Rt::TOpt<int64_t>::Unknown);
+  TVar opt_int_unknown;
   EXPECT_TRUE(opt_int.GetType() == Type::TOpt::Get(Type::TInt::Get()));
 }
 

@@ -66,7 +66,7 @@ namespace Orly {
     template <typename TVal>
     TOpt<bool> IsEmpty(const TOpt<TVal> &opt) {
       assert(&opt);
-      return opt.IsKnown() ? TOpt<bool>(IsEmpty(opt.GetVal())) : *TOpt<bool>::Unknown;
+      return opt.IsKnown() ? TOpt<bool>(IsEmpty(opt.GetVal())) : TOpt<bool>();
     }
 
     /* Call existing IsEmpty with the element in the optional

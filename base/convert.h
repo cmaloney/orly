@@ -31,12 +31,12 @@ namespace Base {
     TConverter(const TPiece<const char> &buf) : Working(buf) {}
 
     /* Reads a sign (+/-) From the input stream. If + is read, then it returns true, if - is read, then it returns false. If some other character is the next
-       character at the head of the input stream, it returns TOpt::Unknown. */
+       character at the head of the input stream, it returns a TOpt in the unknown state. */
     TOpt<bool> TryReadSign() {
       assert(this);
 
       if(!(*this)) {
-        return  *TOpt<bool>::Unknown;
+        return TOpt<bool>::GetUnknown();
       }
 
       bool ret;
@@ -45,7 +45,7 @@ namespace Base {
       } else if(*(*this) == '-') {
         ret = false;
       } else {
-        return *TOpt<bool>::Unknown;
+        return TOpt<bool>::GetUnknown();
       }
       ++(*this);
       return ret;
