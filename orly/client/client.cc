@@ -247,7 +247,7 @@ void TClient::IoMain() {
                   err_msg = "session already connected";
                   break;
                 }
-                NO_DEFAULT_CASE;
+                DEFAULT_UNREACHABLE;
               }
             } else {
               THandshake<TNewSession> handshake(TimeToLive);
