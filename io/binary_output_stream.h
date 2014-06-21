@@ -34,6 +34,7 @@
 #include <uuid/uuid.h>
 
 #include <base/class_traits.h>
+#include <base/split.h>
 #include <io/binary_stream.h>
 #include <io/output_producer.h>
 #include <util/tuple.h>
@@ -101,7 +102,21 @@ namespace Io {
     void Write(const std::tuple<TArgs...> &that) {
       assert(this);
       assert(&that);
-      Util::ForEach(that, [this](const auto &elem) { *this << elem; });
+      *this << Base::Concat(that);
+    }
+
+    template <typename TRep, typename TPeriod>
+    void Write(const std::chrono::duration<TRep, TPeriod> &that) {
+      assert(this);
+      assert(&that);
+      Write(that.count());
+    }
+
+    template <typename TContainer, typename TDelimiter, typename TFormat>
+    void Write(const Base::TJoin<TContainer, TDelimiter, TFormat> &that) {
+      assert(this);
+      assert(&that);
+      Base::WriteJoin(*this, that);
     }
 
     protected:
@@ -204,9 +219,10 @@ namespace Io {
 
   /* Stream inserter for std::chrono. */
   template <typename TRep, typename TPeriod>
-  inline TBinaryOutputStream &operator<<(TBinaryOutputStream &strm, const std::chrono::duration<TRep, TPeriod> &that) {
-    return strm << that.count();
-  }
+  inline TBinaryOutputStream &operator<<(TBinaryOutputStream &strm, const std::chrono::duration<TRep, TPeriod> &that) { strm.Write(that); return strm; }
+
+  template <typename TContainer, typename TDelimiter, typename TFormat>
+  inline TBinaryOutputStream &operator<<(TBinaryOutputStream &strm, const Base::TJoin<TContainer, TDelimiter, TFormat> &that) { strm.Write(that); return strm; }
 
   /* And again, for r-value references... */
 
@@ -258,5 +274,12 @@ namespace Io {
   /* Stream inserter for STL tuple. */
   template <typename... TArgs>
   inline TBinaryOutputStream &&operator<<(TBinaryOutputStream &&strm, const std::tuple<TArgs...> &that) { strm.Write(that); return std::move(strm); }
+
+  /* Stream inserter for std::chrono. */
+  template <typename TRep, typename TPeriod>
+  inline TBinaryOutputStream &&operator<<(TBinaryOutputStream &&strm, const std::chrono::duration<TRep, TPeriod> &that) { strm.Write(that); return std::move(strm); }
+
+  template <typename TContainer, typename TDelimiter, typename TFormat>
+  inline TBinaryOutputStream &&operator<<(TBinaryOutputStream &&strm, const Base::TJoin<TContainer, TDelimiter, TFormat> &that) { strm.Write(that); return std::move(strm); }
 
 }  // Io

@@ -49,6 +49,7 @@
 #include <utility>
 #include <vector>
 
+#include <base/split.h>
 #include <io/endian.h>
 #include <strm/out.h>
 #include <strm/bin/var_int.h>
@@ -216,8 +217,7 @@ namespace Strm {
          that inserting the empty tuple writes nothing at all. */
       template <typename... TElems>
       TOut &operator<<(const std::tuple<TElems...> &that) {
-        Util::ForEach(that, [this](const auto &elem) { *this << elem; });
-        return *this;
+        return *this << Base::Concat(that);
       }
 
       /* Write an array of elements as just the elements themselves, in order,
@@ -349,6 +349,11 @@ namespace Strm {
         assert(this);
         WriteArrayWithCount(that.begin(), that.size());
         return *this;
+      }
+
+      template <typename TContainer, typename TDelimiter, typename TFormat>
+      TOut &operator<<(const Base::TJoin<TContainer, TDelimiter, TFormat> &that) {
+        return Base::WriteJoin(*this, that);
       }
 
       using TOut::TProd::Write;

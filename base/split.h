@@ -61,6 +61,12 @@ namespace Base {
                 });
   }
 
+  template <typename TContainer>
+  auto Concat(const TContainer &container) {
+    // Note. we could optimize this by avoiding streaming the "".
+    return Join(container, "");
+  }
+
   /* A generic function to stream out TJoin<> to some streamer.
      The streamer type is templated to handle other streamers such as TCppPrinter. */
   template <typename TStrm,
