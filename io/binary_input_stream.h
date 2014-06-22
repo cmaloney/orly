@@ -112,6 +112,15 @@ namespace Io {
       Util::ForEach(that, [this](auto &elem) { *this >> elem; });
     }
 
+    template <typename TRep, typename TPeriod>
+    void Read(std::chrono::duration<TRep, TPeriod> &that) {
+      assert(this);
+      assert(&that);
+      TRep rep;
+      *this >> rep;
+      that = std::chrono::duration<TRep, TPeriod>(rep);
+    }
+
     protected:
 
     /* Attach to the given producer, which must not be null. */
@@ -275,20 +284,9 @@ namespace Io {
 
   /* Stream extractor for std::chrono. */
   template <typename TRep, typename TPeriod>
-  inline TBinaryInputStream &operator>>(TBinaryInputStream &strm, std::chrono::duration<TRep, TPeriod> &that) {
-    TRep rep;
-    strm >> rep;
-    that = std::chrono::duration<TRep, TPeriod>(rep);
-    return strm;
-  }
+  inline TBinaryInputStream &operator>>(TBinaryInputStream &strm, std::chrono::duration<TRep, TPeriod> &that) { strm.Read(that); return strm; }
 
   /* Stream extractor for enums. */
-  template <typename TSomeEnum, typename TSomeInt>
-  inline TBinaryInputStream &operator>>(TBinaryInputStream &strm, TBinaryInputEnum<TSomeEnum, TSomeInt> &that) {
-    assert(&that);
-    that.Read(strm);
-    return strm;
-  }
   template <typename TSomeEnum, typename TSomeInt>
   inline TBinaryInputStream &operator>>(TBinaryInputStream &strm, TBinaryInputEnum<TSomeEnum, TSomeInt> &&that) {
     assert(&that);
@@ -343,5 +341,17 @@ namespace Io {
   /* Stream extractor for STL tuple. */
   template <typename... TArgs>
   inline TBinaryInputStream &&operator>>(TBinaryInputStream &&strm, std::tuple<TArgs...> &that) { strm.Read(that); return std::move(strm); }
+
+  /* Stream extractor for std::chrono. */
+  template <typename TRep, typename TPeriod>
+  inline TBinaryInputStream &&operator>>(TBinaryInputStream &&strm, std::chrono::duration<TRep, TPeriod> &that) { strm.Read(that); return std::move(strm); }
+
+  /* Stream extractor for enums. */
+  template <typename TSomeEnum, typename TSomeInt>
+  inline TBinaryInputStream &&operator>>(TBinaryInputStream &&strm, TBinaryInputEnum<TSomeEnum, TSomeInt> &&that) {
+    assert(&that);
+    that.Read(strm);
+    return std::move(strm);
+  }
 
 }  // Io

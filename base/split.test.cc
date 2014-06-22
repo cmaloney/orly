@@ -61,9 +61,9 @@ FIXTURE(Join) {
                          strm << '(' << elem << ')';
                        })),
             "(101), (202), (303)");
-  auto tuple = std::make_tuple(101, 1.1, "hello");
-  EXPECT_EQ(AsStr(Join(tuple, ", ")), "101, 1.1, hello");
-  EXPECT_EQ(AsStr(Join(tuple,
+  EXPECT_EQ(AsStr(Join(std::make_tuple(101, 1.1, "hello"), ", ")),
+            "101, 1.1, hello");
+  EXPECT_EQ(AsStr(Join(std::make_tuple(101, 1.1, "hello"),
                        ", ",
                        [](ostream &strm, const auto &elem) {
                          strm << '(' << elem << ')';
