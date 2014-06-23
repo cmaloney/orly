@@ -37,9 +37,10 @@ TJob::TJob(TFile *input, TSet<TFile *> output, bool unknown_outputs)
 }
 
 std::ostream &Jhm::operator<<(std::ostream &out, TJob *job) {
-  out << job->GetName() << '{' << job->GetInput() << " -> [";
-  Join(", ", job->GetOutput(), out);
-  out << "]}";
+  out
+    << job->GetName() << '{' << job->GetInput() << " -> ["
+    << Join(job->GetOutput(), ", ")
+    << "]}";
 
   return out;
 }

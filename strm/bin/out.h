@@ -49,10 +49,12 @@
 #include <utility>
 #include <vector>
 
+#include <base/split.h>
 #include <io/endian.h>
 #include <strm/out.h>
 #include <strm/bin/var_int.h>
 #include <strm/bin/zig_zag.h>
+#include <util/tuple.h>
 
 namespace Strm {
 
@@ -215,8 +217,7 @@ namespace Strm {
          that inserting the empty tuple writes nothing at all. */
       template <typename... TElems>
       TOut &operator<<(const std::tuple<TElems...> &that) {
-        WriteTuple(that, std::make_index_sequence<sizeof...(TElems)>());
-        return *this;
+        return *this << Base::Concat(that);
       }
 
       /* Write an array of elements as just the elements themselves, in order,
@@ -350,6 +351,11 @@ namespace Strm {
         return *this;
       }
 
+      template <typename TContainer, typename TDelimiter, typename TFormat>
+      TOut &operator<<(const Base::TJoin<TContainer, TDelimiter, TFormat> &that) {
+        return Base::WriteJoin(*this, that);
+      }
+
       using TOut::TProd::Write;
 
       /* Write the number of elements in the array as an unsigned var-int,
@@ -455,13 +461,6 @@ namespace Strm {
       }
 
       private:
-
-      /* Used by the operator<< overload for tuples. */
-      template <typename TSomeTuple, size_t... Idx>
-      void WriteTuple(const TSomeTuple &that, std::index_sequence<Idx...>) {
-        int x[] = { (*this << std::get<Idx>(that), 0)... };
-        (void)x;
-      }
 
       /* Used by the operator<< overloads for multi-byte integers. */
       void WriteVarInt(uint64_t that) {

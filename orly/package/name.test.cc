@@ -33,7 +33,6 @@ using namespace Orly::Package;
 //TODO: Nowhere near all of package_name.cc is tested here.
 FIXTURE(VersionedNameWithScope) {
   const TVersionedName package = TVersionedName::Parse(AsPiece("scope/sample.1"));
-
   EXPECT_EQ(package.Name, TName(Jhm::TStrList{"scope", "sample"}));
   EXPECT_EQ(package.Version, 1u);
   EXPECT_EQ(package.GetSoRelPath().AsStr(), std::string("scope/sample.1.so"));

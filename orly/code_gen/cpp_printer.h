@@ -104,6 +104,13 @@ namespace Orly {
       StartOfLine = true;
     }
 
+    template <typename TContainer, typename TDelimiter, typename TFormat>
+    TCppPrinter &operator<<(TCppPrinter &printer,
+                            const Base::TJoin<TContainer, TDelimiter, TFormat> &that) {
+      assert(&printer);
+      return Base::WriteJoin(printer, that);
+    }
+
     template <typename TVal>
     TCppPrinter &operator<<(TCppPrinter &printer, const TVal &val) {
       assert(&printer);
@@ -182,9 +189,11 @@ namespace Orly {
 
     template <>
     inline void TCppPrinter::Write(const TOrlyNamespace &sns) {
-      Base::Join("::", sns.GetNamespace().Get(), [](const std::string &str, TCppPrinter &out) {
-        out << "NS" << str;
-      }, *this);
+      *this << Base::Join(sns.GetNamespace().Get(),
+                          "::",
+                          [](TCppPrinter &out, const std::string &str) {
+                            out << "NS" << str;
+                          });
     }
 
   } // Codegen

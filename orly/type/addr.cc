@@ -39,18 +39,22 @@ void TAddr::Write(std::ostream &strm) const {
   }, strm);
   strm << '>';
   #endif
-  strm << "std::tuple<";
-  Base::Join(", ", GetElems(), [](const std::pair<TAddrDir, TType> &elem, std::ostream &strm) {
-    switch (elem.first) {
-      case Orly::TAddrDir::Asc: {
-        strm << elem.second;
-        break;
-      }
-      case Orly::TAddrDir::Desc: {
-        strm << "Orly::TDesc<" << elem.second << ">";
-        break;
-      }
-    }
-  }, strm);
-  strm << '>';
+  strm
+    << "std::tuple<"
+    << Base::Join(
+           GetElems(),
+           ", ",
+           [](std::ostream &strm, TAddrElems::const_reference &elem) {
+             switch (elem.first) {
+               case Orly::TAddrDir::Asc: {
+                 strm << elem.second;
+                 break;
+               }  // case
+               case Orly::TAddrDir::Desc: {
+                 strm << "Orly::TDesc<" << elem.second << ">";
+                 break;
+               }  // case
+             }
+           })
+    << '>';
 }

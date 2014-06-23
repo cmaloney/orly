@@ -37,14 +37,17 @@ class TCodeGenVisitor : public TType::TVisitor {
 
   private:
   virtual void operator()(const TAddr *that) const {
-    Strm << "Orly::Type::TAddr::Get(Orly::Type::TAddr::TElems{";
-    Join(", ", that->GetElems(), [this] (const pair<TAddrDir, TType> &elem, ostream &strm) {
-      strm << '{';
-      WriteCppType(strm, elem.first) << ", ";
-      elem.second.Accept(*this);
-      strm << '}';
-    }, Strm);
-    Strm << "})";
+    Strm
+      << "Orly::Type::TAddr::Get(Orly::Type::TAddr::TElems{"
+      << Base::Join(that->GetElems(),
+                    ", ",
+                    [this](ostream &strm, const pair<TAddrDir, TType> &elem) {
+                      strm << '{';
+                      WriteCppType(strm, elem.first) << ", ";
+                      elem.second.Accept(*this);
+                      strm << '}';
+                    })
+      << "})";
   }
 
   virtual void operator()(const TAny *) const {NOT_IMPLEMENTED();}
@@ -74,13 +77,16 @@ class TCodeGenVisitor : public TType::TVisitor {
   }
   virtual void operator()(const TObj *that) const {
   const TObj::TElems &elem_map = that->GetElems();
-    Strm << "Orly::Type::TObj::Get(std::map<std::string, Orly::Type::TType>{";
-    Join(", ", elem_map, [this] (const TObj::TElems::value_type &it, ostream &strm) {
-      strm << "{std::string(\"" << it.first << "\"), ";
-      it.second.Accept(*this);
-      strm << '}';
-    }, Strm);
-    Strm << "})";
+    Strm
+      << "Orly::Type::TObj::Get(std::map<std::string, Orly::Type::TType>{"
+      << Base::Join(elem_map,
+                    ", ",
+                    [this](ostream &strm, const TObj::TElems::value_type &that) {
+                      strm << "{std::string(\"" << that.first << "\"), ";
+                      that.second.Accept(*this);
+                      strm << '}';
+                    })
+      << "})";
   }
   virtual void operator()(const TOpt *that) const {
     Write("TOpt", that->GetElem());
@@ -117,11 +123,14 @@ class TCodeGenVisitor : public TType::TVisitor {
 
   template <size_t N>
   void Write(const char *name, const TTypeArray<N> &elems) const {
-    Strm << "Orly::Type::" << name << "::Get(";
-    Join(", ", elems, [this](const TType &type, std::ostream &) {
-      type.Accept(*this);
-    }, Strm);
-    Strm << ')';
+    Strm
+      << "Orly::Type::" << name << "::Get("
+      << Base::Join(elems,
+                    ", ",
+                    [this](ostream &, const TType &type) {
+                      type.Accept(*this);
+                    })
+      << ')';
   }
 
   ostream &Strm;

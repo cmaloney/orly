@@ -34,15 +34,22 @@
 
 namespace Base {
 
-  template <typename TElem>
-  struct THash {
-    bool operator()(const TElem &elem, size_t index, size_t &out) {
+  struct TTupleHash {
+
+    explicit TTupleHash(std::size_t &out) : Out(out) {}
+
+    template <std::size_t Idx, typename TElem>
+    void operator()(const TElem &elem) {
+      assert(this);
       assert(&elem);
-      assert(&out);
-      out ^= Util::RotatedLeft(std::hash<TElem>()(elem), index * 5);
-      return true;
+      Out ^= Util::RotatedLeft(std::hash<TElem>()(elem), Idx * 5);
     }
-  };  // THash
+
+    private:
+
+    std::size_t &Out;
+
+  };  // TTupleHash
 
   inline size_t CombineHashes(size_t lhs, size_t rhs) {
     return lhs ^ (lhs + 0x9e3779b9 + (rhs << 6) + (rhs >> 2));
@@ -85,13 +92,13 @@ namespace std {
   template <typename TElem, size_t size>
   struct hash<array<TElem, size>> {
 
-    typedef size_t result_type;
-    typedef array<TElem, size> argument_type;
+    using result_type = size_t;
+    using argument_type = array<TElem, size>;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
-      Util::ForEachElem<Base::THash>(that, result);
+      Util::ForEach(that, Base::TTupleHash(result));
       return result;
     }
 
@@ -100,15 +107,15 @@ namespace std {
   template <typename TKey, typename TVal>
   struct hash<map<TKey, TVal>> {
 
-    typedef size_t result_type;
-    typedef map<TKey, TVal> argument_type;
+    using result_type = size_t;
+    using argument_type = map<TKey, TVal>;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
       for (const auto &elem : that) {
         result ^= hash<pair<TKey, TVal>>()(elem);
-      }
+      }  // for
       return result;
     }
 
@@ -117,8 +124,8 @@ namespace std {
   template <typename TLhs, typename TRhs>
   struct hash<pair<TLhs, TRhs>> {
 
-    typedef size_t result_type;
-    typedef pair<TLhs, TRhs> argument_type;
+    using result_type = size_t;
+    using argument_type = pair<TLhs, TRhs>;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
@@ -130,15 +137,15 @@ namespace std {
   template <typename TElem>
   struct hash<set<TElem>> {
 
-    typedef size_t result_type;
-    typedef set<TElem> argument_type;
+    using result_type = size_t;
+    using argument_type = set<TElem>;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
       for (const auto &elem : that) {
         result ^= hash<TElem>()(elem);
-      }
+      }  // for
       return result;
     }
 
@@ -147,13 +154,13 @@ namespace std {
   template <typename... TElems>
   struct hash<tuple<TElems...>> {
 
-    typedef size_t result_type;
-    typedef tuple<TElems...> argument_type;
+    using result_type = size_t;
+    using argument_type = tuple<TElems...>;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
-      Util::ForEachElem<Base::THash>(that, result);
+      Util::ForEach(that, Base::TTupleHash(result));
       return result;
     }
 
@@ -162,15 +169,15 @@ namespace std {
   template <typename TKey, typename TVal>
   struct hash<unordered_map<TKey, TVal>> {
 
-    typedef size_t result_type;
-    typedef unordered_map<TKey, TVal> argument_type;
+    using result_type = size_t;
+    using argument_type = unordered_map<TKey, TVal>;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
       for (const auto &elem : that) {
         result ^= hash<pair<TKey, TVal>>()(elem);
-      }
+      }  // for
       return result;
     }
 
@@ -179,15 +186,15 @@ namespace std {
   template <typename TElem>
   struct hash<unordered_set<TElem>> {
 
-    typedef size_t result_type;
-    typedef unordered_set<TElem> argument_type;
+    using result_type = size_t;
+    using argument_type = unordered_set<TElem>;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
       for (const auto &elem : that) {
         result ^= hash<TElem>()(elem);
-      }
+      }  // for
       return result;
     }
 
@@ -196,15 +203,15 @@ namespace std {
   template <typename TElem>
   struct hash<vector<TElem>> {
 
-    typedef size_t result_type;
-    typedef vector<TElem> argument_type;
+    using result_type = size_t;
+    using argument_type = vector<TElem>;
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
       result_type result = 0;
-      for (unsigned int i = 0; i < that.size(); ++i) {
-        Base::THash<TElem>()(that[i], i, result);
-      }
+      for (std::size_t i = 0; i < that.size(); ++i) {
+        result ^= Util::RotatedLeft(std::hash<TElem>()(that[i]), i * 5);
+      }  // for
       return result;
     }
 

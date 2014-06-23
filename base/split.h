@@ -23,72 +23,127 @@
 #include <string>
 #include <vector>
 
+#include <util/tuple.h>
+
 namespace Base {
 
-  // TODO: Add a variant of the stream insertion that allows passing an element callback.
-  template <typename TSepType, typename TContainer>
-  class TJoin {
-    public:
-    TJoin(const TSepType &sep, const TContainer &container) : Sep(sep), Container(container) {}
+  template <typename TContainer, typename TDelimit, typename TFormat>
+  struct TJoin {
 
-    const TSepType &Sep;
     const TContainer &Container;
-  };
 
-  template <typename TSepType, typename TContainer>
-  std::ostream &operator<<(std::ostream &out, const TJoin<TSepType, TContainer> &join) {
+    TDelimit Delimit;
+
+    TFormat Format;
+
+  };  // TJoin
+
+  template <typename TContainer, typename TDelimit, typename TFormat>
+  [[gnu::warn_unused_result]]
+  auto MakeJoin(const TContainer &container,
+                TDelimit &&delimit,
+                TFormat &&format) {
+    return TJoin<TContainer,
+                 std::decay_t<TDelimit>,
+                 std::decay_t<TFormat>>{container,
+                                        std::forward<TDelimit>(delimit),
+                                        std::forward<TFormat>(format)};
+  }
+
+  template <typename TContainer, typename TDelimiter, typename TFormat>
+  auto Join(const TContainer &container,
+            const TDelimiter &delimiter,
+            TFormat &&format) {
+    return MakeJoin(container,
+                    [&delimiter](auto &strm) { strm << delimiter; },
+                    std::forward<TFormat>(format));
+  }
+
+  template <typename TContainer, typename TDelimiter>
+  auto Join(const TContainer &container, const TDelimiter &delimiter) {
+    return Join(container,
+                delimiter,
+                [](auto &strm, const auto &elem) { strm << elem; });
+  }
+
+  template <typename TContainer>
+  auto Concat(const TContainer &container) {
+    return MakeJoin(container,
+                    [](auto &) {},
+                    [](auto &strm, const auto &elem) { strm << elem; });
+  }
+
+  /* A generic function to stream out TJoin<> to some streamer.
+     The streamer type is templated to handle other streamers such as TCppPrinter. */
+  template <typename TStrm,
+            typename TContainer,
+            typename TDelimit,
+            typename TFormat>
+  TStrm &WriteJoin(TStrm &strm,
+                   const TJoin<TContainer, TDelimit, TFormat> &that) {
     bool first = true;
-    for(const auto &elem: join.Container) {
+    for (const auto &elem : that.Container) {
       if (first) {
         first = false;
       } else {
-        out << join.Sep;
-      }
+        that.Delimit(strm);
+      }  // if
+      that.Format(strm, elem);
+    }  // for
+    return strm;
+  }
 
-      out << elem;
+  template <typename TStrm, typename TDelimit, typename TFormat>
+  struct TWriteTuple {
+
+    template <std::size_t Idx, typename TElem>
+    void operator()(const TElem &elem) const {
+      if (Idx) {
+        Delimit(Strm);
+      }  // if
+      Format(Strm, elem);
     }
 
-    return out;
+    TStrm &Strm;
+
+    const TDelimit &Delimit;
+
+    const TFormat &Format;
+
+  };  // TWriteTuple
+
+  /* Specialization for std::pair. */
+  template <typename TStrm,
+            typename TLhs,
+            typename TRhs,
+            typename TDelimit,
+            typename TFormat>
+  TStrm &WriteJoin(TStrm &strm,
+                   const TJoin<std::pair<TLhs, TRhs>, TDelimit, TFormat> &that) {
+    Util::ForEach(that.Container,
+                  TWriteTuple<TStrm, TDelimit, TFormat>{strm, that.Delimit, that.Format});
+    return strm;
   }
 
-  // TODO: Migrate other uses of Join to this one which is more fluid to use in stream insertions.
-  template <typename TSepType, typename TContainer>
-  auto Join(const TSepType &sep, const TContainer &container) {
-    return TJoin<TSepType, TContainer>(sep, container);
+  /* Specialization for std::tuple. */
+  template <typename TStrm,
+            typename... TArgs,
+            typename TDelimit,
+            typename TFormat>
+  TStrm &WriteJoin(TStrm &strm,
+                   const TJoin<std::tuple<TArgs...>, TDelimit, TFormat> &that) {
+    Util::ForEach(that.Container,
+                  TWriteTuple<TStrm, TDelimit, TFormat>{strm, that.Delimit, that.Format});
+    return strm;
   }
 
-  //NOTE: pieces_container must be able to have foreach run over it, and what it contains must
-  template<typename TSepType, typename TVal, typename TStrm>
-  TStrm &Join(const TSepType &sep, const TVal &pieces_container, TStrm &out) {
-    bool first = true;
-    for (auto it: pieces_container) {
-      if (first) {
-        first = false;
-      } else {
-        out << sep;
-      }
-      out << it;
-    }
-
-    return out;
+  /* Specialization of WriteJoin for std::ostream. */
+  template <typename TContainer, typename TDelimit, typename TFormat>
+  std::ostream &operator<<(std::ostream &strm,
+                           const TJoin<TContainer, TDelimit, TFormat> &that) {
+    return WriteJoin(strm, that);
   }
-
-  //TODO: Tighter specification of TCb
-  template<typename TSepType, typename TVal, typename TCb, typename TStrm>
-  TStrm &Join(const TSepType &sep, const TVal &pieces_container, const TCb &cb,  TStrm &out) {
-    bool first = true;
-    for (const auto &it: pieces_container) {
-      if (first) {
-        first = false;
-      } else {
-        out << sep;
-      }
-      cb(it, out);
-    }
-
-    return out;
-  }
-
 
   void Split(const char *tok, const std::string &src, std::vector<std::string> &pieces);
+
 }

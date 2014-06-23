@@ -29,18 +29,18 @@
 
 namespace Base {
 
-  template <typename... TArgs>
-  std::string AsStr(TArgs&&... args) {
+  template <typename TArg>
+  std::string AsStr(TArg &&arg) {
     std::ostringstream strm;
-    int x[] = { (strm << args, 0)... };
-    (void)x;
+    strm << std::forward<TArg>(arg);
     return strm.str();
   }
 
-  template <typename TFunc, typename... TArgs>
-  std::string AsStrFunc(const TFunc &func, TArgs&&... args) {
+  template <typename TFn, typename... TArgs>
+  std::string AsStrFunc(TFn &&fn, TArgs &&... args) {
     std::ostringstream strm;
-    func(strm, std::forward<TArgs>(args)...);
+    std::forward<TFn>(fn)(strm, std::forward<TArgs>(args)...);
     return strm.str();
   }
+
 } // Base

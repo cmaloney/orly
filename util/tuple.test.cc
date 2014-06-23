@@ -21,96 +21,61 @@
 #include <string>
 #include <sstream>
 
+#include <base/as_str.h>
+
 #include <test/kit.h>
 
 using namespace Util;
 
-template <typename TElem>
+FIXTURE(ForEach) {
+  std::istringstream strm("0 0 0");
+  auto x = std::make_tuple(4, 2, 5);
+  ForEach(x, [&strm](auto &elem) { strm >> elem; });
+  EXPECT_TRUE(x == std::make_tuple(0, 0, 0));
+}
+
 struct TPrint {
-  bool operator()(TElem &elem, size_t index) const {
-    if (index) {
-      std::cout << ' ';
-    }
-    std::cout << elem;
-    return true;
+
+  explicit TPrint(std::ostream &strm) : Strm(strm) {}
+
+  template <std::size_t Idx, typename TElem>
+  void operator()(const TElem &elem) const {
+    (Idx ? Strm << ' ' : Strm) << elem;
   }
+
+  private:
+
+  std::ostream &Strm;
+
 };  // TPrint
 
 FIXTURE(WithoutCapture) {
   auto tup = std::make_tuple(4, 2, 5);
-  ForEachElem<TPrint>(tup);
+  ForEach(tup, TPrint(std::cout));
   std::cout << std::endl;
 }
-
-template <typename TElem>
-struct TPrintToStrm {
-  bool operator()(TElem &elem, size_t index, std::ostringstream &strm) const {
-    if (index) {
-      strm << ", ";
-    }
-    strm << elem;
-    return true;
-  }
-}; // TPrintToStrm
 
 FIXTURE(WithCapture) {
   auto tup = std::make_tuple(1, 2, 3);
   std::ostringstream strm;
   strm << '(';
-  ForEachElem<TPrintToStrm>(tup, strm);
+  ForEach(tup, TPrint(strm));
   strm << ')';
-  EXPECT_EQ(strm.str(), "(1, 2, 3)");
+  EXPECT_EQ(strm.str(), "(1 2 3)");
 }
 
-template <typename TElem>
 struct TAddOne {
-  bool operator()(TElem &elem, size_t) const {
+  template <typename TElem>
+  void operator()(TElem &elem) const {
     elem += 1;
-    return true;
+  }
+  void operator()(std::string &elem) const {
+    elem = std::to_string(std::stoi(elem) + 1);
   }
 };  // TAddOne
 
-template <>
-struct TAddOne<std::string> {
-  bool operator()(std::string &str, size_t) const {
-    size_t elem;
-    std::stringstream strm;
-    strm << str;
-    strm >> elem;
-    elem += 1;
-    strm.clear();
-    strm << elem;
-    strm >> str;
-    return true;
-  }
-};  // TAddOne<std::string>
-
 FIXTURE(Modify) {
   auto tup = std::make_tuple(1, 2.0, std::string("1"), 3.5);
-  ForEachElem<TAddOne>(tup);
+  ForEach(tup, TAddOne());
   EXPECT_TRUE(tup == std::make_tuple(2, 3.0, std::string("2"), 4.5));
-}
-
-template <typename TElem>
-struct TAddOneUntilFive {
-  bool operator()(TElem &elem, size_t) const {
-    if (elem == 5) {
-      return false;
-    }
-    elem += 1;
-    return true;
-  }
-};  // TAddOneUntilFive
-
-FIXTURE(AddOneUptoFive) {
-  auto tup = std::make_tuple(3, 4, 5, 4);
-  ForEachElem<TAddOneUntilFive>(tup);
-  EXPECT_TRUE(tup == std::make_tuple(4, 5, 5, 4));
-}
-
-FIXTURE(GetHead) {
-  auto tup = std::make_tuple(true, 101, 98.6);
-  EXPECT_EQ(GetHead(tup), true);
-  EXPECT_EQ(GetHead(GetTail(tup)), 101);
-  EXPECT_EQ(GetHead(GetTail(GetTail(tup))), 98.6);
 }

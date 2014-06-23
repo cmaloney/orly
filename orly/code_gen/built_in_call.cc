@@ -33,9 +33,11 @@ void TBuiltInCall::WriteExpr(TCppPrinter &out) const {
   assert(this);
   assert(&out);
 
-  out << Func->GetName() << '(';
-  Base::Join(", ", Func->GetOrderedParams(), [this](const std::string &param_name, TCppPrinter &out) {
-    out << Arguments.at(param_name);
-  }, out);
-  out << ')';
+  out << Func->GetName() << '('
+      << Base::Join(Func->GetOrderedParams(),
+                    ", ",
+                    [this](TCppPrinter &out, const std::string &param_name) {
+                      out << Arguments.at(param_name);
+                    })
+      << ')';
 }

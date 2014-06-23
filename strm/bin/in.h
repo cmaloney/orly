@@ -52,6 +52,7 @@
 #include <io/endian.h>
 #include <strm/in.h>
 #include <strm/bin/zig_zag.h>
+#include <util/tuple.h>
 
 namespace Strm {
 
@@ -214,7 +215,7 @@ namespace Strm {
       template <typename... TElems>
       TIn &operator>>(std::tuple<TElems...> &that) {
         assert(this);
-        ReadTuple(that, std::make_index_sequence<sizeof...(TElems)>());
+        Util::ForEach(that, [this](auto &elem) { *this >> elem; });
         return *this;
       }
 
@@ -454,13 +455,6 @@ namespace Strm {
           temp.insert(std::move(elem));
         }
         that = std::move(temp);
-      }
-
-      /* Used by the operator>> overload for tuples. */
-      template <typename TSomeTuple, size_t... Idx>
-      void ReadTuple(TSomeTuple &that, std::index_sequence<Idx...>) {
-        int x[] { (*this >> std::get<Idx>(that), 0)... };
-        (void)x;
       }
 
       /* Used by the operator>> overloads for multi-byte integers. */

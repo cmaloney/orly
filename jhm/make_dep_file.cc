@@ -36,7 +36,9 @@
 using namespace Base;
 using namespace std;
 
-ostream &operator<<(ostream &out, const vector<string> &that) { return Base::Join(' ', that, out); }
+ostream &operator<<(ostream &strm, const vector<string> &that) {
+  return strm << Base::Join(that, ' ');
+}
 
 // TODO: mpark could probably do this cleaner.
 vector<string> ToVecStr(int argc, const char *argv[], int skip) {

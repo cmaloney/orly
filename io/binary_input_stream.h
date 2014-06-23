@@ -36,6 +36,7 @@
 #include <base/class_traits.h>
 #include <io/binary_stream.h>
 #include <io/input_consumer.h>
+#include <util/tuple.h>
 
 namespace Io {
 
@@ -104,12 +105,20 @@ namespace Io {
     }
 
     /* Read STL tuples. */
-    void Read(std::tuple<> &) {}
     template <typename... TArgs>
     void Read(std::tuple<TArgs...> &that) {
       assert(this);
       assert(&that);
-      TTupleReader<0, TArgs...>::Read(this, that);
+      Util::ForEach(that, [this](auto &elem) { *this >> elem; });
+    }
+
+    template <typename TRep, typename TPeriod>
+    void Read(std::chrono::duration<TRep, TPeriod> &that) {
+      assert(this);
+      assert(&that);
+      TRep rep;
+      *this >> rep;
+      that = std::chrono::duration<TRep, TPeriod>(rep);
     }
 
     protected:
@@ -123,12 +132,6 @@ namespace Io {
     /* TODO */
     template <typename TVal>
     class TypeHelper;
-
-    /* A helper class for reading tuples.
-       NOTE: We're invading the implementation of std::tuple here because the API doesn't support head/tail abstractions.
-       If this bothers you, please feel free to beat your head against the brick wall of the ISO committee. */
-    template <size_t N, typename... TArgs>
-    class TTupleReader;
 
     /* Read an STL container that supports insert(). */
     template <typename TThat>
@@ -208,32 +211,6 @@ namespace Io {
     }
   }
 
-  /* Specialization for empty tuples. */
-  template <size_t N>
-  class TBinaryInputStream::TTupleReader<N> {
-    NO_CONSTRUCTION(TTupleReader);
-    public:
-
-    /* Read the tuple. */
-    static void Read(TBinaryInputStream *, std::_Tuple_impl<N> &) {}
-
-  };  // TBinaryInputStream::TTupleReader<N>
-
-  /* Specialization for non-empty tuples. */
-  template <size_t N, typename THead, typename... TRest>
-  class TBinaryInputStream::TTupleReader<N, THead, TRest...> {
-    NO_CONSTRUCTION(TTupleReader);
-    public:
-
-    /* Read the tuple. */
-    static void Read(TBinaryInputStream *strm, std::_Tuple_impl<N, THead, TRest...> &that) {
-      *strm >> std::_Tuple_impl<N, THead, TRest...>::_M_head(that);
-      //strm->Read(std::_Tuple_impl<N, THead, TRest...>::_M_head(that));
-      TTupleReader<N + 1, TRest...>::Read(strm, std::_Tuple_impl<N, THead, TRest...>::_M_tail(that));
-    }
-
-  };  // TBinaryInputStream::TTupleReader<N>
-
   /* Used to stream in enumerated types. */
   template <typename TSomeEnum, typename TSomeInt = int32_t>
   class TBinaryInputEnum {
@@ -307,20 +284,9 @@ namespace Io {
 
   /* Stream extractor for std::chrono. */
   template <typename TRep, typename TPeriod>
-  inline TBinaryInputStream &operator>>(TBinaryInputStream &strm, std::chrono::duration<TRep, TPeriod> &that) {
-    TRep rep;
-    strm >> rep;
-    that = std::chrono::duration<TRep, TPeriod>(rep);
-    return strm;
-  }
+  inline TBinaryInputStream &operator>>(TBinaryInputStream &strm, std::chrono::duration<TRep, TPeriod> &that) { strm.Read(that); return strm; }
 
   /* Stream extractor for enums. */
-  template <typename TSomeEnum, typename TSomeInt>
-  inline TBinaryInputStream &operator>>(TBinaryInputStream &strm, TBinaryInputEnum<TSomeEnum, TSomeInt> &that) {
-    assert(&that);
-    that.Read(strm);
-    return strm;
-  }
   template <typename TSomeEnum, typename TSomeInt>
   inline TBinaryInputStream &operator>>(TBinaryInputStream &strm, TBinaryInputEnum<TSomeEnum, TSomeInt> &&that) {
     assert(&that);
@@ -375,5 +341,17 @@ namespace Io {
   /* Stream extractor for STL tuple. */
   template <typename... TArgs>
   inline TBinaryInputStream &&operator>>(TBinaryInputStream &&strm, std::tuple<TArgs...> &that) { strm.Read(that); return std::move(strm); }
+
+  /* Stream extractor for std::chrono. */
+  template <typename TRep, typename TPeriod>
+  inline TBinaryInputStream &&operator>>(TBinaryInputStream &&strm, std::chrono::duration<TRep, TPeriod> &that) { strm.Read(that); return std::move(strm); }
+
+  /* Stream extractor for enums. */
+  template <typename TSomeEnum, typename TSomeInt>
+  inline TBinaryInputStream &&operator>>(TBinaryInputStream &&strm, TBinaryInputEnum<TSomeEnum, TSomeInt> &&that) {
+    assert(&that);
+    that.Read(strm);
+    return std::move(strm);
+  }
 
 }  // Io

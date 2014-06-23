@@ -59,62 +59,64 @@ void TKeys::WriteExpr(TCppPrinter &out) const {
     index_id.FormatUnderscore(uuid);
     out << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << " ,";
   }
-  out << "std::tuple<";
-  Join(", ", AddrElems, [](TAddrElems::const_reference it, TCppPrinter &out) {
-
-    if (!it.second->IsFree()) {
-      switch (it.first) {
-        case Orly::TAddrDir::Asc: {
-          out << it.second->GetReturnType();
-          break;
-        }
-        case Orly::TAddrDir::Desc: {
-          out << "Orly::TDesc<" << it.second->GetReturnType() << ">";
-          break;
-        }
-      }
-    } else {
-      switch (it.first) {
-        case Orly::TAddrDir::Asc: {
-          out << "Native::TFree<" << it.second->GetReturnType() << ">";
-          break;
-        }
-        case Orly::TAddrDir::Desc: {
-          out << "Native::TFree<Orly::TDesc<" << it.second->GetReturnType() << ">>";
-          break;
-        }
-      }
-    }
-  }, out);
-  out << ">";
-  out << "(";
-  Join(", ", AddrElems, [](TAddrElems::const_reference it, TCppPrinter &out) {
-    //NOTE: This sometimes will cause
-
-    if (!it.second->IsFree()) {
-      switch (it.first) {
-        case Orly::TAddrDir::Asc: {
-          out << it.second->GetReturnType();
-          break;
-        }
-        case Orly::TAddrDir::Desc: {
-          out << "Orly::TDesc<" << it.second->GetReturnType() << ">";
-          break;
-        }
-      }
-    } else {
-      switch (it.first) {
-        case Orly::TAddrDir::Asc: {
-          out << "Native::TFree<" << it.second->GetReturnType() << ">";
-          break;
-        }
-        case Orly::TAddrDir::Desc: {
-          out << "Native::TFree<Orly::TDesc<" << it.second->GetReturnType() << ">>";
-          break;
-        }
-      }
-    }
-    out << "(" << it.second << ")";
-  }, out);
-  out << "))";
+  out
+    << "std::tuple<"
+    << Join(AddrElems,
+            ", ",
+            [](TCppPrinter &out, TAddrElems::const_reference it) {
+              if (!it.second->IsFree()) {
+                switch (it.first) {
+                  case Orly::TAddrDir::Asc: {
+                    out << it.second->GetReturnType();
+                    break;
+                  }
+                  case Orly::TAddrDir::Desc: {
+                    out << "Orly::TDesc<" << it.second->GetReturnType() << ">";
+                    break;
+                  }
+                }
+              } else {
+                switch (it.first) {
+                  case Orly::TAddrDir::Asc: {
+                    out << "Native::TFree<" << it.second->GetReturnType() << ">";
+                    break;
+                  }
+                  case Orly::TAddrDir::Desc: {
+                    out << "Native::TFree<Orly::TDesc<" << it.second->GetReturnType() << ">>";
+                    break;
+                  }
+                }
+              }
+            })
+    << ">("
+    << Join(AddrElems,
+            ", ",
+            [](TCppPrinter &out, TAddrElems::const_reference it) {
+              //NOTE: This sometimes will cause
+              if (!it.second->IsFree()) {
+                switch (it.first) {
+                  case Orly::TAddrDir::Asc: {
+                    out << it.second->GetReturnType();
+                    break;
+                  }
+                  case Orly::TAddrDir::Desc: {
+                    out << "Orly::TDesc<" << it.second->GetReturnType() << ">";
+                    break;
+                  }
+                }
+              } else {
+                switch (it.first) {
+                  case Orly::TAddrDir::Asc: {
+                    out << "Native::TFree<" << it.second->GetReturnType() << ">";
+                    break;
+                  }
+                  case Orly::TAddrDir::Desc: {
+                    out << "Native::TFree<Orly::TDesc<" << it.second->GetReturnType() << ">>";
+                    break;
+                  }
+                }
+              }
+              out << "(" << it.second << ")";
+            })
+    << "))";
 }

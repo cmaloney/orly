@@ -122,20 +122,21 @@ string TLink::GetCmd() {
   ostringstream oss;
 
   //TODO: If there are no C++ files, use 'gcc' to link instead of g++
-  oss << "g++ -o " << GetSoleOutput()->GetPath() << ' ';
-
-  Join(' ', Env.GetConfig().Read<vector<string>>({"cmd","ld","flags"}), oss);
+  oss
+    << "g++ -o " << GetSoleOutput()->GetPath() << ' '
+    << Join(Env.GetConfig().Read<vector<string>>({"cmd","ld","flags"}), ' ');
 
   oss << ' ';
 
   // Link against every needed object file
-  Join(' ', ObjFiles, [] (TFile *f, ostream &out) {
-    out << f->GetPath();
-  }, oss);
+  oss << Join(ObjFiles,
+              ' ',
+              [] (ostream &out, TFile *f) {
+                out << f->GetPath();
+              });
 
   // TODO: Be more intelligent / selective about link flags
-  oss << ' ';
-  Join(' ', Env.GetConfig().Read<vector<string>>({"cmd","ld","libs"}), oss);
+  oss << ' ' << Join(Env.GetConfig().Read<vector<string>>({"cmd","ld","libs"}), ' ');
 
   return oss.str();
 }

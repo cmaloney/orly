@@ -163,7 +163,7 @@ string TNycr::GetCmd() {
     }
   }
   if(old_outputs.size() > 0) {
-    THROW_ERROR(logic_error) << " Nycr said to produce files (" << Join(", ", old_outputs)
+    THROW_ERROR(logic_error) << " Nycr said to produce files (" << Join(old_outputs, ", ")
                              << "), but doesn't produce that language.";
   }
   MarkAllOutputsKnown();

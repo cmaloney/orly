@@ -238,7 +238,7 @@ void TNamespace::Write(ostream &strm) const {
   assert(this);
   assert(&strm);
 
-  Join('/', Namespaces, strm);
+  strm << Join(Namespaces, '/');
 }
 
 TRelPath TNamespace::ToRelPath(const TStrList &extensions) const {

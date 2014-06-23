@@ -36,14 +36,15 @@ void Orly::Var::Orlyify(ostream &strm, const TVar &var) {
     TVisitor(ostream &strm) : Strm(strm) {}
     private:
     virtual void operator()(const TAddr *that) const {
-      Strm << "<[";
-
-      Base::Join(',', that->GetVal(), [this](const pair<TAddrDir, TVar> &elem, ostream &strm) {
-        strm << elem.first << ' ';
-        elem.second.Accept(*this);
-      }, Strm);
-
-      Strm << "]>";
+      Strm
+        << "<["
+        << Base::Join(that->GetVal(),
+                      ',',
+                      [this](ostream &strm, const pair<TAddrDir, TVar> &elem) {
+                        strm << elem.first << ' ';
+                        elem.second.Accept(*this);
+                      })
+        << "]>";
     }
     virtual void operator()(const TBool *that) const {
       Strm << boolalpha <<that->GetVal();

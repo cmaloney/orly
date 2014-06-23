@@ -93,11 +93,14 @@ class TNycr : public Base::TCmd {
           }
 
           // NOTE: We're hand-converting the list into json, because that's wayyyy easier for now
-          out << '[';
-          Base::Join(", ", languages, [](const Symbol::TLanguage *language, ostream &out) {
-            out << '"' << Symbol::TLower(language->GetName()) << '"';
-          }, out);
-          out << ']';
+          out
+            << '['
+            << Base::Join(languages,
+                          ", ",
+                          [](ostream &strm, const Symbol::TLanguage *language) {
+                            strm << '"' << Symbol::TLower(language->GetName()) << '"';
+                          })
+            << ']';
         }
         while (!languages.empty()) {
           Symbol::TLanguage *language = *languages.begin();

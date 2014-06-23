@@ -48,7 +48,8 @@ TVersionedName TVersionedName::Parse(const TPiece<const char> &name) {
   if (!dot_pos) {
     return TVersionedName{Jhm::TNamespace(name), 0};
   }
-  return TVersionedName{Jhm::TNamespace(TPiece<const char>(name.GetStart(), dot_pos)),
+  return TVersionedName{
+      Jhm::TNamespace(TPiece<const char>(name.GetStart(), dot_pos)),
       TConvertProxy(TPiece<const char>(dot_pos + 1, name.GetLimit()))};
 }
 
