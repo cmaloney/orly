@@ -465,12 +465,12 @@ class TWsImpl final
         vector<string> package_name;
         TranslatePathName(package_name, stmt->GetNameList());
 
-        string rel_path = Orly::Package::TName(package_name).ToRelPath({"orly"}).AsStr();
-        string src_filename = Conn->Ws->SessionManager->GetPackageDir() + rel_path;
+        auto rel_path = Orly::Package::TName(package_name).ToRelPath({"orly"});
+        string src_filename = AsStr(Jhm::TAbsPath(Conn->Ws->SessionManager->GetPackageDir(), rel_path));
         syslog(LOG_INFO, "filename = \"%s\"", src_filename.c_str());
         Result = TJson::Object;
         Result["code"] = ReadAll(TFd(open(src_filename.c_str(), O_RDONLY)));
-        Result["filename"] = move(rel_path);
+        Result["filename"] = AsStr(rel_path);
       }
 
       private:
