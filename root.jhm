@@ -83,7 +83,6 @@
         "-lreadline",
         "-lsnappy",
         "-lboost_system",
-        "-lboost_filesystem"
       ],
       "flags": [
         "-rdynamic",
