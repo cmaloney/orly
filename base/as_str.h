@@ -27,12 +27,14 @@
 #include <utility>
 #include <vector>
 
+#include <base/split.h>
+
 namespace Base {
 
-  template <typename TArg>
-  std::string AsStr(TArg &&arg) {
+  template <typename... TArgs>
+  std::string AsStr(TArgs &&...args) {
     std::ostringstream strm;
-    strm << std::forward<TArg>(arg);
+    strm << Concat(std::forward_as_tuple(std::forward<TArgs>(args)...));
     return strm.str();
   }
 

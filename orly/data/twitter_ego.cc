@@ -67,8 +67,7 @@ std::tuple<TFollows, THashtags, TMentions> Parse() {
                    "/" + Base::AsStr(relpath.ToNamespaceIncludingName());
                // Parse the '*.featnames' file.
                std::vector<std::string> features;
-               std::ifstream featnames(Base::AsStr(Base::Concat(
-                   std::forward_as_tuple(basename, ".featnames"))));
+               std::ifstream featnames(Base::AsStr(basename, ".featnames"));
                while (featnames >> idx >> feature) {
                  features.push_back(std::move(feature));
                }  // while
@@ -98,12 +97,10 @@ std::tuple<TFollows, THashtags, TMentions> Parse() {
                  }  // for
                };
                // Parse the '*.egofeat' file.
-               std::ifstream egofeat(Base::AsStr(Base::Concat(
-                   std::forward_as_tuple(basename, ".egofeat"))));
+               std::ifstream egofeat(Base::AsStr(basename, ".egofeat"));
                parse_features(egofeat, ego);
                // Parse the '*.feat' file.
-               std::ifstream feat(Base::AsStr(Base::Concat(
-                   std::forward_as_tuple(basename, ".feat"))));
+               std::ifstream feat(Base::AsStr(basename, ".feat"));
                while (feat >> uid) {
                  parse_features(feat, uid);
                }  // while
@@ -152,8 +149,8 @@ int main() {
             std::make_tuple(kind, edge.first, edge.second));  // Key
         builder.Push(true);  // Val
       }  // for
-      auto outfile = Base::AsStr(Base::Concat(std::forward_as_tuple(
-          "twitter-ego.out/twitter-ego", file_count, ".bin")));
+      auto outfile =
+          Base::AsStr("twitter-ego.out/twitter-ego", file_count, ".bin");
       Io::TBinaryOutputOnlyStream strm(std::make_shared<Io::TDevice>(
               open(outfile.data(), O_WRONLY | O_CREAT, 0777)));
       builder.Write(strm);
