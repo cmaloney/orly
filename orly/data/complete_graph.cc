@@ -51,8 +51,8 @@ using namespace Orly;
 (5)-[:X]->(6)
 */
 
-static const TUuid NodeIndexId(TUuid(TUuid::Twister));
-static const TUuid EdgeIndexId(TUuid(TUuid::Twister));
+static const TUuid NodeIndexId{TUuid::Twister};
+static const TUuid EdgeIndexId{TUuid::Twister};
 
 void Node(Atom::TCoreVectorBuilder &builder, int64_t id, int64_t count) {
   builder.Push(TUuid(TUuid::Twister));
