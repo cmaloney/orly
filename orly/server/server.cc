@@ -2142,7 +2142,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       }
     }
   };
-  PackageManager.Install({{package_name, version}}, pre_install_cb);
+  PackageManager.Install({{{package_name}, version}}, pre_install_cb);
   ostringstream strm;
   for (const auto &name: package_name) {
     strm << '[' << name << ']';
@@ -2560,7 +2560,7 @@ void TServer::StateChangeCb(Orly::Indy::TManager::TState state) {
 
 void TServer::UninstallPackage(const vector<string> &package_name, uint64_t version) {
   assert(this);
-  PackageManager.Uninstall(unordered_set<Package::TVersionedName>{ Package::TVersionedName { package_name, version } });
+  PackageManager.Uninstall(unordered_set<Package::TVersionedName>{Package::TVersionedName{{package_name}, version}});
 }
 
 void TServer::WaitForSlave() {
