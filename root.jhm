@@ -18,6 +18,7 @@
       "orly/data/matrix",
       "orly/data/shakespeare",
       "orly/data/twitter",
+      "orly/data/twitter_ego",
       "orly/data/twitter_query"
     ],
   "cmd": {
@@ -81,7 +82,7 @@
         "-lz",
         "-lreadline",
         "-lsnappy",
-        "-lboost_system"
+        "-lboost_system",
       ],
       "flags": [
         "-rdynamic",

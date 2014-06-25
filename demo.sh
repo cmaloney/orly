@@ -14,7 +14,7 @@
 
 usage() {
   echo "Usage: $0 [DATASET]"
-  echo "  DATASET = {beer|complete_graph|game_of_thrones|money_laundering|belgian_beer|friends_of_friends|matrix|shakespeare|twitter}"
+  echo "  DATASET = {beer|complete_graph|game_of_thrones|money_laundering|belgian_beer|friends_of_friends|matrix|shakespeare|twitter|twitter_ego}"
   exit 1
 }
 
@@ -33,6 +33,7 @@ case $DATASET in
   "matrix") ;;
   "shakespeare") ;;
   "twitter") DATA_FILE="twitter0[0-6].bin" ;;
+  "twitter_ego") DATA_FILE="twitter-ego[0-9].bin" ;;
   *) usage
 esac
 
@@ -55,6 +56,9 @@ if [ "$DATASET" = "twitter" ]; then
     fi
   done
   NUM_FILES=7
+elif [ "$DATASET" = "twitter_ego" ]; then
+  # TODO: load twitter-ego[0-9].bin from somewhere.
+  NUM_FILES=10
 elif [ ! -f "$FILENAME" ]; then
   #Non-twitter datasets run the generator, then move the bin file
   "$DATASET"
@@ -66,8 +70,8 @@ fi
 orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le \
   --package_dir="$PACKAGE_DIR" \
   --temp_file_consol_thresh=4 \
-  --mem_sim=true --mem_sim_mb=768  --page_cache_size=256 --block_cache_size=256 \
-  --update_pool_size=55000 --update_entry_pool_size=275000 &
+  --mem_sim=true --mem_sim_mb=2048  --page_cache_size=512 --block_cache_size=512 \
+  --update_pool_size=350000 --update_entry_pool_size=350000 &
 ORLY_PID=$!
 #TODO : Make a better way to test for the server being up rather than just assuming it starts up in 15 seconds
 sleep 15

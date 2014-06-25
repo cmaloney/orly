@@ -1,0 +1,108 @@
+package #0;
+
+/* Schema.
+   <['follow', int, int]> <- bool
+   <['#', int, str]> <- bool
+   <['@', int, str]> <- bool
+*/
+
+prod_helper_helper = (<[x, y]>) where {
+  x = given::(int);
+  y = given::(int);
+};
+
+prod_helper = (prod_helper_helper(.x: x, .y: **y) 
+               reduce start(empty [<[int, int]>]) + [that]) where {
+  x = given::(int);
+  y = given::([int]);
+};
+
+prod = (prod_helper(.x: **x, .y: y) reduce start(empty [<[int, int]>]) + that) where {
+  x = given::([int]);
+  y = given::([int]);
+};
+
+test {
+  prod(.x: [1, 2], .y: [2, 3]) == [<[1, 2]>, <[1, 3]>, <[2, 2]>, <[2, 3]>];
+};
+
+are_friends = (exists (bool) @ <['follow', x, y]> and 
+               exists (bool) @ <['follow', y, x]>) where {
+  x = given::(int);
+  y = given::(int);
+};
+
+as_pair = (<[friends.1, friends.2]>) where {
+  friends = given::(<[str, int, int]>);
+};
+
+get_all_friends = (as_pair(.friends: all_friends)) where {
+  all_friends = keys (bool) @ <['follow', free::(int), free::(int)]>
+                if that.1 < that.2 and are_friends(.x: that.1, .y: that.2);
+};
+
+get_friends = (friends.2) where {
+  uid = given::(int);
+  friends = keys (bool) @ <['follow', uid, free::(int)]> 
+            if are_friends(.x: uid, .y: that.2);
+};
+
+get_attrs = (attrs.2) where {
+  kind = given::(str);
+  uid = given::(int);
+  attrs = keys (bool) @ <[kind, uid, free::(str)]>;
+};
+
+common_hashtags = ((get_attrs(.kind: '#', .uid: x) as {str}) &
+                   (get_attrs(.kind: '#', .uid: y) as {str})) where {
+  x = given::(int);
+  y = given::(int);
+};
+
+common_mentions = ((get_attrs(.kind: '@', .uid: x) as {str}) &
+                   (get_attrs(.kind: '@', .uid: y) as {str})) where {
+  x = given::(int);
+  y = given::(int);
+};
+
+get_intros = (<[friends, intros as [<[int, int]>]]>) where {
+  friends = given::(<[int, int]>);
+  pairs = prod(.x: get_friends(.uid: friends.0) as [int],
+               .y: get_friends(.uid: friends.1) as [int]);
+  intros = **pairs if that.0 < that.1 and
+                      not are_friends(.x: that.0, .y: that.1) and
+                      (not (common_hashtags(.x: that.0, .y: that.1) is empty) or
+                       not (common_mentions(.x: that.0, .y: that.1) is empty));
+};
+
+get_abxys = get_intros(.friends: get_all_friends);
+
+abxys = (get_abxys take 10) as [<[<[int, int]>, [<[int, int]>]]>];
+
+setup = (true) effecting {
+  new <['follow', 0, 1]> <- true;
+  new <['follow', 0, 2]> <- true;
+  new <['follow', 0, 3]> <- true;
+  new <['follow', 1, 0]> <- true;
+  new <['follow', 1, 4]> <- true;
+  new <['follow', 2, 0]> <- true;
+  new <['follow', 3, 0]> <- true;
+  new <['follow', 4, 1]> <- true;
+  new <['#', 2, 'A']> <- true;
+  new <['#', 4, 'A']> <- true;
+};
+
+test {
+  setup {
+    get_friends(.uid: 0) as [int] == [1, 2, 3];
+    get_friends(.uid: 1) as [int] == [0, 4];
+    get_friends(.uid: 2) as [int] == [0];
+    get_friends(.uid: 5) as [int] == empty [int];
+    get_all_friends as [<[int, int]>] == 
+    [<[0, 1]>, <[0, 2]>, <[0, 3]>, <[1, 4]>];
+    abxys == [<[<[0, 1]>, [<[2, 4]>]]>,
+              <[<[0, 2]>, empty [<[int, int]>]]>,
+              <[<[0, 3]>, empty [<[int, int]>]]>,
+              <[<[1, 4]>, empty [<[int, int]>]]>];
+  };
+};
