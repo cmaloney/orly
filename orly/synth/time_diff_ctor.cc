@@ -34,5 +34,5 @@ TTimeDiffCtor::TTimeDiffCtor(const Package::Syntax::TTimeDiffCtor *time_diff_cto
 
 Expr::TExpr::TPtr TTimeDiffCtor::Build() const {
   assert(this);
-  return Expr::TRef::New((*Symbol::TBuiltInFunction::TimeDiff)->GetResultDefs()[0], GetPosRange(TimeDiffCtor));
+  return Expr::TRef::New(Symbol::TBuiltInFunction::GetTimeDiff()->GetResultDefs()[0], GetPosRange(TimeDiffCtor));
 }

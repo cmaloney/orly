@@ -32,66 +32,59 @@ using namespace Orly::Symbol;
 // NOTE: For built in functions, we shouldn't have a pos range for result defs.
 //       For now there is an invalid value to satisfy the current restrictions,
 
-const Base::TSafeGlobal<TBuiltInFunction::TPtr> TBuiltInFunction::TimeDiff(
-  []() -> TBuiltInFunction::TPtr * {
-    auto time_diff = TBuiltInFunction::New(
-        "::Base::Chrono::CreateTimeDiff",
-        {"is_forward", "day", "hour", "minute", "second", "nanosecond"},
-        {{"is_forward"     , Type::TBool::Get()},
-         {"day"            , Type::TInt::Get()},
-         {"hour"           , Type::TInt::Get()},
-         {"minute"         , Type::TInt::Get()},
-         {"second"         , Type::TInt::Get()},
-         {"nanosecond"    , Type::TInt::Get()}},
-        Type::TTimeDiff::Get());
-    TResultDef::New(time_diff, "time_diff", TPosRange()); // TODO: Get rid of pos range
-    return new TBuiltInFunction::TPtr(time_diff);
-  });
+const TBuiltInFunction::TPtr &TBuiltInFunction::GetTimeDiff() {
+  static auto func = TBuiltInFunction::New("::Base::Chrono::CreateTimeDiff",
+                                           {"is_forward", "day", "hour", "minute", "second", "nanosecond"},
+                                           {{"is_forward", Type::TBool::Get()},
+                                            {"day", Type::TInt::Get()},
+                                            {"hour", Type::TInt::Get()},
+                                            {"minute", Type::TInt::Get()},
+                                            {"second", Type::TInt::Get()},
+                                            {"nanosecond", Type::TInt::Get()}},
+                                           Type::TTimeDiff::Get());
+  static auto result_def = TResultDef::New(func, "time_diff", TPosRange());  // TODO: Get rid of pos range;
 
-const Base::TSafeGlobal<TBuiltInFunction::TPtr> TBuiltInFunction::TimePnt(
-  []() -> TBuiltInFunction::TPtr * {
-    auto time_pnt = TBuiltInFunction::New(
-        "::Base::Chrono::CreateTimePnt",
-        {"year", "month", "day", "hour", "minute", "second", "nanosecond", "utc_offset"},
-        {{"year"      , Type::TInt::Get()},
-         {"month"     , Type::TInt::Get()},
-         {"day"       , Type::TInt::Get()},
-         {"hour"      , Type::TInt::Get()},
-         {"minute"    , Type::TInt::Get()},
-         {"second"    , Type::TInt::Get()},
-         {"nanosecond"    , Type::TInt::Get()},
-         {"utc_offset", Type::TInt::Get()}},
-        Type::TTimePnt::Get());
-    TResultDef::New(time_pnt, "time_pnt", TPosRange()); // TODO: Get rid of pos range
-    return new TBuiltInFunction::TPtr(time_pnt);
-  });
+  return func;
+}
 
-const Base::TSafeGlobal<TBuiltInFunction::TPtr> TBuiltInFunction::RandomInt(
-  []() -> TBuiltInFunction::TPtr * {
-    auto random_int = TBuiltInFunction::New(
-      "ctx.GetRandomInt",
-      {"gen_id", "min", "max", "idx"},
-      {{"gen_id", Type::TInt::Get()},
-       {"min", Type::TInt::Get()},
-       {"max", Type::TInt::Get()},
-       {"idx", Type::TInt::Get()}},
-       Type::TInt::Get());
-    TResultDef::New(random_int, "random_int", TPosRange()); // TODO: Get rid of pos range
-    return new TBuiltInFunction::TPtr(random_int);
-  });
+const TBuiltInFunction::TPtr &TBuiltInFunction::GetTimePnt() {
+  static auto func =
+      TBuiltInFunction::New("::Base::Chrono::CreateTimePnt",
+                            {"year", "month", "day", "hour", "minute", "second", "nanosecond", "utc_offset"},
+                            {{"year", Type::TInt::Get()},
+                             {"month", Type::TInt::Get()},
+                             {"day", Type::TInt::Get()},
+                             {"hour", Type::TInt::Get()},
+                             {"minute", Type::TInt::Get()},
+                             {"second", Type::TInt::Get()},
+                             {"nanosecond", Type::TInt::Get()},
+                             {"utc_offset", Type::TInt::Get()}},
+                            Type::TTimePnt::Get());
+  static auto result_def = TResultDef::New(func, "time_pnt", TPosRange());  // TODO: Get rid of pos range
+  return func;
+}
 
-const Base::TSafeGlobal<TBuiltInFunction::TPtr> TBuiltInFunction::Replace(
-  []() -> TBuiltInFunction::TPtr * {
-    auto str_replace = TBuiltInFunction::New(
-	"Rt::TStrReplace::Replace",
-        {"oldstr", "regex", "newstr"},
-        {{"oldstr"    , Type::TStr::Get()},
-         {"regex"     , Type::TStr::Get()},
-	 {"newstr"    , Type::TStr::Get()}},
-        Type::TStr::Get());
-    TResultDef::New(str_replace, "str_replace", TPosRange()); // TODO: Get rid of pos range
-    return new TBuiltInFunction::TPtr(str_replace);
-  });
+const TBuiltInFunction::TPtr &TBuiltInFunction::GetRandomInt() {
+  static auto func = TBuiltInFunction::New("ctx.GetRandomInt",
+                                           {"gen_id", "min", "max", "idx"},
+                                           {{"gen_id", Type::TInt::Get()},
+                                            {"min", Type::TInt::Get()},
+                                            {"max", Type::TInt::Get()},
+                                            {"idx", Type::TInt::Get()}},
+                                           Type::TInt::Get());
+  static auto result_def = TResultDef::New(func, "random_int", TPosRange());  // TODO: Get rid of pos range
+  return func;
+}
+
+const TBuiltInFunction::TPtr &TBuiltInFunction::GetReplace() {
+  static auto func = TBuiltInFunction::New(
+      "Rt::TStrReplace::Replace",
+      {"oldstr", "regex", "newstr"},
+      {{"oldstr", Type::TStr::Get()}, {"regex", Type::TStr::Get()}, {"newstr", Type::TStr::Get()}},
+      Type::TStr::Get());
+  static auto result_def = TResultDef::New(func, "str_replace", TPosRange());  // TODO: Get rid of pos range
+  return func;
+}
 
 TBuiltInFunction::TPtr TBuiltInFunction::New(
     const std::string &name,

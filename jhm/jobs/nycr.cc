@@ -39,7 +39,7 @@ static TOpt<TRelPath> GetNycrLangInputName(const TRelPath &output) {
     return output.DropExtension(1);
   }
 
-  return *TOpt<TRelPath>::Unknown;
+  return TOpt<TRelPath>();
 }
 
 TJobProducer TNycrLang::GetProducer() {
@@ -117,7 +117,7 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
     }
   }
 
-  return *TOpt<TRelPath>::Unknown;
+  return TOpt<TRelPath>();
 }
 
 TJobProducer TNycr::GetProducer() {

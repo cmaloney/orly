@@ -23,7 +23,6 @@
 #include <ostream>  // NOTE: This should go away when we switch to our own I/O classes.
 
 #include <base/pos.h>
-#include <base/safe_global.h>
 
 namespace Base {
 
@@ -44,7 +43,7 @@ namespace Base {
     public:
 
     /* Initializing constructor, fully defaultable.  Notice that the default is the 'everything' slice. */
-    TSlice(const TPos &start = *TPos::Start, const TPos &limit = *TPos::Limit) : Start(start), Limit(limit) {}
+    TSlice(const TPos &start = TPos::GetStart(), const TPos &limit = TPos::GetLimit()) : Start(start), Limit(limit) {}
 
     /* Returns true iff. this slice is the same as that one. */
     bool operator==(const TSlice &that) const {
@@ -113,8 +112,8 @@ namespace Base {
     /* The default (everything) slice. */
     TSlice &Reset() {
       assert(this);
-      Start = *TPos::Start;
-      Limit = *TPos::Limit;
+      Start = TPos::GetStart();
+      Limit = TPos::GetLimit();
       return *this;
     }
 
@@ -134,24 +133,9 @@ namespace Base {
          All: the slice which includes entire sequence;
          AtLimit: the slice of the single position at the limit of the sequence; and
          AtStart: the slice of the single position at the start of the sequence. */
-    static const TSafeGlobal<TSlice> All, AtLimit, AtStart;
-
-    private:
-
-    /* The factory for the All global. */
-    static TSlice *NewAll() {
-      return new TSlice;
-    }
-
-    /* The factory for the AtLimit global. */
-    static TSlice *NewAtLimit() {
-      return new TSlice(*TPos::Limit, *TPos::Limit);
-    }
-
-    /* The factory for the AtStart global. */
-    static TSlice *NewAtStart() {
-      return new TSlice(*TPos::Start, *TPos::Start);
-    }
+    static const TSlice &NewAll();
+    static const TSlice &NewAtLimit();
+    static const TSlice &NewAtStart();
   };
 
   /* A standard swapper for Base::TSlice. */

@@ -72,7 +72,7 @@ FIXTURE(ListCompare) {
   EXPECT_TRUE(IsKnownTrue(Gt  (opt_li321, opt_li12)));
   EXPECT_TRUE(IsKnownTrue(GtEq(opt_li321, opt_li321)));
   /* We know the second element is different */
-  EXPECT_TRUE(IsKnownFalse(EqEq(opt_li123, vector<Toi>({*Toi::Unknown, Toi(1), Toi(3)}))));
+  EXPECT_TRUE(IsKnownFalse(EqEq(opt_li123, vector<Toi>({Toi(), Toi(1), Toi(3)}))));
 }
 
 FIXTURE(Mutable) {
@@ -132,7 +132,7 @@ FIXTURE(Match) {
   /* Should Match */
   EXPECT_TRUE(Match(1, 1));
   EXPECT_TRUE(Match(TOpt<int64_t>(1), TOpt<int64_t>(1)));
-  EXPECT_TRUE(Match(*TOpt<int64_t>::Unknown, *TOpt<int64_t>::Unknown));
+  EXPECT_TRUE(Match(TOpt<int64_t>(), TOpt<int64_t>()));
   EXPECT_TRUE(Match(Tili({1, 2, 3}), Tili({1, 2, 3})));
   EXPECT_TRUE(Match(Toili({TOpt<int64_t>(), TOpt<int64_t>()}),
                     Toili({TOpt<int64_t>(), TOpt<int64_t>()})));
@@ -142,7 +142,7 @@ FIXTURE(Match) {
   /* Should not match */
   EXPECT_FALSE(Match(0, 1));
   EXPECT_FALSE(Match(TOpt<int64_t>(1), TOpt<int64_t>(2)));
-  EXPECT_FALSE(Match(TOpt<int64_t>(1), *TOpt<int64_t>::Unknown));
+  EXPECT_FALSE(Match(TOpt<int64_t>(1), TOpt<int64_t>()));
   EXPECT_FALSE(Match(Toili({TOpt<int64_t>(2), TOpt<int64_t>()}),
                      Toili({TOpt<int64_t>(1), TOpt<int64_t>(2)})));
 }
@@ -159,7 +159,7 @@ FIXTURE(BoolAndBool) {
 }
 
 FIXTURE(OptBoolAndBool) {
-  EXPECT_TRUE(IsUnknown(And(*TOpt<bool>::Unknown, true)));
+  EXPECT_TRUE(IsUnknown(And(TOpt<bool>(), true)));
   EXPECT_FALSE(And(TOpt<bool>(false), false).GetVal());
   EXPECT_FALSE(And(TOpt<bool>(false), true).GetVal());
   EXPECT_FALSE(And(TOpt<bool>(true), false).GetVal());
@@ -167,7 +167,7 @@ FIXTURE(OptBoolAndBool) {
 }
 
 FIXTURE(BoolAndOptBool) {
-  EXPECT_TRUE(IsKnownFalse(And(false, *TOpt<bool>::Unknown)));
+  EXPECT_TRUE(IsKnownFalse(And(false, TOpt<bool>())));
   EXPECT_FALSE(And(false, TOpt<bool>(false)).GetVal());
   EXPECT_FALSE(And(false, TOpt<bool>(true )).GetVal());
   EXPECT_FALSE(And(true , TOpt<bool>(false)).GetVal());
@@ -175,7 +175,7 @@ FIXTURE(BoolAndOptBool) {
 }
 
 FIXTURE(OptBoolAndOptBool) {
-  EXPECT_TRUE (IsUnknown(And(*TOpt<bool>::Unknown, *TOpt<bool>::Unknown)));
+  EXPECT_TRUE (IsUnknown(And(TOpt<bool>(), TOpt<bool>())));
   EXPECT_FALSE(And(TOpt<bool>(false), TOpt<bool>(false)).GetVal());
   EXPECT_FALSE(And(TOpt<bool>(false), TOpt<bool>(true )).GetVal());
   EXPECT_FALSE(And(TOpt<bool>(true ), TOpt<bool>(false)).GetVal());
@@ -190,7 +190,7 @@ FIXTURE(NotBool) {
 }
 
 FIXTURE(NotOptBool) {
-  EXPECT_TRUE(IsUnknown(Not(*TOpt<bool>::Unknown)));
+  EXPECT_TRUE(IsUnknown(Not(TOpt<bool>())));
   EXPECT_TRUE(IsKnownTrue(Not(TOpt<bool>(false))));
   EXPECT_TRUE(IsKnownFalse(Not(TOpt<bool>(true))));
 }
@@ -205,7 +205,7 @@ FIXTURE(BoolOrBool) {
 }
 
 FIXTURE(OptBoolOrBool) {
-  EXPECT_TRUE(IsKnownTrue(Or(*TOpt<bool>::Unknown, true)));
+  EXPECT_TRUE(IsKnownTrue(Or(TOpt<bool>(), true)));
   EXPECT_FALSE(Or(TOpt<bool>(false), false).GetVal());
   EXPECT_TRUE (Or(TOpt<bool>(false), true ).GetVal());
   EXPECT_TRUE (Or(TOpt<bool>(true ), false).GetVal());
@@ -213,7 +213,7 @@ FIXTURE(OptBoolOrBool) {
 }
 
 FIXTURE(BoolOrOptBool) {
-  EXPECT_TRUE(IsUnknown(Or(false, *TOpt<bool>::Unknown)));
+  EXPECT_TRUE(IsUnknown(Or(false, TOpt<bool>())));
   EXPECT_FALSE(Or(false, TOpt<bool>(false)).GetVal());
   EXPECT_TRUE (Or(false, TOpt<bool>(true )).GetVal());
   EXPECT_TRUE (Or(true , TOpt<bool>(false)).GetVal());
@@ -221,7 +221,7 @@ FIXTURE(BoolOrOptBool) {
 }
 
 FIXTURE(OptBoolOrOptBool) {
-  EXPECT_TRUE(IsUnknown(Or(*TOpt<bool>::Unknown, *TOpt<bool>::Unknown)));
+  EXPECT_TRUE(IsUnknown(Or(TOpt<bool>(), TOpt<bool>())));
   EXPECT_FALSE(Or(TOpt<bool>(false), TOpt<bool>(false)).GetVal());
   EXPECT_TRUE (Or(TOpt<bool>(false), TOpt<bool>(true )).GetVal());
   EXPECT_TRUE (Or(TOpt<bool>(true ), TOpt<bool>(false)).GetVal());
@@ -238,7 +238,7 @@ FIXTURE(BoolXorBool) {
 }
 
 FIXTURE(OptBoolXorBool) {
-  EXPECT_TRUE(IsUnknown(Xor(*TOpt<bool>::Unknown, true)));
+  EXPECT_TRUE(IsUnknown(Xor(TOpt<bool>(), true)));
   EXPECT_FALSE(Xor(TOpt<bool>(false), false).GetVal());
   EXPECT_TRUE (Xor(TOpt<bool>(false), true ).GetVal());
   EXPECT_TRUE (Xor(TOpt<bool>(true ), false).GetVal());
@@ -246,7 +246,7 @@ FIXTURE(OptBoolXorBool) {
 }
 
 FIXTURE(BoolXorOptBool) {
-  EXPECT_TRUE(IsUnknown(Xor(false, *TOpt<bool>::Unknown)));
+  EXPECT_TRUE(IsUnknown(Xor(false, TOpt<bool>())));
   EXPECT_FALSE(Xor(false, TOpt<bool>(false)).GetVal());
   EXPECT_TRUE (Xor(false, TOpt<bool>(true )).GetVal());
   EXPECT_TRUE (Xor(true , TOpt<bool>(false)).GetVal());
@@ -254,7 +254,7 @@ FIXTURE(BoolXorOptBool) {
 }
 
 FIXTURE(OptBoolXorOptBool) {
-  EXPECT_TRUE(IsUnknown(Xor(*TOpt<bool>::Unknown, *TOpt<bool>::Unknown)));
+  EXPECT_TRUE(IsUnknown(Xor(TOpt<bool>(), TOpt<bool>())));
   EXPECT_FALSE(Xor(TOpt<bool>(false), TOpt<bool>(false)).GetVal());
   EXPECT_TRUE (Xor(TOpt<bool>(false), TOpt<bool>(true )).GetVal());
   EXPECT_TRUE (Xor(TOpt<bool>(true ), TOpt<bool>(false)).GetVal());

@@ -40,7 +40,7 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
       return output.DropExtension(ext.size()).AddExtension({"y"});
     }
   }
-  return *TOpt<TRelPath>::Unknown;
+  return TOpt<TRelPath>();
 }
 
 

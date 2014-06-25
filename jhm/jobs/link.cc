@@ -41,7 +41,7 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
     return output.SwapLastExtension("o");
   }
 
-  return *TOpt<TRelPath>::Unknown;
+  return TOpt<TRelPath>();
 }
 
 TJobProducer TLink::GetProducer() {

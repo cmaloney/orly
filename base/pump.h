@@ -198,7 +198,7 @@ namespace Base {
             case Committed: {
               return Pipe->FirstCommittedPage;
             }
-            NO_DEFAULT_CASE;
+            DEFAULT_UNREACHABLE;
           }
         }
 
@@ -213,7 +213,7 @@ namespace Base {
             case Committed: {
               return Pipe->LastCommittedPage;
             }
-            NO_DEFAULT_CASE;
+            DEFAULT_UNREACHABLE;
           }
         }
 

@@ -63,10 +63,10 @@ Type::TType TTimeObj::GetType() const {
     virtual void operator()(const Type::TSet      *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TStr      *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TTimeDiff *) const {
-      Type = Type::TObj::Get(*Base::Chrono::TimeDiffMap);
+      Type = Type::TObj::Get(Base::Chrono::GetTimeDiffMap());
     }
     virtual void operator()(const Type::TTimePnt  *) const {
-      Type = Type::TObj::Get(*Base::Chrono::TimePntMap);
+      Type = Type::TObj::Get(Base::Chrono::GetTimePntMap());
     }
   };  // TTimeObjTypeVisitor
   assert(this);

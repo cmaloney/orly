@@ -31,5 +31,5 @@ TTimePntCtor::TTimePntCtor(const Package::Syntax::TTimePntCtor *time_pnt_ctor)
     : TimePntCtor(Base::AssertTrue(time_pnt_ctor)) {}
 
 Expr::TExpr::TPtr TTimePntCtor::Build() const {
-  return Expr::TRef::New((*Symbol::TBuiltInFunction::TimePnt)->GetResultDefs()[0], GetPosRange(TimePntCtor));
+  return Expr::TRef::New(Symbol::TBuiltInFunction::GetTimePnt()->GetResultDefs()[0], GetPosRange(TimePntCtor));
 }

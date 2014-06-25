@@ -1,4 +1,8 @@
-/* <base/time_maps.h>
+/* <base/unreachable.h>
+
+   Use this to indicate a position which is unreachable.
+
+   Gives us the advantage of a backtrace if reached, as well as telling GCC the location is indeed unreachable.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -14,24 +18,10 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#pragma once
-
-#include <orly/type/obj.h>
+#include <base/code_location.h>
 
 namespace Base {
 
-  namespace Chrono {
+  [[noreturn]] void Unreachable(const TCodeLocation &loc);
 
-    /* These maps are used for checking the structural type of objects later in the compiler.
-       For use with implementing time_obj, which converts time_pnts AND time_diffs into objects. */
-
-
-    const Orly::Type::TObj::TElems &GetTimeDiffMap();
-    const Orly::Type::TObj::TElems &GetTimePntMap();
-
-    /* Helper function to check if an object is a time object */
-    bool IsTimeObj(const Orly::Type::TObj *type);
-
-  }  // Chrono
-
-}  // Base
+} // Base

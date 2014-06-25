@@ -39,7 +39,7 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
       return output.DropExtension(ext.size()).AddExtension({"l"});
     }
   }
-  return *TOpt<TRelPath>::Unknown;
+  return TOpt<TRelPath>();
 }
 
 TJobProducer TFlex::GetProducer() {

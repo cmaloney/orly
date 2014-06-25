@@ -23,10 +23,10 @@
 using namespace Base;
 
 FIXTURE(Constants) {
-  EXPECT_EQ(TPos::Start->GetAbsOffset(10),  0);
-  EXPECT_EQ(TPos::Limit->GetAbsOffset(10), 10);
-  EXPECT_EQ(TPos::ReverseStart->GetAbsOffset(10),  9);
-  EXPECT_EQ(TPos::ReverseLimit->GetAbsOffset(10), -1);
+  EXPECT_EQ(TPos::GetStart().GetAbsOffset(10),  0);
+  EXPECT_EQ(TPos::GetLimit().GetAbsOffset(10), 10);
+  EXPECT_EQ(TPos::GetReverseStart().GetAbsOffset(10),  9);
+  EXPECT_EQ(TPos::GetReverseLimit().GetAbsOffset(10), -1);
   EXPECT_EQ(TPos::GetStart(TPos::Forward).GetAbsOffset(10),  0);
   EXPECT_EQ(TPos::GetLimit(TPos::Forward).GetAbsOffset(10), 10);
   EXPECT_EQ(TPos::GetStart(TPos::Reverse).GetAbsOffset(10),  9);

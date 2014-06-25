@@ -46,7 +46,7 @@ namespace Orly {
     TOpt<std::vector<TVal>> Sort(const TOpt<std::vector<TVal>> &val,
           const std::function<bool (const TVal &, const TVal &)> &comp) {
       return val.IsKnown() ? TOpt<std::vector<TVal>>(Sort(val.GetVal(), comp))
-                           : *TOpt<std::vector<TVal>>::Unknown;
+                           : TOpt<std::vector<TVal>>();
     }
 
   }  // Rt

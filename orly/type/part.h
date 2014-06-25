@@ -20,7 +20,6 @@
 #include <string>
 
 #include <base/interner.h>
-#include <base/safe_global.h>
 #include <orly/type/impl.h>
 
 namespace Orly {
@@ -69,9 +68,7 @@ namespace Orly {
 
       typedef std::shared_ptr<const TAddrMember> TPtr;
 
-      static TPtr Get(size_t index) {
-        return Interner->Get(index);
-      }
+      static TPtr Get(size_t index);
 
       size_t GetIndex() const {
         assert(this);
@@ -85,8 +82,6 @@ namespace Orly {
       }
 
       private:
-
-      static Base::TSafeGlobal<Base::TInterner<TAddrMember, size_t>> Interner;
 
       TAddrMember(size_t index)
           : Index(index) {}
@@ -103,7 +98,7 @@ namespace Orly {
 
       typedef std::shared_ptr<const TListIndex> TPtr;
 
-      static const Base::TSafeGlobal<TPtr> ListIndex;
+      static TPtr Get();
 
       void Accept(const TVisitor &visitor) const {
         assert(this);
@@ -115,8 +110,6 @@ namespace Orly {
 
       TListIndex() {}
 
-      friend TPtr *GetNewListIndex();
-
     };  // TListIndex
 
     class TDictMember
@@ -125,9 +118,7 @@ namespace Orly {
 
       typedef std::shared_ptr<const TDictMember> TPtr;
 
-      static TPtr Get(const Type::TType &key_type) {
-        return Interner->Get(key_type);
-      }
+      static TPtr Get(const Type::TType &key_type);
 
       void Accept(const TVisitor &visitor) const {
         assert(this);
@@ -141,8 +132,6 @@ namespace Orly {
       }
 
       private:
-
-      static Base::TSafeGlobal<Base::TInterner<TDictMember, Type::TType>> Interner;
 
       TDictMember(const Type::TType &key_type)
           : KeyType(key_type) {}
@@ -159,9 +148,7 @@ namespace Orly {
 
       typedef std::shared_ptr<const TObjMember> TPtr;
 
-      static TPtr Get(const std::string &name) {
-        return Interner->Get(name);
-      }
+      static TPtr Get(const std::string &name);
 
       void Accept(const TVisitor &visitor) const {
         assert(this);
@@ -175,8 +162,6 @@ namespace Orly {
       }
 
       private:
-
-      static Base::TSafeGlobal<Base::TInterner<TObjMember, std::string>> Interner;
 
       TObjMember(const std::string &name)
           : Name(name) {}

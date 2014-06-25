@@ -31,5 +31,5 @@ TRandomInt::TRandomInt(const Package::Syntax::TBuiltInRandom *random_int) :
   RandomInt(Base::AssertTrue(random_int)) {}
 
 Expr::TExpr::TPtr TRandomInt::Build() const {
-  return Expr::TRef::New((*Symbol::TBuiltInFunction::RandomInt)->GetResultDefs()[0], GetPosRange(RandomInt));
+  return Expr::TRef::New(Symbol::TBuiltInFunction::GetRandomInt()->GetResultDefs()[0], GetPosRange(RandomInt));
 }

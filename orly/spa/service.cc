@@ -219,7 +219,7 @@ void TService::Try(
     // context (as they hold a pointer to the flux ctx).
     TContext flux_context(pov_obj->GetPrivatePov(), &result_arena);
     Package::TSpaContext ctx(session->GetAcct(), session->GetUUID(), flux_context, &Arena, &Scheduler,
-        *Rt::TOpt<Base::Chrono::TTimePnt>::Unknown, *Rt::TOpt<uint32_t>::Unknown);
+        Rt::TOpt<Base::Chrono::TTimePnt>(), Rt::TOpt<uint32_t>());
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     result_core = Atom::TCore(&result_arena, state_alloc, ctx.GetArena(), func->Call(ctx, args));
     effects = ctx.MoveEffects();
@@ -294,8 +294,8 @@ void TService::LoadCheckpoint(const string &name) {
   TUUID ppov_id;
 
   //NOTE: We would just use the flux private pov API directly here, but that creates a pretty much always-hit race between the update promotion and the KVIndex being detached.
-  CreateSession(*TOpt<TUUID>::Unknown, 10000, session_id);
-  CreatePrivatePov(session_id, *TOpt<TUUID>::Unknown, 1000, false, ppov_id);
+  CreateSession(TOpt<TUUID>::GetUnknown(), 10000, session_id);
+  CreatePrivatePov(session_id, TOpt<TUUID>::GetUnknown(), 1000, false, ppov_id);
   TPrivatePovObj::TPrivatePovHandle::TPtr pov_obj = TPrivatePovObj::TPrivatePovHandle::Rendezvous(ppov_id);
 
   //Read the checkpoint
@@ -335,7 +335,7 @@ void RunTestAndPromoteOnceIfEffects(TService &service, const function<void(Packa
     //NOTE: The flux context must be destroyed __BEFORE__ we make the update because it holds a lock on the shared pov
     //      which tetris needs
     TContext flux_context(pov_obj->GetPrivatePov(), &arena);
-    Package::TSpaContext ctx(*Rt::TOpt<TUUID>::Unknown, session, flux_context, service.GetArena(), service.GetScheduler(),
+    Package::TSpaContext ctx(Rt::TOpt<TUUID>(), session, flux_context, service.GetArena(), service.GetScheduler(),
       Base::Chrono::CreateTimePnt(2013, 10, 23, 17, 47, 14, 0, 0), 0);
 
     func(ctx);
@@ -438,7 +438,7 @@ bool TService::RunTestSuite(const Package::TName &name, bool verbose) {
 
   /* TODO: We really want an API for destroying sessions explicitly */
   TUUID session;
-  CreateSession(*Base::TOpt<TUUID>::Unknown, 1000, session);
+  CreateSession(  Base::TOpt<TUUID>::GetUnknown(), 1000, session);
   bool succeeded = true;
 
   PackageManager.Get(name)->ForEachTest(
@@ -446,7 +446,7 @@ bool TService::RunTestSuite(const Package::TName &name, bool verbose) {
         assert(test);
 
         TUUID spov;
-        CreateSharedPov(*TOpt<TUUID>::Unknown, 1000, true, spov);
+        CreateSharedPov(TOpt<TUUID>::GetUnknown(), 1000, true, spov);
 
         if (test->WithBlock) {
           RunTestAndPromoteOnceIfEffects(*this,

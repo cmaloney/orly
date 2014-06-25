@@ -154,7 +154,7 @@ FIXTURE(Typical) {
     auto manager = make_unique<TMyManager>(mem_engine.GetEngine(), &scheduler, MemMergeCoreVec, DiskMergeCoreVec);
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);
-    auto repo_1 = manager->GetRepo(repo_1_id, TTtl::max(), *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, false, true);
+    auto repo_1 = manager->GetRepo(repo_1_id, TTtl::max(), TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::GetUnknown(), false, true);
     EXPECT_EQ(repo_1->GetStatus(), Normal);
     /* don't commit Push */ {
       auto transaction = manager->NewTransaction();
@@ -288,8 +288,8 @@ FIXTURE(Promoter) {
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid repo_2_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);
-    auto repo_1 = manager->GetRepo(repo_1_id, TTtl::max(), *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, false, true);
-    auto repo_2 = manager->GetRepo(repo_2_id, TTtl::max(), *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, false, true);
+    auto repo_1 = manager->GetRepo(repo_1_id, TTtl::max(), TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::GetUnknown(), false, true);
+    auto repo_2 = manager->GetRepo(repo_2_id, TTtl::max(), TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::GetUnknown(), false, true);
     /* Push to 1*/ {
       auto transaction = manager->NewTransaction();
       EXPECT_TRUE(transaction);
@@ -358,8 +358,8 @@ FIXTURE(DiskPromoter) {
     Base::TUuid repo_1_id(TUuid::Twister);
     Base::TUuid repo_2_id(TUuid::Twister);
     Base::TUuid idx_id(TUuid::Twister);
-    auto repo_1 = manager->GetRepo(repo_1_id, TTtl::max(), *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, true, true);
-    auto repo_2 = manager->GetRepo(repo_2_id, TTtl::max(), *TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::Unknown, true, true);
+    auto repo_1 = manager->GetRepo(repo_1_id, TTtl::max(), TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::GetUnknown(), true, true);
+    auto repo_2 = manager->GetRepo(repo_2_id, TTtl::max(), TOpt<Indy::L0::TManager::TPtr<Indy::L0::TManager::TRepo>>::GetUnknown(), true, true);
     /* Push to 1*/ {
       auto transaction = manager->NewTransaction();
       EXPECT_TRUE(transaction);

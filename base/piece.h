@@ -55,7 +55,6 @@
 
 #include <base/error.h>
 #include <base/not_found_error.h>
-#include <base/safe_global.h>
 #include <base/slice.h>
 #include <util/stl.h>
 
@@ -473,18 +472,10 @@ namespace Base {
       return success;
     }
 
-    /* An instance of an empty piece. */
-    static const TSafeGlobal<TPiece> Empty;
-
     private:
 
     /* The pointers to the start and limit of the piece.  Limit will never be less than Start, but they could be equal.  One or both could be null. */
     TVal *Start, *Limit;
-
-    /* Factory for the global Empty. */
-    static TPiece *NewEmpty() {
-      return new TPiece;
-    }
 
   };
 
@@ -493,10 +484,6 @@ namespace Base {
   void swap(Base::TPiece<TVal> &lhs, Base::TPiece<TVal> &rhs) noexcept {
     lhs.Swap(rhs);
   }
-
-  /* Implementation of global Empty. */
-  template <typename TVal>
-  const TSafeGlobal<TPiece<TVal> > TPiece<TVal>::Empty(NewEmpty);
 
   /* ShallowCopy() copies the elements from a source piece into a destination piece, overwriting the elements already present in the destination piece.  If you
      do not specify a number of elements to copy, then ShallowCopy() will copy the number of elements in the source or destination, whichever is lesser.  The

@@ -56,10 +56,10 @@ FIXTURE(IsKnownBool) {
 
 FIXTURE(Hash) {
   TSet<TOpt<int64_t>> set_of_opts({
-      *TOpt<int64_t>::Unknown,
+      TOpt<int64_t>(),
       TOpt<int64_t>(1),
       TOpt<int64_t>(1),
-      *TOpt<int64_t>::Unknown});
+      TOpt<int64_t>()});
   EXPECT_EQ(set_of_opts.size(), 2UL);
 }
 

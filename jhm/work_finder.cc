@@ -435,7 +435,13 @@ void TWorkFinder::CacheCheck(TJob *job) {
       // TODO: If all the job's outputs are known, iterate over that set rather than trying to infer the filenames from
       // the string representations (Saves us a lot of hassle on execz`utables)
       TFile *output = TryGetOutputFileFromPath(output_filename);
-      if (!output || IsNewer(in_timestamp, GetTimestampOutput(output))) {
+      if (!output) {
+        return;
+      }
+      if (!Util::ExistsPath(output->GetPath().AsStr().c_str())) {
+        return;
+      }
+      if (IsNewer(in_timestamp, GetTimestampOutput(output))) {
         return;
       }
 

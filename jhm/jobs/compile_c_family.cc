@@ -52,7 +52,7 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output, bool is_cpp) {
   if (EndsWith(output.GetName().GetExtensions(), {"o"})) {
     return output.SwapLastExtension(is_cpp ? "cc" : "c");
   } else {
-    return *TOpt<TRelPath>::Unknown;
+    return TOpt<TRelPath>();
   }
 }
 

@@ -55,7 +55,7 @@ namespace Orly {
     TOpt<int64_t> Div(TLhs &&lhs, TRhs &&rhs) {
       assert(&lhs);
       assert(&rhs);
-      return IsKnown(lhs) && IsKnown(rhs) ? Div(GetVal(lhs), GetVal(rhs)) : *TOpt<int64_t>::Unknown;
+      return IsKnown(lhs) && IsKnown(rhs) ? Div(GetVal(lhs), GetVal(rhs)) : TOpt<int64_t>();
     }
 
   }  // Rt

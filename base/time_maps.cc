@@ -16,37 +16,37 @@
 
 #include <base/time_maps.h>
 
+#include <orly/type/bool.h>
+#include <orly/type/int.h>
+
 using namespace Base;
 using namespace Orly;
 
-static Type::TObj::TElems *TimeDiffMapFactory() {
-  return new Type::TObj::TElems(
-				 {{"is_forward"     , Type::TBool::Get()},
-				  {"day"            , Type::TInt::Get()},
-				  {"hour"           , Type::TInt::Get()},
-				  {"minute"         , Type::TInt::Get()},
-				  {"second"         , Type::TInt::Get()},
-				  {"nanosecond"    , Type::TInt::Get()}} );
+const Type::TObj::TElems &Base::Chrono::GetTimeDiffMap() {
+  static Type::TObj::TElems elems{{"is_forward", Type::TBool::Get()},
+                             {"day", Type::TInt::Get()},
+                             {"hour", Type::TInt::Get()},
+                             {"minute", Type::TInt::Get()},
+                             {"second", Type::TInt::Get()},
+                             {"nanosecond", Type::TInt::Get()}};
 
+  return elems;
 }
 
-const TSafeGlobal<Type::TObj::TElems> Base::Chrono::TimeDiffMap(TimeDiffMapFactory);
+const Type::TObj::TElems &Base::Chrono::GetTimePntMap() {
+  static Type::TObj::TElems elems{{"year", Type::TInt::Get()},
+                                 {"month", Type::TInt::Get()},
+                                 {"day", Type::TInt::Get()},
+                                 {"hour", Type::TInt::Get()},
+                                 {"minute", Type::TInt::Get()},
+                                 {"second", Type::TInt::Get()},
+                                 {"nanosecond", Type::TInt::Get()},
+                                 {"utc_offset", Type::TInt::Get()}};
 
-static Type::TObj::TElems *TimePntMapFactory() {
-  return new Type::TObj::TElems(
-	{{"year"      , Type::TInt::Get()},
-	 {"month"     , Type::TInt::Get()},
-	 {"day"       , Type::TInt::Get()},
-         {"hour"      , Type::TInt::Get()},
-         {"minute"    , Type::TInt::Get()},
-         {"second"    , Type::TInt::Get()},
-         {"nanosecond"    , Type::TInt::Get()},
-	 {"utc_offset", Type::TInt::Get()}} );
+  return elems;
 }
-
-const TSafeGlobal<Type::TObj::TElems> Base::Chrono::TimePntMap(TimePntMapFactory);
 
 bool Base::Chrono::IsTimeObj(const Orly::Type::TObj *type) {
   assert(type);
-  return (type->GetElems() == *TimeDiffMap || type->GetElems() == *TimePntMap);
+  return (type->GetElems() == GetTimeDiffMap() || type->GetElems() == GetTimePntMap());
 }

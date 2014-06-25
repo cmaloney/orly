@@ -20,4 +20,15 @@
 
 using namespace Base;
 
-const TSafeGlobal<TSlice> TSlice::All(NewAll), TSlice::AtLimit(NewAtLimit), TSlice::AtStart(NewAtStart);
+const TSlice &TSlice::NewAll() {
+  static TSlice slice;
+  return slice;
+}
+const TSlice &TSlice::NewAtLimit() {
+  static TSlice slice(TPos::GetLimit(), TPos::GetLimit());
+  return slice;
+}
+const TSlice &TSlice::NewAtStart() {
+  static TSlice slice(TPos::GetStart(), TPos::GetStart());
+  return slice;
+}

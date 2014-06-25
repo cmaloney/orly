@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 
-#include <base/safe_global.h>
 #include <orly/symbol/any_function.h>
 
 namespace Orly {
@@ -39,13 +38,13 @@ namespace Orly {
 
       typedef std::shared_ptr<TBuiltInFunction> TPtr;
 
-      static const Base::TSafeGlobal<TPtr> TimeDiff;
+      static const TPtr &GetTimeDiff();
 
-      static const Base::TSafeGlobal<TPtr> TimePnt;
+      static const TPtr &GetTimePnt();
 
-      static const Base::TSafeGlobal<TPtr> RandomInt;
+      static const TPtr &GetRandomInt();
 
-      static const Base::TSafeGlobal<TPtr> Replace;
+      static const TPtr &GetReplace();
 
       static TPtr New(
           const std::string &name,

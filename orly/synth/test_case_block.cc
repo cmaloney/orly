@@ -89,7 +89,8 @@ TTestCaseBlock::TTestCaseBlock(const TExprFactory *expr_factory, const Package::
       }
     }
     virtual void operator()(const Package::Syntax::TUnlabeledTestCase *that) const {
-      AddTestCase(*Base::TOpt<std::string>::Unknown, that->GetExpr(), that->GetOptTestCaseBlock(), GetPosRange(that));
+      AddTestCase(
+          Base::TOpt<std::string>::GetUnknown(), that->GetExpr(), that->GetOptTestCaseBlock(), GetPosRange(that));
     }
     private:
     void AddTestCase(

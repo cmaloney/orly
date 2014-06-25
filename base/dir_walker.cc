@@ -23,6 +23,7 @@
 
 #include <sys/stat.h>
 
+#include <base/error.h>
 #include <base/no_default_case.h>
 #include <util/error.h>
 

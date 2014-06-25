@@ -23,7 +23,6 @@
 #include <ostream>
 #include <utility>
 
-#include <base/safe_global.h>
 #include <io/binary_input_stream.h>
 #include <io/binary_output_stream.h>
 
@@ -50,7 +49,7 @@ namespace Base {
      allows you to pass instances of TOpt<> around without worrying about extra heap allocations.  If TVal has light-weight copying semantics (such
      as a COW scheme), then it plausible to pass instances of TOpt<TVal> by value.
 
-     A constant of the type TOpt<TVal> and with the unknown value is defined for you as a convenience.  Refer to it as TOpt<TVal>::Unknown.
+     A constant of the type TOpt<TVal> and with the unknown value is defined for you as a convenience.  Refer to it as TOpt<TVal>::GetUnknown().
 
      There is a std stream inserter for this type. */
   template <typename TVal>
@@ -269,8 +268,10 @@ namespace Base {
       }
     }
 
-    /* A constant instance in the unknown state.  Useful to have around. */
-    static const TSafeGlobal<TOpt> Unknown;
+    static const TOpt<TVal> &GetUnknown() {
+      static TOpt<TVal> unknown;
+      return unknown;
+    }
 
     private:
 
@@ -282,10 +283,6 @@ namespace Base {
     TVal *Val;
 
   };  // TOpt
-
-  /* See declaration. */
-  template <typename TVal>
-  const TSafeGlobal<TOpt<TVal>> TOpt<TVal>::Unknown([] { return new TOpt<TVal>(); });
 
   /* A std stream inserter for Base::TOpt<>.  If the TOpt<> is unknown, then this function inserts nothing. */
   template <typename TVal>

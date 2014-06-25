@@ -265,7 +265,7 @@ namespace Orly {
           return std::make_pair(true, Sabot::AsNative<TVal>(*Sabot::State::TAny::TWrapper(val.GetState(state_alloc))));
         } else {
           /* we have a void */
-          return std::make_pair(false, *Rt::TOpt<TVal>::Unknown);
+          return std::make_pair(false, Rt::TOpt<TVal>());
         }
         //syslog(LOG_ERR, "TODO: support reading optional");
         //throw std::runtime_error("TODO: support reading optional");

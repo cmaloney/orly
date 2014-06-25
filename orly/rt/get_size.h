@@ -71,7 +71,7 @@ namespace Orly {
     template <typename TVal>
     TOpt<int64_t> GetSize(const TOpt<TVal> &opt_val) {
       assert(&opt_val);
-      return opt_val.IsKnown() ? GetSize(opt_val.GetVal()) : *TOpt<int64_t>::Unknown;
+      return opt_val.IsKnown() ? GetSize(opt_val.GetVal()) : TOpt<int64_t>();
     }
 
   }  // Rt

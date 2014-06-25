@@ -38,9 +38,9 @@ TLanguage *Tools::Nycr::Symbol::Bootstrap() {
   // right_kwd : assoc = 'right';
   // nonassoc_kwd : assoc = 'nonassoc';
   auto assoc = new TBase("assoc");
-  new TKeyword("left_kwd", assoc, "left", *Base::TOpt<int>::Unknown);
-  new TKeyword("right_kwd", assoc, "right", *Base::TOpt<int>::Unknown);
-  new TKeyword("nonassoc_kwd", assoc, "nonassoc", *Base::TOpt<int>::Unknown);
+  new TKeyword("left_kwd", assoc, "left", Base::TOpt<int>::GetUnknown());
+  new TKeyword("right_kwd", assoc, "right", Base::TOpt<int>::GetUnknown());
+  new TKeyword("nonassoc_kwd", assoc, "nonassoc", Base::TOpt<int>::GetUnknown());
 
   // empty_kwd = 'empty';
   // error_kwd = 'error';
@@ -48,12 +48,12 @@ TLanguage *Tools::Nycr::Symbol::Bootstrap() {
   // pri_kwd   = 'pri';
   // rr_kwd    = 'rr';
   // sr_kwd    = 'sr';
-  auto empty_kwd = new TKeyword("empty_kwd", 0, "empty", *Base::TOpt<int>::Unknown);
-  auto error_kwd = new TKeyword("error_kwd", 0, "error", *Base::TOpt<int>::Unknown);
-  auto prec_kwd = new TKeyword("prec_kwd", 0, "prec", *Base::TOpt<int>::Unknown);
-  auto pri_kwd = new TKeyword("pri_kwd", 0, "pri", *Base::TOpt<int>::Unknown);
-  auto rr_kwd = new TKeyword("rr_kwd", 0, "rr", *Base::TOpt<int>::Unknown);
-  auto sr_kwd = new TKeyword("sr_kwd", 0, "sr", *Base::TOpt<int>::Unknown);
+  auto empty_kwd = new TKeyword("empty_kwd", 0, "empty", Base::TOpt<int>::GetUnknown());
+  auto error_kwd = new TKeyword("error_kwd", 0, "error", Base::TOpt<int>::GetUnknown());
+  auto prec_kwd = new TKeyword("prec_kwd", 0, "prec", Base::TOpt<int>::GetUnknown());
+  auto pri_kwd = new TKeyword("pri_kwd", 0, "pri", Base::TOpt<int>::GetUnknown());
+  auto rr_kwd = new TKeyword("rr_kwd", 0, "rr", Base::TOpt<int>::GetUnknown());
+  auto sr_kwd = new TKeyword("sr_kwd", 0, "sr", Base::TOpt<int>::GetUnknown());
 
   // arrow       = '"->"';
   // colon       = '":"';
@@ -62,16 +62,16 @@ TLanguage *Tools::Nycr::Symbol::Bootstrap() {
   // open_angle  = '"<"';
   // semi        = '";"';
   // slash       = '"/"';
-  auto arrow = new TKeyword("arrow", 0, "\\-\\>", *Base::TOpt<int>::Unknown);
-  auto colon = new TKeyword("colon", 0, "\\:", *Base::TOpt<int>::Unknown);
-  auto close_angle = new TKeyword("close_angle", 0, "\\>", *Base::TOpt<int>::Unknown);
-  auto eq = new TKeyword("eq", 0, "\\=", *Base::TOpt<int>::Unknown);
-  auto open_angle = new TKeyword("open_angle", 0, "\\<", *Base::TOpt<int>::Unknown);
-  auto semi = new TKeyword("semi", 0, "\\;", *Base::TOpt<int>::Unknown);
-  auto slash = new TKeyword("slash", 0, "\\/", *Base::TOpt<int>::Unknown);
+  auto arrow = new TKeyword("arrow", 0, "\\-\\>", Base::TOpt<int>::GetUnknown());
+  auto colon = new TKeyword("colon", 0, "\\:", Base::TOpt<int>::GetUnknown());
+  auto close_angle = new TKeyword("close_angle", 0, "\\>", Base::TOpt<int>::GetUnknown());
+  auto eq = new TKeyword("eq", 0, "\\=", Base::TOpt<int>::GetUnknown());
+  auto open_angle = new TKeyword("open_angle", 0, "\\<", Base::TOpt<int>::GetUnknown());
+  auto semi = new TKeyword("semi", 0, "\\;", Base::TOpt<int>::GetUnknown());
+  auto slash = new TKeyword("slash", 0, "\\/", Base::TOpt<int>::GetUnknown());
 
   // int_literal = r'(\+|\-)?[[:digit:]]+';
-  auto int_literal = new TKeyword("int_literal", 0, "(\\+|\\-)?[[:digit:]]+", *Base::TOpt<int>::Unknown);
+  auto int_literal = new TKeyword("int_literal", 0, "(\\+|\\-)?[[:digit:]]+", Base::TOpt<int>::GetUnknown());
 
   // str_literal;
   // single_quoted_str_literal     : str_literal = "{SINGLE_QUOTED_STRING}";
@@ -79,8 +79,8 @@ TLanguage *Tools::Nycr::Symbol::Bootstrap() {
   // single_quoted_raw_str_literal : str_literal = "{SINGLE_QUOTED_RAW_STRING}" pri 1;
   // double_quoted_raw_str_literal : str_literal = "{DOUBLE_QUOTED_RAW_STRING}" pri 1;
   auto str_literal = new TBase("str_literal");
-  new TKeyword("single_quoted_str_literal", str_literal, "{SINGLE_QUOTED_STRING}", *Base::TOpt<int>::Unknown);
-  new TKeyword("double_quoted_str_literal", str_literal, "{DOUBLE_QUOTED_STRING}", *Base::TOpt<int>::Unknown);
+  new TKeyword("single_quoted_str_literal", str_literal, "{SINGLE_QUOTED_STRING}", Base::TOpt<int>::GetUnknown());
+  new TKeyword("double_quoted_str_literal", str_literal, "{DOUBLE_QUOTED_STRING}", Base::TOpt<int>::GetUnknown());
   new TKeyword("single_quoted_raw_str_literal", str_literal, "{SINGLE_QUOTED_RAW_STRING}", 1);
   new TKeyword("double_quoted_raw_str_literal", str_literal, "{DOUBLE_QUOTED_RAW_STRING}", 1);
 
@@ -257,7 +257,7 @@ TLanguage *Tools::Nycr::Symbol::Bootstrap() {
     new TAnonymousMember(oper, semi);
 
   // nycr -> opt_decl_seq <tools/nycr/syntax>;
-  auto nycr = new TLanguage("nycr", 0, { "tools", "nycr", "syntax" }, *Base::TOpt<int>::Unknown, *Base::TOpt<int>::Unknown);
+  auto nycr = new TLanguage("nycr", 0, { "tools", "nycr", "syntax" }, Base::TOpt<int>::GetUnknown(), Base::TOpt<int>::GetUnknown());
     new TAnonymousMember(nycr, opt_decl_seq);
 
   return nycr;

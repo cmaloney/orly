@@ -33,5 +33,5 @@ TStrReplace::TStrReplace(const Package::Syntax::TBuiltInReplace *str_replace)
     : StrReplace(Base::AssertTrue(str_replace)) {}
 
 Expr::TExpr::TPtr TStrReplace::Build() const {
-  return Expr::TRef::New((*Symbol::TBuiltInFunction::Replace)->GetResultDefs()[0], GetPosRange(StrReplace));
+  return Expr::TRef::New(Symbol::TBuiltInFunction::GetReplace()->GetResultDefs()[0], GetPosRange(StrReplace));
 }

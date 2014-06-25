@@ -84,7 +84,7 @@ Type::TType TSlice::GetType() const {
     virtual void operator()(const Type::TId       *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TInt      *) const { throw TExprError(HERE, PosRange); }
     virtual void operator()(const Type::TList     *that) const {
-      Parts.push_back(*Type::TListIndex::ListIndex);
+      Parts.push_back(Type::TListIndex::Get());
       if ((OptLhs && Type::Unwrap(OptLhs->GetType()) != Type::TInt::Get()) ||
           (OptRhs && Type::Unwrap(OptRhs->GetType()) != Type::TInt::Get())) {
         throw TExprError(HERE, PosRange, "List can only be sliced with an index of type int");

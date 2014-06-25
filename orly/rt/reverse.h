@@ -39,7 +39,7 @@ namespace Orly {
     /* TODO */
     template <typename TVal>
     TOpt<std::vector<TVal>> Reverse(const TOpt<std::vector<TVal>> &val) {
-      return val.IsKnown() ? TOpt<std::vector<TVal>>(Reverse(val.GetVal())) : *TOpt<std::vector<TVal>>::Unknown;
+      return val.IsKnown() ? TOpt<std::vector<TVal>>(Reverse(val.GetVal())) : TOpt<std::vector<TVal>>();
     }
 
     /* TODO */
@@ -49,7 +49,7 @@ namespace Orly {
 
     /* TODO */
     inline TOpt<std::string> Reverse(const TOpt<std::string> &val) {
-      return val.IsKnown() ? TOpt<std::string>(Reverse(val.GetVal())) : *TOpt<std::string>::Unknown;
+      return val.IsKnown() ? TOpt<std::string>(Reverse(val.GetVal())) : TOpt<std::string>();
     }
 
   }  // Rt
