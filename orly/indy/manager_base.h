@@ -936,8 +936,8 @@ namespace Orly {
 
         /* TODO */
         mutable TRepoQueue::TImpl MergeDiskQueue;
-        std::mutex MergeDiskLock;
-        std::mutex MergeDiskEpollLock;
+        Fiber::TFiberLock MergeDiskLock;
+        Fiber::TFiberLock MergeDiskEpollLock;
         Fiber::TSingleSem MergeDiskSem;
 
         /* TODO */

@@ -1815,6 +1815,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
     const std::vector<string> &FileVec;
 
   };
+  int thread_i = 0;
   for (const auto &file : file_vec) {
     /* wait for runner to be ready */ {
       std::unique_lock<std::mutex> lock(mut);
@@ -1825,7 +1826,8 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
       auto global_repo = GetGlobalRepo();
       TSequenceNumber starting_number = global_repo->UseSequenceNumbers(10000000UL);
       auto sem = make_unique<Base::TEventSemaphore>();
-      new TJobRunner(&BGFastRunner,
+      int expected_runner_idx = thread_i++ % MergeDiskRunnerVec.size();
+      new TJobRunner(MergeDiskRunnerVec[expected_runner_idx].get(),
                      this,
                      file,
                      *sem,
@@ -1956,6 +1958,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
       const size_t NumMergeThreads;
 
     };
+    thread_i = 0;
     while (gen_id_vec.size() > 1) {
       size_t expected_jobs = ceil(static_cast<double>(gen_id_vec.size()) / merge_simultaneous);
       syslog(LOG_INFO, "Starting [%ld] Import merge jobs", expected_jobs);
@@ -1972,7 +1975,8 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
           to_merge.push_back(gen_id_vec.front());
           gen_id_vec.erase(gen_id_vec.begin());
         }
-        new TMergeRunner(&BGFastRunner,
+        int expected_runner_idx = thread_i++ % MergeDiskRunnerVec.size();
+        new TMergeRunner(MergeDiskRunnerVec[expected_runner_idx].get(),
                          this,
                          to_merge,
                          expected_jobs,

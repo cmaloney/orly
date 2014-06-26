@@ -395,18 +395,19 @@ void TManager::RunMergeDisk() {
   }
   for (; !ShuttingDown;) {
     /* we can only have 1 thread waiting on MergeDiskSem at a time */ {
-      lock_guard<mutex> epoll_lock(MergeDiskEpollLock);
+      Fiber::TFiberLock::TLock lock(MergeDiskEpollLock);
       if (timeout > 0) {
         timeout = deadline.Remaining();
         if (timeout > 0) {
           timespec wait_time {timeout / 1000, (timeout % 1000L) * 1000000L};
           nanosleep(&wait_time, NULL);
+          /* TODO: we need a fiber way to sleep instead of doing nanosleep. doesn't matter so much in this case since it's a dedicated runner. */
         }
       }
       MergeDiskSem.Pop();
     }
     /* acquire MergeDisk lock */ {
-      std::lock_guard<std::mutex> lock(MergeDiskLock);
+      Fiber::TFiberLock::TLock lock(MergeDiskLock);
       repo = MergeDiskQueue.TryGetFirstMember();
       if (repo && !ShuttingDown) {
         deadline = repo->GetTimeOfNextMergeDisk();
@@ -496,7 +497,7 @@ void TManager::EnqueueMergeMem(TRepo *repo) {
 
 void TManager::EnqueueMergeDisk(TRepo *repo) {
   /* acquire MergeDisk lock */ {
-    std::lock_guard<std::mutex> lock(MergeDiskLock);
+    Fiber::TFiberLock::TLock lock(MergeDiskLock);
     if (repo->MergeDiskMembership.TryGetCollector() == nullptr) {
       MergeDiskQueue.Insert(&repo->MergeDiskMembership);
       MergeDiskSem.Push();
