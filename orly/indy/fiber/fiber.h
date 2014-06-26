@@ -666,6 +666,34 @@ namespace Orly {
 
       };  // TSingleSem
 
+      /* TODO */
+      class TSem {
+        NO_COPY(TSem);
+        public:
+
+        /* TODO */
+        TSem() : Count(0UL), FrameWaiting(nullptr), RunnerToReactivateOn(nullptr) {}
+
+        /* TODO */
+        ~TSem() {}
+
+        /* TODO */
+        inline void Push();
+
+        /* TODO */
+        inline void Pop();
+
+        private:
+
+        /* TODO */
+        Base::TSpinLock SpinLock;
+        size_t Count;
+
+        Fiber::TFrame *FrameWaiting;
+        Fiber::TRunner *RunnerToReactivateOn;
+
+      };  // TSingleSem
+
 
       /* Use this locking mechanism when you want to lock and run the critical section on your current scheduler (core). This is usefull if you intend
          to use thread local or fiber local storage. It is also beneficial if you want to stay with the same cpu cache. The total throughput using
@@ -1031,6 +1059,41 @@ namespace Orly {
           Base::TSpinLock::TLock lock(SpinLock);
           if (FlagOn) {
             FlagOn = false;
+          } else {
+            do_wait = true;
+            FrameWaiting = TFrame::LocalFrame;
+            RunnerToReactivateOn = TRunner::LocalRunner;
+          }
+        } // end spinlock scope
+        if (do_wait) {
+          Fiber::Wait();
+        }
+      }
+
+      inline void TSem::Push() {
+        Base::TSpinLock::TLock lock(SpinLock);
+        if (FrameWaiting) {
+          assert(Count == 0UL);
+          assert(RunnerToReactivateOn);
+          Fiber::TFrame *frame = FrameWaiting;
+          Fiber::TRunner *runner = RunnerToReactivateOn;
+          FrameWaiting = nullptr;
+          RunnerToReactivateOn = nullptr;
+          runner->ScheduleFrame(frame);
+        } else {
+          ++Count;
+        }
+      }
+
+      inline void TSem::Pop() {
+        assert(TRunner::LocalRunner);
+        bool do_wait = false;
+        assert(!FrameWaiting);
+        assert(!RunnerToReactivateOn);
+        /* spinlock scope */ {
+          Base::TSpinLock::TLock lock(SpinLock);
+          if (Count > 0) {
+            --Count;
           } else {
             do_wait = true;
             FrameWaiting = TFrame::LocalFrame;
