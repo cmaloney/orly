@@ -229,12 +229,8 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
       mem_merge_runner.ShutDown();
       disk_merge_runner.ShutDown();
     }  // close all of our RAII scopes
-    if (TLocalReadFileCache::Cache) {
-      delete TLocalReadFileCache::Cache;
-    }
-    if (Disk::TLocalWalkerCache::Cache) {
-      delete Disk::TLocalWalkerCache::Cache;
-    }
+    delete TLocalReadFileCache::Cache;
+    delete Disk::TLocalWalkerCache::Cache;
     std::lock_guard<std::mutex> lock(mut);
     fin = true;
     cond.notify_one();

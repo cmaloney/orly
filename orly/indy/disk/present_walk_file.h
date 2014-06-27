@@ -363,9 +363,7 @@ namespace Orly {
         void Clear(const Base::TUuid &file_id, size_t gen_id, const Base::TUuid &index_id) {
           assert(this);
           TLoaderObj *loader = LoaderCollection.TryGetFirstMember(TWalkerKey(file_id, gen_id, index_id));
-          if (loader) {
-            delete loader;
-          }
+          delete loader;
         }
 
         /* TODO */

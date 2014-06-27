@@ -1095,9 +1095,7 @@ namespace Orly {
         /* TODO */
         void Clear(const Base::TUuid &file_id, size_t gen_id) {
           TLoaderObj *loader = LoaderCollection.TryGetFirstMember(TFileKey(file_id, gen_id));
-          if (loader) {
-            delete loader;
-          }
+          delete loader;
         }
 
         /* TODO */

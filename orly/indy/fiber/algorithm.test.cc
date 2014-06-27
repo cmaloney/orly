@@ -116,9 +116,7 @@ void TestSort(const std::vector<TVal> &input_data, const size_t num_workers) {
         TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(frame_pool_manager);
       }
       runner.Run();
-      if (TFrame::LocalFramePool) {
-        delete TFrame::LocalFramePool;
-      }
+      delete TFrame::LocalFramePool;
     };
     std::thread t1(launch_fiber_sched);
     std::mutex mut;

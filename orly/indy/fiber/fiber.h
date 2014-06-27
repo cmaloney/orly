@@ -1114,10 +1114,8 @@ namespace Orly {
           Fiber::TFrame::LocalFramePool = new Base::TThreadLocalGlobalPoolManager<Fiber::TFrame, size_t, Fiber::TRunner *>::TThreadLocalPool(frame_pool_manager);
         }
         runner->Run();
-        if (Fiber::TFrame::LocalFramePool) {
-          delete Fiber::TFrame::LocalFramePool;
-          Fiber::TFrame::LocalFramePool = nullptr;
-        }
+        delete Fiber::TFrame::LocalFramePool;
+        Fiber::TFrame::LocalFramePool = nullptr;
       };
 
     }  // Fiber

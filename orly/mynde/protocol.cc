@@ -29,9 +29,7 @@ using namespace Orly::Mynde;
 TBuffer::TBuffer() : Size(0), Data(nullptr) {}
 
 TBuffer::~TBuffer() {
-  if (Data) {
-    delete [] Data;
-  }
+  delete [] Data;
 }
 
 uint32_t TBuffer::GetSize() const {

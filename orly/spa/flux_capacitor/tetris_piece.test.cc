@@ -154,10 +154,7 @@ class TMyPlayer {
       size_t max_age = 0) {
     assert(this);
     TMyPiece *&piece = PieceById.insert(make_pair(id, static_cast<TMyPiece *>(0))).first->second;
-    if (piece) {
-      delete piece;
-      piece = 0;
-    }
+    delete piece;
     piece = new TMyPiece(keys, assert_func, bind(&TMyPlayer::ApplyChanges, this, changes), max_age);
   }
 
