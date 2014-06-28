@@ -23,7 +23,7 @@
 #include <sstream>
 #include <utility>
 
-#include <base/make_dir.h>
+#include <base/as_str.h>
 #include <base/split.h>
 #include <orly/code_gen/obj.h>
 #include <orly/code_gen/util.h>
@@ -37,6 +37,7 @@
 #include <orly/type/orlyify.h>
 #include <orly/type/util.h>
 #include <orly/expr/util.h>
+#include <util/path.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -44,6 +45,7 @@ using namespace std;
 using namespace std::placeholders;
 using namespace Orly;
 using namespace Orly::CodeGen;
+using namespace Util;
 
 void ForEachExprInTestBlock(const function<void (const Expr::TExpr::TPtr &expr)> &cb,
       const Symbol::Test::TTestCaseBlock::TPtr &block) {
@@ -139,7 +141,7 @@ TPackage::TPackage(const Symbol::TPackage::TPtr &package) : L0::TPackage(package
   assert(package);
   //Build all the function declarations
   for(auto &func: package->GetFunctions()) {
-    Exports.insert(TExportFunc::New(this, Symbol->GetNamespace(), func));
+    Exports.insert(TExportFunc::New(this, func));
   }
 
   //Build the definitions
@@ -159,7 +161,7 @@ TPackage::TPackage(const Symbol::TPackage::TPtr &package) : L0::TPackage(package
 
 TPackage::~TPackage() {}
 
-void TPackage::Emit(const Jhm::TAbsBase &out_dir) const {;
+void TPackage::Emit(const Jhm::TTree &out_dir) const {;
   assert(this);
   assert(&out_dir);
 
@@ -192,38 +194,26 @@ void TPackage::Emit(const Jhm::TAbsBase &out_dir) const {;
      - Function signature of every exported function
   */
 
-  auto dir = Symbol->GetNamespace().Get();
-  dir.pop_back();
-
-  /* EXTRA */ {
-    std::ostringstream s;
-    s << '/' << out_dir << '/' << Join(dir, '/') << '/';
-    MakeDirs(s.str().c_str());
-  }
+  bool first = true;
 
   auto emit_code = [&](const std::function<void (TCppPrinter &, const TRelPath &)> &func, const vector<string> &ext) -> void {
-    TRelPath rel_path(dir, TName(Symbol->GetNamespace().Get().back(), ext));
-    TCppPrinter out(TAbsPath(out_dir, rel_path).AsStr());
+    TRelPath rel_path(TPath(Symbol->GetName().Name, ext));
+    string out_path(AsStr(out_dir.GetAbsPath(rel_path)));
+    if (first) {
+      EnsureDirExists(out_path.c_str(), true);
+    }
+
+    TCppPrinter out(out_path);
     func(out, rel_path);
   };
-
-  /* EXTRA */ {
-    std::ostringstream s;
-    auto ns = Symbol->GetNamespace().Get();
-    ns.pop_back();
-    s << '/' << out_dir << '/' << TNamespace(ns) << '/';
-    MakeDirs(s.str().c_str());
-  }
 
   emit_code(bind(&TPackage::WriteHeader, this, _1, _2), {"h"});
   emit_code(bind(&TPackage::WriteCc, this, _1, _2), {"cc"});
   emit_code(bind(&TPackage::WriteLink, this, _1, _2), {"link","cc"});
   emit_code(bind(&TPackage::WriteSignatures, this, _1, _2), {"orly", "sig"});
-
-
 }
 
-void TPackage::EmitObjectHeaders(const Jhm::TAbsBase &out_dir) const {
+void TPackage::EmitObjectHeaders(const std::string &out_dir) const {
   for(auto &it: Objects) {
     GenObjHeader(out_dir, it);
   }
@@ -247,11 +237,13 @@ void TPackage::WriteHeader(TCppPrinter &out, const TRelPath &path) const {
       << "#include <orly/rt.h>" << Eol;
 
   //TODO: Reduce to only objects needed by the export set.
-  All(Objects, bind(GenObjInclude, _1, ref(out)));
+  for(const auto &object: Objects) {
+    GenObjInclude(object, out);
+  }
 
   out << Eol;
 
-  TOrlyNamespacePrinter ns_printer(Symbol->GetNamespace(), out);
+  TOrlyNamespacePrinter ns_printer(Symbol->GetName(), out);
   out << "extern const Orly::Package::TInfo PackageInfo;" << Eol
       << Eol;
 
@@ -279,7 +271,9 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
 
   //TODO: Reduce to no objects used by exported or imported functions.
   //Include for all the objects we need
-  All(Objects, bind(GenObjInclude, _1, ref(out)));
+  for(const auto &object: Objects) {
+    GenObjInclude(object, out);
+  }
 
   //Include for the flux api, orly Rt environment
   out << Eol
@@ -318,7 +312,7 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
           << Eol
           << "void *state_alloc = alloca(Sabot::State::GetMaxStateSize());" << Eol
           << "return Atom::TCore(ctx.GetArena(), Native::State::New("
-          << TOrlyNamespace(Symbol->GetNamespace()) << "::F" << it->GetName() << "(ctx";
+          << Symbol->GetName() << "::F" << it->GetName() << "(ctx";
       if(!it->GetArgs().empty()) {
         out << ", ";
       }
@@ -364,7 +358,7 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
 
   //Inside the namespace of the package
   //TODO: Prefix each of the namespaces with a fixed string 'NS_' so we are guaranteed non-conflicting.
-  TOrlyNamespacePrinter ns_printer(Symbol->GetNamespace(), out);
+  TOrlyNamespacePrinter ns_printer(Symbol->GetName(), out);
 
   for (const auto &addr : AddrMap) {
     char uuid[37];
@@ -377,7 +371,7 @@ void TPackage::WriteCc(TCppPrinter &out, const TRelPath &rel_path) const {
   out << "const Orly::Package::TInfo PackageInfo {" << Eol;
   /* indent */ {
     TIndent indent(out);
-    out << '"' << Symbol->GetNamespace() << "\"," << Eol
+    out << '"' << Symbol->GetName() << "\"," << Eol
         << Symbol->GetVersion() << ',' << Eol
         << "/* exports */ std::unordered_map<std::string, const Package::TFuncInfo*>{" << Eol;
     /* indent */ {
@@ -448,9 +442,9 @@ void TPackage::WriteLink(TCppPrinter &out, const TRelPath &path) const {
       << "static Orly::Package::TLinkInfo LinkInfo {" << Eol;
   /* instance body*/ {
     TIndent indent(out);
-    out << '"' << Symbol->GetNamespace() << "\"," << Eol
+    out << '"' << Join(Symbol->GetName().Name, '/') << "\"," << Eol
         << Symbol->GetVersion() << ',' << Eol
-        << '&' << TOrlyNamespace(Symbol->GetNamespace()) << "::PackageInfo," << Eol
+        << '&' << Symbol->GetName() << "::PackageInfo," << Eol
         << "std::unordered_map<std::vector<std::string>, const Orly::Package::TInfo *>{" << Eol;
     /* included packages */ {
       TIndent package_indent(out);
@@ -459,8 +453,8 @@ void TPackage::WriteLink(TCppPrinter &out, const TRelPath &path) const {
                   [](TCppPrinter &out, const Package::TName &name) {
                     out
                       << "{{\""
-                      << Join(name.Get(), "\", \"")
-                      << "\"}, &" << TOrlyNamespace(name.Get()) << "::PackageInfo}";
+                      << Join(name.Name, "\", \"")
+                      << "\"}, &" << name << "::PackageInfo}";
                   });
     }
     out
@@ -596,12 +590,12 @@ void TPackage::WriteSignatures(TCppPrinter &out, const TRelPath &) const {
   }
 }
 
-void WritePackageInclude(const Jhm::TNamespace &ns, TCppPrinter &out) {
-  out << "#include \"" << ns << ".h\"" << Eol;
+void WritePackageInclude(const Package::TName &name, TCppPrinter &out) {
+  out << "#include \"" << Join(name.Name, '/') << ".h\"" << Eol;
 }
 
 void TPackage::WriteInclude(TCppPrinter &out) const {
-  WritePackageInclude(Symbol->GetNamespace(), out);
+  WritePackageInclude(Symbol->GetName(), out);
 }
 
 void TPackage::WriteImportIncludes(TCppPrinter &out) const {

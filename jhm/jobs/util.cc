@@ -24,19 +24,19 @@ using namespace Jhm;
 using namespace std;
 using namespace Util;
 
-unordered_set<TFile *> Jhm::GetOutputSet(const vector<TExtension> &out_exts, TEnv &env, const TRelPath &input) {
+unordered_set<TFile *> Jhm::GetOutputSet(const vector<vector<string>> &out_exts, TEnv &env, const TRelPath &input) {
   unordered_set<TFile *> out_set;
   for (const auto &ext : out_exts) {
-    InsertOrFail(out_set, env.GetFile(input.SwapLastExtension(ext)));
+    InsertOrFail(out_set, env.GetFile(TRelPath(SwapExtension(Base::TPath(input.Path), {ext}))));
   }
   return out_set;
 }
 
 
-TFile *Jhm::GetOutputWithExtension(unordered_set<TFile *> output_set, const TExtension &ext) {
+TFile *Jhm::GetOutputWithExtension(unordered_set<TFile *> output_set, const vector<string> &ext) {
   TFile *primary_output = nullptr;
   for (TFile *f : output_set) {
-    if (EndsWith(f->GetPath().GetRelPath().GetName().GetExtensions(), ext)) {
+    if (f->GetRelPath().Path.EndsWith(ext)) {
       return primary_output = f;
       break;
     }

@@ -28,7 +28,7 @@ using namespace Jhm::Job;
 using namespace std;
 using namespace std::placeholders;
 
-const static vector<TExtension> OutExtensions = {
+const static vector<vector<string>> OutExtensions = {
   {"bison","cc"},
   {"bison", "hh"}
 };
@@ -36,8 +36,8 @@ const static vector<TExtension> OutExtensions = {
 //TODO: this is duplicated / copied in both bison.cc and flex.cc
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
   for (const auto &ext : OutExtensions) {
-    if (EndsWith(output.GetName().GetExtensions(), ext)) {
-      return output.DropExtension(ext.size()).AddExtension({"y"});
+    if (output.Path.EndsWith(ext)) {
+      return TRelPath(AddExtension(DropExtension(TPath(output.Path), ext.size()), {"y"}));
     }
   }
   return TOpt<TRelPath>();
@@ -82,4 +82,4 @@ bool TBison::IsComplete() {
 
 
 TBison::TBison(TEnv &env, TFile *in_file)
-    : TJob(in_file, GetOutputSet(OutExtensions, env, in_file->GetPath().GetRelPath())), Env(env) {}
+    : TJob(in_file, GetOutputSet(OutExtensions, env, in_file->GetRelPath())), Env(env) {}

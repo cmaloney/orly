@@ -73,7 +73,7 @@ void TUnary::WriteExpr(TCppPrinter &out) const {
       const Base::TUuid &index_id = Package->GetIndexIdFor(Expr->GetReturnType(), Type::UnwrapOptional(Type::UnwrapMutable(GetReturnType())));
       char uuid[37];
       index_id.FormatUnderscore(uuid);
-      out << "Read<" << Type::UnwrapMutable(GetReturnType()) << ">(ctx.GetFlux(), " << Expr << ", " << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << ")";
+      out << "Read<" << Type::UnwrapMutable(GetReturnType()) << ">(ctx.GetFlux(), " << Expr << ", " << Package->GetName() << "::My" << uuid << ")";
       break;
     }
     case ReverseOf: Call(out, "Reverse");

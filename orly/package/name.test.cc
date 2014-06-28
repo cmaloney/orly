@@ -20,6 +20,9 @@
 
 #include <test/kit.h>
 
+#include <base/as_str.h>
+
+using namespace std;
 using namespace Base;
 using namespace Orly::Package;
 
@@ -33,26 +36,18 @@ using namespace Orly::Package;
 //TODO: Nowhere near all of package_name.cc is tested here.
 FIXTURE(VersionedNameWithScope) {
   const TVersionedName package = TVersionedName::Parse(AsPiece("scope/sample.1"));
-  EXPECT_EQ(package.Name, TName(Jhm::TStrList{"scope", "sample"}));
+  EXPECT_EQ(package.Name, (TName{{"scope", "sample"}}));
   EXPECT_EQ(package.Version, 1u);
-  EXPECT_EQ(package.GetSoRelPath().AsStr(), std::string("scope/sample.1.so"));
+  EXPECT_EQ(AsStr(package.GetSoRelPath()), "scope/sample.1.so");
 }
 
 FIXTURE(NameWithScope) {
-  const TName package("scope/sample");
-  EXPECT_EQ(package, TName(Jhm::TStrList{"scope", "sample"}));
+  EXPECT_EQ(TName::Parse("scope/sample"), (TName{{"scope", "sample"}}));
 }
 
 FIXTURE(VersionedNameWithoutScope) {
   const TVersionedName package = TVersionedName::Parse(AsPiece("sample.1000"));
-  EXPECT_TRUE(package.Name == TName(Jhm::TStrList{"sample"}));
+  EXPECT_TRUE(package.Name == TName{{"sample"}});
   EXPECT_EQ(package.Version, 1000u);
-  EXPECT_EQ(package.GetSoRelPath().AsStr(), std::string("sample.1000.so"));
-}
-
-FIXTURE(NameWithSlashFollowingPiece) {
-  Base::TPiece<const char> piece = AsPiece("database/");
-  piece.AdjustLimit(-1);
-  TName package(piece);
-  EXPECT_EQ(package, TName(Jhm::TStrList{"database"}));
+  EXPECT_EQ(AsStr(package.GetSoRelPath()), "sample.1000.so");
 }

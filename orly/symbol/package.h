@@ -21,7 +21,7 @@
 #include <memory>
 
 #include <base/class_traits.h>
-#include <jhm/naming.h>
+#include <orly/package/name.h>
 #include <orly/symbol/scope.h>
 
 namespace Orly {
@@ -38,10 +38,10 @@ namespace Orly {
       typedef std::shared_ptr<TPackage> TPtr;
 
       /* Returns a std::shared_ptr to a new TPackage instance */
-      static TPtr New(const Jhm::TNamespace &ns, unsigned int version);
+      static TPtr New(const Package::TName &name, unsigned int version);
 
       /* Return the Package's namespace. */
-      const Jhm::TNamespace &GetNamespace() const;
+      const Package::TName &GetName() const;
 
       /* Returns the package version number */
       unsigned int GetVersion() const;
@@ -49,10 +49,10 @@ namespace Orly {
       private:
 
       /* Do-little */
-      TPackage(const Jhm::TNamespace &ns, unsigned int version);
+      TPackage(const Package::TName &name, unsigned int version);
 
       /* See accessor */
-      Jhm::TNamespace Namespace;
+      Package::TName Name;
 
       /* See accessor */
       unsigned int Version;

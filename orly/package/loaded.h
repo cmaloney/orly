@@ -62,7 +62,7 @@ namespace Orly {
 
       typedef std::shared_ptr<const TLoaded> TPtr;
 
-      static TPtr Load(const Jhm::TAbsBase &package_dir, const TVersionedName &name);
+      static TPtr Load(const Jhm::TTree &package_dir, const TVersionedName &name);
 
       ~TLoaded();
 
@@ -83,7 +83,7 @@ namespace Orly {
 
       private:
 
-      TLoaded(const Jhm::TAbsBase &package_dir, const TVersionedName &name);
+      TLoaded(const Jhm::TTree &package_dir, const TVersionedName &name);
 
       TVersionedName Name;
 

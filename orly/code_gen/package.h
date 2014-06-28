@@ -44,8 +44,8 @@ namespace Orly {
       TPackage(const Symbol::TPackage::TPtr &package);
       virtual ~TPackage();
 
-      void Emit(const Jhm::TAbsBase &out_dir) const;
-      void EmitObjectHeaders(const Jhm::TAbsBase &out_dir) const;
+      void Emit(const Jhm::TTree &out_dir) const;
+      void EmitObjectHeaders(const std::string &out_dir) const;
 
       private:
       void WriteStartingComment(TCppPrinter &out, const Jhm::TRelPath &path) const;

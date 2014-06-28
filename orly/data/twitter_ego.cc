@@ -1,4 +1,4 @@
-/* <orly/data/abxy.cc>
+/* <orly/data/twitter_ego.cc>
 
    Generates a core-vector file for twitter EGO-network.
 
@@ -27,13 +27,13 @@
 #include <fcntl.h>
 
 #include <base/as_str.h>
-#include <base/hash.h>
 #include <base/glob.h>
+#include <base/hash.h>
+#include <base/path.h>
 #include <base/split.h>
 #include <base/uuid.h>
 #include <io/binary_output_only_stream.h>
 #include <io/device.h>
-#include <jhm/naming.h>
 #include <orly/atom/core_vector_builder.h>
 
 using TFollows = std::vector<std::pair<int64_t, int64_t>>;
@@ -53,9 +53,8 @@ std::tuple<TFollows, THashtags, TMentions> Parse() {
   TMentions mentions;
   Base::Glob("twitter-ego.in/*.edges",
              [&](const char *filename) {
-               Jhm::TRelPath relpath(filename + 1);
-               auto base = relpath.GetName().GetBase();
-               int64_t ego = std::stoll(base);
+               const Base::TPath path(filename);
+               int64_t ego = std::stoll(path.Name);
                // Parse '*.edges' file.
                std::ifstream edges(filename);
                while (edges >> from >> to) {
@@ -64,7 +63,7 @@ std::tuple<TFollows, THashtags, TMentions> Parse() {
                  follows.emplace_back(ego, to);
                }  // while
                auto basename =
-                   "/" + Base::AsStr(relpath.ToNamespaceIncludingName());
+                   "/" + Base::AsStr(Base::Join(path.ToNamespaceIncludingName(), '/'));
                // Parse the '*.featnames' file.
                std::vector<std::string> features;
                std::ifstream featnames(Base::AsStr(basename, ".featnames"));

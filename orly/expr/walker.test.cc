@@ -48,7 +48,7 @@ Symbol::TPackage::TPtr MakePackage(const string &orlyscript) {
     Tools::Nycr::TError::DeleteEach();
     throw std::invalid_argument("Orlyscript has syntax errors");
   }
-  return (new Orly::Synth::TPackage(Jhm::TNamespace(""), cst.get(), false))->GetSymbol();
+  return (new Orly::Synth::TPackage({{"walker_test"}}, cst.get(), false))->GetSymbol();
 }
 
 /* Given a Orlyscript string, collects all of the objects used in the script */

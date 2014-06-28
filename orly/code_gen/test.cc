@@ -225,7 +225,7 @@ void TWith::Write(TCppPrinter &out) const {
     const Base::TUuid &index_id = Package->GetIndexIdFor(it.first->GetReturnType(), it.second->GetReturnType());
     char uuid[37];
     index_id.FormatUnderscore(uuid);
-    out << "ctx.AddEffect(" << it.first << ", " << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid
+    out << "ctx.AddEffect(" << it.first << ", " << Package->GetName() << "::My" << uuid
         << ", Var::TNew::New(Var::ToVar(*Sabot::State::TAny::TWrapper(Native::State::New(" << it.second
         << ", alloca(Sabot::State::GetMaxStateSize()))))));" << Eol;
   }

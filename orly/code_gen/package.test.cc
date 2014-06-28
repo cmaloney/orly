@@ -23,16 +23,19 @@
 #include <orly/symbol/package.h>
 #include <orly/symbol/result_def.h>
 #include <orly/type/type_czar.h>
+#include <util/path.h>
 
 #include <test/kit.h>
 
 using namespace Orly;
 using namespace Orly::CodeGen;
 
+const char *test_dir = "/tmp/package_test";
+
 FIXTURE(Typical) {
   Type::TTypeCzar type_czar;
   //Build up a symbolic package
-  Symbol::TPackage::TPtr p_sym = Symbol::TPackage::New({"test"}, 1);
+  Symbol::TPackage::TPtr p_sym = Symbol::TPackage::New({{"test"}}, 1);
   Symbol::TFunction::TPtr foo = Symbol::TFunction::New(p_sym, "foo", TPosRange());
   Symbol::TResultDef::TPtr foo_result = Symbol::TResultDef::New(foo, "bar", TPosRange());
   foo->SetExpr(Expr::TAdd::New(Expr::TLiteral::New(Var::TVar(10), TPosRange()), Expr::TLiteral::New(Var::TVar(10), TPosRange()), TPosRange()));
@@ -40,7 +43,9 @@ FIXTURE(Typical) {
   //TODO: Add functions to the package to exercise all the code gen machinery.
   TPackage p(p_sym);
 
-  p.Emit(Jhm::TAbsBase("/tmp/"));
+  p.Emit(Jhm::TTree(test_dir));
+
+  Util::EnsureDirIsGone(test_dir);
 
   //GenCdoe
 }

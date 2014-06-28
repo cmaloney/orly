@@ -18,13 +18,15 @@
 
 #include <orly/package/name.h>
 
+#include <iomanip>
 #include <sstream>
 
 #include <base/convert.h>
+#include <base/path.h>
 
 using namespace Base;
-using namespace Jhm;
 using namespace Orly::Package;
+using namespace std;
 
 //TODO: This should really live on piece somehow, or as some base algorithm.
 static inline const char *find(char sep, const char *start, const char *limit) {
@@ -41,16 +43,29 @@ static inline const char *find(char sep, const char *start, const char *limit) {
   return 0;
 }
 
+TName TName::Parse(const std::string &name) {
+  TName res;
+  Split("/", name, res.Name);
+
+  if (!IsValidNamespace(res.Name)) {
+    THROW_ERROR(std::runtime_error) << "Invalid package name " << std::quoted(name);
+  }
+  return res;
+}
+
 TVersionedName TVersionedName::Parse(const TPiece<const char> &name) {
   assert(&name);
 
   auto dot_pos = find('.', name.GetLimit() - 1, name.GetStart() - 1);
   if (!dot_pos) {
-    return TVersionedName{Jhm::TNamespace(name), 0};
+    //TODO: Excess copy here.
+    string tmp;
+    return {TName::Parse(Assign(tmp, name)), 0};
   }
-  return TVersionedName{
-      Jhm::TNamespace(TPiece<const char>(name.GetStart(), dot_pos)),
-      TConvertProxy(TPiece<const char>(dot_pos + 1, name.GetLimit()))};
+  //TODO: Excess copy here
+  string tmp;
+  return {TName::Parse(Assign(tmp, TPiece<const char>(name.GetStart(), dot_pos))),
+                        TConvertProxy(TPiece<const char>(dot_pos + 1, name.GetLimit()))};
 }
 
 bool TVersionedName::operator==(const TVersionedName &that) const {
@@ -60,21 +75,24 @@ bool TVersionedName::operator==(const TVersionedName &that) const {
   return that.Version == Version && that.Name == Name;
 }
 
-TRelPath TVersionedName::GetSoRelPath() const {
+Jhm::TRelPath TVersionedName::GetSoRelPath() const {
   assert(this);
 
-  std::ostringstream out;
-  out << Version;
-  std::string ext = out.str();
-  out.str("");
-  return Name.ToRelPath({ext,"so"});
+  vector<string> name(Name.Name);
+  name.pop_back();
+
+  return Jhm::TRelPath(TPath(move(name), Name.Name.back(), {to_string(Version), "so"}));
 }
 
-std::ostream &Orly::Package::operator<<(std::ostream &out, const TVersionedName &that) {
+ostream &Orly::Package::operator<<(ostream &out, const TVersionedName &that) {
   assert(&out);
   assert(&that);
 
   out << that.Name << '.' << that.Version;
 
   return out;
+}
+
+ostream &Orly::Package::operator<<(ostream &out, const TName &that) {
+  return out << Join(that.Name, '/');
 }

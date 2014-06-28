@@ -137,7 +137,7 @@ void TMutate::Write(TCppPrinter &out) const {
     const Base::TUuid &index_id = Package->GetIndexIdFor(addr_type, val_type);
     char uuid[37];
     index_id.FormatUnderscore(uuid);
-    out << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << " ,";
+    out << Package->GetName() << "::My" << uuid << " ,";
   }
 
   /* mutable */

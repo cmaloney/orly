@@ -1192,11 +1192,6 @@ TServer::~TServer() {
   Fiber::TFrame::LocalFramePool->Free(Frame);
 }
 
-const string &TServer::GetPackageDir() const {
-  assert(this);
-  return Cmd.PackageDirectory;
-}
-
 TWs::TSessionPin *TServer::NewSession() {
   assert(this);
   assert(DurableManager);

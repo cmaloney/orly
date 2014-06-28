@@ -21,13 +21,13 @@
 
 #include <string>
 
+#include <base/as_str.h>
+#include <base/path.h>
 #include <jhm/config.h>
 #include <jhm/naming.h>
 #include <jhm/timestamp.h>
 
 namespace Jhm {
-  class TEnv;
-  class TJob;
 
   /* A file is a lightweight proxy object for actual data grabbers (which for now live independently). It's simply used
      to track unique paths inside the system, as well as if we believe a path can be built. Getting/storing data in a
@@ -38,16 +38,22 @@ namespace Jhm {
      TODO: make the config for file point to the config of the environment as fallback. */
   class TFile {
     public:
-    TFile(TAbsPath &&path, bool is_src, const std::string &config_filename)
-        : Src(is_src), Path(std::move(path)), Config(config_filename) {}
+    TFile(TRelPath &&path, const TTree *tree, bool is_src, const std::string &config_filename)
+        : IsSrc_(is_src),
+          Path(std::move(path)),
+          CmdPath(is_src ? Base::AsStr(Path) : Base::AsStr(tree->GetAbsPath(Path))),
+          Config(config_filename) {}
 
-    const TAbsPath &GetPath() const {
+    const TRelPath &GetRelPath() const {
       return Path;
+    }
+    const std::string &GetPath() const {
+      return CmdPath;
     }
 
     /* Computes (and doesn't cache!) the timestamp for the given file. Newest of either it's config or file in the tree) */
     Base::TOpt<timespec> GetTimestamp() const {
-      return Newer(TryGetTimestamp(Path.AsStr()), Config.GetTimestamp());
+      return Newer(TryGetTimestamp(Base::AsStr(Path)), Config.GetTimestamp());
     }
 
     void PushComputedConfig(Base::TJson &&config) {
@@ -75,25 +81,23 @@ namespace Jhm {
     }
 
     bool IsSrc() const {
-      return Src;
+      return IsSrc_;
     }
 
     //TODO: GetGitHash for uniquely iding src files. Out files are id'd by job kind + input kind.
 
     private:
-    bool Src;
-    TAbsPath Path;
+    bool IsSrc_;
+    TRelPath Path;
+    std::string CmdPath;
 
     // Config: Stack of file-based config for the file (file.jhm), as well as producer-added config.
     // NOTE: JHM cannont and will not allow generated config. That isn't how you should pass in that info.
-    // TODO: Allow attaching things like producer config in a uniform manner.
-    // TODO: Out files are defined by their producer id (in_file, producer)
     TConfig Config;
   };
 
   inline std::ostream &operator<<(std::ostream &out, TFile *f) {
-    out << f->GetPath().GetRelPath();
-
+    out << f->GetRelPath();
     return out;
   }
 }
