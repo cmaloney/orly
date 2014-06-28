@@ -109,7 +109,7 @@ namespace Io {
     void Read(std::tuple<TArgs...> &that) {
       assert(this);
       assert(&that);
-      Util::ForEach(that, [this](auto &elem) { *this >> elem; });
+      Util::ForEach(that, TTupleHelper(*this));
     }
 
     template <typename TRep, typename TPeriod>
@@ -128,6 +128,22 @@ namespace Io {
         : TInputConsumer(input_producer) {}
 
     private:
+
+    class TTupleHelper {
+      public:
+
+      explicit TTupleHelper(TBinaryInputStream &strm) : Strm(strm) {}
+
+      template <typename TElem>
+      void operator()(TElem &elem) const {
+        Strm >> elem;
+      }
+
+      private:
+
+      TBinaryInputStream &Strm;
+
+    };  // TTupleHelper
 
     /* TODO */
     template <typename TVal>
