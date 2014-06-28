@@ -62,10 +62,8 @@ namespace Orly {
           }
           runner.ShutDown();
           t1.join();
-          if (TFrame::LocalFramePool) {
-            delete TFrame::LocalFramePool;
-            TFrame::LocalFramePool = nullptr;
-          }
+          delete TFrame::LocalFramePool;
+          TFrame::LocalFramePool = nullptr;
         }
 
         void Run() {

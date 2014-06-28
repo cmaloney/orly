@@ -131,7 +131,7 @@ namespace Orly {
 
       /* TODO */
       virtual ~TCursor() {
-        if(Item) delete Item;
+        delete Item;
       }
 
       /* TODO */

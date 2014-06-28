@@ -56,7 +56,7 @@ namespace Orly {
           }
 
           ~TCursor() {
-            if(Item) delete Item;
+            delete Item;
           }
 
           operator bool() const {

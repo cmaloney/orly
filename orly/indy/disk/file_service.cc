@@ -595,16 +595,12 @@ void TFileService::Runner() {
       }
     }
   } catch (const std::exception &ex) {
-    if (Disk::Util::TDiskController::TEvent::LocalEventPool) {
-      delete Disk::Util::TDiskController::TEvent::LocalEventPool;
-      Disk::Util::TDiskController::TEvent::LocalEventPool = nullptr;
-    }
-    throw;
-  }
-  if (Disk::Util::TDiskController::TEvent::LocalEventPool) {
     delete Disk::Util::TDiskController::TEvent::LocalEventPool;
     Disk::Util::TDiskController::TEvent::LocalEventPool = nullptr;
+    throw;
   }
+  delete Disk::Util::TDiskController::TEvent::LocalEventPool;
+  Disk::Util::TDiskController::TEvent::LocalEventPool = nullptr;
   Fiber::FreeMyFrame(Fiber::TFrame::LocalFramePool);
 }
 
