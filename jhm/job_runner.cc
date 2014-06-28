@@ -47,8 +47,6 @@ bool TJobRunner::IsReady() const {
 }
 
 void TJobRunner::Queue(TJob *job) {
-  assert(!ExitWorker);
-
   lock_guard<mutex> lock(ToRunMutex);
   // Note: We call GetCmd() to make the string here because if we did it in the QueueRunner we'd cross threads.
   ToRun.emplace(job, job->GetCmd());
