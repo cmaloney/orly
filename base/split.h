@@ -50,27 +50,51 @@ namespace Base {
                                         std::forward<TFormat>(format)};
   }
 
+  struct TNoDelimit {
+
+    template <typename TStrm>
+    void operator()(TStrm &) const {}
+
+  };  // TNoDelimit
+
+  template <typename TDelimiter>
+  struct TDefaultDelimit {
+
+    template <typename TStrm>
+    void operator()(TStrm &strm) const {
+      strm << Delimiter;
+    }
+
+    const TDelimiter &Delimiter;
+
+  };  // TDefaultDelimit
+
+  struct TDefaultFormat {
+
+    template <typename TStrm, typename TElem>
+    void operator()(TStrm &strm, const TElem &elem) const {
+      strm << elem;
+    }
+
+  };  // TDefaultFormat
+
   template <typename TContainer, typename TDelimiter, typename TFormat>
   auto Join(const TContainer &container,
             const TDelimiter &delimiter,
             TFormat &&format) {
     return MakeJoin(container,
-                    [&delimiter](auto &strm) { strm << delimiter; },
+                    TDefaultDelimit<TDelimiter>{delimiter},
                     std::forward<TFormat>(format));
   }
 
   template <typename TContainer, typename TDelimiter>
   auto Join(const TContainer &container, const TDelimiter &delimiter) {
-    return Join(container,
-                delimiter,
-                [](auto &strm, const auto &elem) { strm << elem; });
+    return Join(container, delimiter, TDefaultFormat());
   }
 
   template <typename TContainer>
   auto Concat(const TContainer &container) {
-    return MakeJoin(container,
-                    [](auto &) {},
-                    [](auto &strm, const auto &elem) { strm << elem; });
+    return MakeJoin(container, TNoDelimit(), TDefaultFormat());
   }
 
   /* A generic function to stream out TJoin<> to some streamer.

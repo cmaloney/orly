@@ -133,6 +133,22 @@ namespace Io {
 
     private:
 
+    class TTupleHelper {
+      public:
+
+      explicit TTupleHelper(TBinaryOutputStream &strm) : Strm(strm) {}
+
+      template <typename TElem>
+      void operator()(const TElem &elem) const {
+        Strm << elem;
+      }
+
+      private:
+
+      TBinaryOutputStream &Strm;
+
+    };  // TTupleHelper
+
     /* Write an STL container. */
     template <typename TThat>
     void WriteContainer(const TThat &that) {
