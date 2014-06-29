@@ -26,7 +26,6 @@
 #include <base/as_str.h>
 #include <base/split.h>
 #include <orly/code_gen/obj.h>
-#include <orly/code_gen/util.h>
 #include <orly/expr/addr_walker.h>
 #include <orly/expr/walker.h>
 #include <orly/expr/where.h>

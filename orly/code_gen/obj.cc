@@ -25,7 +25,6 @@
 #include <base/path.h>
 #include <base/split.h>
 #include <base/time_maps.h>
-#include <orly/code_gen/util.h>
 #include <orly/type.h>
 #include <orly/type/gen_code.h>
 #include <orly/type/object_collector.h>
