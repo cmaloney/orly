@@ -79,30 +79,26 @@ get_abxys = get_intros(.friends: get_all_friends);
 
 abxys = (get_abxys take 10) as [<[<[int, int]>, [<[int, int]>]]>];
 
-setup = (true) effecting {
-  new <['follow', 0, 1]> <- true;
-  new <['follow', 0, 2]> <- true;
-  new <['follow', 0, 3]> <- true;
-  new <['follow', 1, 0]> <- true;
-  new <['follow', 1, 4]> <- true;
-  new <['follow', 2, 0]> <- true;
-  new <['follow', 3, 0]> <- true;
-  new <['follow', 4, 1]> <- true;
-  new <['#', 2, 'A']> <- true;
-  new <['#', 4, 'A']> <- true;
-};
-
-test {
-  setup {
-    get_friends(.uid: 0) as [int] == [1, 2, 3];
-    get_friends(.uid: 1) as [int] == [0, 4];
-    get_friends(.uid: 2) as [int] == [0];
-    get_friends(.uid: 5) as [int] == empty [int];
-    get_all_friends as [<[int, int]>] == 
-    [<[0, 1]>, <[0, 2]>, <[0, 3]>, <[1, 4]>];
-    abxys == [<[<[0, 1]>, [<[2, 4]>]]>,
-              <[<[0, 2]>, empty [<[int, int]>]]>,
-              <[<[0, 3]>, empty [<[int, int]>]]>,
-              <[<[1, 4]>, empty [<[int, int]>]]>];
-  };
+with {
+  <['follow', 0, 1]> <- true;
+  <['follow', 0, 2]> <- true;
+  <['follow', 0, 3]> <- true;
+  <['follow', 1, 0]> <- true;
+  <['follow', 1, 4]> <- true;
+  <['follow', 2, 0]> <- true;
+  <['follow', 3, 0]> <- true;
+  <['follow', 4, 1]> <- true;
+  <['#', 2, 'A']> <- true;
+  <['#', 4, 'A']> <- true;
+} test {
+  get_friends(.uid: 0) as [int] == [1, 2, 3];
+  get_friends(.uid: 1) as [int] == [0, 4];
+  get_friends(.uid: 2) as [int] == [0];
+  get_friends(.uid: 5) as [int] == empty [int];
+  get_all_friends as [<[int, int]>] ==
+  [<[0, 1]>, <[0, 2]>, <[0, 3]>, <[1, 4]>];
+  abxys == [<[<[0, 1]>, [<[2, 4]>]]>,
+            <[<[0, 2]>, empty [<[int, int]>]]>,
+            <[<[0, 3]>, empty [<[int, int]>]]>,
+            <[<[1, 4]>, empty [<[int, int]>]]>];
 };
