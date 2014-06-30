@@ -2,9 +2,12 @@
 
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
+PACKAGE_DIR=$(PREFIX)/packages
+DATA_DIR=$(PREFIX)/data
 RELEASE_OUT=../out/release
 #Apps get installed on 'make install'
 ORLY_APPS=orly/orlyc orly/server/orlyi orly/spa/spa orly/client/orly_client orly/indy/disk/util/orly_dm
+ORLY_DATASET_GEN=beer complete_graph game_of_thrones money_laundering belgian_beer friends_of_friends matrix shakespeare twitter twitter_ego
 JHM_CMD=jhm $(JHM_FLAGS)
 .PHONY: apps debug release bootstrap nycr test test_lang clean install
 
@@ -35,4 +38,9 @@ clean:
 	rm -f tools/make_dep_file
 
 install: release
-	cd $(RELEASE_OUT); install -m755 -t $(BINDIR) $(ORLY_APPS)
+	install -d $(BINDIR) $(PACKAGE_DIR) $(DATA_DIR)
+	install -m755 -t $(BINDIR) $(addprefix $(RELEASE_OUT), $(ORLY_APPS))
+	install -m755 -t $(BINDIR) $(addprefix $(RELEASE_OUT), $(addprefix orly/data/,$(ORLY_DATASET_GEN)))
+	#Mark the root of the package repository
+	touch $(PACKAGE_DIR)/__orly__
+	install -m644 -t $(PACKAGE_DIR) $(wildcard orly/data/*.orly)
