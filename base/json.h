@@ -33,6 +33,7 @@
 #include <utility>
 #include <vector>
 
+#include <base/likely.h>
 #include <base/thrower.h>
 
 namespace Base {
@@ -127,7 +128,7 @@ namespace Base {
     static std::string ReadQuotedString(std::istream &strm) {
       DEFINE_ERROR(not_implemented_t, TSyntaxError, "not currently implemented");
       std::string text;
-      //NOTE: Tested adding a reserve() call here. Didn't greatly effect compile time
+      text.reserve(64);
 
       // Keep around the old flags so we can put strm back how we found it;
       auto flags = strm.flags(strm.flags() & ~std::ios_base::skipws);
@@ -136,51 +137,53 @@ namespace Base {
         auto read_character = [&strm] () {
           char ret;
           strm >> ret;
-          if (!strm.good()) {
+          if (unlikely(!strm.good())) {
             THROW_ERROR(TSyntaxError) << "Unexpected I/O error while reading string (likely end of string)";
           }
           return ret;
         };
 
-        if (read_character() != '"') {
+        if (unlikely(read_character() != '"')) {
           THROW_ERROR(TSyntaxError) << "Expected '\"' at start of string but didn't find it.";
         }
 
-        // Escape character processing helper. In it's own function to make the core loop simpler.
-        auto get_escape = [&read_character]() {
-          char c = read_character();
-          switch(c) {
-            case '\\':
-              return '\\';
-            case '"':
-              return '"';
-            case '/':
-              return '/';
-            case 'b':
-              return '\b';
-            case 'f':
-              return '\f';
-            case 'n':
-              return '\n';
-            case 'r':
-              return '\r';
-            case 't':
-              return '\t';
-            case 'u':
-              THROW_ERROR(not_implemented_t) << " parsing of unicode escape sequences '\\u four-hex-digits'";
-            default:
-              THROW_ERROR(TSyntaxError) << "Invalid escape sequence '\\" << c << '\'';
-          }
-          assert(false);
-          __builtin_unreachable();
-        };
         // Loop over each input character processing escape sequences and
         while(true) {
           char c = read_character();
           if (c == '"') {
             break;
           } else if (c == '\\') {
-            c = get_escape();
+            c = read_character();
+            switch(c) {
+              case '\\':
+                c = '\\';
+                break;
+              case '"':
+                c = '"';
+                break;
+              case '/':
+                c = '/';
+                break;
+              case 'b':
+                c = '\b';
+                break;
+              case 'f':
+                c = '\f';
+                break;
+              case 'n':
+                c = '\n';
+                break;
+              case 'r':
+                c = '\r';
+                break;
+              case 't':
+                c = '\t';
+                break;
+              case 'u':
+                THROW_ERROR(not_implemented_t) << " parsing of unicode escape sequences '\\u four-hex-digits'";
+              default:
+                THROW_ERROR(TSyntaxError) << "Invalid escape sequence '\\" << c << '\'';
+            }
           }
           text += c;
         }
@@ -198,10 +201,11 @@ namespace Base {
       // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
       // NOTE: null, true, and false are all found by matching raw strings.
       std::string text;
+      text.reserve(64);
       for (;;) {
         int c = strm.peek();
-        if (!strm.good() || isspace(c) || c == '[' || c == '{' || c == '}' || c == ']' || c == ',' || c == ':' ||
-            c == '"') {
+        if (unlikely(!strm.good() || isspace(c) || c == '[' || c == '{' || c == '}' || c == ']' || c == ',' || c == ':' ||
+            c == '"')) {
           break;
         }
         strm.ignore();
