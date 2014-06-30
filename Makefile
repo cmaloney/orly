@@ -4,9 +4,9 @@ PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
 PACKAGE_DIR=$(PREFIX)/packages
 DATA_DIR=$(PREFIX)/data
-RELEASE_OUT=../out/release
+RELEASE_OUT=../out/release/
 #Apps get installed on 'make install'
-ORLY_APPS=orly/orlyc orly/server/orlyi orly/spa/spa orly/client/orly_client orly/indy/disk/util/orly_dm
+ORLY_APPS=orly/orlyc orly/server/orlyi orly/spa/spa orly/client/orly_client orly/indy/disk/util/orly_dm orly/core_import
 ORLY_DATASET_GEN=beer complete_graph game_of_thrones money_laundering belgian_beer friends_of_friends matrix shakespeare twitter twitter_ego
 JHM_CMD=jhm $(JHM_FLAGS)
 .PHONY: apps debug release bootstrap nycr test test_lang clean install
