@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <cassert>
+
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -41,7 +43,7 @@ namespace Orly {
       public:
 
       /* TODO */
-      TCoreVectorGenerator(const std::string &file_name = "out", size_t max_kvs_per_file = 50000)
+      explicit TCoreVectorGenerator(const std::string &file_name = "out", size_t max_kvs_per_file = 50000)
         : Finalized(false),
           IndexId(Base::TUuid::Twister),
           Count(0UL),
