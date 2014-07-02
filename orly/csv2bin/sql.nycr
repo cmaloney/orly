@@ -1,0 +1,46 @@
+/* <orly/csv2bin/sql.nycr>
+
+   TODO
+
+   Copyright 2010-2014 OrlyAtomics, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+create_kwd = '"create"';
+index_kwd  = '"index"';
+table_kwd  = '"table"';
+
+open_paren  = '"("';
+close_paren = '")"';
+
+comma = '","';
+semi  = '";"';
+
+name = '[_a-zA-Z][_a-zA-Z0-9]*' pri 2;
+
+stmt;
+
+create_table_stmt : stmt ->
+    create_kwd table_kwd name open_paren
+    opt_col_def_list
+    close_paren semi;
+
+  opt_col_def_list;
+  no_col_def_list : opt_col_def_list -> empty;
+  col_def_list    : opt_col_def_list -> col_def opt_col_def_list_tail;
+
+  opt_col_def_list_tail;
+  no_col_def_list_tail : opt_col_def_list_tail -> empty;
+  col_def_list_tail    : opt_col_def_list_tail -> comma col_def_list;
+
+  col_def -> name;
