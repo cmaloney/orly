@@ -1,6 +1,6 @@
-/* <orly/csv2bin/sql.nycr>
+/* <orly/csv_to_bin/sql.nycr>
 
-   TODO
+   SQL-like grammar to define CSV importer.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,6 +16,10 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
+/* ------------------------------------------------------------------------
+   Preliminary definitions.
+   ------------------------------------------------------------------------ */
+
 create_kwd = '"create"';
 index_kwd  = '"index"';
 table_kwd  = '"table"';
@@ -27,6 +31,16 @@ comma = '","';
 semi  = '";"';
 
 name = '[_a-zA-Z][_a-zA-Z0-9]*' pri 2;
+
+/* ------------------------------------------------------------------------
+
+   ------------------------------------------------------------------------ */
+
+import_def -> opt_stmt_seq <orly/csv_to_bin>;
+
+  opt_stmt_seq;
+  no_stmt_seq : opt_stmt_seq -> empty;
+  stmt_seq    : opt_stmt_seq -> stmt opt_stmt_seq;
 
 stmt;
 
