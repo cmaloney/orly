@@ -24,6 +24,7 @@
 
 #include <base/class_traits.h>
 #include <base/likely.h>
+#include <gz/output_consumer.h>
 #include <io/binary_output_only_stream.h>
 #include <io/device.h>
 #include <orly/atom/core_vector_builder.h>
@@ -94,9 +95,10 @@ namespace Orly {
       void Flush() {
         assert(Count > 0);
         std::stringstream ss;
-        ss << FileName << "_" << ++FileNum << ".bin";
+        ss << FileName << "_" << ++FileNum << ".bin.gz";
         const std::string fname = ss.str();
-        Io::TBinaryOutputOnlyStream strm(std::make_shared<Io::TDevice>(open(fname.c_str(), O_WRONLY | O_CREAT, 0777)));
+        Io::TBinaryOutputOnlyStream strm(std::make_shared<Gz::TOutputConsumer>(fname.c_str(), "w"));
+        //Io::TBinaryOutputOnlyStream strm(std::make_shared<Io::TDevice>(open(fname.c_str(), O_WRONLY | O_CREAT, 0777)));
         // Here we adjust the transaction count post-hoc. It's the first entry in the core-vector file
         assert(!Builder->GetCores().empty());
         // it's safe to do a const_cast here because we know the first core is a direct-storage int64_t
