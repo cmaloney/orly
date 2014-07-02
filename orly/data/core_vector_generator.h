@@ -100,7 +100,6 @@ namespace Orly {
         ss << FileName << "_" << ++FileNum << ".bin.gz";
         const std::string fname = ss.str();
         Io::TBinaryOutputOnlyStream strm(std::make_shared<Gz::TOutputConsumer>(fname.c_str(), "w"));
-        //Io::TBinaryOutputOnlyStream strm(std::make_shared<Io::TDevice>(open(fname.c_str(), O_WRONLY | O_CREAT, 0777)));
         // Here we adjust the transaction count post-hoc. It's the first entry in the core-vector file
         assert(!Builder->GetCores().empty());
         // it's safe to do a const_cast here because we know the first core is a direct-storage int64_t
