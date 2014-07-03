@@ -41,6 +41,7 @@ static int64_t NumUsers;
 static int64_t NumPlaces;
 static int64_t Phase1ViewPct;
 static int64_t Phase2FriendPct;
+static int64_t Phase2RandomFriendPct;
 static int64_t Phase2MovePct;
 static int64_t Phase3FollowPct;
 static int64_t MaxTrans;
@@ -281,7 +282,8 @@ namespace std {
 
 }
 
-/* some people who received a view will be the requestor of a new friendship, some of those will move to the city that their new friend is from */
+/* some people who received a view will be the requestor of a new friendship, some of those will move to the city that their new friend is from.
+   There are also some random friendships created (as if someone connected with someone they know IRL).*/
 int64_t Phase2(const TTmpFile &view_file, const size_t num_viewed,
                const TTmpFile &lived_file,
                size_t num_lived_in,
@@ -295,6 +297,11 @@ int64_t Phase2(const TTmpFile &view_file, const size_t num_viewed,
   int64_t from_id, to_id;
   std::unordered_multimap<int64_t, int64_t> search_map;
   std::unordered_set<TFriendship> suggested_friendship;
+  for (int64_t i = 0; i < NumUsers; ++i) {
+    if (static_cast<int64_t>(engine() % 100L) < Phase2RandomFriendPct) {
+      suggested_friendship.emplace(i, engine() % NumUsers);
+    }
+  }
   for (size_t i = 0; i < num_viewed; ++i) {
     in_strm.Read(from_id);
     in_strm.Read(to_id);
@@ -353,7 +360,7 @@ int64_t Phase2(const TTmpFile &view_file, const size_t num_viewed,
   return engine();
 }
 
-/* for some friendships that were made from X to Y, and Y to Z, let X view Z */
+/* for some friendships that were made from X to Y, and Y to Z, let X view Y to find out Z exists, and then view Z */
 int64_t Phase3(const TTmpFile &friend_file, const size_t num_friended, Io::TBinaryOutputOnlyStream &view_out_strm, size_t &num_viewed, int64_t seed) {
   assert(Builder);
   std::mt19937 engine(seed);
@@ -381,6 +388,7 @@ int64_t Phase3(const TTmpFile &friend_file, const size_t num_friended, Io::TBina
       auto range = search_map.equal_range(from_id);
       for_each(range.first, range.second, [&](const std::pair<int64_t, int64_t> &so) {
         const int64_t x = so.second;
+        ViewedBy(x, from_id, NextTime());
         ViewedBy(x, to_id, NextTime());
         view_out_strm << x << to_id;
         ++num_viewed;
@@ -398,12 +406,14 @@ class TCmd final
 
   /* Construct with defaults. */
   TCmd()
-      : MaxTrans(250000),
+      : Seed(0L),
+        MaxTrans(250000),
         NumRounds(20),
         NumUsers(10000),
         NumPlaces(26),
         ViewPct(75),
         FriendPct(33),
+        RandomFriendPct(5),
         MovePct(1),
         FollowPct(30) {}
 
@@ -414,12 +424,14 @@ class TCmd final
   }
 
   /* The userbase size */
+  int64_t Seed;
   int64_t MaxTrans;
   int64_t NumRounds;
   int64_t NumUsers;
   int64_t NumPlaces;
   int64_t ViewPct;
   int64_t FriendPct;
+  int64_t RandomFriendPct;
   int64_t MovePct;
   int64_t FollowPct;
 
@@ -433,6 +445,10 @@ class TCmd final
     /* Registers our fields. */
     TMeta()
         : Base::TLog::TCmd::TMeta("Orly social graph synthetic data generator") {
+      Param(
+          &TCmd::Seed, "seed", Optional, "seed\0s\0",
+          "The seed used to generate the dataset. Use this to get a reproducable data-set."
+      );
       Param(
           &TCmd::MaxTrans, "max-trans-per-file", Optional, "max-trans-per-file\0mtpf\0",
           "The maximum number of transactions per output file. This is dependent on how many slots you have in the Orly server."
@@ -458,6 +474,10 @@ class TCmd final
           "(Per Round) The percentage of users that initiate a friendship when viewed."
       );
       Param(
+          &TCmd::RandomFriendPct, "random-friend-pct", Optional, "random-friend-pct\0rfp\0",
+          "(Per Round) The percentage of users that initiate a random friendship (as if connecting with someone they know IRL)."
+      );
+      Param(
           &TCmd::MovePct, "move-pct", Optional, "move-pct\0mp\0",
           "(Per Round) The percentage of users that move because of a friendship."
       );
@@ -480,12 +500,13 @@ int main(int argc, char *argv[]) {
   NumPlaces = cmd.NumPlaces;
   Phase1ViewPct = cmd.ViewPct;
   Phase2FriendPct = cmd.FriendPct;
+  Phase2RandomFriendPct = cmd.RandomFriendPct;
   Phase2MovePct = cmd.MovePct;
   Phase3FollowPct = cmd.FollowPct;
   LastTime = CreateTimePnt(2000, 1, 1, 0, 0, 0, 0, 0);
   std::cout << "Start Time [" << LastTime << "]" << std::endl;
   InitBuilder();
-  int64_t seed = 0;
+  int64_t seed = cmd.Seed;
   /* phase 1: */
   size_t num_viewed_p1 = 0UL;
   size_t num_lived_p1 = 0UL;
