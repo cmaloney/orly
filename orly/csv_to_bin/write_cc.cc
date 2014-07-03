@@ -68,13 +68,16 @@ void WriteForEachRecord(ostream &strm, const Symbol::TTable *table) {
     strm << " v_" << col->GetName() << ";" << endl;
     return true;
   });
-  strm << "while (input.AtRecord()) {" << endl
+  strm << "size_t ln = 1UL;" << endl
+    << "while (input.AtRecord()) {" << endl
+    << "try {" << endl
+    << "bool err = false;" << endl
     << "input >> StartOfRecord;" << endl;
   table->ForEachCol([&](const Symbol::TCol *col) -> bool {
-    strm << "CheckAtField(input);" << endl
-      << "input >> StartOfField >> v_" << col->GetName() << " >> EndOfField;" << endl;
+    strm << "GetVal(input, v_" << col->GetName() << ", err);" << endl;
     return true;
   });
+  strm << "if (!err) {" << endl;
   // push the primary key
   const Symbol::TKey *pk = table->GetPrimaryKey();
   WritePushKey(strm, table, pk, "Primary");
@@ -83,7 +86,16 @@ void WriteForEachRecord(ostream &strm, const Symbol::TTable *table) {
     WritePushKey(strm, table, key, key->GetName().c_str());
     return true;
   });
-  strm << "input >> EndOfRecord;" << endl
+  strm << "} else {" << endl
+    << "printf(\"skipping line [%ld]\\n\", ln);" << endl
+    << "syslog(LOG_INFO, \"skipping line [%ld]\\n\", ln);" << endl
+    << "}" << endl
+    << "input >> EndOfRecord;" << endl
+    << "} catch (const std::exception &e) {" << endl
+    << "std::cerr << \"caught exception [\" << e.what() << \"] on line [\" << ln << \"]\" << std::endl;" << endl
+    << "throw e;" << endl
+    << "}" << endl
+    << "++ln;" << endl
     << "}" << endl;
 }
 
@@ -91,20 +103,31 @@ void Orly::CsvToBin::WriteCc(ostream &strm, const Symbol::TTable *table) {
   assert(&strm);
   assert(table);
   strm
+      << "#include <syslog.h>" << endl
+      << "#include <base/opt.h>" << endl
       << "#include <orly/csv_to_bin/level3.h>" << endl
       << "#include <orly/csv_to_bin/symbol/kit.h>" << endl
       << "#include <orly/csv_to_bin/translate.h>" << endl
       << "#include <orly/data/core_vector_generator.h>" << endl
-      << "#include <orly/desc.h>" << endl
-      << "#include <orly/rt/opt.h>" << endl << endl
+      << "#include <orly/desc.h>" << endl << endl
       << "using namespace Orly;" << endl
       << "using namespace Orly::CsvToBin;" << endl
-      << "using namespace Orly::Data;" << endl;
-  strm << "inline void CheckAtField(TLevel3 &input) {" << endl
-    << "  if (unlikely(!input.AtField())) {" << endl
-    << "    throw std::runtime_error(\"SQL statement does not match csv input\");" << endl
-    << "  }" << endl
-    << "}" << endl;
+      << "using namespace Orly::Data;" << endl
+      << "inline void CheckAtField(TLevel3 &input) {" << endl
+      << "  if (unlikely(!input.AtField())) {" << endl
+      << "    throw std::runtime_error(\"SQL statement does not match csv input\");" << endl
+      << "  }" << endl
+      << "}" << endl
+      << "template <typename TVal>" << endl
+      << "inline void GetVal(TLevel3 &input, TVal &val, bool &err) {" << endl
+      << "CheckAtField(input);" << endl
+      << "try {" << endl
+      << "input >> StartOfField >> val >> EndOfField;" << endl
+      << "} catch (const std::exception &e) {" << endl
+      << "err = true;" << endl
+      << "input >> EndOfField;" << endl
+      << "}" << endl
+      << "}" << endl;
   // write out the primary key's Val struct (if required)
   const Symbol::TKey *pk = table->GetPrimaryKey();
   if (KeyRequiresStruct(table, pk)) {
@@ -214,7 +237,7 @@ void Orly::CsvToBin::DefKeyTupleType(std::ostream &strm, const Symbol::TKey *key
 
 void Orly::CsvToBin::PrintType(std::ostream &strm, Symbol::TType type, bool is_null) {
   if (is_null) {
-    strm << "Rt::TOpt<";
+    strm << "Base::TOpt<";
   }
   switch (type) {
     case Symbol::TType::Bool: {
