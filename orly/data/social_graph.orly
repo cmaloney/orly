@@ -1,0 +1,201 @@
+/* friendship:
+   <[friendship_id (enum int), from_uid (int), to_uid (int)]> <- since (time_pnt)
+   <[friendship_id (enum int), to_uid (int), from_uid (int)]> <- since (time_pnt)
+*/
+ 
+/* lived in:
+   <[lived_in_id (enum int), uid (int), since (desc<time_pnt>), place_id (int)]> <- unused (bool)
+   <[population_id (enum int), place_id (int), since (time_point), uid (int)]> <- unused (bool)
+*/
+ 
+/* played game against:
+   <[played_game_id (enum int), from_uid (int), to_uid (int), game_id (int), date (desc<time_pnt>)]> <- unused (bool)
+   <[games_id (enum int), game_id (int), date (time_pnt)]> <- <[from_uid (int), to_uid (int)]>
+*/
+ 
+/* comment:
+   <[commented_to_id (enum_int), from_uid (int), to_uid (int), date (time_pnt)]> <- comment (str)
+   <[commented_time_id (enum_int), from_uid (int), date (Desc<time_pnt>), to_uid (int)]> <- comment (str)
+   <[received_comment_from_id (enum_int), to_uid (int), from_uid (int), date (time_pnt)]> <- comment (str)
+   <[received_comment_time_id (enum_int), to_uid (int), date (Desc<time_pnt>), from_uid (int)]> <- comment (str)
+*/
+ 
+/* viewed:
+   <[viewed_to_id (enum_int), from_uid (int), to_uid (int), date (time_pnt)]> <- unused (bool)
+   <[viewed_time_id (enum_int), from_uid (int), date (Desc<time_pnt>), to_uid (int)]> <- unused (bool)
+   <[received_view_from_id (enum_int), to_uid (int), from_uid (int), date (time_pnt)]> <- unused (bool)
+   <[received_view_time_id (enum_int), to_uid (int), date (Desc<time_pnt>), from_uid (int)]> <- unused (bool)
+*/
+
+/*
+friendship_id = 0;
+lived_in_id = 1;
+population_id = 2;
+played_game_id = 3;
+games_id = 4;
+commented_to_id = 5;
+commented_time_id = 6;
+received_comment_from_id = 7;
+received_comment_time_id = 8;
+viewed_to_id = 9;
+viewed_time_id = 10;
+received_view_from_id = 11;
+received_view_time_id = 12;
+*/
+
+edge_t is <{.type: str, .source: int, .target: int}>;
+
+/* get_graph :: (edges::[<[str, int, int]>]) -> [<{.type: str, .data: [edge_t]}>]
+ 
+   Transform a list of edges of type <[str, int, int]> into a graph format 
+   acceptable by the js client. */
+get_graph = (<{.type: "graph", 
+               .data: format(.edge: **edges) as [edge_t]}>) where {
+  edges = given::([<[str, int, int]>]);
+  format = (<{.type: edge.0, .source: edge.1, .target: edge.2}>) where {
+    edge = given::(<[str, int, int]>);
+  };
+};
+
+/* get_friend_subgraph :: (users::{int}) -> [<[str, int, int]>]
+ 
+   Take a set of users and populate a list of 'friends' edges involving only 
+   the users in the set. */
+get_friend_subgraph = 
+    (get_friends_within(.user: **users)
+     reduce start(empty [<[str, int, int]>]) + that) where {
+  users = given::({int});
+  get_friends_within = 
+    ((keys (time_pnt) @ <["friends", user, free::(int)]> if that.2 in users)
+     as [<[str, int, int]>]) where {
+    user = given::(int);
+  };
+};
+
+/* get_n_degrees_before_recur ::
+   (users::{int}, degrees::int, before::time_pnt, visited::{int}) -> {int}
+ 
+   get_n_degrees_before is a wrapper around this to initiate the recursion. */
+get_n_degrees_before_recur = 
+    ((users
+      if degrees == 0 else
+      users | get_n_degrees_before_recur(
+                .users: next - next_visited,
+                .before: before,
+                .degrees: degrees - 1,
+                .visited: next_visited))) where {
+  users = given::({int});
+  degrees = given::(int);
+  before = given::(time_pnt);
+  visited = given::({int});
+  /* get_friends_before :: (user::int, before::time_pnt) -> {int} */
+  get_friends_before = 
+      ((keys (time_pnt) @ <["friends", user, free::(int)]>
+        if *that::(time_pnt) < before).2 as {int}) where {
+    user = given::(int);
+    before = given::(time_pnt);
+  };
+  next = (get_friends_before(.user: **users, .before: before)
+          reduce start(empty {int}) | that);
+  next_visited = visited | users;
+};
+
+/* get_n_degrees_before :: 
+   (user::int, degrees::int, before::time_pnt) -> {int}
+ 
+   Return a set of users within N degrees of friendships established before 
+   the given time point from 'user'. */
+get_n_degrees_before = 
+    (get_n_degrees_before_recur(.users: {user},
+                                .degrees: degrees,
+                                .before: before,
+                                .visited: empty {int})) where {
+  user = given::(int);
+  degrees = given::(int);
+  before = given::(time_pnt);
+};
+
+with {
+  <["friends", 0, 1]> <- {2005-01-24T00:00:00-07:00};
+  <["friends", 1, 0]> <- {2005-01-24T00:00:00-07:00};
+  <["friends", 0, 2]> <- {2006-04-27T00:00:00-07:00};
+  <["friends", 2, 0]> <- {2006-04-27T00:00:00-07:00};
+  <["friends", 0, 3]> <- {2007-08-12T00:00:00-07:00};
+  <["friends", 3, 0]> <- {2007-08-12T00:00:00-07:00};
+  <["friends", 1, 2]> <- {2009-02-30T00:00:00-07:00};
+  <["friends", 2, 1]> <- {2009-02-30T00:00:00-07:00};
+  <["friends", 1, 3]> <- {2003-03-02T00:00:00-07:00};
+  <["friends", 3, 1]> <- {2003-03-02T00:00:00-07:00};
+  <["friends", 1, 4]> <- {2006-07-15T00:00:00-07:00};
+  <["friends", 4, 1]> <- {2006-07-15T00:00:00-07:00};
+} test {
+  **get_friend_subgraph(.users: {0, 1, 2}) as {<[str, int, int]>} ==
+  {<["friends", 0, 1]>,
+   <["friends", 1, 0]>,
+   <["friends", 0, 2]>,
+   <["friends", 2, 0]>,
+   <["friends", 1, 2]>,
+   <["friends", 2, 1]>};
+  get_n_degrees_before(.user: 0, 
+                       .degrees: 2,
+                       .before: {2007-01-01T00:00:00Z}) == {0, 1, 2, 3, 4};
+  **get_friend_subgraph(.users: {0, 1, 2, 3, 4}) as {<[str, int, int]>} ==
+  {<["friends", 0, 1]>,
+   <["friends", 1, 0]>,
+   <["friends", 0, 2]>,
+   <["friends", 2, 0]>,
+   <["friends", 0, 3]>,
+   <["friends", 3, 0]>,
+   <["friends", 1, 2]>,
+   <["friends", 2, 1]>,
+   <["friends", 1, 3]>,
+   <["friends", 3, 1]>,
+   <["friends", 1, 4]>,
+   <["friends", 4, 1]>};
+};
+
+/* get_population :: (place::str, time::time_pnt) -> {int}
+ 
+   Returns the set of users who are living at 'place' at 'time'. */
+get_population = (users as {int}) where {
+  place = given::(str);
+  time = given::(time_pnt);
+  try_get_place = ((unknown str if opt_place is empty else opt_place[0])) where {
+    user = given::(int);
+    places = 
+        (keys (bool) @ <["lived_in", user, desc free::(time_pnt), free::(str)]>
+        if that.2 < time).3;
+    opt_place = (places take 1) as [str];
+  };
+  users = (keys (bool) @ <["population", place, free::(time_pnt), free::(int)]>
+         if that.2 < time and 
+            (try_get_place(.user: that.3) == place) is known true).3;
+};
+
+with {
+  <["lived_in", 0, desc {2005-01-24T00:00:00-07:00}, "San Francisco"]> <- true;
+  <["lived_in", 0, desc {2006-05-28T00:00:00-07:00}, "Palo Alto"]> <- true;
+  <["lived_in", 1, desc {2007-08-12T00:00:00-07:00}, "San Francisco"]> <- true;
+  <["lived_in", 2, desc {2009-02-30T00:00:00-07:00}, "San Francisco"]> <- true;
+  <["lived_in", 3, desc {2006-04-27T00:00:00-07:00}, "San Francisco"]> <- true;
+  <["lived_in", 4, desc {2007-10-13T00:00:00-07:00}, "San Francisco"]> <- true;
+  <["lived_in", 5, desc {2003-03-02T00:00:00-07:00}, "San Francisco"]> <- true;
+  <["lived_in", 6, desc {2006-12-23T00:00:00-07:00}, "San Francisco"]> <- true;
+  <["lived_in", 7, desc {2003-09-04T00:00:00-07:00}, "San Francisco"]> <- true;
+  <["population", "San Francisco", {2005-01-24T00:00:00-07:00}, 0]> <- true;
+  <["population", "San Francisco", {2007-08-12T00:00:00-07:00}, 1]> <- true;
+  <["population", "San Francisco", {2009-02-30T00:00:00-07:00}, 2]> <- true;
+  <["population", "San Francisco", {2006-04-27T00:00:00-07:00}, 3]> <- true;
+  <["population", "San Francisco", {2007-10-13T00:00:00-07:00}, 4]> <- true;
+  <["population", "San Francisco", {2003-03-02T00:00:00-07:00}, 5]> <- true;
+  <["population", "San Francisco", {2006-12-23T00:00:00-07:00}, 6]> <- true;
+  <["population", "San Francisco", {2003-09-04T00:00:00-07:00}, 7]> <- true;
+  <["population", "Palo Alto", {2006-05-28T00:00:00-07:00}, 0]> <- true;
+} test {
+  get_population(.place: "San Francisco", 
+                 .time: {2004-01-01T00:00:00Z}) == {5, 7};
+  get_population(.place: "San Francisco", 
+                 .time: {2007-01-01T00:00:00Z}) == {3, 5, 6, 7};
+  get_population(.place: "San Francisco", 
+                 .time: {2010-01-01T00:00:00Z}) == {1, 2, 3, 4, 5, 6, 7};
+};
