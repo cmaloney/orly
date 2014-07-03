@@ -75,6 +75,9 @@ const TSecondaryKey *TTable::TryFindSecondaryKey(const string &name) const {
 
 void TTable::Verify() const {
   assert(this);
+  if (Cols.empty()) {
+    THROW_ERROR(TSemanticError) << "no columns defined";
+  }
   if (!PrimaryKey) {
     THROW_ERROR(TSemanticError) << "no primary key defined";
   }
