@@ -26,6 +26,7 @@
 
 #include <base/glob.h>
 #include <base/regex_matcher.h>
+#include <gz/output_consumer.h>
 #include <io/binary_output_only_stream.h>
 #include <io/device.h>
 #include <orly/atom/core_vector_builder.h>
@@ -390,12 +391,12 @@ int main(int argc, char *argv[]) {
     }
     std::string::size_type dot_pos = new_file_name.rfind('.');
     if (dot_pos != std::string::npos) {
-      new_file_name = new_file_name.substr(0, dot_pos) + ".bin";
+      new_file_name = new_file_name.substr(0, dot_pos) + ".bin.gz";
     } else {
-      new_file_name = new_file_name + ".bin";
+      new_file_name = new_file_name + ".bin.gz";
     }
     printf("generating output file [%s]\n", new_file_name.c_str());
-    Io::TBinaryOutputOnlyStream strm(make_shared<Io::TDevice>(open(new_file_name.c_str(), O_WRONLY | O_CREAT, 0777)));
+    Io::TBinaryOutputOnlyStream strm(std::make_shared<Gz::TOutputConsumer>(new_file_name.c_str(), "w"));
     builder.Write(strm);
   }
   return EXIT_SUCCESS;
