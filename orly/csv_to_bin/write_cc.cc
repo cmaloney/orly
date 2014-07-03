@@ -72,7 +72,7 @@ void WriteForEachRecord(ostream &strm, const Symbol::TTable *table) {
     << "input >> StartOfRecord;" << endl;
   table->ForEachCol([&](const Symbol::TCol *col) -> bool {
     strm << "CheckAtField(input);" << endl
-      << "input >> v_" << col->GetName() << ";" << endl;
+      << "input >> StartOfField >> v_" << col->GetName() << " >> EndOfField;" << endl;
     return true;
   });
   // push the primary key
