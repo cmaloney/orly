@@ -759,6 +759,8 @@ inline void word_mask_exact(uint8_t* data, size_t length, const
     word_mask_exact(data,data,length,key);
 }
 
+#pragma GCC push_options
+#pragma GCC optimize "0"
 /// Circular word aligned mask/unmask
 /**
  * Performs a circular mask/unmask in word sized chunks using pre-prepared keys
@@ -812,6 +814,7 @@ inline size_t word_mask_circ(uint8_t * input, uint8_t * output, size_t length,
 
     return circshift_prepared_key(prepared_key,l);
 }
+#pragma GCC pop_options
 
 /// Circular word aligned mask/unmask (in place)
 /**
