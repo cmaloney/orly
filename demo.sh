@@ -32,7 +32,7 @@ case $DATASET in
   "friends_of_friends") ;;
   "matrix") ;;
   "shakespeare") ;;
-  "twitter") DATA_FILE="twitter0[0-6].bin" ;;
+  "twitter") DATA_FILE="twitter0[0-6].bin.gz" ;;
   "twitter_ego") DATA_FILE="twitter-ego[0-9].bin" ;;
   *) usage
 esac
@@ -47,7 +47,7 @@ FILENAME="$DATA_DIR/$DATA_FILE"
 
 NUM_FILES=1
 if [ "$DATASET" = "twitter" ]; then
-  for twitter_datafile in "twitter0"{0..6}".bin"
+  for twitter_datafile in "twitter0"{0..6}".bin.gz"
   do
     TWITTER_FILENAME="$DATA_DIR/$twitter_datafile"
     echo $TWITTER_FILENAME
