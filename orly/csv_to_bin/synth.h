@@ -1,6 +1,7 @@
-/* <orly/csv_to_bin/gen_importer.h>
+/* <orly/csv_to_bin/synth.h>
 
-   Generates C++ code for a CSV importer.
+   Construct a new table symbol (along with its columns and keys) from
+   an SQL-like source text.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -18,12 +19,20 @@
 
 #pragma once
 
+#include <memory>
+#include <ostream>
+
+#include <orly/csv_to_bin/symbol/kit.h>
+
 namespace Orly {
 
   namespace CsvToBin {
 
-    /* TODO */
-    void GenImporter();
+    /* Construct a new table symbol (along with its columns and keys) from
+       an SQL-like source text.  If there are errors, write the diagnostic
+       messages to the given stream and return null. */
+    std::unique_ptr<Symbol::TTable> NewTable(
+        std::ostream &strm, const char *src_text);
 
   }  // Csv2Bin
 
