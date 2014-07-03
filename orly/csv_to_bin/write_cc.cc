@@ -33,7 +33,7 @@ void WritePushKey(ostream &strm, const Symbol::TTable *table, const Symbol::TKey
   for (const auto &field : fields) {
     if (field.Order == Symbol::TKey::Desc) {
       strm << "TDesc<";
-      PrintType(strm, field.Col->GetType());
+      PrintType(strm, field.Col->GetType(), field.Col->IsNull());
       strm << ">";
     }
     strm << "(v_" << field.Col->GetName() << ")";
@@ -64,7 +64,7 @@ void WritePushKey(ostream &strm, const Symbol::TTable *table, const Symbol::TKey
 
 void WriteForEachRecord(ostream &strm, const Symbol::TTable *table) {
   table->ForEachCol([&](const Symbol::TCol *col) -> bool {
-    PrintType(strm, col->GetType());
+    PrintType(strm, col->GetType(), col->IsNull());
     strm << " v_" << col->GetName() << ";" << endl;
     return true;
   });
@@ -95,7 +95,8 @@ void Orly::CsvToBin::WriteCc(ostream &strm, const Symbol::TTable *table) {
       << "#include <orly/csv_to_bin/symbol/kit.h>" << endl
       << "#include <orly/csv_to_bin/translate.h>" << endl
       << "#include <orly/data/core_vector_generator.h>" << endl
-      << "#include <orly/desc.h>" << endl << endl
+      << "#include <orly/desc.h>" << endl
+      << "#include <orly/rt/opt.h>" << endl << endl
       << "using namespace Orly;" << endl
       << "using namespace Orly::CsvToBin;" << endl
       << "using namespace Orly::Data;" << endl;
@@ -153,7 +154,7 @@ void Orly::CsvToBin::WriteValRecordForKey(std::ostream &strm, const Symbol::TTab
   for (size_t i = 0; i < col_vec.size(); ++i) {
     const Symbol::TCol *col = col_vec[i];
     strm << "const ";
-    PrintType(strm, col->GetType());
+    PrintType(strm, col->GetType(), col->IsNull());
     strm << " &v" << i;
     if (i < col_vec.size() - 1) {
       strm << ", ";
@@ -169,13 +170,13 @@ void Orly::CsvToBin::WriteValRecordForKey(std::ostream &strm, const Symbol::TTab
   }
   strm << " {}" << endl;
   for (auto col : col_vec) {
-    PrintType(strm, col->GetType());
+    PrintType(strm, col->GetType(), col->IsNull());
     strm << " " << col->GetName() << ";" << endl;
   }
   strm << "};" << endl;
   for (auto col : col_vec) {
     strm << "RECORD_ELEM(TVal" << name << ", ";
-    PrintType(strm, col->GetType());
+    PrintType(strm, col->GetType(), col->IsNull());
     strm << ", " << col->GetName() << ");" << endl;
   }
 }
@@ -191,7 +192,7 @@ void Orly::CsvToBin::WriteKeyTupleType(std::ostream &strm, const Symbol::TKey *k
     if (desc) {
       strm << "TDesc<";
     }
-    PrintType(strm, fields[i].Col->GetType());
+    PrintType(strm, fields[i].Col->GetType(), fields[i].Col->IsNull());
     if (desc) {
       strm << ">";
     }
@@ -211,7 +212,10 @@ void Orly::CsvToBin::DefKeyTupleType(std::ostream &strm, const Symbol::TKey *key
   strm << ";" << endl;
 }
 
-void Orly::CsvToBin::PrintType(std::ostream &strm, Symbol::TType type) {
+void Orly::CsvToBin::PrintType(std::ostream &strm, Symbol::TType type, bool is_null) {
+  if (is_null) {
+    strm << "Rt::TOpt<";
+  }
   switch (type) {
     case Symbol::TType::Bool: {
       strm << "bool";
@@ -237,8 +241,8 @@ void Orly::CsvToBin::PrintType(std::ostream &strm, Symbol::TType type) {
       strm << "Base::Chrono::TTimePnt";
       break;
     }
-    case Symbol::TType::TimeDiff: {
-      throw std::runtime_error("This type needs to be remove");
-    }
+  }
+  if (is_null) {
+    strm << ">";
   }
 }

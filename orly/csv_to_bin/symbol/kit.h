@@ -40,7 +40,7 @@ namespace Orly {
 
       /* The types of columns we accept.  This is a subset of Orly. */
       enum class TType {
-        Bool, Id, Int, Real, Str, TimeDiff, TimePnt
+        Bool, Id, Int, Real, Str, TimePnt
       };
 
       /* Forward-declared for the benefit of TTable. */

@@ -39,7 +39,7 @@ namespace Orly {
     void DefKeyTupleType(std::ostream &strm, const Symbol::TKey *key, const char *name);
 
     /* Write C++ type for the given Symbol type. */
-    void PrintType(std::ostream &strm, Symbol::TType type);
+    void PrintType(std::ostream &strm, Symbol::TType type, bool is_null);
 
   }  // Csv2Bin
 

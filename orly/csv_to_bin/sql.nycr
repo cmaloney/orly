@@ -36,7 +36,6 @@ id_kwd        = '"id"';
 int_kwd       = '"int"';
 real_kwd      = '"real"';
 str_kwd       = '"str"';
-time_diff_kwd = '"time_diff"';
 time_pnt_kwd  = '"time_pnt"';
 
 table -> def_seq <orly/csv_to_bin/syntax>;
@@ -75,5 +74,4 @@ id_type        : type -> id_kwd;
 int_type       : type -> int_kwd;
 real_type      : type -> real_kwd;
 str_type       : type -> str_kwd;
-time_diff_type : type -> time_diff_kwd;
 time_pnt_type  : type -> time_pnt_kwd;

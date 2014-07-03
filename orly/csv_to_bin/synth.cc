@@ -90,7 +90,6 @@ static Symbol::TType TranslateType(const Syntax::TType *that) {
     virtual void operator()(const Syntax::TStrType      *) const override { TypeSymbol = Symbol::TType::Str     ; }
     virtual void operator()(const Syntax::TRealType     *) const override { TypeSymbol = Symbol::TType::Real    ; }
     virtual void operator()(const Syntax::TIntType      *) const override { TypeSymbol = Symbol::TType::Int     ; }
-    virtual void operator()(const Syntax::TTimeDiffType *) const override { TypeSymbol = Symbol::TType::TimeDiff; }
     virtual void operator()(const Syntax::TIdType       *) const override { TypeSymbol = Symbol::TType::Id      ; }
     virtual void operator()(const Syntax::TBoolType     *) const override { TypeSymbol = Symbol::TType::Bool    ; }
   };
