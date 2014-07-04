@@ -1,4 +1,4 @@
-/* <orly/csv_to_bin/in.h>
+/* <orly/csv_to_bin/level1.h>
 
    An input consumer that translates CSV level-1 syntax.
 
@@ -35,7 +35,7 @@ namespace Orly {
   namespace CsvToBin {
 
     /* An input consumer that translates CSV level-1 syntax. */
-    class TIn final
+    class TLevel1 final
         : public Strm::In::TCons {
       public:
 
@@ -51,13 +51,13 @@ namespace Orly {
         /* If true, LF is an EOL; otherwise, CRLF is an EOL. */
         bool UnixEol;
 
-      };  // TIn::TOptions
+      };  // TLevel1::TOptions
 
       /* The default options use comma, quote, and CRLF. */
       static const TOptions DefaultOptions;
 
-      /* What kind of data do we have?  */
-      enum TKind {
+      /* Describes our position in the parse. */
+      enum TState {
 
         /* Just a byte, no particular meaning. */
         Byte,
@@ -71,23 +71,23 @@ namespace Orly {
         /* An end-of-file marker, such as a lack of any more bytes. */
         EndOfFile
 
-      };  // TIn::TKind
+      };  // TLevel1::TState
 
       /* The type of our cache, which we expose via the dereferencing
          operators. */
       struct TCache {
 
-        /* See TKind. */
-        TKind Kind;
+        /* See TState. */
+        TState State;
 
-        /* If Kind is Byte, this is the byte; otherwise, this is junk. */
+        /* If State is Byte, this is the byte; otherwise, this is junk. */
         uint8_t Byte;
 
-      };  // TIn::TCache
+      };  // TLevel1::TCache
 
       /* Attaches to the given producer and uses the given options for
          parsing. */
-      explicit TIn(
+      explicit TLevel1(
             Strm::In::TProd *prod, const TOptions &options = DefaultOptions)
           : TCons(prod), Options(options), IsCached(false), Quoted(false) {}
 
@@ -106,7 +106,7 @@ namespace Orly {
       }
 
       /* Dump our cached state and advance. */
-      TIn &operator++() {
+      TLevel1 &operator++() {
         assert(this);
         Refresh();
         IsCached = false;
@@ -119,7 +119,7 @@ namespace Orly {
       void Refresh() const {
         assert(this);
         if (!IsCached) {
-          const_cast<TIn *>(this)->Update();
+          const_cast<TLevel1 *>(this)->Update();
           IsCached = true;
         }
       }
@@ -139,7 +139,7 @@ namespace Orly {
       /* True when we're inside of a quoted range. */
       bool Quoted;
 
-    };  // TIn
+    };  // TLevel1
 
   }  // Csv2Bin
 

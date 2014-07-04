@@ -1,22 +1,22 @@
-/* <orly/csv_to_bin/in.test.cc>
+/* <orly/csv_to_bin/level1.test.cc>
 
-   Unit test for <orly/csv_to_bin/in.h>.
+   Unit test for <orly/csv_to_bin/level1.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
+   you may not use this file except strm compliance with the License.
    You may obtain a copy of the License at
 
      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
+   Unless required by applicable law or agreed to strm writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <orly/csv_to_bin/in.h>
+#include <orly/csv_to_bin/level1.h>
 
 #include <strm/mem/static_in.h>
 #include <test/kit.h>
@@ -26,84 +26,84 @@ using namespace Orly::CsvToBin;
 
 using Strm::Mem::TStaticIn;
 
-static const TIn::TOptions Simple = { ',', '\'', true };
+static const TLevel1::TOptions Simple = { ',', '\'', true };
 
 FIXTURE(Empty) {
   TStaticIn mem;
-  TIn in(&mem);
-  EXPECT_TRUE(in->Kind == TIn::EndOfFile);
+  TLevel1 strm(&mem);
+  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
 }
 
 FIXTURE(AlmostEmpty) {
   TStaticIn mem("x");
-  TIn in(&mem);
-  EXPECT_TRUE(in->Kind == TIn::Byte);
-  EXPECT_TRUE(in->Byte == u'x');
-  ++in;
-  EXPECT_TRUE(in->Kind == TIn::EndOfFile);
+  TLevel1 strm(&mem);
+  EXPECT_TRUE(strm->State == TLevel1::Byte);
+  EXPECT_TRUE(strm->Byte == u'x');
+  ++strm;
+  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
 }
 
 FIXTURE(JustDelim) {
   TStaticIn mem(",");
-  TIn in(&mem);
-  EXPECT_TRUE(in->Kind == TIn::EndOfField);
-  ++in;
-  EXPECT_TRUE(in->Kind == TIn::EndOfFile);
+  TLevel1 strm(&mem);
+  EXPECT_TRUE(strm->State == TLevel1::EndOfField);
+  ++strm;
+  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
 }
 
 FIXTURE(JustEol) {
   TStaticIn mem("\r\n");
-  TIn in(&mem);
-  EXPECT_TRUE(in->Kind == TIn::EndOfRecord);
-  ++in;
-  EXPECT_TRUE(in->Kind == TIn::EndOfFile);
+  TLevel1 strm(&mem);
+  EXPECT_TRUE(strm->State == TLevel1::EndOfRecord);
+  ++strm;
+  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
 }
 
 FIXTURE(JustUnixEol) {
   TStaticIn mem("\n");
-  TIn in(&mem, Simple);
-  EXPECT_TRUE(in->Kind == TIn::EndOfRecord);
-  ++in;
-  EXPECT_TRUE(in->Kind == TIn::EndOfFile);
+  TLevel1 strm(&mem, Simple);
+  EXPECT_TRUE(strm->State == TLevel1::EndOfRecord);
+  ++strm;
+  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
 }
 
 FIXTURE(QuotedDelim) {
   TStaticIn mem("','");
-  TIn in(&mem, Simple);
-  EXPECT_TRUE(in->Kind == TIn::Byte);
-  EXPECT_TRUE(in->Byte == u',');
-  ++in;
-  EXPECT_TRUE(in->Kind == TIn::EndOfFile);
+  TLevel1 strm(&mem, Simple);
+  EXPECT_TRUE(strm->State == TLevel1::Byte);
+  EXPECT_TRUE(strm->Byte == u',');
+  ++strm;
+  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
 }
 
 FIXTURE(QuotedEol) {
   TStaticIn mem("'\r\n'");
-  TIn in(&mem, Simple);
-  EXPECT_TRUE(in->Kind == TIn::Byte);
-  EXPECT_TRUE(in->Byte == u'\r');
-  ++in;
-  EXPECT_TRUE(in->Byte == u'\n');
-  ++in;
-  EXPECT_TRUE(in->Kind == TIn::EndOfFile);
+  TLevel1 strm(&mem, Simple);
+  EXPECT_TRUE(strm->State == TLevel1::Byte);
+  EXPECT_TRUE(strm->Byte == u'\r');
+  ++strm;
+  EXPECT_TRUE(strm->Byte == u'\n');
+  ++strm;
+  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
 }
 
 FIXTURE(QuotedUnixEol) {
   TStaticIn mem("'\n'");
-  TIn in(&mem, Simple);
-  EXPECT_TRUE(in->Kind == TIn::Byte);
-  EXPECT_TRUE(in->Byte == u'\n');
-  ++in;
-  EXPECT_TRUE(in->Kind == TIn::EndOfFile);
+  TLevel1 strm(&mem, Simple);
+  EXPECT_TRUE(strm->State == TLevel1::Byte);
+  EXPECT_TRUE(strm->Byte == u'\n');
+  ++strm;
+  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
 }
 
 FIXTURE(Typical) {
   vector<vector<string>> table;
   TStaticIn mem("hello,'doctor,name',\ncontinue,'''yesterday''',tomorrow");
-  TIn in(&mem, Simple);
+  TLevel1 strm(&mem, Simple);
   bool keep_going = true;
   do {
-    switch (in->Kind) {
-      case TIn::Byte: {
+    switch (strm->State) {
+      case TLevel1::Byte: {
         if (table.empty()) {
           table.push_back(vector<string>());
         }
@@ -112,10 +112,10 @@ FIXTURE(Typical) {
           record.push_back(string());
         }
         auto &field = record.back();
-        field += in->Byte;
+        field += strm->Byte;
         break;
       }
-      case TIn::EndOfField: {
+      case TLevel1::EndOfField: {
         if (table.empty()) {
           table.push_back(vector<string>());
         }
@@ -123,16 +123,16 @@ FIXTURE(Typical) {
         record.push_back(string());
         break;
       }
-      case TIn::EndOfRecord: {
+      case TLevel1::EndOfRecord: {
         table.push_back(vector<string>());
         break;
       }
-      case TIn::EndOfFile: {
+      case TLevel1::EndOfFile: {
         keep_going = false;
         break;
       }
     }
-    ++in;
+    ++strm;
   } while (keep_going);
   if (EXPECT_EQ(table.size(), 2u)) {
     if (EXPECT_EQ(table[0].size(), 3u)) {
