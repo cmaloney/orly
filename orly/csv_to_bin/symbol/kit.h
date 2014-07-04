@@ -89,16 +89,7 @@ namespace Orly {
             const std::function<bool (const TCol *)> &cb, const TKey *key) const;
 
         /* Returns the number of columns not covered by the given key. */
-        size_t NumColNotCoveredByKey(const TKey *key) const {
-          assert(this);
-          assert(key);
-          size_t n = 0UL;
-          ForEachColNotInKey([&](const TCol *) -> bool {
-            ++n;
-            return true;
-          }, key);
-          return n;
-        }
+        size_t NumColNotCoveredByKey(const TKey *key) const;
 
         /* Call back for each secondary key. */
         bool ForEachSecondaryKey(
