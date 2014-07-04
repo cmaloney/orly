@@ -160,3 +160,39 @@ void TLevel2::Update() {
     }
   }
 }
+
+ostream &operator<<(ostream &strm, TLevel2::TState that) {
+  assert(&strm);
+  const char *name;
+  switch (that) {
+    case TLevel2::StartOfFile: {
+      name = "StartOfFile";
+      break;
+    }
+    case TLevel2::StartOfRecord: {
+      name = "StartOfRecord";
+      break;
+    }
+    case TLevel2::StartOfField: {
+      name = "StartOfField";
+      break;
+    }
+    case TLevel2::Bytes: {
+      name = "Bytes";
+      break;
+    }
+    case TLevel2::EndOfField: {
+      name = "EndOfField";
+      break;
+    }
+    case TLevel2::EndOfRecord: {
+      name = "EndOfRecord";
+      break;
+    }
+    case TLevel2::EndOfFile: {
+      name = "EndOfFile";
+      break;
+    }
+  }
+  return strm << name;
+}

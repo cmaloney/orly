@@ -24,6 +24,7 @@
 #pragma once
 
 #include <cassert>
+#include <ostream>
 
 #include <base/class_traits.h>
 #include <orly/csv_to_bin/level1.h>
@@ -157,3 +158,7 @@ namespace Orly {
   }  // Csv2Bin
 
 }  // Orly
+
+/* Inserts human-readable names for the level-2 parser states. */
+std::ostream &operator<<(
+    std::ostream &strm, Orly::CsvToBin::TLevel2::TState that);
