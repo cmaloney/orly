@@ -33,7 +33,7 @@ FIXTURE(OneLiner) {
   Strm::Mem::TStaticIn mem(
       "true,false,1b4e28ba-2fa1-11d2-883f-b9a761bde3fb,"
       "'hello ''doctor'' name',-123,98.6,"
-      "2014-07-04 04:03:09.102-0800");
+      "2014-07-04 04:03:09.102-0800,,101");
   TLevel1 level1(&mem, Simple);
   TLevel2 level2(level1);
   TLevel3 level3(level2);
@@ -43,6 +43,7 @@ FIXTURE(OneLiner) {
   int64_t e;
   double f;
   Chrono::TTimePnt g;
+  Orly::Rt::TOpt<int64_t> h, i;
   level3
       >> StartOfFile >> StartOfRecord
       >> StartOfField >> a >> EndOfField
@@ -52,6 +53,8 @@ FIXTURE(OneLiner) {
       >> StartOfField >> e >> EndOfField
       >> StartOfField >> f >> EndOfField
       >> StartOfField >> g >> EndOfField
+      >> StartOfField >> h >> EndOfField
+      >> StartOfField >> i >> EndOfField
       >> EndOfRecord >> EndOfFile;
   EXPECT_TRUE(a);
   EXPECT_FALSE(b);
@@ -61,6 +64,9 @@ FIXTURE(OneLiner) {
   EXPECT_EQ(f, 98.6);
   EXPECT_TRUE(
       g == Chrono::CreateTimePnt(2014, 7, 4, 4, 3, 9, 102000000, -480));
+  EXPECT_FALSE(h.IsKnown());
+  EXPECT_TRUE(i.IsKnown());
+  EXPECT_EQ(i.GetVal(), 101);
 }
 
 FIXTURE(Scanner) {

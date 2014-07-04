@@ -18,7 +18,6 @@
 
 #include <orly/csv_to_bin/level3.h>
 
-#include <iostream>  // TODO: remove me
 #include <limits>
 
 using namespace std;
@@ -231,10 +230,6 @@ TLevel3 &TLevel3::operator>>(Base::Chrono::TTimePnt &that) {
       offset = sign * (hi * 60 + lo);
     }
   }
-  cout
-      << year << "/" << month << "/" << day << " "
-      << hour << ":" << min << ":" << sec << " "
-      << nano << " " << offset;
   that = Base::Chrono::CreateTimePnt(
       year, month, day, hour, min, sec, nano, offset);
   return *this;

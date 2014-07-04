@@ -1,6 +1,6 @@
 /* <orly/csv_to_bin/level3.h>
 
-   TODO
+   Level-3 parser for CSV files.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -20,20 +20,23 @@
 
 #include <cassert>
 #include <string>
+#include <utility>
 
 #include <base/chrono.h>
 #include <base/thrower.h>
 #include <base/uuid.h>
 #include <orly/csv_to_bin/level2.h>
+#include <orly/rt/opt.h>
 
 namespace Orly {
 
   namespace CsvToBin {
 
-    /* TODO */
+    /* For the benefit of the helper functions below. */
     class TLevel3;
 
-    /* TODO */
+    /* Helper functions you can include in an extraction expression to
+       match given states or skip over remaining bytes in a field. */
     void EndOfField(TLevel3 &that);
     void EndOfFile(TLevel3 &that);
     void EndOfRecord(TLevel3 &that);
@@ -42,60 +45,78 @@ namespace Orly {
     void StartOfFile(TLevel3 &that);
     void StartOfRecord(TLevel3 &that);
 
-    /* TODO */
+    /* Level-3 parser for CSV files. */
     class TLevel3 final {
       NO_COPY(TLevel3);
       public:
 
-      /* TODO */
+      /* Thrown when extracting data from a field and we encounter a
+         convention we recognize but don't currently support. */
       DEFINE_ERROR(
           TNotSupported, std::runtime_error,
           "format of field in CSV file is not supported");
 
-      /* TODO */
+      /* Thrown when numeric limits are exceeded, such as a number with too
+         many digits. */
       DEFINE_ERROR(
           TNumberOutOfRange, std::runtime_error,
           "number out of range in CSV file");
 
-      /* TODO */
+      /* Thrown when extracting data from a field and we run out of field
+         before we run out of the desire to extract things from it. */
       DEFINE_ERROR(
           TPastEnd, std::runtime_error,
           "attempt to read past end of field in CSV file");
 
-      /* TODO */
+      /* Thrown when extracting data from a field and we encounter bad
+         level-3 syntax, such as punctuation where a digit should be. */
       DEFINE_ERROR(
           TSyntaxError, std::runtime_error,
           "syntax error in field of CSV file");
 
-      /* TODO */
+      /* Thrown when the level-2 parsing state is not as expected. */
       DEFINE_ERROR(
           TUnexpectedState, std::runtime_error,
           "unexpected state in CSV file");
 
-      /* TODO */
+      /* Use the given level-2 parser. */
       explicit TLevel3(TLevel2 &level2)
           : Level2(level2), TrueKwd("true"), FalseKwd("false"),
             Cursor(nullptr), Limit(nullptr) {}
 
-      /* TODO */
+      /* Extract a value from the current field. */
       TLevel3 &operator>>(bool &that);
 
-      /* TODO */
+      /* Extract a value from the current field. */
       TLevel3 &operator>>(Base::TUuid &that);
 
-      /* TODO */
+      /* Extract a value from the current field. */
       TLevel3 &operator>>(int64_t &that);
 
-      /* TODO */
+      /* Extract a value from the current field. */
       TLevel3 &operator>>(double &that);
 
-      /* TODO */
+      /* Extract a value from the current field. */
       TLevel3 &operator>>(std::string &that);
 
-      /* TODO */
+      /* Extract a value from the current field. */
       TLevel3 &operator>>(Base::Chrono::TTimePnt &that);
 
-      /* TODO */
+      /* Extract an optional value from the current field. */
+      template <typename TVal>
+      TLevel3 &operator>>(Rt::TOpt<TVal> &that) {
+        assert(this);
+        if (CanPeek()) {
+          TVal temp;
+          *this >> temp;
+          that = std::move(temp);
+        } else {
+          that.Reset();
+        }
+        return *this;
+      }
+
+      /* Use the given helper function in an extraction expression. */
       TLevel3 &operator>>(void (*helper)(TLevel3 &)) {
         assert(this);
         assert(helper);
