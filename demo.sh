@@ -15,7 +15,7 @@
 
 usage() {
   echo "Usage: $0 [DATASET]"
-  echo "  DATASET = {beer|complete_graph|game_of_thrones|money_laundering|belgian_beer|friends_of_friends|matrix|shakespeare|twitter|twitter_ego}"
+  echo "  DATASET = {beer|complete_graph|game_of_thrones|money_laundering|belgian_beer|friends_of_friends|matrix|shakespeare|social_graph|twitter|twitter_ego}"
   exit 1
 }
 
@@ -33,6 +33,7 @@ case $DATASET in
   "friends_of_friends") ;;
   "matrix") ;;
   "shakespeare") ;;
+  "social_graph") DATA_FILE="social_graph_*.bin.gz" ;;
   "twitter") DATA_FILE="twitter0[0-6].bin.gz" ;;
   "twitter_ego") DATA_FILE="twitter-ego[0-9].bin" ;;
   *) usage
@@ -50,7 +51,9 @@ set -e
 echo "Getting Dataset"
 FILENAME="$DATA_DIR/$DATA_FILE"
 NUM_FILES=1
-if [ "$DATASET" = "twitter" ]; then
+if [ "$DATASET" = "social_graph" ]; then
+  NUM_FILES=2
+elif [ "$DATASET" = "twitter" ]; then
   for twitter_datafile in "twitter0"{0..6}".bin.gz"
   do
     TWITTER_FILENAME="$DATA_DIR/$twitter_datafile"
@@ -81,7 +84,7 @@ orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le \
   --package_dir="$PACKAGE_DIR" \
   --temp_file_consol_thresh=4 \
   --mem_sim=true --mem_sim_mb=2048  --page_cache_size=512 --block_cache_size=512 \
-  --update_pool_size=350000 --update_entry_pool_size=350000 &
+  --update_pool_size=350000 --update_entry_pool_size=1000004 &
 ORLY_PID=$!
 #TODO : Make a better way to test for the server being up rather than just assuming it starts up in 15 seconds
 sleep 15
