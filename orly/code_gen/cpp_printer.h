@@ -42,9 +42,9 @@ namespace Orly {
       NO_COPY(TCppPrinter);
       public:
 
-      TCppPrinter(const std::string &filename) : Indent(0), Out(filename),  StartOfLine(true) {
+      TCppPrinter(const std::string &filename, const std::string &file_desc = "IR") : Indent(0), Out(filename),  StartOfLine(true) {
         if (!Out.good()) {
-          throw TCgError(HERE, ("Unable open file '" + filename + "' for writing IR to.").c_str());
+          throw TCgError(HERE, ("Unable open file '" + filename + "' for writing " + file_desc + " to.").c_str());
         }
       }
 
