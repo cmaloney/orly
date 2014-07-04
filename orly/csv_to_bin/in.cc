@@ -23,7 +23,7 @@ using namespace Orly::CsvToBin;
 
 const TIn::TOptions TIn::DefaultOptions = { ',', '"', false };
 
-void TIn::Update() const {
+void TIn::Update() {
   assert(this);
   for (;;) {
     /* Peek at the next byte.  If there is none, we've reached end-of-file;
@@ -34,7 +34,7 @@ void TIn::Update() const {
       Cache.Byte = 0u;
       break;
     }
-    uint8_t c = const_cast<TIn *>(this)->Pop();
+    uint8_t c = Pop();
     /* If we're in a quoted range, we have fewer special cases to handle. */
     if (Quoted) {
       /* Any non-quote character inside of quotes is just a byte. */
@@ -48,7 +48,7 @@ void TIn::Update() const {
       if (ptr && *ptr == Options.Quote) {
         /* This is quoted quote-quote, so we report a single byte which is
            the quote byte. */
-        const_cast<TIn *>(this)->Skip();
+        Skip();
         Cache.Kind = Byte;
         Cache.Byte = c;
         break;
@@ -62,7 +62,7 @@ void TIn::Update() const {
       Quoted = true;
       continue;
     }
-    /* If this is a delimeter, report an end-of-field. */
+    /* If this is a delimiter, report an end-of-field. */
     if (c == Options.Delim) {
       Cache.Kind = EndOfField;
       Cache.Byte = 0u;
@@ -72,7 +72,7 @@ void TIn::Update() const {
     if (!Options.UnixEol && c == '\r') {
       ptr = TryPeek();
       if (ptr && *ptr == '\n') {
-        const_cast<TIn *>(this)->Skip();
+        Skip();
         Cache.Kind = EndOfRecord;
         Cache.Byte = 0u;
         break;

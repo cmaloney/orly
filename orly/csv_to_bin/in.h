@@ -34,7 +34,7 @@ namespace Orly {
 
   namespace CsvToBin {
 
-    /* An input consumer that translates CSV level=-1 syntax. */
+    /* An input consumer that translates CSV level-1 syntax. */
     class TIn final
         : public Strm::In::TCons {
       public:
@@ -119,25 +119,25 @@ namespace Orly {
       void Refresh() const {
         assert(this);
         if (!IsCached) {
-          Update();
+          const_cast<TIn *>(this)->Update();
           IsCached = true;
         }
       }
 
       /* Update our cache. */
-      void Update() const;
+      void Update();
 
       /* Parsing options, cached at construction time. */
       const TOptions Options;
 
       /* See TCache.  Valid only if IsCached is true. */
-      mutable TCache Cache;
+      TCache Cache;
 
       /* If true, then Cache contains valid data. */
       mutable bool IsCached;
 
       /* True when we're inside of a quoted range. */
-      mutable bool Quoted;
+      bool Quoted;
 
     };  // TIn
 
