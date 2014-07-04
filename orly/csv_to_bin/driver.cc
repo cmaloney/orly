@@ -24,8 +24,12 @@
 #include <fcntl.h>
 
 #include <base/fd.h>
+#include <base/glob.h>
 #include <base/log.h>
-#include <orly/csv_to_bin/in.h>
+#include <orly/csv_to_bin/level1.h>
+#include <orly/csv_to_bin/level2.h>
+#include <orly/csv_to_bin/level3.h>
+#include <orly/csv_to_bin/translate.h>
 #include <strm/fd.h>
 
 using namespace std;
@@ -35,10 +39,10 @@ class TCmd final
     : public Base::TLog::TCmd {
   public:
 
-  TCmd(int argc, char *argv[]) {
-    Delim += TIn::DefaultOptions.Delim;
-    Quote += TIn::DefaultOptions.Quote;
-    UnixEol = TIn::DefaultOptions.UnixEol;
+  TCmd(int argc, char *argv[])
+      : MaxKvPerFile(250000), UnixEol(TLevel1::DefaultOptions.UnixEol) {
+    Delim += TLevel1::DefaultOptions.Delim;
+    Quote += TLevel1::DefaultOptions.Quote;
     Parse(argc, argv, TMeta());
   }
 
@@ -53,7 +57,8 @@ class TCmd final
     return true;
   }
 
-  string Delim, Quote, InPath, OutPath;
+  string Delim, Quote, InPattern, OutPrefix;
+  size_t MaxKvPerFile;
   bool UnixEol;
 
   private:
@@ -74,11 +79,14 @@ class TCmd final
           &TCmd::UnixEol, "unix_eol", Optional, "unix_eol\0u\0",
           "Expect Unix-style EOL (LF) instead of CSV standard (CRLF).");
       Param(
-          &TCmd::InPath, "in_path", Required,
-          "The path to the file to read from (CSV).");
+          &TCmd::MaxKvPerFile, "max_kv_per_file", Optional,
+          "The maximum number of key-value pairs per Orly binary file.");
       Param(
-          &TCmd::OutPath, "out_path", Required,
-          "The path to the file to write to (Orly binary).");
+          &TCmd::InPattern, "in_pattern", Required,
+          "The pattern of input file to read from (CSV).");
+      Param(
+          &TCmd::OutPrefix, "out_prefix", Required,
+          "The prefix of the output files to write to (Orly binary).");
     }
 
   };  // TCmd::TMeta
@@ -88,19 +96,30 @@ class TCmd final
 int main(int argc, char *argv[]) {
   TCmd cmd(argc, argv);
   Base::TLog log(cmd);
-  Base::TFd fd;
-  try {
-    fd = Base::TFd(open(cmd.InPath.c_str(), O_RDONLY));
-  } catch (const exception &ex) {
-    cerr << "error opening \"" << cmd.InPath << "\": " << ex.what() << endl;
-    exit(EXIT_FAILURE);
-  }
-  Strm::TFd<> file(move(fd));
-  TIn strm(
-      &file,
-      { static_cast<uint8_t>(cmd.Delim[0]),
-        static_cast<uint8_t>(cmd.Quote[0]),
-        cmd.UnixEol
+  TTranslate translate(cmd.OutPrefix, cmd.MaxKvPerFile);
+  Base::Glob(
+      cmd.InPattern.data(),
+      [&](const char *name) {
+        // Open input/output file.
+        Base::TFd fd;
+        try {
+          fd = Base::TFd(open(name, O_RDONLY));
+        } catch (const exception &ex) {
+          cerr << "error opening \"" << name << "\": " << ex.what() << endl;
+          exit(EXIT_FAILURE);
+        }  // try
+        Strm::TFd<> file(move(fd));
+        // Parse CSV.
+        TLevel1 level1(
+            &file,
+            { static_cast<uint8_t>(cmd.Delim[0]),
+              static_cast<uint8_t>(cmd.Quote[0]),
+              cmd.UnixEol
+            });
+        TLevel2 level2(level1);
+        TLevel3 level3(level2);
+        translate(level3);
+        return true;
       });
   return EXIT_SUCCESS;
 }
