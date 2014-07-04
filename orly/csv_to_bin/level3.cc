@@ -139,6 +139,7 @@ bool TLevel3::AtField() const {
     }
     case TLevel2::EndOfRecord: {
       result = false;
+      break;
     }
     default: {
       THROW_ERROR(TUnexpectedState)
@@ -160,6 +161,7 @@ bool TLevel3::AtRecord() const {
     }
     case TLevel2::EndOfFile: {
       result = false;
+      break;
     }
     default: {
       THROW_ERROR(TUnexpectedState)
@@ -212,8 +214,8 @@ bool TLevel3::RefreshBytes(bool required) const {
       case TLevel2::Bytes: {
         Cursor = Level2->Start;
         Limit = Level2->Limit;
-        assert(Cursor < Limit);
-        success = true;
+        assert(Cursor);
+        success = (Cursor < Limit);
         break;
       }
       case TLevel2::EndOfField: {

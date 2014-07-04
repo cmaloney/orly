@@ -30,7 +30,9 @@ using Strm::Mem::TStaticIn;
 static const TLevel1::TOptions Simple = { ',', '\'', true };
 
 FIXTURE(OneLiner) {
-  Strm::Mem::TStaticIn mem("true,false,1b4e28ba-2fa1-11d2-883f-b9a761bde3fb,'hello ''doctor'' name',-123,98.6");
+  Strm::Mem::TStaticIn mem(
+      "true,false,1b4e28ba-2fa1-11d2-883f-b9a761bde3fb,"
+      "'hello ''doctor'' name',-123,98.6");
   TLevel1 level1(&mem, Simple);
   TLevel2 level2(level1);
   TLevel3 level3(level2);
@@ -54,4 +56,29 @@ FIXTURE(OneLiner) {
   EXPECT_EQ(d, "hello 'doctor' name");
   EXPECT_EQ(e, -123);
   EXPECT_EQ(f, 98.6);
+}
+
+FIXTURE(Scanner) {
+  Strm::Mem::TStaticIn mem(
+      "   ,   ,   \n"
+      "\n"
+      ",");
+  TLevel1 level1(&mem, Simple);
+  TLevel2 level2(level1);
+  TLevel3 level3(level2);
+  level3 >> StartOfFile;
+  size_t record_count = 0, field_count = 0;
+  while (level3.AtRecord()) {
+    level3 >> StartOfRecord;
+    while (level3.AtField()) {
+      level3 >> StartOfField;
+      level3 >> SkipBytes >> EndOfField;
+      ++field_count;
+    }
+    level3 >> EndOfRecord;
+    ++record_count;
+  }
+  level3 >> EndOfFile;
+  EXPECT_EQ(record_count, 3u);
+  EXPECT_EQ(field_count, 6u);
 }
