@@ -62,42 +62,63 @@ TLevel3 &TLevel3::operator>>(bool &that) {
   assert(&that);
   uint8_t c = tolower(Peek());
   const char *kwd;
+  bool result;
   if (c == *TrueKwd) {
     kwd = TrueKwd;
+    result = true;
   } else if (c == *FalseKwd) {
     kwd = FalseKwd;
+    result = false;
   } else {
-    kwd = nullptr;
-  }
-  if (kwd) {
-
-  }
     THROW_ERROR(TSyntaxError)
-        << "expected \"" << TrueKwd << "\" or \"" << FalseKwd << '"';
+        << "expected keyword \"" << TrueKwd
+        << "\" or \"" << FalseKwd << '"';
+  }
+  MatchKeyword(kwd);
+  that = result;
   return *this;
 }
 
 TLevel3 &TLevel3::operator>>(Base::TUuid &that) {
   assert(this);
   assert(&that);
+  static constexpr size_t size = Base::TUuid::StrSize;
+  char buf[size + 1];
+  for (size_t i = 0; i < size; ++i) {
+    buf[i] = Pop();
+  }
+  buf[size] = '\0';
+  that = Base::TUuid(buf);
   return *this;
 }
 
 TLevel3 &TLevel3::operator>>(int64_t &that) {
   assert(this);
   assert(&that);
+  string temp;
+  *this >> temp;
+  that = stoll(temp);
   return *this;
 }
 
 TLevel3 &TLevel3::operator>>(double &that) {
   assert(this);
   assert(&that);
+  string temp;
+  *this >> temp;
+  that = stod(temp);
   return *this;
 }
 
 TLevel3 &TLevel3::operator>>(std::string &that) {
   assert(this);
   assert(&that);
+  string temp;
+  while (RefreshBytes(false)) {
+    temp.append(Cursor, Limit);
+    Cursor = Limit;
+  }
+  that = move(temp);
   return *this;
 }
 
@@ -107,20 +128,61 @@ TLevel3 &TLevel3::operator>>(Base::Chrono::TTimePnt &that) {
   return *this;
 }
 
+bool TLevel3::AtField() const {
+  assert(this);
+  bool result;
+  auto state = GetState();
+  switch (state) {
+    case TLevel2::StartOfField: {
+      result = true;
+      break;
+    }
+    case TLevel2::EndOfRecord: {
+      result = false;
+    }
+    default: {
+      THROW_ERROR(TUnexpectedState)
+          << "expected StartOfField or EndOfRecord, found "
+          << TLevel2::GetName(state);
+    }
+  }
+  return result;
+}
+
+bool TLevel3::AtRecord() const {
+  assert(this);
+  bool result;
+  auto state = GetState();
+  switch (state) {
+    case TLevel2::StartOfRecord: {
+      result = true;
+      break;
+    }
+    case TLevel2::EndOfFile: {
+      result = false;
+    }
+    default: {
+      THROW_ERROR(TUnexpectedState)
+          << "expected StartOfRecord or EndOfFile, found "
+          << TLevel2::GetName(state);
+    }
+  }
+  return result;
+}
+
 void TLevel3::MatchKeyword(const char *keyword) {
   assert(this);
-  for (const char *csr = keyword; csr; ++csr) {
-    if (tolower(Peek()) != *csr) {
+  for (const char *csr = keyword; *csr; ++csr) {
+    if (tolower(Pop()) != *csr) {
       THROW_ERROR(TSyntaxError)
           << "expected keyword \"" << keyword << '"';
     }
-    Pop();
   }
 }
 
 void TLevel3::MatchState(TLevel2::TState state) {
   assert(this);
-  if (Level2->State != state) {
+  if (GetState() != state) {
     THROW_ERROR(TUnexpectedState)
         << "expected " << TLevel2::GetName(state)
         << ", found " << TLevel2::GetName(Level2->State);
@@ -130,7 +192,8 @@ void TLevel3::MatchState(TLevel2::TState state) {
 
 bool TLevel3::RefreshBytes(bool required) const {
   assert(this);
-  if (Cursor >= Limit) {
+  bool success = (Cursor < Limit);
+  if (!success) {
     if (Cursor) {
       ++Level2;
       Cursor = nullptr;
@@ -150,16 +213,16 @@ bool TLevel3::RefreshBytes(bool required) const {
         Cursor = Level2->Start;
         Limit = Level2->Limit;
         assert(Cursor < Limit);
+        success = true;
         break;
       }
       case TLevel2::EndOfField: {
         break;
       }
     }
-  }
-  bool success = (Cursor < Limit);
-  if (!success && required) {
-    THROW_ERROR(TPastEnd);
+    if (!success && required) {
+      THROW_ERROR(TPastEnd);
+    }
   }
   return success;
 }

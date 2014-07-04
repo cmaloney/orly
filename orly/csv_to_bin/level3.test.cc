@@ -22,20 +22,36 @@
 #include <test/kit.h>
 
 using namespace std;
+using namespace Base;
 using namespace Orly::CsvToBin;
 
 using Strm::Mem::TStaticIn;
 
 static const TLevel1::TOptions Simple = { ',', '\'', true };
 
-FIXTURE(Typical) {
-  Strm::Mem::TStaticIn mem("x");
+FIXTURE(OneLiner) {
+  Strm::Mem::TStaticIn mem("true,false,1b4e28ba-2fa1-11d2-883f-b9a761bde3fb,'hello ''doctor'' name',-123,98.6");
   TLevel1 level1(&mem, Simple);
   TLevel2 level2(level1);
   TLevel3 level3(level2);
-  bool x;
+  bool a, b;
+  TUuid c;
+  string d;
+  int64_t e;
+  double f;
   level3
-      >> StartOfFile >> StartOfRecord >> StartOfField
-      >> x >> SkipBytes
-      >> EndOfField >> EndOfRecord >> EndOfFile;
+      >> StartOfFile >> StartOfRecord
+      >> StartOfField >> a >> EndOfField
+      >> StartOfField >> b >> EndOfField
+      >> StartOfField >> c >> EndOfField
+      >> StartOfField >> d >> EndOfField
+      >> StartOfField >> e >> EndOfField
+      >> StartOfField >> f >> EndOfField
+      >> EndOfRecord >> EndOfFile;
+  EXPECT_TRUE(a);
+  EXPECT_FALSE(b);
+  EXPECT_TRUE(c);
+  EXPECT_EQ(d, "hello 'doctor' name");
+  EXPECT_EQ(e, -123);
+  EXPECT_EQ(f, 98.6);
 }
