@@ -49,18 +49,28 @@ namespace Orly {
 
       /* TODO */
       DEFINE_ERROR(
+          TNotSupported, std::runtime_error,
+          "format of field in CSV file is not supported");
+
+      /* TODO */
+      DEFINE_ERROR(
+          TNumberOutOfRange, std::runtime_error,
+          "number out of range in CSV file");
+
+      /* TODO */
+      DEFINE_ERROR(
           TPastEnd, std::runtime_error,
           "attempt to read past end of field in CSV file");
 
       /* TODO */
       DEFINE_ERROR(
-          TUnexpectedState, std::runtime_error,
-          "unexpected state in CSV file");
+          TSyntaxError, std::runtime_error,
+          "syntax error in field of CSV file");
 
       /* TODO */
       DEFINE_ERROR(
-          TSyntaxError, std::runtime_error,
-          "syntax error in field of CSV file");
+          TUnexpectedState, std::runtime_error,
+          "unexpected state in CSV file");
 
       /* TODO */
       explicit TLevel3(TLevel2 &level2)
@@ -134,6 +144,12 @@ namespace Orly {
         return RefreshBytes(false);
       }
 
+      /* Like TryMatchByte(), throws on failure. */
+      void MatchByte(uint8_t expected);
+
+      /* Like TryMatchByte(), but throws on failure. */
+      uint8_t MatchByte(const char *expected);
+
       /* Matches current bytes against the given keyword or throws. */
       void MatchKeyword(const char *keyword);
 
@@ -155,9 +171,28 @@ namespace Orly {
         return *Cursor++;
       }
 
+      /* Read base-10 digits from our bytes, stopping at the first non-
+         digit. Returns the numeric value of the digits and the number of
+         digits.  This doesn't check for a sign at the start, so the value
+         will always be positive.  If there is not at least one digit, we
+         throw, so size will always be > 0. */
+      void ReadDecimalInt(int64_t &value, size_t &size);
+
       /* Try to get more bytes for the current field.  Return success/failure.
          If required is true, we won't return false; we'll throw instead. */
       bool RefreshBytes(bool required) const;
+
+      /* Match the current byte against an expected byte.  If we succeed,
+         return return true; otherwise, return false. */
+      bool TryMatchByte(uint8_t expected);
+
+      /* Like try match byte, below, only we don't care what the match is. */
+      bool TryMatchByte(const char *expected);
+
+      /* Match the current byte against a string of possible expected bytes.
+         If we succeed, return the match via out-param and return true;
+         otherwise, leave the out-param alone and return false. */
+      bool TryMatchByte(const char *expected, uint8_t &match);
 
       /* Our level-2 parser. */
       TLevel2 &Level2;

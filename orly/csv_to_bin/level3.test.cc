@@ -32,7 +32,8 @@ static const TLevel1::TOptions Simple = { ',', '\'', true };
 FIXTURE(OneLiner) {
   Strm::Mem::TStaticIn mem(
       "true,false,1b4e28ba-2fa1-11d2-883f-b9a761bde3fb,"
-      "'hello ''doctor'' name',-123,98.6");
+      "'hello ''doctor'' name',-123,98.6,"
+      "2014-07-04 04:03:09.102-0800");
   TLevel1 level1(&mem, Simple);
   TLevel2 level2(level1);
   TLevel3 level3(level2);
@@ -41,6 +42,7 @@ FIXTURE(OneLiner) {
   string d;
   int64_t e;
   double f;
+  Chrono::TTimePnt g;
   level3
       >> StartOfFile >> StartOfRecord
       >> StartOfField >> a >> EndOfField
@@ -49,6 +51,7 @@ FIXTURE(OneLiner) {
       >> StartOfField >> d >> EndOfField
       >> StartOfField >> e >> EndOfField
       >> StartOfField >> f >> EndOfField
+      >> StartOfField >> g >> EndOfField
       >> EndOfRecord >> EndOfFile;
   EXPECT_TRUE(a);
   EXPECT_FALSE(b);
@@ -56,6 +59,8 @@ FIXTURE(OneLiner) {
   EXPECT_EQ(d, "hello 'doctor' name");
   EXPECT_EQ(e, -123);
   EXPECT_EQ(f, 98.6);
+  EXPECT_TRUE(
+      g == Chrono::CreateTimePnt(2014, 7, 4, 4, 3, 9, 102000000, -480));
 }
 
 FIXTURE(Scanner) {
