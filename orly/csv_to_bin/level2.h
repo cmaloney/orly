@@ -55,7 +55,8 @@ namespace Orly {
            this state at least once for every record.  (We consider an empty
            record to be a record of one empty field, not a record of no
            fields.)  The next state is Bytes (if the field is non-empty) or
-           EndOfField (if the field is empty). */
+           EndOfField (if the field is empty) or Null (if the field is an
+           explict null). */
         StartOfField,
 
         /* We have bytes to report for a field and the Start and Limit
@@ -63,6 +64,10 @@ namespace Orly {
            until all bytes for the field have been reported, then we switch
            to EndOfField. */
         Bytes,
+
+        /* We are in a field which is an explicit null.  Next state is
+           EndOfField. */
+        Null,
 
         /* The end of a field, after its bytes, if any, have been reported.
            If there is another field in the record, the next state will be
@@ -93,13 +98,15 @@ namespace Orly {
 
       };  // TLevel2::TCache
 
-      /* TODO */
+      /* The minimum and default sizes for the internal buffer used for
+         reading fields.  This doesn't limit the maximum size of field which
+         we can parse, just how much of it we buffer at one time. */
       static const size_t MinBufferSize, DefBufferSize;
 
-      /* TODO */
+      /* Use the given level-1 parser. */
       explicit TLevel2(TLevel1 &level1, size_t buffer_size = DefBufferSize);
 
-      /* TODO */
+      /* Release our buffer as we go. */
       ~TLevel2();
 
       /* Our cached state. */
@@ -150,11 +157,16 @@ namespace Orly {
       /* If true, then Cache contains valid data. */
       mutable bool IsCached;
 
-      /* TODO */
+      /* The state we will shift to on the next call to Update(). */
       TState NextState;
 
-      /* TODO */
+      /* The buffer we use for field bytes. */
       uint8_t *Start, *Limit;
+
+      /* True when we first shift to the Bytes state and false for each
+         time we re-enter that state without shifting to another state
+         first. */
+      bool FirstBytes;
 
     };  // TLevel2
 

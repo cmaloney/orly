@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     auto table = NewTable(cerr, sql.data());
     WriteCc(outstrm, table.get());
     Base::TPump pump;
-    auto subprocess = Base::TSubprocess::New(pump, "jhm driver");
+    auto subprocess = Base::TSubprocess::New(pump, "jhm -c release driver");
     auto status = subprocess->Wait();
     if (status) {
       Base::EchoOutput(subprocess->TakeStdOutFromChild());

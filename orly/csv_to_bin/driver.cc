@@ -46,8 +46,7 @@ class TCmd final
         UseEsc(TLevel1::DefaultOptions.UseEsc),
         UseQuoteQuote(TLevel1::DefaultOptions.UseQuoteQuote),
         TrueKwd(TLevel3::DefaultOptions.TrueKwd),
-        FalseKwd(TLevel3::DefaultOptions.FalseKwd),
-        NullKwd(TLevel3::DefaultOptions.NullKwd) {
+        FalseKwd(TLevel3::DefaultOptions.FalseKwd) {
     Delim += TLevel1::DefaultOptions.Delim;
     Quote += TLevel1::DefaultOptions.Quote;
     Esc   += TLevel1::DefaultOptions.Esc;
@@ -71,9 +70,6 @@ class TCmd final
     if (FalseKwd.empty() && !cb("false_kwd must not be an empty string")) {
       return false;
     }
-    if (NullKwd.empty() && !cb("null_kwd must not be an empty string")) {
-      return false;
-    }
     ToLower(TrueKwd);
     ToLower(FalseKwd);
     return true;
@@ -82,7 +78,7 @@ class TCmd final
   string Delim, Quote, Esc, InPattern, OutPrefix;
   size_t MaxKvPerFile;
   bool UnixEol, UseEsc, UseQuoteQuote;
-  string TrueKwd, FalseKwd, NullKwd;
+  string TrueKwd, FalseKwd;
 
   static void ToLower(string &str) {
     transform(str.begin(), str.end(), str.begin(), ::tolower);
@@ -164,7 +160,7 @@ int main(int argc, char *argv[]) {
               cmd.UseQuoteQuote
             });
         TLevel2 level2(level1);
-        TLevel3 level3(level2, { cmd.TrueKwd, cmd.FalseKwd, cmd.NullKwd });
+        TLevel3 level3(level2, { cmd.TrueKwd, cmd.FalseKwd });
         translate(level3);
         return true;
       });

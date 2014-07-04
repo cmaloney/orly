@@ -121,12 +121,13 @@ namespace Orly {
       template <typename TVal>
       TLevel3 &operator>>(Base::TOpt<TVal> &that) {
         assert(this);
-        if (CanPeek()) {
+        if (!RefreshBytes(false) && Cursor == Null) {
+          that.Reset();
+          RefreshBytes(false);
+        } else {
           TVal temp;
           *this >> temp;
           that = std::move(temp);
-        } else {
-          that.Reset();
         }
         return *this;
       }
@@ -238,6 +239,10 @@ namespace Orly {
 
       /* The bytes we have buffered for the current field. */
       mutable const uint8_t *Cursor, *Limit;
+
+      /* Cursor and Limit point at this taboo when level-2 tells us we're
+         at an explicit null. */
+      static const uint8_t Null[1];
 
     };  // TLevel3
 
