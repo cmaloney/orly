@@ -18,11 +18,17 @@
 
 #include <orly/expr/test_kit.h>
 
+namespace std {
+  ostream &operator<<(ostream &out, const vector<string> &ns) {
+    return WriteNamespace(out, ns);
+  }
+}
+
 FIXTURE(Package) {
   /* package scope */
-  TPackage::TPtr package = TPackage::New({"foo"}, 1);
+  TPackage::TPtr package = TPackage::New({{"foo"}}, 1);
   EXPECT_EQ(package->GetVersion(), 1U);
-  EXPECT_EQ(package->GetNamespace(), Jhm::TNamespace(vector<std::string>{"foo"}));
+  EXPECT_EQ(package->GetName(), Package::TName{{"foo"}});
 
   /* foo = 24;
      bar = 42; */

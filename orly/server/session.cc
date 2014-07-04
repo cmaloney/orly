@@ -174,7 +174,7 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
     Indy::TIndyContext indy_context(user_id, session_id, context, &my_arena, server->GetScheduler(),
       Rt::TOpt<Base::Chrono::TTimePnt>(), Rt::TOpt<uint32_t>());
     // Func it.
-    auto func = server->GetPackageManager().Get(fq_name)->GetFunctionInfo(AsPiece(closure.GetMethodName()));
+    auto func = server->GetPackageManager().Get(Package::TName{fq_name})->GetFunctionInfo(AsPiece(closure.GetMethodName()));
     Package::TContext::TEffects effects;
     call_timer.Start();
     result_core = func->Call(indy_context, prog_args);

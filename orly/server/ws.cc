@@ -374,22 +374,13 @@ class TWsImpl final
           TTmpCopyToFile tmp_file(
               Conn->Ws->TmpDirMaker.GetPath(), Translate(stmt->GetStrExpr()),
               "tmp_pkg_", ".orly");
-          /* Having just made the full path to the temp file and already knowing
-             the dir in which to place the compiler outputs, we must now parse these
-             apart again and reformat them to suit the JHM file name classes which
-             the compiler uses.  This is ugly. */
-          const auto &tmp_path = tmp_file.GetPath();
-          auto last_pos = tmp_path.find_last_of('/');
-          Jhm::TAbsPath abs_path_to_src(
-              Jhm::TAbsBase(tmp_path.substr(0, last_pos)),
-              Jhm::TRelPath(tmp_path.substr(last_pos + 1)));
-          Jhm::TAbsBase abs_base_to_dir(
-              Conn->Ws->SessionManager->GetPackageDir());
-          auto pkg = Compiler::Compile(
-              abs_path_to_src, abs_base_to_dir,
-              true, true, false, out_strm);
+          auto pkg = Compiler::Compile(TPath(tmp_file.GetPath()),
+                                       Conn->Ws->SessionManager->GetPackageManager().GetPackageDir(),
+                                       true,
+                                       false,
+                                       out_strm);
           Result["status"] = "ok";
-          Result["name"] = pkg.Name.ToRelPath().AsStr();
+          Result["name"] = AsStr(pkg.Name);
           Result["version"] = pkg.Version;
         } catch (const Compiler::TCompileFailure &ex) {
           Result["status"] = "error";
@@ -420,7 +411,7 @@ class TWsImpl final
         auto &package_manager = Conn->Ws->SessionManager->GetPackageManager();
         package_manager.YieldInstalled([&packages, &package_manager](const Package::TVersionedName &versioned_name) {
           TJson::TObject package_info;
-          package_info["name"] = versioned_name.Name.AsStr();
+          package_info["name"] = AsStr(versioned_name.Name);
           package_info["version"] = versioned_name.Version;
 
           /* get each function's info */ {
@@ -461,16 +452,13 @@ class TWsImpl final
       virtual void operator()(const TGetSourceStmt *stmt) const override {
         assert(this);
         assert(stmt);
-
         vector<string> package_name;
         TranslatePathName(package_name, stmt->GetNameList());
-
-        auto rel_path = Orly::Package::TName(package_name).ToRelPath({"orly"});
-        string src_filename = AsStr(Jhm::TAbsPath(Conn->Ws->SessionManager->GetPackageDir(), rel_path));
-        syslog(LOG_INFO, "filename = \"%s\"", src_filename.c_str());
+        TPath filename(package_name, {"orly"});
+        string src_filename = AsStr(Conn->Ws->SessionManager->GetPackageManager().GetPackageDir().GetAbsPath(filename));
         Result = TJson::Object;
         Result["code"] = ReadAll(TFd(open(src_filename.c_str(), O_RDONLY)));
-        Result["filename"] = AsStr(rel_path);
+        Result["filename"] = AsStr(filename);
       }
 
       private:

@@ -1,6 +1,6 @@
-/* <jhm/naming.test.cc>
+/* <base/path.test.cc>
 
-   Unit test for <jhm/naming.h>
+   Unit test for <base/path.h>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,7 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <jhm/naming.h>
+#include <base/path.h>
 
 #include <unistd.h>
 
@@ -26,7 +26,6 @@
 #include <test/kit.h>
 
 using namespace Base;
-using namespace Jhm;
 using namespace std;
 
 namespace std {
@@ -38,6 +37,8 @@ namespace std {
     return strm;
   }
 }
+
+// TODO: Update for the simplification that happened moving to <base/path.h>
 
 FIXTURE(EndsWith) {
   EXPECT_TRUE(EndsWith({"a", "b", "c"}, {"c"}));
@@ -231,3 +232,4 @@ FIXTURE(AbsPath) {
   EXPECT_EQ(ap1.AsStr(), "/a/b/c/a/b.c");
   EXPECT_EQ(ap2.AsStr(), cwd + "/a/b/c/a/b.c");
 }
+#endif

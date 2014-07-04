@@ -633,7 +633,7 @@ class TSpa : public Mongoose::TMongoose {
     }
 
     //Get the function
-    auto func = Base::AssertTrue(Service)->GetPackageManager().Get(Jhm::TNamespace(TPiece<const char>(uri, dot_pos)))
+    auto func = Base::AssertTrue(Service)->GetPackageManager().Get(Package::TName::Parse(std::string(uri, dot_pos)))
         ->GetFunctionInfo(AsPiece(dot_pos + 1));
 
     //Get the arguments

@@ -57,7 +57,7 @@ void TKeys::WriteExpr(TCppPrinter &out) const {
     const Base::TUuid &index_id = Package->GetIndexIdFor(addr_type, ValType);
     char uuid[37];
     index_id.FormatUnderscore(uuid);
-    out << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << " ,";
+    out << Package->GetName() << "::My" << uuid << " ,";
   }
   out
     << "std::tuple<"

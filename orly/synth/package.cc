@@ -28,8 +28,8 @@
 using namespace Orly;
 using namespace Orly::Synth;
 
-TPackage::TPackage(const Jhm::TNamespace &ns, const Package::Syntax::TPackage *root, bool report_version)
-    : Namespace(ns), Symbol(nullptr) {
+TPackage::TPackage(const Package::TName &name, const Package::Syntax::TPackage *root, bool report_version)
+    : Name(name), Symbol(nullptr) {
   assert(root);
   const Package::Syntax::TInstallerDef *installer_def = nullptr;
   TExprFactory expr_factory(this);
@@ -60,12 +60,12 @@ void TPackage::Build() const {
 void TPackage::BuildSymbol() {
   assert(this);
   assert(!Symbol);
-  Symbol = Symbol::TPackage::New(Namespace, Version);
+  Symbol = Symbol::TPackage::New(Name, Version);
 }
 
-const Jhm::TNamespace &TPackage::GetNamespace() const {
+const Package::TName &TPackage::GetName() const {
   assert(this);
-  return Namespace;
+  return Name;
 }
 
 Symbol::TScope::TPtr TPackage::GetScopeSymbol() const {

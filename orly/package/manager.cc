@@ -36,7 +36,7 @@ using namespace Base;
 using namespace std;
 using namespace Orly::Package;
 
-TManager::TManager(const Jhm::TAbsBase &package_dir) : PackageDir(package_dir) {}
+TManager::TManager(const Jhm::TTree &package_dir) : PackageDir(package_dir) {}
 
 //When the installed map destructs, the shared pointers will naturally go away, unloading the packages.
 TManager::~TManager() {}
@@ -97,7 +97,7 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
       about_to_install.push_back(
           make_tuple(ret.first->second, true /* is_new_version */));
     }
-  }
+}
 
   // Call back with each installed package so outside systems can do what they need to
   // NOTE: This doesn't get rolled back if the callback throws partway through the list...
@@ -109,7 +109,12 @@ void TManager::Load(const TVersionedNames &packages, const std::function<void(TL
   std::swap(Installed, installed);
 }
 
-void TManager::SetPackageDir(const Jhm::TAbsBase &package_dir) {
+const Jhm::TTree &TManager::GetPackageDir() const {
+  assert(this);
+  return PackageDir;
+}
+
+void TManager::SetPackageDir(const Jhm::TTree &package_dir) {
   assert(this);
   PackageDir = package_dir;
 }

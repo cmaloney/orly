@@ -489,7 +489,7 @@ class TCheckpointStmtVisitor : public TCheckpointStmt::TVisitor {
       return true;
     });
 
-    InsertOrFail(Packages, Package::TVersionedName{Package::TName(final_name),
+    InsertOrFail(Packages, Package::TVersionedName{Package::TName{move(final_name)},
         package_name->GetPackageVersion()->GetIntLiteral()->GetLexeme().AsUInt32()});
   }
 

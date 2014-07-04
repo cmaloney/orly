@@ -45,14 +45,8 @@ class TWsTestServer::TSessionManager
   /* Do-little. */
   TSessionManager() {}
 
-  /* Returns a dummy, as we don't really compile. */
-  virtual const std::string &GetPackageDir() const override {
-    static const string dummy;
-    return dummy;
-  }
-
   virtual const Package::TManager &GetPackageManager() const final {
-    static const Package::TManager package_manager(Jhm::TAbsBase(""));
+    static const Package::TManager package_manager({""});
     return package_manager;
   }
 

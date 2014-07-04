@@ -21,7 +21,6 @@
 #include <map>
 #include <string>
 
-#include <jhm/naming.h>
 #include <orly/code_gen/cpp_printer.h>
 #include <orly/code_gen/inline.h>
 #include <orly/type/impl.h>
@@ -65,7 +64,7 @@ namespace Orly {
 
 
     void GenObjComparison(const Type::TType &obj1, const Type::TType &obj2, TCppPrinter &strm);
-    void GenObjHeader(const Jhm::TAbsBase &out_dir, const Type::TType &obj_type);
+    void GenObjHeader(const std::string &out_dir, const Type::TType &obj_type);
     void GenObjInclude(const Type::TType &obj, TCppPrinter &strm);
 
   } // CodeGen

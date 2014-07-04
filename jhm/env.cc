@@ -49,7 +49,7 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
     // No cache found. Build it
     // Find and instantiate possibilities based on extension
     for(const auto &producer : JobProducers) {
-      TOpt<TRelPath> opt_path = producer.TryGetInput(out_file->GetPath().GetRelPath());
+      TOpt<TRelPath> opt_path = producer.TryGetInput(out_file->GetRelPath());
       if(!opt_path) {
         continue;
       }
@@ -92,51 +92,62 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
   return ret;
 }
 
-TAbsBase TEnv::GetOutDirName(const string &root,
+Jhm::TTree TEnv::GetOutDirName(const TTree &root,
                                 const string &proj_name,
                                 const string &config,
                                 const string &config_mixin) {
-  string out = root + "/out";
+  TTree out(root);
+  out.Root.push_back("out");
   if (proj_name != "src") {
-    out += '_' + proj_name;
+    out.Root.back() += '_' + proj_name;
   }
-  out += '/' + config;
+  out.Root.push_back(config);
   if (config_mixin.size()) {
-    out += '_' + config_mixin;
+    out.Root.back() += '_' + config_mixin;
   }
-  return TAbsBase(move(out));
+  return out;
 }
 
-vector<string> GetConfigList(const string &root,
+vector<string> GetConfigList(const TTree &root,
                              const string &proj_name,
                              const string &config,
                              const string &config_mixin) {
   // root/project/config.jhm.mixin -> root/project/config.jhm -> root/config.jhm.mixin ->root/config.jhm
   //NOTE: At least one mixin file must be present if a config mixin is specified.
   vector<string> ret;
-  ret.reserve(4);
-  bool mixin_exists = false;
-  auto add_mixin = [&mixin_exists,&ret,&config_mixin] (string mixin_path) {
-    if (!config_mixin.empty())
-    mixin_exists |= ExistsPath(mixin_path.c_str());
-    ret.push_back(move(mixin_path));
-  };
-  add_mixin(root + '/' + config_mixin + ".jhm_mixin");
-  ret.push_back(root + '/' + config + ".jhm");
-  ret.push_back(root + '/' + proj_name + '/' + "root.jhm");
-  add_mixin(root + '/' + proj_name + '/' + config_mixin + ".jhm_mixin");
-  ret.push_back(root + '/' + proj_name + '/' + config + ".jhm");
+  string root_str = AsStr(root);
 
+  auto add_conf = [&config_mixin, &ret, &root_str](bool mixin, string path) {
+    if (mixin && config_mixin.empty()) {
+      return;
+    }
+    path = root_str + '/' + path + ".jhm";
+    if(mixin) {
+      path += "_mixin";
+    }
+    ret.push_back(move(path));
+  };
+  add_conf(false, config);
+  add_conf(true, config_mixin);
+  add_conf(false, proj_name + '/' + "root");
+  add_conf(false, proj_name + '/' + config);
+  add_conf(true, proj_name + '/' + config_mixin);
+  return ret;
+}
+
+vector<string> CopyAppendVector(const vector<string> &src, string &&val) {
+  vector<string> ret(src);
+  ret.push_back(val);
   return ret;
 }
 
 //TODO:
-TEnv::TEnv(const TAbsBase &root, const string &proj_name, const string &config, const string &config_mixin)
+TEnv::TEnv(const TTree &root, const string &proj_name, const string &config, const string &config_mixin)
     : Root(root),
-      Src('/' + Root.Get() + '/' + proj_name),
-      Out(GetOutDirName('/' + root.Get(), proj_name, config, config_mixin)),
+      Src(CopyAppendVector(Root.Root, "src")),
+      Out(GetOutDirName(root, proj_name, config, config_mixin)),
       // TODO: Make the timestamp a property of TConfig
-      Config(GetConfigList('/' + root.Get(), proj_name, config, config_mixin)) {
+      Config(GetConfigList(root, proj_name, config, config_mixin)) {
 
   if (config == "root") {
     THROW_ERROR(runtime_error) << "the config 'root' is reserved / special. Use a different config.";
@@ -187,18 +198,21 @@ TFile *TEnv::GetFile(TRelPath name) {
 
 
   // If doesn't exist in src, must be in out / generated
-  TAbsPath src_path(Src, name);
+  TPath src_path = Src.GetAbsPath(name);
 
   TJson file_conf(TJson::Object);
 
+  string src_path_str = AsStr(src_path);
   // NOTE: It's a design decision that this can only come from src and can't be machine generated.
-  string conf_path = src_path.AsStr() + ".jhm";
+  string conf_path = src_path_str + ".jhm";
 
-  if (ExistsPath(src_path.AsStr().c_str())) {
-    return Files.Add(move(name), make_unique<TFile>(move(src_path), true, conf_path));
+  if (ExistsPath(src_path_str.c_str())) {
+    auto file = make_unique<TFile>(TRelPath(name), &Src, true, conf_path);
+    return Files.Add(move(name), move(file));
   } else {
-    TAbsPath out_path(Out, name);
-    return Files.Add(move(name), make_unique<TFile>(move(out_path), false, conf_path));
+    TPath out_path = Out.GetAbsPath(name);
+    auto file = make_unique<TFile>(TRelPath(name), &Out, false, conf_path);
+    return Files.Add(move(name), move(file));
   }
 }
 
@@ -230,16 +244,17 @@ TFile *TEnv::TryGetFileFromPath(const std::string &name) {
   assert(&name);
   assert(name.size()); // Name must be non-empty.
   // If the name starts with a '/' it's an absolute filesystem path
+  TPath path(name);
   if(name[0] == '/') {
-    if (Src.Contains(name)) {
-      return GetFile(Src.GetAbsPath(name).GetRelPath());
-    } else if (Out.Contains(name)) {
-      return GetFile(Out.GetAbsPath(name).GetRelPath());
+    if (Src.Contains(path)) {
+      return GetFile(Src.GetRelPath(move(path)));
+    } else if (Out.Contains(path)) {
+      return GetFile(Out.GetRelPath(move(path)));
     } else {
       // File isn't in a known tree, so we can't possibly get it.
       return nullptr;
     }
   } else {
-    return GetFile(TRelPath(name));
+    return GetFile(TRelPath(move(path)));
   }
 }

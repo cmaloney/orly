@@ -18,19 +18,24 @@
 
 #include <orly/symbol/package.h>
 
+#include <base/path.h>
+
 using namespace Orly;
+using namespace Orly::Package;
 using namespace Orly::Symbol;
 
-TPackage::TPtr TPackage::New(const Jhm::TNamespace &ns, unsigned int version) {
-  return TPackage::TPtr(new TPackage(ns, version));
+TPackage::TPtr TPackage::New(const Package::TName &name, unsigned int version) {
+  return TPackage::TPtr(new TPackage(name, version));
 }
 
-TPackage::TPackage(const Jhm::TNamespace &ns, unsigned int version)
-    : Namespace(ns), Version(version) {}
+TPackage::TPackage(const TName &name, unsigned int version)
+    : Name(name), Version(version) {
+    assert(Base::IsValidNamespace(name.Name));
+}
 
-const Jhm::TNamespace &TPackage::GetNamespace() const {
+const Package::TName &TPackage::GetName() const {
   assert(this);
-  return Namespace;
+  return Name;
 }
 
 unsigned int TPackage::GetVersion() const {

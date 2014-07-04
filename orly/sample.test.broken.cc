@@ -20,7 +20,7 @@
 #include <iostream>
 #include <string>
 
-#include <base/make_dir.h>
+#include <base/make_dir.h> //NOTE: Replace with <util/path.h> EnsureDirExists
 #include <orly/compiler.h>
 #include <orly/spa/honcho.h>
 #include <orly/rt/runtime_error.h>
