@@ -93,6 +93,30 @@ namespace Orly {
         return *this;
       }
 
+      /* True at StartOfField, false at EndOfRecord, and throws for all other
+         states.  Use this in the predicate of a loop to tell when there's
+         another field to consume for the current record.  This doesn't
+         consume the StartOfField state automatically. */
+      bool AtField() const;
+
+      /* True at StartOfRecord, false at EndOfFile, and throws for all other
+         states.  Use this in the predicate of a loop to tell when there's
+         another record to consume.  This doesn't consume the StartOfRecord
+         state automatically. */
+      bool AtRecord() const;
+
+      /* Our current level-2 parser state.  See TLevel2 for a description of
+         these states.  Use this to peek where you are in a file when you're
+         not sure of the layout. */
+      TLevel2::TState GetState() const {
+        assert(this);
+        /* Make sure we're not clinging to the end of a field of bytes. */
+        if (Level2->State == TLevel2::Bytes) {
+          RefreshBytes(false);
+        }
+        return Level2->State;
+      }
+
       /* Be friendly with our helpers. */
       friend void EndOfField(TLevel3 &that);
       friend void EndOfFile(TLevel3 &that);
@@ -104,39 +128,44 @@ namespace Orly {
 
       private:
 
-      /* TODO */
+      /* True when we have at least one more byte to peek. */
       bool CanPeek() const {
         assert(this);
         return RefreshBytes(false);
       }
 
-      /* TODO */
+      /* Matches current bytes against the given keyword or throws. */
+      void MatchKeyword(const char *keyword);
+
+      /* Matches the given state or throws. */
       void MatchState(TLevel2::TState state);
 
-      /* TODO */
+      /* Our current byte.  Throws if we're out of bytes. */
       uint8_t Peek() const {
         assert(this);
         RefreshBytes(true);
         return *Cursor;
       }
 
-      /* TODO */
+      /* Our current byte and advances to the next byte.  Throws if we're out
+         of bytes. */
       uint8_t Pop() {
         assert(this);
         RefreshBytes(true);
         return *Cursor++;
       }
 
-      /* TODO */
+      /* Try to get more bytes for the current field.  Return success/failure.
+         If required is true, we won't return false; we'll throw instead. */
       bool RefreshBytes(bool required) const;
 
-      /* TODO */
+      /* Our level-2 parser. */
       TLevel2 &Level2;
 
-      /* TODO */
+      /* The keywords we recognize, all lower-case. */
       const char *const TrueKwd, *const FalseKwd;
 
-      /* TODO */
+      /* The bytes we have buffered for the current field. */
       mutable const uint8_t *Cursor, *Limit;
 
     };  // TLevel3
