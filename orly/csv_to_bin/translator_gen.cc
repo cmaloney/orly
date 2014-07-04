@@ -71,7 +71,13 @@ int main(int argc, char *argv[]) {
     auto table = NewTable(cerr, sql.data());
     WriteCc(outstrm, table.get());
     Base::TPump pump;
-    auto subprocess = Base::TSubprocess::New(pump, "jhm -c release driver");
+    #ifndef NDEBUG
+    const char *jhm_cmd = "jhm driver";
+    #else
+    const char *jhm_cmd = "jhm -c release driver";
+    #endif
+    printf("running [%s]\n", jhm_cmd);
+    auto subprocess = Base::TSubprocess::New(pump, jhm_cmd);
     auto status = subprocess->Wait();
     if (status) {
       Base::EchoOutput(subprocess->TakeStdOutFromChild());
