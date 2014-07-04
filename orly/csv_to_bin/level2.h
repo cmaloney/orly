@@ -124,6 +124,9 @@ namespace Orly {
         return *this;
       }
 
+      /* The human-readable name for a state. */
+      static const char *GetName(TState state);
+
       private:
 
       /* If our cache is fresh, do nothing; otherwise, update it. */
