@@ -1,6 +1,6 @@
-/* <orly/csv_to_bin/in.cc>
+/* <orly/csv_to_bin/level1.cc>
 
-   Implements <orly/csv_to_bin/in.h>.
+   Implements <orly/csv_to_bin/level1.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,21 +16,21 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <orly/csv_to_bin/in.h>
+#include <orly/csv_to_bin/level1.h>
 
 using namespace std;
 using namespace Orly::CsvToBin;
 
-const TIn::TOptions TIn::DefaultOptions = { ',', '"', false };
+const TLevel1::TOptions TLevel1::DefaultOptions = { ',', '"', false };
 
-void TIn::Update() {
+void TLevel1::Update() {
   assert(this);
   for (;;) {
     /* Peek at the next byte.  If there is none, we've reached end-of-file;
        otherwise, pop it. */
     const uint8_t *ptr = TryPeek();
     if (!ptr) {
-      Cache.Kind = EndOfFile;
+      Cache.State = EndOfFile;
       Cache.Byte = 0u;
       break;
     }
@@ -39,7 +39,7 @@ void TIn::Update() {
     if (Quoted) {
       /* Any non-quote character inside of quotes is just a byte. */
       if (c != Options.Quote) {
-        Cache.Kind = Byte;
+        Cache.State = Byte;
         Cache.Byte = c;
         break;
       }
@@ -49,7 +49,7 @@ void TIn::Update() {
         /* This is quoted quote-quote, so we report a single byte which is
            the quote byte. */
         Skip();
-        Cache.Kind = Byte;
+        Cache.State = Byte;
         Cache.Byte = c;
         break;
       }
@@ -64,7 +64,7 @@ void TIn::Update() {
     }
     /* If this is a delimiter, report an end-of-field. */
     if (c == Options.Delim) {
-      Cache.Kind = EndOfField;
+      Cache.State = EndOfField;
       Cache.Byte = 0u;
       break;
     }
@@ -73,19 +73,19 @@ void TIn::Update() {
       ptr = TryPeek();
       if (ptr && *ptr == '\n') {
         Skip();
-        Cache.Kind = EndOfRecord;
+        Cache.State = EndOfRecord;
         Cache.Byte = 0u;
         break;
       }
     }
     /* If we are doing Unix line endings, a LF is an EOL. */
     if (Options.UnixEol && c == '\n') {
-      Cache.Kind = EndOfRecord;
+      Cache.State = EndOfRecord;
       Cache.Byte = 0u;
       break;
     }
     /* Anything else is just a byte to be reported. */
-    Cache.Kind = Byte;
+    Cache.State = Byte;
     Cache.Byte = c;
     break;
   }  // forever

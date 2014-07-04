@@ -1,6 +1,6 @@
-/* <orly/csv_to_bin/csv_parser.test.cc>
+/* <orly/csv_to_bin/level2.test.cc>
 
-   Unit test for <orly/csv_to_bin/csv_parser.h>.
+   Unit test for <orly/csv_to_bin/level2.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,12 +16,11 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <orly/csv_to_bin/csv_parser.h>
+#include <orly/csv_to_bin/level2.h>
 
 #include <string>
 #include <vector>
 
-#include <base/class_traits.h>
 #include <strm/mem/static_in.h>
 #include <test/kit.h>
 
@@ -32,55 +31,59 @@ using Strm::Mem::TStaticIn;
 
 using TTable = vector<vector<string>>;
 
-static const TIn::TOptions Simple = { ',', '\'', true };
+static const TLevel1::TOptions Simple = { ',', '\'', true };
 
-/* TODO */
-class TTableBuilder final
-    : public TCsvParser {
-  NO_COPY(TTableBuilder);
-  public:
-
-  /* TODO */
-  TTableBuilder(TTable &table)
-      : Table(table) {}
-
-  private:
-
-  /* TODO */
-  virtual void OnRecordStart() override {
-    Table.push_back(vector<string>());
-  }
-
-  /* TODO */
-  virtual void OnFieldStart() override {
-    Table.back().push_back(string());
-  }
-
-  /* TODO */
-  virtual void OnByte(uint8_t byte) override {
-    Table.back().back() += byte;
-  }
-
-  TTable &Table;
-
-};  // TTableBuilder
-
-/* TODO */
-void Parse(TTable &table, const char *text) {
+static void BuildTable(TTable &table, const char *text) {
   Strm::Mem::TStaticIn mem(text);
-  TIn strm(&mem, Simple);
-  TTableBuilder(table).Parse(strm);
+  TLevel1 level1(&mem, Simple);
+  TLevel2 level2(level1);
+  bool keep_going = true;
+  do {
+    switch (level2->State) {
+      case TLevel2::StartOfFile: {
+        ++level2;
+        break;
+      }
+      case TLevel2::StartOfRecord: {
+        table.push_back(vector<string>());
+        ++level2;
+        break;
+      }
+      case TLevel2::StartOfField: {
+        table.back().push_back(string());
+        ++level2;
+        break;
+      }
+      case TLevel2::Bytes: {
+        table.back().back().append(level2->Start, level2->Limit);
+        ++level2;
+        break;
+      }
+      case TLevel2::EndOfField: {
+        ++level2;
+        break;
+      }
+      case TLevel2::EndOfRecord: {
+        ++level2;
+        break;
+      }
+      case TLevel2::EndOfFile: {
+        keep_going = false;
+        break;
+      }
+    }
+  } while (keep_going);
 }
 
 FIXTURE(Empty) {
   TTable table;
-  Parse(table, "");
+  BuildTable(table, "");
   EXPECT_EQ(table.size(), 0u);
 }
 
 FIXTURE(AlmostEmpty) {
   TTable table;
-  Parse(table, "x");
+  BuildTable(table, "x");
   if (EXPECT_EQ(table.size(), 1u)) {
     if (EXPECT_EQ(table[0].size(), 1u)) {
       EXPECT_EQ(table[0][0], "x");
@@ -90,7 +93,7 @@ FIXTURE(AlmostEmpty) {
 
 FIXTURE(OneBadlyWrittenEmptyRecord) {
   TTable table;
-  Parse(table, "\n");
+  BuildTable(table, "\n");
   if (EXPECT_EQ(table.size(), 1u)) {
     EXPECT_EQ(table[0].size(), 1u);
   }
@@ -98,7 +101,7 @@ FIXTURE(OneBadlyWrittenEmptyRecord) {
 
 FIXTURE(SeveralBadlyWrittenEmptyRecords) {
   TTable table;
-  Parse(table, "\n\n\n");
+  BuildTable(table, "\n\n\n");
   if (EXPECT_EQ(table.size(), 3u)) {
     EXPECT_EQ(table[0].size(), 1u);
     EXPECT_EQ(table[1].size(), 1u);
@@ -108,7 +111,7 @@ FIXTURE(SeveralBadlyWrittenEmptyRecords) {
 
 FIXTURE(EmptinessGalore) {
   TTable table;
-  Parse(table, ",,\n,,\n,,");
+  BuildTable(table, ",,\n,,\n,,");
   if (EXPECT_EQ(table.size(), 3u)) {
     EXPECT_EQ(table[0].size(), 3u);
     EXPECT_EQ(table[1].size(), 3u);
@@ -118,7 +121,9 @@ FIXTURE(EmptinessGalore) {
 
 FIXTURE(Typical) {
   TTable table;
-  Parse(table, "hello,'doctor,name',\ncontinue,'''yesterday''',tomorrow\n");
+  BuildTable(
+      table,
+      "hello,'doctor,name',\ncontinue,'''yesterday''',tomorrow\n");
   if (EXPECT_EQ(table.size(), 2u)) {
     if (EXPECT_EQ(table[0].size(), 3u)) {
       EXPECT_EQ(table[0][0], "hello");
