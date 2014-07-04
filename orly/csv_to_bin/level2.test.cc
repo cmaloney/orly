@@ -18,6 +18,7 @@
 
 #include <orly/csv_to_bin/level2.h>
 
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -136,4 +137,20 @@ FIXTURE(Typical) {
       EXPECT_EQ(table[1][2], "tomorrow");
     }
   }
+}
+
+FIXTURE(InsertingStateNames) {
+  ostringstream strm;
+  strm
+      << TLevel2::StartOfFile << ", "
+      << TLevel2::StartOfRecord << ", "
+      << TLevel2::StartOfField << ", "
+      << TLevel2::Bytes << ", "
+      << TLevel2::EndOfField << ", "
+      << TLevel2::EndOfRecord << ", "
+      << TLevel2::EndOfFile;
+  EXPECT_EQ(
+      strm.str(),
+      "StartOfFile, StartOfRecord, StartOfField, Bytes, "
+      "EndOfField, EndOfRecord, EndOfFile");
 }

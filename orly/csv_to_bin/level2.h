@@ -24,6 +24,7 @@
 #pragma once
 
 #include <cassert>
+#include <ostream>
 
 #include <base/class_traits.h>
 #include <orly/csv_to_bin/level1.h>
@@ -123,6 +124,9 @@ namespace Orly {
         return *this;
       }
 
+      /* The human-readable name for a state. */
+      static const char *GetName(TState state);
+
       private:
 
       /* If our cache is fresh, do nothing; otherwise, update it. */
@@ -157,3 +161,7 @@ namespace Orly {
   }  // Csv2Bin
 
 }  // Orly
+
+/* Inserts human-readable names for the level-2 parser states. */
+std::ostream &operator<<(
+    std::ostream &strm, Orly::CsvToBin::TLevel2::TState that);

@@ -43,6 +43,41 @@ TLevel2::~TLevel2() {
   free(Start);
 }
 
+const char *TLevel2::GetName(TState state) {
+  const char *name;
+  switch (state) {
+    case TLevel2::StartOfFile: {
+      name = "StartOfFile";
+      break;
+    }
+    case TLevel2::StartOfRecord: {
+      name = "StartOfRecord";
+      break;
+    }
+    case TLevel2::StartOfField: {
+      name = "StartOfField";
+      break;
+    }
+    case TLevel2::Bytes: {
+      name = "Bytes";
+      break;
+    }
+    case TLevel2::EndOfField: {
+      name = "EndOfField";
+      break;
+    }
+    case TLevel2::EndOfRecord: {
+      name = "EndOfRecord";
+      break;
+    }
+    case TLevel2::EndOfFile: {
+      name = "EndOfFile";
+      break;
+    }
+  }
+  return name;
+}
+
 void TLevel2::Update() {
   assert(this);
   Cache.State = NextState;
@@ -159,4 +194,9 @@ void TLevel2::Update() {
       break;
     }
   }
+}
+
+ostream &operator<<(ostream &strm, TLevel2::TState that) {
+  assert(&strm);
+  return strm << TLevel2::GetName(that);
 }
