@@ -517,6 +517,33 @@ namespace Orly {
 
       };  // TOpt<TElem>
 
+      /* State used for Base::TOpt<TElem>. */
+      template <typename TElem>
+      class TOpt2 final
+          : public TArrayOfSingleStates<Sabot::State::TOpt> {
+        public:
+
+        /* Do-little. */
+        TOpt2(const Rt::TOpt<TElem> &val)
+            : TArrayOfSingleStates<Sabot::State::TOpt>(val.IsKnown() ? 1 : 0), Val(val) {}
+
+        /* See Sabot::State::TOpt. */
+        virtual Sabot::Type::TOpt *GetOptType(void *type_alloc) const override {
+          return Type::For<Base::TOpt<TElem>>::GetOptType(type_alloc);
+        }
+
+        private:
+
+        /* See TArrayOfSingleStates<TElem>. */
+        virtual TAny *NewElem(size_t, void *state_alloc) const override {
+          return Factory<TElem>::New(Val.GetVal(), state_alloc);
+        }
+
+        /* Cached reference to the value we are sabot to. */
+        const Rt::TOpt<TElem> &Val;
+
+      };  // TOpt2<TElem>
+
       /* State used for std::set<TElem>. */
       template <typename TElem, typename TCompare = std::less<TElem>>
       class TSet final
@@ -880,6 +907,19 @@ namespace Orly {
       }
 
     };  // State::Factory<Base::TOpt<TElem>>
+
+    /* Explicit specialization for Base::TOpt<TElem>. */
+    template <typename TElem>
+    class State::Factory<Rt::TOpt<TElem>> final {
+      NO_CONSTRUCTION(Factory);
+      public:
+
+      /* Construct a new state sabot around the value. */
+      static TAny *New(const Rt::TOpt<TElem> &val, void *state_alloc) {
+        return new (state_alloc) TOpt2<TElem>(val);
+      }
+
+    };  // State::Factory<Rt::TOpt<TElem>>
 
     /* Explicit specialization for std::set<TElem>. */
     template <typename TElem, typename TCompare>
