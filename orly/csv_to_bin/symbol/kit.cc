@@ -53,6 +53,27 @@ const TCol *TTable::FindCol(const std::string &name) const {
   return col;
 }
 
+bool TTable::ForEachColNotInKey(
+    const std::function<bool (const TCol *)> &cb, const TKey *key) const {
+  assert(this);
+  assert(&cb);
+  assert(cb);
+  assert(&key);
+  for (const auto &col: Cols) {
+    bool found = false;
+    for (const auto &field : key->GetFields()) {
+      if (field.Col == col.get()) {
+        found = true;
+        break;
+      }
+    }
+    if (!found && !cb(col.get())) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const TCol *TTable::TryFindCol(const string &name) const {
   assert(this);
   for (const auto &col: Cols) {

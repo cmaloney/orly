@@ -45,6 +45,7 @@ namespace Orly {
 
       /* Forward-declared for the benefit of TTable. */
       class TCol;
+      class TKey;
       class TPrimaryKey;
       class TSecondaryKey;
 
@@ -81,6 +82,22 @@ namespace Orly {
             }
           }
           return true;
+        }
+
+        /* Call back for each column that is not part of the given key. */
+        bool ForEachColNotInKey(
+            const std::function<bool (const TCol *)> &cb, const TKey *key) const;
+
+        /* Returns the number of columns not covered by the given key. */
+        size_t NumColNotCoveredByKey(const TKey *key) const {
+          assert(this);
+          assert(key);
+          size_t n = 0UL;
+          ForEachColNotInKey([&](const TCol *) -> bool {
+            ++n;
+            return true;
+          }, key);
+          return n;
         }
 
         /* Call back for each secondary key. */

@@ -29,6 +29,18 @@ namespace Orly {
     /* Write C++ to convert a CSV table into an Orly binary core vector. */
     void WriteCc(std::ostream &strm, const Symbol::TTable *table);
 
+    /* Write C++ struct to represent the fields in the table that are not part of the given key. */
+    void WriteValRecordForKey(std::ostream &strm, const Symbol::TTable *table, const Symbol::TKey *key, const char *name);
+
+    /* Write C++ tuple type to represent the key. */
+    void WriteKeyTupleType(std::ostream &strm, const Symbol::TKey *key);
+
+    /* Make a typedef for the key's tuple type. */
+    void DefKeyTupleType(std::ostream &strm, const Symbol::TKey *key, const char *name);
+
+    /* Write C++ type for the given Symbol type. */
+    void PrintType(std::ostream &strm, Symbol::TType type);
+
   }  // Csv2Bin
 
 }  // Orly
