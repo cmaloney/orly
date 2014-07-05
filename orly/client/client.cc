@@ -136,9 +136,10 @@ shared_ptr<Rpc::TFuture<void>> TClient::TailGlobalPov() {
   return Write<void>(ServerRpc::TailGlobalPov);
 }
 
-shared_ptr<Rpc::TFuture<string>> TClient::ImportCoreVector(const string &file_pattern, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous) {
+shared_ptr<Rpc::TFuture<string>> TClient::ImportCoreVector(const string &file_pattern, const string &pkg_name, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous) {
   assert(this);
-  return Write<string>(ServerRpc::ImportCoreVector, file_pattern, num_load_threads, num_merge_threads, merge_simultaneous);
+  return Write<string>(
+      ServerRpc::ImportCoreVector, file_pattern, pkg_name, num_load_threads, num_merge_threads, merge_simultaneous);
 }
 
 void TClient::DispatchMain() {

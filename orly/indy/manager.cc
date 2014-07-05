@@ -61,8 +61,8 @@ TManager::TManager(Disk::Util::TEngine *engine,
                    const std::function<void (const shared_ptr<function<void (const TFd &)>> &)> &wait_for_slave,
                    const std::function<void (TState)> &state_change_cb,
                    const std::function<void (const Base::TUuid &, const Base::TUuid &, const Base::TUuid &)> &update_replication_notification_cb,
-                   const std::function<void (const Base::TUuid &idx_id, const Indy::TKey &key, const Indy::TKey &val)> &on_replicate_index_id,
-                   const std::function<void (const std::function<void (const Base::TUuid &idx_id, const Indy::TKey &key, const Indy::TKey &val)> &)> &for_each_index_cb,
+                   const TIndexCb &on_replicate_index_id,
+                   const TForEachIndexIdCb &for_each_index_cb,
                    const std::function<void (const std::function<bool (Fiber::TRunner *)> &)> &for_each_scheduler_cb,
                    Base::TScheduler *scheduler,
                    Fiber::TRunner *bg_fast_runner,
@@ -820,11 +820,12 @@ void TManager::TSlave::Index(const TIndexMapReplica &index_map_replica) {
     Sabot::ToNative(*Sabot::State::TAny::TWrapper(index_iter->NewState(index_arena, state_alloc)), index_id);
     ++index_iter;
     assert(index_iter != index_end);
-    Indy::TKey key(&suprena, Sabot::State::TAny::TWrapper(index_iter->NewState(index_arena, state_alloc)));
+    string pkg_key;
+    Sabot::ToNative(*Sabot::State::TAny::TWrapper(index_iter->NewState(index_arena, state_alloc)), pkg_key);
     ++index_iter;
     assert(index_iter != index_end);
     Indy::TKey val(&suprena, Sabot::State::TAny::TWrapper(index_iter->NewState(index_arena, state_alloc)));
-    Manager->OnReplicateIndexIdCb(index_id, key, val);
+    Manager->OnReplicateIndexIdCb(index_id, pkg_key, val);
   }
 }
 
@@ -917,11 +918,12 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(index_iter->NewState(index_arena, state_alloc)), index_id);
               ++index_iter;
               assert(index_iter != index_end);
-              Indy::TKey key(&suprena, Sabot::State::TAny::TWrapper(index_iter->NewState(index_arena, state_alloc)));
+              std::string pkg_key;
+              Sabot::ToNative(*Sabot::State::TAny::TWrapper(index_iter->NewState(index_arena, state_alloc)), pkg_key);
               ++index_iter;
               assert(index_iter != index_end);
               Indy::TKey val(&suprena, Sabot::State::TAny::TWrapper(index_iter->NewState(index_arena, state_alloc)));
-              Manager->OnReplicateIndexIdCb(index_id, key, val);
+              Manager->OnReplicateIndexIdCb(index_id, pkg_key, val);
             }
           }
           /* Store the repo saves next */ {
@@ -1306,9 +1308,9 @@ void TManager::OnSlaveJoin(const Base::TFd &fd) {
         }  // release Context lock
         /* sync all the index ids */ {
           TIndexMapReplica index_map_replica;
-          void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-          ForEachIndexIdCb([&index_map_replica, state_alloc](const Base::TUuid &idx_id, const Indy::TKey key, const Indy::TKey val) {
-            index_map_replica.Push(idx_id, key, val);
+          ForEachIndexIdCb([&index_map_replica](
+              const Base::TUuid &idx_id, const std::string &pkg_key, const Indy::TKey val) {
+            index_map_replica.Push(idx_id, pkg_key, val);
           });
           std::shared_ptr<Rpc::TFuture<void>> future = Context->Write<void>(TSlave::IndexId, index_map_replica);
         }

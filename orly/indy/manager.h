@@ -50,6 +50,10 @@ namespace Orly {
         Slave
       };
 
+      using TIndexCb = std::function<
+          void(const Base::TUuid &idx_id, const std::string &pkg_key, const Indy::TKey &val)>;
+      using TForEachIndexIdCb = std::function<void(const TIndexCb &)>;
+
       /* TODO */
       TManager(Disk::Util::TEngine *engine,
                size_t replication_sync_slave_buf_size_mb,
@@ -65,8 +69,8 @@ namespace Orly {
                const std::function<void (const std::shared_ptr<std::function<void (const Base::TFd &)>> &)> &wait_for_slave,
                const std::function<void (TState)> &state_change_cb,
                const std::function<void (const Base::TUuid &, const Base::TUuid &, const Base::TUuid &)> &update_replication_notification_cb,
-               const std::function<void (const Base::TUuid &idx_id, const Indy::TKey &key, const Indy::TKey &val)> &on_replicate_index_id,
-               const std::function<void (const std::function<void (const Base::TUuid &idx_id, const Indy::TKey &key, const Indy::TKey &val)> &)> &for_each_index_cb,
+               const TIndexCb &on_replicate_index_id,
+               const TForEachIndexIdCb &for_each_index_cb,
                const std::function<void (const std::function<bool (Fiber::TRunner *)> &)> &for_each_scheduler_cb,
                Base::TScheduler *scheduler,
                Fiber::TRunner *bg_fast_runner,
@@ -619,11 +623,8 @@ namespace Orly {
       /* TODO */
       std::function<void (const Base::TUuid &, const Base::TUuid &, const Base::TUuid &)> UpdateReplicationNotificationCb;
 
-      /* TODO */
-      std::function<void (const Base::TUuid &idx_id, const Indy::TKey &key, const Indy::TKey &val)> OnReplicateIndexIdCb;
-
-      /* TODO */
-      std::function<void (const std::function<void (const Base::TUuid &idx_id, const Indy::TKey &key, const Indy::TKey &val)> &)> ForEachIndexIdCb;
+      TIndexCb OnReplicateIndexIdCb;
+      TForEachIndexIdCb ForEachIndexIdCb;
 
       /* TODO */
       std::function<void (const std::function<bool (Fiber::TRunner *)> &)> ForEachSchedulerCb;

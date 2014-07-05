@@ -69,6 +69,9 @@ namespace Orly {
          that were needed because of imports. */
       std::unordered_map<std::vector<std::string>, const TInfo*> IncludedPackages;
 
+      /* The name which the indexes this package accesses are prefixed with. */
+      std::string IndexName;
+
       /* A dictionary of the index ids to the <key, val> types they map to. This is an intermediate solution, as in the future we would
          like to be able to assign a different index even if this type combination is the same. This requires a tighter bond between the
          compiler and the server. */

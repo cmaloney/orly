@@ -64,6 +64,8 @@ namespace Orly {
 
       const TIndexIdSet &GetIndexIdSet() const;
 
+      const std::string &GetIndexPrefix() const;
+
       bool ForEachIndexId(const std::function <bool (Base::TUuid *)> &cb) const;
 
       private:

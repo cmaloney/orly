@@ -33,10 +33,10 @@ namespace Orly {
       TIndexMapReplica() {}
 
       /* TODO */
-      void Push(const Base::TUuid &index_id, const Indy::TKey &key, const Indy::TKey &val) {
+      void Push(const Base::TUuid &index_id, const std::string &pkg_key, const Indy::TKey &val) {
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
         CoreVecBuilder.Push(index_id);
-        CoreVecBuilder.PushState(key.GetState(state_alloc));
+        CoreVecBuilder.Push(pkg_key);
         CoreVecBuilder.PushState(val.GetState(state_alloc));
       }
 
@@ -322,7 +322,7 @@ namespace Orly {
         public:
 
         /* TODO */
-        inline TReplica(const Base::TUuid &id, const Indy::TKey &key, const Indy::TKey &val);
+        inline TReplica(const Base::TUuid &id, const std::string &pkg_key, const Indy::TKey &val);
 
         /* TODO */
         inline TReplica(const TIndexIdReplication &replication_obj);
@@ -337,7 +337,7 @@ namespace Orly {
         inline const Base::TUuid &GetId() const;
 
         /* TODO */
-        inline const Indy::TKey &GetKey() const;
+        inline const std::string &GetPkgKey() const;
 
         /* TODO */
         inline const Indy::TKey &GetVal() const;
@@ -348,7 +348,7 @@ namespace Orly {
         const Base::TUuid Id;
 
         /* TODO */
-        Indy::TKey Key;
+        std::string PkgKey;
         Indy::TKey Val;
 
         /* TODO */
@@ -357,7 +357,7 @@ namespace Orly {
       };  // TReplica
 
       /* TODO */
-      TIndexIdReplication(const Base::TUuid &id, const Indy::TKey &key, const Indy::TKey &val);
+      TIndexIdReplication(const Base::TUuid &id, const std::string &pkg_key, const Indy::TKey &val);
 
       /* TODO */
       virtual ~TIndexIdReplication();
@@ -369,7 +369,7 @@ namespace Orly {
       inline const Base::TUuid &GetId() const;
 
       /* TODO */
-      inline const Indy::TKey &GetKey() const;
+      inline const std::string &GetPkgKey() const;
 
       /* TODO */
       inline const Indy::TKey &GetVal() const;
@@ -383,7 +383,7 @@ namespace Orly {
       Atom::TSuprena Suprena;
 
       /* TODO */
-      Indy::TKey Key;
+      const std::string PkgKey;
       Indy::TKey Val;
 
     };  // TIndexIdReplication
@@ -565,9 +565,9 @@ namespace Orly {
       return Id;
     }
 
-    inline const Indy::TKey &TIndexIdReplication::GetKey() const {
+    inline const std::string &TIndexIdReplication::GetPkgKey() const {
       assert(this);
-      return Key;
+      return PkgKey;
     }
 
     inline const Indy::TKey &TIndexIdReplication::GetVal() const {

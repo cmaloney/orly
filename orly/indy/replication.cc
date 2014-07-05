@@ -64,10 +64,8 @@ TDurableReplication::TDurableReplication(const Base::TUuid &durable_id, const TT
 
 TDurableReplication::~TDurableReplication() {}
 
-TIndexIdReplication::TIndexIdReplication(const Base::TUuid &id, const Indy::TKey &key, const Indy::TKey &val)
-    : Id(id),
-      Key(&Suprena, alloca(Sabot::State::GetMaxStateSize()), key),
-      Val(&Suprena, alloca(Sabot::State::GetMaxStateSize()), val) {}
+TIndexIdReplication::TIndexIdReplication(const Base::TUuid &id, const std::string &pkg_key, const Indy::TKey &val)
+    : Id(id), PkgKey(pkg_key), Val(&Suprena, alloca(Sabot::State::GetMaxStateSize()), val) {}
 
 TIndexIdReplication::~TIndexIdReplication() {}
 
@@ -106,7 +104,7 @@ void TReplicationStreamer::PushIndexId(const TIndexIdReplication &index_id) {
   assert(this);
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   IndexIdBuilder.Push(index_id.GetId());
-  IndexIdBuilder.PushState(index_id.GetKey().GetState(state_alloc));
+  IndexIdBuilder.Push(index_id.GetPkgKey());
   IndexIdBuilder.PushState(index_id.GetVal().GetState(state_alloc));
 }
 

@@ -94,6 +94,11 @@ const TIndexIdSet &TLoaded::GetIndexIdSet() const {
   return LinkInfo->PrimaryInfo->IndexIdSet;
 }
 
+const std::string &TLoaded::GetIndexPrefix() const {
+  assert(this);
+  return LinkInfo->IndexName;
+}
+
 bool TLoaded::ForEachIndexId(const std::function <bool (Base::TUuid *)> &cb) const {
   assert(this);
   for (auto id : LinkInfo->PrimaryInfo->IndexIdSet) {

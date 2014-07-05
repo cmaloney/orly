@@ -24,18 +24,24 @@ using namespace Orly;
 using namespace Orly::Package;
 using namespace Orly::Symbol;
 
-TPackage::TPtr TPackage::New(const Package::TName &name, unsigned int version) {
-  return TPackage::TPtr(new TPackage(name, version));
+TPackage::TPtr TPackage::New(const Package::TName &name, const std::string &index_name, unsigned int version) {
+  return TPackage::TPtr(new TPackage(name, index_name, version));
 }
 
-TPackage::TPackage(const TName &name, unsigned int version)
-    : Name(name), Version(version) {
+TPackage::TPackage(const TName &name, const std::string &index_name, unsigned int version)
+    : Name(name), IndexName(index_name), Version(version) {
     assert(Base::IsValidNamespace(name.Name));
 }
 
 const Package::TName &TPackage::GetName() const {
   assert(this);
   return Name;
+}
+
+
+const std::string &TPackage::GetIndexName() const {
+  assert(this);
+  return IndexName;
 }
 
 unsigned int TPackage::GetVersion() const {

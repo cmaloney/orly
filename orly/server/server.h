@@ -58,24 +58,23 @@ namespace Orly {
       public:
 
       /* TODO */
-      TIndexType(Indy::TKey &&key, Indy::TKey &&val) : Key(std::move(key)), Val(std::move(val)) {}
+      TIndexType(std::string &&package_key, Indy::TKey &&val)
+          : PackageKey(std::move(package_key)), Val(std::move(val)) {}
 
       /* TODO */
       inline size_t GetHash() const {
         assert(this);
-        return Key.GetHash() ^ Val.GetHash();
+        return Base::ChainHashes(PackageKey, Val);
       }
 
-      /* TODO */
       inline bool operator==(const TIndexType &that) const {
         assert(this);
-        return Key == that.Key && Val == that.Val;
+        return PackageKey == that.PackageKey && Val == that.Val;
       }
 
-      /* TODO */
-      inline const Indy::TKey &GetKey() const {
+      const std::string &GetPackageKey() const {
         assert(this);
-        return Key;
+        return PackageKey;
       }
 
       /* TODO */
@@ -86,8 +85,7 @@ namespace Orly {
 
       private:
 
-      /* TODO */
-      Indy::TKey Key;
+      std::string PackageKey;
       Indy::TKey Val;
 
     };  // TIndexType
@@ -526,9 +524,9 @@ namespace Orly {
         }
 
         /* See <orly/protocol.h>. */
-        std::string ImportCoreVector(const std::string &file_pattern, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous) {
+        std::string ImportCoreVector(const std::string &file_pattern, const std::string &pkg_name, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous) {
           assert(this);
-          return Server->ImportCoreVector(file_pattern, num_load_threads, num_merge_threads, merge_simultaneous);
+          return Server->ImportCoreVector(file_pattern, pkg_name, num_load_threads, num_merge_threads, merge_simultaneous);
         }
 
         /* Run the RPC I/O with the client.  This function is called by ServeClient() after the handshake has
@@ -617,7 +615,7 @@ namespace Orly {
         virtual void BeginImport() const override;
         virtual void EndImport() const override;
         virtual const Base::TUuid &GetId() const override;
-        virtual void Import(const std::string &, int64_t, int64_t, int64_t) const override;
+        virtual void Import(const std::string &, const std::string &, int64_t, int64_t, int64_t) const override;
         virtual void InstallPackage(const std::vector<std::string> &, uint64_t) const override;
         virtual Base::TUuid NewPov(bool, bool, const Base::TOpt<Base::TUuid> &) const override;
         virtual void PausePov(const Base::TUuid &) const override;
@@ -715,7 +713,7 @@ namespace Orly {
       std::string Import(const std::string &file, int64_t xact_count);
 
       /* See <orly/protocol.h>. */
-      std::string ImportCoreVector(const std::string &file_pattern, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous);
+      std::string ImportCoreVector(const std::string &file_pattern, const std::string &pkg_name, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous);
 
       /* See <orly/protocol.h>. */
       void InstallPackage(const std::vector<std::string> &package_name, uint64_t version);

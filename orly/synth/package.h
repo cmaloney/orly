@@ -49,6 +49,8 @@ namespace Orly {
       /* TODO */
       const Package::TName &GetName() const;
 
+      const Package::TName &GetIndexName() const;
+
       /* Return the scope version of the package symbol */
       Symbol::TScope::TPtr GetScopeSymbol() const;
 
@@ -91,6 +93,8 @@ namespace Orly {
 
       /* See accesor */
       Package::TName Name;
+
+      std::string IndexName;
 
       /* See accesor */
       Symbol::TPackage::TPtr Symbol;

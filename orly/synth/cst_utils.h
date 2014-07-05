@@ -306,6 +306,29 @@ namespace Orly {
 
     };  // ItemInfo<Package::Syntax::TExpr>
 
+
+    template <>
+    struct ItemInfo<Package::Syntax::TName> {
+      NO_CONSTRUCTION(ItemInfo);
+
+      typedef Package::Syntax::TNoPackageNameMemberListTail TNoListTailNode;
+      typedef Package::Syntax::TPackageNameMemberListTail   TListTailNode;
+      typedef Package::Syntax::TPackageNameMemberList       TNode;
+      typedef Package::Syntax::TName                        TItem;
+
+      static const TItem *GetItem(const TNode *node) {
+        assert(node);
+        return node->GetName();
+      }
+
+      static const TNode *TryGetNext(const TNode *node) {
+        assert(node);
+        auto list_tail = TryGetNode<TListTailNode, TNoListTailNode>(node->GetOptPackageNameMemberListTail());
+        return list_tail ? list_tail->GetPackageNameMemberList() : nullptr;
+      }
+
+    };  // ItemInfo<Package::Syntax::TName>
+
     template <>
     struct ItemInfo<Package::Syntax::TObjMember> {
       NO_CONSTRUCTION(ItemInfo);

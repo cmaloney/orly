@@ -363,7 +363,7 @@ class TWsImpl final
             load_threads = Translate(stmt->GetLoadThreads()),
             merge_threads = Translate(stmt->GetMergeThreads()),
             merge_sim = Translate(stmt->GetMergeSim());
-        GetSession()->Import(path, load_threads, merge_threads, merge_sim);
+        GetSession()->Import(path, Translate(stmt->GetPkgName()), load_threads, merge_threads, merge_sim);
       }
 
       /* Compile Orlyscript into an installable package. */

@@ -64,7 +64,7 @@ namespace Orly {
 
           /* Override to perform the request. */
           virtual void Import(
-              const std::string &file_pattern, int64_t num_load_threads,
+              const std::string &file_pattern, const std::string &pkg_name, int64_t num_load_threads,
               int64_t num_merge_threads, int64_t merge_simultaneous) const = 0;
 
           /* Override to perform the request. */

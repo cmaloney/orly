@@ -21,6 +21,10 @@
 using namespace std;
 using namespace Orly::Sabot;
 
+void Orly::Sabot::DumpType(std::ostream &strm, const Type::TAny &type) {
+  type.Accept(TTypeDumper(strm));
+}
+
 void TTypeDumper::operator()(const Type::TInt8 &) const {
   assert(this);
   Strm << "int8";
