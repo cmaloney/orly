@@ -375,6 +375,16 @@ bool TLevel3::RefreshBytes(bool required) const {
         success = (Cursor < Limit);
         break;
       }
+      case TLevel2::Null: {
+        Cursor = Null;
+        Limit  = Null;
+        if (required) {
+          THROW_ERROR(TUnexpectedState)
+              << "expected Bytes; found Null";
+        }
+        success = false;
+        break;
+      }
       case TLevel2::EndOfField: {
         break;
       }
@@ -412,3 +422,5 @@ bool TLevel3::TryMatchByte(const char *expected, uint8_t &match) {
   }
   return success;
 }
+
+const uint8_t TLevel3::Null[1] = { 0 };
