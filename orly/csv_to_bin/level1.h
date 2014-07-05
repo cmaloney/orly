@@ -51,6 +51,17 @@ namespace Orly {
         /* If true, LF is an EOL; otherwise, CRLF is an EOL. */
         bool UnixEol;
 
+        /* If true, expect the escape character to escape delimiters, quotes,
+           CRs and NLs as well as itself.  If false, we do not escape. */
+        bool UseEsc;
+
+        /* The escape character to use when UseEsc is true. */
+        uint8_t Esc;
+
+        /* If true, accept quote-quote inside of a quoted field to mean a
+           single quote. */
+        bool UseQuoteQuote;
+
       };  // TLevel1::TOptions
 
       /* The default options use comma, quote, and CRLF. */

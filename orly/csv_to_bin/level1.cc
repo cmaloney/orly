@@ -21,7 +21,9 @@
 using namespace std;
 using namespace Orly::CsvToBin;
 
-const TLevel1::TOptions TLevel1::DefaultOptions = { ',', '"', false };
+const TLevel1::TOptions TLevel1::DefaultOptions = {
+  ',', '"', true, true, '\\', true
+};
 
 void TLevel1::Update() {
   assert(this);
@@ -35,23 +37,42 @@ void TLevel1::Update() {
       break;
     }
     uint8_t c = Pop();
-    /* If we're in a quoted range, we have fewer special cases to handle. */
+    /* If we're in a quoted range, we have other special cases to handle. */
     if (Quoted) {
-      /* Any non-quote character inside of quotes is just a byte. */
+      /* If we're at an escape, the next byte is to be taken literally.
+         If there's is no next byte, just take the escape byte itself
+         literally. */
+      if (Options.UseEsc && c == Options.Esc) {
+        ptr = TryPeek();
+        if (ptr) {
+          c = Pop();
+          /* This case is specifically to support a weird behavior in MySQL
+             dump.  It likes its zeros to be visible for some reason. */
+          if (c == '0') {
+            c = '\0';
+          }
+          Cache.State = Byte;
+          Cache.Byte = c;
+          break;
+        }
+      }
+      /* Any other non-quote character inside of quotes is just a byte. */
       if (c != Options.Quote) {
         Cache.State = Byte;
         Cache.Byte = c;
         break;
       }
       /* A quote inside of quotes might be the start of a quote-quote. */
-      ptr = TryPeek();
-      if (ptr && *ptr == Options.Quote) {
-        /* This is quoted quote-quote, so we report a single byte which is
-           the quote byte. */
-        Skip();
-        Cache.State = Byte;
-        Cache.Byte = c;
-        break;
+      if (Options.UseQuoteQuote) {
+        ptr = TryPeek();
+        if (ptr && *ptr == Options.Quote) {
+          /* This is quoted quote-quote, so we report a single byte which is
+             the quote byte. */
+          Skip();
+          Cache.State = Byte;
+          Cache.Byte = c;
+          break;
+        }
       }
       /* This quote marks the end of a quoted range.  Keep scanning. */
       Quoted = false;

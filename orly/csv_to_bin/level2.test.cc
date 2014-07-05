@@ -32,7 +32,7 @@ using Strm::Mem::TStaticIn;
 
 using TTable = vector<vector<string>>;
 
-static const TLevel1::TOptions Simple = { ',', '\'', true };
+static const TLevel1::TOptions Simple = { ',', '\'', true, true, '\\', true };
 
 static void BuildTable(TTable &table, const char *text) {
   Strm::Mem::TStaticIn mem(text);
