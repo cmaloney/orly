@@ -27,7 +27,7 @@ using namespace Orly::CsvToBin;
 
 using Strm::Mem::TStaticIn;
 
-static const TLevel1::TOptions Simple = { ',', '\'', true };
+static const TLevel1::TOptions Simple = { ',', '\'', true, true, '\\', true };
 
 FIXTURE(OneLiner) {
   Strm::Mem::TStaticIn mem(

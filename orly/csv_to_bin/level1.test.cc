@@ -26,7 +26,7 @@ using namespace Orly::CsvToBin;
 
 using Strm::Mem::TStaticIn;
 
-static const TLevel1::TOptions Simple = { ',', '\'', true };
+static const TLevel1::TOptions Simple = { ',', '\'', true, true, '\\', true };
 
 FIXTURE(Empty) {
   TStaticIn mem;
@@ -52,14 +52,6 @@ FIXTURE(JustDelim) {
 }
 
 FIXTURE(JustEol) {
-  TStaticIn mem("\r\n");
-  TLevel1 strm(&mem);
-  EXPECT_TRUE(strm->State == TLevel1::EndOfRecord);
-  ++strm;
-  EXPECT_TRUE(strm->State == TLevel1::EndOfFile);
-}
-
-FIXTURE(JustUnixEol) {
   TStaticIn mem("\n");
   TLevel1 strm(&mem, Simple);
   EXPECT_TRUE(strm->State == TLevel1::EndOfRecord);
@@ -98,7 +90,9 @@ FIXTURE(QuotedUnixEol) {
 
 FIXTURE(Typical) {
   vector<vector<string>> table;
-  TStaticIn mem("hello,'doctor,name',\ncontinue,'''yesterday''',tomorrow");
+  TStaticIn mem(
+      "hello,'doctor,name',\n"
+      "continue,'''yesterday''','\\'tomorrow\\''");
   TLevel1 strm(&mem, Simple);
   bool keep_going = true;
   do {
@@ -143,7 +137,7 @@ FIXTURE(Typical) {
     if (EXPECT_EQ(table[1].size(), 3u)) {
       EXPECT_EQ(table[1][0], "continue");
       EXPECT_EQ(table[1][1], "'yesterday'");
-      EXPECT_EQ(table[1][2], "tomorrow");
+      EXPECT_EQ(table[1][2], "'tomorrow'");
     }
   }
 }

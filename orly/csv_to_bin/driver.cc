@@ -41,11 +41,16 @@ class TCmd final
   public:
 
   TCmd(int argc, char *argv[])
-      : MaxKvPerFile(250000), UnixEol(TLevel1::DefaultOptions.UnixEol),
+      : MaxKvPerFile(250000),
+        UnixEol(TLevel1::DefaultOptions.UnixEol),
+        UseEsc(TLevel1::DefaultOptions.UseEsc),
+        UseQuoteQuote(TLevel1::DefaultOptions.UseQuoteQuote),
         TrueKwd(TLevel3::DefaultOptions.TrueKwd),
-        FalseKwd(TLevel3::DefaultOptions.FalseKwd) {
+        FalseKwd(TLevel3::DefaultOptions.FalseKwd),
+        NullKwd(TLevel3::DefaultOptions.NullKwd) {
     Delim += TLevel1::DefaultOptions.Delim;
     Quote += TLevel1::DefaultOptions.Quote;
+    Esc   += TLevel1::DefaultOptions.Esc;
     Parse(argc, argv, TMeta());
   }
 
@@ -57,10 +62,16 @@ class TCmd final
     if (Quote.size() != 1u && !cb("quote must be a single byte")) {
       return false;
     }
-    if (TrueKwd.empty() && !cb("must not be an empty string")) {
+    if (UseEsc && Quote.size() != 1u && !cb("escape must be a single byte")) {
       return false;
     }
-    if (FalseKwd.empty() && !cb("must not be an empty string")) {
+    if (TrueKwd.empty() && !cb("true_kwd must not be an empty string")) {
+      return false;
+    }
+    if (FalseKwd.empty() && !cb("false_kwd must not be an empty string")) {
+      return false;
+    }
+    if (NullKwd.empty() && !cb("null_kwd must not be an empty string")) {
       return false;
     }
     ToLower(TrueKwd);
@@ -68,10 +79,10 @@ class TCmd final
     return true;
   }
 
-  string Delim, Quote, InPattern, OutPrefix;
+  string Delim, Quote, Esc, InPattern, OutPrefix;
   size_t MaxKvPerFile;
-  bool UnixEol;
-  string TrueKwd, FalseKwd;
+  bool UnixEol, UseEsc, UseQuoteQuote;
+  string TrueKwd, FalseKwd, NullKwd;
 
   static void ToLower(string &str) {
     transform(str.begin(), str.end(), str.begin(), ::tolower);
@@ -92,8 +103,17 @@ class TCmd final
           &TCmd::Quote, "quote", Optional, "quote\0q\0",
           "The charater to expect as a quote mark.");
       Param(
+          &TCmd::Esc, "esc", Optional, "esc\0e\0",
+          "The charater to expect as an escape inside quoted fields.");
+      Param(
           &TCmd::UnixEol, "unix_eol", Optional, "unix_eol\0u\0",
           "Expect Unix-style EOL (LF) instead of CSV standard (CRLF).");
+      Param(
+          &TCmd::UseEsc, "use_esc", Optional, "use_esc\0eq\0",
+          "Expect escape sequences inside of quoted fields.");
+      Param(
+          &TCmd::UseEsc, "use_quote_quote", Optional, "use_quote_quote\0qq\0",
+          "Treat quote-quote sequences inside of quotes as a single quote.");
       Param(
           &TCmd::TrueKwd, "true_kwd", Optional, "true_kwd\0t\0",
           "The keyword to accept as bool true.");
@@ -138,10 +158,13 @@ int main(int argc, char *argv[]) {
             &file,
             { static_cast<uint8_t>(cmd.Delim[0]),
               static_cast<uint8_t>(cmd.Quote[0]),
-              cmd.UnixEol
+              cmd.UnixEol,
+              cmd.UseEsc,
+              static_cast<uint8_t>(cmd.Esc[0]),
+              cmd.UseQuoteQuote
             });
         TLevel2 level2(level1);
-        TLevel3 level3(level2, { cmd.TrueKwd, cmd.FalseKwd });
+        TLevel3 level3(level2, { cmd.TrueKwd, cmd.FalseKwd, cmd.NullKwd });
         translate(level3);
         return true;
       });
