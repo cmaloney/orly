@@ -20,7 +20,7 @@
 
 FIXTURE(Ref) {
   /* package #1; */
-  TPackage::TPtr package = TPackage::New({"foo"}, 1);
+  TPackage::TPtr package = TPackage::New({{"foo"}}, 1);
   /*
      foo = (x) where {
        x = given::(int);

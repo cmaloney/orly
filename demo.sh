@@ -5,10 +5,11 @@
 #
 # SETUP folder hierarchy
 # orly/
-#   web/  -- Checkout of orly-web
-#   src/  -- Checkout of orly (NOTE: Must be the same path used when compiling orlyi)
-#   bin/  -- All the binaries (This gets added to the user's path)
-#   data/   -- All the .bin files which can be loaded
+#   webui/    -- Checkout of orly-webui
+#   src/      -- Checkout of orly (NOTE: Must be the same path used when compiling orlyi)
+#   bin/      -- All the binaries (This gets added to the user's path)
+#   data/     -- All the .bin files which can be loaded
+#   packages/ -- Pre-supplied packages for datasets
 #
 # Then run ./demo.sh {dataset}
 
@@ -32,7 +33,7 @@ case $DATASET in
   "friends_of_friends") ;;
   "matrix") ;;
   "shakespeare") ;;
-  "twitter") DATA_FILE="twitter0[0-6].bin" ;;
+  "twitter") DATA_FILE="twitter0[0-6].bin.gz" ;;
   "twitter_ego") DATA_FILE="twitter-ego[0-9].bin" ;;
   *) usage
 esac
@@ -41,13 +42,16 @@ ROOT="$PWD"
 DATA_DIR="$ROOT/data"
 PACKAGE_DIR="$ROOT/packages"
 SRC_DIR="$ROOT/src"
-WEB_DIR="$ROOT/web"
+WEB_DIR="$ROOT/webui"
 
+set -e
+
+#Get the datasets
+echo "Getting Dataset"
 FILENAME="$DATA_DIR/$DATA_FILE"
-
 NUM_FILES=1
 if [ "$DATASET" = "twitter" ]; then
-  for twitter_datafile in "twitter0"{0..6}".bin"
+  for twitter_datafile in "twitter0"{0..6}".bin.gz"
   do
     TWITTER_FILENAME="$DATA_DIR/$twitter_datafile"
     echo $TWITTER_FILENAME
@@ -65,6 +69,12 @@ elif [ ! -f "$FILENAME" ]; then
   mv "$DATASET.bin" "$FILENAME"
 fi
 
+#Grab the web UI
+if [ ! -d "webui" ]; then
+  echo "You must download / setup the Web UI before you can run the demo"
+fi
+
+
 #Start orlyi
 #TODO: Persistent state files / hard drive
 orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le \
@@ -75,6 +85,9 @@ orlyi --create=true --instance_name=$DATASET --starting_state=SOLO --la --le \
 ORLY_PID=$!
 #TODO : Make a better way to test for the server being up rather than just assuming it starts up in 15 seconds
 sleep 15
+
+set +e
+
 
 core_import --num_load_threads=1 --num_merge_threads=1 --la --le \
   --num_sim_merge="$NUM_FILES" --import_pattern="$FILENAME"
@@ -88,7 +101,7 @@ fi
 
 ##TODO: Run orlyc on sample queries to compile
 
-/usr/bin/php5 -S 0.0.0.0:8000 -t web/public web/server.php &
+php -S 0.0.0.0:8000 -t webui/public webui/server.php &
 WEB_PID=$!
 
 echo "==========================================================="

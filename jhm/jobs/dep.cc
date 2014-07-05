@@ -29,12 +29,12 @@ using namespace Jhm::Job;
 using namespace std;
 
 static TRelPath GetOutputName(const TRelPath &input) {
-  return input.AddExtension({"dep"});
+  return TRelPath(AddExtension(TPath(input.Path), {"dep"}));
 }
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
-  if (EndsWith(output.GetName().GetExtensions(), {"dep"})) {
-    return output.DropExtension(1);
+  if (output.Path.EndsWith({"dep"})) {
+    return TRelPath(DropExtension(TPath(output.Path), 1));
   } else {
     return TOpt<TRelPath>();
   }
@@ -68,10 +68,10 @@ string TDep::GetCmd() {
   ostringstream oss;
 
   // TODO: add a helper for output set -> output directory
-  oss << "make_dep_file " << GetInput()->GetPath() << ' ' << GetSoleOutput()->GetPath().AsStr();
+  oss << "make_dep_file " << GetInput()->GetPath() << ' ' << GetSoleOutput()->GetPath();
 
   // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the compiler
-  const auto &extensions = GetInput()->GetPath().GetRelPath().GetName().GetExtensions();
+  const auto &extensions = GetInput()->GetRelPath().Path.Extension;
   if (extensions.size() >= 1) {
     const string &ext = extensions.at(extensions.size()-1);
     if (ext == "cc" || ext == "c") {
@@ -90,7 +90,7 @@ bool TDep::IsComplete() {
 
   // Load the json file and see if there are any new things in it which aren't yet done (We have work to do)
   // TODO: This should be a call to Parse()... But that constructs an istringstream...
-  TJson deps = TJson::Read(GetSoleOutput()->GetPath().AsStr().c_str());
+  TJson deps = TJson::Read(AsStr(GetSoleOutput()->GetPath()).c_str());
   deps.ForEachElem([this,&needs_work](const TJson &elem)->bool {
     TFile *file = Env.TryGetFileFromPath(elem.GetString());
     if (file) {
@@ -111,4 +111,4 @@ bool TDep::IsComplete() {
 
 
 TDep::TDep(TEnv &env, TFile *in_file)
-    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetPath().GetRelPath()))}), Env(env) {}
+    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath()))}), Env(env) {}

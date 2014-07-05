@@ -154,7 +154,8 @@ bool TRepoTetrisManager::TPlayer::TChild::Refresh(const unique_ptr<Indy::L1::TTr
         const auto &entry = item.second;
         if (entry.GetPackageFqName() != Mynde::PackageName) {
           FuncHolderByUpdateId[item.first] =
-              Player->RepoTetrisManager->PackageManager->Get(entry.GetPackageFqName())->GetFunctionInfo(AsPiece(entry.GetMethodName()));
+              Player->RepoTetrisManager->PackageManager->Get(Package::TName{entry.GetPackageFqName()})
+                  ->GetFunctionInfo(AsPiece(entry.GetMethodName()));
         } else {
           // Add an entry default constructed for mynde calls (We hard code the assertions and replay)
           FuncHolderByUpdateId[item.first];

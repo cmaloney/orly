@@ -21,6 +21,7 @@
 #include <unordered_map>
 
 #include <base/hash.h>
+#include <base/path.h>
 #include <base/uuid.h>
 
 #include <orly/symbol/package.h>
@@ -66,10 +67,10 @@ namespace Orly {
         }
 
         /* TODO */
-        inline const Jhm::TNamespace &GetNamespace() const {
+        inline const Package::TName &GetName() const {
           assert(this);
           assert(Symbol);
-          return Symbol->GetNamespace();
+          return Symbol->GetName();
         }
 
         protected:

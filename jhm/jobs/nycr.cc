@@ -31,12 +31,12 @@ using namespace Jhm::Job;
 using namespace std;
 
 void AddNycr(TEnv &env, ostream &out) {
-  out << env.GetRoot() << "/out/bootstrap/tools/nycr/nycr";
+  out << *env.GetRoot() << "/out/bootstrap/tools/nycr/nycr";
 }
 
 static TOpt<TRelPath> GetNycrLangInputName(const TRelPath &output) {
-  if (EndsWith(output.GetName().GetExtensions(), {"nycr", "lang"})) {
-    return output.DropExtension(1);
+  if (output.Path.EndsWith({"nycr", "lang"})) {
+    return TRelPath(DropExtension(TPath(output.Path), 1));
   }
 
   return TOpt<TRelPath>();
@@ -70,14 +70,14 @@ std::string TNycrLang::GetCmd() {
 
 bool TNycrLang::IsComplete() {
   // Stash the languages in a machine-readable form.
-  TJson languages = TJson::Read(GetSoleOutput()->GetPath().AsStr().c_str());
+  TJson languages = TJson::Read(AsStr(GetSoleOutput()->GetPath()).c_str());
   assert(languages.GetKind() == TJson::Array);
   GetSoleOutput()->PushComputedConfig(TJson::TObject{{"nycr", TJson::TObject{{"languages", move(languages)}}}});
   return true;
 }
 
 TNycrLang::TNycrLang(TEnv &env, TFile *input)
-    : TJob(input, {env.GetFile(input->GetPath().GetRelPath().AddExtension({"lang"}))}), Env(env) {}
+    : TJob(input, {env.GetFile(TRelPath(AddExtension(TPath(input->GetRelPath().Path), {"lang"})))}), Env(env) {}
 
 
 /*
@@ -96,7 +96,7 @@ TNycrLang::TNycrLang(TEnv &env, TFile *input)
     }
 */
 
-const static vector<TExtension> LangSuffixes = {
+const static vector<vector<string>> LangSuffixes = {
   {"cst","h"},
   {"cst", "cc"},
   {"dump", "cc"},
@@ -110,10 +110,9 @@ const static vector<TExtension> LangSuffixes = {
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
   // If we end with a lang followed by a language suffix, get the nycr input name
-  const auto &ext = output.GetName().GetExtensions();
   for (const auto &suffix: LangSuffixes) {
-    if(EndsWith(ext, suffix) && ext.size() >= suffix.size() + 1) {
-      return output.DropExtension(suffix.size() + 1).AddExtension({"nycr"});
+    if(output.Path.Extension.size() >= suffix.size() + 1 && output.Path.EndsWith(suffix)) {
+      return TRelPath(AddExtension(DropExtension(TPath(output.Path), suffix.size() + 1), {"nycr"}));
     }
   }
 
@@ -153,7 +152,7 @@ string TNycr::GetCmd() {
   unordered_set<TFile*> old_outputs = GetOutput();
   for(const string &lang: languages) {
     for (const auto &ext: LangSuffixes) {
-      TFile *out = Env.GetFile(GetInput()->GetPath().GetRelPath().SwapLastExtension(lang).AddExtension(ext));
+      TFile *out = Env.GetFile(TRelPath(AddExtension(SwapExtension(TPath(GetInput()->GetRelPath().Path), {lang}), ext)));
       auto it = old_outputs.find(out);
       if (it == old_outputs.end()) {
         AddOutput(out);
@@ -173,10 +172,11 @@ string TNycr::GetCmd() {
 
   AddNycr(Env, oss);
 
-  oss << " -a " << GetInput()->GetPath().GetRelPath().GetName().GetBase()
-      << " -p " << GetInput()->GetPath().GetRelPath().GetNamespace()
+  oss << " -a " << GetInput()->GetRelPath().Path.Name
+      << " -p " << Join(GetInput()->GetRelPath().Path.Namespace, '/')
       // Note: This finding of the output root is correct, but should really be a call to a helper function.
-      << " -r /" << Env.GetOut() << '/' << GetInput()->GetPath().GetRelPath().GetNamespace()
+      << " -r " << *Env.GetOut();
+  WriteNamespace(oss, GetInput()->GetRelPath().Path.Namespace)
       << ' ' << GetInput()->GetPath();
   return oss.str();
 }
@@ -190,4 +190,4 @@ bool TNycr::IsComplete() {
 TNycr::TNycr(TEnv &env, TFile *in_file)
     : TJob(in_file, TSet<TFile *>(), true),
       Env(env),
-      Need(env.GetFile(in_file->GetPath().GetRelPath().AddExtension({"lang"}))) {}
+      Need(env.GetFile(TRelPath(AddExtension(TPath(in_file->GetRelPath().Path), {"lang"})))) {}

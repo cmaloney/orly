@@ -110,9 +110,6 @@ namespace Orly {
           /* For the convenience of those who inherit from us. */
           using TSessionPin = TWs::TSessionPin;
 
-          /* The root of the directory tree where packages are installed. */
-          virtual const std::string &GetPackageDir() const = 0;
-
           /* Get the package manager. Useful for things like iterating over all installed packages. */
           virtual const Package::TManager &GetPackageManager() const = 0;
 

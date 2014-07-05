@@ -48,6 +48,9 @@
 namespace websocketpp {
 namespace processor {
 
+#pragma GCC push_options
+#pragma GCC optimize "0"
+
 /// Processor for Hybi version 13 (RFC6455)
 template <typename config>
 class hybi13 : public processor<config> {
@@ -373,7 +376,7 @@ public:
                             ec = make_error_code(error::message_too_big);
                             break;
                         }
-                        
+
                         m_data_msg = msg_metadata(
                             m_msg_manager->get_message(op,m_bytes_needed),
                             frame::get_masking_key(m_basic_header,m_extended_header)
@@ -382,12 +385,12 @@ public:
                         // Fetch the underlying payload buffer from the data message we
                         // are writing into.
                         std::string & out = m_data_msg.msg_ptr->get_raw_payload();
-                        
+
                         if (out.size() + m_bytes_needed > base::m_max_message_size) {
                             ec = make_error_code(error::message_too_big);
                             break;
                         }
-                        
+
                         // Each frame starts a new masking key. All other state
                         // remains between frames.
                         m_data_msg.prepared_key = prepare_masking_key(
@@ -396,7 +399,7 @@ public:
                                 m_extended_header
                             )
                         );
-                        
+
                         out.reserve(out.size() + m_bytes_needed);
                     }
                     m_current_msg = &m_data_msg;
@@ -984,6 +987,7 @@ protected:
     // Extensions
     permessage_deflate_type m_permessage_deflate;
 };
+#pragma GCC pop_options
 
 } // namespace processor
 } // namespace websocketpp

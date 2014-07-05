@@ -24,6 +24,7 @@
 #include <orly/spa/honcho.h>
 #include <orly/spa/service.h>
 #include <orly/type.h>
+#include <util/path.h>
 
 using namespace std;
 using namespace Orly;
@@ -87,15 +88,19 @@ class TCompilerConfig : public Base::TCmd {
 int CompileCode(const TCompilerConfig &cmd) {
   assert(&cmd);
 
-  bool found_root = false;
-  Jhm::TAbsBase root = Jhm::TAbsBase::Find("__orly__", found_root /* out param*/);
+  //TODO: This 'make absolute' is something we do fairly commonly. (At least here and <jhm/jhm>). Should canonicalize.
+  string src = cmd.Source;
+  if(src.front() != '/') {
+    src = Util::GetCwd() + '/' + src;
+  }
 
+  //TODO: Practically speaking for each src file given, esp. if we have more than one
+  // We need to find the root of it's repository (__orly__) file. And use that
   int result = EXIT_FAILURE;
   try {
     const auto output = Compiler::Compile(
-                            root.GetAbsPath(cmd.Source),
-                            Jhm::TAbsBase(cmd.OutputDir),
-                            found_root,
+                            Base::TPath(src),
+                            cmd.OutputDir,
                             cmd.DebugOutput,
                             cmd.MachineForm); //TODO: SemanticOnly);
     if(!cmd.SkipTests) {

@@ -37,7 +37,7 @@ namespace Jhm {
   struct TJobProducer {
     const char *Name;
     // TODO: Should really be a set...
-    std::vector<TExtension> OutExtensions;
+    std::vector<std::vector<std::string>> OutExtensions;
     std::function<Base::TOpt<TRelPath> (const TRelPath &name)> TryGetInput;
     std::function<std::unique_ptr<TJob> (TEnv &env, TFile *in_file)> MakeJob;
   };
@@ -115,13 +115,4 @@ namespace Jhm {
   };
 
   std::ostream &operator<<(std::ostream &out, TJob *job);
-  /* JobKind
-    TStr &&name, TExtension &&core_in, std::set<TExtension> &&OutExtensions);
-
-    private:
-    TFile In;
-    TStr Name;
-    TExtension in_ext;
-    std::set<TExtension> out_ext;
-  */
 }

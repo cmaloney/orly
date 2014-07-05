@@ -22,6 +22,7 @@
 #include <string>
 
 #include <base/error.h>
+#include <base/path.h>
 #include <jhm/naming.h>
 #include <orly/package/name.h>
 
@@ -42,9 +43,8 @@ namespace Orly {
     };  // TCompileFailure
 
     Package::TVersionedName Compile(
-        const Jhm::TAbsPath &core_file,
-        const Jhm::TAbsBase &out_tree,
-        bool found_root, // Only if we found the root can we look at sub scopes.
+        Base::TPath core_file,
+        const Jhm::TTree &out_tree,
         bool debug_cc,
         bool machine_mode,
         std::ostream &out_strm = std::cout);

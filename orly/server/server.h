@@ -404,9 +404,6 @@ namespace Orly {
         return Scheduler;
       }
 
-      /* The directory given to us as a command-line arg. */
-      virtual const std::string &GetPackageDir() const override;
-
       /* Called when the websockets server wishes to create a new session. */
       virtual TWs::TSessionPin *NewSession() override;
 

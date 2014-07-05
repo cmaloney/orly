@@ -27,19 +27,16 @@
 #include <unistd.h>
 #include <unordered_map>
 
-#include <base/os_error.h>
-#include <base/piece.h>
+#include <base/as_str.h>
 #include <base/split.h>
 #include <base/source_root.h>
 #include <base/subprocess.h>
-#include <base/thrower.h>
 #include <orly/code_gen/package.h>
 #include <orly/orly.package.cst.h>
 #include <orly/synth/package.h>
-#include <strm/fd.h>
-#include <strm/bin/in.h>
 #include <tools/nycr/error.h>
 
+using namespace Base;
 using namespace std;
 using namespace Orly;
 using namespace Orly::Compiler;
@@ -56,12 +53,12 @@ class TPackageBuilder {
   TPackageBuilder(TPackageBuilder &&that)
       : RelPath(move(that.RelPath)), Cst(move(that.Cst)), Synth(move(that.Synth)) {}
 
-  void BuildSymbols(const TAbsBase &src_root) {
+  void BuildSymbols(const TTree &src_root) {
     assert(this);
-    Cst = Package::Syntax::TPackage::ParseFile(TAbsPath(src_root, RelPath).AsStr().c_str());
+    Cst = Package::Syntax::TPackage::ParseFile(AsStr(src_root.GetAbsPath(RelPath)).c_str());
     if (!HasErrors()) {
       assert(Cst);
-      Synth = make_unique<Synth::TPackage>(RelPath.ToNamespaceIncludingName(), &*Cst, false);
+      Synth = make_unique<Synth::TPackage>(Package::TName{RelPath.Path.ToNamespaceIncludingName()}, &*Cst, false);
     }
   }
 
@@ -78,7 +75,7 @@ class TPackageBuilder {
 
   //TODO: be able to use temp filenames again?
   /* Generates the '.h' interfaces, as well as the '.cc' implementations. */
-  void GenerateIntermediateCode(const TAbsBase &out_root) {
+  void GenerateIntermediateCode(const TTree &out_root) {
     assert(this);
     //Generate the CodeGen representation
     CodeGen::TPackage cg(Synth->GetSymbol());
@@ -87,13 +84,13 @@ class TPackageBuilder {
 
     //Spit out the language object files as necessary (Everything in the header to simplify linking.)
     //TODO: Don't re-emit already emitted object headers.
-    cg.EmitObjectHeaders(Jhm::TAbsBase(Base::GetSrcRoot() + "/orly/rt/objects"));
+    cg.EmitObjectHeaders(GetSrcRoot() + "orly/rt/objects");
   }
 
-  Jhm::TNamespace GetNamespace() const {
+  Package::TName GetName() const {
     assert(this);
     assert(Synth);
-    return Synth->GetNamespace();
+    return Synth->GetName();
   }
 
   unsigned int GetVersion() const {
@@ -118,25 +115,24 @@ class TPackageBuilder {
 
 };  // TPackageBuilder
 
-/* Nabbed by Compile() to prevent multiple threads from trying to compile. */
-static mutex Compiling;
 
 //Note: This should probably be promted to a compile management class.
 //TODO: Reintroduce machine mode, not saving cc. Also reintroduce syntax check only and semantic check only compilation.
 /* Returns the versioned package name of the final build target. */
 Package::TVersionedName Orly::Compiler::Compile(
-      const TAbsPath &core_file,
-      const TAbsBase &out_tree,
-      bool /*found_root*/, //Only if we found the root can we look at sub scopes.
+      TPath core_file,
+      const TTree &out_tree,
       bool debug_cc,
       bool machine_mode,
       ostream &out_strm) {
+  /* Nabbed by Compile() to prevent multiple threads from trying to compile. */
+  static mutex Compiling;
 
   lock_guard<mutex> lock_compiling(Compiling);
 
-  const TAbsBase &src_tree = core_file.GetAbsBase();
-  const TRelPath &core_rel = core_file.GetRelPath();
-
+  TTree src_tree(move(core_file.Namespace));
+  const TRelPath core_rel(move(core_file));
+  //NOTE: As of here, core_file has nothing left in it.
 
   typedef unordered_map<TRelPath, unique_ptr<TPackageBuilder>> TPackageMap;
   TPackageMap packages;
@@ -152,7 +148,7 @@ Package::TVersionedName Orly::Compiler::Compile(
       auto cur = todo.front();
       todo.pop();
 
-      if (cur.GetName().GetExtensions().size() != 1 || cur.GetName().GetExtensions()[0] != "orly") {
+      if (cur.Path.Extension.size() != 1 || cur.Path.Extension[0] != "orly") {
         out_strm << "Invalid package name. Package names may not contain a '.'. This means, for example, a source file can only be 'a.orly', not 'a.foo.orly'" << endl;
         failed = true;
         break;
@@ -220,17 +216,17 @@ Package::TVersionedName Orly::Compiler::Compile(
     stringstream args;
     /* extra */ {
       //Take all the packages needed directly or indirectly by the compilation and link  them together in one swoop.
-      std::ostringstream version_str_builder;
-      version_str_builder << packages[core_rel]->GetVersion();
+      ;
 
-      TAbsPath out_path(out_tree, core_rel.SwapLastExtension({version_str_builder.str(), "so"}));
-      //TODO: Check these compile flags.
-      args << "g++ -std=c++1y -x c++ -I" << Base::GetSrcRoot() << " -fPIC -shared -o"<< out_path << " -iquote " << out_tree << ' '
-           << TAbsPath(out_tree, core_rel.SwapLastExtension(Jhm::TStrList{"link","cc"}))
-           << Base::Join(packages,
+      TPath out_path =
+          out_tree.GetAbsPath(SwapExtension(TPath(core_rel.Path), {to_string(packages[core_rel]->GetVersion()), "so"}));
+      // TODO: Check these compile flags.
+      args << "g++ -std=c++1y -x c++ -I" << GetSrcRoot() << " -fPIC -shared -o"<< out_path << " -iquote " << out_tree << ' '
+           << out_tree.GetAbsPath(SwapExtension(TPath(core_rel.Path), {"link","cc"}))
+           << Join(packages,
                          ' ',
                          [&out_tree](ostream &strm, const TPackageMap::value_type &that) {
-                           strm << ' ' << TAbsPath(out_tree, that.first.SwapLastExtension("cc"));
+                           strm << ' ' << out_tree.GetAbsPath(SwapExtension(TPath(that.first.Path), {"cc"}));
                          });
       if (debug_cc) {
         args << " -g -Wno-unused-variable -Wno-type-limits -Werror -Wno-parentheses -Wall -Wextra -Wno-unused-parameter";
@@ -240,13 +236,13 @@ Package::TVersionedName Orly::Compiler::Compile(
       }
     }
 
-    Base::TPump pump;
-    auto subproc = Base::TSubprocess::New(pump, args.str().c_str());
+    TPump pump;
+    auto subproc = TSubprocess::New(pump, args.str().c_str());
     auto status = subproc->Wait();
     if (status || failed) {
       if (debug_cc) {
-        Base::EchoOutput(subproc->TakeStdOutFromChild());
-        Base::EchoOutput(subproc->TakeStdErrFromChild());
+        EchoOutput(subproc->TakeStdOutFromChild());
+        EchoOutput(subproc->TakeStdErrFromChild());
       }
 
       //NOTE: use '-d' to get the error messages.
@@ -261,5 +257,5 @@ Package::TVersionedName Orly::Compiler::Compile(
   }
   */
 
-  return Package::TVersionedName{packages[core_rel]->GetNamespace(), packages[core_rel]->GetVersion()};
+  return Package::TVersionedName{packages[core_rel]->GetName(), packages[core_rel]->GetVersion()};
 }

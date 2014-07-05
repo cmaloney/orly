@@ -63,12 +63,12 @@ TSet<TFile *> Jhm::FindTests(TEnv &env) {
     bool OnFile(const TEntry &entry) final {
       TFile *f = Env.TryGetFileFromPath(entry.AccessPath);
       assert(f); // We're walking in src. We must be able to get the file from the path.
-      const TExtension &ext_list = f->GetPath().GetRelPath().GetName().GetExtensions();
+      const auto &ext_list = f->GetRelPath().Path.Extension;
       auto f_it = find(ext_list.begin(), ext_list.end(), "test");
       if (f_it != ext_list.end()) {
         // We found a test! Get the executable variant / actual test file
-        Out.insert(
-            Env.GetFile(f->GetPath().GetRelPath().DropExtension(ext_list.end() - f_it).AddExtension({"test", ""})));
+        Out.insert(Env.GetFile(
+            TRelPath(AddExtension(DropExtension(TPath(f->GetRelPath().Path), ext_list.end() - f_it), {"test",""}))));
       }
       return true;
     }
@@ -79,6 +79,6 @@ TSet<TFile *> Jhm::FindTests(TEnv &env) {
     vector<string> ExcludedDirs;
   };
 
-  test_walker_t(env, ret).Walk(('/' + env.GetSrc().Get()).c_str());
+  test_walker_t(env, ret).Walk(AsStr(*env.GetSrc()).c_str());
   return ret;
 }

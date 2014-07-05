@@ -1,6 +1,6 @@
 /* <jhm/naming.h>
 
-   Classes to represent and easily manipulate our C++ namespacing/filename conventions as mandated by JHM.
+   Classes to make it hard(er) to get wrong the tree + relative path model JHM works on.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -18,214 +18,69 @@
 
 #pragma once
 
-#include <cassert>
-#include <memory>
-#include <ostream>
-#include <string>
-#include <vector>
+#include <base/path.h>
 
-#include <base/piece.h>
-
-/* TODO:
-    Make these less copy happy, usually they all are derived from the same source text. This means a TTape style model.
-    Name copy construction mutators (Replace extension, remove prefix, etc.). */
 namespace Jhm {
 
-  /* Useful universal type defs. */
-  typedef std::string TStr;
-  typedef std::vector<TStr> TStrList;
-
-  /* Forward Declarations */
-  class TAbsPath;
   class TRelPath;
-  using TExtension = TStrList;
 
-  bool EndsWith(const TExtension &full_ext, const TExtension &tail);
-
-  /* TODO */
-  class TNamingError : public Base::TFinalError<TNamingError> {
+  // Trees contain files in relative paths.
+  class TTree {
     public:
+    DEFAULT_MOVE(TTree);
+    DEFAULT_COPY(TTree);
 
-    /* Constructor. */
-    TNamingError(const Base::TCodeLocation &loc, const char *msg=0) {
-      PostCtor(loc, msg);
-    }
-  };  // TNamingError
+    /* Locate a tree by finding a designated marker name. If the marker isn't found in the first case we throw
+       an exception. In the second case, we use the current working directory. */
+    static TTree Find(std::string start_dir, const char *marker);
+    static TTree Find(std::string start_dir, const char *marker, bool &found_marker);
 
-  class TName {
-    public:
+    TTree() = default;
 
-    TName(const TStr &str); //str must be of the format base[.ext]*
-    TName(const TStr &base, const TStrList &extensions);
-    TName(TStr &&base, TExtension &&extensions);
+    TTree(std::vector<std::string> &&root);
+    TTree(const std::string &path);
 
-    bool operator==(const TName &that) const;
-    bool operator!=(const TName &that) const;
+    // Returns true iff the path is prefixed with our root.
+    bool Contains(const Base::TPath &path) const;
 
-    const TStr &GetBase() const;
-    const TExtension &GetExtensions() const;
+    Base::TPath GetAbsPath(Base::TPath path) const;
+    Base::TPath GetAbsPath(TRelPath rel_path) const;
 
-    TName AddExtension(const TExtension &new_ext) const;
-    TName SwapLastExtension(const TStr &new_ext) const;
-    TName SwapLastExtension(const TExtension &new_ext) const;
+    /* Get a relative path from a string which is an absolute path.
+       NOTE:
+          Assumes path is absolute (starts with '/')
+          Assumes tree contains path. */
+    TRelPath GetRelPath(Base::TPath &&path) const;
 
-    TName DropExtension(uint32_t count) const;
+    TTree AddDir(std::string &dir) const;
 
-    void Write(std::ostream &strm) const;
-
-    private:
-    void Verify() const;
-
-    TStr Base;
-    TExtension Extensions;
+    std::vector<std::string> Root;
   };
 
-  class TNamespace {
-    public:
-    TNamespace(const TStr &ns); //namespaces must be of format [a][/b]*
-    TNamespace(const Base::TPiece<const char> &ns);
-    TNamespace(const TStrList &ns);
-    TNamespace(TStrList &&ns);
-
-    bool operator==(const TNamespace &that) const;
-    bool operator!=(const TNamespace &that) const;
-
-    TNamespace AddNamespace(const TStr &new_ns) const;
-    TStr AsStr() const;
-    const TStrList &Get() const;
-    size_t GetHash() const;
-    void Write(std::ostream &strm) const;
-
-    /* Takes the namespace, chops off the last part using that as the filename and attaching the given extension list. */
-    TRelPath ToRelPath(const TStrList &extensions={}) const;
-
-    private:
-    void Verify() const;
-
-    TStrList Namespaces;
-  };
-
+  //TODO: Cope with prefixes (lib) specially?
+  // Relative paths
   class TRelPath {
     public:
-    TRelPath(const TStr &str); //Format: [namespaces/]name
-    TRelPath(const TNamespace &ns, const TName &name);
-    TRelPath(TNamespace &&ns, TName &&name);
-    //TODO: Constructor which can pass prefix/extension information to TName.
+    DEFAULT_MOVE(TRelPath);
+    DEFAULT_COPY(TRelPath);
 
-    bool operator==(const TRelPath &that) const;
-    bool operator!=(const TRelPath &that) const;
+    /* Construct off a path which isn't prefixed with a tree. Explicit because the programmer should really pay
+       attention when using this constructor. */
+    explicit TRelPath(Base::TPath &&path) : Path(path) {}
 
-    TStr AsStr() const;
+    bool operator==(const Jhm::TRelPath &that) const;
+    bool operator!=(const Jhm::TRelPath &that) const;
 
-    const TNamespace &GetNamespace() const;
-    const TName &GetName() const;
-
-    TRelPath AddExtension(const TStrList &new_ext) const;
-
-    TRelPath SwapLastExtension(const TStr &new_ext) const;
-    TRelPath SwapLastExtension(const TStrList &new_ext) const;
-
-    /* Drops the last count chunks of the extension */
-    TRelPath DropExtension(uint32_t count) const;
-
-    TNamespace ToNamespaceIncludingName() const;
-
-    void Write(std::ostream &strm) const;
-
-    private:
-    static bool VerifyStrLastNotSlash(const TStr &str);
-
-    TNamespace Namespaces;
-    TName Name;
+    Base::TPath Path;
   };
 
-  class TAbsBase {
-    public:
-
-    /* Locate an absolute base by finding a designated marker name. If the marker isn't found in the first case we throw
-       an exception. In the second case, we use the current working directory. */
-    static TAbsBase Find(const TStr &marker);
-    static TAbsBase Find(const TStr &marker, bool &found_marker);
-
-    //NOTE: It may turn out to be more efficient to make these always shared pointers when putting them into TAbsPath.
-    TAbsBase(const TStr &str);
-    TAbsBase(TStr &&str);
-
-    bool operator==(const TAbsBase &that) const;
-    bool operator!=(const TAbsBase &that) const;
-
-    // Returns true iff the abs base is a prefix of str
-    bool Contains(const TStr &str) const;
-
-    const TStr &Get() const;
-
-    /* Take the given path in the string and, using the */
-    const TAbsPath GetAbsPath(const TStr &str) const;
-
-    void Write(std::ostream &strm) const;
-
-    private:
-    /* Perform common construction steps */
-    void Construct();
-
-    void StripSlashes();
-    void Verify() const;
-
-    TStr AbsBase;
-  };
-
-  class TAbsPath {
-    public:
-    TAbsPath(const TAbsBase &tree, const TRelPath &rel_path);
-    TAbsPath(TAbsBase &&tree, TRelPath &&rel_path);
-
-    bool operator==(const TAbsPath &that) const;
-    bool operator!=(const TAbsPath &that) const;
-
-    TStr AsStr() const;
-
-    const TAbsBase &GetAbsBase() const;
-    const TRelPath &GetRelPath() const;
-
-    void Write(std::ostream &strm) const;
-
-    private:
-    TRelPath Path;
-    TAbsBase Tree;
-  };
-
-  std::ostream &operator<<(std::ostream &strm, const TName &name);
-  std::ostream &operator<<(std::ostream &strm, const TNamespace &ns);
-  std::ostream &operator<<(std::ostream &strm, const TRelPath &rel_path);
-  std::ostream &operator<<(std::ostream &strm, const TAbsBase &abs_base);
-  std::ostream &operator<<(std::ostream &strm, const TAbsPath &abs_path);
+  std::ostream &operator<<(std::ostream &out, const TRelPath &that);
+  std::ostream &operator<<(std::ostream &out, const TTree &that);
 }
 
-
 namespace std {
-  template <>
+  template<>
   struct hash<Jhm::TRelPath> {
-
-    size_t operator()(const Jhm::TRelPath &rel_path) const {
-      assert(&rel_path);
-      //TODO: Eliminate the cast to string. For now it is the shortest path to completion
-      return hash<std::string>()(rel_path.AsStr());
-    }
-
-    typedef size_t result_type;
-    typedef Jhm::TRelPath argument_type;
+    size_t operator()(const Jhm::TRelPath &that) const;
   };
-
-  template <>
-  struct hash<Jhm::TNamespace> {
-
-    size_t operator()(const Jhm::TNamespace &ns) const {
-      assert(&ns);
-      return ns.GetHash();
-    }
-
-    typedef size_t result_type;
-    typedef Jhm::TNamespace argument_type;
-  };
-
 }

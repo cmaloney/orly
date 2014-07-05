@@ -79,9 +79,24 @@ namespace Orly {
           TUnexpectedState, std::runtime_error,
           "unexpected state in CSV file");
 
+      /* Options for parsing. */
+      struct TOptions final {
+
+        /* The keyword we accept as bool true.  Must be all lower-case. */
+        std::string TrueKwd;
+
+        /* The keyword we accept as bool false.  Must be all lower-case. */
+        std::string FalseKwd;
+
+      };  // TLevel3::TOptions
+
+      /* The default options use 'true' and 'false'. */
+      static const TOptions DefaultOptions;
+
       /* Use the given level-2 parser. */
-      explicit TLevel3(TLevel2 &level2)
-          : Level2(level2), TrueKwd("true"), FalseKwd("false"),
+      explicit TLevel3(
+          TLevel2 &level2, TOptions options = DefaultOptions)
+          : Level2(level2), Options(std::move(options)),
             Cursor(nullptr), Limit(nullptr) {}
 
       /* Extract a value from the current field. */
@@ -218,8 +233,8 @@ namespace Orly {
       /* Our level-2 parser. */
       TLevel2 &Level2;
 
-      /* The keywords we recognize, all lower-case. */
-      const char *const TrueKwd, *const FalseKwd;
+      /* Parsing options, cached at construction time. */
+      const TOptions Options;
 
       /* The bytes we have buffered for the current field. */
       mutable const uint8_t *Cursor, *Limit;

@@ -22,6 +22,7 @@
 #include <ostream>
 #include <string>
 
+#include <base/hash.h>
 #include <base/piece.h>
 #include <jhm/naming.h>
 
@@ -29,7 +30,18 @@ namespace Orly {
 
   namespace Package {
 
-    typedef Jhm::TNamespace TName;
+    struct TName {
+      static TName Parse(const std::string &name);
+
+      bool operator==(const TName &that) const {
+        return Name == that.Name;
+      }
+      bool operator!=(const TName &that) const {
+        return Name != that.Name;
+      }
+
+      std::vector<std::string> Name;
+    };
 
     struct TVersionedName {
       static TVersionedName Parse(const Base::TPiece<const char> &name);
@@ -43,11 +55,24 @@ namespace Orly {
 
     std::ostream &operator<<(std::ostream &out, const TVersionedName &that);
 
+    //NOTE: I'd make this a operator<< but ADL looks throuhg the using.
+    std::ostream &operator<<(std::ostream &out, const TName &that);
+
   } // Package
 
 } // Orly
 
 namespace std {
+
+  template <>
+  struct hash<Orly::Package::TName> {
+
+    size_t operator()(const Orly::Package::TName &that) const {
+      assert(&that);
+      return Base::ChainHashes(that.Name);
+    }
+
+  };  // hash<Orly::Package::TVersionedName>
 
   template <>
   struct hash<Orly::Package::TVersionedName> {
@@ -57,7 +82,7 @@ namespace std {
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
-      return that.Name.GetHash() ^ that.Version;
+      return Base::ChainHashes(that.Name, that.Version);
     }
 
   };  // hash<Orly::Package::TVersionedName>

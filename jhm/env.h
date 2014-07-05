@@ -111,13 +111,13 @@ namespace Jhm {
 
     using TFileCheckFunc = std::function<bool (TFile*)>;
 
-    static Jhm::TAbsBase GetOutDirName(const std::string &root,
+    static TTree GetOutDirName(const TTree &root,
                                      const std::string &proj_name,
                                      const std::string &config,
                                      const std::string &config_mixin);
 
     // NOTE: if proj_name is src. Output directory is just out.
-    TEnv(const TAbsBase &root,
+    TEnv(const TTree &root,
          const std::string &proj_name,
          const std::string &config,
          const std::string &config_mixin);
@@ -129,15 +129,15 @@ namespace Jhm {
     const TConfig &GetConfig() {
       return Config;
     }
-    const TAbsBase &GetSrc() const {
-      return Src;
+    const TTree *GetSrc() const {
+      return &Src;
     }
-    const TAbsBase &GetOut() const {
-      return Out;
+    const TTree *GetOut() const {
+      return &Out;
     }
 
-    const TAbsBase &GetRoot() const {
-      return Root;
+    const TTree *GetRoot() const {
+      return &Root;
     }
 
     std::unordered_set<TJob*> GetJobsProducingFile(TFile *file) {
@@ -162,8 +162,7 @@ namespace Jhm {
 
     TInterner<TRelPath, TFile> Files;
 
-    TAbsBase Root;
-    TAbsBase Src, Out;
+    TTree Root, Src, Out;
 
     TConfig Config;
 

@@ -27,15 +27,13 @@ namespace Orly {
 
     class TExportFunc : public TTopFunc, public TSymbolFunc {
       public:
-      static TPtr New(const L0::TPackage *package, const Jhm::TNamespace &ns, const Symbol::TFunction::TPtr &symbol);
+      static TPtr New(const L0::TPackage *package, const Symbol::TFunction::TPtr &symbol);
 
       virtual void WriteCcName(TCppPrinter &out) const;
       void WriteName(TCppPrinter &out) const;
 
       private:
-      TExportFunc(const L0::TPackage *package, const Jhm::TNamespace &ns, const Symbol::TFunction::TPtr &symbol);
-
-      Jhm::TNamespace Namespace;
+      TExportFunc(const L0::TPackage *package, const Symbol::TFunction::TPtr &symbol);
     }; // TExportFunc
 
 

@@ -36,6 +36,7 @@
 #include <orly/spa/checkpoint.h>
 #include <orly/type/orlyify.h>
 #include <orly/var/orlyify.h>
+#include <util/path.h>
 
 using namespace Base;
 using namespace std;
@@ -54,7 +55,7 @@ const char *TService::GetNotifierStateStr(TNotifierState state) {
   throw Base::TImpossibleError(HERE);
 }
 
-TService::TService() : PackageManager(Jhm::TAbsBase("packages/")), GlobalPov("", true) {
+TService::TService() : PackageManager(Util::GetCwd() + "packages/"), GlobalPov("", true) {
   Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetTetrisHandler().AddPov(&GlobalPov);
   const TScheduler::TPolicy scheduler_policy(4, 20, chrono::milliseconds(10));
   Scheduler.SetPolicy(scheduler_policy);
@@ -132,7 +133,7 @@ void TService::SetPackageDir(const string &dir) {
   assert(this);
   assert(&dir);
 
-  PackageManager.SetPackageDir(Jhm::TAbsBase(dir));
+  PackageManager.SetPackageDir(dir);
 }
 
 

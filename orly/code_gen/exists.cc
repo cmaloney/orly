@@ -34,5 +34,5 @@ void TExists::WriteExpr(TCppPrinter &out) const {
   const Base::TUuid &index_id = Package->GetIndexIdFor(Expr->GetReturnType(), ValType);
   char uuid[37];
   index_id.FormatUnderscore(uuid);
-  out << "Exists(ctx.GetFlux(), " << Expr << ", " << TOrlyNamespace(Package->GetNamespace()) << "::My" << uuid << ")";
+  out << "Exists(ctx.GetFlux(), " << Expr << ", " << Package->GetName() << "::My" << uuid << ")";
 }
