@@ -21,9 +21,12 @@
 
 #include <base/fd.h>
 #include <base/log.h>
-#include <base/tmp_file.h>
+#include <base/pump.h>
+#include <base/source_root.h>
+#include <base/subprocess.h>
 #include <orly/csv_to_bin/synth.h>
 #include <orly/csv_to_bin/write_cc.h>
+#include <util/path.h>
 
 using namespace std;
 using namespace Orly::CsvToBin;
@@ -58,18 +61,25 @@ class TCmd final
 int main(int argc, char *argv[]) {
   TCmd cmd(argc, argv);
   Base::TLog log(cmd);
-  static const char *tmp_name = "translate_XXXXXX.cc";
-  Base::TTmpFile outfile(tmp_name, false /* delete_on_destroy */);
+  string outfile = Base::GetSrcRoot() + "orly/csv_to_bin/translate.cc";
   try {
     ifstream instrm(cmd.Schema);
-    ofstream outstrm(outfile.GetName());
+    ofstream outstrm(outfile);
     instrm.exceptions(ifstream::failbit);
     outstrm.exceptions(ofstream::failbit);
     string sql(istreambuf_iterator<char>{instrm}, istreambuf_iterator<char>{});
     auto table = NewTable(cerr, sql.data());
     WriteCc(outstrm, table.get());
+    Base::TPump pump;
+    auto subprocess = Base::TSubprocess::New(pump, "jhm driver");
+    auto status = subprocess->Wait();
+    if (status) {
+      Base::EchoOutput(subprocess->TakeStdOutFromChild());
+      Base::EchoOutput(subprocess->TakeStdErrFromChild());
+    }  // if
+    Util::Delete(outfile.data());
   } catch (const exception &ex) {
-    cerr << ex.what() << endl;
+    cerr << "Error occured: " << ex.what() << endl;
     exit(EXIT_FAILURE);
   }  // try
 }

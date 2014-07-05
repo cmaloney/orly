@@ -100,14 +100,16 @@ class TCmd final
       Param(
           &TCmd::FalseKwd, "false_kwd", Optional, "false_kwd\0f\0",
           "The keyword to accept as bool false.");
+      Param(&TCmd::MaxKvPerFile,
+            "max_kv_per_file",
+            Optional,
+            "max_kv_per_file\0m\0",
+            "The maximum number of key-value pairs per Orly binary file.");
       Param(
-          &TCmd::MaxKvPerFile, "max_kv_per_file", Optional,
-          "The maximum number of key-value pairs per Orly binary file.");
-      Param(
-          &TCmd::InPattern, "in_pattern", Required,
+          &TCmd::InPattern, "in_pattern", Required, "in_pattern\0i\0",
           "The pattern of input file to read from (CSV).");
       Param(
-          &TCmd::OutPrefix, "out_prefix", Required,
+          &TCmd::OutPrefix, "out_prefix", Required, "out_prefix\0o\0",
           "The prefix of the output files to write to (Orly binary).");
     }
 
