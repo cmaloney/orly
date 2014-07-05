@@ -16,6 +16,7 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -40,7 +41,9 @@ class TCmd final
   public:
 
   TCmd(int argc, char *argv[])
-      : MaxKvPerFile(250000), UnixEol(TLevel1::DefaultOptions.UnixEol) {
+      : MaxKvPerFile(250000), UnixEol(TLevel1::DefaultOptions.UnixEol),
+        TrueKwd(TLevel3::DefaultOptions.TrueKwd),
+        FalseKwd(TLevel3::DefaultOptions.FalseKwd) {
     Delim += TLevel1::DefaultOptions.Delim;
     Quote += TLevel1::DefaultOptions.Quote;
     Parse(argc, argv, TMeta());
@@ -54,12 +57,25 @@ class TCmd final
     if (Quote.size() != 1u && !cb("quote must be a single byte")) {
       return false;
     }
+    if (TrueKwd.empty() && !cb("must not be an empty string")) {
+      return false;
+    }
+    if (FalseKwd.empty() && !cb("must not be an empty string")) {
+      return false;
+    }
+    ToLower(TrueKwd);
+    ToLower(FalseKwd);
     return true;
   }
 
   string Delim, Quote, InPattern, OutPrefix;
   size_t MaxKvPerFile;
   bool UnixEol;
+  string TrueKwd, FalseKwd;
+
+  static void ToLower(string &str) {
+    transform(str.begin(), str.end(), str.begin(), ::tolower);
+  }
 
   private:
 
@@ -78,6 +94,12 @@ class TCmd final
       Param(
           &TCmd::UnixEol, "unix_eol", Optional, "unix_eol\0u\0",
           "Expect Unix-style EOL (LF) instead of CSV standard (CRLF).");
+      Param(
+          &TCmd::TrueKwd, "true_kwd", Optional, "true_kwd\0t\0",
+          "The keyword to accept as bool true.");
+      Param(
+          &TCmd::FalseKwd, "false_kwd", Optional, "false_kwd\0f\0",
+          "The keyword to accept as bool false.");
       Param(
           &TCmd::MaxKvPerFile, "max_kv_per_file", Optional,
           "The maximum number of key-value pairs per Orly binary file.");
@@ -117,7 +139,7 @@ int main(int argc, char *argv[]) {
               cmd.UnixEol
             });
         TLevel2 level2(level1);
-        TLevel3 level3(level2);
+        TLevel3 level3(level2, { cmd.TrueKwd, cmd.FalseKwd });
         translate(level3);
         return true;
       });
