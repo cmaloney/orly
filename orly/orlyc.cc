@@ -33,8 +33,13 @@ using namespace Orly::Spa; // Sort of ug. Would be nice to remove. Not strictly 
 class TCompilerConfig : public Base::TCmd {
   public:
   TCompilerConfig(int argc, char **argv)
-      : DebugOutput(false), InfoReport(false), MachineForm(false), SemanticOnly(false),
-        SkipTests(false), VerboseTests(false) {
+      : DebugOutput(false),
+        InfoReport(false),
+        MachineForm(false),
+        OutputDir(Util::GetCwd()),
+        SemanticOnly(false),
+        SkipTests(false),
+        VerboseTests(false) {
 
     Parse(argc, argv, TMeta());
   }
