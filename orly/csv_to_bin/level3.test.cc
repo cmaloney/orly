@@ -29,26 +29,6 @@ using Strm::Mem::TStaticIn;
 
 static const TLevel1::TOptions Simple = { ',', '\'', true, true, '\\', true };
 
-#if 0
-FIXTURE(Repro) {
-  Strm::Mem::TStaticIn mem(R"("67","52","TO","all.worldwide@enron.com",\N)");
-  TLevel1 level1(&mem);
-  TLevel2 level2(level1);
-  TLevel3 level3(level2);
-  int64_t rid, mid;
-  string rtype, rvalue;
-  Orly::Rt::TOpt<Base::Chrono::TTimePnt> dater;
-  level3
-      >> StartOfFile >> StartOfRecord
-      >> StartOfField >> rid >> EndOfField
-      >> StartOfField >> mid >> EndOfField
-      >> StartOfField >> rtype >> EndOfField
-      >> StartOfField >> rvalue >> EndOfField
-      >> StartOfField >> dater >> EndOfField
-      >> EndOfRecord >> EndOfFile;
-}
-#endif
-
 FIXTURE(OneLiner) {
   Strm::Mem::TStaticIn mem(
       "true,false,1b4e28ba-2fa1-11d2-883f-b9a761bde3fb,"
@@ -63,7 +43,7 @@ FIXTURE(OneLiner) {
   int64_t e;
   double f;
   Chrono::TTimePnt g;
-  Orly::Rt::TOpt<int64_t> h, i;
+  Base::TOpt<int64_t> h, i;
   level3
       >> StartOfFile >> StartOfRecord
       >> StartOfField >> a >> EndOfField
@@ -86,7 +66,7 @@ FIXTURE(OneLiner) {
       g == Chrono::CreateTimePnt(2014, 7, 4, 4, 3, 9, 102000000, -480));
   EXPECT_FALSE(h.IsKnown());
   EXPECT_TRUE(i.IsKnown());
-  EXPECT_EQ(i.GetVal(), 101);
+  EXPECT_EQ(*i, 101);
 }
 
 FIXTURE(Scanner) {
