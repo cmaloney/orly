@@ -62,6 +62,10 @@ const char *TLevel2::GetName(TState state) {
       name = "Bytes";
       break;
     }
+    case TLevel2::Null: {
+      name = "Null";
+      break;
+    }
     case TLevel2::EndOfField: {
       name = "EndOfField";
       break;
@@ -108,6 +112,7 @@ void TLevel2::Update() {
         case TLevel1::Byte:
         case TLevel1::EndOfField: {
           NextState = Bytes;
+          FirstBytes = true;
           break;
         }
         case TLevel1::EndOfRecord:
@@ -135,9 +140,24 @@ void TLevel2::Update() {
           }
         }
       } while (cursor < Limit && NextState == Bytes);
+      if (FirstBytes) {
+        FirstBytes = false;
+        if (NextState == EndOfField) {
+          uint8_t *csr1 = Start;
+          const char *csr2 = "\\N";
+          for (; csr1 < cursor && *csr2 && *csr1 == *csr2; ++csr1, ++csr2);
+          if (csr1 == cursor && !*csr2) {
+            Cache.State = Null;
+            break;
+          }
+        }
+      }
       Cache.Start = Start;
       Cache.Limit = cursor;
       break;
+    }
+    case Null: {
+      abort();
     }
     case EndOfField: {
       switch (Level1->State) {

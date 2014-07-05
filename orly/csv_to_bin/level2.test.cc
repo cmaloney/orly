@@ -60,6 +60,11 @@ static void BuildTable(TTable &table, const char *text) {
         ++level2;
         break;
       }
+      case TLevel2::Null: {
+        table.back().back() += "<null>";
+        ++level2;
+        break;
+      }
       case TLevel2::EndOfField: {
         ++level2;
         break;
@@ -120,6 +125,18 @@ FIXTURE(EmptinessGalore) {
   }
 }
 
+FIXTURE(ExplicitNull) {
+  TTable table;
+  BuildTable(table, "\\N,\\Nfoo, \\N");
+  if (EXPECT_EQ(table.size(), 1u)) {
+    if (EXPECT_EQ(table[0].size(), 3u)) {
+      EXPECT_EQ(table[0][0], "<null>");
+      EXPECT_EQ(table[0][1], "\\Nfoo");
+      EXPECT_EQ(table[0][2], " \\N");
+    }
+  }
+}
+
 FIXTURE(Typical) {
   TTable table;
   BuildTable(
@@ -146,11 +163,12 @@ FIXTURE(InsertingStateNames) {
       << TLevel2::StartOfRecord << ", "
       << TLevel2::StartOfField << ", "
       << TLevel2::Bytes << ", "
+      << TLevel2::Null << ", "
       << TLevel2::EndOfField << ", "
       << TLevel2::EndOfRecord << ", "
       << TLevel2::EndOfFile;
   EXPECT_EQ(
       strm.str(),
-      "StartOfFile, StartOfRecord, StartOfField, Bytes, "
+      "StartOfFile, StartOfRecord, StartOfField, Bytes, Null, "
       "EndOfField, EndOfRecord, EndOfFile");
 }
