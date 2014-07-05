@@ -59,22 +59,24 @@ void Orly::CsvToBin::StartOfRecord(TLevel3 &that) {
   that.MatchState(TLevel2::StartOfRecord);
 }
 
+const TLevel3::TOptions TLevel3::DefaultOptions = { "true", "false" };
+
 TLevel3 &TLevel3::operator>>(bool &that) {
   assert(this);
   assert(&that);
   uint8_t c = tolower(Peek());
   const char *kwd;
   bool result;
-  if (c == *TrueKwd) {
-    kwd = TrueKwd;
+  if (c == Options.TrueKwd[0]) {
+    kwd = Options.TrueKwd.c_str();
     result = true;
-  } else if (c == *FalseKwd) {
-    kwd = FalseKwd;
+  } else if (c == Options.FalseKwd[0]) {
+    kwd = Options.FalseKwd.c_str();
     result = false;
   } else {
     THROW_ERROR(TSyntaxError)
-        << "expected keyword \"" << TrueKwd
-        << "\" or \"" << FalseKwd << '"';
+        << "expected keyword \"" << Options.TrueKwd
+        << "\" or \"" << Options.FalseKwd << '"';
   }
   MatchKeyword(kwd);
   that = result;
