@@ -140,6 +140,13 @@ namespace Strm {
       /* Skips the next bytes of data. */
       void Skip(size_t size);
 
+      /* A pointer to the next byte, if there is one; otherwise, return null. */
+      const uint8_t *TryPeek() const {
+        assert(this);
+        TryRefresh();
+        return (Cursor < Limit) ? Cursor : nullptr;
+      }
+
       private:
 
       /* Makes sure that our Cursor is positioned at at least one byte of

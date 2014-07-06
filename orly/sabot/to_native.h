@@ -23,6 +23,7 @@
 
 #include <orly/desc.h>
 #include <orly/native/defs.h>
+#include <orly/rt/opt.h>
 #include <orly/sabot/state.h>
 #include <orly/sabot/state_dumper.h>
 #include <orly/uuid.h>
