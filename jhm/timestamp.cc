@@ -16,11 +16,32 @@
 
 #include <jhm/timestamp.h>
 
+#include <sys/stat.h>
+
 #include <base/split.h>
+#include <util/error.h>
 
 using namespace Base;
 using namespace std;
 using namespace Util;
+
+/* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
+Base::TOpt<timespec> Jhm::TryGetTimestamp(const std::string &name) {
+  struct stat st;
+  if (stat(name.c_str(), &st) != 0) {
+    if (errno == ENOENT) {
+      return Base::TOpt<timespec>::GetUnknown();
+    }
+    Util::ThrowSystemError(errno);
+  }
+  return st.st_mtim;
+}
+
+timespec Jhm::GetTimestamp(const std::string &name) {
+  struct stat st;
+  Util::IfLt0(stat(name.c_str(), &st));
+  return st.st_mtim;
+}
 
 timespec Jhm::GetTimestampSearchingPath(const string &name) {
   char *path = getenv("PATH");
