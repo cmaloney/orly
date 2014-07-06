@@ -1,6 +1,8 @@
-/* <orly/client/program/throw_syntax_errors.cc>
+/* <tools/nycr/globals.h>
 
-   Implements <orly/client/program/throw_syntax_errors.h>.
+   Global state variables used internally by Nycr
+
+   NOTE: Nothing but nycr itself should include this file.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -15,21 +17,12 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License. */
+#pragma once
 
-#include <orly/client/program/throw_syntax_errors.h>
+#include <tools/nycr/context.h>
 
-#include <sstream>
-#include <stdexcept>
-
-#include <base/thrower.h>
-
-using namespace std;
-
-void Orly::Client::Program::ThrowSyntaxErrors(const Tools::Nycr::TContext &ctx) {
-  if (ctx.HasErrors()) {
-    DEFINE_ERROR(error_t, runtime_error, "syntax error(s)");
-    ostringstream oss;
-    ctx.PrintErrors(oss);
-    THROW_ERROR(error_t) << oss.str();
-  }
-}
+namespace Tools {
+  namespace Nycr {
+    TContext &GetContext();
+  } // Nycr
+} // Tools

@@ -20,10 +20,11 @@
 
 #include <iostream>
 
+#include <base/as_str.h>
 #include <orly/error.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -38,7 +39,7 @@ TPackage::TPackage(const Package::TName &name, const Package::Syntax::TPackage *
   if (report_version) {
     std::cout << Version << std::endl;
   } else {
-    if (!Tools::Nycr::TError::GetFirstError()) {
+    if (!GetContext().HasErrors()) {
       BuildSymbol();
       Build();
     }
@@ -49,7 +50,7 @@ void TPackage::Build() const {
   assert(this);
   Bind();
   int pass = 0;
-  while (!Tools::Nycr::TError::GetFirstError()) {
+  while (!GetContext().HasErrors()) {
     ++pass;
     if (BuildEachDef(pass) != Continue) {
       break;
@@ -103,8 +104,8 @@ void TPackage::TTopLevelDefFactory::operator()(const Package::Syntax::TInstaller
   if (!InstallerDef) {
     InstallerDef = that;
   } else {
-    Tools::Nycr::TError::TBuilder(GetPosRange(that))
-        << " package installer already defined at " << GetPosRange(InstallerDef);
+    GetContext().AddError(GetPosRange(that),
+                          Base::AsStr("package installer already defined at ", GetPosRange(InstallerDef)));
   }
 }
 

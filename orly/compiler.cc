@@ -33,8 +33,8 @@
 #include <base/subprocess.h>
 #include <orly/code_gen/package.h>
 #include <orly/orly.package.cst.h>
+#include <orly/synth/context.h>
 #include <orly/synth/package.h>
-#include <tools/nycr/error.h>
 
 using namespace Base;
 using namespace std;
@@ -56,21 +56,21 @@ class TPackageBuilder {
   void BuildSymbols(const TTree &src_root) {
     assert(this);
     Cst = Package::Syntax::TPackage::ParseFile(AsStr(src_root.GetAbsPath(RelPath)).c_str());
-    if (!HasErrors()) {
-      assert(Cst);
-      Synth = make_unique<Synth::TPackage>(Package::TName{RelPath.Path.ToNamespaceIncludingName()}, &*Cst, false);
+    if (!Cst.HasErrors() && !Synth::GetContext().HasErrors()) {
+      assert(Cst.Get());
+      Synth = make_unique<Synth::TPackage>(Package::TName{RelPath.Path.ToNamespaceIncludingName()}, &*Cst.Get(), false);
     }
   }
 
   bool HasErrors() {
     assert(this);
-    return Tools::Nycr::TError::GetFirstError() != 0;
+    return Cst.HasErrors() || Synth::GetContext().HasErrors();
   }
 
   void PrintErrors(ostream &out) const {
     assert(this);
-    Tools::Nycr::TError::PrintSortedErrors(out);
-    Tools::Nycr::TError::DeleteEach();
+    Cst.PrintErrors(out);
+    Synth::GetContext().PrintErrors(out);
   }
 
   //TODO: be able to use temp filenames again?
@@ -109,7 +109,7 @@ class TPackageBuilder {
   private:
   TRelPath RelPath;
 
-  unique_ptr<Package::Syntax::TPackage> Cst;
+  Tools::Nycr::TContextBuilt<Package::Syntax::TPackage> Cst;
   //note: symbolic is owned by synth, and we don't have a good reason to pull it out at the moment.
   unique_ptr<Synth::TPackage> Synth;
 
@@ -129,6 +129,7 @@ Package::TVersionedName Orly::Compiler::Compile(
   static mutex Compiling;
 
   lock_guard<mutex> lock_compiling(Compiling);
+  Synth::GetContext().ClearErrors();
 
   TTree src_tree(move(core_file.Namespace));
   const TRelPath core_rel(move(core_file));

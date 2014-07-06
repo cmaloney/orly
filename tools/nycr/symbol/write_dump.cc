@@ -36,7 +36,6 @@ void Tools::Nycr::Symbol::WriteDump(const char *root, const char *branch, const 
       << "#include <iostream>" << endl
       << "#include <unistd.h>" << endl << endl
       << "#include <base/thrower.h>" << endl
-      << "#include <tools/nycr/error.h>" << endl
       << "#include <" << TPath(branch, atom, language) << ".cst.h>" << endl << endl
       << "using namespace std;" << endl << endl
       << "int main(int argc, char *argv[]) {" << endl
@@ -55,15 +54,16 @@ void Tools::Nycr::Symbol::WriteDump(const char *root, const char *branch, const 
       << "    if (optind < argc - 1) {" << endl
       << "      THROW << \"multiple compilands not allowed\";" << endl
       << "    }" << endl
-      << "    auto cst = " << TScope(language) << TType(language->GetName()) << "::ParseFile(argv[optind]);" << endl
-      << "    if (!Tools::Nycr::TError::GetFirstError()) {" << endl
-      << "      assert(cst);" << endl
-      << "      cst->Write(cout, 0, 0);" << endl
+      << "    auto ctx = " << TScope(language) << TType(language->GetName()) << "::ParseFile(argv[optind]);" << endl
+      << "    if (!ctx.HasErrors()) {" << endl
+      << "      assert(ctx.Get());" << endl
+      << "      ctx.Get()->Write(cout, 0, 0);" << endl
       << "      result = EXIT_SUCCESS;" << endl
       << "    } else {" << endl
-      << "      for (const Tools::Nycr::TError *error = Tools::Nycr::TError::GetFirstError(); error; error = error->GetNextError()) {" << endl
-      << "        cerr << error->GetPosRange() << ' ' << error->GetMsg() << endl;" << endl
-      << "      }" << endl
+      << "      ctx.ForEachError([] (const Tools::Nycr::TPosRange &pos, const string &msg) {" << endl
+      << "        cerr << pos << ' ' << msg << endl;" << endl
+      << "        return true;" << endl
+      << "      });" << endl
       << "      result = EXIT_FAILURE;" << endl
       << "    }" << endl
       << "  } catch (const exception &ex) {" << endl

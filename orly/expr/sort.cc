@@ -21,9 +21,9 @@
 #include <orly/error.h>
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
+#include <orly/synth/context.h>
 #include <orly/type/unwrap.h>
 #include <orly/type/unwrap_visitor.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Expr;
@@ -95,8 +95,7 @@ Type::TType TSort::GetType() const {
   Type::TType type;
   GetContainer()->GetType().Accept(TSortTypeVisitor(type, GetPosRange()));
   if (Type::Unwrap(GetPredicate()->GetType()) != Type::TBool::Get()) {
-    Tools::Nycr::TError::TBuilder(GetPosRange())
-      << "Predicate expression for sort must evaluate to a bool";
+    Synth::GetContext().AddError(GetPosRange(), "Predicate expression for sort must evaluate to a bool");
   }
   return type;
 }

@@ -25,8 +25,8 @@
 #include <base/cmd.h>
 #include <base/split.h>
 #include <base/thrower.h>
-#include <tools/nycr/error.h>
 #include <tools/nycr/build.h>
+#include <tools/nycr/globals.h>
 #include <tools/nycr/cst_redirect.h>
 #include <tools/nycr/symbol/bootstrap.h>
 #include <tools/nycr/symbol/language.h>
@@ -73,8 +73,10 @@ class TNycr : public Base::TCmd {
           THROW << "no compiland";
         }
         auto nycr = Syntax::TNycr::ParseFile(Compiland.c_str());
-        if (!TError::GetFirstError()) {
-          Build(nycr.get());
+        if (!nycr.HasErrors()) {
+          Build(nycr.Get());
+        } else {
+          nycr.PrintErrors(cout);
         }
       } else {
         if (Compiland.size()) {
@@ -84,7 +86,7 @@ class TNycr : public Base::TCmd {
       }
 
       // if we have no errors, write output; otherwise, show the errors
-      if (!TError::GetFirstError()) {
+      if (!GetContext().HasErrors()) {
         const Symbol::TLanguage::TLanguages &languages = Symbol::TLanguage::GetLanguages();
         if (LanguageReport && !LanguageReportFile.empty()) {
           ofstream out(LanguageReportFile);
@@ -121,7 +123,8 @@ class TNycr : public Base::TCmd {
         }
         result = EXIT_SUCCESS;
       } else {
-        TError::PrintSortedErrors(cerr);
+        GetContext().SortErrors();
+        GetContext().PrintErrors(cerr);
         result = EXIT_FAILURE;
       }
     } catch (const exception &ex) {

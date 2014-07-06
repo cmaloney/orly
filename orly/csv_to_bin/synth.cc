@@ -21,12 +21,12 @@
 #include <cassert>
 
 #include <orly/csv_to_bin/sql.table.cst.h>
-#include <tools/nycr/error.h>
+#include <tools/nycr/context.h>
 
 using namespace std;
 using namespace Orly::CsvToBin;
 
-using Tools::Nycr::TError;
+using Tools::Nycr::TContext;
 using Tools::Nycr::TPosRange;
 
 Symbol::TKey::TOrder TranslateOrder(const Syntax::TOrder *that) {
@@ -99,8 +99,7 @@ static Symbol::TType TranslateType(const Syntax::TType *that) {
   return type_symbol;
 }
 
-static void TranslateDef(
-    Symbol::TTable *table_symbol, const Syntax::TDef *that) {
+static void TranslateDef(TContext &ctx, Symbol::TTable *table_symbol, const Syntax::TDef *that) {
   struct visitor_t final : public Syntax::TDef::TVisitor {
     const Syntax::TSemi *&Semi;
     Symbol::TTable *TableSymbol;
@@ -138,7 +137,7 @@ static void TranslateDef(
     if (semi) {
       pos_range = semi->GetLexeme().GetPosRange();
     }
-    TError::TBuilder(pos_range) << ex.what();
+    ctx.AddError(pos_range, ex.what());
   }
 }
 
@@ -146,23 +145,27 @@ unique_ptr<Symbol::TTable> Orly::CsvToBin::NewTable(
     ostream &strm, const char *src_text) {
   assert(&strm);
   auto symbol = make_unique<Symbol::TTable>();
+  Tools::Nycr::TContext ctx;
   try {
     auto syntax = Syntax::TTable::ParseStr(src_text);
-    if (syntax) {
-      const Syntax::TDefSeq *def_seq = syntax->GetDefSeq();
+    if (syntax.HasErrors()) {
+      syntax.PrintErrors(strm);
+      symbol.reset();
+    } else {
+      const Syntax::TDefSeq *def_seq = syntax.Get()->GetDefSeq();
       do {
-        TranslateDef(symbol.get(), def_seq->GetDef());
-        def_seq =
-            dynamic_cast<const Syntax::TDefSeq *>(def_seq->GetOptDefSeq());
+        TranslateDef(ctx, symbol.get(), def_seq->GetDef());
+        def_seq = dynamic_cast<const Syntax::TDefSeq *>(def_seq->GetOptDefSeq());
       } while (def_seq);
+      symbol->Verify();
     }
-    symbol->Verify();
   } catch (const exception &ex) {
-    TError::TBuilder(TPosRange()) << ex.what();
+    ctx.AddError(TPosRange(), ex.what());
   }
-  if (TError::GetFirstError()) {
-    TError::PrintSortedErrors(strm);
+  if (ctx.HasErrors()) {
+    ctx.SortErrors();
+    ctx.PrintErrors(strm);
     symbol.reset();
   }
-  return move(symbol);
+  return symbol;
 }

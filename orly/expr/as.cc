@@ -27,7 +27,6 @@
 #include <orly/type/infix_visitor.h>
 #include <orly/type/unwrap.h>
 #include <orly/type/unwrap_visitor.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Expr;

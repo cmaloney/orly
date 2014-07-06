@@ -18,10 +18,14 @@
 
 #include <tools/nycr/decl.h>
 
+#include <iomanip>
+
+#include <base/as_str.h>
 #include <base/no_default_case.h>
 #include <base/thrower.h>
-#include <tools/nycr/error.h>
+#include <tools/nycr/globals.h>
 
+using namespace Base;
 using namespace std;
 using namespace Tools::Nycr;
 
@@ -30,7 +34,7 @@ void TDecl::BindAndBuildEach() {
   int pass = 0;
   bool again;
   do {
-    if (TError::GetFirstError()) {
+    if (GetContext().HasErrors()) {
       break;
     }
     ++pass;
@@ -59,8 +63,9 @@ void TDecl::TAnyRef::Bind() {
     if (decl) {
       const char *decl_type_name = SetDecl(decl);
       if (decl_type_name) {
-        TError::TBuilder(Name->GetLexeme().GetPosRange())
-            << '"' << Name->GetLexeme().GetText() << "\" does not refer to \"" << decl_type_name << '"';
+        GetContext().AddError(
+            Name->GetLexeme().GetPosRange(),
+            AsStr(quoted(Name->GetLexeme().GetText()), " does not refer to ", quoted(decl_type_name)));
       }
     }
   }
@@ -75,9 +80,10 @@ TDecl::TDecl(const Syntax::TName *name)
   static const vector<TDecl *> no_decls;
   vector<TDecl *> &decls = DeclsByName.insert(make_pair(name_str, no_decls)).first->second;
   if (!decls.empty()) {
-    TError::TBuilder(lexeme.GetPosRange())
-        << "duplicate name \"" << name_str
-        << "\" previously declared at " << (decls[0]->Name->GetLexeme().GetPosRange());
+    GetContext().AddError(
+        lexeme.GetPosRange(),
+        AsStr(
+            "duplicate name \"", name_str, "\" previously declared at ", decls[0]->Name->GetLexeme().GetPosRange()));
   }
   decls.push_back(this);
 }
@@ -142,13 +148,13 @@ TDecl *TDecl::TryGetDecl(const Syntax::TName *name) {
   const string &text = lexeme.GetText();
   auto iter = DeclsByName.find(text);
   if (iter == DeclsByName.end()) {
-    TError::TBuilder(lexeme.GetPosRange()) << '"' << text << "\" is not declared";
+    GetContext().AddError(lexeme.GetPosRange(), AsStr(quoted(text), " is not declared"));
     return 0;
   }
   const vector<TDecl *> &decls = iter->second;
   assert(!decls.empty());
   if (decls.size() > 1) {
-    TError::TBuilder(lexeme.GetPosRange()) << '"' << text << "\" is declared multiple times";
+    GetContext().AddError(lexeme.GetPosRange(), AsStr(quoted(text), " is declared multiple times"));
     return 0;
   }
   return decls[0];

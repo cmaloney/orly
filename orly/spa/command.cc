@@ -29,7 +29,6 @@
 #include <orly/rt/containers.h>
 #include <orly/orly.command.cst.h>
 #include <orly/type.h>
-#include <tools/nycr/error.h>
 
 using namespace Base;
 using namespace Orly;
@@ -760,15 +759,15 @@ namespace FooBar {
 bool Orly::Spa::ParseCommand(const char *text, Var::TVar &var) {
   std::lock_guard<std::mutex> Lock(CommandParserLock);
   //Parse the text
-  std::unique_ptr<TCommand> cst(TCommand::ParseStr(text));
+  auto cst = TCommand::ParseStr(text);
 
   //TODO: Promote the parser errors out in a cleaner fashion, so the end user can see why their literal failed.
-  if(Tools::Nycr::TError::GetFirstError()) {
+  if (cst.HasErrors()) {
     return false;
   }
 
   //Determine the Var from the expression
-  cst->GetExpr()->Accept(FooBar::TExprVisitor(var));
+  cst.Get()->GetExpr()->Accept(FooBar::TExprVisitor(var));
 
   return true;
 }

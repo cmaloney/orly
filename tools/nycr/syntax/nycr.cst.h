@@ -8,6 +8,7 @@
 #include <ostream>
 
 #include <base/class_traits.h>
+#include <tools/nycr/context.h>
 #include <tools/nycr/indent.h>
 #include <tools/nycr/lexeme.h>
 #include <tools/nycr/test.h>
@@ -15,6 +16,9 @@
 namespace Tools {
 namespace Nycr {
 namespace Syntax {
+
+
+struct yy_extra_t { Tools::Nycr::TContext*ctx; int depth; int line; int column; };
 
 class TNycr;
 class TOptDeclSeq;
@@ -101,8 +105,8 @@ class TNycr {
   }
   virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;
   virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;
-  static std::unique_ptr<TNycr> ParseFile(const char *path);
-  static std::unique_ptr<TNycr> ParseStr(const char *str);
+  static ::Tools::Nycr::TContextBuilt<TNycr> ParseFile(const char *path);
+  static ::Tools::Nycr::TContextBuilt<TNycr> ParseStr(const char *str);
   private:
   std::unique_ptr<TOptDeclSeq> OptDeclSeq;
 };  // TNycr

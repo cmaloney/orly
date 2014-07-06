@@ -87,7 +87,7 @@ static void WriteFlexCc(const char *root, const char *branch, const char *atom, 
   ofstream strm;
   CreateOutputFile(root, branch, atom, language, ".l", strm);
   strm
-      << "%option noyywrap nodefault bison-bridge bison-locations yylineno" << endl
+      << "%option noyywrap nodefault bison-bridge bison-locations reentrant" << endl
       << "%option prefix=\"" << TUnderscore(language) << "\"" << endl
       << "%x COMMENT" << endl << endl
       << "%{" << endl
@@ -95,40 +95,16 @@ static void WriteFlexCc(const char *root, const char *branch, const char *atom, 
       << "#include <cstring>" << endl
       << "#include <" << TPath(branch, atom, language) << ".cst.h>" << endl
       << TUsingNamespace(language)
+      << "#define YY_EXTRA_TYPE yy_extra_t" << endl
       << "#include <" << TPath(branch, atom, language) << ".bison.hh>" << endl
-      << "void " << TUnderscore(language) << "error(const YYLTYPE *, const std::unique_ptr<" << TType(language->GetName()) << "> &, char const *);" << endl
-      << "void " << TUnderscore(language) << "yylloc_default(YYLTYPE &lhs, YYLTYPE *rhs, int n) {" << endl
-      << "  if (n) {" << endl
-      << "    lhs.first_line   = rhs[1].first_line;" << endl
-      << "    lhs.first_column = rhs[1].first_column;" << endl
-      << "    lhs.last_line    = rhs[n].last_line;" << endl
-      << "    lhs.last_column  = rhs[n].last_column;" << endl
-      << "  } else {" << endl
-      << "    lhs.first_line   = rhs[0].first_line;" << endl
-      << "    lhs.first_column = rhs[0].first_column;" << endl
-      << "    lhs.last_line    = rhs[0].last_line;" << endl
-      << "    lhs.last_column  = rhs[0].last_column;" << endl
-      << "  }" << endl
-      << "}" << endl
-      << "int " << TUnderscore(language) << "column = 1;" << endl
-      << "int " << TUnderscore(language) << "depth;" << endl
+      << "void " << TUnderscore(language) << "error(const YYLTYPE *, void*, Tools::Nycr::TContext &ctx, char const *);" << endl
       << "#define YY_USER_ACTION \\" << endl
-      << "  yylloc->first_line = " << TUnderscore(language) << "lineno; \\" << endl
-      << "  yylloc->first_column = " << TUnderscore(language) << "column; \\" << endl
-      << "  yylloc->last_line = " << TUnderscore(language) << "lineno; \\" << endl
-      << "  yylloc->last_column = " << TUnderscore(language) << "column + " << TUnderscore(language) << "leng; \\" << endl
-      << "  " << TUnderscore(language) << "column += " << TUnderscore(language) << "leng;" << endl
+      << "  yylloc->first_line = yyextra.line; \\" << endl
+      << "  yylloc->first_column = yyextra.column; \\" << endl
+      << "  yylloc->last_line = yyextra.line; \\" << endl
+      << "  yylloc->last_column = yyextra.column + yyleng; \\" << endl
+      << "  yyextra.column += yyleng;" << endl
       << endl
-      << endl
-      << "YY_BUFFER_STATE " << TUnderscore(language) << "nycr_str_input_buffer;" << endl
-      << endl
-      << "extern void " << TUnderscore(language) << "NycrPrepStr(const char *str) {" << endl
-      << "  " << TUnderscore(language) << "nycr_str_input_buffer = " << TUnderscore(language) << "_scan_string(str);" << endl
-      << "}" << endl
-      << endl
-      << "extern void " << TUnderscore(language) << "NycrCleanStr() {" << endl
-      << "  " << TUnderscore(language) << "_delete_buffer(" << TUnderscore(language) << "nycr_str_input_buffer);" << endl
-      << "}" << endl
       << endl
       << "%}" << endl << endl
       << "SINGLE_QUOTE \\'" << endl
@@ -151,40 +127,42 @@ static void WriteFlexCc(const char *root, const char *branch, const char *atom, 
         << endl
         << atom->GetPattern() << " {" << endl
         << "  yylval->" << TLower(atom->GetName()) << " = new " << TType(atom->GetName())
-        << "(yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column, " << TUnderscore(language) << "text, " << TUnderscore(language) << "leng);" << endl
+        << "(yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column, yytext, yyleng);" << endl
         << "  return " << TUpper(atom->GetName()) << ';' << endl
         << '}' << endl;
   }
   strm
       << endl
       << "[ \\t]+ {}" << endl << endl
-      << "\\n+ {" << endl
-      << "  " << TUnderscore(language) << "column = 1;" << endl
+      << "\\n {" << endl
+      << "  ++yyextra.line;" << endl
+      << "  yyextra.column = 1;" << endl
       << '}' << endl << endl
       << "\"/*\" {" << endl
       << "  BEGIN(COMMENT);" << endl
-      << "  " << TUnderscore(language) << "depth = 1;" << endl
+      << "  yyextra.depth = 1;" << endl
       << '}' << endl << endl
       << "<COMMENT>\"/*\" {" << endl
-      << "  ++" << TUnderscore(language) << "depth;" << endl
+      << "  ++yyextra.depth;" << endl
       << '}' << endl << endl
       << "<COMMENT>\"*/\" {" << endl
-      << "  --" << TUnderscore(language) << "depth;" << endl
-      << "  if (" << TUnderscore(language) << "depth <= 0) {" << endl
+      << "  --yyextra.depth;" << endl
+      << "  if (yyextra.depth <= 0) {" << endl
       << "    BEGIN(INITIAL);" << endl
       << "  }" << endl
       << '}' << endl << endl
       << "<COMMENT>\\n {" << endl
-      << "  " << TUnderscore(language) << "column = 1;" << endl
+      << "  ++yyextra.line;" << endl
+      << "  yyextra.column = 1;" << endl
       << '}' << endl << endl
       << "<COMMENT>. {}" << endl << endl
       << "<COMMENT><<EOF>> {" << endl
-      << "  " << TUnderscore(language) << "error(yylloc, nullptr, \"EOF in comment\");" << endl
-      << "  " << TUnderscore(language) << "depth = 0;" << endl
+      << "  " << TUnderscore(language) << "error(yylloc, nullptr, *yyextra.ctx, \"EOF in comment\");" << endl
+      << "  yyextra.depth = 0;" << endl
       << "  BEGIN(INITIAL);" << endl
       << '}' << endl << endl
       << ". {" << endl
-      << "  " << TUnderscore(language) << "error(yylloc, nullptr, \"illegal char\");" << endl
+      << "  " << TUnderscore(language) << "error(yylloc, nullptr, *yyextra.ctx, \"illegal char\");" << endl
       << '}' << endl;
 }
 

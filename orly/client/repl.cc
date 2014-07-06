@@ -30,7 +30,6 @@
 #include <orly/protocol.h>
 #include <orly/client/program/interpret_stmt.h>
 #include <orly/client/program/parse_stmt.h>
-#include <tools/nycr/error.h>
 #include <util/io.h>
 #include <util/error.h>
 

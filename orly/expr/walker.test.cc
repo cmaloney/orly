@@ -26,7 +26,6 @@
 #include <orly/symbol/scope.h>
 #include <orly/type/object_collector.h>
 #include <orly/type/type_czar.h>
-#include <tools/nycr/error.h>
 
 #include <test/kit.h>
 
@@ -42,13 +41,12 @@ NOTE: Copied in <orly/expr/addr_walker.test.cc> */
 
 Symbol::TPackage::TPtr MakePackage(const string &orlyscript) {
   auto cst = TPackage::ParseStr(orlyscript.c_str());
-  if(Tools::Nycr::TError::GetFirstError()) {
+  if (cst.HasErrors()) {
     //Syntax error!
-    Tools::Nycr::TError::PrintSortedErrors(std::cout);
-    Tools::Nycr::TError::DeleteEach();
+    cst.PrintErrors(std::cout);
     throw std::invalid_argument("Orlyscript has syntax errors");
   }
-  return (new Orly::Synth::TPackage({{"walker_test"}}, cst.get(), false))->GetSymbol();
+  return (new Orly::Synth::TPackage({{"walker_test"}}, cst.Get(), false))->GetSymbol();
 }
 
 /* Given a Orlyscript string, collects all of the objects used in the script */

@@ -29,7 +29,6 @@
 #include <orly/synth/cst_utils.h>
 #include <orly/var/mutation.h>
 #include <tools/nycr/pos_range.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Checkpoint::Syntax;
@@ -655,14 +654,14 @@ void Spa::ReadCheckpoint(const char *path, TCheckpointStmts &stmts, TCheckpointP
   assert(&stmts);
   assert(&packages);
 
-  auto Checkpoint = Checkpoint::Syntax::TCheckpoint::ParseFile(path);
-  if (Tools::Nycr::TError::GetFirstError()) {
-    Tools::Nycr::TError::PrintSortedErrors(std::cerr);
+  auto checkpoint = Checkpoint::Syntax::TCheckpoint::ParseFile(path);
+  if (checkpoint.HasErrors()) {
+    checkpoint.PrintErrors(std::cerr);
     throw Rt::TSystemError(HERE, "Error loading checkpoint file");
   }
 
   TCheckpointStmtVisitor visitor(stmts, packages, arena);
-  Synth::ForEach<TCheckpointStmt>(Checkpoint->GetOptCheckpointStmtSeq(), [&visitor](const TCheckpointStmt *stmt) {
+  Synth::ForEach<TCheckpointStmt>(checkpoint.Get()->GetOptCheckpointStmtSeq(), [&visitor](const TCheckpointStmt *stmt) {
     stmt->Accept(visitor);
     return true;
   });

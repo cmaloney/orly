@@ -18,6 +18,9 @@
 
 #include <orly/expr/function_app.h>
 
+#include <iomanip>
+
+#include <base/as_str.h>
 #include <orly/error.h>
 #include <orly/expr/ref.h>
 #include <orly/expr/util.h>
@@ -25,7 +28,7 @@
 #include <orly/type/unwrap_visitor.h>
 #include <orly/symbol/function.h>
 #include <orly/symbol/result_def.h>
-#include <tools/nycr/error.h>
+#include <orly/synth/context.h>
 
 using namespace Orly;
 using namespace Orly::Expr;
@@ -139,8 +142,8 @@ Type::TType TFunctionApp::GetType() const {
   }
   if (!function_app_args.empty()) {
     for (auto function_app_arg : function_app_args) {
-      Tools::Nycr::TError::TBuilder((function_app_arg.second)->GetExpr()->GetPosRange())
-          << "unexpected argument: \"" << function_app_arg.first << '"';
+      Synth::GetContext().AddError(function_app_arg.second->GetExpr()->GetPosRange(),
+                                   Base::AsStr("unexpected argument: ", std::quoted(function_app_arg.first)));
     }
   }
   return is_sequence ? Type::TSeq::Get(function->GetReturnType()) : function->GetReturnType();

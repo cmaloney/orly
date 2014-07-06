@@ -1,6 +1,4 @@
-/* <orly/client/program/throw_syntax_errors.cc>
-
-   Implements <orly/client/program/throw_syntax_errors.h>.
+/* <orly/synth/context.cc>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,20 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <orly/client/program/throw_syntax_errors.h>
+#include <orly/synth/context.h>
 
-#include <sstream>
-#include <stdexcept>
-
-#include <base/thrower.h>
-
-using namespace std;
-
-void Orly::Client::Program::ThrowSyntaxErrors(const Tools::Nycr::TContext &ctx) {
-  if (ctx.HasErrors()) {
-    DEFINE_ERROR(error_t, runtime_error, "syntax error(s)");
-    ostringstream oss;
-    ctx.PrintErrors(oss);
-    THROW_ERROR(error_t) << oss.str();
-  }
+Tools::Nycr::TContext &Orly::Synth::GetContext() {
+  static Tools::Nycr::TContext ctx;
+  return ctx;
 }

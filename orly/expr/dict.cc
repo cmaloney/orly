@@ -22,11 +22,11 @@
 #include <orly/error.h>
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
+#include <orly/synth/context.h>
 #include <orly/type/dict.h>
 #include <orly/type/seq.h>
 #include <orly/type/unwrap.h>
 #include <orly/type/util.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Expr;
@@ -63,12 +63,12 @@ Type::TType TDict::GetType() const {
     bool is_sequence = false;
     for (auto member : GetMembers()) {
       if (Type::Unwrap(member.first->GetType()) != key_type) {
-        Tools::Nycr::TError::TBuilder((member.first)->GetPosRange())
-          << "A dictionary constructor's keys must have the same type.";
+        Synth::GetContext().AddError(member.first->GetPosRange(),
+                                     "A dictionary constructor's keys must have the same type.");
       }
       if (Type::Unwrap(member.second->GetType()) != val_type) {
-        Tools::Nycr::TError::TBuilder((member.second)->GetPosRange())
-          << "A dictionary constructor's vals must have the same type.";
+        Synth::GetContext().AddError(member.second->GetPosRange(),
+                                     "A dictionary constructor's vals must have the same type.");
       }
       is_sequence |= member.first->GetType().Is<Type::TSeq>() || member.second->GetType().Is<Type::TSeq>();
     }

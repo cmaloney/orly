@@ -24,7 +24,6 @@
 #include <orly/type/impl.h>
 #include <orly/type/unwrap.h>
 #include <orly/type/unwrap_visitor.h>
-#include <tools/nycr/error.h>
 
 
 using namespace Orly;

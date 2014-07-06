@@ -21,11 +21,11 @@
 #include <orly/error.h>
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
+#include <orly/synth/context.h>
 #include <orly/type/list.h>
 #include <orly/type/seq.h>
 #include <orly/type/unwrap.h>
 #include <orly/type/util.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Expr;
@@ -61,8 +61,7 @@ Type::TType TList::GetType() const {
     bool is_sequence = false;
     for (auto expr : GetExprs()) {
       if (Type::Unwrap(expr->GetType()) != elem) {
-        Tools::Nycr::TError::TBuilder(expr->GetPosRange())
-          << "A list constructor's elements must be of equal type.";
+        Synth::GetContext().AddError(expr->GetPosRange(), "A list constructor's elements must be of equal type.");
       }
       is_sequence |= expr->GetType().Is<Type::TSeq>();
     }

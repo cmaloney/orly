@@ -24,7 +24,6 @@
 #include <orly/expr/ref.h>
 #include <orly/symbol/built_in_function.h>
 #include <orly/synth/get_pos_range.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;

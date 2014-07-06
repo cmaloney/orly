@@ -1,6 +1,6 @@
-/* <orly/client/program/throw_syntax_errors.cc>
+/* <orly/synth/context.h>
 
-   Implements <orly/client/program/throw_syntax_errors.h>.
+   Context for parsing. This is a static to simplify / keep us from having to pass it around by hand all the places.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -15,21 +15,12 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License. */
+#pragma once
 
-#include <orly/client/program/throw_syntax_errors.h>
+#include <tools/nycr/context.h>
 
-#include <sstream>
-#include <stdexcept>
-
-#include <base/thrower.h>
-
-using namespace std;
-
-void Orly::Client::Program::ThrowSyntaxErrors(const Tools::Nycr::TContext &ctx) {
-  if (ctx.HasErrors()) {
-    DEFINE_ERROR(error_t, runtime_error, "syntax error(s)");
-    ostringstream oss;
-    ctx.PrintErrors(oss);
-    THROW_ERROR(error_t) << oss.str();
-  }
-}
+namespace Orly {
+  namespace Synth {
+    Tools::Nycr::TContext &GetContext();
+  } // Synth
+} // Orly

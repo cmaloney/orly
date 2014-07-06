@@ -26,6 +26,7 @@
 #include <orly/expr/dict.h>
 #include <orly/expr/list.h>
 #include <orly/expr/set.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_type.h>
 #include <orly/pos_range.h>
@@ -33,7 +34,6 @@
 #include <orly/type/dict.h>
 #include <orly/type/list.h>
 #include <orly/type/set.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -78,7 +78,7 @@ TEmptyCtor::TEmptyCtor(const Package::Syntax::TEmptyCtor *empty_ctor)
     }
     private:
     void BuildError() const {
-      Tools::Nycr::TError::TBuilder(PosRange) << "empty constructor's type is not list, set, or dictionary";
+      GetContext().AddError(PosRange, "empty constructor's type is not list, set, or dictionary");
     }
     TType *&Type;
     const TPosRange &PosRange;
@@ -123,7 +123,7 @@ Expr::TExpr::TPtr TEmptyCtor::Build() const {
     virtual void operator()(const Type::TTimePnt  *) const { BuildError(); }
     private:
     void BuildError() const {
-      Tools::Nycr::TError::TBuilder(PosRange) << "empty constructor's type is not list, set, or dictionary";
+      GetContext().AddError(PosRange, "empty constructor's type is not list, set, or dictionary");
     }
     Expr::TExpr::TPtr &Expr;
     const TPosRange &PosRange;

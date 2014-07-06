@@ -29,11 +29,10 @@ using namespace Base;
 using namespace Orly;
 using namespace Orly::Client::Program;
 
-static bool ForEachXact(const TProgram *program, const TForXact &cb) {
-  ThrowSyntaxErrors();
-  assert(program);
+static bool ForEachXact(const Tools::Nycr::TContextBuilt<TProgram> &program, const TForXact &cb) {
+  ThrowSyntaxErrors(program);
   assert(&cb);
-  auto image = dynamic_cast<const TImage *>(program->GetTop());
+  auto image = dynamic_cast<const TImage *>(program.Get()->GetTop());
   if (!image) {
     DEFINE_ERROR(error_t, runtime_error, "not an image");
     THROW_ERROR(error_t);
@@ -53,13 +52,11 @@ static bool ForEachXact(const TProgram *program, const TForXact &cb) {
 }
 
 bool Orly::Client::Program::ParseImageFile(const char *path, const TForXact &cb) {
-  bool result = ForEachXact(TProgram::ParseFile(path).get(), cb);
-  return result;
+  return ForEachXact(TProgram::ParseFile(path), cb);
 }
 
 bool Orly::Client::Program::ParseImageStr(const char *str, const TForXact &cb) {
-  bool result = ForEachXact(TProgram::ParseStr(str).get(), cb);
-  return result;
+  return ForEachXact(TProgram::ParseStr(str), cb);
 }
 
 bool Orly::Client::Program::TranslateXact(const TXact *xact, const TForKv &cb) {
