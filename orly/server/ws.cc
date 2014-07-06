@@ -476,6 +476,21 @@ class TWsImpl final
         }  // if
       }
 
+      virtual void operator()(const TListSchemaStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        Result = TJson::Object;
+        Conn->Ws->SessionManager->ForEachIndex([this](const std::string &pkg,
+                                                  const std::string &key,
+                                                  const std::string &val) {
+          if (!Result.Contains(pkg)) {
+            Result[pkg] = TJson::Object;
+          }
+          Result[pkg][key] = val;
+          return true;
+        });
+      }
+
       private:
 
       /* The size used to alloca() space for a sabot of state. */

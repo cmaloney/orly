@@ -159,6 +159,9 @@ bool Orly::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TC
     virtual void operator()(const TGetSourceStmt *) const override {
       throw runtime_error("'get_source' stmt is not implemented in this interface");
     }
+    virtual void operator()(const TListSchemaStmt *) const override {
+      throw runtime_error("'list_schema' stmt is not implemented in this interface");
+    }
     private:
     bool &Result;
     const shared_ptr<TClient> &Client;

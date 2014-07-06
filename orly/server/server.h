@@ -408,8 +408,10 @@ namespace Orly {
       /* Called when the websockets server wishes to resume an old session. */
       virtual TWs::TSessionPin *ResumeSession(const Base::TUuid &id) override;
 
-      private:
+      virtual bool ForEachIndex(const std::function<
+          bool(const std::string &pkg, const std::string &key_type, const std::string &val_type)> &cb) const final;
 
+      private:
       /* A live connection to a client. */
       class TConnection final
           : public Rpc::TContext {
@@ -761,7 +763,7 @@ namespace Orly {
       std::unordered_map<TIndexType, Base::TUuid> IndexByIndexId;
       std::unordered_set<Base::TUuid> IndexIdSet;
       Atom::TSuprena IndexMapArena;
-      std::mutex IndexMapMutex;
+      mutable std::mutex IndexMapMutex;
 
       /* Used for simulation, backed by memory. */
       std::unique_ptr<Indy::Disk::Sim::TMemEngine> SimMemEngine;

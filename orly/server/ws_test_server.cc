@@ -67,6 +67,11 @@ class TWsTestServer::TSessionManager
     return iter->second->NewPin();
   }
 
+  virtual bool ForEachIndex(const std::function<
+      bool(const std::string &pkg, const std::string &key_type, const std::string &val_type)> &) const final {
+    return true;
+  }
+
   private:
 
   /* A session object, which survives multiple connect/disconnect events.

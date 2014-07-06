@@ -1204,6 +1204,28 @@ TWs::TSessionPin *TServer::ResumeSession(const TUuid &id) {
   return new TSessionPin(this, id);
 }
 
+bool TServer::ForEachIndex(const std::function<
+    bool(const std::string &pkg, const std::string &key_type, const std::string &val_type)> &cb) const {
+  assert(this);
+  lock_guard<mutex> lock(IndexMapMutex);
+  Atom::TSuprena temp_arena;
+  for(const auto &idx: IndexByIndexId) {
+    const string &pkg_key = idx.first.GetPackageKey();
+    auto pkg_key_split = pkg_key.find(' ');
+    string pkg = pkg_key.substr(0, pkg_key_split);
+
+    void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+    Sabot::Type::TAny::TWrapper val_type_wrapper(idx.first.GetVal().GetCore().GetType(&temp_arena, val_type_alloc));
+
+    if (!cb(pkg_key.substr(0, pkg_key_split),
+            pkg_key.substr(pkg_key_split + 1),
+            AsStrFunc(Sabot::DumpType, *val_type_wrapper))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 TServer::TSessionPin::TSessionPin(TServer *server) {
   assert(server);
   server->RunWs(Indy::Fiber::TJumpRunnable([this, server] {
