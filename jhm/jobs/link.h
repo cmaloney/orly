@@ -33,6 +33,7 @@ namespace Jhm {
       virtual const TSet<TFile*> GetNeeds() final;
       virtual TSet<TFile*> GetAntiNeeds() final;
       virtual std::string GetCmd() final;
+      virtual timespec GetCmdTimestamp() const final;
       virtual bool IsComplete() final;
 
       private:

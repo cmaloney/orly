@@ -73,6 +73,12 @@ string TBison::GetCmd() {
   return oss.str();
 }
 
+
+timespec TBison::GetCmdTimestamp() const {
+  static timespec timestamp = GetTimestampSearchingPath("bison");
+  return timestamp;
+}
+
 bool TBison::IsComplete() {
   TFile *cc = GetOutputWithExtension(GetOutput(), {"cc"});
   cc->PushComputedConfig(

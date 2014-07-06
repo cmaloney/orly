@@ -40,11 +40,14 @@ namespace Jhm {
     }
     return st.st_mtim;
   }
+
   inline timespec GetTimestamp(const std::string &name) {
     struct stat st;
     Util::IfLt0(stat(name.c_str(), &st));
     return st.st_mtim;
   }
+
+  timespec GetTimestampSearchingPath(const std::string &name);
 
   inline bool IsNewer(const timespec &lhs, const timespec &rhs) {
     return lhs.tv_sec > rhs.tv_sec || (lhs.tv_sec == rhs.tv_sec && lhs.tv_nsec > rhs.tv_nsec);

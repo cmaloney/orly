@@ -374,6 +374,9 @@ void TWorkFinder::CacheCheck(TJob *job) {
     }
   }
 
+  // If the job's command is new / updated, we need to rebuild
+  in_timestamp = Newer(job->GetCmdTimestamp(), in_timestamp);
+
   // For all known outputs (There is always at least one), choose one at random and load it's cache file / treat it as
   // the magic cache entry.
   TFile *base_out = GrabOne(job->GetOutput());

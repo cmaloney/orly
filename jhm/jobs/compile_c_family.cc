@@ -119,6 +119,14 @@ string TCompileCFamily::GetCmd() {
   return oss.str();
 }
 
+
+timespec TCompileCFamily::GetCmdTimestamp() const {
+  static timespec gcc_timestamp = GetTimestampSearchingPath("gcc");
+  static timespec gpp_timestamp = GetTimestampSearchingPath("g++");
+
+  return IsCpp ? gpp_timestamp : gcc_timestamp;
+}
+
 bool TCompileCFamily::IsComplete() {
   assert(this);
 
