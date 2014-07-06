@@ -25,7 +25,7 @@ namespace Util {
 
   /* Throw the given code as an error in the system category. */
   template <typename TCode>
-  inline void ThrowSystemError(TCode code) {
+  [[noreturn]] inline void ThrowSystemError(TCode code) {
     throw std::system_error(code, std::system_category());
   }
 
