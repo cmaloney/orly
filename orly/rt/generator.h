@@ -31,14 +31,7 @@ namespace Orly {
 
   namespace Rt {
 
-    class TPastEndError : public TRuntimeError, public Base::TFinalError<TPastEndError> {
-      public:
-
-      /* Constructor. */
-      TPastEndError(const Base::TCodeLocation &loc) {
-        PostCtor(loc, "Sequence iterator advanced past end");
-      }
-    };  // TPastEndError
+    DEFINE_ERROR(TPastEndError, TRuntimeError, "Squence iterator advanced past end");
 
     /* A generator of TItem_ */
     template <typename TItem_>

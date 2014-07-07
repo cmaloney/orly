@@ -18,21 +18,13 @@
 
 #pragma once
 
-#include <base/error.h>
+#include <base/thrower.h>
 
 namespace Orly {
 
   namespace CodeGen {
 
-    /* TODO */
-    class TCgError : public Base::TFinalError<TCgError> {
-      public:
-
-      /* Constructor. */
-      TCgError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TCgError
+    DEFINE_ERROR(TCgError, std::runtime_error, "code gen error");
 
   } // CodeGen
 

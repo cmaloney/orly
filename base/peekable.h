@@ -23,9 +23,11 @@
 
 #include <base/class_traits.h>
 #include <base/no_default_case.h>
-#include <base/past_end_error.h>
+#include <base/thrower.h>
 
 namespace Base {
+
+  DEFINE_ERROR(TPeekablePastEndError, std::runtime_error, "past end")
 
   /* TODO */
   template <typename TVal>
@@ -69,7 +71,7 @@ namespace Base {
     void Refresh() const {
       assert(this);
       if (!TryRefresh()) {
-        throw TPastEndError(HERE);
+        throw TPeekablePastEndError(HERE);
       }
     }
 

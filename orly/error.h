@@ -20,13 +20,13 @@
 
 #include <cassert>
 
-#include <base/error.h>
+#include <base/as_str.h>
+#include <base/thrower.h>
 #include <orly/pos_range.h>
 
 namespace Orly {
 
-  class TSourceError
-      : public virtual Base::TError {
+  class TSourceError : public std::runtime_error {
     public:
 
     const TPosRange &GetPosRange() const {
@@ -36,8 +36,8 @@ namespace Orly {
 
     protected:
 
-    TSourceError(const TPosRange &pos_range)
-        : PosRange(pos_range) {}
+    TSourceError(const TPosRange &pos_range, const char *msg)
+        : std::runtime_error(msg), PosRange(pos_range) {}
 
     private:
 
@@ -45,59 +45,47 @@ namespace Orly {
 
   };  // TSourceError
 
-  class TNotImplementedError
-      : public TSourceError, public Base::TFinalError<TNotImplementedError> {
+  class TNotImplementedError : public TSourceError {
     public:
 
     TNotImplementedError(
         const Base::TCodeLocation &code_location,
         const TPosRange &pos_range,
         const char *message = "This feature is not yet implemented")
-          : TSourceError(pos_range) {
-      PostCtor(code_location, message);
-    }
+          : TSourceError(pos_range, Base::AsStr(code_location, message).c_str()) {}
 
   };  // TNotImplementedError
 
-  class TImpossibleError
-      : public TSourceError, public Base::TFinalError<TImpossibleError> {
+  class TImpossibleError : public TSourceError {
     public:
 
     TImpossibleError(
         const Base::TCodeLocation &code_location,
         const TPosRange &pos_range,
         const char *message = "Internal Compiler Error: We shouldn't have reached this line of code in the compiler.")
-          : TSourceError(pos_range) {
-      PostCtor(code_location, message);
-    }
+          : TSourceError(pos_range, Base::AsStr(code_location, message).c_str()) {}
 
   };  // TImpossibleError
 
-  class TCompileError
-      : public TSourceError, public Base::TFinalError<TCompileError> {
+  class TCompileError : public TSourceError {
     public:
 
     TCompileError(
         const Base::TCodeLocation &code_location,
         const TPosRange &pos_range,
         const char *message)
-          : TSourceError(pos_range) {
-      PostCtor(code_location, message);
-    }
+          : TSourceError(pos_range, Base::AsStr(code_location, message).c_str()) {}
 
   };  // TCompileError
 
-  class TExprError
-      : public TSourceError, public Base::TFinalError<TExprError> {
+  class TExprError : public TSourceError {
     public:
 
     TExprError(
         const Base::TCodeLocation &code_location,
         const TPosRange &pos_range,
         const char *message = "This expression is invalid.")
-          : TSourceError(pos_range) {
-      PostCtor(code_location, message);
-    }
+          : TSourceError(pos_range, Base::AsStr(code_location, message).c_str()) {}
 
   };  // TExprError
 

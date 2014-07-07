@@ -33,7 +33,6 @@
 #include <vector>
 
 #include <base/class_traits.h>
-#include <base/past_end_error.h>
 #include <base/peekable.h>
 #include <server/half_latch.h>
 #include <util/error.h>

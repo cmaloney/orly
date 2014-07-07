@@ -29,7 +29,6 @@
 
 #include <base/assert_true.h>
 #include <base/dir_iter.h>
-#include <base/os_error.h>
 #include <orly/spa/any_honcho.h>
 #include <orly/package/rt.h>
 #include <orly/spa/flux_capacitor/api.h>

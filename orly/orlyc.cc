@@ -138,10 +138,8 @@ int CompileCode(const TCompilerConfig &cmd) {
   } catch (const TSourceError &src_error) {
     //TODO: It would be nice to put the orly code location at the end, and only in debug mode.
     cerr << src_error.GetPosRange() << ' ' << src_error.what() << endl;
-  } catch (const Base::TError &ex) {
-    cerr << "general error: " << ex.what() << endl;
   } catch (const exception &ex) {
-    cerr << "exception: " << ex.what() << endl;
+    cerr << "error: " << ex.what() << endl;
   }
 
   return result;

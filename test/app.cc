@@ -23,7 +23,6 @@
 #include <time.h>
 
 #include <base/cmd.h>
-#include <base/os_error.h>
 #include <test/fixture.h>
 #include <test/is_in_test.h>
 

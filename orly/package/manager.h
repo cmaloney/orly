@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <base/error.h>
+#include <base/thrower.h>
 #include <orly/package/loaded.h>
 #include <orly/package/name.h>
 
@@ -31,34 +31,18 @@ namespace Orly {
 
   namespace Package {
 
-    /* TODO */
-    class TManagerError : public Base::TFinalError<TManagerError> {
-      public:
-
-      /* Constructor. */
-      TManagerError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TManagerError
-
     /* Co-ordinates the loading, upgrading, and uninstalling of packages, as well as getting a package to do work
        with it. Also does proper graph upgrades of packages and the like. */
     class TManager {
       public:
 
+      DEFINE_ERROR(TError, std::runtime_error, "package manager error");
+
+      DEFINE_ERROR(TPackageDirError, std::runtime_error, "package dir error");
+
       typedef std::unordered_map<TName, TLoaded::TPtr> TInstalled;
       typedef std::unordered_set<TName> TNames;
       typedef std::unordered_set<TVersionedName> TVersionedNames;
-
-      /* TODO */
-      class TPackageDirError : public Base::TFinalError<TPackageDirError> {
-        public:
-
-        /* Constructor. */
-        TPackageDirError(const Base::TCodeLocation &loc, const char *msg) {
-          PostCtor(loc, msg);
-        }
-      };  // TPackageDirError
 
       /* Make a new package manager which will load packages from the given directory. */
       TManager(const Jhm::TTree &package_dir);

@@ -20,7 +20,7 @@
 
 #include <unistd.h>
 
-#include <base/os_error.h>
+#include <util/error.h>
 
 using namespace Base;
 using namespace Server;
@@ -28,7 +28,7 @@ using namespace Server;
 THalfLatch::THalfLatch()
     : IsSet(false) {
   int fds[2];
-  TOsError::IfLt0(HERE, pipe(fds));
+  Util::IfLt0(pipe(fds));
   RecvFd = TFd(fds[0]);
   SendFd = TFd(fds[1]);
 }
@@ -36,14 +36,14 @@ THalfLatch::THalfLatch()
 void THalfLatch::Recv() {
   assert(this);
   char dummy;
-  TOsError::IfLt0(HERE, read(RecvFd, &dummy, 1));
+  Util::IfLt0(read(RecvFd, &dummy, 1));
   IsSet = false;
 }
 
 void THalfLatch::Send() {
   assert(this);
   if (!IsSet) {
-    TOsError::IfLt0(HERE, write(SendFd, ".", 1));
+    Util::IfLt0(write(SendFd, ".", 1));
     IsSet = true;
   }
 }

@@ -25,7 +25,6 @@
 #include <sys/epoll.h>
 
 #include <base/fd.h>
-#include <base/os_error.h>
 #include <base/zero.h>
 #include <socket/address.h>
 #include <test/kit.h>
@@ -34,6 +33,7 @@ using namespace std;
 using namespace Base;
 using namespace Server;
 using namespace Socket;
+using namespace Util;
 
 SERVER_COUNTER(Connections);
 SERVER_COUNTER(Requests);
@@ -48,12 +48,12 @@ static void ServerMain(int die, int sock, bool &success) {
     Zero(event);
     event.data.fd = die;
     event.events = EPOLLIN;
-    TOsError::IfLt0(HERE, epoll_ctl(ep, EPOLL_CTL_ADD, die, &event));
+    IfLt0(epoll_ctl(ep, EPOLL_CTL_ADD, die, &event));
     event.data.fd = sock;
     event.events = EPOLLIN;
-    TOsError::IfLt0(HERE, epoll_ctl(ep, EPOLL_CTL_ADD, sock, &event));
+    IfLt0(epoll_ctl(ep, EPOLL_CTL_ADD, sock, &event));
     for (;;) {
-      TOsError::IfLt0(HERE, epoll_wait(ep, &event, 1, -1));
+      IfLt0(epoll_wait(ep, &event, 1, -1));
       if (event.data.fd == die) {
         break;
       }
@@ -63,12 +63,12 @@ static void ServerMain(int die, int sock, bool &success) {
         for (;;) {
           char buf[BufSize];
           ssize_t size;
-          TOsError::IfLt0(HERE, size = read(cli, buf, BufSize));
+          IfLt0(size = read(cli, buf, BufSize));
           if (!size) {
             break;
           }
           Requests.Increment();
-          TOsError::IfLt0(HERE, write(cli, buf, size));
+          IfLt0(write(cli, buf, size));
         }
       }
     }
@@ -87,12 +87,12 @@ static void ClientMain(int id, const TAddress &address, uint32_t request_count, 
       sprintf(request, "%d %d", id, i);
       ssize_t request_size = strlen(request);
       ssize_t size;
-      TOsError::IfLt0(HERE, size = write(my_socket, request, request_size));
+      IfLt0(size = write(my_socket, request, request_size));
       if (size != request_size) {
         throw 0;
       }
       char reply[BufSize];
-      TOsError::IfLt0(HERE, size = read(my_socket, reply, BufSize));
+      IfLt0(size = read(my_socket, reply, BufSize));
       if (size != request_size || strncmp(request, reply, request_size) != 0) {
         throw 0;
       }
@@ -104,11 +104,11 @@ static void ClientMain(int id, const TAddress &address, uint32_t request_count, 
 
 FIXTURE(Typical) {
   int fds[2];
-  TOsError::IfLt0(HERE, pipe(fds));
+  IfLt0(pipe(fds));
   TFd recv_die(fds[0]), send_die(fds[1]);
   TFd listening_socket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
   Bind(listening_socket, TAddress(TAddress::IPv4Loopback));
-  TOsError::IfLt0(HERE, listen(listening_socket, 5));
+  IfLt0(listen(listening_socket, 5));
   TAddress address = GetSockName(listening_socket);
   bool server_success = false, client_1_success = false, client_2_success = false, client_3_success = false;
   static const uint32_t request_count = 5;
@@ -120,7 +120,7 @@ FIXTURE(Typical) {
   client_1.join();
   client_2.join();
   client_3.join();
-  TOsError::IfLt0(HERE, write(send_die, "x", 1));
+  IfLt0(write(send_die, "x", 1));
   server.join();
   EXPECT_TRUE(server_success);
   EXPECT_TRUE(client_1_success);

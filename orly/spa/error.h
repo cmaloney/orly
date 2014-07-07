@@ -18,41 +18,15 @@
 
 #pragma once
 
-#include <base/error.h>
+#include <base/thrower.h>
 
 namespace Orly {
 
   namespace Spa {
 
-    /* For when you just need an error in the spa server */
-    class TGeneralError : public Base::TFinalError<TGeneralError> {
-      public:
-
-      /* Constructor. */
-      TGeneralError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TGeneralError
-
-    class TNeededArgError : public Base::TFinalError<TNeededArgError> {
-      public:
-
-      /* Construct with the name of the problematic argument. */
-      TNeededArgError(const Base::TCodeLocation &loc, const char *msg) {
-        PostCtor(loc, msg);
-      }
-
-    };  // TNeededArgError
-
-    class TArgValueError : public Base::TFinalError<TArgValueError> {
-      public:
-
-      /* Construct with the name of the problematic argument. */
-      TArgValueError(const Base::TCodeLocation &loc, const char *msg) {
-        PostCtor(loc, msg);
-      }
-
-    };  // TArgValueError
+    DEFINE_ERROR(TGeneralError, std::runtime_error, "spa general error");
+    DEFINE_ERROR(TNeededArgError, std::runtime_error, "needed argument");
+    DEFINE_ERROR(TArgValueError, std::runtime_error, "invalid argument value");
 
   } // Spa
 

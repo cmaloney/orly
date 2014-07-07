@@ -21,7 +21,6 @@
 #include <unistd.h>
 #include <sys/epoll.h>
 
-#include <base/os_error.h>
 #include <base/zero.h>
 
 using namespace std;
@@ -90,7 +89,7 @@ TPov::TPov()
     : Root(0), FirstTrailingUpdate(0), LastTrailingUpdate(0), KVIndex(0) {
   try {
     KVIndex = new TKVIndex(this);
-    TOsError::IfLt0(HERE, pipe(PipeHandles));
+    Util::IfLt0(pipe(PipeHandles));
   } catch (...) {
     delete KVIndex;
     throw;
@@ -134,9 +133,7 @@ bool TParentPov::PlayTetris(int timeout) {
   epoll_event *events = new epoll_event[ChildPovCount];
   try {
     int ready_count;
-    TOsError::IfLt0(
-        HERE,
-        ready_count = epoll_wait(TetrisWaitHandle, events, ChildPovCount, timeout));
+    Util::IfLt0(ready_count = epoll_wait(TetrisWaitHandle, events, ChildPovCount, timeout));
     for (int i = 0; i < ready_count; ++i) {
       TChildPov *child_pov = static_cast<TChildPov *>(events[i].data.ptr);
       assert(child_pov);
@@ -172,7 +169,7 @@ bool TParentPov::PlayTetris(int timeout) {
 
 TParentPov::TParentPov()
     : FirstChildPov(0), LastChildPov(0), ChildPovCount(0) {
-  TOsError::IfLt0(HERE, TetrisWaitHandle = epoll_create1(0));
+  Util::IfLt0(TetrisWaitHandle = epoll_create1(0));
 }
 
 TParentPov::~TParentPov() {
@@ -249,9 +246,7 @@ void TChildPov::JoinTetris() {
     Zero(event);
     event.events = EPOLLIN;
     event.data.ptr = this;
-    TOsError::IfLt0(
-        HERE,
-        epoll_ctl(ParentPov->TetrisWaitHandle, EPOLL_CTL_ADD, GetTrailingWaitHandle(), &event));
+    Util::IfLt0(epoll_ctl(ParentPov->TetrisWaitHandle, EPOLL_CTL_ADD, GetTrailingWaitHandle(), &event));
     IsJoinedToTetris = true;
   }
 }
@@ -643,8 +638,7 @@ void TUpdate::LinkToPov() {
       assert(Pov->FirstTrailingUpdate == this);
       assert(Pov->LastTrailingUpdate == this);
       char temp = '\0';
-      ssize_t result = write(Pov->PipeHandles[1], &temp, 1);
-      TOsError::IfLt0(HERE, result);
+      ssize_t result = Util::IfLt0(write(Pov->PipeHandles[1], &temp, 1));
       assert(result == 1);
     }
   }
@@ -687,8 +681,7 @@ void TUpdate::UnlinkFromPov() {
     if (!Pov->FirstTrailingUpdate) {
       assert(!Pov->LastTrailingUpdate);
       char temp;
-      ssize_t result = read(Pov->PipeHandles[0], &temp, 1);
-      TOsError::IfLt0(HERE, result);
+      ssize_t result = Util::IfLt0(read(Pov->PipeHandles[0], &temp, 1));
       assert(result == 1);
     }
   }

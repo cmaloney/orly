@@ -33,7 +33,6 @@
 #include <base/cmd.h>
 #include <base/dir_iter.h>
 #include <base/not_implemented.h>
-#include <base/os_error.h>
 #include <base/zero.h>
 #include <orly/spa/honcho.h>
 #include <orly/spa/flux_capacitor/api.h>
@@ -48,6 +47,7 @@
 #include <socket/address.h>
 #include <third_party/mongoose/mongoose.h>
 #include <tools/nycr/escape.h> // Sort of ug dependency here...
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
@@ -99,17 +99,7 @@ class TLogger {
 };
 
 
-/* TODO */
-class TCheckpointPathInvalidError : public Base::TFinalError<TCheckpointPathInvalidError> {
-  public:
-
-  /* TODO */
-  TCheckpointPathInvalidError(const TCodeLocation &loc, const char *msg) {
-    PostCtor(loc, msg);
-  }
-
-};  // TCheckpointPathInvalidError
-
+DEFINE_ERROR(TCheckpointPathInvalidError, std::runtime_error, "invalid path");
 
 //TODO: This is sort of fug to have laying around
 static void ParseFilename(string &filename, string &checkpoint_name, unsigned int &CheckpointNum) {
@@ -290,8 +280,7 @@ class TSpa : public Mongoose::TMongoose {
     bool success = false;
     if (Cmd.Daemon) {
       /* We're been asked to launch as a daemon, so it's time to fork. */
-      pid_t pid;
-      TOsError::IfLt0(HERE, pid = Daemonize());
+      pid_t pid = Util::IfLt0(Daemonize());
       if (pid) {
         /* We're the parent, so report the PID of the daemon and we're done. */
         cout << pid << endl;
@@ -344,22 +333,19 @@ class TSpa : public Mongoose::TMongoose {
       }
     } catch (const TArgError &arg_error) {
       ArgErrors.Increment();
-      TLogger("arg error") << arg_error.what() <<" at query string offset " << arg_error.GetOffset();
-      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[%s at query string offset %d]", arg_error.what(), arg_error.GetOffset());
+
+      TLogger("arg error") << arg_error.what() <<" at query string offset " << arg_error.Offset;
+      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[%s at query string offset %d]", arg_error.what(), arg_error.Offset);
       is_handled = true;
     } catch (const TUrlDecodeError &url_decode_error) {
       UrlDecodeErrors.Increment();
       TLogger("url decode error") << url_decode_error.what() << " at query string offset " << url_decode_error.GetOffset();
       mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[%s at query string offset %d]", url_decode_error.what(), url_decode_error.GetOffset());
       is_handled = true;
-    } catch (const Base::TError &ex) {
-      TLogger("general error") << ex.what() << request_info->uri << request_info->query_string;
-      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[%s][%s]", ex.what(), request_info->query_string);
-      is_handled = true;
     }  catch(const std::exception &ex) {
       GeneralErrors.Increment();
-      TLogger("std::exception") << ex.what() << request_info->uri << request_info->query_string;
-      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[std::exception][%s]", ex.what());
+      TLogger("exception") << ex.what() << request_info->uri << request_info->query_string;
+      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[exception][%s]", ex.what());
       is_handled = true;
     }
     return is_handled ? const_cast<char *>("") : 0;

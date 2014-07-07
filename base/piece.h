@@ -53,9 +53,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include <base/error.h>
-#include <base/not_found_error.h>
 #include <base/slice.h>
+#include <base/thrower.h>
 #include <util/stl.h>
 
 namespace Base {
@@ -70,6 +69,8 @@ namespace Base {
     assert(&val);
     return val.GetHash();
   }
+
+  DEFINE_ERROR(TNotFoundError, std::logic_error, "not found");
 
   /* An instance of TPiece<TVal> points to a contiguous in-memory sequence of TVal instances.  It has value-type semantics and is the size of two pointers.  It
      is suitable to be returned by value, if doing so would aid composability.
