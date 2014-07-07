@@ -79,9 +79,6 @@ namespace Base {
     /* Returns the type info struct of the final error class. Never null. */
     virtual const std::type_info &GetTypeInfo() const = 0;
 
-    /* Aborts the program, sending an error message to stderr. */
-    [[noreturn]] static void Abort(const TCodeLocation &code_location);
-
     protected:
 
     /* Defaults to safe but useless values.  PostCtor() does the real work. */

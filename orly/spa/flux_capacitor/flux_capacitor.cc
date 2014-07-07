@@ -236,7 +236,7 @@ void TChildPov::Fail() {
     try {
       OnFail(this);
     } catch (...) {
-      Base::TError::Abort(HERE); //OnFail functions must not throw.
+      Util::Abort(HERE); //OnFail functions must not throw.
     }
   }
 }
@@ -282,7 +282,7 @@ TGlobalPov::~TGlobalPov() {
 
 void TGlobalPov::Fail() {
   assert(this);
-  TError::Abort(HERE);
+  Util::Abort(HERE);
 }
 
 /*  ----------------------------------------------------------------------
@@ -594,10 +594,10 @@ bool TUpdate::Promote() {
   } catch(const std::exception &ex) {
     /* TODO: Do something nicer here, eventually. */
     //cout << ex.what() << endl;
-    Base::TError::Abort(HERE); //OnPromote functions must not throw.
+    Util::Abort(HERE); //OnPromote functions must not throw.
   } catch (...) {
     /* TODO: Do something nicer here, eventually. */
-    Base::TError::Abort(HERE); //OnPromote functions must not throw.
+    Util::Abort(HERE); //OnPromote functions must not throw.
   }
 
   /* If we have no new pov, it's time to die. */

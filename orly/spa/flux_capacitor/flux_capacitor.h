@@ -36,6 +36,7 @@
 #include <base/past_end_error.h>
 #include <base/peekable.h>
 #include <server/half_latch.h>
+#include <util/error.h>
 #include <util/stl.h>
 #include <orly/context_base.h>
 #include <orly/indy/key.h>
@@ -1789,7 +1790,7 @@ namespace Orly {
                state.  We need to repair this by (1) pre-constructing all the necessary tours in the new
                pov and (2) switching to invasive containment for the unordered maps.  For now, we will
                simply detect the badness and abort the process entirely. */
-            Base::TError::Abort(HERE);
+            Util::Abort(HERE);
           }
         }
 

@@ -23,14 +23,10 @@
 #include <sstream>
 
 #include <base/no_default_case.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
-
-void TError::Abort(const TCodeLocation &code_location) {
-  cerr << "aborting at " << code_location << endl;
-  abort();
-}
 
 TError::TError() : WhatPtr("PostCtor() was not called") {}
 
@@ -49,7 +45,7 @@ void TError::PostCtor(const TCodeLocation &code_location, const char *details) {
     WhatBuffer = out_strm.str();
     WhatPtr = WhatBuffer.c_str();
   } catch (...) {
-    Abort(HERE);
+    Util::Abort(HERE);
   }
 }
 
@@ -69,6 +65,6 @@ void TError::PostCtor(const TCodeLocation &code_location, const char *details_st
     WhatBuffer = out_strm.str();
     WhatPtr = WhatBuffer.c_str();
   } catch (...) {
-    Abort(HERE);
+    Util::Abort(HERE);
   }
 }

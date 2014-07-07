@@ -455,7 +455,7 @@ class TSpa : public Mongoose::TMongoose {
       //Make a nicer error out of has verified.
       if(!args.HasVerified()) {
         TLogger("args.HasVerified", LOG_CRIT) << method << uri;
-        //NOTE: This is a soft fail when not in dev mode. TError::Abort(HERE);
+        //NOTE: This is a soft fail when not in dev mode. Util::Abort(HERE);
         args.FakeVerify(); //TODO: It would be WAAAYYYY nicer to have an ifdef "DEV" / "PROD"
       }
     } catch (...) {
