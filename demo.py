@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # NOTES
 #   1. This script should live in demo/ directory
@@ -26,7 +26,12 @@ import argparse
 import os.path
 import subprocess
 import signal
+import threading
 import time
+
+def print_orlyi(stdout):
+    while True:
+        print(stdout.readline().decode('UTF-8').strip())
 
 def ctrl_c(signal, frame):
     exit()
@@ -76,14 +81,23 @@ if __name__ == '__main__':
                         '--starting_state=SOLO',
                         '--update_pool_size=350000',
                         '--update_entry_pool_size=350000'],
+                    stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT)
         laravel = subprocess.Popen(
                       ['php', '../webui/artisan', 'serve'],
                       stderr=subprocess.STDOUT)
         # Register signal handler for Ctrl-C.
         signal.signal(signal.SIGINT, ctrl_c)
-        # Hope that orlyi will be setup in 20 seconds.
-        time.sleep(20)
+        # Read orlyi output until it outputs TServer::CleanHouse().
+        while True:
+            line = orlyi.stdout.readline().decode('UTF-8').strip()
+            print(line)
+            if line == 'TServer::CleanHouse()':
+                break
+        # Launch a daemon thread which pipes the output from orlyi to stdout.
+        thread = threading.Thread(target=print_orlyi, args=(orlyi.stdout,))
+        thread.daemon = True
+        thread.start()
         # Import data
         for root, _, files in os.walk(dataset_dir):
             if files:
