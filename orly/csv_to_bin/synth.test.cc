@@ -35,11 +35,13 @@ FIXTURE(Typical) {
       "cash real;\n"
       "birthday time_pnt;\n"
       "code int null;\n"
+      "comments str null;\n"
       "primary key (user_id);\n"
       "last_name key (last_name, user_id);\n"
-      "birthday key (birthday desc, user_id asc);\n");
+      "birthday key (birthday desc, user_id asc);\n"
+      "text comments;");
   if (EXPECT_TRUE(table)) {
-    EXPECT_EQ(table->GetColCount(), 5u);
+    EXPECT_EQ(table->GetColCount(), 6u);
     auto *col = table->TryFindCol("user_id");
     if (EXPECT_TRUE(col)) {
       EXPECT_TRUE(col->GetType() == Symbol::TType::Id);
@@ -63,6 +65,11 @@ FIXTURE(Typical) {
     col = table->TryFindCol("code");
     if (EXPECT_TRUE(col)) {
       EXPECT_TRUE(col->GetType() == Symbol::TType::Int);
+      EXPECT_TRUE(col->IsNull());
+    }
+    col = table->TryFindCol("comments");
+    if (EXPECT_TRUE(col)) {
+      EXPECT_TRUE(col->GetType() == Symbol::TType::Str);
       EXPECT_TRUE(col->IsNull());
     }
     const auto &fields = table->GetPrimaryKey()->GetFields();

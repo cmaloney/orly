@@ -126,6 +126,8 @@ static void TranslateDef(
           TranslateType(that->GetType()),
           TranslateNull(that->GetNull())));
     }
+    virtual void operator()(const Syntax::TTextDef *) const override {
+    }
     virtual void operator()(const Syntax::TBadDef *) const override {}
   };
   assert(table_symbol);
