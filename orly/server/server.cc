@@ -40,6 +40,7 @@
 #include <strm/past_end.h>
 #include <util/error.h>
 #include <util/io.h>
+#include <util/path.h>
 
 using namespace std;
 using namespace chrono;
@@ -421,7 +422,7 @@ TServer::TCmd::TCmd()
       UpdatePoolSize(100000UL),
       UpdateEntryPoolSize(200000UL),
       DiskBufferBlockPoolSize(7500UL),
-      PackageDirectory("") {
+      PackageDirectory(GetCwd()) {
   /* TEMP DEBUG : computing defaults for settings */ {
     std::stringstream ss;
     const size_t page_size = getpagesize();
