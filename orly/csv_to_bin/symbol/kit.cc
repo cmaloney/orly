@@ -43,6 +43,21 @@ void TTable::AddSecondaryKey(std::unique_ptr<TSecondaryKey> &&key) {
   SecondaryKeys.push_back(std::move(key));
 }
 
+void TTable::AddText(const TCol *col) {
+  assert(this);
+  assert(col);
+  if (col->GetType() != TType::Str) {
+    THROW_ERROR(TSemanticError)
+      << "cannot make column \"" << col->GetName() << "\" text-searchable; "
+         "it is not a string";
+  }
+  if (!Texts.insert(col).second) {
+    THROW_ERROR(TSemanticError)
+      << "cannot make column \"" << col->GetName() << "\" text-searchable; "
+         "it is already text-searchable";
+  }
+}
+
 const TCol *TTable::FindCol(const std::string &name) const {
   assert(this);
   const auto *col = TryFindCol(name);

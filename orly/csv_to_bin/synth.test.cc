@@ -98,5 +98,10 @@ FIXTURE(Typical) {
         EXPECT_TRUE(fields[1].Order == Symbol::TKey::Asc);
       }
     }
+    const auto &texts = table->GetTexts();
+    if (EXPECT_EQ(texts.size(), 1u)) {
+      const auto *col = *(texts.begin());
+      EXPECT_EQ(col->GetName(), "comments");
+    }
   }
 }
