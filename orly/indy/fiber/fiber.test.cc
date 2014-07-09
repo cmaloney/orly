@@ -59,6 +59,73 @@ FIXTURE(Typical) {
   t1.join();
 }
 
+FIXTURE(FiberLocal) {
+  class TTest : public TRunnable {
+    NO_COPY(TTest);
+    public:
+    TTest(TRunner *runner, const std::function<void ()> &completion_cb) : CompletionCb(completion_cb) {
+      Frame = TFrame::LocalFramePool->Alloc();
+      try {
+        Frame->Latch(runner, this, static_cast<TRunnable::TFunc>(&TTest::Run));
+      } catch (...) {
+        TFrame::LocalFramePool->Free(Frame);
+        throw;
+      }
+    }
+    ~TTest() {
+      TFrame::LocalFramePool->Free(Frame);
+    }
+    void Run() {
+      EXPECT_EQ(MyLocal->V1, V1Init);
+      EXPECT_EQ(MyLocal->V2, V2Init);
+      EXPECT_EQ(MyLocal->V3, V3Init);
+      MyLocal->V1 *= 2;
+      MyLocal->V2 *= 2;
+      EXPECT_EQ(MyLocal->V1, V1Init * 2);
+      EXPECT_EQ(MyLocal->V2, V2Init * 2);
+      CompletionCb();
+    }
+    private:
+    TFrame *Frame;
+    const std::function<void ()> CompletionCb;
+  };
+  const size_t num_frames = 2UL;
+  const size_t stack_size = 1 * 1024 * 1024;
+  TRunner::TRunnerCons runner_cons(1);
+  TRunner runner(runner_cons);
+  TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> frame_pool_manager(num_frames, stack_size, &runner);
+  TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(&frame_pool_manager);
+  try {
+    auto launch_fiber_sched = [&]() {
+      runner.Run();
+    };
+    thread t1(launch_fiber_sched);
+    sleep(1);
+    std::mutex mut;
+    std::condition_variable cond;
+    size_t finished_count = 0UL;
+    auto completion_cb = [&]() {
+      std::lock_guard<std::mutex> lock(mut);
+      ++finished_count;
+      cond.notify_one();
+    };
+    TTest runnable1(&runner, completion_cb);
+    TTest runnable2(&runner, completion_cb);
+    std::unique_lock<std::mutex> lock(mut);
+    while (finished_count < 2UL) {
+      cond.wait(lock);
+    }
+    runner.ShutDown();
+    t1.join();
+  } catch (...) {
+    delete TFrame::LocalFramePool;
+    TFrame::LocalFramePool = nullptr;
+    throw;
+  }
+  delete TFrame::LocalFramePool;
+  TFrame::LocalFramePool = nullptr;
+}
+
 class TCoIterRunnable
     : public TRunnable {
   NO_COPY(TCoIterRunnable);
