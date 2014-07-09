@@ -30,6 +30,7 @@
 #include <orly/csv_to_bin/write_cc.h>
 #include <orly/csv_to_bin/write_orly.h>
 #include <orly/code_gen/cpp_printer.h>
+#include <util/error.h>
 #include <util/path.h>
 
 using namespace std;
@@ -59,7 +60,7 @@ class TCmd final
     TMeta()
         : Base::TLog::TCmd::TMeta("CSV to Orly binary converter generator.") {
       Param(
-          &TCmd::Schema, "schema", Required, "schema\0s\0",
+          &TCmd::Schema, "schema", Required,
           "The path to the schema file to read from (SQL).");
       Param(
           &TCmd::StarterScript, "starter-script", Optional, "starter-script\0ss\0",
@@ -70,17 +71,34 @@ class TCmd final
 
 };  // TCmd
 
+template <typename TStrm>
+static void OpenFile(TStrm &strm, const string &path) {
+  assert(&strm);
+  assert(&path);
+  strm.exceptions(ifstream::failbit);
+  try {
+    strm.open(path);
+  } catch (const ifstream::failure &ex) {
+    char temp[256];
+    cerr
+        << "could not open \"" << path
+        << "\"; " << Util::Strerror(errno, temp, sizeof(temp))
+        << endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
 int main(int argc, char *argv[]) {
   TCmd cmd(argc, argv);
   Base::TLog log(cmd);
   string cc_outfile = Base::GetSrcRoot() + "orly/csv_to_bin/translate.cc";
   string orly_outfile = cmd.StarterScript + ".orly";
   try {
-    ifstream instrm(cmd.Schema);
-    ofstream cc_outstrm(cc_outfile);
+    ifstream instrm;
+    OpenFile(instrm, cmd.Schema);
+    ofstream outstrm;
+    OpenFile(outstrm, outfile);
     TCppPrinter orly_printer(orly_outfile, "Orly script");
-    instrm.exceptions(ifstream::failbit);
-    cc_outstrm.exceptions(ofstream::failbit);
     string sql(istreambuf_iterator<char>{instrm}, istreambuf_iterator<char>{});
     auto table = NewTable(cerr, sql.data());
     WriteCc(cc_outstrm, table.get());
