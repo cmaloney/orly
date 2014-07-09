@@ -50,54 +50,49 @@ namespace Orly {
 
       namespace FiberLocal {
 
-        /* TODO */
+        /* Base class for fiber local variables. */
         class TFiberLocal {
           NO_COPY(TFiberLocal);
           public:
 
-          /* TODO */
-          ~TFiberLocal() {
-            /* we could tear remove ourselves from the linked list here, but we're supposed to be a static so does it really matter? */
-          }
-
-          /* TODO */
+          /* Return the root of the static list of TFiberLocals. */
           inline static const TFiberLocal *GetRoot() {
             return Root;
           }
 
-          /* TODO */
+          /* Return the next TFiberLocal in the static list. */
           inline const TFiberLocal *GetNext() const {
             return Next;
           }
 
-          /* Initializes this fiber local at the given position and returns the number of bytes required to store it. */
+          /* Initializes this fiber local at the given position and returns
+             the number of bytes required to store it. */
           virtual size_t Init(void *const ptr) const = 0;
 
           protected:
 
-          /* TODO */
-          TFiberLocal(size_t my_size) : Next(Root), MySize(my_size), MyOffset(Root ? (Root->MyOffset + Root->MySize) : 0UL) {
+          /* Store the size of the variable and calculate our offset
+             within the stack. Prepend this to the static list. */
+          TFiberLocal(size_t size)
+              : Size(size),
+                Offset(Root ? Root->Offset + Root->Size : 0),
+                Next(Root) {
             Root = this;
           }
 
-          /* TODO */
-          inline size_t GetOffset() const {
-            return MyOffset;
-          }
-
-          protected:
-
-          /* TODO */
-          static TFiberLocal *Root;
-
-          /* TODO */
-          TFiberLocal *Next;
-
           /* The size I take up on the stack. */
-          const size_t MySize;
+          const size_t Size;
 
           /* The offset from the start of the stack at which I can be found. */
-          const size_t MyOffset;
+          const size_t Offset;
+
+          private:
+
+          /* See accessor. */
+          static TFiberLocal *Root;
+
+          /* See accessor. */
+          const TFiberLocal *Next;
 
         };  // TFiberLocal
 
@@ -141,7 +136,7 @@ namespace Orly {
         // init the fiber locals
         size_t bytes_of_loc = 0UL;
         fib.fib.uc_stack.ss_sp = fib.start_of_stack;
-        for (const FiberLocal::TFiberLocal *loc = FiberLocal::TFiberLocal::GetRoot(); loc; loc = loc->GetNext()) {
+        for (const auto *loc = FiberLocal::TFiberLocal::GetRoot(); loc; loc = loc->GetNext()) {
           const size_t nbytes = loc->Init(fib.fib.uc_stack.ss_sp);
           reinterpret_cast<uint8_t *&>(fib.fib.uc_stack.ss_sp) += nbytes;
           bytes_of_loc += nbytes;
@@ -448,9 +443,6 @@ namespace Orly {
 
       static void StartFrame(void *void_frame);
 
-      template <typename TVal, typename... TArgs>
-      class TFiberLocal;
-
       /* TODO */
       class TFrame
           : public Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TObjBase {
@@ -625,7 +617,7 @@ namespace Orly {
         friend class TFramePool;
         friend class TRunner;
 
-        template <typename TVal, typename... TArgs>
+        template <typename TVal, typename TArgs>
         friend class TFiberLocal;
 
       };  // TFrame
@@ -638,78 +630,72 @@ namespace Orly {
         TRunner::Yield(frame->GetFiber());
       }
 
-      namespace FiberLocal {
-
-        /* TODO */
-        template <typename TVal, typename... TArgs>
-        class TArgumentStorage;
-
-        /* TODO */
-        template <typename TVal, typename TArg, typename... TArgs>
-        class TArgumentStorage<TVal, TArg, TArgs...> : public TArgumentStorage<TVal, TArgs...> {
-          NO_COPY(TArgumentStorage);
-          protected:
-
-          /* TODO */
-          TArgumentStorage(const TArg &arg, const TArgs &...args) : TArgumentStorage<TVal, TArgs...>(args...), Arg(arg) {}
-
-          /* TODO */
-          template <typename... TPTArgs>
-          void Do(TVal *const ptr, const TPTArgs &...args) const {
-            TArgumentStorage<TVal, TArgs...>::Do(ptr, args..., Arg);
-          }
-
-          /* TODO */
-          TArg Arg;
-
-        };  // TArgumentStorage
-
-        /* TODO */
-        template <typename TVal>
-        class TArgumentStorage<TVal> : public TFiberLocal {
-          NO_COPY(TArgumentStorage);
-          protected:
-
-          /* TODO */
-          TArgumentStorage() : TFiberLocal(sizeof(TVal)) {}
-
-          template <typename... TPTArgs>
-          void Do(TVal *const ptr, const TPTArgs &...args) const {
-            new (ptr) TVal(args...);
-          }
-
-        };  // TArgumentStorage
-
-      }  // FiberLocal
-
       /* TODO */
-      template <typename TVal, typename... TArgs>
-      class TFiberLocal : public FiberLocal::TArgumentStorage<TVal, TArgs...> {
+      template <typename TVal, typename TArgs>
+      class TFiberLocal : public FiberLocal::TFiberLocal {
         NO_COPY(TFiberLocal);
         public:
 
-        /* TODO */
-        TFiberLocal(const TArgs &...args) : FiberLocal::TArgumentStorage<TVal, TArgs...>(args...) {}
+        using TSuper = FiberLocal::TFiberLocal;
 
-        /* TODO */
-        virtual size_t Init(void *const ptr) const {
-          FiberLocal::TArgumentStorage<TVal, TArgs...>::Do(reinterpret_cast<TVal *const>(ptr));
-          return FiberLocal::TFiberLocal::MySize;
+        /* Provided only to allow MakeFiberLocal() to exist.
+           MakeFiberLocal takes advantage of RVO. But since we're non-copyable,
+           we're required to provide at least a move ctor. */
+        TFiberLocal(TFiberLocal &&that) : TFiberLocal(std::move(that.Args)) {}
+
+        /* Do-little. */
+        TFiberLocal(TArgs &&args)
+            : TSuper(sizeof(TVal)), Args(std::move(args)) {}
+
+        /* Allocates an instance of TVal(args...) at 'ptr'. */
+        template <std::size_t... Is>
+        static void Allocate(void *const ptr,
+                             TArgs &&args,
+                             std::index_sequence<Is...>) {
+          new (ptr) TVal(std::get<Is>(std::move(args))...);
         }
 
-        /* TODO */
+        /* Initialize the stack at 'ptr' and return the size. */
+        virtual size_t Init(void *const ptr) const {
+          Allocate(ptr,
+                   std::move(Args),
+                   std::make_index_sequence<std::tuple_size<TArgs>::value>());
+          return TSuper::Size;
+        }
+
+        /* Read the fiber local variable out of the fiber local stack. */
         inline TVal &operator*() const {
           assert(TFrame::LocalFrame);
-          return *reinterpret_cast<TVal *>(TFrame::LocalFrame->MyFiber.start_of_stack + FiberLocal::TFiberLocal::MyOffset);
+          return *reinterpret_cast<TVal *>(
+                      TFrame::LocalFrame->MyFiber.start_of_stack + Offset);
         }
 
-        /* TODO */
+        /* Read the fiber local variable out of the fiber local stack. */
         inline TVal *operator->() const {
           assert(TFrame::LocalFrame);
-          return reinterpret_cast<TVal *>(TFrame::LocalFrame->MyFiber.start_of_stack + FiberLocal::TFiberLocal::MyOffset);
+          return reinterpret_cast<TVal *>(
+                     TFrame::LocalFrame->MyFiber.start_of_stack + Offset);
         }
 
+        private:
+
+        /* Cache the provided args and move it to TVal's ctor on Init(). */
+        mutable TArgs Args;
+
       };  // TFiberLocal
+
+      /* Factory function for FiberLocals. We leverage type deduction so that
+         we only have to explicitly provide the target class.
+
+         static int v = 42;
+         static auto MyLocal = MakeFiberLocal<TObj>(42, "hello", std::ref(v));
+
+         will initialize TObj with (int, const char *, int &) */
+      template <typename TVal, typename... TFwdArgs>
+      auto MakeFiberLocal(TFwdArgs &&... fwd_args) {
+        auto args = std::make_tuple(std::forward<TFwdArgs>(fwd_args)...);
+        return TFiberLocal<TVal, decltype(args)>(std::move(args));
+      }
 
       /* This should only be used within the same scheduler. It is not safe to use between schedulers. */
       class TSync {
