@@ -29,6 +29,24 @@ using namespace std;
 using namespace Base;
 using namespace Orly::Indy::Fiber;
 
+class TTestClass {
+  NO_COPY(TTestClass);
+  public:
+
+  TTestClass(int64_t v1, double v2, const std::string &v3)
+      : V1(v1), V2(v2), V3(v3) {}
+
+  int64_t V1;
+  double V2;
+  std::string V3;
+};
+
+static int64_t V1Init = 2;
+static double V2Init = 3.0;
+static std::string V3Init = "hello";
+static auto MyLocal =
+    MakeFiberLocal<TTestClass>(V1Init, V2Init, std::cref(V3Init));
+
 FIXTURE(Typical) {
   TRunner::TRunnerCons runner_cons(1);
   TRunner runner(runner_cons);

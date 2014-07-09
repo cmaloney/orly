@@ -25,6 +25,7 @@ using namespace Orly::Indy::Fiber;
 __thread TRunner *TRunner::LocalRunner = nullptr;
 __thread TFrame *TFrame::LocalFrame = nullptr;
 __thread Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool *TFrame::LocalFramePool = nullptr;
+FiberLocal::TFiberLocal *FiberLocal::TFiberLocal::Root = nullptr;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"

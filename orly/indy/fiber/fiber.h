@@ -48,6 +48,56 @@ namespace Orly {
 
     namespace Fiber {
 
+      namespace FiberLocal {
+
+        /* Base class for fiber local variables. */
+        class TFiberLocal {
+          NO_COPY(TFiberLocal);
+          public:
+
+          /* Return the root of the static list of TFiberLocals. */
+          inline static const TFiberLocal *GetRoot() {
+            return Root;
+          }
+
+          /* Return the next TFiberLocal in the static list. */
+          inline const TFiberLocal *GetNext() const {
+            return Next;
+          }
+
+          /* Initializes this fiber local at the given position and returns
+             the number of bytes required to store it. */
+          virtual size_t Init(void *const ptr) const = 0;
+
+          protected:
+
+          /* Store the size of the variable and calculate our offset
+             within the stack. Prepend this to the static list. */
+          TFiberLocal(size_t size)
+              : Size(size),
+                Offset(Root ? Root->Offset + Root->Size : 0),
+                Next(Root) {
+            Root = this;
+          }
+
+          /* The size I take up on the stack. */
+          const size_t Size;
+
+          /* The offset from the start of the stack at which I can be found. */
+          const size_t Offset;
+
+          private:
+
+          /* See accessor. */
+          static TFiberLocal *Root;
+
+          /* See accessor. */
+          const TFiberLocal *Next;
+
+        };  // TFiberLocal
+
+      }  // FiberLocal
+
       #define FAST_SWITCH
 
       #ifdef FAST_SWITCH
@@ -55,6 +105,7 @@ namespace Orly {
       struct fiber_t {
         ucontext_t fib;
         jmp_buf jmp;
+        uint8_t *start_of_stack;
       };
 
       /* TODO */
@@ -80,10 +131,18 @@ namespace Orly {
       /* TODO */
       inline void create_fiber(fiber_t &fib, void(*ufnc)(void *), void *uctx, size_t stack_size) {
         getcontext(&fib.fib);
-        fib.fib.uc_stack.ss_sp = malloc(stack_size);
-        Util::IfLt0(mlock(fib.fib.uc_stack.ss_sp, stack_size));
+        fib.start_of_stack = reinterpret_cast<uint8_t *>(malloc(stack_size));
+        Util::IfLt0(mlock(fib.start_of_stack, stack_size));
+        // init the fiber locals
+        size_t bytes_of_loc = 0UL;
+        fib.fib.uc_stack.ss_sp = fib.start_of_stack;
+        for (const auto *loc = FiberLocal::TFiberLocal::GetRoot(); loc; loc = loc->GetNext()) {
+          const size_t nbytes = loc->Init(fib.fib.uc_stack.ss_sp);
+          reinterpret_cast<uint8_t *&>(fib.fib.uc_stack.ss_sp) += nbytes;
+          bytes_of_loc += nbytes;
+        }
         //printf("ss_sp=[%p], [%p]\n", fib.fib.uc_stack.ss_sp, reinterpret_cast<uint8_t *>(fib.fib.uc_stack.ss_sp) + stack_size);
-        fib.fib.uc_stack.ss_size = stack_size;
+        fib.fib.uc_stack.ss_size = stack_size - bytes_of_loc;
         fib.fib.uc_link = 0;
         ucontext_t tmp;
         fiber_ctx_t ctx = {ufnc, uctx, &fib.jmp, &tmp};
@@ -99,8 +158,8 @@ namespace Orly {
       /* TODO */
       inline void free_fiber(fiber_t &fib) {
         assert(&fib);
-        assert(fib.fib.uc_stack.ss_sp);
-        free(fib.fib.uc_stack.ss_sp);
+        assert(fib.start_of_stack);
+        free(fib.start_of_stack);
       }
 
       /* TODO */
@@ -117,6 +176,7 @@ namespace Orly {
 
       /* TODO */
       inline void create_fiber(fiber_t &fib, void(*ufnc)(void *), void *uctx, size_t stack_size) {
+        static_assert(false, "swapcontext based fibers need fiber local support");
         getcontext(&fib);
         fib.uc_stack.ss_sp = malloc(stack_size);
         fib.uc_stack.ss_size = stack_size;
@@ -557,6 +617,9 @@ namespace Orly {
         friend class TFramePool;
         friend class TRunner;
 
+        template <typename TVal, typename TArgs>
+        friend class TFiberLocal;
+
       };  // TFrame
 
       /* TODO */
@@ -565,6 +628,73 @@ namespace Orly {
         assert(frame);
         frame->Run();
         TRunner::Yield(frame->GetFiber());
+      }
+
+      /* TODO */
+      template <typename TVal, typename TArgs>
+      class TFiberLocal : public FiberLocal::TFiberLocal {
+        NO_COPY(TFiberLocal);
+        public:
+
+        using TSuper = FiberLocal::TFiberLocal;
+
+        /* Provided only to allow MakeFiberLocal() to exist.
+           MakeFiberLocal takes advantage of RVO. But since we're non-copyable,
+           we're required to provide at least a move ctor. */
+        TFiberLocal(TFiberLocal &&that) : TFiberLocal(std::move(that.Args)) {}
+
+        /* Do-little. */
+        TFiberLocal(TArgs &&args)
+            : TSuper(sizeof(TVal)), Args(std::move(args)) {}
+
+        /* Allocates an instance of TVal(args...) at 'ptr'. */
+        template <std::size_t... Is>
+        static void Allocate(void *const ptr,
+                             const TArgs &args,
+                             std::index_sequence<Is...>) {
+          new (ptr) TVal(std::get<Is>(args)...);
+        }
+
+        /* Initialize the stack at 'ptr' and return the size. */
+        virtual size_t Init(void *const ptr) const {
+          Allocate(ptr,
+                   Args,
+                   std::make_index_sequence<std::tuple_size<TArgs>::value>());
+          return TSuper::Size;
+        }
+
+        /* Read the fiber local variable out of the fiber local stack. */
+        inline TVal &operator*() const {
+          assert(TFrame::LocalFrame);
+          return *reinterpret_cast<TVal *>(
+                      TFrame::LocalFrame->MyFiber.start_of_stack + Offset);
+        }
+
+        /* Read the fiber local variable out of the fiber local stack. */
+        inline TVal *operator->() const {
+          assert(TFrame::LocalFrame);
+          return reinterpret_cast<TVal *>(
+                     TFrame::LocalFrame->MyFiber.start_of_stack + Offset);
+        }
+
+        private:
+
+        /* Cache the provided args and copy them to TVal's ctor on Init(). */
+        TArgs Args;
+
+      };  // TFiberLocal
+
+      /* Factory function for FiberLocals. We leverage type deduction so that
+         we only have to explicitly provide the target class.
+
+           static int v = 42;
+           static auto MyLocal = MakeFiberLocal<TObj>(42, "hello", std::ref(v));
+
+         will initialize TObj with (int, const char *, int &) */
+      template <typename TVal, typename... TFwdArgs>
+      auto MakeFiberLocal(TFwdArgs &&... fwd_args) {
+        auto args = std::make_tuple(std::forward<TFwdArgs>(fwd_args)...);
+        return TFiberLocal<TVal, decltype(args)>(std::move(args));
       }
 
       /* This should only be used within the same scheduler. It is not safe to use between schedulers. */
