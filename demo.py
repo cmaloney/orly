@@ -24,8 +24,8 @@
 
 import argparse
 import os.path
-import subprocess
 import signal
+import subprocess
 import threading
 import time
 
