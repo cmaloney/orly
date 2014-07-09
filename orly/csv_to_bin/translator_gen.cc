@@ -101,6 +101,10 @@ int main(int argc, char *argv[]) {
     TCppPrinter orly_printer(orly_outfile, "Orly script");
     string sql(istreambuf_iterator<char>{instrm}, istreambuf_iterator<char>{});
     auto table = NewTable(cerr, sql.data());
+    if (!table) {
+      cerr << "exiting early; no useable table definition" << endl;
+      exit(EXIT_FAILURE);
+    }
     WriteCc(cc_outstrm, table.get());
     WriteOrly(orly_printer, table.get());
     std::cout << "wrote [" << orly_outfile << "]" << std::endl;
