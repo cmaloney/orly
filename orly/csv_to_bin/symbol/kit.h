@@ -22,6 +22,7 @@
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -67,6 +68,10 @@ namespace Orly {
            conflicts with that of another key, we throw.  */
         void AddSecondaryKey(std::unique_ptr<TSecondaryKey> &&key);
 
+        /* Include the given col (which must be a string) in the set of
+           cols which are to be text-searchable. */
+        void AddText(const TCol *col);
+
         /* Return the named column or throw.  Never null. */
         const TCol *FindCol(const std::string &name) const;
 
@@ -87,6 +92,14 @@ namespace Orly {
         /* Call back for each column that is not part of the given key. */
         bool ForEachColNotInKey(
             const std::function<bool (const TCol *)> &cb, const TKey *key) const;
+
+        /* The set of columns which are each to be searchable as text.
+           Each column in this set must be of string type.  This set
+           may be empty. */
+        const std::set<const TCol *> &GetTexts() const noexcept {
+          assert(this);
+          return Texts;
+        }
 
         /* Returns the number of columns not covered by the given key. */
         size_t NumColNotCoveredByKey(const TKey *key) const {
@@ -167,6 +180,9 @@ namespace Orly {
 
         /* The secondary keys in the order added. */
         std::vector<std::unique_ptr<TSecondaryKey>> SecondaryKeys;
+
+        /* See accessor. */
+        std::set<const TCol *> Texts;
 
       };  // TTable
 

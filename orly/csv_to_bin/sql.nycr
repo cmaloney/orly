@@ -24,6 +24,7 @@ key_kwd     = '"key"';
 primary_kwd = '"primary"';
 not_kwd     = '"not"';
 null_kwd    = '"null"';
+text_kwd    = '"text"';
 
 open_paren  = '"("';
 close_paren = '")"';
@@ -51,6 +52,7 @@ primary_key_def : def ->
     primary_kwd key_kwd open_paren col_ref_list close_paren semi;
 secondary_key_def : def ->
     name key_kwd open_paren col_ref_list close_paren semi;
+text_def : def -> text_kwd name semi;
 
 col_ref -> name order;
 col_ref_list -> col_ref opt_col_ref_list_tail;

@@ -43,21 +43,29 @@ Symbol::TKey::TOrder TranslateOrder(const Syntax::TOrder *that) {
   return order;
 }
 
-Symbol::TKey::TField TranslateColRef(
+const Symbol::TCol *TranslateColRef(
+    const Symbol::TTable *table_symbol, const Syntax::TName *that) {
+  assert(table_symbol);
+  assert(that);
+  return table_symbol->FindCol(that->GetLexeme().GetText());
+}
+
+
+Symbol::TKey::TField TranslateKeyPart(
     const Symbol::TTable *table_symbol, const Syntax::TColRef *that) {
   assert(table_symbol);
   assert(that);
   return {
-      table_symbol->FindCol(that->GetName()->GetLexeme().GetText()),
+      TranslateColRef(table_symbol, that->GetName()),
       TranslateOrder(that->GetOrder()) };
 }
 
-static vector<Symbol::TKey::TField> TranslateColRefList(
+static vector<Symbol::TKey::TField> TranslateKeyPartList(
     const Symbol::TTable *table_symbol, const Syntax::TColRefList *that) {
   assert(that);
   vector<Symbol::TKey::TField> fields;
   for (;;) {
-    fields.push_back(TranslateColRef(table_symbol, that->GetColRef()));
+    fields.push_back(TranslateKeyPart(table_symbol, that->GetColRef()));
     const auto *tail = dynamic_cast<const Syntax::TColRefListTail *>(
         that->GetOptColRefListTail());
     if (!tail) {
@@ -110,14 +118,14 @@ static void TranslateDef(
         const Syntax::TPrimaryKeyDef *that) const override {
       Semi = that->GetSemi();
       TableSymbol->SetPrimaryKey(make_unique<Symbol::TPrimaryKey>(
-          TranslateColRefList(TableSymbol, that->GetColRefList())));
+          TranslateKeyPartList(TableSymbol, that->GetColRefList())));
     }
     virtual void operator()(
         const Syntax::TSecondaryKeyDef *that) const override {
       Semi = that->GetSemi();
       TableSymbol->AddSecondaryKey(make_unique<Symbol::TSecondaryKey>(
           that->GetName()->GetLexeme().GetText(),
-          TranslateColRefList(TableSymbol, that->GetColRefList())));
+          TranslateKeyPartList(TableSymbol, that->GetColRefList())));
     }
     virtual void operator()(const Syntax::TColDef *that) const override {
       Semi = that->GetSemi();
@@ -125,6 +133,9 @@ static void TranslateDef(
           that->GetName()->GetLexeme().GetText(),
           TranslateType(that->GetType()),
           TranslateNull(that->GetNull())));
+    }
+    virtual void operator()(const Syntax::TTextDef *that) const override {
+      TableSymbol->AddText(TranslateColRef(TableSymbol, that->GetName()));
     }
     virtual void operator()(const Syntax::TBadDef *) const override {}
   };
