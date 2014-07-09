@@ -48,6 +48,61 @@ namespace Orly {
 
     namespace Fiber {
 
+      namespace FiberLocal {
+
+        /* TODO */
+        class TFiberLocal {
+          NO_COPY(TFiberLocal);
+          public:
+
+          /* TODO */
+          ~TFiberLocal() {
+            /* we could tear remove ourselves from the linked list here, but we're supposed to be a static so does it really matter? */
+          }
+
+          /* TODO */
+          inline static const TFiberLocal *GetRoot() {
+            return Root;
+          }
+
+          /* TODO */
+          inline const TFiberLocal *GetNext() const {
+            return Next;
+          }
+
+          /* Initializes this fiber local at the given position and returns the number of bytes required to store it. */
+          virtual size_t Init(void *const ptr) const = 0;
+
+          protected:
+
+          /* TODO */
+          TFiberLocal(size_t my_size) : Next(Root), MySize(my_size), MyOffset(Root ? (Root->MyOffset + Root->MySize) : 0UL) {
+            Root = this;
+          }
+
+          /* TODO */
+          inline size_t GetOffset() const {
+            return MyOffset;
+          }
+
+          protected:
+
+          /* TODO */
+          static TFiberLocal *Root;
+
+          /* TODO */
+          TFiberLocal *Next;
+
+          /* The size I take up on the stack. */
+          const size_t MySize;
+
+          /* The offset from the start of the stack at which I can be found. */
+          const size_t MyOffset;
+
+        };  // TFiberLocal
+
+      }  // FiberLocal
+
       #define FAST_SWITCH
 
       #ifdef FAST_SWITCH
@@ -55,6 +110,7 @@ namespace Orly {
       struct fiber_t {
         ucontext_t fib;
         jmp_buf jmp;
+        uint8_t *start_of_stack;
       };
 
       /* TODO */
@@ -80,10 +136,18 @@ namespace Orly {
       /* TODO */
       inline void create_fiber(fiber_t &fib, void(*ufnc)(void *), void *uctx, size_t stack_size) {
         getcontext(&fib.fib);
-        fib.fib.uc_stack.ss_sp = malloc(stack_size);
-        Util::IfLt0(mlock(fib.fib.uc_stack.ss_sp, stack_size));
+        fib.start_of_stack = reinterpret_cast<uint8_t *>(malloc(stack_size));
+        Util::IfLt0(mlock(fib.start_of_stack, stack_size));
+        // init the fiber locals
+        size_t bytes_of_loc = 0UL;
+        fib.fib.uc_stack.ss_sp = fib.start_of_stack;
+        for (const FiberLocal::TFiberLocal *loc = FiberLocal::TFiberLocal::GetRoot(); loc; loc = loc->GetNext()) {
+          const size_t nbytes = loc->Init(fib.fib.uc_stack.ss_sp);
+          reinterpret_cast<uint8_t *&>(fib.fib.uc_stack.ss_sp) += nbytes;
+          bytes_of_loc += nbytes;
+        }
         //printf("ss_sp=[%p], [%p]\n", fib.fib.uc_stack.ss_sp, reinterpret_cast<uint8_t *>(fib.fib.uc_stack.ss_sp) + stack_size);
-        fib.fib.uc_stack.ss_size = stack_size;
+        fib.fib.uc_stack.ss_size = stack_size - bytes_of_loc;
         fib.fib.uc_link = 0;
         ucontext_t tmp;
         fiber_ctx_t ctx = {ufnc, uctx, &fib.jmp, &tmp};
@@ -99,8 +163,8 @@ namespace Orly {
       /* TODO */
       inline void free_fiber(fiber_t &fib) {
         assert(&fib);
-        assert(fib.fib.uc_stack.ss_sp);
-        free(fib.fib.uc_stack.ss_sp);
+        assert(fib.start_of_stack);
+        free(fib.start_of_stack);
       }
 
       /* TODO */
@@ -117,6 +181,7 @@ namespace Orly {
 
       /* TODO */
       inline void create_fiber(fiber_t &fib, void(*ufnc)(void *), void *uctx, size_t stack_size) {
+        static_assert(false, "swapcontext based fibers need fiber local support");
         getcontext(&fib);
         fib.uc_stack.ss_sp = malloc(stack_size);
         fib.uc_stack.ss_size = stack_size;
@@ -383,6 +448,9 @@ namespace Orly {
 
       static void StartFrame(void *void_frame);
 
+      template <typename TVal, typename... TArgs>
+      class TFiberLocal;
+
       /* TODO */
       class TFrame
           : public Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TObjBase {
@@ -557,6 +625,9 @@ namespace Orly {
         friend class TFramePool;
         friend class TRunner;
 
+        template <typename TVal, typename... TArgs>
+        friend class TFiberLocal;
+
       };  // TFrame
 
       /* TODO */
@@ -566,6 +637,79 @@ namespace Orly {
         frame->Run();
         TRunner::Yield(frame->GetFiber());
       }
+
+      namespace FiberLocal {
+
+        /* TODO */
+        template <typename TVal, typename... TArgs>
+        class TArgumentStorage;
+
+        /* TODO */
+        template <typename TVal, typename TArg, typename... TArgs>
+        class TArgumentStorage<TVal, TArg, TArgs...> : public TArgumentStorage<TVal, TArgs...> {
+          NO_COPY(TArgumentStorage);
+          protected:
+
+          /* TODO */
+          TArgumentStorage(const TArg &arg, const TArgs &...args) : TArgumentStorage<TVal, TArgs...>(args...), Arg(arg) {}
+
+          /* TODO */
+          template <typename... TPTArgs>
+          void Do(TVal *const ptr, const TPTArgs &...args) const {
+            TArgumentStorage<TVal, TArgs...>::Do(ptr, args..., Arg);
+          }
+
+          /* TODO */
+          TArg Arg;
+
+        };  // TArgumentStorage
+
+        /* TODO */
+        template <typename TVal>
+        class TArgumentStorage<TVal> : public TFiberLocal {
+          NO_COPY(TArgumentStorage);
+          protected:
+
+          /* TODO */
+          TArgumentStorage() : TFiberLocal(sizeof(TVal)) {}
+
+          template <typename... TPTArgs>
+          void Do(TVal *const ptr, const TPTArgs &...args) const {
+            new (ptr) TVal(args...);
+          }
+
+        };  // TArgumentStorage
+
+      }  // FiberLocal
+
+      /* TODO */
+      template <typename TVal, typename... TArgs>
+      class TFiberLocal : public FiberLocal::TArgumentStorage<TVal, TArgs...> {
+        NO_COPY(TFiberLocal);
+        public:
+
+        /* TODO */
+        TFiberLocal(const TArgs &...args) : FiberLocal::TArgumentStorage<TVal, TArgs...>(args...) {}
+
+        /* TODO */
+        virtual size_t Init(void *const ptr) const {
+          FiberLocal::TArgumentStorage<TVal, TArgs...>::Do(reinterpret_cast<TVal *const>(ptr));
+          return FiberLocal::TFiberLocal::MySize;
+        }
+
+        /* TODO */
+        inline TVal &operator*() const {
+          assert(TFrame::LocalFrame);
+          return *reinterpret_cast<TVal *>(TFrame::LocalFrame->MyFiber.start_of_stack + FiberLocal::TFiberLocal::MyOffset);
+        }
+
+        /* TODO */
+        inline TVal *operator->() const {
+          assert(TFrame::LocalFrame);
+          return reinterpret_cast<TVal *>(TFrame::LocalFrame->MyFiber.start_of_stack + FiberLocal::TFiberLocal::MyOffset);
+        }
+
+      };  // TFiberLocal
 
       /* This should only be used within the same scheduler. It is not safe to use between schedulers. */
       class TSync {
