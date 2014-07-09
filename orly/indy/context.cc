@@ -25,24 +25,6 @@ using namespace Base;
 using namespace Orly;
 using namespace Orly::Indy;
 
-#if 0
-__thread TContext::TKeyCursorCollection::TImpl *TContext::KeyCursorCollection;
-
-static TContext::TKeyCursorCollection::TImpl *CheckConstructKeyCursor(TContext *context) {
-  if (!TContext::KeyCursorCollection) {
-    TContext::KeyCursorCollection = new TContext::TKeyCursorCollection::TImpl(context);
-  }
-  return TContext::KeyCursorCollection;
-}
-
-static void CheckDestroyKeyCursor() {
-  if (TContext::KeyCursorCollection && TContext::KeyCursorCollection->IsEmpty()) {
-    delete TContext::KeyCursorCollection;
-    TContext::KeyCursorCollection = nullptr;
-  }
-}
-#endif
-
 auto KeyCursorCollector = Fiber::MakeFiberLocal<TContext::TKeyCursorCollector>();
 
 TContext::TContext(const Indy::L0::TManager::TPtr<TRepo> &private_repo, Atom::TCore::TExtensibleArena *arena)
