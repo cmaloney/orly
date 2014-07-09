@@ -650,15 +650,15 @@ namespace Orly {
         /* Allocates an instance of TVal(args...) at 'ptr'. */
         template <std::size_t... Is>
         static void Allocate(void *const ptr,
-                             TArgs &&args,
+                             const TArgs &args,
                              std::index_sequence<Is...>) {
-          new (ptr) TVal(std::get<Is>(std::move(args))...);
+          new (ptr) TVal(std::get<Is>(args)...);
         }
 
         /* Initialize the stack at 'ptr' and return the size. */
         virtual size_t Init(void *const ptr) const {
           Allocate(ptr,
-                   std::move(Args),
+                   Args,
                    std::make_index_sequence<std::tuple_size<TArgs>::value>());
           return TSuper::Size;
         }
@@ -679,16 +679,16 @@ namespace Orly {
 
         private:
 
-        /* Cache the provided args and move it to TVal's ctor on Init(). */
-        mutable TArgs Args;
+        /* Cache the provided args and copy them to TVal's ctor on Init(). */
+        TArgs Args;
 
       };  // TFiberLocal
 
       /* Factory function for FiberLocals. We leverage type deduction so that
          we only have to explicitly provide the target class.
 
-         static int v = 42;
-         static auto MyLocal = MakeFiberLocal<TObj>(42, "hello", std::ref(v));
+           static int v = 42;
+           static auto MyLocal = MakeFiberLocal<TObj>(42, "hello", std::ref(v));
 
          will initialize TObj with (int, const char *, int &) */
       template <typename TVal, typename... TFwdArgs>
