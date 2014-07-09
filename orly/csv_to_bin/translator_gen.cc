@@ -87,6 +87,10 @@ int main(int argc, char *argv[]) {
     OpenFile(outstrm, outfile);
     string sql(istreambuf_iterator<char>{instrm}, istreambuf_iterator<char>{});
     auto table = NewTable(cerr, sql.data());
+    if (!table) {
+      cerr << "exiting early; no useable table definition" << endl;
+      exit(EXIT_FAILURE);
+    }
     WriteCc(outstrm, table.get());
     Base::TPump pump;
     #ifndef NDEBUG
