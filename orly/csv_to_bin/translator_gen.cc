@@ -1,4 +1,4 @@
-/* <orly/csv_to_bin/generator.cc>
+/* <orly/csv_to_bin/translator_gen.cc>
 
    Command-line program to be fed an SQL-like source text and
    generates a CSV converter.
@@ -19,8 +19,10 @@
 
 #include <iostream>
 
+#include <base/as_str.h>
 #include <base/fd.h>
 #include <base/log.h>
+#include <base/path.h>
 #include <base/pump.h>
 #include <base/source_root.h>
 #include <base/subprocess.h>
@@ -38,8 +40,11 @@ class TCmd final
     : public Base::TLog::TCmd {
   public:
 
-  TCmd(int argc, char *argv[]) : StarterScript("starter_script") {
+  TCmd(int argc, char *argv[]) {
     Parse(argc, argv, TMeta());
+    if (StarterScript.empty()) {
+      StarterScript = Base::TPath(Schema).Name;
+    }  // if
   }
 
   string Schema;
@@ -80,13 +85,14 @@ int main(int argc, char *argv[]) {
     auto table = NewTable(cerr, sql.data());
     WriteCc(cc_outstrm, table.get());
     WriteOrly(orly_printer, table.get());
+    std::cout << "wrote [" << orly_outfile << "]" << std::endl;
     Base::TPump pump;
     #ifndef NDEBUG
     const char *jhm_cmd = "jhm driver";
     #else
     const char *jhm_cmd = "jhm -c release driver";
     #endif
-    printf("running [%s]\n", jhm_cmd);
+    std::cout << "running [" << jhm_cmd << "]" << std::endl;
     auto subprocess = Base::TSubprocess::New(pump, jhm_cmd);
     auto status = subprocess->Wait();
     if (status) {
@@ -94,6 +100,9 @@ int main(int argc, char *argv[]) {
       Base::EchoOutput(subprocess->TakeStdErrFromChild());
     }  // if
     Util::Delete(cc_outfile.data());
+    auto translator_name = Base::AsStr(cmd.StarterScript, "_translator");
+    rename("driver", translator_name.data());
+    std::cout << "moved [driver] to [" << translator_name << "]" << std::endl;
   } catch (const exception &ex) {
     cerr << "Error occured: " << ex.what() << endl;
     exit(EXIT_FAILURE);
