@@ -687,6 +687,138 @@ namespace Base {
       return *this;
     }
 
+    /* If we contain a bool, get it and return true;
+       otherwise, return false. */
+    bool TryAs(bool &out) const {
+      assert(this);
+      bool success = (Kind == Bool);
+      if (success) {
+        out = Bool_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(int8_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(int16_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(int32_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(int64_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(uint8_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(uint16_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(uint32_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(uint64_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(float &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(double &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a string, get it and return true;
+       otherwise, return false. */
+    bool TryAs(std::string &out) const {
+      assert(this);
+      bool success = (Kind == String);
+      if (success) {
+        out = String_;
+      }
+      return success;
+    }
+
     /* A pointer to the named element in the object, or null if we have no
        such element. */
     const TJson *TryFind(const std::string &key) const {
