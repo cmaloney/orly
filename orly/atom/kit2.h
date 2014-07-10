@@ -1311,18 +1311,7 @@ namespace Orly {
             return Orly::Sabot::TMatchResult::NoMatch;
           }
         } else {
-          assert(lhs_core->Tycon == TTycon::Free);
-          void *free_pin_alloc = alloca(sizeof(TArena::TFinalPin));
-          TArena::TFinalPin::TWrapper free_pin(this_arena->Pin(lhs_core->IndirectCoreArray.Offset,
-                                                               sizeof(Atom::TCore::TNote) + (sizeof(Atom::TCore) * lhs_core->IndirectCoreArray.ElemCount),
-                                                               free_pin_alloc));
-          const TCore *free_start, *free_limit;
-          free_pin->GetNote()->Get(free_start, free_limit);
-          assert((free_limit - free_start) == 1);
-          if (free_start->MatchType(this_arena, *rhs_core, that_arena)) {
-          } else {
-            return Orly::Sabot::TMatchResult::PrefixMatch;
-          }
+          break;
         }
 
       }
