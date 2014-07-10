@@ -25,10 +25,10 @@
 #include <orly/expr/keys.h>
 #include <orly/pos_range.h>
 #include <orly/synth/addr_dir_visitor.h>
+#include <orly/synth/context.h>
 #include <orly/synth/cst_utils.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_type.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -141,8 +141,7 @@ TDbKeysExpr::TDbKeysExpr(const TExprFactory *expr_factory, const Package::Syntax
           return is_valid; // If there is a fixed member to the right of free member, stop.
         });
     if (!is_valid) {
-      Tools::Nycr::TError::TBuilder(GetPosRange(DbKeysExpr))
-          << "all free expressions must appear to the right of fixed expressions";
+      GetContext().AddError(GetPosRange(DbKeysExpr), "all free expressions must appear to the right of fixed expressions");
     }
   } catch (...) {
     Cleanup();

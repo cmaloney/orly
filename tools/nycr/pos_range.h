@@ -89,6 +89,12 @@ namespace Tools {
         strm << Start << '-' << Limit;
       }
 
+      bool operator<(const TPosRange &that) const {
+        // Pos range which starts first always wins.
+        // Pos range which is longer, if they start at the same place, wins.
+        return Start < that.Start || Start == that.Start && Limit > that.Limit;
+      }
+
       private:
 
       /* See accessors. */

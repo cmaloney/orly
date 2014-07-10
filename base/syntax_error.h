@@ -16,19 +16,9 @@
 
 #pragma once
 
-#include <base/error.h>
+#include <base/thrower.h>
 
 namespace Base {
-  /* TODO */
-  class TSyntaxError : public TFinalError<TSyntaxError> {
-  public:
-    /* TODO */
-    TSyntaxError(const TCodeLocation &code_location, const char *description=0) {
-      PostCtor(code_location, description);
-    }
 
-    TSyntaxError(const TCodeLocation &code_location, const char *description_start, const char *description_end) {
-      PostCtor(code_location, description_start, description_end);
-    }
-  };
+  DEFINE_ERROR(TSyntaxError, std::runtime_error, "syntax error");
 }

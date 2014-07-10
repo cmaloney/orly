@@ -20,11 +20,11 @@
 
 #include <base/assert_true.h>
 #include <orly/expr/lhs_and_rhs.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/infix_expr.h>
 #include <orly/synth/new_expr.h>
 #include <orly/synth/sort_expr.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -32,7 +32,7 @@ using namespace Orly::Synth;
 TRhsExpr::TRhsExpr(const TExprFactory *expr_factory, const Package::Syntax::TRhsExpr *rhs_expr)
     : RhsExpr(Base::AssertTrue(rhs_expr)), LhsRhsableExpr(Base::AssertTrue(expr_factory)->LhsRhsableExpr) {
   if (!LhsRhsableExpr) {
-    Tools::Nycr::TError::TBuilder(GetPosRange(RhsExpr)) << "'rhs' outside of 'sort'";
+    GetContext().AddError(GetPosRange(RhsExpr), "'rhs' outside of 'sort'");
   }
 }
 

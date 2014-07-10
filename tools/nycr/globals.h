@@ -1,6 +1,8 @@
-/* <base/past_end_error.h>
+/* <tools/nycr/globals.h>
 
-   You went to the well once too often, didncha?
+   Global state variables used internally by Nycr
+
+   NOTE: Nothing but nycr itself should include this file.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -15,21 +17,12 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License. */
-
 #pragma once
 
-#include <base/error.h>
+#include <tools/nycr/context.h>
 
-namespace Base {
-
-  /* TODO */
-  class TPastEndError : public TFinalError<TPastEndError> {
-    public:
-
-    /* TODO */
-    TPastEndError(const TCodeLocation &code_location) {
-      PostCtor(code_location);
-    }
-  };
-
-}
+namespace Tools {
+  namespace Nycr {
+    TContext &GetContext();
+  } // Nycr
+} // Tools

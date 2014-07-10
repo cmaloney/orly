@@ -20,10 +20,10 @@
 
 #include <base/assert_true.h>
 #include <orly/expr/that.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 #include <orly/synth/thatable_expr.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -32,7 +32,7 @@ TThatExpr::TThatExpr(const TExprFactory *expr_factory, const Package::Syntax::TT
     : ThatExpr(Base::AssertTrue(that_expr)),
       ThatableExpr(Base::AssertTrue(expr_factory)->ThatableExpr) {
   if (!ThatableExpr) {
-    Tools::Nycr::TError::TBuilder(GetPosRange(ThatExpr)) << "'that' outside of 'assert', 'filter', or 'reduce'";
+    GetContext().AddError(GetPosRange(ThatExpr), "'that' outside of 'assert', 'filter', or 'reduce'");
   }
 }
 

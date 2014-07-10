@@ -34,7 +34,6 @@
 #include <orly/type/dict.h>
 #include <orly/type/list.h>
 #include <orly/type/set.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;

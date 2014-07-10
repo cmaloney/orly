@@ -25,7 +25,6 @@
 #include <orly/type/addr.h>
 #include <orly/type/util.h>
 #include <orly/type/unwrap.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Expr;

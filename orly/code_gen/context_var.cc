@@ -18,6 +18,8 @@
 
 #include <orly/code_gen/context_var.h>
 
+#include <base/no_default_case.h>
+#include <base/unreachable.h>
 #include <orly/type/id.h>
 #include <orly/type/opt.h>
 #include <orly/type/time_pnt.h>
@@ -34,10 +36,10 @@ Type::TType TContextVar::GetType(TOp Op) {
       return Type::TOpt::Get(Type::TId::Get());
     case Now:
       return Type::TTimePnt::Get();
+    NO_DEFAULT_CASE;
   }
 
-  //NOTE: GCC yells about no return.... So make sure we can't hit this bad return to silence the GCC warning.
-  Base::TError::Abort(HERE);
+  Base::Unreachable(HERE);
 }
 
 TContextVar::TContextVar(const L0::TPackage *package, TOp op) : TInline(package, GetType(op)), Op(op) {}

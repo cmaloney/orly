@@ -21,9 +21,9 @@
 #include <orly/error.h>
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
+#include <orly/synth/context.h>
 #include <orly/type/unwrap.h>
 #include <orly/type/unwrap_visitor.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Expr;
@@ -71,8 +71,7 @@ Type::TType TMatch::GetType() const {
   Type::TType type;
   GetLhs()->GetType().Accept(TMatchTypeVisitor(type, GetPosRange()));
   if (Type::Unwrap(GetRhs()->GetType()) != Type::TStr::Get()) {
-    Tools::Nycr::TError::TBuilder(GetPosRange())
-      << "Regex to match on must be specified as a string";
+    Synth::GetContext().AddError(GetPosRange(), "Regex to match on must be specified as a string");
   }
   return type;
 }

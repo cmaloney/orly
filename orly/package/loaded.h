@@ -23,6 +23,7 @@
 #include <unordered_set>
 
 #include <base/piece.h>
+#include <base/thrower.h>
 #include <orly/package/api.h>
 #include <orly/package/name.h>
 #include <orly/uuid.h>
@@ -35,25 +36,9 @@ namespace Orly {
     /* Forward declarations */
     class TFuncHolder;
 
-    class TDlError : public Base::TFinalError<TDlError> {
-      public:
+    DEFINE_ERROR(TDlError, std::runtime_error, "libdl error")
 
-      static void *IfNull(const Base::TCodeLocation &code_location, void *handle);
-
-      private:
-
-      TDlError(const Base::TCodeLocation &code_locatoin, const char *msg);
-    }; // TDlError
-
-    /* TODO */
-    class TLoaderError : public Base::TFinalError<TLoaderError> {
-      public:
-
-      /* Constructor. */
-      TLoaderError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TLoaderError
+    DEFINE_ERROR(TLoaderError, std::runtime_error, "loader error");
 
     /* An actual dlopen()'d package. */
     class TLoaded : public std::enable_shared_from_this<TLoaded> {

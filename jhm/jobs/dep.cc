@@ -83,6 +83,12 @@ string TDep::GetCmd() {
   return oss.str();
 }
 
+
+timespec TDep::GetCmdTimestamp() const {
+  static timespec timestamp = GetTimestampSearchingPath("make_dep_file");
+  return timestamp;
+}
+
 bool TDep::IsComplete() {
   assert(this);
 

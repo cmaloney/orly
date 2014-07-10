@@ -21,11 +21,13 @@
 #include <cstddef>
 #include <system_error>
 
+#include <base/code_location.h>
+
 namespace Util {
 
   /* Throw the given code as an error in the system category. */
   template <typename TCode>
-  inline void ThrowSystemError(TCode code) {
+  [[noreturn]] inline void ThrowSystemError(TCode code) {
     throw std::system_error(code, std::system_category());
   }
 
@@ -75,5 +77,8 @@ namespace Util {
      string constant.  The valid lifetime of the memory pointed to by the
      return value must be assumed to not exceed the lifetime of 'buf'. */
   const char *Strerror(int errno_value, char *buf, size_t buf_size);
+
+  /* Aborts the program, sending an error message to stderr. */
+  [[noreturn]] void Abort(const Base::TCodeLocation &code_location);
 
 }  // Util

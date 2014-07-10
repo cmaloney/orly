@@ -18,26 +18,14 @@
 
 #pragma once
 
-#include <base/error.h>
+#include <base/thrower.h>
 
 namespace Orly {
 
   namespace Rt {
 
-    class TRuntimeError : public virtual Base::TError {
-      protected:
-      TRuntimeError() = default;
-    };  // TRuntimeError
-
-    /* TODO */
-    class TSystemError : public TRuntimeError, public Base::TFinalError<TSystemError> {
-      public:
-
-      /* Constructor. */
-      TSystemError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TSystemError
+    DEFINE_ERROR(TRuntimeError, std::runtime_error, "runtime error");
+    DEFINE_ERROR(TSystemError, TRuntimeError, "system_error")
 
   }  // Rt
 

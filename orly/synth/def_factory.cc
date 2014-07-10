@@ -18,14 +18,17 @@
 
 #include <orly/synth/def_factory.h>
 
+#include <iomanip>
+
+#include <base/as_str.h>
 #include <base/assert_true.h>
 #include <orly/error.h>
+#include <orly/synth/context.h>
 #include <orly/synth/cst_utils.h>
 #include <orly/synth/given_collector.h>
 #include <orly/synth/new_expr.h>
 #include <orly/synth/test_def.h>
 #include <orly/synth/type_def.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -59,14 +62,15 @@ void TDefFactory::operator()(const Package::Syntax::TFuncDef *that) const {
       if (ExprFactory->EnclosingFunc) {
         new TParamFuncDef(ExprFactory, that, *(givens.begin()));
       } else {
-        Tools::Nycr::TError::TBuilder(name.GetPosRange())
-            << '"' << name.GetText() << "\" contains a given but is not inside a pure function";
+        GetContext().AddError(
+            name.GetPosRange(),
+            Base::AsStr(std::quoted(name.GetText()), " contains a given but is not inside a pure function"));
       }
       break;
     }
     default: {
-      Tools::Nycr::TError::TBuilder(name.GetPosRange())
-          << '"' << name.GetText() << "\" contains more than one given";
+      GetContext().AddError(name.GetPosRange(),
+                            Base::AsStr(std::quoted(name.GetText()), " contains more than one given"));
     }
   }
 }

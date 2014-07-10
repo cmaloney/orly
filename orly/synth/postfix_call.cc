@@ -18,14 +18,17 @@
 
 #include <orly/synth/postfix_call.h>
 
+#include <iomanip>
+
+#include <base/as_str.h>
 #include <base/assert_true.h>
 #include <orly/error.h>
 #include <orly/expr/function_app.h>
 #include <orly/pos_range.h>
+#include <orly/synth/context.h>
 #include <orly/synth/cst_utils.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -40,17 +43,17 @@ TPostfixCall::TPostfixCall(const TExprFactory *expr_factory, const Package::Synt
         : Args(args), ExprFactory(expr_factory) {}
     virtual void operator()(const Package::Syntax::TExplicitCallArgs *that) const {
       ForEach<Package::Syntax::TObjMember>(that->GetObjMemberList(),
-          [this](const Package::Syntax::TObjMember *obj_member) -> bool {
+                                           [this](const Package::Syntax::TObjMember * obj_member)->bool {
             auto name = TName(obj_member->GetName());
             auto result = Args.insert(std::make_pair(name, ExprFactory->NewExpr(obj_member->GetExpr())));
             if (!result.second) {
-              Tools::Nycr::TError::TBuilder(name.GetPosRange())
-                << "Duplicate argument name \"" << name.GetText() << '"';
-              Tools::Nycr::TError::TBuilder((result.first)->first.GetPosRange())
-                << "  first specified here";
+              GetContext().AddError(name.GetPosRange(),
+                                    Base::AsStr("Duplicate argument name ", std::quoted(name.GetText()),
+                                    " first specified at ",
+                                    result.first->first.GetPosRange()));
             }
             return true;
-          });
+      });
     }
     virtual void operator()(const Package::Syntax::TNoCallArgs *) const { /* DO NOTHING */ }
     virtual void operator()(const Package::Syntax::TUnrolledCallArgs *that) const {

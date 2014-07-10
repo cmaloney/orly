@@ -31,8 +31,6 @@
 #include <io/device.h>
 #include <orly/atom/core_vector_builder.h>
 #include <orly/data/twitter.import.cst.h>
-#include <tools/nycr/pos_range.h>
-#include <tools/nycr/error.h>
 
 using namespace std;
 using namespace Base;
@@ -365,11 +363,14 @@ int main(int argc, char *argv[]) {
     printf("Parsing File [%s]\n", file.c_str());
 
     auto Import = Orly::Data::Twitter::Import::Syntax::TImport::ParseFile(file.c_str());
-    if (Tools::Nycr::TError::GetFirstError()) {
-      Tools::Nycr::TError::PrintSortedErrors(std::cerr);
-      throw Rt::TSystemError(HERE, "Error loading checkpoint file");
+    if(Import.HasErrors()) {
+      Import.ForEachError([](const Tools::Nycr::TPosRange &pos, const string &msg) {
+        std::cerr << pos << ' ' << msg << std::endl;
+        return true;
+      });
+      throw Rt::TSystemError(HERE, "Error loading twitter import file");
     }
-    auto opt_checkpoint_stmt_seq = Import->GetOptImportStmtSeq();
+    auto opt_checkpoint_stmt_seq = Import.Get()->GetOptImportStmtSeq();
     std::list<const TImportStmt *> check_stmt_list;
     TOptImportStmtSeqVisitor opt_check_vis(check_stmt_list);
     opt_checkpoint_stmt_seq->Accept(opt_check_vis);

@@ -21,7 +21,6 @@
 #include <cassert>
 #include <cstring>
 
-#include <base/error.h>
 #include <base/syntax_error.h>
 
 using namespace Orly;

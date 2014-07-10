@@ -29,12 +29,12 @@ common_flags=(
 $CC -o tools/jhm                                                                                                       \
  "${common_flags[@]}"                                                                                                  \
   base/time.cc jhm/jobs/util.cc jhm/job.cc base/slice.cc jhm/test.cc jhm/jobs/flex.cc server/daemonize.cc              \
-  io/input_consumer.cc io/output_consumer.cc base/thrower.cc base/error.cc strm/bin/in.cc jhm/naming.cc jhm/jhm.cc     \
+  io/input_consumer.cc io/output_consumer.cc base/thrower.cc strm/bin/in.cc jhm/naming.cc jhm/jhm.cc                   \
   io/output_producer.cc io/chunk_and_pool.cc base/pos.cc base/code_location.cc util/string.cc base/cmd.cc              \
   base/demangle.cc base/piece.cc jhm/job_runner.cc base/subprocess.cc util/path.cc strm/bin/var_int.cc                 \
   jhm/env.cc jhm/jobs/compile_c_family.cc util/error.cc jhm/status_line.cc io/input_producer.cc                        \
   jhm/work_finder.cc base/fd.cc base/pump.cc util/io.cc base/split.cc jhm/config.cc jhm/jobs/link.cc                   \
-  jhm/jobs/bison.cc strm/syntax_error.cc jhm/jobs/nycr.cc base/dir_walker.cc jhm/jobs/dep.cc                           \
+  jhm/jobs/bison.cc strm/syntax_error.cc jhm/jobs/nycr.cc base/dir_walker.cc jhm/jobs/dep.cc jhm/timestamp.cc          \
   strm/out.cc base/event_semaphore.cc strm/in.cc strm/past_end.cc base/unreachable.cc base/path.cc                     \
   -I./ -DSRC_ROOT=\"`pwd`\"                                                                                            \
   -msse2 -pthread
@@ -44,7 +44,7 @@ $CC -o tools/make_dep_file                                                      
   "${common_flags[@]}"                                                                                                 \
   strm/bin/var_int.cc strm/syntax_error.cc strm/out.cc base/time.cc strm/past_end.cc strm/in.cc strm/bin/in.cc         \
   util/io.cc base/demangle.cc base/code_location.cc base/event_semaphore.cc util/error.cc base/unreachable.cc          \
-  jhm/make_dep_file.cc base/thrower.cc base/fd.cc base/split.cc base/subprocess.cc base/error.cc base/pump.cc          \
+  jhm/make_dep_file.cc base/thrower.cc base/fd.cc base/split.cc base/subprocess.cc base/pump.cc                        \
   server/daemonize.cc                                                                                                  \
   -I./ -DSRC_ROOT=\"`pwd`\"                                                                                            \
   -msse2 -pthread

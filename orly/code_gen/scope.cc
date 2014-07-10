@@ -125,7 +125,7 @@ void TCodeScope::WriteStart(TCppPrinter &out) const {
   }
 
   for(auto &it: Assertions) {
-    out << "Assert(\"" << it.first << "\", " << it.second << ");" << Eol;
+    out << "Orly::Rt::Assert(\"" << it.first << "\", " << it.second << ");" << Eol;
   }
 
   if(!Assertions.empty()) {

@@ -29,15 +29,7 @@ namespace Orly {
 
   namespace CodeGen {
 
-    /* TODO */
-    class TGenObjError : public Base::TFinalError<TGenObjError> {
-      public:
-
-      /* Constructor. */
-      TGenObjError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TGenObjError
+    DEFINE_ERROR(TGenObjError, std::runtime_error, "error generating object");
 
     class TObjCtor : public TInline {
       NO_COPY(TObjCtor);

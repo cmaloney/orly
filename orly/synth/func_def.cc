@@ -18,13 +18,16 @@
 
 #include <orly/synth/func_def.h>
 
+#include <iomanip>
+
+#include <base/as_str.h>
 #include <base/assert_true.h>
 #include <base/no_default_case.h>
 #include <orly/symbol/given_param_def.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 #include <orly/synth/new_type.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -43,8 +46,7 @@ void TFuncDef::AddParamName(const TName &name) {
   assert(this);
   auto result = ParamNames.emplace(name);
   if (!result.second) {
-    Tools::Nycr::TError::TBuilder(name.GetPosRange())
-        << '"' << name.GetText() << "\" is a duplicate parameter name";
+    GetContext().AddError(name.GetPosRange(), Base::AsStr(std::quoted(name.GetText()), " is a duplicate parameter name"));
   }
 }
 

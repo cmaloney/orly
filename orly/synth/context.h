@@ -1,6 +1,6 @@
-/* <jhm/jobs/bison.h>
+/* <orly/synth/context.h>
 
-   Runs flex
+   Context for parsing. This is a static to simplify / keep us from having to pass it around by hand all the places.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -15,30 +15,12 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License. */
-
 #pragma once
 
-#include <jhm/job.h>
+#include <tools/nycr/context.h>
 
-namespace Jhm {
-
-  namespace Job {
-
-    class TBison final : public TJob {
-      public:
-
-      static TJobProducer GetProducer();
-
-      virtual const char *GetName() final;
-      virtual const TSet<TFile*> GetNeeds() final;
-      virtual std::string GetCmd() final;
-      virtual timespec GetCmdTimestamp() const final;
-      virtual bool IsComplete() final;
-
-      private:
-      TBison(TEnv &env, TFile *input);
-      TEnv &Env;
-    };
-
-  }
-}
+namespace Orly {
+  namespace Synth {
+    Tools::Nycr::TContext &GetContext();
+  } // Synth
+} // Orly

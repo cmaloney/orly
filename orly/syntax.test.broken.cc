@@ -54,7 +54,7 @@ FIXTURE(InstalledPackage) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // literal
@@ -77,7 +77,7 @@ FIXTURE(IdLiteral) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(IntLiteral) {
@@ -98,7 +98,7 @@ FIXTURE(IntLiteral) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(RealLiteral) {
@@ -119,7 +119,7 @@ FIXTURE(RealLiteral) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(StrLiteral) {
@@ -140,7 +140,7 @@ FIXTURE(StrLiteral) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(BoolLiteral) {
@@ -161,7 +161,7 @@ FIXTURE(BoolLiteral) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // type
@@ -191,7 +191,7 @@ FIXTURE(ParenType) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(RefType) {
@@ -217,7 +217,7 @@ FIXTURE(RefType) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(SeqType) {
@@ -270,7 +270,7 @@ FIXTURE(SeqType) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // expr
@@ -309,7 +309,7 @@ FIXTURE(ParenExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(RefExpr) {
@@ -330,7 +330,7 @@ FIXTURE(RefExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(ThatExpr) {
@@ -351,7 +351,7 @@ FIXTURE(ThatExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // list constructor
@@ -381,7 +381,7 @@ FIXTURE(EmptyList) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(NonEmptyList) {
@@ -425,7 +425,7 @@ FIXTURE(NonEmptyList) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // set constructor
@@ -455,7 +455,7 @@ FIXTURE(EmptySet) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(NonEmptySet) {
@@ -499,7 +499,7 @@ FIXTURE(NonEmptySet) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // dictionary constructor
@@ -533,7 +533,7 @@ FIXTURE(EmptyDict) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(NonEmptyDict) {
@@ -596,7 +596,7 @@ FIXTURE(NonEmptyDict) {
     "  }\n"
     "}\n";
     auto tt = ParseNode(ts);
-    EXPECT_TRUE(cst->Test(tt.get(), 0));
+    EXPECT_TRUE(cst.Get()->Test(tt.get(), 0));
 }
 
 // empty addr
@@ -621,7 +621,7 @@ FIXTURE(EmptyAddr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(NonEmptyAddr) {
@@ -665,7 +665,7 @@ FIXTURE(NonEmptyAddr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // object constructor
@@ -690,7 +690,7 @@ FIXTURE(EmptyObj) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(NonEmptyObj) {
@@ -736,7 +736,7 @@ FIXTURE(NonEmptyObj) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // range constructor
@@ -770,7 +770,7 @@ FIXTURE(Range) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(RangeWithStrideAndUndefinedEnd) {
@@ -804,7 +804,7 @@ FIXTURE(RangeWithStrideAndUndefinedEnd) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PrefixMinus) {
@@ -828,7 +828,7 @@ FIXTURE(PrefixMinus) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PrefixPlus) {
@@ -852,7 +852,7 @@ FIXTURE(PrefixPlus) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PrefixLogicalNot) {
@@ -876,7 +876,7 @@ FIXTURE(PrefixLogicalNot) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixDiv) {
@@ -903,7 +903,7 @@ FIXTURE(InfixDiv) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixExp) {
@@ -930,7 +930,7 @@ FIXTURE(InfixExp) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixMinus) {
@@ -957,7 +957,7 @@ FIXTURE(InfixMinus) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 FIXTURE(InfixMod) {
   auto cst = TCheckpoint::ParseStr("x <- y % z;");
@@ -983,7 +983,7 @@ FIXTURE(InfixMod) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixMul) {
@@ -1010,7 +1010,7 @@ FIXTURE(InfixMul) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixPlus) {
@@ -1037,7 +1037,7 @@ FIXTURE(InfixPlus) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixEq) {
@@ -1064,7 +1064,7 @@ FIXTURE(InfixEq) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixNeq) {
@@ -1091,7 +1091,7 @@ FIXTURE(InfixNeq) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixLt) {
@@ -1118,7 +1118,7 @@ FIXTURE(InfixLt) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixLtEq) {
@@ -1145,7 +1145,7 @@ FIXTURE(InfixLtEq) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixGt) {
@@ -1172,7 +1172,7 @@ FIXTURE(InfixGt) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixGtEq) {
@@ -1199,7 +1199,7 @@ FIXTURE(InfixGtEq) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixLogicalAnd) {
@@ -1226,7 +1226,7 @@ FIXTURE(InfixLogicalAnd) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixLogicalOr) {
@@ -1253,7 +1253,7 @@ FIXTURE(InfixLogicalOr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixLogicalXor) {
@@ -1280,7 +1280,7 @@ FIXTURE(InfixLogicalXor) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InfixIn) {
@@ -1307,7 +1307,7 @@ FIXTURE(InfixIn) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PostFixObjMember) {
@@ -1332,7 +1332,7 @@ FIXTURE(PostFixObjMember) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PostFixIsKnown) {
@@ -1358,7 +1358,7 @@ FIXTURE(PostFixIsKnown) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PostFixIsKnownBoolLiteral) {
@@ -1386,7 +1386,7 @@ FIXTURE(PostFixIsKnownBoolLiteral) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PostFixIsUnknown) {
@@ -1412,7 +1412,7 @@ FIXTURE(PostFixIsUnknown) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PostfixCast) {
@@ -1449,7 +1449,7 @@ FIXTURE(PostfixCast) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(PostfixSlice) {
@@ -1479,7 +1479,7 @@ FIXTURE(PostfixSlice) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(ReadExpr) {
@@ -1530,7 +1530,7 @@ FIXTURE(ReadExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(AssertExpr) {
@@ -1573,7 +1573,7 @@ FIXTURE(AssertExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(IfExpr) {
@@ -1612,7 +1612,7 @@ FIXTURE(IfExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(GivenExpr) {
@@ -1639,7 +1639,7 @@ FIXTURE(GivenExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(WhereExpr) {
@@ -1694,7 +1694,7 @@ FIXTURE(WhereExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(GivenOptDefault) {
@@ -1726,7 +1726,7 @@ FIXTURE(GivenOptDefault) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(EffectingExpr) {
@@ -1794,7 +1794,7 @@ FIXTURE(EffectingExpr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // precedence
@@ -1829,7 +1829,7 @@ FIXTURE(LogicalOrLogicalXor) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(LogicalXorLogicalAnd) {
@@ -1862,7 +1862,7 @@ FIXTURE(LogicalXorLogicalAnd) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(LogicalAndEquality) {
@@ -1895,7 +1895,7 @@ FIXTURE(LogicalAndEquality) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(EqualityInequality) {
@@ -1928,7 +1928,7 @@ FIXTURE(EqualityInequality) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(InequalityBitwiseOr) {
@@ -1961,7 +1961,7 @@ FIXTURE(InequalityBitwiseOr) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(BitwiseOrBitwiseXor) {
@@ -1994,7 +1994,7 @@ FIXTURE(BitwiseOrBitwiseXor) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(BitwiseXorBitwiseAnd) {
@@ -2027,7 +2027,7 @@ FIXTURE(BitwiseXorBitwiseAnd) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 // TODO: Currently there are no shift_and_rotate operators
@@ -2064,7 +2064,7 @@ FIXTURE(BitwiseAndAddAndSub) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(AddAndSubMulAndDiv) {
@@ -2097,7 +2097,7 @@ FIXTURE(AddAndSubMulAndDiv) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(MulAndDivExp) {
@@ -2130,7 +2130,7 @@ FIXTURE(MulAndDivExp) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(ExpUnary) {
@@ -2160,7 +2160,7 @@ FIXTURE(ExpUnary) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 
 FIXTURE(UnaryFuncAndMember) {
@@ -2188,5 +2188,5 @@ FIXTURE(UnaryFuncAndMember) {
     "    }\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }

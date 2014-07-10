@@ -20,10 +20,10 @@
 
 #include <base/no_default_case.h>
 #include <orly/expr/start.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 #include <orly/synth/startable_expr.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -33,8 +33,7 @@ TPrefixStart::TPrefixStart(const TExprFactory *expr_factory, const Package::Synt
       Expr(Base::AssertTrue(expr_factory)->NewExpr(PrefixStart->GetExpr())),
       StartableExpr(expr_factory->StartableExpr) {
   if (!StartableExpr) {
-    Tools::Nycr::TError::TBuilder(GetPosRange(PrefixStart))
-        << "'start' outside of 'reduce', 'collated_by'";
+    GetContext().AddError(GetPosRange(PrefixStart), "'start' outside of 'reduce', 'collated_by'");
   }
 }
 
@@ -45,8 +44,7 @@ Expr::TExpr::TPtr TPrefixStart::Build() const {
   if (!startable->TryGetStart()) {
     startable->SetStart(start);
   } else {
-    Tools::Nycr::TError::TBuilder(GetPosRange(PrefixStart))
-        << "'reduce' and 'collated_by' must have exactly one start";
+    GetContext().AddError(GetPosRange(PrefixStart), "'reduce' and 'collated_by' must have exactly one start");
   }
   return start;
 }

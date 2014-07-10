@@ -1,6 +1,4 @@
-/* <base/not_found_error.h>
-
-   Whatever you were looking for ain't there.
+/* <orly/synth/context.cc>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,21 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#pragma once
+#include <orly/synth/context.h>
 
-#include <base/error.h>
-
-namespace Base {
-
-  /* TODO */
-  class TNotFoundError : public Base::TFinalError<TNotFoundError> {
-    public:
-
-    /* Constructor */
-    TNotFoundError(const TCodeLocation &code_location, const char *message = nullptr) {
-      PostCtor(code_location, message);
-    }
-
-  };  // TNotFoundError
-
-}  // Base
+Tools::Nycr::TContext &Orly::Synth::GetContext() {
+  static Tools::Nycr::TContext ctx;
+  return ctx;
+}

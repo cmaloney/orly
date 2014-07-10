@@ -19,18 +19,17 @@
 #include <orly/client/program/throw_syntax_errors.h>
 
 #include <sstream>
+#include <stdexcept>
 
 #include <base/thrower.h>
-#include <tools/nycr/error.h>
 
 using namespace std;
-using namespace Orly::Client::Program;
 
-void Orly::Client::Program::ThrowSyntaxErrors() {
-  if (Tools::Nycr::TError::GetFirstError()) {
-    ostringstream strm;
-    Tools::Nycr::TError::PrintSortedErrors(strm);
+void Orly::Client::Program::ThrowSyntaxErrors(const Tools::Nycr::TContext &ctx) {
+  if (ctx.HasErrors()) {
     DEFINE_ERROR(error_t, runtime_error, "syntax error(s)");
-    THROW_ERROR(error_t) << strm.str();
+    ostringstream oss;
+    ctx.PrintErrors(oss);
+    THROW_ERROR(error_t) << oss.str();
   }
 }

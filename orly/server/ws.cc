@@ -391,13 +391,6 @@ class TWsImpl final
           Result["kind"] = "compiler internal";
           Result["msg"] = src_error.what();
           Result["pos"] = src_error.GetPosRange().AsStr();
-        } catch (const Base::TError &ex) {
-          const auto &code_loc = ex.GetCodeLocation();
-          Result["status"] = "error";
-          Result["kind"] = "server system";
-          Result["msg"] = ex.what();
-          Result["file"] = code_loc.GetFile();
-          Result["line"] = code_loc.GetLineNumber();
         } catch (const exception &ex) {
           Result["status"] = "error";
           Result["kind"] = "std exception";

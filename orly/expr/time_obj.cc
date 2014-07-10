@@ -18,6 +18,7 @@
 
 #include <orly/expr/time_obj.h>
 
+#include <base/time_maps.h>
 #include <orly/error.h>
 #include <orly/expr/visitor.h>
 #include <orly/pos_range.h>
@@ -25,8 +26,6 @@
 #include <orly/type/obj.h>
 #include <orly/type/unwrap.h>
 #include <orly/type/unwrap_visitor.h>
-#include <tools/nycr/error.h>
-#include <base/time_maps.h>
 
 using namespace Orly;
 using namespace Orly::Expr;

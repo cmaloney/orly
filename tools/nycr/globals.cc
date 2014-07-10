@@ -1,6 +1,4 @@
-/* <base/error.test.cc>
-
-   Unit test for <base/error.h>.
+/* <tools/nycr/globals.cc>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,23 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/error.h>
+#include <tools/nycr/globals.h>
 
-#include <test/kit.h>
-
-using namespace Base;
-
-class TMyError : public TFinalError<TMyError> {
-  public:
-
-  TMyError(const TCodeLocation &code_location, const char *details = 0) {
-    PostCtor(code_location, details);
-  }
-  TMyError(const TCodeLocation &code_location, const char *details_start, const char *details_end) {
-    PostCtor(code_location, details_start, details_end);
-  }
-};
-
-FIXTURE(Typical) {
-  TMyError my_error(HERE);
+Tools::Nycr::TContext &Tools::Nycr::GetContext() {
+  static Tools::Nycr::TContext ctx;
+  return ctx;
 }

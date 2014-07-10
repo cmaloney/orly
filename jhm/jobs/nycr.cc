@@ -21,6 +21,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <base/as_str.h>
 #include <base/split.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
@@ -30,7 +31,7 @@ using namespace Jhm;
 using namespace Jhm::Job;
 using namespace std;
 
-void AddNycr(TEnv &env, ostream &out) {
+static void AddNycr(ostream &out, TEnv &env) {
   out << *env.GetRoot() << "/out/bootstrap/tools/nycr/nycr";
 }
 
@@ -62,10 +63,16 @@ const unordered_set<TFile*> TNycrLang::GetNeeds() {
 }
 std::string TNycrLang::GetCmd() {
   ostringstream oss;
-  AddNycr(Env, oss);
+  AddNycr(oss, Env);
   oss << " -l --language-report-file " << GetSoleOutput()->GetPath() << ' ' << GetInput()->GetPath();
 
   return oss.str();
+}
+
+
+timespec TNycrLang::GetCmdTimestamp() const {
+  static timespec timestamp = GetTimestamp(AsStrFunc(AddNycr, Env));
+  return timestamp;
 }
 
 bool TNycrLang::IsComplete() {
@@ -170,7 +177,7 @@ string TNycr::GetCmd() {
   //TODO: use nycr in path?
   ostringstream oss;
 
-  AddNycr(Env, oss);
+  AddNycr(oss, Env);
 
   oss << " -a " << GetInput()->GetRelPath().Path.Name
       << " -p " << Join(GetInput()->GetRelPath().Path.Namespace, '/')
@@ -179,6 +186,10 @@ string TNycr::GetCmd() {
   WriteNamespace(oss, GetInput()->GetRelPath().Path.Namespace)
       << ' ' << GetInput()->GetPath();
   return oss.str();
+}
+
+timespec TNycr::GetCmdTimestamp() const {
+  return GetTimestamp(AsStrFunc(AddNycr, Env));
 }
 
 bool TNycr::IsComplete() {

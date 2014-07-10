@@ -71,6 +71,12 @@ string TFlex::GetCmd() {
   return oss.str();
 }
 
+timespec TFlex::GetCmdTimestamp() const {
+  static timespec timestamp = GetTimestampSearchingPath("flex");
+  return timestamp;
+}
+
+
 bool TFlex::IsComplete() {
   GetSoleOutput()->PushComputedConfig(
       TJson::TObject{{"cmd", TJson::TObject{{"g++", Env.GetConfig().GetEntry({"cmd","flex","g++"})}}}});

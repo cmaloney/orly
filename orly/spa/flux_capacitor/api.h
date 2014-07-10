@@ -24,10 +24,9 @@
 #include <thread>
 
 #include <base/assert_true.h>
-#include <base/error.h>
 #include <base/opt.h>
-#include <base/os_error.h>
 #include <base/ref_counted.h>
+#include <base/thrower.h>
 #include <base/zero.h>
 #include <inv_con/ordered_list.h>
 #include <inv_con/unordered_multimap.h>
@@ -35,6 +34,7 @@
 #include <orly/spa/any_honcho.h>
 #include <orly/spa/flux_capacitor/flux_capacitor.h>
 #include <orly/uuid.h>
+#include <util/error.h>
 
 namespace Orly {
 
@@ -48,46 +48,10 @@ namespace Orly {
 
     namespace FluxCapacitor {
 
-      /* TODO */
-      class TSessionError : public Base::TFinalError<TSessionError> {
-        public:
-
-        /* TODO */
-        TSessionError(const Base::TCodeLocation &loc, const char *msg) {
-          PostCtor(loc, msg);
-        }
-
-      };  // TSessionError
-
-      /* TODO */
-      class TSharedPovError : public Base::TFinalError<TSharedPovError> {
-        public:
-
-        /* Constructor. */
-        TSharedPovError(const Base::TCodeLocation &loc, const char *msg) {
-          PostCtor(loc, msg);
-        }
-      };  // TSharedPovError
-
-      /* TODO */
-      class TPrivatePovError : public Base::TFinalError<TPrivatePovError> {
-        public:
-
-        /* Constructor. */
-        TPrivatePovError(const Base::TCodeLocation &loc, const char *msg) {
-          PostCtor(loc, msg);
-        }
-      };  // TPrivatePovError
-
-      /* TODO */
-      class TNotifierError : public Base::TFinalError<TNotifierError> {
-        public:
-
-        /* Constructor. */
-        TNotifierError(const Base::TCodeLocation &loc, const char *msg) {
-          PostCtor(loc, msg);
-        }
-      };  // TNotifierError
+      DEFINE_ERROR(TSessionError, std::runtime_error, "session error");
+      DEFINE_ERROR(TSharedPovError, std::runtime_error, "shared pov error");
+      DEFINE_ERROR(TPrivatePovError, std::runtime_error, "private pov error");
+      DEFINE_ERROR(TNotifierError, std::runtime_error, "notifier error");
 
       //NOTE: This is a notification about an update.
       /* TODO */
@@ -117,9 +81,7 @@ namespace Orly {
           Base::Zero(event);
           event.events = EPOLLIN;
           event.data.ptr = pov;
-          Base::TOsError::IfLt0(
-              HERE,
-              epoll_ctl(EpollFD, EPOLL_CTL_ADD, pov->GetTetrisWaitHandle(), &event));
+          Util::IfLt0(epoll_ctl(EpollFD, EPOLL_CTL_ADD, pov->GetTetrisWaitHandle(), &event));
         }
 
         /* TODO */
@@ -139,8 +101,8 @@ namespace Orly {
 
         /* TODO */
         TTetrisHandler() : Running(true), Task(TaskRun) {
-          Base::TOsError::IfLt0(HERE, EpollFD = epoll_create1(0));
-          Base::TOsError::IfLt0(HERE, pipe(Interrupt));
+          Util::IfLt0(EpollFD = epoll_create1(0));
+          Util::IfLt0(pipe(Interrupt));
           HandlerThread = std::thread(std::bind(&TTetrisHandler::HandlerFunc, this));
         }
 
@@ -186,9 +148,7 @@ namespace Orly {
           Base::Zero(event);
           event.events = EPOLLIN;
           event.data.ptr = this;
-          Base::TOsError::IfLt0(
-              HERE,
-              epoll_ctl(EpollFD, EPOLL_CTL_ADD, Interrupt[0], &event));
+          Util::IfLt0(epoll_ctl(EpollFD, EPOLL_CTL_ADD, Interrupt[0], &event));
           TTask task = TaskRun;
           int timeout = -1;
           while(task != TaskStop) {
@@ -219,7 +179,7 @@ namespace Orly {
                   continue;
                 }
 
-                throw Base::TOsError(HERE);
+                Util::ThrowSystemError(errno);
               }
               break;
             }
@@ -250,8 +210,7 @@ namespace Orly {
 
         void WakeupHandler() {
           char temp = '\0';
-          ssize_t result = write(Interrupt[1], &temp, 1);
-          Base::TOsError::IfLt0(HERE, result);
+          ssize_t result = Util::IfLt0(write(Interrupt[1], &temp, 1));
           assert(result == 1);
         }
 
