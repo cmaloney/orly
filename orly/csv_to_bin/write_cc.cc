@@ -21,7 +21,7 @@
 using namespace std;
 using namespace Orly::CsvToBin;
 
-bool KeyRequiresStruct(const Symbol::TTable *table, const Symbol::TKey *key) {
+inline bool KeyRequiresStruct(const Symbol::TTable *table, const Symbol::TKey *key) {
   return table->NumColNotCoveredByKey(key) > 0;
 }
 

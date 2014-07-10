@@ -1,4 +1,4 @@
-/* <orly/csv_to_bin/generator.cc>
+/* <orly/csv_to_bin/translator_gen.cc>
 
    Command-line program to be fed an SQL-like source text and
    generates a CSV converter.
@@ -19,17 +19,22 @@
 
 #include <iostream>
 
+#include <base/as_str.h>
 #include <base/fd.h>
 #include <base/log.h>
+#include <base/path.h>
 #include <base/pump.h>
 #include <base/source_root.h>
 #include <base/subprocess.h>
 #include <orly/csv_to_bin/synth.h>
 #include <orly/csv_to_bin/write_cc.h>
+#include <orly/csv_to_bin/write_orly.h>
+#include <orly/code_gen/cpp_printer.h>
 #include <util/path.h>
 
 using namespace std;
 using namespace Orly::CsvToBin;
+using namespace Orly::CodeGen;
 
 class TCmd final
     : public Base::TLog::TCmd {
@@ -37,9 +42,13 @@ class TCmd final
 
   TCmd(int argc, char *argv[]) {
     Parse(argc, argv, TMeta());
+    if (StarterScript.empty()) {
+      StarterScript = Base::TPath(Schema).Name;
+    }  // if
   }
 
   string Schema;
+  string StarterScript;
 
   private:
 
@@ -52,6 +61,9 @@ class TCmd final
       Param(
           &TCmd::Schema, "schema", Required, "schema\0s\0",
           "The path to the schema file to read from (SQL).");
+      Param(
+          &TCmd::StarterScript, "starter-script", Optional, "starter-script\0ss\0",
+          "The name of the generated starter Orly script.");
     }
 
   };  // TMeta
@@ -61,29 +73,36 @@ class TCmd final
 int main(int argc, char *argv[]) {
   TCmd cmd(argc, argv);
   Base::TLog log(cmd);
-  string outfile = Base::GetSrcRoot() + "orly/csv_to_bin/translate.cc";
+  string cc_outfile = Base::GetSrcRoot() + "orly/csv_to_bin/translate.cc";
+  string orly_outfile = cmd.StarterScript + ".orly";
   try {
     ifstream instrm(cmd.Schema);
-    ofstream outstrm(outfile);
+    ofstream cc_outstrm(cc_outfile);
+    TCppPrinter orly_printer(orly_outfile, "Orly script");
     instrm.exceptions(ifstream::failbit);
-    outstrm.exceptions(ofstream::failbit);
+    cc_outstrm.exceptions(ofstream::failbit);
     string sql(istreambuf_iterator<char>{instrm}, istreambuf_iterator<char>{});
     auto table = NewTable(cerr, sql.data());
-    WriteCc(outstrm, table.get());
+    WriteCc(cc_outstrm, table.get());
+    WriteOrly(orly_printer, table.get());
+    std::cout << "wrote [" << orly_outfile << "]" << std::endl;
     Base::TPump pump;
     #ifndef NDEBUG
     const char *jhm_cmd = "jhm driver";
     #else
     const char *jhm_cmd = "jhm -c release driver";
     #endif
-    printf("running [%s]\n", jhm_cmd);
+    std::cout << "running [" << jhm_cmd << "]" << std::endl;
     auto subprocess = Base::TSubprocess::New(pump, jhm_cmd);
     auto status = subprocess->Wait();
     if (status) {
       Base::EchoOutput(subprocess->TakeStdOutFromChild());
       Base::EchoOutput(subprocess->TakeStdErrFromChild());
     }  // if
-    Util::Delete(outfile.data());
+    Util::Delete(cc_outfile.data());
+    auto translator_name = Base::AsStr(cmd.StarterScript, "_translator");
+    rename("driver", translator_name.data());
+    std::cout << "moved [driver] to [" << translator_name << "]" << std::endl;
   } catch (const exception &ex) {
     cerr << "Error occured: " << ex.what() << endl;
     exit(EXIT_FAILURE);

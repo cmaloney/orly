@@ -89,6 +89,12 @@ bool TTable::ForEachColNotInKey(
   return true;
 }
 
+size_t TTable::NumColNotCoveredByKey(const TKey *key) const {
+  assert(this);
+  assert(key);
+  return GetColCount() - key->GetFields().size();
+}
+
 const TCol *TTable::TryFindCol(const string &name) const {
   assert(this);
   for (const auto &col: Cols) {
