@@ -79,12 +79,12 @@ try:
                     '--package_dir={}'.format(args.packages_dir),
                     '--page_cache_size={}'.format(args.mem_sim_mb / 4),
                     '--starting_state=SOLO',
-                    '--update_pool_size=350000',
-                    '--update_entry_pool_size=350000'],
+                    '--update_pool_size=250002',
+                    '--update_entry_pool_size=1000008'],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
     laravel = subprocess.Popen(
-                  ['php', '../webui/artisan', 'serve'],
+                  ['php', os.path.join(args.webui_dir, 'artisan'), 'serve'],
                   stderr=subprocess.STDOUT)
     # Register signal handler for Ctrl-C.
     signal.signal(signal.SIGINT, ctrl_c)
