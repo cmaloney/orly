@@ -134,4 +134,25 @@ namespace Base {
 
   };  // TMiniCache
 
+  /* Specialization of an empty (non)-cache that saves space. */
+  template <>
+  template <typename TKey, typename TVal>
+  class TMiniCache<0, TKey, TVal> {
+    NO_COPY(TMiniCache);
+    public:
+
+    /* Do-little. */
+    TMiniCache() {}
+
+    /* Do-little. */
+    template <typename... TFwdKeyArgs, typename... TFwdValArgs>
+    void inline Emplace(std::tuple<TFwdKeyArgs...> &&/*key_args*/, std::tuple<TFwdValArgs...> &&/*val_args*/) {}
+
+    /* Do-little. */
+    inline TVal *TryGet(const TKey &/*k*/) const {
+      return nullptr;
+    }
+
+  }; // TMiniCache
+
 }  // Base
