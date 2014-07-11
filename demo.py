@@ -27,6 +27,7 @@ import os
 import os.path
 import signal
 import subprocess
+import termcolor
 import threading
 import time
 
@@ -118,9 +119,13 @@ try:
                     stderr=subprocess.STDOUT)
     line = '{:=^80}'.format('')
     msg = lambda msg: '{0:=^5}{1: ^70}{0:=^5}'.format('', msg)
+    colored = lambda msg: '{0:=^5}{1: ^79}{0:=^5}'.format('', msg)
     print(line)
     print(line)
     print(msg('Orly ready to demo'))
+    print(colored(termcolor.colored('Imported {}'.format(args.dataset), 'green')
+                  if args.dataset
+                  else termcolor.colored('No data imported', 'red')))
     print(msg('Go to http://localhost:8000/console'))
     print(msg('Press Ctrl-C to shutdown'))
     print(line)
