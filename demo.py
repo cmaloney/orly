@@ -23,6 +23,7 @@
 # Then run ./demo.py {dataset} `< demo.local`
 
 import argparse
+import os
 import os.path
 import signal
 import subprocess
@@ -42,7 +43,7 @@ datasets = ['enron', 'matrix', 'social_graph', 'twitter']
 # Argparse.
 parser = argparse.ArgumentParser(description='Run the Orly demo.')
 parser.add_argument(
-    'dataset', choices=datasets, help='dataset to load.', type=str)
+    '-s', '--dataset', choices=datasets, help='dataset to load.', type=str)
 parser.add_argument(
     '-d', '--data-dir',
     default=os.path.join(cwd, 'data'),
@@ -59,9 +60,12 @@ parser.add_argument(
     '-m', '--mem-sim-mb',
     default=4096, help='amount of memory to be used by orlyi.', type=int)
 args = parser.parse_args()
+paths = [args.data_dir, args.packages_dir, args.webui_dir]
+dataset_dir = os.path.join(args.data_dir, args.dataset) if args.dataset else ''
+if dataset_dir:
+    paths.append(dataset_dir)
 # Check for validity of directories.
-dataset_dir = os.path.join(args.data_dir, args.dataset)
-for path in [args.data_dir, args.packages_dir, args.webui_dir, dataset_dir]:
+for path in paths:
     if not os.path.isdir(path):
         raise RuntimeError(
                   '{} must be an existing directory.'.format(path))
@@ -82,7 +86,8 @@ try:
                     '--update_pool_size=250002',
                     '--update_entry_pool_size=1000008'],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
+                stderr=subprocess.STDOUT,
+                preexec_fn=os.setpgrp)
     laravel = subprocess.Popen(
                   ['php', os.path.join(args.webui_dir, 'artisan'), 'serve'],
                   stderr=subprocess.STDOUT)
@@ -99,17 +104,18 @@ try:
     thread.daemon = True
     thread.start()
     # Import data
-    for root, _, files in os.walk(dataset_dir):
-        if files:
-            subprocess.check_output(
-                ['core_import',
-                 '--la',
-                 '--le',
-                 '--import_pattern={}'.format(os.path.join(root, '*.bin*')),
-                 '--num_load_threads=1',
-                 '--num_merge_threads=1',
-                 '--num_sim_merge={}'.format(max(8, len(files)))],
-                stderr=subprocess.STDOUT)
+    if dataset_dir:
+        for root, _, files in os.walk(dataset_dir):
+            if files:
+                subprocess.check_output(
+                    ['core_import',
+                     '--la',
+                     '--le',
+                     '--import_pattern={}'.format(os.path.join(root, '*.bin*')),
+                     '--num_load_threads=1',
+                     '--num_merge_threads=1',
+                     '--num_sim_merge={}'.format(max(8, len(files)))],
+                    stderr=subprocess.STDOUT)
     line = '{:=^80}'.format('')
     msg = lambda msg: '{0:=^5}{1: ^70}{0:=^5}'.format('', msg)
     print(line)
@@ -124,4 +130,3 @@ try:
 finally:
     print('Shutting down')
     orlyi.kill()
-    laravel.send_signal(signal.SIGINT)
