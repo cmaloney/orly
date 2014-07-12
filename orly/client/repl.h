@@ -120,7 +120,7 @@ namespace Orly {
       /* Call back for each string entered at the terminal.
          Keeps going until the user hits INTR or until the callback returns false.
          Returns true iff. exit was caused by INTR. */
-      bool ForEachStr(const std::function<bool (const std::string &)> &cb);
+      void ForEachStr(const std::function<bool (const std::string &)> &cb);
 
       /* Run the REPL. */
       int Run();
@@ -130,9 +130,6 @@ namespace Orly {
 
       /* This handler prevents SIGINT from shutting down our process. */
       Signal::THandlerInstaller SigIntHandler;
-
-      /* We restore to this version of the terminal settings when we destruct. */
-      termios OldTermios;
 
     };  // TRepl
 
