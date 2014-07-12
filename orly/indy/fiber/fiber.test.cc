@@ -33,19 +33,20 @@ class TTestClass {
   NO_COPY(TTestClass);
   public:
 
-  TTestClass(int64_t v1, double v2, const std::string &v3)
+  TTestClass(int64_t v1, double v2, std::atomic<int64_t> &v3)
       : V1(v1), V2(v2), V3(v3) {}
 
   int64_t V1;
   double V2;
-  std::string V3;
+  std::atomic<int64_t> &V3;
 };
 
 static int64_t V1Init = 2;
 static double V2Init = 3.0;
-static std::string V3Init = "hello";
+static std::atomic<int64_t> V3Init(42);
+static std::atomic<int64_t> ExpectedV3(42);
 static auto MyLocal =
-    MakeFiberLocal<TTestClass>(V1Init, V2Init, std::cref(V3Init));
+    MakeFiberLocal<TTestClass>(V1Init, V2Init, std::ref(V3Init));
 
 FIXTURE(Typical) {
   TRunner::TRunnerCons runner_cons(1);
@@ -81,8 +82,12 @@ FIXTURE(FiberLocal) {
       EXPECT_EQ(MyLocal->V3, V3Init);
       MyLocal->V1 *= 2;
       MyLocal->V2 *= 2;
+      MyLocal->V3 = MyLocal->V3 * 2L;
+      ExpectedV3 = ExpectedV3 * 2L;
       EXPECT_EQ(MyLocal->V1, V1Init * 2);
       EXPECT_EQ(MyLocal->V2, V2Init * 2);
+      EXPECT_EQ(MyLocal->V3, V3Init);
+      EXPECT_EQ(MyLocal->V3, ExpectedV3);
       CompletionCb();
     }
     private:
