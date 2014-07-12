@@ -19,9 +19,11 @@
 #include <orly/client/repl.h>
 
 #include <cassert>
+#include <csetjmp>
 #include <exception>
-#include <memory>
 #include <iostream>
+#include <limits>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -30,6 +32,8 @@
 #include <orly/protocol.h>
 #include <orly/client/program/interpret_stmt.h>
 #include <orly/client/program/parse_stmt.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include <util/io.h>
 #include <util/error.h>
 
@@ -42,6 +46,160 @@ using namespace Orly::Client;
 using namespace Orly::Client::Program;
 using namespace Tools;
 using namespace Util;
+
+namespace {
+
+  /* Command info. */
+  struct TInfo {
+
+    /* Prefix of a command. Used for auto-complete. */
+    const char *Name;
+
+    /* Example. Shown in the help message. */
+    const char *Example;
+
+    /* Description of what the command does. */
+    const char *Desc;
+
+  };  // TInfo
+
+  /* Populate the suggestion and description of each of the top-level stmts. */
+  class TGetInfo : public TTop::TVisitor {
+    public:
+    explicit TGetInfo(std::vector<TInfo> &infos) : Infos(infos) {}
+    virtual ~TGetInfo() {}
+    virtual void operator()(const TImage *) const override {}
+    virtual void operator()(const TTailStmt *) const override {
+      Infos.push_back({"tail", "tail;", "Tail the server"});
+    }
+    virtual void operator()(const TSetTtlStmt *) const override {
+      Infos.push_back(
+          {"set ttl", "set ttl {session_id} to 3000;", "Set time to live"});
+    }
+    virtual void operator()(const TTryStmt *) const override {
+      Infos.push_back({"try",
+                       "try {pov_id} package method <{.name: val}>;",
+                       "Try invoking a method"});
+    }
+    virtual void operator()(const TSetUserIdStmt *) const override {
+      Infos.push_back({"set user", "set user {user_id};", "Set a user id"});
+    }
+    virtual void operator()(const TPovStatusStmt *) const override {
+      Infos.push_back({"pause", "pause {pov_id};", "Pause a point of view"});
+      Infos.push_back(
+          {"unpause", "unpause {pov_id};", "Unpause a point of view"});
+    }
+    virtual void operator()(const TPovConsStmt *) const override {
+      Infos.push_back(
+          {"new", "new fast private pov;", "Create a new point of view"});
+    }
+    virtual void operator()(const TBeginImportStmt *) const override {
+      Infos.push_back({"begin import", "begin import;", "Begin an import"});
+    }
+    virtual void operator()(const TInstallStmt *) const override {
+      Infos.push_back(
+          {"install", "install package.1;", "Install a package"});
+    }
+    virtual void operator()(const TResumeSessionStmt *) const override {}
+    virtual void operator()(const TCompileStmt *) const override {
+      Infos.push_back(
+          {"compile", R"~~(compile "x = 42;";)~~", "Compile a program"});
+    }
+    virtual void operator()(const TEchoStmt *) const override {
+      Infos.push_back(
+          {"echo", "echo 'Hello world!';", "Display a line of text"});
+    }
+    virtual void operator()(const TNewSessionStmt *) const override {}
+    virtual void operator()(const TUninstallStmt *) const override {
+      Infos.push_back(
+          {"uninstall", "uninstall package.1;", "Uninstall a package"});
+    }
+    virtual void operator()(const TExitStmt *) const override {
+      Infos.push_back({"exit", "exit;", "Exit from orly console"});
+    }
+    virtual void operator()(const TGetSourceStmt *) const override {}
+    virtual void operator()(const TListPackageStmt *) const override {}
+    virtual void operator()(const TEndImportStmt *) const override {
+      Infos.push_back({"end import", "end import;", "End an import"});
+    }
+    virtual void operator()(const TImportStmt *) const override {}
+    private:
+    std::vector<TInfo> &Infos;
+  };  // TGetInfo
+
+  /* This is used in GetInfosImpl to make sure that the list of classes provided
+     in GetInfos covers all of TTop::TVisitor's cases. */
+  template <typename T, typename... Ts>
+  struct TCheck;
+
+  /* Base case. */
+  template <typename T>
+  struct TCheck<T> : public TTop::TVisitor {
+    virtual void operator()(const T *) const override {}
+  };  // TCheck<T>
+
+  /* Recursive case. */
+  template <typename T, typename... Ts>
+  struct TCheck : TCheck<Ts...> {
+    using TCheck<Ts...>::operator();
+    virtual void operator()(const T *) const override {}
+  };  // TCheck<T, Ts...>
+
+  /* Check that the Ts... covers the requirements of TTop::TVisitor. */
+  template <typename... Ts>
+  void GetInfosImpl(const TGetInfo &get_info) {
+    TCheck<Ts...>{};
+    std::initializer_list<int>(
+        {(get_info(static_cast<const Ts *>(nullptr)), 0)...});
+  }
+
+  /* Returns the vector of 'TInfo's. */
+  const auto &GetInfos() {
+    static std::vector<TInfo> infos = []() {
+      std::vector<TInfo> result;
+      result.push_back({"help", "help", "Display this text"});
+      result.push_back({"?", "?", "Alias for 'help'"});
+      GetInfosImpl<TImage,
+                   TTailStmt,
+                   TSetTtlStmt,
+                   TTryStmt,
+                   TSetUserIdStmt,
+                   TPovStatusStmt,
+                   TPovConsStmt,
+                   TBeginImportStmt,
+                   TInstallStmt,
+                   TResumeSessionStmt,
+                   TCompileStmt,
+                   TEchoStmt,
+                   TNewSessionStmt,
+                   TUninstallStmt,
+                   TExitStmt,
+                   TGetSourceStmt,
+                   TListPackageStmt,
+                   TEndImportStmt,
+                   TImportStmt>(TGetInfo(result));
+      return result;
+    }();
+    return infos;
+  }
+
+  /* Returns the size of the longest grammar out of GetInfos. */
+  int GetMaxExampleLen() {
+    static int max_len = []() {
+      std::size_t result = 0;
+      for (const auto &info : GetInfos()) {
+        result = std::max(result, strlen(info.Example));
+      }  // for
+      assert(result < std::numeric_limits<int>::max());
+      return result;
+    }();
+    return max_len;
+  }
+
+  /* Handle interrupt through CtrlC. */
+  sigjmp_buf CtrlC;
+
+}
 
 int TRepl::Main(int argc, char *argv[]) NO_THROW {
   int result;
@@ -95,65 +253,83 @@ TRepl::TCmd::TMeta::TMeta()
 }
 
 TRepl::TRepl(const TCmd &cmd)
-    : Client(make_shared<TClient>(cmd.ServerAddress, cmd.SessionId, seconds(cmd.TimeToLive))), SigIntHandler(SIGINT) {
-  /* Change the virtual characters for EOF and INTR. */
-  IfLt0(tcgetattr(0, &OldTermios));
-  termios new_termios = OldTermios;
-  new_termios.c_cc[VEOF]  = 3; // ctrl-c is our EOF
-  new_termios.c_cc[VINTR] = 4; // ctrl-d is out INTR
-  IfLt0(tcsetattr(0, TCSANOW, &new_termios));
-}
+    : Client(make_shared<TClient>(
+          cmd.ServerAddress, cmd.SessionId, seconds(cmd.TimeToLive))),
+      SigIntHandler(SIGINT, [](int) { siglongjmp(CtrlC, 1); }) {}
 
 TRepl::~TRepl() {
   assert(this);
-  tcsetattr(0, TCSANOW, &OldTermios);
 }
 
-bool TRepl::ForEachStr(const function<bool (const string &)> &cb) {
+void TRepl::ForEachStr(const function<bool (const string &)> &cb) {
   assert(this);
   assert(&cb);
+  // Turn off filename completion.
+  rl_completion_entry_function = [](const char *, int) -> char * {
+    return nullptr;
+  };
+  rl_attempted_completion_function = [](const char *text, int start, int) {
+    char **matches = nullptr;
+    // Only provide suggestions if the word is at column 0.
+    if (start == 0) {
+      matches = rl_completion_matches(text, [](const char *text, int state) {
+        static std::size_t i = 0, len = 0;
+        if (!state) {
+          i = 0;
+          len = strlen(text);
+        }  // if
+        char *result = nullptr;
+        const auto &infos = GetInfos();
+        // Return the next name which partially matches.
+        while (i < infos.size()) {
+          const char *name = infos[i].Name;
+          ++i;
+          if (strncmp(name, text, len) == 0) {
+            result = strdup(name);
+            break;
+          }  // if
+        }  // for
+        return result;
+      });
+    }  // if
+    return matches;
+  };
   ostringstream strm;
-  bool
-      is_intr,
-      is_cont = false;
+  bool is_cont = false;
+  if (sigsetjmp(CtrlC, 1) == 1) {
+    strm.str("");
+    is_cont = false;
+    cout << endl;
+  }  // if
   for (;;) {
-    /* Get a line from the user.  This could be the start of a new string or a continuation of an existing string. */
-    cout << (!is_cont ? "orly" : " ...") << "> ";
-    cout.flush();
-    char line[256];
-    size_t size;
-    try {
-      size = ReadAtMost(0, line, sizeof(line));
-    } catch (const system_error &error) {
-      if (!WasInterrupted(error)) {
-        throw;
-      }
-      /* The user hit INTR, so it's time to bail. */
+    unique_ptr<const char> buf(readline(is_cont ? " ...> " : "orly> "));
+    if (!buf.get()) {
       cout << endl;
-      is_intr = true;
       break;
-    }
-    if (!size || line[size - 1] != 10) {
-      /* The user hit EOF, so clear the terminal and go back to the prompt. */
+    }  // if
+    if (!is_cont) {
       strm.str("");
-      is_cont = false;
-      cout << endl;
-    } else if (size > 1) {
-      /* We got something more than a blank line, so append it to the string.  (Remember, the last character is the LF.) */
-      strm.write(line, size);
-      is_cont = (line[size - 2] != ';');
-      if (!is_cont) {
-        /* It ended with a semi, so we have the user's whole string. */
-        is_intr = cb(strm.str());
-        if (!is_intr) {
-          break;
-        }
-        strm.str("");
-        is_cont = false;
-      }
-    }
-  }
-  return is_intr;
+    }  // if
+    strm << buf.get();
+    string cmd = strm.str();
+    if (cmd == "?" || cmd == "help") {
+      add_history(cmd.data());
+      for (const auto &info : GetInfos()) {
+        printf("%-*s    %s.\n", GetMaxExampleLen(), info.Example, info.Desc);
+      }  // for
+      continue;
+    }  // if
+    is_cont = cmd.back() != ';';
+    if (is_cont) {
+      strm << endl;
+    } else {
+      add_history(cmd.data());
+      cmd += '\n';
+      if (!cb(cmd)) {
+        break;
+      }  // if
+    }  // if
+  }  // for
 }
 
 int TRepl::Run() {
