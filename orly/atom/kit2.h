@@ -1311,18 +1311,7 @@ namespace Orly {
             return Orly::Sabot::TMatchResult::NoMatch;
           }
         } else {
-          assert(lhs_core->Tycon == TTycon::Free);
-          void *free_pin_alloc = alloca(sizeof(TArena::TFinalPin));
-          TArena::TFinalPin::TWrapper free_pin(this_arena->Pin(lhs_core->IndirectCoreArray.Offset,
-                                                               sizeof(Atom::TCore::TNote) + (sizeof(Atom::TCore) * lhs_core->IndirectCoreArray.ElemCount),
-                                                               free_pin_alloc));
-          const TCore *free_start, *free_limit;
-          free_pin->GetNote()->Get(free_start, free_limit);
-          assert((free_limit - free_start) == 1);
-          if (free_start->MatchType(this_arena, *rhs_core, that_arena)) {
-          } else {
-            return Orly::Sabot::TMatchResult::PrefixMatch;
-          }
+          break;
         }
 
       }
@@ -1769,7 +1758,7 @@ namespace Orly {
 
         /* TODO */
         TPin(TArena *arena, TOffset offset, size_t min_size)
-            : TArena::TPin(arena, offset), State::TBlob::TPin(GetNote()->GetStart<TVal>(), GetNote()->GetLimit<TVal>()) {
+            : TArena::TPin(arena, offset, sizeof(Atom::TCore::TNote) + min_size), State::TBlob::TPin(GetNote()->GetStart<TVal>(), GetNote()->GetLimit<TVal>()) {
           size_t size = GetLimit() - GetStart();
           #ifndef NDEBUG
           if (size < min_size) {
@@ -1844,7 +1833,7 @@ namespace Orly {
 
         /* TODO */
         TPin(TArena *arena, TOffset offset, size_t min_size)
-            : TArena::TPin(arena, offset), State::TStr::TPin(GetNote()->GetStart<TVal>(), GetNote()->GetLimit<TVal>() - 1) {
+            : TArena::TPin(arena, offset, sizeof(Atom::TCore::TNote) + min_size), State::TStr::TPin(GetNote()->GetStart<TVal>(), GetNote()->GetLimit<TVal>() - 1) {
           #ifndef NDEBUG
           size_t size = GetLimit() - GetStart();
           if (size < min_size) {
@@ -1910,6 +1899,12 @@ namespace Orly {
 
       private:
 
+      /* Returns the size of the data that needs to be pinned to get this array of states. */
+      inline size_t GetComputedSize() const {
+        assert(this);
+        return sizeof(Atom::TCore::TNote) + (sizeof(Atom::TCore) * Core->IndirectCoreArray.ElemCount);
+      }
+
       /* Our finalization of our base's abstract pin. */
       class TPin final
           : public TArena::TPin, public TBase::TPin {
@@ -1917,7 +1912,7 @@ namespace Orly {
 
         /* TODO */
         TPin(const TArrayOfTypes *owner)
-            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset),
+            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset, owner->GetComputedSize()),
               TBase::TPin(), Owner(owner) {
           const TCore *limit;
           GetNote()->Get(Cores, limit);
@@ -2017,6 +2012,12 @@ namespace Orly {
 
       protected:
 
+      /* Returns the size of the data that needs to be pinned to get this array of states. */
+      inline size_t GetComputedSize() const {
+        assert(this);
+        return sizeof(Atom::TCore::TNote) + (sizeof(Atom::TCore) * Core->IndirectCoreArray.ElemCount);
+      }
+
       /* Our finalization of our base's abstract pin. */
       class TPin final
           : public TArena::TPin, public TBase::TPin {
@@ -2024,7 +2025,7 @@ namespace Orly {
 
         /* TODO */
         TPin(const TArrayOfStates *owner)
-            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset),
+            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset, owner->GetComputedSize()),
               TBase::TPin(owner), Owner(owner) {
           const TCore *limit;
           GetNote()->Get(Cores, limit);
@@ -2168,6 +2169,12 @@ namespace Orly {
 
       private:
 
+      /* Returns the size of the data that needs to be pinned to get this array of pairs of states. */
+      inline size_t GetComputedSize() const {
+        assert(this);
+        return sizeof(Atom::TCore::TNote) + (sizeof(Atom::TCore) * 2 * Core->IndirectCoreArray.ElemCount);
+      }
+
       /* Our finalization of our base's abstract pin. */
       class TPin final
           : public TArena::TPin, public TBase::TPin {
@@ -2175,7 +2182,7 @@ namespace Orly {
 
         /* TODO */
         TPin(const TArrayOfPairsOfTypes *owner)
-            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset),
+            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset, owner->GetComputedSize()),
               TBase::TPin(), Owner(owner) {
            const TNote::TPairOfCores *limit;
           GetNote()->Get(PairsOfCores, limit);
@@ -2276,6 +2283,12 @@ namespace Orly {
 
       protected:
 
+      /* Returns the size of the data that needs to be pinned to get this array of pairs of states. */
+      inline size_t GetComputedSize() const {
+        assert(this);
+        return sizeof(Atom::TCore::TNote) + (sizeof(Atom::TCore) * 2 * Core->IndirectCoreArray.ElemCount);
+      }
+
       /* Our finalization of our base's abstract pin. */
       class TPin final
           : public TArena::TPin, public TBase::TPin {
@@ -2283,7 +2296,7 @@ namespace Orly {
 
         /* TODO */
         TPin(const TArrayOfPairsOfStates *owner)
-            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset),
+            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset, owner->GetComputedSize()),
               TBase::TPin(owner), Owner(owner) {
            const TNote::TPairOfCores *limit;
           GetNote()->Get(PairsOfCores, limit);
@@ -2379,6 +2392,12 @@ namespace Orly {
 
       protected:
 
+      /* Returns the size of the data that needs to be pinned to get this record. */
+      inline size_t GetComputedSize() const {
+        assert(this);
+        return sizeof(Atom::TCore::TNote) + (sizeof(Atom::TCore) * 2 * Core->IndirectCoreArray.ElemCount);
+      }
+
       /* Our finalization of our base's abstract pin. */
       class TPin final
           : public TArena::TPin,
@@ -2387,7 +2406,7 @@ namespace Orly {
 
         /* TODO */
         TPin(const TRecord *owner)
-            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset),
+            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset, owner->GetComputedSize()),
               Type::TRecord::TPin(owner),
               Owner(owner) {
           const TNote::TPairOfCores *limit;
@@ -2482,6 +2501,12 @@ namespace Orly {
 
       private:
 
+      /* Returns the size of the data that needs to be pinned to get this record. */
+      inline size_t GetComputedSize() const {
+        assert(this);
+        return sizeof(Atom::TCore::TNote) + (sizeof(Atom::TCore) * 2 * Core->IndirectCoreArray.ElemCount);
+      }
+
       /* Our finalization of our base's abstract pin. */
       class TPin final
           : public TArena::TPin,
@@ -2490,7 +2515,7 @@ namespace Orly {
 
         /* TODO */
         TPin(const TRecord *owner)
-            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset),
+            : TArena::TPin(owner->Arena, owner->Core->IndirectCoreArray.Offset, owner->GetComputedSize()),
               State::TRecord::TPin(owner),
               Owner(owner) {
           const TNote::TPairOfCores *limit;
