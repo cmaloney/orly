@@ -1,6 +1,7 @@
 /* <orly/csv_to_bin/field.h>
 
-   TODO
+   Metadata to define fields in structures which can then be imported into
+   from a compatible JSON object.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -28,6 +29,7 @@
 #include <base/demangle.h>
 #include <base/json.h>
 #include <base/thrower.h>
+#include <base/uuid.h>
 
 /* Used to call the helper NewField() on a member of a class.  It gives the
    field the same name as the member's identifier. */
@@ -46,6 +48,27 @@ namespace Orly {
     DEFINE_ERROR(
         TJsonMismatch, std::runtime_error, "JSON object schema mismatch");
 
+    /* TODO */
+    template <typename TVal>
+    struct TranslateJson {
+      static bool TryAs(const TJson &that, TVal &out) {
+        return that.TryAs(out);
+      }
+    };
+
+    /* TODO */
+    template <>
+    struct TranslateJson<Base::TUuid> {
+      static bool TryAs(const TJson &that, Base::TUuid &out) {
+        std::string temp;
+        bool success = that.TryAs(temp);
+        if (success) {
+          out = Base::TUuid(temp.c_str());
+        }
+        return success;
+      }
+    };
+
     /* The base for any field of TObj. */
     template <typename TObj>
     class TAnyField {
@@ -62,8 +85,9 @@ namespace Orly {
       }
 
       /* Overridden by TField<TObj, TVal> to set the value of a field in
-         the given instance of TObj. */
-      virtual void SetVal(TObj *that, const TJson &val) const = 0;
+         the given instance of TObj.  The value is taken from the given JSON
+         object. */
+      virtual void SetVal(TObj *that, const TJson &json) const = 0;
 
       protected:
 
@@ -93,11 +117,11 @@ namespace Orly {
 
       /* Set the value of a field in the given instance of TObj.  If the
          JSON object's type isn't compatible with the field, throw. */
-      virtual void SetVal(TObj *that, const TJson &val) const override {
+      virtual void SetVal(TObj *that, const TJson &json) const override {
         assert(this);
         assert(that);
-        assert(&val);
-        if (!val.TryAs(that->*Member)) {
+        assert(&json);
+        if (!TranslateJson<TVal>::TryAs(json, that->*Member)) {
           THROW_ERROR(TJsonMismatch)
               << "field \"" << this->GetName() << "\" not compatible with "
               << Base::Demangle(typeid(TVal));
