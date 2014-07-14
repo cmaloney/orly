@@ -85,7 +85,7 @@ string TDep::GetCmd() {
 
 
 timespec TDep::GetCmdTimestamp() const {
-  static timespec timestamp = GetTimestampSearchingPath("make_dep_file");
+  static timespec timestamp = GetTimestampSearchingPath("g++");
   return timestamp;
 }
 
