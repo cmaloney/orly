@@ -143,6 +143,14 @@ namespace Base {
       return *this;
     }
 
+    /* Resume the default-constructed (empty) state. */
+    TArrayView &Reset() noexcept {
+      assert(this);
+      Start = nullptr;
+      Limit = nullptr;
+      return *this;
+    }
+
     private:
 
     /* See accessors.  Start <= Limit.  Start can be null and, if it is,

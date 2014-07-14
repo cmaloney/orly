@@ -24,26 +24,36 @@ using namespace std;
 using namespace Base;
 using namespace Orly::CsvToBin;
 
+/* A structure to play with. */
 class TFoo final {
   NO_COPY(TFoo);
   public:
 
+  /* Initialize the fields to known values, so we can tell when we've
+     changed them. */
   TFoo()
-      : A(false), B(0), C() {}
+      : A(false), B(0), C(0), D(), E() {}
 
+  /* Some fields to play with. */
   bool A;
-
   int B;
+  double C;
+  string D;
+  TUuid E;
+  //Chrono::TTimePnt F;
 
-  string C;
-
-  //Chrono::TTimePnt D;
-
+  /* Metadata describing our fields.  Expressing this as a static local of
+     a static member function seems like a good pattern to follow.  It gets
+     around static data segment initialization issues and it allows the
+     constructors called here access to the private fields they're
+     describing. */
   static const TFields<TFoo> &GetFields() {
     static const TFields<TFoo> fields {
       NEW_FIELD(TFoo, A),
       NEW_FIELD(TFoo, B),
-      NEW_FIELD(TFoo, C)
+      NEW_FIELD(TFoo, C),
+      NEW_FIELD(TFoo, D),
+      NEW_FIELD(TFoo, E)
     };
     return fields;
   }
@@ -52,11 +62,14 @@ class TFoo final {
 
 FIXTURE(Typical) {
   const auto &fields = TFoo::GetFields();
-  EXPECT_EQ(fields.GetSize(), 3u);
+  EXPECT_EQ(fields.GetSize(), 5u);
   TFoo foo;
   fields.SetVals(foo, TJson::TObject {
-      { "A", true }, { "B", 101 }, { "C", "hello"} });
+      { "A", true }, { "B", 101 }, { "C", 98.6 }, { "D", "hello"},
+      { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" } });
   EXPECT_TRUE(foo.A);
   EXPECT_EQ(foo.B, 101);
-  EXPECT_EQ(foo.C, "hello");
+  EXPECT_EQ(foo.C, 98.6);
+  EXPECT_EQ(foo.D, "hello");
+  EXPECT_EQ(foo.E, TUuid("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb"));
 }
