@@ -36,7 +36,7 @@ using namespace Orly::Compiler;
 using namespace Orly::Package;
 using namespace Orly::Spa;
 
-TUUID POV_ID;
+Base::TUuid POV_ID;
 
 class TProgram {
   NO_COPY(TProgram);
@@ -69,11 +69,11 @@ class TProgram {
   void Try(const string &func, TService::TOrlyArg &args, const Var::TVar &expected) {
     Var::TVar var;
     //TODO: Needs notify povs. At least one.
-    unordered_map<TUUID, TUUID> notifiers;
+    unordered_map<Base::TUuid, Base::TUuid> notifiers;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
     Atom::TSuprena suprena;
     Atom::TCore result_core;
-    Service.Try(Service.GetPackageManager().Get(Jhm::TNamespace("sample"))->GetFunctionInfo(Base::AsPiece(func)), POV_ID, unordered_set<TUUID>{}, args, result_core, suprena, notifiers);
+    Service.Try(Service.GetPackageManager().Get(Jhm::TNamespace("sample"))->GetFunctionInfo(Base::AsPiece(func)), POV_ID, unordered_set<Base::TUuid>{}, args, result_core, suprena, notifiers);
     var = Var::ToVar(*Sabot::State::TAny::TWrapper(result_core.NewState(&suprena, state_alloc)));
     EXPECT_TRUE(var == expected);
   }
@@ -107,8 +107,8 @@ const char *TProgram::PackageName = "sample.0";
 FIXTURE(Startup) {
   /* Parse command-line arguments */
   TProgram::Service.SetPackageDir("/tmp/orly_sample/");
-  TUUID session;
-  TProgram::Service.CreateSession(Base::TOpt<TUUID>(TUUID()), 1000, session);
+  Base::TUuid session;
+  TProgram::Service.CreateSession(Base::TOpt<Base::TUuid>(Base::TUuid()), 1000, session);
   TProgram::Service.CreatePrivatePov(session, {}, 1000, false, POV_ID);
 }
 

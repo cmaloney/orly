@@ -53,7 +53,7 @@ Expr::TExpr::TPtr TLiteralExpr::Build() const {
       SetExpr(Var::TVar(that->GetLexeme().AsInt()), GetPosRange(that));
     }
     virtual void operator()(const Package::Syntax::TIdLiteral *that) const {
-      SetExpr(Var::TVar(TUUID(TLexeme::RemoveCurlyBraces(that->GetLexeme().GetText()).c_str())), GetPosRange(that));
+      SetExpr(Var::TVar(Base::TUuid(TLexeme::RemoveCurlyBraces(that->GetLexeme().GetText()).c_str())), GetPosRange(that));
     }
     virtual void operator()(const Package::Syntax::TRealLiteral *that) const {
       SetExpr(Var::TVar(that->GetLexeme().AsDouble()), GetPosRange(that));

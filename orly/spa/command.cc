@@ -450,7 +450,7 @@ namespace FooBar {
     virtual void operator()(const TIdLiteral *that) const {
       //TODO: The copy is annoying...
       std::string tmp = that->GetLexeme().GetText().substr(1,that->GetLexeme().GetText().size()-2);
-      Var = Var::TVar(TUUID(tmp.c_str()));
+      Var = Var::TVar(Base::TUuid(tmp.c_str()));
     }
 
     private:

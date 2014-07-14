@@ -68,7 +68,7 @@ void Var::TToVarVisitor::operator()(const Sabot::State::TDuration &state) const 
 void Var::TToVarVisitor::operator()(const Sabot::State::TTimePoint &state) const     {
   Var = Var::TVar(Base::Chrono::TTimePnt(std::chrono::duration_cast<Base::Chrono::TTimeDiff>(state.Get().time_since_epoch())));
 }
-void Var::TToVarVisitor::operator()(const Sabot::State::TUuid &state) const          { Var = Var::TVar(TUUID(state.Get().GetRaw())); }
+void Var::TToVarVisitor::operator()(const Sabot::State::TUuid &state) const          { Var = Var::TVar(Base::TUuid(state.Get().GetRaw())); }
 void Var::TToVarVisitor::operator()(const Sabot::State::TBlob &/*state*/) const      { throw TVarTranslationError(); }
 void Var::TToVarVisitor::operator()(const Sabot::State::TStr &state) const           {
   void *pin_alloc = alloca(Sabot::State::GetMaxStatePinSize());

@@ -20,11 +20,11 @@
 
 #include <vector>
 
+#include <base/uuid.h>
 #include <orly/rt/tuple.h>
 #include <orly/rt/containers.h>
 #include <orly/rt/operator.h>
 #include <orly/rt/opt.h>
-#include <orly/uuid.h>
 
 #include <test/kit.h>
 
@@ -55,7 +55,7 @@ TIntStrDict isd({{1, "1"}});
 TIntSet is({1, 2});
 TRealSet rs({1.0, 2.0});
 TStrSet ss({"1", "2"});
-TUUID uuid;
+Base::TUuid uuid;
 const TIntGen ig = MakeGenerator(il);
 const TStrGen sg = MakeGenerator(sl);
 
@@ -65,7 +65,7 @@ FIXTURE(ValToVal) {
   /* TDict<TKey, TVal> to TDict<TKey, TVal> */
   EXPECT_TRUE(EqEq(CastAs<TIntRealDict, TIntRealDict>::Do(idd), idd));
   /* TId to TId */
-  EXPECT_EQ((CastAs<TUUID, TUUID>::Do(uuid)), uuid);
+  EXPECT_EQ((CastAs<Base::TUuid, Base::TUuid>::Do(uuid)), uuid);
   /* TInt to TInt */
   EXPECT_EQ((CastAs<int64_t, int64_t>::Do(1)), 1);
   /* TList<TVal> to TList<TVal> */

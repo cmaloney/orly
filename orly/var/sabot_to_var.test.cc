@@ -69,7 +69,7 @@ FIXTURE(Dict) {
 }
 
 FIXTURE(Id) {
-  Check(Base::TUuid("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb"), Var::TVar(TUUID("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb")));
+  Check(Base::TUuid("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb"), Var::TVar(Base::TUuid("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb")));
 }
 
 FIXTURE(List) {
