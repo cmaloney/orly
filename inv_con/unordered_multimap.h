@@ -520,6 +520,18 @@ namespace InvCon {
         }
       }
 
+      /* Pass in a non-null pointer to the member which owns us, a value for our key,
+         and an an optional pointer to a collection to insert into. */
+      template <typename... TArgs>
+      TMembership(TMember *member, TTypedCollection *collection, TArgs &&... args)
+          : Member(member), Key(std::forward<TArgs>(args)...) {
+        assert(member);
+        ZeroLinkage();
+        if (collection) {
+          Insert(collection);
+        }
+      }
+
       /* Automatically removes us from our collection (if any) before destruction. */
       virtual ~TMembership() {
         assert(this);
@@ -664,6 +676,11 @@ namespace InvCon {
         /* Do-little. */
         TMembership(TMember *member, const TKey &key, typename TBase::TTypedCollection *collection = 0)
             : TBase(member, key, collection) {}
+
+        /* Do-little. */
+        template <typename... Ts, std::size_t... Is>
+        TMembership(TMember *member, typename TBase::TTypedCollection *collection, std::tuple<Ts...> &&ts, std::index_sequence<Is...>)
+            : TBase(member, collection, std::get<Is>(std::move(ts))...) {}
 
         /* Do-little. */
         virtual ~TMembership() {}
