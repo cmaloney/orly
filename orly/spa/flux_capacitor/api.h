@@ -28,13 +28,13 @@
 #include <base/opt.h>
 #include <base/os_error.h>
 #include <base/ref_counted.h>
+#include <base/uuid.h>
 #include <base/zero.h>
 #include <inv_con/ordered_list.h>
 #include <inv_con/unordered_multimap.h>
 #include <multi_event/multi_event.h>
 #include <orly/spa/any_honcho.h>
 #include <orly/spa/flux_capacitor/flux_capacitor.h>
-#include <orly/uuid.h>
 
 namespace Orly {
 
@@ -359,7 +359,7 @@ namespace Orly {
         }
 
         /* TODO */
-        typename TVal::TPtr Rendezvous(const TUUID &uuid) {
+        typename TVal::TPtr Rendezvous(const Base::TUuid &uuid) {
           assert(this);
           std::lock_guard<std::mutex> lock(Mutex);
           auto cache_member = Cache.GetUUIDCollection()->TryGetFirstMember(uuid);
@@ -405,7 +405,7 @@ namespace Orly {
           typedef InvCon::OrderedList::TCollection<TStoreData, TDataMember, std::chrono::time_point<std::chrono::system_clock>> TTimeCollection;
 
           /* TODO */
-          typedef InvCon::UnorderedMultimap::TCollection<TStoreData, TDataMember, TUUID> TUUIDCollection;
+          typedef InvCon::UnorderedMultimap::TCollection<TStoreData, TDataMember, Base::TUuid> TUUIDCollection;
 
           /* TODO */
           TStoreData() : TimeCollection(this), UUIDCollection(this) {}
@@ -448,10 +448,10 @@ namespace Orly {
           typedef InvCon::OrderedList::TMembership<TDataMember, TStoreData, std::chrono::time_point<std::chrono::system_clock>> TTimeListMembership;
 
           /* TODO */
-          typedef InvCon::UnorderedMultimap::TMembership<TDataMember, TStoreData, TUUID> TUUIDMembership;
+          typedef InvCon::UnorderedMultimap::TMembership<TDataMember, TStoreData, Base::TUuid> TUUIDMembership;
 
           /* TODO */
-          TDataMember(TStoreData *store_data, std::chrono::time_point<std::chrono::system_clock> time, const TUUID &uuid, TVal *val)
+          TDataMember(TStoreData *store_data, std::chrono::time_point<std::chrono::system_clock> time, const Base::TUuid &uuid, TVal *val)
               : TimeListMembership(this, time, store_data->GetTimeCollection()), UUIDMembership(this, uuid, store_data->GetUUIDCollection()), Val(val) {}
 
           /* TODO */
@@ -468,7 +468,7 @@ namespace Orly {
           }
 
           /* TODO */
-          const TUUID &GetUUID() const {
+          const Base::TUuid &GetUUID() const {
             assert(this);
             return UUIDMembership.GetKey();
           }
@@ -513,7 +513,7 @@ namespace Orly {
           public:
 
           /* TODO */
-          typedef InvCon::UnorderedMultimap::TCollection<TCache, TCacheMember, TUUID> TUUIDCollection;
+          typedef InvCon::UnorderedMultimap::TCollection<TCache, TCacheMember, Base::TUuid> TUUIDCollection;
 
           /* TODO */
           TCache() : UUIDCollection(this) {}
@@ -543,10 +543,10 @@ namespace Orly {
           public:
 
           /* TODO */
-          typedef InvCon::UnorderedMultimap::TMembership<TCacheMember, TCache, TUUID> TUUIDMembership;
+          typedef InvCon::UnorderedMultimap::TMembership<TCacheMember, TCache, Base::TUuid> TUUIDMembership;
 
           /* TODO */
-          TCacheMember(TCache *cache, const TUUID &uuid, TVal *val) : UUIDMembership(this, uuid, cache->GetUUIDCollection()), Val(val), Outstanding(0) {}
+          TCacheMember(TCache *cache, const Base::TUuid &uuid, TVal *val) : UUIDMembership(this, uuid, cache->GetUUIDCollection()), Val(val), Outstanding(0) {}
 
           /* TODO */
           ~TCacheMember() {
@@ -652,14 +652,14 @@ namespace Orly {
           typedef Base::TRefCounted::TPtr<TSessionHandle> TPtr;
 
           /* TODO */
-          static TPtr New(const Base::TOpt<TUUID> &acct, int ttl) {
+          static TPtr New(const Base::TOpt<Base::TUuid> &acct, int ttl) {
             TSessionObj *session_obj = new TSessionObj(acct, ttl);
             Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetSessionObjStore().AddToCache(session_obj);
             return AsPtr(new TSessionHandle(session_obj));
           }
 
           /* TODO */
-          static TPtr Rendezvous(const TUUID &uuid) {
+          static TPtr Rendezvous(const Base::TUuid &uuid) {
             return Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetSessionObjStore().Rendezvous(uuid);
           }
 
@@ -678,13 +678,13 @@ namespace Orly {
           }
 
           /* TODO */
-          const TUUID &GetUUID() const {
+          const Base::TUuid &GetUUID() const {
             assert(this);
             return SessionObj->GetUUID();
           }
 
           /* TODO */
-          const Base::TOpt<TUUID> &GetAcct() const {
+          const Base::TOpt<Base::TUuid> &GetAcct() const {
             assert(this);
             return SessionObj->GetAcct();
           }
@@ -716,16 +716,16 @@ namespace Orly {
         static bool ForEachSession(const std::function<bool (TSessionObj*)> &cb);
 
         /* TODO */
-        TSessionObj(const Base::TOpt<TUUID> &acct, int ttl) : Acct(acct), Ttl(ttl) {}
+        TSessionObj(const Base::TOpt<Base::TUuid> &acct, int ttl) : Acct(acct), Ttl(ttl) {}
 
         /* TODO */
         ~TSessionObj();
 
         /* TODO */
-        void CleanupNotifiers(const std::unordered_map<TUUID, TUUID> &notifier_map);
+        void CleanupNotifiers(const std::unordered_map<Base::TUuid, Base::TUuid> &notifier_map);
 
         /* TODO */
-        const Base::TOpt<TUUID> &GetAcct() const {
+        const Base::TOpt<Base::TUuid> &GetAcct() const {
           assert(this);
           return Acct;
         }
@@ -737,25 +737,25 @@ namespace Orly {
         }
 
         /* TODO */
-        const TUUID &GetUUID() const {
+        const Base::TUuid &GetUUID() const {
           assert(this);
           return UUID;
         }
 
         /* TODO */
-        void MakeNotifiers(const TPrivatePovObj* ppov, const std::unordered_set<TUUID> &notify_povs, const TUUID &update_id, std::unordered_map<TUUID, TUUID> &out);
+        void MakeNotifiers(const TPrivatePovObj* ppov, const std::unordered_set<Base::TUuid> &notify_povs, const Base::TUuid &update_id, std::unordered_map<Base::TUuid, Base::TUuid> &out);
 
 
         /* TODO */
-        void OnPromote(TUUID uuid, const TPov *pov);
+        void OnPromote(Base::TUuid uuid, const TPov *pov);
 
         /* TODO */
         void OnPovFail(TPov *pov);
 
         /* TODO */
-        void Poll(const std::unordered_set<TUUID> &notifiers,
+        void Poll(const std::unordered_set<Base::TUuid> &notifiers,
               Base::TOpt<std::chrono::milliseconds> timeout,
-              std::unordered_map<TUUID, TNotifierState> &out);
+              std::unordered_map<Base::TUuid, TNotifierState> &out);
 
         private:
 
@@ -765,7 +765,7 @@ namespace Orly {
           public:
 
           /* TODO */
-          TNotifier(TPov *pov, TUUID update_id);
+          TNotifier(TPov *pov, Base::TUuid update_id);
 
           /* TODO */
           void Fire(TNotifierState state);
@@ -773,7 +773,7 @@ namespace Orly {
           MultiEvent::TEvent::TPtr GetEvent() const;
 
           /* TODO */
-          const TUUID &GetId() const;
+          const Base::TUuid &GetId() const;
 
           /* TODO */
           TPov *GetPov() const;
@@ -782,7 +782,7 @@ namespace Orly {
           TNotifierState GetState() const;
 
           /* TODO */
-          const TUUID &GetUpdateId() const;
+          const Base::TUuid &GetUpdateId() const;
 
           /* TODO */
           const Base::TOpt<TNotifierState> &TryGetState() const;
@@ -792,7 +792,7 @@ namespace Orly {
           MultiEvent::TEvent::TPtr Event;
 
           /* TODO */
-          TUUID Id;
+          Base::TUuid Id;
 
           /* TODO */
           TPov *Pov;
@@ -801,16 +801,16 @@ namespace Orly {
           Base::TOpt<TNotifierState> State;
 
           /* TODO */
-          TUUID UpdateId;
+          Base::TUuid UpdateId;
         };
 
         void RemoveNotifiers(const std::vector<const TNotifier*> &notifiers);
 
         /* TODO */
-        TUUID UUID;
+        Base::TUuid UUID;
 
         /* TODO */
-        Base::TOpt<TUUID> Acct;
+        Base::TOpt<Base::TUuid> Acct;
 
         /* TODO */
         int Ttl;
@@ -823,13 +823,13 @@ namespace Orly {
         std::recursive_mutex NotifierLock;
 
         /* TODO */
-        std::unordered_map<TUUID, TNotifier*> Notifiers; //notifier id -> notifier (Poll)
+        std::unordered_map<Base::TUuid, TNotifier*> Notifiers; //notifier id -> notifier (Poll)
 
         /* TODO */
-        std::unordered_set<TUUID> WaitingNotifiers; //The set of notifiers currently being waited upon.
+        std::unordered_set<Base::TUuid> WaitingNotifiers; //The set of notifiers currently being waited upon.
 
         /* TODO */
-        std::unordered_map<TUUID, std::unordered_map<const TPov*, TNotifier*>> NotifiersByUpdate; //update -> pov -> notifier (OnPromote)
+        std::unordered_map<Base::TUuid, std::unordered_map<const TPov*, TNotifier*>> NotifiersByUpdate; //update -> pov -> notifier (OnPromote)
 
         /* TODO */
         std::unordered_multimap<TPov*, TNotifier*> NotifiersByPov; //pov -> notifier (TChildPov::OnFail)
@@ -863,14 +863,14 @@ namespace Orly {
           }
 
           /* TODO */
-          static TPtr New(const TUUID &parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused) {
+          static TPtr New(const Base::TUuid &parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused) {
             TSharedPovObj *shared_pov_obj = new TSharedPovObj(parent, ttl, on_fail, paused);
             Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetSharedPovObjStore().AddToCache(shared_pov_obj);
             return AsPtr(new TSharedPovHandle(shared_pov_obj));
           }
 
           /* TODO */
-          static TPtr Rendezvous(const TUUID &uuid) {
+          static TPtr Rendezvous(const Base::TUuid &uuid) {
             return Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetSharedPovObjStore().Rendezvous(uuid);
           }
 
@@ -889,7 +889,7 @@ namespace Orly {
           }
 
           /* TODO */
-          const TUUID &GetUUID() const {
+          const Base::TUuid &GetUUID() const {
             assert(this);
             return SharedPovObj->UUID;
           }
@@ -919,7 +919,7 @@ namespace Orly {
         }
 
         /* TODO */
-        TSharedPovObj(const TUUID &parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused)
+        TSharedPovObj(const Base::TUuid &parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused)
             : ParentPtr(TSharedPovHandle::Rendezvous(parent)),
               SharedPov(new TSharedPov(ParentPtr->GetSharedPov(), on_fail, paused)), Ttl(ttl) {
           Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetTetrisHandler().AddPov(SharedPov);
@@ -939,7 +939,7 @@ namespace Orly {
         }
 
         /* TODO */
-        const TUUID &GetUUID() const {
+        const Base::TUuid &GetUUID() const {
           assert(this);
           return UUID;
         }
@@ -958,7 +958,7 @@ namespace Orly {
         TSharedPov *SharedPov;
 
         /* TODO */
-        TUUID UUID;
+        Base::TUuid UUID;
 
         /* TODO */
         int Ttl;
@@ -985,21 +985,21 @@ namespace Orly {
           typedef Base::TRefCounted::TPtr<TPrivatePovHandle> TPtr;
 
           /* TODO */
-          static TPtr New(const TUUID &session, int ttl, TGlobalPov *global, const TChildPov::TOnFail &on_fail, bool paused) {
+          static TPtr New(const Base::TUuid &session, int ttl, TGlobalPov *global, const TChildPov::TOnFail &on_fail, bool paused) {
             TPrivatePovObj *private_pov_obj = new TPrivatePovObj(session, global, ttl, on_fail, paused);
             Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetPrivatePovObjStore().AddToCache(private_pov_obj);
             return AsPtr(new TPrivatePovHandle(private_pov_obj));
           }
 
           /* TODO */
-          static TPtr New(const TUUID &session, const TUUID &parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused) {
+          static TPtr New(const Base::TUuid &session, const Base::TUuid &parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused) {
             TPrivatePovObj *private_pov_obj = new TPrivatePovObj(session, parent, ttl, on_fail, paused);
             Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetPrivatePovObjStore().AddToCache(private_pov_obj);
             return AsPtr(new TPrivatePovHandle(private_pov_obj));
           }
 
           /* TODO */
-          static TPtr Rendezvous(const TUUID &uuid) {
+          static TPtr Rendezvous(const Base::TUuid &uuid) {
             return Base::AssertTrue(TAnyHoncho::GetAnyHoncho())->GetPrivatePovObjStore().Rendezvous(uuid);
           }
 
@@ -1018,7 +1018,7 @@ namespace Orly {
           }
 
           /* TODO */
-          const TUUID &GetUUID() const {
+          const Base::TUuid &GetUUID() const {
             assert(this);
             return PrivatePovObj->UUID;
           }
@@ -1061,12 +1061,12 @@ namespace Orly {
         typedef TPrivatePovHandle::TPtr TPtr;
 
         /* TODO */
-        TPrivatePovObj(const TUUID &session, TParentPov *parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused)
+        TPrivatePovObj(const Base::TUuid &session, TParentPov *parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused)
           : SessionPtr(TSessionObj::TSessionHandle::Rendezvous(session)),
             PrivatePov(new TPrivatePov(parent, on_fail, paused)), Ttl(ttl) {}
 
         /* TODO */
-        TPrivatePovObj(const TUUID &session, const TUUID &parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused)
+        TPrivatePovObj(const Base::TUuid &session, const Base::TUuid &parent, int ttl, const TChildPov::TOnFail &on_fail, bool paused)
           : ParentPtr(TSharedPovObj::TSharedPovHandle::Rendezvous(parent)),
             SessionPtr(TSessionObj::TSessionHandle::Rendezvous(session)),
             PrivatePov(new TPrivatePov(ParentPtr->GetSharedPov(), on_fail, paused)), Ttl(ttl) {}
@@ -1084,7 +1084,7 @@ namespace Orly {
         }
 
         /* TODO */
-        const TUUID &GetUUID() const {
+        const Base::TUuid &GetUUID() const {
           assert(this);
           return UUID;
         }
@@ -1111,7 +1111,7 @@ namespace Orly {
         TPrivatePov *PrivatePov;
 
         /* TODO */
-        TUUID UUID;
+        Base::TUuid UUID;
 
         /* TODO */
         int Ttl;

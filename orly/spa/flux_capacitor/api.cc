@@ -31,9 +31,9 @@ TSessionObj::~TSessionObj() {
   }
 }
 
-void TSessionObj::Poll(const std::unordered_set<TUUID> &notifiers,
+void TSessionObj::Poll(const std::unordered_set<Base::TUuid> &notifiers,
       Base::TOpt<std::chrono::milliseconds> timeout,
-      std::unordered_map<TUUID, TNotifierState> &out) {
+      std::unordered_map<Base::TUuid, TNotifierState> &out) {
   assert(&notifiers);
   assert(&out);
 
@@ -75,7 +75,7 @@ void TSessionObj::Poll(const std::unordered_set<TUUID> &notifiers,
   RemoveNotifiers(finished);
 }
 
-void TSessionObj::CleanupNotifiers(const std::unordered_map<TUUID, TUUID> &notifiers) {
+void TSessionObj::CleanupNotifiers(const std::unordered_map<Base::TUuid, Base::TUuid> &notifiers) {
   std::vector<const TNotifier*> n_ptrs;
   n_ptrs.reserve(notifiers.size());
 
@@ -93,8 +93,8 @@ bool TSessionObj::ForEachSession(const std::function<bool (TSessionObj*)> &cb) {
 void TSessionObj::RemoveNotifiers(const std::vector<const TNotifier*> &notifiers) {
   std::lock_guard<std::recursive_mutex> lock(NotifierLock);
   //remove the notifiers from all the maps
-  std::unordered_map<TUUID, TNotifier*> notifiers_map(Notifiers); //notifier id -> notifier (Poll)
-  std::unordered_map<TUUID, std::unordered_map<const TPov*, TNotifier*>> notifiers_by_update(NotifiersByUpdate); //update -> pov -> notifier (OnPromote)
+  std::unordered_map<Base::TUuid, TNotifier*> notifiers_map(Notifiers); //notifier id -> notifier (Poll)
+  std::unordered_map<Base::TUuid, std::unordered_map<const TPov*, TNotifier*>> notifiers_by_update(NotifiersByUpdate); //update -> pov -> notifier (OnPromote)
   std::unordered_multimap<TPov*, TNotifier*> notifiers_by_pov(NotifiersByPov); //pov -> notifier (TChildPov::OnFail)
 
   for(auto it: notifiers) {
@@ -131,7 +131,7 @@ void TSessionObj::RemoveNotifiers(const std::vector<const TNotifier*> &notifiers
 
 
 
-void TSessionObj::OnPromote(TUUID update_id, const TPov *pov) {
+void TSessionObj::OnPromote(Base::TUuid update_id, const TPov *pov) {
   assert(pov);
 
   std::lock_guard<std::recursive_mutex> lock(NotifierLock);
@@ -168,7 +168,7 @@ void TSessionObj::OnPovFail(TPov *pov) {
 
 }
 
-TSessionObj::TNotifier::TNotifier(TPov *pov, TUUID update_id) : Event(MultiEvent::TEvent::New()), Pov(pov), UpdateId(update_id) {}
+TSessionObj::TNotifier::TNotifier(TPov *pov, Base::TUuid update_id) : Event(MultiEvent::TEvent::New()), Pov(pov), UpdateId(update_id) {}
 
 void TSessionObj::TNotifier::Fire(TNotifierState state) {
   assert(this);
@@ -185,7 +185,7 @@ MultiEvent::TEvent::TPtr TSessionObj::TNotifier::GetEvent() const {
   return Event;
 }
 
-const TUUID &TSessionObj::TNotifier::GetId() const {
+const Base::TUuid &TSessionObj::TNotifier::GetId() const {
   assert(this);
   return Id;
 }
@@ -200,7 +200,7 @@ TNotifierState TSessionObj::TNotifier::GetState() const {
   return *State;
 }
 
-const TUUID &TSessionObj::TNotifier::GetUpdateId() const {
+const Base::TUuid &TSessionObj::TNotifier::GetUpdateId() const {
   assert(this);
   return UpdateId;
 }
@@ -211,12 +211,12 @@ const Base::TOpt<TNotifierState> &TSessionObj::TNotifier::TryGetState() const {
   return State;
 }
 
-void TSessionObj::MakeNotifiers(const TPrivatePovObj* ppov, const std::unordered_set<TUUID> &notify_povs, const TUUID &update_id, std::unordered_map<TUUID, TUUID> &out) {
+void TSessionObj::MakeNotifiers(const TPrivatePovObj* ppov, const std::unordered_set<Base::TUuid> &notify_povs, const Base::TUuid &update_id, std::unordered_map<Base::TUuid, Base::TUuid> &out) {
   assert(this);
   std::lock_guard<std::recursive_mutex> lock(NotifierLock);
 
-  std::unordered_map<TUUID, TNotifier*> notifiers_map(Notifiers); //notifier id -> notifier (Poll)
-  std::unordered_map<TUUID, std::unordered_map<const TPov*, TNotifier*>> notifiers_by_update(NotifiersByUpdate); //update -> pov -> notifier (OnPromote)
+  std::unordered_map<Base::TUuid, TNotifier*> notifiers_map(Notifiers); //notifier id -> notifier (Poll)
+  std::unordered_map<Base::TUuid, std::unordered_map<const TPov*, TNotifier*>> notifiers_by_update(NotifiersByUpdate); //update -> pov -> notifier (OnPromote)
   std::unordered_multimap<TPov*, TNotifier*> notifiers_by_pov(NotifiersByPov); //pov -> notifier (TChildPov::OnFail)
 
   TNotifier **notifier_list = new TNotifier*[notify_povs.size()];

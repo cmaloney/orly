@@ -25,9 +25,9 @@
 #include <base/error.h>
 #include <base/piece.h>
 #include <base/split.h>
+#include <base/uuid.h>
 #include <server/url_decode.h>
 #include <orly/indy/key.h>
-#include <orly/uuid.h>
 #include <orly/var.h>
 
 /* TODO: The argument parsing here should probably share a decent amount of code with <base/cmd.h>*/
@@ -231,7 +231,7 @@ namespace Orly {
         void Convert(const std::string &s, int &val);
         void Convert(const std::string &s, long &val);
         void Convert(const std::string &str, uint64_t &val);
-        void Convert(const std::string &s, TUUID &uuid);
+        void Convert(const std::string &s, Base::TUuid &uuid);
         void Convert(const std::string &s, Var::TVar &var);
         void Convert(const std::string &s, std::chrono::milliseconds &val);
 

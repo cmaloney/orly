@@ -44,7 +44,7 @@ FIXTURE(Bool) {
 
 FIXTURE(Id) {
   const char *str = "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb";
-  EXPECT_EQ(ToString(Var::TVar(TUUID(str))), str);
+  EXPECT_EQ(ToString(Var::TVar(Base::TUuid(str))), str);
 }
 
 FIXTURE(Int) {

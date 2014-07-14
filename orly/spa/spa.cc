@@ -471,9 +471,9 @@ class TSpa : public Mongoose::TMongoose {
   bool OnPoll(TArgs &args, ostream &strm) {
     assert(this);
 
-    std::unordered_set<TUUID> notifiers;
+    std::unordered_set<Base::TUuid> notifiers;
     TOpt<chrono::milliseconds> timeout;
-    TUUID session;
+    Base::TUuid session;
     args.Get("notifiers", notifiers);
     args.Get("timeout", timeout);
     args.Get("session", session);
@@ -481,7 +481,7 @@ class TSpa : public Mongoose::TMongoose {
 
     TLogger("Poll") << timeout;
 
-    std::unordered_map<TUUID, FluxCapacitor::TNotifierState> notifier_states;
+    std::unordered_map<Base::TUuid, FluxCapacitor::TNotifierState> notifier_states;
     Base::AssertTrue(Service)->Poll(session, notifiers, timeout, notifier_states);
     bool first;
     for(auto notifier_state: notifier_states) {
@@ -497,7 +497,7 @@ class TSpa : public Mongoose::TMongoose {
   /* Handles "POST /sys/create_session". */
   bool OnPostCreateSession(TArgs &args, ostream &strm) {
     assert(this);
-    TOpt<TUUID> acct;
+    TOpt<Base::TUuid> acct;
     int ttl;
 
     args.Get("acct", acct);
@@ -506,7 +506,7 @@ class TSpa : public Mongoose::TMongoose {
 
     TLogger("CreateSession") << acct << ttl;
 
-    TUUID session;
+    Base::TUuid session;
     Base::AssertTrue(Service)->CreateSession(acct, ttl, session);
     strm<<session;
     return true;
@@ -516,8 +516,8 @@ class TSpa : public Mongoose::TMongoose {
   bool OnPostCreatePrivatePov(TArgs &args, ostream &strm) {
     assert(this);
 
-    TUUID session;
-    TOpt<TUUID> parent;
+    Base::TUuid session;
+    TOpt<Base::TUuid> parent;
     int ttl;
     bool paused = false;
     args.Get("session", session);
@@ -528,7 +528,7 @@ class TSpa : public Mongoose::TMongoose {
 
     TLogger("CreatePrivatePov") << session << parent << ttl;
 
-    TUUID ppov;
+    Base::TUuid ppov;
     Base::AssertTrue(Service)->CreatePrivatePov(session, parent, ttl, paused, ppov);
     strm<<ppov;
     return true;
@@ -538,7 +538,7 @@ class TSpa : public Mongoose::TMongoose {
   bool OnPostCreateSharedPov(TArgs &args, ostream &strm) {
     assert(this);
 
-    TOpt<TUUID> parent;
+    TOpt<Base::TUuid> parent;
     int ttl;
     bool paused = false;
     args.Get("parent", parent);
@@ -548,7 +548,7 @@ class TSpa : public Mongoose::TMongoose {
 
     TLogger("CreateSharedPov") << parent << ttl;
 
-    TUUID spov;
+    Base::TUuid spov;
     Base::AssertTrue(Service)->CreateSharedPov(parent, ttl, paused, spov);
     strm<<spov;
     return true;
@@ -611,8 +611,8 @@ class TSpa : public Mongoose::TMongoose {
     //TODO: Pull checking if the package exists to here.
     //TODO: Better enum arg grabbing (json, orly).
     //TODO: Refactor so that argument list checking functionality is here
-    TUUID ppov;
-    std::unordered_set<TUUID> notify_povs;
+    Base::TUuid ppov;
+    std::unordered_set<Base::TUuid> notify_povs;
     std::string output("json");
     args.Get("private_pov", ppov);
     args.GetOpt("notify_pov", notify_povs);
@@ -651,7 +651,7 @@ class TSpa : public Mongoose::TMongoose {
     args.VerifyAllUsed();
 
     //Call the function
-    std::unordered_map<TUUID, TUUID> notifiers;
+    std::unordered_map<Base::TUuid, Base::TUuid> notifiers;
 
     TLogger("Try") << uri;
 

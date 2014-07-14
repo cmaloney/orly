@@ -23,9 +23,9 @@
 #include <unordered_set>
 
 #include <base/piece.h>
+#include <base/uuid.h>
 #include <orly/package/api.h>
 #include <orly/package/name.h>
-#include <orly/uuid.h>
 #include <orly/var/impl.h>
 
 namespace Orly {

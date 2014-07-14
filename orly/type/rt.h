@@ -21,12 +21,12 @@
 #include <string>
 
 #include <base/chrono.h>
+#include <base/uuid.h>
 #include <orly/rt/containers.h>
 #include <orly/rt/generator.h>
 #include <orly/rt/opt.h>
 #include <orly/rt/unknown.h>
 #include <orly/type.h>
-#include <orly/uuid.h>
 
 namespace Orly {
 
@@ -193,7 +193,7 @@ namespace Orly {
 
     /* TODO */
     template <>
-    struct TDt<TUUID> {
+    struct TDt<Base::TUuid> {
 
       /* TODO */
       TType static GetType() {

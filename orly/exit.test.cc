@@ -32,8 +32,8 @@ FIXTURE(Startup) {
   /* Parse command-line arguments */
   service.SetPackageDir("/tmp/");
   /* Set checkpoint path and package directory */
-  TUUID session;
-  service.CreateSession(Base::TOpt<TUUID>(TUUID()), 1000, session);
-  TUUID private_pov;
+  Base::TUuid session;
+  service.CreateSession(Base::TOpt<Base::TUuid>(Base::TUuid()), 1000, session);
+  Base::TUuid private_pov;
   service.CreatePrivatePov(session, {}, 1000, false, private_pov);
 }

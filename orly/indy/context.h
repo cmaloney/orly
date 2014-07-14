@@ -214,8 +214,8 @@ namespace Orly {
 
       /* TODO */
       TIndyContext(
-          const Rt::TOpt<TUUID> &user_id,
-          const TUUID &session_id,
+          const Rt::TOpt<Base::TUuid> &user_id,
+          const Base::TUuid &session_id,
           Indy::TContext &context,
           Atom::TCore::TExtensibleArena *arena,
           Base::TScheduler *scheduler,

@@ -71,12 +71,12 @@ TService::~TService() {
   assert(this);
 }
 
-void TService::CreateSession(const Base::TOpt<TUUID> &acct, int ttl, TUUID &out) {
+void TService::CreateSession(const Base::TOpt<Base::TUuid> &acct, int ttl, Base::TUuid &out) {
   assert(this);
   out = TSessionObj::TSessionHandle::New(acct, ttl)->GetUUID();
 }
 
-void TService::CreatePrivatePov(const TUUID &session_uuid, const TOpt<TUUID> &parent, int ttl, bool paused, TUUID &out) {
+void TService::CreatePrivatePov(const Base::TUuid &session_uuid, const TOpt<Base::TUuid> &parent, int ttl, bool paused, Base::TUuid &out) {
   assert(this);
   assert(&session_uuid);
   assert(&parent);
@@ -89,7 +89,7 @@ void TService::CreatePrivatePov(const TUUID &session_uuid, const TOpt<TUUID> &pa
   }
 }
 
-void TService::CreateSharedPov(const TOpt<TUUID> &parent, int ttl, bool paused, TUUID &out) {
+void TService::CreateSharedPov(const TOpt<Base::TUuid> &parent, int ttl, bool paused, Base::TUuid &out) {
   assert(this);
   assert(&parent);
   assert(&out);
@@ -156,10 +156,10 @@ const Package::TManager &TService::GetPackageManager() const {
 
 /* TODO */
 void TService::Poll(
-      const TUUID &session_uuid,
-      const unordered_set<TUUID> &notifiers,
+      const Base::TUuid &session_uuid,
+      const unordered_set<Base::TUuid> &notifiers,
       TOpt<chrono::milliseconds> timeout,
-      unordered_map<TUUID, TNotifierState> &out) {
+      unordered_map<Base::TUuid, TNotifierState> &out) {
   assert(this);
   assert(&notifiers);
   assert(&out);
@@ -171,8 +171,8 @@ void TService::Poll(
 
 }
 
-bool CheckAsserts(Package::TFuncHolder::TPtr func, const TService::TOrlyArg args, const Base::TOpt<TUUID> acct,
-      const TUUID session_id,  vector<bool> original_predicte_results, TContext &flux_ctx, Base::TScheduler *scheduler,
+bool CheckAsserts(Package::TFuncHolder::TPtr func, const TService::TOrlyArg args, const Base::TOpt<Base::TUuid> acct,
+      const Base::TUuid session_id,  vector<bool> original_predicte_results, TContext &flux_ctx, Base::TScheduler *scheduler,
       const Rt::TOpt<Base::Chrono::TTimePnt> now, const Rt::TOpt<uint32_t> random_seed) {
 
   Atom::TSuprena arena;
@@ -188,12 +188,12 @@ bool CheckAsserts(Package::TFuncHolder::TPtr func, const TService::TOrlyArg args
 
 void TService::Try(
       const Package::TFuncHolder::TPtr &func,
-      const TUUID &private_pov,
-      const unordered_set<TUUID> &notify_povs,
+      const Base::TUuid &private_pov,
+      const unordered_set<Base::TUuid> &notify_povs,
       const TOrlyArg &args,
       Atom::TCore &result_core,
       Atom::TSuprena &result_arena,
-      unordered_map<TUUID, TUUID> &notifiers) {
+      unordered_map<Base::TUuid, Base::TUuid> &notifiers) {
 
   assert(this);
   assert(&func);
@@ -238,7 +238,7 @@ void TService::Try(
 
   /* If we have to send out notifiers, set them up and build an OnPromote function. */
   if (!notify_povs.empty()) {
-    TUUID update_id;
+    Base::TUuid update_id;
     session->GetSessionObj()->MakeNotifiers(pov_obj->GetObj(), notify_povs, update_id, notifiers);
     on_promote = bind(&FluxCapacitor::TSessionObj::OnPromote, session->GetSessionObj(), update_id, _1);
   }
@@ -291,12 +291,12 @@ void NewUpdateAndWait(const TPov *target, TPrivatePov *start, std::unordered_map
 
 void TService::LoadCheckpoint(const string &name) {
   assert(this);
-  TUUID session_id;
-  TUUID ppov_id;
+  Base::TUuid session_id;
+  Base::TUuid ppov_id;
 
   //NOTE: We would just use the flux private pov API directly here, but that creates a pretty much always-hit race between the update promotion and the KVIndex being detached.
-  CreateSession(TOpt<TUUID>::GetUnknown(), 10000, session_id);
-  CreatePrivatePov(session_id, TOpt<TUUID>::GetUnknown(), 1000, false, ppov_id);
+  CreateSession(TOpt<Base::TUuid>::GetUnknown(), 10000, session_id);
+  CreatePrivatePov(session_id, TOpt<Base::TUuid>::GetUnknown(), 1000, false, ppov_id);
   TPrivatePovObj::TPrivatePovHandle::TPtr pov_obj = TPrivatePovObj::TPrivatePovHandle::Rendezvous(ppov_id);
 
   //Read the checkpoint
@@ -323,8 +323,8 @@ void TService::OnPovFail(FluxCapacitor::TPov *pov) {
 }
 
 void RunTestAndPromoteOnceIfEffects(TService &service, const function<void(Package::TSpaContext &ctx)> &func,
-      const TUUID &session, const TUUID &spov) {
-  TUUID pov;
+      const Base::TUuid &session, const Base::TUuid &spov) {
+  Base::TUuid pov;
   service.CreatePrivatePov(session, spov, 10000, false, pov);
 
   TPrivatePovObj::TPrivatePovHandle::TPtr pov_obj = TPrivatePovObj::TPrivatePovHandle::Rendezvous(pov);
@@ -336,7 +336,7 @@ void RunTestAndPromoteOnceIfEffects(TService &service, const function<void(Packa
     //NOTE: The flux context must be destroyed __BEFORE__ we make the update because it holds a lock on the shared pov
     //      which tetris needs
     TContext flux_context(pov_obj->GetPrivatePov(), &arena);
-    Package::TSpaContext ctx(Rt::TOpt<TUUID>(), session, flux_context, service.GetArena(), service.GetScheduler(),
+    Package::TSpaContext ctx(Rt::TOpt<Base::TUuid>(), session, flux_context, service.GetArena(), service.GetScheduler(),
       Base::Chrono::CreateTimePnt(2013, 10, 23, 17, 47, 14, 0, 0), 0);
 
     func(ctx);
@@ -354,12 +354,12 @@ void RunTestAndPromoteOnceIfEffects(TService &service, const function<void(Packa
   }
 }
 
-bool TService::RunTest(const TUUID &session, const TUUID &spov_outer, const Package::TTestCase &test, bool verbose) {
+bool TService::RunTest(const Base::TUuid &session, const Base::TUuid &spov_outer, const Package::TTestCase &test, bool verbose) {
   assert(&session);
   assert(&spov_outer);
   assert(&test);
 
-  TUUID spov;
+  Base::TUuid spov;
   CreateSharedPov(spov_outer, 1000, true, spov);
 
   if (verbose) {
@@ -420,7 +420,7 @@ bool TService::RunTest(const TUUID &session, const TUUID &spov_outer, const Pack
 }
 
 
-bool TService::RunTestBlock(const TUUID &session, const TUUID &spov, const Package::TTestBlock &test_block, bool verbose) {
+bool TService::RunTestBlock(const Base::TUuid &session, const Base::TUuid &spov, const Package::TTestBlock &test_block, bool verbose) {
   assert(&session);
   assert(&test_block);
 
@@ -438,16 +438,16 @@ bool TService::RunTestSuite(const Package::TName &name, bool verbose) {
   assert(this);
 
   /* TODO: We really want an API for destroying sessions explicitly */
-  TUUID session;
-  CreateSession(  Base::TOpt<TUUID>::GetUnknown(), 1000, session);
+  Base::TUuid session;
+  CreateSession(  Base::TOpt<Base::TUuid>::GetUnknown(), 1000, session);
   bool succeeded = true;
 
   PackageManager.Get(name)->ForEachTest(
       [this, session, &succeeded, verbose](const Package::TTest *test) -> bool {
         assert(test);
 
-        TUUID spov;
-        CreateSharedPov(TOpt<TUUID>::GetUnknown(), 1000, true, spov);
+        Base::TUuid spov;
+        CreateSharedPov(TOpt<Base::TUuid>::GetUnknown(), 1000, true, spov);
 
         if (test->WithBlock) {
           RunTestAndPromoteOnceIfEffects(*this,
