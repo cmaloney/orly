@@ -28,11 +28,8 @@
 #include <base/subprocess.h>
 #include <orly/csv_to_bin/synth.h>
 #include <orly/csv_to_bin/write_cc.h>
-<<<<<<< HEAD
 #include <orly/csv_to_bin/write_orly.h>
 #include <orly/code_gen/cpp_printer.h>
-=======
->>>>>>> 98d0fcaa691839a18d4803f98aebcf0a72573741
 #include <util/error.h>
 #include <util/path.h>
 
