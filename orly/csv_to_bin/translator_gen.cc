@@ -96,8 +96,8 @@ int main(int argc, char *argv[]) {
   try {
     ifstream instrm;
     OpenFile(instrm, cmd.Schema);
-    ofstream outstrm;
-    OpenFile(outstrm, outfile);
+    ofstream cc_outstrm;
+    OpenFile(cc_outstrm, cc_outfile);
     TCppPrinter orly_printer(orly_outfile, "Orly script");
     string sql(istreambuf_iterator<char>{instrm}, istreambuf_iterator<char>{});
     auto table = NewTable(cerr, sql.data());
