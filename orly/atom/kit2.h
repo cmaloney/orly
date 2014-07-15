@@ -1025,10 +1025,10 @@ namespace Orly {
           void *lhs_pin_alloc = alloca(sizeof(TArena::TFinalPin) * 2);
           void *rhs_pin_alloc = reinterpret_cast<uint8_t *>(lhs_pin_alloc) + sizeof(TArena::TFinalPin);
           TArena::TFinalPin::TWrapper lhs_pin(this_arena->Pin(IndirectScalarArray.Offset,
-                                                              sizeof(Atom::TCore::TNote) + IndirectScalarArray.Size,
+                                                              sizeof(Atom::TCore::TNote) + IndirectScalarArray.Size + 1/* add 1 for null term*/,
                                                               lhs_pin_alloc));
           TArena::TFinalPin::TWrapper rhs_pin(that_arena->Pin(that_core.IndirectScalarArray.Offset,
-                                                              sizeof(Atom::TCore::TNote) + that_core.IndirectScalarArray.Size,
+                                                              sizeof(Atom::TCore::TNote) + that_core.IndirectScalarArray.Size + 1/* add 1 for null term*/,
                                                               rhs_pin_alloc));
           lhs_pin->GetNote()->Get(lhs_start, lhs_limit);
           rhs_pin->GetNote()->Get(rhs_start, rhs_limit);
@@ -1037,7 +1037,7 @@ namespace Orly {
         } else if (that_core.Tycon >= TTycon::MinDirectStr && that_core.Tycon <= TTycon::MaxDirectStr) { /* rhs direct str */
           void *lhs_pin_alloc = alloca(sizeof(TArena::TFinalPin));
           TArena::TFinalPin::TWrapper lhs_pin(this_arena->Pin(IndirectScalarArray.Offset,
-                                                              sizeof(Atom::TCore::TNote) + IndirectScalarArray.Size,
+                                                              sizeof(Atom::TCore::TNote) + IndirectScalarArray.Size + 1/* add 1 for null term*/,
                                                               lhs_pin_alloc));
           lhs_pin->GetNote()->Get(lhs_start, lhs_limit);
           rhs_start = that_core.DirectStr;
@@ -1053,7 +1053,7 @@ namespace Orly {
         if (that_core.Tycon == TTycon::Str) { /* rhs indirect str */
           void *rhs_pin_alloc = alloca(sizeof(TArena::TFinalPin));
           TArena::TFinalPin::TWrapper rhs_pin(that_arena->Pin(that_core.IndirectScalarArray.Offset,
-                                                              sizeof(Atom::TCore::TNote) + that_core.IndirectScalarArray.Size,
+                                                              sizeof(Atom::TCore::TNote) + that_core.IndirectScalarArray.Size + 1/* add 1 for null term*/,
                                                               rhs_pin_alloc));
           rhs_pin->GetNote()->Get(rhs_start, rhs_limit);
           comp = QuickCompareMem(lhs_start, rhs_start, (lhs_limit - lhs_start), (rhs_limit - rhs_start));
@@ -1830,7 +1830,7 @@ namespace Orly {
 
         /* TODO */
         TPin(TArena *arena, TOffset offset, size_t min_size)
-            : TArena::TPin(arena, offset, sizeof(Atom::TCore::TNote) + min_size), State::TStr::TPin(GetNote()->GetStart<TVal>(), GetNote()->GetLimit<TVal>() - 1) {
+            : TArena::TPin(arena, offset, sizeof(Atom::TCore::TNote) + min_size + 1/* add 1 for null term*/), State::TStr::TPin(GetNote()->GetStart<TVal>(), GetNote()->GetLimit<TVal>() - 1) {
           #ifndef NDEBUG
           size_t size = GetLimit() - GetStart();
           if (size < min_size) {
