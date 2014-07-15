@@ -138,7 +138,7 @@ bool TCore::TOrderedArenaCompare::operator()(const TCore &lhs, const TCore &rhs)
       void *lhs_pin_alloc = alloca(sizeof(TArena::TFinalPin));
       assert(Arena);
       TArena::TFinalPin::TWrapper lhs_pin(Arena->Pin(lhs.IndirectScalarArray.Offset,
-                                                     sizeof(Atom::TCore::TNote) + lhs.IndirectScalarArray.Size,
+                                                     sizeof(Atom::TCore::TNote) + lhs.IndirectScalarArray.Size + 1/* add 1 for null term*/,
                                                      lhs_pin_alloc));
       lhs_pin->GetNote()->Get(lhs_start, lhs_limit);
       rhs_start = rhs.DirectStr;
@@ -151,7 +151,7 @@ bool TCore::TOrderedArenaCompare::operator()(const TCore &lhs, const TCore &rhs)
       void *lhs_pin_alloc = alloca(sizeof(TArena::TFinalPin));
       assert(Arena);
       TArena::TFinalPin::TWrapper lhs_pin(Arena->Pin(lhs.IndirectScalarArray.Offset,
-                                                     sizeof(Atom::TCore::TNote) + lhs.IndirectScalarArray.Size,
+                                                     sizeof(Atom::TCore::TNote) + lhs.IndirectScalarArray.Size + 1/* add 1 for null term*/,
                                                      lhs_pin_alloc));
       lhs_pin->GetNote()->Get(lhs_start, lhs_limit);
       rhs_start = rhs.DirectBlob;
@@ -167,7 +167,7 @@ bool TCore::TOrderedArenaCompare::operator()(const TCore &lhs, const TCore &rhs)
       void *rhs_pin_alloc = alloca(sizeof(TArena::TFinalPin));
       assert(Arena);
       TArena::TFinalPin::TWrapper rhs_pin(Arena->Pin(rhs.IndirectScalarArray.Offset,
-                                                     sizeof(Atom::TCore::TNote) + rhs.IndirectScalarArray.Size,
+                                                     sizeof(Atom::TCore::TNote) + rhs.IndirectScalarArray.Size + 1/* add 1 for null term*/,
                                                      rhs_pin_alloc));
       rhs_pin->GetNote()->Get(rhs_start, rhs_limit);
       lhs_start = lhs.DirectStr;
@@ -645,7 +645,7 @@ void TCore::CopyOut(TArena *arena, string &out) const {
     assert(arena);
     void *pin_alloc = alloca(sizeof(TArena::TFinalPin));
     TArena::TFinalPin::TWrapper pin(arena->Pin(IndirectScalarArray.Offset,
-                                               sizeof(Atom::TCore::TNote) + IndirectScalarArray.Size,
+                                               sizeof(Atom::TCore::TNote) + IndirectScalarArray.Size + 1/* add 1 for null term*/,
                                                pin_alloc));
     const char *start, *limit;
     pin->GetNote()->Get(start, limit);
