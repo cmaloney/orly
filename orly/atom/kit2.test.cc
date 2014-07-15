@@ -69,7 +69,7 @@ class TTestArena final
   private:
 
   /* See base class.  Does nothing. */
-  virtual void ReleaseNote(const TNote */*note*/, TOffset /*offset*/, void */*data1*/, void */*data2*/, void */*data3*/) override {}
+  virtual void ReleaseNote(const TNote * /*note*/, TOffset /*offset*/, void * /*data1*/, void * /*data2*/, void * /*data3*/) override {}
 
   /* See base class.  Looks up the requested offset in Notes. */
   virtual const TNote *TryAcquireNote(TOffset offset, void *&/*data1*/, void *&/*data2*/, void *&/*data3*/) override {
@@ -313,8 +313,8 @@ FIXTURE(SplitTuple) {
   TTestArena arena;
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   const TCore big_tuple(make_tuple(1, 3.14, true, set<int>{7, 1}, string("Hello")), &arena, state_alloc);
-  TCore lhs_core, rhs_core;
-  if (EXPECT_TRUE(big_tuple.TrySplit(&arena, 3, &arena, lhs_core, &arena, rhs_core))) {
+  TCore lhs_core, _core;
+  if (EXPECT_TRUE(big_tuple.TrySplit(&arena, 3, &arena, lhs_core, &arena, _core))) {
     /* check left */ {
       ostringstream strm;
       Sabot::State::TAny::TWrapper(lhs_core.NewState(&arena, state_alloc))->Accept(Sabot::TStateDumper(strm));
@@ -322,7 +322,7 @@ FIXTURE(SplitTuple) {
     }
     /* check right */ {
       ostringstream strm;
-      Sabot::State::TAny::TWrapper(rhs_core.NewState(&arena, state_alloc))->Accept(Sabot::TStateDumper(strm));
+      Sabot::State::TAny::TWrapper(_core.NewState(&arena, state_alloc))->Accept(Sabot::TStateDumper(strm));
       EXPECT_EQ(strm.str(), "tuple(set(1, 7), \"Hello\")");
     }
   }
@@ -341,4 +341,71 @@ FIXTURE(StoredHash) {
   TCore direct_int64(64L, &arena, state_alloc);
   EXPECT_FALSE(direct_int64.TryGetStoredHash(out_hash));
   EXPECT_FALSE(direct_int64.TrySetStoredHash(stored_hash));
+}
+
+/* Return a specific kind of state or a null pointer. */
+template <typename TSomeState>
+const TSomeState *TryAsState(const Sabot::State::TAny &state) {
+  struct base_visitor_t : Sabot::TStateVisitor {
+    mutable const TSomeState *Out;
+    virtual void operator()(const Sabot::State::TFree &      ) const override {}
+    virtual void operator()(const Sabot::State::TTombstone & ) const override {}
+    virtual void operator()(const Sabot::State::TVoid &      ) const override {}
+    virtual void operator()(const Sabot::State::TInt8 &      ) const override {}
+    virtual void operator()(const Sabot::State::TInt16 &     ) const override {}
+    virtual void operator()(const Sabot::State::TInt32 &     ) const override {}
+    virtual void operator()(const Sabot::State::TInt64 &     ) const override {}
+    virtual void operator()(const Sabot::State::TUInt8 &     ) const override {}
+    virtual void operator()(const Sabot::State::TUInt16 &    ) const override {}
+    virtual void operator()(const Sabot::State::TUInt32 &    ) const override {}
+    virtual void operator()(const Sabot::State::TUInt64 &    ) const override {}
+    virtual void operator()(const Sabot::State::TBool &      ) const override {}
+    virtual void operator()(const Sabot::State::TChar &      ) const override {}
+    virtual void operator()(const Sabot::State::TFloat &     ) const override {}
+    virtual void operator()(const Sabot::State::TDouble &    ) const override {}
+    virtual void operator()(const Sabot::State::TDuration &  ) const override {}
+    virtual void operator()(const Sabot::State::TTimePoint & ) const override {}
+    virtual void operator()(const Sabot::State::TUuid &      ) const override {}
+    virtual void operator()(const Sabot::State::TBlob &      ) const override {}
+    virtual void operator()(const Sabot::State::TStr &       ) const override {}
+    virtual void operator()(const Sabot::State::TDesc &      ) const override {}
+    virtual void operator()(const Sabot::State::TOpt &       ) const override {}
+    virtual void operator()(const Sabot::State::TSet &       ) const override {}
+    virtual void operator()(const Sabot::State::TVector &    ) const override {}
+    virtual void operator()(const Sabot::State::TMap &       ) const override {}
+    virtual void operator()(const Sabot::State::TRecord &    ) const override {}
+    virtual void operator()(const Sabot::State::TTuple &     ) const override {}
+  };
+  struct visitor_t final : base_visitor_t {
+    virtual void operator()(const TSomeState &that) const override {
+      this->Out = &that;
+    }
+  };
+  assert(&state);
+  visitor_t visitor;
+  visitor.Out = nullptr;
+  state.Accept(visitor);
+  return visitor.Out;
+}
+
+FIXTURE(ConfirmStrSize) {
+  static const string expected =
+      "For score and seven years ago our fathers brought forth on this "
+      "continent an new nation conceived in liberty.";
+  TTestArena arena;
+  void *state_temp = alloca(Sabot::State::GetMaxStateSize());
+  TCore core(expected, &arena, state_temp);
+  Sabot::State::TAny::TWrapper state(core.NewState(&arena, state_temp));
+  const auto *str = TryAsState<Sabot::State::TStr>(*state);
+  if (EXPECT_TRUE(str)) {
+    void *pin_temp = alloca(Sabot::State::GetMaxStatePinSize());
+    Sabot::State::TStr::TPin::TWrapper pin(str->Pin(pin_temp));
+    const char
+        *start = pin->GetStart(),
+        *limit = pin->GetLimit();
+    EXPECT_EQ(pin->GetSize(), expected.size());
+    EXPECT_EQ(static_cast<size_t>(limit - start), expected.size());
+    EXPECT_EQ(*limit, '\0');
+    EXPECT_EQ(strcmp(start, expected.c_str()), 0);
+  }
 }

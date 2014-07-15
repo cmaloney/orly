@@ -777,9 +777,6 @@ namespace Orly {
       /* Construct a Str. */
       static TNote *New(const char *start, const char *limit, bool is_exemplar);
 
-      /* Construct a Str. */
-      static TNote *New(const std::string &str, bool is_exemplar);
-
       /* Construct a Desc, Free, Opt, Set, Vector, or Tuple. */
       static TNote *New(TTycon tycon, size_t elem_count, bool is_exemplar, const TInit1 &init1);
 
