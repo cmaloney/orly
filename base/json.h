@@ -571,7 +571,13 @@ namespace Base {
       }
     }
 
-    TArray &GetArray() {
+    const TArray &GetArray() const noexcept {
+      assert(this);
+      assert(Kind == Array);
+      return Array_;
+    }
+
+    TArray &GetArray() noexcept {
       assert(this);
       assert(Kind == Array);
       return Array_;

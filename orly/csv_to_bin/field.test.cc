@@ -18,14 +18,42 @@
 
 #include <orly/csv_to_bin/field.h>
 
+#include <iostream>  // TODO
+
 #include <test/kit.h>
 
 using namespace std;
 using namespace Base;
+using namespace Base::Chrono;
 using namespace Orly::CsvToBin;
 
+/* A simple geo-location type.. */
+class TGeo final
+    : public TObj {
+  NO_COPY(TGeo);
+  public:
+
+  /* Default to 0-0. */
+  TGeo()
+      : Lat(0), Lon(0) {}
+
+  /* Some fields to play with. */
+  double Lat, Lon;
+
+  /* Required by TObj. */
+  virtual const TAnyFields &GetFields() const override {
+    static const TFields<TGeo> fields {
+      NEW_FIELD(TGeo, Lat),
+      NEW_FIELD(TGeo, Lon)
+    };
+    return fields;
+  }
+
+};  // TGeo
+
 /* A structure to play with. */
-class TFoo final {
+class TFoo final
+    : public TObj {
   NO_COPY(TFoo);
   public:
 
@@ -40,36 +68,57 @@ class TFoo final {
   double C;
   string D;
   TUuid E;
-  //Chrono::TTimePnt F;
+  Chrono::TTimePnt F;
+  TGeo G;
+  vector<string> H;
+  TOpt<int> P, Q;
 
-  /* Metadata describing our fields.  Expressing this as a static local of
-     a static member function seems like a good pattern to follow.  It gets
-     around static data segment initialization issues and it allows the
-     constructors called here access to the private fields they're
-     describing. */
-  static const TFields<TFoo> &GetFields() {
+  /* Required by TObj. */
+  virtual const TAnyFields &GetFields() const override {
     static const TFields<TFoo> fields {
       NEW_FIELD(TFoo, A),
       NEW_FIELD(TFoo, B),
       NEW_FIELD(TFoo, C),
       NEW_FIELD(TFoo, D),
-      NEW_FIELD(TFoo, E)
+      NEW_FIELD(TFoo, E),
+      NEW_FIELD(TFoo, F),
+      NEW_FIELD(TFoo, G),
+      NEW_FIELD(TFoo, H),
+      NEW_FIELD(TFoo, P),
+      NEW_FIELD(TFoo, Q)
     };
     return fields;
   }
 
 };  // TFoo
 
+//ostream &operator<<(ostream &strm, const TTimePnt &) { return strm; }
+
 FIXTURE(Typical) {
-  const auto &fields = TFoo::GetFields();
-  EXPECT_EQ(fields.GetSize(), 5u);
   TFoo foo;
-  fields.SetVals(foo, TJson::TObject {
+  TranslateJson(foo, TJson::TObject {
       { "A", true }, { "B", 101 }, { "C", 98.6 }, { "D", "hello"},
-      { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" } });
+      { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" },
+      { "F", "Mon Jul 14 15:30:10 +0000 2014" },
+      { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } },
+      { "H", TJson::TArray { "continue", "yesterday", "tomorrow" } },
+      { "P", TJson() },
+      { "Q", 19380 } });
   EXPECT_TRUE(foo.A);
   EXPECT_EQ(foo.B, 101);
   EXPECT_EQ(foo.C, 98.6);
   EXPECT_EQ(foo.D, "hello");
   EXPECT_EQ(foo.E, TUuid("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb"));
+  EXPECT_TRUE(foo.F == CreateTimePnt(2014, 7, 14, 15, 30, 10, 0, 0));
+  EXPECT_EQ(foo.G.Lat, 12.34);
+  EXPECT_EQ(foo.G.Lon, 56.78);
+  if (EXPECT_EQ(foo.H.size(), 3u)) {
+    EXPECT_EQ(foo.H[0], "continue");
+    EXPECT_EQ(foo.H[1], "yesterday");
+    EXPECT_EQ(foo.H[2], "tomorrow");
+  }
+  EXPECT_FALSE(foo.P);
+  if (EXPECT_TRUE(foo.Q)) {
+    EXPECT_EQ(*foo.Q, 19380);
+  }
 }
