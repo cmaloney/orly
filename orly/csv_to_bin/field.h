@@ -25,9 +25,11 @@
 #include <utility>
 #include <vector>
 
+#include <base/chrono.h>
 #include <base/class_traits.h>
 #include <base/demangle.h>
 #include <base/json.h>
+#include <base/opt.h>
 #include <base/thrower.h>
 #include <base/uuid.h>
 
@@ -48,29 +50,115 @@ namespace Orly {
     DEFINE_ERROR(
         TJsonMismatch, std::runtime_error, "JSON object schema mismatch");
 
-    /* TODO */
+    /* Forward-declaration for the benefit of TObj::GetFIelds(). */
+    class TAnyFields;
+
+    /* The base for objects which you want to translate from JSON. */
+    class TObj {
+      public:
+
+      /* Do-little. */
+      virtual ~TObj() {}
+
+      /* Override to return the metadata describing the fields of this
+         object. */
+      virtual const TAnyFields &GetFields() const = 0;
+
+      protected:
+
+      /* Do-little. */
+      TObj() {}
+
+    };  // TObj
+
+    /* The base for TFields<TSomeObj>, below. */
+    class TAnyFields {
+      NO_COPY(TAnyFields);
+      public:
+
+      /* Do-little. */
+      virtual ~TAnyFields() {}
+
+      /* Overridden to translate objects. */
+      virtual void TranslateJson(TObj *that, const TJson &json) const = 0;
+
+      protected:
+
+      /* Do-little. */
+      TAnyFields() {}
+
+    };  // TAnyFields
+
+    /* Some JSON types pass thru to native types directly. */
     template <typename TVal>
-    struct TranslateJson {
-      static bool TryAs(const TJson &that, TVal &out) {
-        return that.TryAs(out);
+    inline void JsonAs(TVal &val, const TJson &json) {
+      assert(&val);
+      assert(&json);
+      if (!json.TryAs(val)) {
+        THROW_ERROR(TJsonMismatch)
+            << "cannot translate from JSON " << json.GetKind()
+            << " to " << Base::Demangle(typeid(TVal));
       }
-    };
+    }
 
-    /* TODO */
-    template <>
-    struct TranslateJson<Base::TUuid> {
-      static bool TryAs(const TJson &that, Base::TUuid &out) {
-        std::string temp;
-        bool success = that.TryAs(temp);
-        if (success) {
-          out = Base::TUuid(temp.c_str());
-        }
-        return success;
+    /* Translate what we can as simple pass-throughs. */
+    inline void TranslateJson(bool        &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(int8_t      &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(int16_t     &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(int32_t     &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(int64_t     &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(uint8_t     &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(uint16_t    &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(uint32_t    &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(uint64_t    &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(float       &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(double      &val, const TJson &json) { JsonAs(val, json); }
+    inline void TranslateJson(std::string &val, const TJson &json) { JsonAs(val, json); }
+
+    /* Translate TTimePnts from JSON strings. */
+    inline void TranslateJson(
+        Base::Chrono::TTimePnt &val, const TJson &json) {
+      assert(&val);
+      assert(&json);
+      std::string temp;
+      JsonAs(temp, json);
+      // TODO: translate temp -> val
+    }
+
+    /* Translate UUIDs from JSON strings. */
+    inline void TranslateJson(Base::TUuid &val, const TJson &json) {
+      assert(&val);
+      assert(&json);
+      std::string temp;
+      JsonAs(temp, json);
+      val = Base::TUuid(temp.c_str());
+    }
+
+    /* Translate objects as JSON objects, re-entering the translation layer
+       to handle the fields. */
+    inline void TranslateJson(TObj &val, const TJson &json) {
+      assert(&val);
+      assert(&json);
+      val.GetFields().TranslateJson(&val, json);
+    }
+
+    /* Translate optionals by accepting the JSON type 'null' or the
+       type inside the TOpt. */
+    template <typename TVal>
+    inline void TranslateJson(Base::TOpt<TVal> &val, const TJson &json) {
+      assert(&val);
+      assert(&json);
+      if (json.IsNull()) {
+        val.Reset();
+      } else {
+        TVal temp;
+        TranslateJson(temp, json);
+        val = std::move(temp);
       }
-    };
+    }
 
-    /* The base for any field of TObj. */
-    template <typename TObj>
+    /* The base for any field of TSomeObj. */
+    template <typename TSomeObj>
     class TAnyField {
       NO_COPY(TAnyField);
       public:
@@ -78,16 +166,16 @@ namespace Orly {
       /* Do-little. */
       virtual ~TAnyField() {}
 
-      /* The name of the field, which must be unique within TObj. */
+      /* The name of the field, which must be unique within TSomeObj. */
       const std::string &GetName() const noexcept {
         assert(this);
         return Name;
       }
 
-      /* Overridden by TField<TObj, TVal> to set the value of a field in
-         the given instance of TObj.  The value is taken from the given JSON
-         object. */
-      virtual void SetVal(TObj *that, const TJson &json) const = 0;
+      /* Overridden by TField<TSomeObj, TVal> to set the value of a field in
+         the given instance of TSomeObj.  The value is taken from the given
+         JSON object. */
+      virtual void SetVal(TSomeObj *that, const TJson &json) const = 0;
 
       protected:
 
@@ -100,65 +188,63 @@ namespace Orly {
       /* See accessor. */
       std::string Name;
 
-    };  // TAnyField<TObj>
+    };  // TAnyField<TSomeObj>
 
-    /* A field in TObj of a particular type. */
-    template <typename TObj, typename TVal>
+    /* A field in TSomeObj of a particular type. */
+    template <typename TSomeObj, typename TVal>
     class TField final
-        : public TAnyField<TObj> {
+        : public TAnyField<TSomeObj> {
       public:
 
-      /* The type of the member of TObj to which we'll refer. */
-      using TMember = TVal (TObj::*);
+      /* The type of the member of TSomeObj to which we'll refer. */
+      using TMember = TVal (TSomeObj::*);
 
       /* Cache the name and the member pointer. */
       TField(std::string &&name, TMember member)
-          : TAnyField<TObj>(std::move(name)), Member(member) {}
+          : TAnyField<TSomeObj>(std::move(name)), Member(member) {}
 
-      /* Set the value of a field in the given instance of TObj.  If the
+      /* Set the value of a field in the given instance of TSomeObj.  If the
          JSON object's type isn't compatible with the field, throw. */
-      virtual void SetVal(TObj *that, const TJson &json) const override {
+      virtual void SetVal(TSomeObj *that, const TJson &json) const override {
         assert(this);
         assert(that);
         assert(&json);
-        if (!TranslateJson<TVal>::TryAs(json, that->*Member)) {
-          THROW_ERROR(TJsonMismatch)
-              << "field \"" << this->GetName() << "\" not compatible with "
-              << Base::Demangle(typeid(TVal));
-        }
+        TranslateJson(that->*Member, json);
       }
 
       private:
 
-      /* The member of TObj to which we'll refer. */
+      /* The member of TSomeObj to which we'll refer. */
       TMember Member;
 
-    };  // TField<TObj, TVal>
+    };  // TField<TSomeObj, TVal>
 
-    /* A helper for constructing TField<TObj, TVal> instances using type
+    /* A helper for constructing TField<TSomeObj, TVal> instances using type
        deduction. */
-    template <typename TObj, typename TVal>
-    std::unique_ptr<TField<TObj, TVal>> NewField(
-        std::string &&name, TVal (TObj::*member)) {
-      return std::make_unique<TField<TObj, TVal>>(std::move(name), member);
+    template <typename TSomeObj, typename TVal>
+    std::unique_ptr<TField<TSomeObj, TVal>> NewField(
+        std::string &&name, TVal (TSomeObj::*member)) {
+      return std::make_unique<TField<TSomeObj, TVal>>(
+          std::move(name), member);
     }
 
     /* A collection of fields for a particular type of object. */
-    template <typename TObj>
-    class TFields final {
+    template <typename TSomeObj>
+    class TFields final
+        : public TAnyFields {
       NO_COPY(TFields);
       public:
 
       /* Construct from a variadic list of unique pointers to
-         TField<TObj, TVal> instances. */
+         TField<TSomeObj, TVal> instances. */
       template <typename... TVals>
       explicit TFields(
-          std::unique_ptr<TField<TObj, TVals>> &&... field_ptrs) {
+          std::unique_ptr<TField<TSomeObj, TVals>> &&... field_ptrs) {
         Helper<0, TVals...>::Init(this, std::move(field_ptrs)...);
       }
 
       /* Add a field to the collection. */
-      void AddField(std::unique_ptr<TAnyField<TObj>> &&field_ptr) {
+      void AddField(std::unique_ptr<TAnyField<TSomeObj>> &&field_ptr) {
         assert(this);
         assert(&field_ptr);
         assert(field_ptr);
@@ -171,22 +257,35 @@ namespace Orly {
         return FieldPtrs.size();
       }
 
-      /* Set the values of all the fields in a particular TObj instances,
+      /* Set the values of all the fields in a particular TSomeObj instances,
          taking the values from the named elements on a JSON object.  The
          JSON object must have at least the elements we require.  Any
          additional elements we ignore. */
-      void SetVals(TObj &that, const TJson &json) const {
+      virtual void TranslateJson(
+          TObj *that, const TJson &json) const override {
         assert(this);
-        assert(&that);
+        assert(that);
         assert(&json);
+        auto *obj = dynamic_cast<TSomeObj *>(that);
+        if (!obj) {
+          THROW_ERROR(TJsonMismatch)
+              << "object is not of type \""
+              << Base::Demangle(typeid(TSomeObj)) << '"';
+        }
+        if (json.GetKind() != Base::TJson::Object) {
+          THROW_ERROR(TJsonMismatch)
+              << "cannot translate from JSON " << json.GetKind()
+              << " to " << Base::Demangle(typeid(TSomeObj));
+        }
         for (const auto &field_ptr: FieldPtrs) {
-          const std::string &name = field_ptr->GetName();
+          const auto &name = field_ptr->GetName();
           const TJson *sub_json = json.TryFind(name);
           if (!sub_json) {
             THROW_ERROR(TJsonMismatch)
-                << "field \"" << name << "\" is missing";
+                << "JSON object has no field named \""
+                << name << '"';
           }
-          field_ptr->SetVal(&that, *sub_json);
+          field_ptr->SetVal(obj, *sub_json);
         }
       }
 
@@ -198,31 +297,31 @@ namespace Orly {
       struct Helper;
 
       /* Our fields in the order given to the constructor. */
-      std::vector<std::unique_ptr<TAnyField<TObj>>> FieldPtrs;
+      std::vector<std::unique_ptr<TAnyField<TSomeObj>>> FieldPtrs;
 
-    };  // TFields<TObj>
+    };  // TFields<TSomeObj>
 
     /* Base case.  We do nothing. */
-    template <typename TObj>
+    template <typename TSomeObj>
     template <int Dummy>
-    struct TFields<TObj>::Helper<Dummy> {
-      static void Init(TFields<TObj> *) {}
-    };  // TFields<TObj>::THelper<Dummy>
+    struct TFields<TSomeObj>::Helper<Dummy> {
+      static void Init(TFields<TSomeObj> *) {}
+    };  // TFields<TSomeObj>::THelper<Dummy>
 
     /* Recursive case.  We append the next argument to the collection and
        recurse. */
-    template <typename TObj>
+    template <typename TSomeObj>
     template <int Dummy, typename TVal, typename... TMoreVals>
-    struct TFields<TObj>::Helper<Dummy, TVal, TMoreVals...> {
+    struct TFields<TSomeObj>::Helper<Dummy, TVal, TMoreVals...> {
       static void Init(
-          TFields<TObj> *that,
-          std::unique_ptr<TField<TObj, TVal>> &&field_ptr,
-          std::unique_ptr<TField<TObj, TMoreVals>> &&... more_field_ptrs) {
+          TFields<TSomeObj> *that,
+          std::unique_ptr<TField<TSomeObj, TVal>> &&field_ptr,
+          std::unique_ptr<TField<TSomeObj, TMoreVals>> &&... more_field_ptrs) {
         that->AddField(std::move(field_ptr));
         Helper<Dummy, TMoreVals...>::Init(
             that, std::move(more_field_ptrs)...);
       }
-    };  // TFields<TObj>::THelper<Dummy, TVal, TMoreVals...>
+    };  // TFields<TSomeObj>::THelper<Dummy, TVal, TMoreVals...>
 
   }  // Csv2Bin
 

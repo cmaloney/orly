@@ -24,8 +24,33 @@ using namespace std;
 using namespace Base;
 using namespace Orly::CsvToBin;
 
+/* A simple geo-location type.. */
+class TGeo final
+    : public TObj {
+  NO_COPY(TGeo);
+  public:
+
+  /* Default to 0-0. */
+  TGeo()
+      : Lat(0), Lon(0) {}
+
+  /* Some fields to play with. */
+  double Lat, Lon;
+
+  /* Required by TObj. */
+  virtual const TAnyFields &GetFields() const override {
+    static const TFields<TGeo> fields {
+      NEW_FIELD(TGeo, Lat),
+      NEW_FIELD(TGeo, Lon)
+    };
+    return fields;
+  }
+
+};  // TGeo
+
 /* A structure to play with. */
-class TFoo final {
+class TFoo final
+    : public TObj {
   NO_COPY(TFoo);
   public:
 
@@ -41,19 +66,17 @@ class TFoo final {
   string D;
   TUuid E;
   //Chrono::TTimePnt F;
+  TGeo G;
 
-  /* Metadata describing our fields.  Expressing this as a static local of
-     a static member function seems like a good pattern to follow.  It gets
-     around static data segment initialization issues and it allows the
-     constructors called here access to the private fields they're
-     describing. */
-  static const TFields<TFoo> &GetFields() {
+  /* Required by TObj. */
+  virtual const TAnyFields &GetFields() const override {
     static const TFields<TFoo> fields {
       NEW_FIELD(TFoo, A),
       NEW_FIELD(TFoo, B),
       NEW_FIELD(TFoo, C),
       NEW_FIELD(TFoo, D),
-      NEW_FIELD(TFoo, E)
+      NEW_FIELD(TFoo, E),
+      NEW_FIELD(TFoo, G)
     };
     return fields;
   }
@@ -61,15 +84,16 @@ class TFoo final {
 };  // TFoo
 
 FIXTURE(Typical) {
-  const auto &fields = TFoo::GetFields();
-  EXPECT_EQ(fields.GetSize(), 5u);
   TFoo foo;
-  fields.SetVals(foo, TJson::TObject {
+  TranslateJson(foo, TJson::TObject {
       { "A", true }, { "B", 101 }, { "C", 98.6 }, { "D", "hello"},
-      { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" } });
+      { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" },
+      { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } } });
   EXPECT_TRUE(foo.A);
   EXPECT_EQ(foo.B, 101);
   EXPECT_EQ(foo.C, 98.6);
   EXPECT_EQ(foo.D, "hello");
   EXPECT_EQ(foo.E, TUuid("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb"));
+  EXPECT_EQ(foo.G.Lat, 12.34);
+  EXPECT_EQ(foo.G.Lon, 56.78);
 }
