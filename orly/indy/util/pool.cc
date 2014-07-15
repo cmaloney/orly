@@ -70,7 +70,7 @@ void TPool::Init(size_t block_count) {
 TPool::~TPool() {
   assert(this);
   if (NumBlocksUsed) {
-    syslog(LOG_ERR, "[%ld] Blocks left in [%s] pool", NumBlocksUsed, Name);
+    syslog(LOG_ERR, "[%ld] Blocks left in [%s] pool", NumBlocksUsed.load(), Name);
   }
   free(Blob);
 }

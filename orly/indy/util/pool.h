@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <cassert>
 #include <cstddef>
 #include <mutex>
@@ -73,7 +74,7 @@ namespace Orly {
             if (ptr) {
               return ptr;
             }
-            syslog(LOG_EMERG, "TPool::Alloc() [%s] bad_alloc after %ld retries", Name, 2000L);
+            syslog(LOG_EMERG, "TPool::Alloc() [%s] bad_alloc after %ld retries", Name, 2000UL);
             throw std::bad_alloc();
           }
           return ptr;
@@ -113,7 +114,7 @@ namespace Orly {
         const char *Name;
 
         /* TODO */
-        size_t NumBlocksUsed;
+        std::atomic<size_t> NumBlocksUsed;
 
         /* TODO */
         size_t MaxBlocks;
@@ -127,7 +128,7 @@ namespace Orly {
 
       inline size_t TPool::GetNumBlocksUsed() const {
         assert(this);
-        return NumBlocksUsed;
+        return NumBlocksUsed.load();
       }
 
       inline size_t TPool::GetMaxBlocks() const {
