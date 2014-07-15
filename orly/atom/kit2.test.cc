@@ -313,8 +313,8 @@ FIXTURE(SplitTuple) {
   TTestArena arena;
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
   const TCore big_tuple(make_tuple(1, 3.14, true, set<int>{7, 1}, string("Hello")), &arena, state_alloc);
-  TCore lhs_core, _core;
-  if (EXPECT_TRUE(big_tuple.TrySplit(&arena, 3, &arena, lhs_core, &arena, _core))) {
+  TCore lhs_core, rhs_core;
+  if (EXPECT_TRUE(big_tuple.TrySplit(&arena, 3, &arena, lhs_core, &arena, rhs_core))) {
     /* check left */ {
       ostringstream strm;
       Sabot::State::TAny::TWrapper(lhs_core.NewState(&arena, state_alloc))->Accept(Sabot::TStateDumper(strm));
@@ -322,7 +322,7 @@ FIXTURE(SplitTuple) {
     }
     /* check right */ {
       ostringstream strm;
-      Sabot::State::TAny::TWrapper(_core.NewState(&arena, state_alloc))->Accept(Sabot::TStateDumper(strm));
+      Sabot::State::TAny::TWrapper(rhs_core.NewState(&arena, state_alloc))->Accept(Sabot::TStateDumper(strm));
       EXPECT_EQ(strm.str(), "tuple(set(1, 7), \"Hello\")");
     }
   }
