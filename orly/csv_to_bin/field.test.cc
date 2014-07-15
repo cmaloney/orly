@@ -67,6 +67,8 @@ class TFoo final
   TUuid E;
   //Chrono::TTimePnt F;
   TGeo G;
+  vector<string> H;
+  TOpt<int> P, Q;
 
   /* Required by TObj. */
   virtual const TAnyFields &GetFields() const override {
@@ -76,7 +78,10 @@ class TFoo final
       NEW_FIELD(TFoo, C),
       NEW_FIELD(TFoo, D),
       NEW_FIELD(TFoo, E),
-      NEW_FIELD(TFoo, G)
+      NEW_FIELD(TFoo, G),
+      NEW_FIELD(TFoo, H),
+      NEW_FIELD(TFoo, P),
+      NEW_FIELD(TFoo, Q)
     };
     return fields;
   }
@@ -88,7 +93,10 @@ FIXTURE(Typical) {
   TranslateJson(foo, TJson::TObject {
       { "A", true }, { "B", 101 }, { "C", 98.6 }, { "D", "hello"},
       { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" },
-      { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } } });
+      { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } },
+      { "H", TJson::TArray { "continue", "yesterday", "tomorrow" } },
+      { "P", TJson() },
+      { "Q", 19380 } });
   EXPECT_TRUE(foo.A);
   EXPECT_EQ(foo.B, 101);
   EXPECT_EQ(foo.C, 98.6);
@@ -96,4 +104,13 @@ FIXTURE(Typical) {
   EXPECT_EQ(foo.E, TUuid("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb"));
   EXPECT_EQ(foo.G.Lat, 12.34);
   EXPECT_EQ(foo.G.Lon, 56.78);
+  if (EXPECT_EQ(foo.H.size(), 3u)) {
+    EXPECT_EQ(foo.H[0], "continue");
+    EXPECT_EQ(foo.H[1], "yesterday");
+    EXPECT_EQ(foo.H[2], "tomorrow");
+  }
+  EXPECT_FALSE(foo.P);
+  if (EXPECT_TRUE(foo.Q)) {
+    EXPECT_EQ(*foo.Q, 19380);
+  }
 }

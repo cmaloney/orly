@@ -50,7 +50,7 @@ namespace Orly {
     DEFINE_ERROR(
         TJsonMismatch, std::runtime_error, "JSON object schema mismatch");
 
-    /* Forward-declaration for the benefit of TObj::GetFIelds(). */
+    /* Forward-declaration for the benefit of TObj::GetFields(). */
     class TAnyFields;
 
     /* The base for objects which you want to translate from JSON. */
@@ -154,6 +154,28 @@ namespace Orly {
         TVal temp;
         TranslateJson(temp, json);
         val = std::move(temp);
+      }
+    }
+
+    /* Translate vectors by accepting a JSON vector and translating
+       the elements one at at time. */
+    template <typename TVal, typename TAlloc>
+    inline void TranslateJson(
+        std::vector<TVal, TAlloc> &val, const TJson &json) {
+      assert(&val);
+      assert(&json);
+      if (json.GetKind() != TJson::Array) {
+        THROW_ERROR(TJsonMismatch)
+            << "cannot translate from JSON " << json.GetKind()
+            << " to std::vector<" << Base::Demangle(typeid(TVal)) << '>';
+      }
+      const auto &json_array = json.GetArray();
+      val.clear();
+      val.reserve(json_array.size());
+      for (const auto &sub_json: json_array) {
+        TVal sub_val;
+        TranslateJson(sub_val, sub_json);
+        val.push_back(std::move(sub_val));
       }
     }
 
