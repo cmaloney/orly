@@ -20,6 +20,7 @@
 #pragma once
 
 #include <cassert>
+#include <ctime>
 #include <memory>
 #include <string>
 #include <utility>
@@ -122,7 +123,17 @@ namespace Orly {
       assert(&json);
       std::string temp;
       JsonAs(temp, json);
-      // TODO: translate temp -> val
+      struct tm tm;
+      const char *limit = strptime(
+          temp.c_str(), "%a %b %d %H:%M:%S %z %Y", &tm);
+      if (!limit || *limit) {
+        THROW_ERROR(TJsonMismatch)
+            << "JSON string doen't contain a valid time point";
+      }
+      tm.tm_isdst = 0;
+      val = Base::Chrono::TTimePnt(
+            std::chrono::duration_cast<Base::Chrono::TTimeDiff>(
+                  std::chrono::seconds(mktime(&tm) - timezone)));
     }
 
     /* Translate UUIDs from JSON strings. */

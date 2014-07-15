@@ -18,10 +18,13 @@
 
 #include <orly/csv_to_bin/field.h>
 
+#include <iostream>  // TODO
+
 #include <test/kit.h>
 
 using namespace std;
 using namespace Base;
+using namespace Base::Chrono;
 using namespace Orly::CsvToBin;
 
 /* A simple geo-location type.. */
@@ -65,7 +68,7 @@ class TFoo final
   double C;
   string D;
   TUuid E;
-  //Chrono::TTimePnt F;
+  Chrono::TTimePnt F;
   TGeo G;
   vector<string> H;
   TOpt<int> P, Q;
@@ -78,6 +81,7 @@ class TFoo final
       NEW_FIELD(TFoo, C),
       NEW_FIELD(TFoo, D),
       NEW_FIELD(TFoo, E),
+      NEW_FIELD(TFoo, F),
       NEW_FIELD(TFoo, G),
       NEW_FIELD(TFoo, H),
       NEW_FIELD(TFoo, P),
@@ -88,11 +92,14 @@ class TFoo final
 
 };  // TFoo
 
+//ostream &operator<<(ostream &strm, const TTimePnt &) { return strm; }
+
 FIXTURE(Typical) {
   TFoo foo;
   TranslateJson(foo, TJson::TObject {
       { "A", true }, { "B", 101 }, { "C", 98.6 }, { "D", "hello"},
       { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" },
+      { "F", "Mon Jul 14 15:30:10 +0000 2014" },
       { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } },
       { "H", TJson::TArray { "continue", "yesterday", "tomorrow" } },
       { "P", TJson() },
@@ -102,6 +109,7 @@ FIXTURE(Typical) {
   EXPECT_EQ(foo.C, 98.6);
   EXPECT_EQ(foo.D, "hello");
   EXPECT_EQ(foo.E, TUuid("1b4e28ba-2fa1-11d2-883f-b9a761bde3fb"));
+  EXPECT_TRUE(foo.F == CreateTimePnt(2014, 7, 14, 15, 30, 10, 0, 0));
   EXPECT_EQ(foo.G.Lat, 12.34);
   EXPECT_EQ(foo.G.Lon, 56.78);
   if (EXPECT_EQ(foo.H.size(), 3u)) {
