@@ -1177,10 +1177,6 @@ TCore::TNote *TCore::TNote::New(const char *start, const char *limit, bool is_ex
   return NewRawCopy(TTycon::Str, is_exemplar, false, start, limit - start + 1);
 }
 
-TCore::TNote *TCore::TNote::New(const std::string &str, bool is_exemplar) {
-  return NewRawCopy(TTycon::Str, is_exemplar, false, str.data(), str.size());
-}
-
 TCore::TNote *TCore::TNote::New(TTycon tycon, size_t elem_count, bool is_exemplar, const TInit1 &init1) {
   assert(&init1);
   size_t raw_size = elem_count * sizeof(TCore);

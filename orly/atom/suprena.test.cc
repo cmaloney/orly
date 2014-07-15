@@ -44,7 +44,10 @@ FIXTURE(Uniqueness) {
     TSuprena arena;
     for (int repeat = 0; repeat < 3; ++repeat) {
       for (int idx: idxs) {
-        arena.Propose(TCore::TNote::New(str_array[idx], false));
+        const char
+            *start = str_array[idx],
+            *limit = start + strlen(start);
+        arena.Propose(TCore::TNote::New(start, limit, false));
       }
     }
     if (EXPECT_EQ(arena.GetSize(), str_count)) {
