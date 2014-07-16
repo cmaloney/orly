@@ -27,7 +27,6 @@
 #include <orly/native/type.h>
 #include <orly/rt/mutable.h>
 #include <orly/sabot/state.h>
-#include <orly/uuid.h>
 #include <util/tuple.h>
 
 namespace Orly {
@@ -435,19 +434,6 @@ namespace Orly {
         bool Val;
       };
 
-      class TOrlyUUID final
-          : public TScalar<Sabot::State::TUuid> {
-        public:
-        TOrlyUUID(const Orly::TUUID &val)
-            : TScalar<Sabot::State::TUuid>(Val), Val(val.GetRaw()) {}
-        virtual Sabot::Type::TUuid *GetUuidType(void *type_alloc) const override {
-          return Type::For<Base::TUuid>::GetType(type_alloc);
-        }
-        private:
-        Base::TUuid Val;
-      };
-
-
       /* States used for blob and str. */
       #define ARRAY_OF_SCALARS(name)  \
         class T##name final  \
@@ -811,15 +797,6 @@ namespace Orly {
       public:
       static TAny *New(const std::vector<bool>::const_reference &val, void *state_alloc) {
         return new (state_alloc) TBoolRef(val);
-      }
-    };
-
-    template <>
-    class State::Factory<Orly::TUUID> final {
-      NO_CONSTRUCTION(Factory);
-      public:
-      static TAny *New(const Orly::TUUID &val, void *state_alloc) {
-        return new (state_alloc) TOrlyUUID(val);
       }
     };
 

@@ -25,5 +25,5 @@ IMPL_SINGLETON_TYPE(TId);
 TId::~TId() {}
 
 void TId::Write(std::ostream &strm) const {
-  strm << "Orly::TUUID";
+  strm << "Base::TUuid";
 }

@@ -1,4 +1,4 @@
-/* <orly/server/orly.cc>
+/* <orly/server/orlyi.cc>
 
    The 'main' of the Orly server.
 

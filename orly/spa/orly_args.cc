@@ -219,15 +219,15 @@ void TArgs::Convert(const std::string &str, long &val) {
   }
 }
 
-void TArgs::Convert(const std::string &str, TUUID &uuid) {
+void TArgs::Convert(const std::string &str, Base::TUuid &uuid) {
   assert(this);
   assert(&str);
   assert(&uuid);
 
-  if(!TUUID::IsValidUuid(str.c_str())) {
+  if(!Base::TUuid::IsValidUuid(str.c_str())) {
     throw TIntArgError("uuid");
   }
-  uuid=TUUID(str.c_str());
+  uuid=Base::TUuid(str.c_str());
 }
 
 void TArgs::Convert(const std::string &str, Var::TVar &var) {

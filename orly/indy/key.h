@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <iostream> /* TODO GET RID OF */
-
 #include <orly/atom/kit2.h>
 #include <orly/sabot/get_hash.h>
 #include <orly/sabot/order_states.h>

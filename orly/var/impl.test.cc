@@ -52,7 +52,7 @@ Type::TTypeCzar TypeCzar;
 FIXTURE(Typical) {
   TVar bool_(true);
   EXPECT_TRUE(bool_.GetType() == Type::TBool::Get());
-  TUUID id;
+  Base::TUuid id;
   TVar id_(id);
   EXPECT_TRUE(id_.GetType() == Type::TId::Get());
   TVar int_(5);
@@ -161,8 +161,8 @@ FIXTURE(Assign) {
 
 FIXTURE(Casts) {
   EXPECT_TRUE(TVar::TDt<bool>::As(TVar(true)) == true);
-  TUUID uuid;
-  EXPECT_TRUE(TVar::TDt<TUUID>::As(TVar(uuid)) == uuid);
+  Base::TUuid uuid;
+  EXPECT_TRUE(TVar::TDt<Base::TUuid>::As(TVar(uuid)) == uuid);
   EXPECT_TRUE(TVar::TDt<int64_t>::As(TVar(5)) == 5);
   EXPECT_TRUE(TVar::TDt<double>::As(TVar(5.5)) == 5.5);
   EXPECT_TRUE(TVar::TDt<std::string>::As(TVar(string("Hello World"))) == "Hello World");

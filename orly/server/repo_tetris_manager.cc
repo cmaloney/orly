@@ -215,11 +215,11 @@ bool TRepoTetrisManager::TPlayer::TChild::TestAssertions(Indy::TContext &context
     const auto &expected_predicate_results = entry.GetExpectedPredicateResults();
     if (expected_predicate_results.size()) {
       Atom::TSuprena my_arena;
-      Rt::TOpt<TUUID> user_id;
+      Rt::TOpt<Base::TUuid> user_id;
       if (entry.GetUserId()) {
-        user_id = TUUID(entry.GetUserId()->GetRaw());
+        user_id = Base::TUuid(entry.GetUserId()->GetRaw());
       }
-      TUUID session_id(entry.GetSessionId().GetRaw());
+      Base::TUuid session_id(entry.GetSessionId().GetRaw());
       Indy::TIndyContext indy_context(user_id, session_id, context, &my_arena,
           Player->RepoTetrisManager->GetScheduler(), entry.GetRunTimestamp(), entry.GetRandomSeed());
       const auto &arg_by_name = entry.GetArgByName();

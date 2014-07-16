@@ -373,7 +373,7 @@ FIXTURE(Keys) {
     /* context scope */ {
       TSuprena context_arena;
       TContext context(repo, &context_arena);
-      TIndyContext package_context(Rt::TOpt<TUUID>(), TUUID(), context, &context_arena, &scheduler, run_time, random_seed);
+      TIndyContext package_context(Rt::TOpt<Base::TUuid>(), Base::TUuid(), context, &context_arena, &scheduler, run_time, random_seed);
 
       std::unique_ptr<TKeyCursor> key_cursor_ptr(package_context.NewKeyCursor(&context, TIndexKey(idx_id, TKey(make_tuple(Native::TFree<int64_t>()), &arena, state_alloc))));
       TKeyCursor &cursor = *key_cursor_ptr;
@@ -446,7 +446,7 @@ FIXTURE(Tombstone) {
     /* context scope */ {
       TSuprena context_arena;
       TContext context(repo, &context_arena);
-      TIndyContext package_context(Rt::TOpt<TUUID>(), TUUID(), context, &context_arena, &scheduler, run_time, random_seed);
+      TIndyContext package_context(Rt::TOpt<Base::TUuid>(), Base::TUuid(), context, &context_arena, &scheduler, run_time, random_seed);
 
       std::unique_ptr<TKeyCursor> key_cursor_ptr(package_context.NewKeyCursor(&context, TIndexKey(idx_id, TKey(make_tuple(Native::TFree<int64_t>()), &arena, state_alloc))));
       TKeyCursor &cursor = *key_cursor_ptr;

@@ -25,6 +25,11 @@ using namespace Base;
 
 const TUuid TUuid::Null;
 
+bool TUuid::IsValidUuid(const char *s) {
+  //TODO: Make more sophisticated.
+  return strlen(s) == 36;
+}
+
 TUuid::TUuid(TAlgo that) {
   /* TODO */
   static std::mt19937_64 TwisterEngine(std::chrono::system_clock::now().time_since_epoch().count());

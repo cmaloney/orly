@@ -111,7 +111,7 @@ namespace Orly {
       virtual TKeyCursor *NewKeyCursor(TContextBase *context, const Indy::TIndexKey &from, const Indy::TIndexKey &to) const = 0;
 
       /* Get the current session id. */
-      inline const TUUID &GetSessionId() const {
+      inline const Base::TUuid &GetSessionId() const {
         assert(this);
         return SessionId;
       }
@@ -149,7 +149,7 @@ namespace Orly {
       }
 
       /* Get the current user id. */
-      inline const Rt::TOpt<TUUID> &GetUserId() const {
+      inline const Rt::TOpt<Base::TUuid> &GetUserId() const {
         assert(this);
         return UserId;
       }
@@ -185,8 +185,8 @@ namespace Orly {
       protected:
 
         /* TODO */
-      TContext(const Rt::TOpt<TUUID> &user_id,
-        const TUUID &session_id,
+      TContext(const Rt::TOpt<Base::TUuid> &user_id,
+        const Base::TUuid &session_id,
         Atom::TCore::TExtensibleArena *arena,
         Base::TScheduler *scheduler,
         Rt::TOpt<Base::Chrono::TTimePnt> now,
@@ -206,10 +206,10 @@ namespace Orly {
       TPredicateResults PredicateResults;
 
       /* TODO */
-      Rt::TOpt<TUUID> UserId;
+      Rt::TOpt<Base::TUuid> UserId;
 
       /* TODO */
-      TUUID SessionId;
+      Base::TUuid SessionId;
 
       /* TODO */
       Base::TScheduler *Scheduler;
@@ -237,8 +237,8 @@ namespace Orly {
 
       /* TODO */
       TSpaContext(
-        const Rt::TOpt<TUUID> &user_id,
-        const TUUID &session_id,
+        const Rt::TOpt<Base::TUuid> &user_id,
+        const Base::TUuid &session_id,
         Spa::FluxCapacitor::TContext &context,
         Atom::TCore::TExtensibleArena *arena,
         Base::TScheduler *scheduler,

@@ -24,8 +24,7 @@
 #include <base/chrono.h>
 #include <orly/indy/key.h>
 #include <orly/type.h>
-#include <orly/var.h>
-#include <orly/uuid.h>
+#include <base/uuid.h>
 #include <orly/package/api_version.h>
 
 namespace Orly {
