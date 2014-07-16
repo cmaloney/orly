@@ -240,12 +240,12 @@ namespace Orly {
       static TUpdate *ShallowCopy(TUpdate *that, void *state_alloc);
 
       /* TODO */
-      static void *operator new(size_t size) {
+      static inline void *operator new(size_t size) {
         return Pool.Alloc(size);
       }
 
       /* TODO */
-      static void operator delete(void *ptr, size_t) {
+      static inline void operator delete(void *ptr, size_t) {
         Pool.Free(ptr);
       }
 
@@ -257,6 +257,16 @@ namespace Orly {
       /* TODO */
       static void InitEntryPool(size_t num_obj) {
         TEntry::Pool.Init(num_obj);
+      }
+
+      /* TODO */
+      static inline double GetUpdatePoolUsedPct() {
+        return static_cast<double>(Pool.GetNumBlocksUsed()) / Pool.GetMaxBlocks();
+      }
+
+      /* TODO */
+      static inline double GetUpdateEntryPoolUsedPct() {
+        return static_cast<double>(TEntry::Pool.GetNumBlocksUsed()) / TEntry::Pool.GetMaxBlocks();
       }
 
       protected:
