@@ -50,3 +50,6 @@ $CC -o tools/make_dep_file                                                      
   -msse2 -pthread
 
 mkdir -p ../.jhm
+
+#Build nycr
+./tools/jhm -c bootstrap
