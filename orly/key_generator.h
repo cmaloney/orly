@@ -20,6 +20,7 @@
 
 #include <memory>
 
+#include <base/likely.h>
 #include <orly/atom/kit2.h>
 #include <orly/atom/suprena.h>
 #include <orly/context_base.h>
@@ -248,8 +249,15 @@ namespace Orly {
     template <typename TVal>
     struct TRead {
 
-      static std::pair<bool, TVal> Do(const Indy::TKey &val) {
+      static void ThrowInvalidKeyDeref(const Indy::TKey &key) {
+        THROW_ERROR(Orly::Rt::TRuntimeError) << "Cannot de-reference Key [" << key << "] which does not exist";
+      }
+
+      static inline std::pair<bool, TVal> Do(const Indy::TKey &val, const Indy::TKey &key) {
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+        if (unlikely(val.GetCore().IsVoid())) {
+          ThrowInvalidKeyDeref(key);
+        }
         return std::make_pair(true, Sabot::AsNative<TVal>(*Sabot::State::TAny::TWrapper(val.GetState(state_alloc))));
       }
 
@@ -258,9 +266,8 @@ namespace Orly {
     template <typename TVal>
     struct TRead<Rt::TOpt<TVal>> {
 
-      static std::pair<bool, Rt::TOpt<TVal>> Do(const Indy::TKey &val) {
-        Atom::TCore void_comp;
-        if (memcmp(&void_comp, &val.GetCore(), sizeof(void_comp)) != 0) {
+      static inline std::pair<bool, Rt::TOpt<TVal>> Do(const Indy::TKey &val, const Indy::TKey &/*key*/) {
+        if (!val.GetCore().IsVoid()) {
           void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
           return std::make_pair(true, Sabot::AsNative<TVal>(*Sabot::State::TAny::TWrapper(val.GetState(state_alloc))));
         } else {
@@ -284,7 +291,8 @@ namespace Orly {
 
       /* TODO: Copy copy copy copy copy! */
       void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-      auto ret = Var::TRead<TRet>::Do(ctx[Indy::TIndexKey(index_id, Indy::TKey(Atom::TCore(ctx.GetArena(), Sabot::State::TAny::TWrapper(Native::State::New(addr, state_alloc))), ctx.GetArena()))]);
+      const Indy::TKey key(Atom::TCore(ctx.GetArena(), Sabot::State::TAny::TWrapper(Native::State::New(addr, state_alloc))), ctx.GetArena());
+      auto ret = Var::TRead<TRet>::Do(ctx[Indy::TIndexKey(index_id, key)], key);
       /*
       std::cout << "Read [] = [";
       Sabot::State::TAny::TWrapper(Native::State::New(ret.second, state_alloc))->Accept(Sabot::TStateDumper(std::cout));

@@ -131,6 +131,9 @@ namespace Orly {
       /* Concatenate the left- and right-hand sides into a single core.  The two cores must be tuples and the result will be a tuple. */
       TCore(TExtensibleArena *arena, const State::TAny *lhs_state, const State::TAny *rhs_state);
 
+      /* True if we're a void. */
+      inline bool IsVoid() const;
+
       /* True if we're a tombstone. */
       inline bool IsTombstone() const;
 
@@ -857,6 +860,10 @@ namespace Orly {
 
     inline TCore::TCore(const TCore &that, const TRemap &remap) : TCore(that) {
       Remap(remap);
+    }
+
+    inline bool TCore::IsVoid() const {
+      return Tycon == TTycon::Void;
     }
 
     inline bool TCore::IsTombstone() const {
