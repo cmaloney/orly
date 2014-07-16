@@ -59,7 +59,7 @@ parser.add_argument(
     help='directory where the webui live.')
 parser.add_argument(
     '-m', '--mem-sim-mb',
-    default=4096, help='amount of memory to be used by orlyi.', type=int)
+    default=8192, help='amount of memory to be used by orlyi.', type=int)
 args = parser.parse_args()
 paths = [args.data_dir, args.packages_dir, args.webui_dir]
 dataset_dir = os.path.join(args.data_dir, args.dataset) if args.dataset else ''
@@ -75,17 +75,16 @@ try:
     orlyi = subprocess.Popen(
                 ['orlyi',
                     '--create=true',
-                    '--block_cache_size={}'.format(args.mem_sim_mb / 4),
                     '--instance_name={}'.format(args.dataset),
                     '--la',
                     '--le',
                     '--mem_sim=true',
-                    '--mem_sim_mb={}'.format(args.mem_sim_mb),
                     '--package_dir={}'.format(args.packages_dir),
-                    '--page_cache_size={}'.format(args.mem_sim_mb / 4),
                     '--starting_state=SOLO',
-                    '--update_pool_size=250002',
-                    '--update_entry_pool_size=1000008'],
+                    # Remove below once orlyi's default computation is fixed.
+                    '--block_cache_size={}'.format(args.mem_sim_mb / 4),
+                    '--mem_sim_mb={}'.format(args.mem_sim_mb),
+                    '--page_cache_size={}'.format(args.mem_sim_mb / 4)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 preexec_fn=os.setpgrp)
