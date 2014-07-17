@@ -92,8 +92,6 @@ class TFoo final
 
 };  // TFoo
 
-//ostream &operator<<(ostream &strm, const TTimePnt &) { return strm; }
-
 FIXTURE(Typical) {
   TFoo foo;
   TranslateJson(foo, TJson::TObject {
@@ -121,4 +119,77 @@ FIXTURE(Typical) {
   if (EXPECT_TRUE(foo.Q)) {
     EXPECT_EQ(*foo.Q, 19380);
   }
+}
+
+FIXTURE(MissingRequiredField) {
+  bool caught;
+  try {
+    TFoo foo;
+    TranslateJson(foo, TJson::TObject {
+        { "A", true }, { "B", 101 }, { "C", 98.6 }, /* { "D", "hello"}, */
+        { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" },
+        { "F", "Mon Jul 14 15:30:10 +0000 2014" },
+        { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } },
+        { "H", TJson::TArray { "continue", "yesterday", "tomorrow" } },
+        { "P", TJson() },
+        { "Q", 19380 } });
+    caught = false;
+  } catch (const TJsonMismatch &) {
+    caught = true;
+  }
+  EXPECT_TRUE(caught);
+}
+
+FIXTURE(MissingOptionalField) {
+  bool caught;
+  try {
+    TFoo foo;
+    TranslateJson(foo, TJson::TObject {
+        { "A", true }, { "B", 101 }, { "C", 98.6 }, { "D", "hello"},
+        { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" },
+        { "F", "Mon Jul 14 15:30:10 +0000 2014" },
+        { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } },
+        { "H", TJson::TArray { "continue", "yesterday", "tomorrow" } },
+        /* { "P", TJson() }, */
+        { "Q", 19380 } });
+    caught = false;
+  } catch (const TJsonMismatch &) {
+    caught = true;
+  }
+  EXPECT_FALSE(caught);
+}
+
+/* Another structure to play with. */
+class TBaz final
+    : public TObj {
+  NO_COPY(TBaz);
+  public:
+
+  /* Initialize the fields to known values, so we can tell when we've
+     changed them. */
+  TBaz() {}
+
+  /* Some fields to play with. */
+  unique_ptr<TGeo> A, B;
+
+  /* Required by TObj. */
+  virtual const TAnyFields &GetFields() const override {
+    static const TFields<TBaz> fields {
+      NEW_FIELD(TBaz, A),
+      NEW_FIELD(TBaz, B)
+    };
+    return fields;
+  }
+
+};  // TBaz
+
+FIXTURE(UniquePtr) {
+  TBaz baz;
+  TranslateJson(baz, TJson::TObject {
+      { "A", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } } });
+  if (EXPECT_TRUE(baz.A)) {
+    EXPECT_EQ(baz.A->Lat, 12.34);
+    EXPECT_EQ(baz.A->Lon, 56.78);
+  }
+  EXPECT_FALSE(baz.B);
 }
