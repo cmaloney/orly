@@ -453,6 +453,9 @@ class TWsImpl final
         string src_filename = AsStr(Conn->Ws->SessionManager->GetPackageManager().GetPackageDir().GetAbsPath(filename));
         // We want the line numbers of the top-level function definitions.
         auto cst = Package::Syntax::TPackage::ParseFile(src_filename.data());
+        if (cst.HasErrors()) {
+          throw invalid_argument("invalid source file.");
+        }  // if
         TJson line_nums(TJson::Object);
         Synth::ForEach<Package::Syntax::TDef>(
             cst.Get()->GetOptDefSeq(),
