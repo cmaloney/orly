@@ -122,3 +122,41 @@ FIXTURE(Typical) {
     EXPECT_EQ(*foo.Q, 19380);
   }
 }
+
+FIXTURE(MissingRequiredField) {
+  bool caught;
+  try {
+    TFoo foo;
+    TranslateJson(foo, TJson::TObject {
+        { "A", true }, { "B", 101 }, { "C", 98.6 }, /* { "D", "hello"}, */
+        { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" },
+        { "F", "Mon Jul 14 15:30:10 +0000 2014" },
+        { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } },
+        { "H", TJson::TArray { "continue", "yesterday", "tomorrow" } },
+        { "P", TJson() },
+        { "Q", 19380 } });
+    caught = false;
+  } catch (const TJsonMismatch &) {
+    caught = true;
+  }
+  EXPECT_TRUE(caught);
+}
+
+FIXTURE(MissingOptionalField) {
+  bool caught;
+  try {
+    TFoo foo;
+    TranslateJson(foo, TJson::TObject {
+        { "A", true }, { "B", 101 }, { "C", 98.6 }, { "D", "hello"},
+        { "E", "1b4e28ba-2fa1-11d2-883f-b9a761bde3fb" },
+        { "F", "Mon Jul 14 15:30:10 +0000 2014" },
+        { "G", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } },
+        { "H", TJson::TArray { "continue", "yesterday", "tomorrow" } },
+        /* { "P", TJson() }, */
+        { "Q", 19380 } });
+    caught = false;
+  } catch (const TJsonMismatch &) {
+    caught = true;
+  }
+  EXPECT_FALSE(caught);
+}
