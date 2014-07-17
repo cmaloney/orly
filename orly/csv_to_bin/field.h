@@ -190,11 +190,21 @@ namespace Orly {
       }
     }
 
+    /* Translate a unique_ptr by constructing a new sub-object. */
+    template <typename TVal, typename TDel>
+    inline void TranslateJson(
+        std::unique_ptr<TVal, TDel> &ptr, const TJson &json) {
+      assert(&ptr);
+      assert(&json);
+      ptr.reset(new TVal);
+      TranslateJson(*ptr, json);
+    }
+
     /* A helper for dealing with missing JSON fields.  Under these
        circumstances, we usually can't do anything but fail. */
     template <typename TVal>
     struct NoJson final {
-      static inline bool TrySetUnknown(TVal &) {
+      static inline bool TrySetNull(TVal &) {
         return false;
       }
     };  // NoJson<TVal>
@@ -203,12 +213,23 @@ namespace Orly {
        field is missing, we can just set the field unknown. */
     template <typename TVal>
     struct NoJson<Base::TOpt<TVal>> final {
-      static inline bool TrySetUnknown(Base::TOpt<TVal> &val) {
+      static inline bool TrySetNull(Base::TOpt<TVal> &val) {
         assert(&val);
         val.Reset();
         return true;
       }
     };  // NoJson<Base::TOpt<TVal>>
+
+    /* A special-case handler for unique ptrs.  In this case, when a JSON
+       field is missing, we can just set the field null. */
+    template <typename TVal, typename TDel>
+    struct NoJson<std::unique_ptr<TVal, TDel>> final {
+      static inline bool TrySetNull(std::unique_ptr<TVal, TDel> &val) {
+        assert(&val);
+        val.reset();
+        return true;
+      }
+    };  // NoJson<std::unique_ptr<TVal, TDel>>
 
     /* The base for any field of TSomeObj. */
     template <typename TSomeObj>
@@ -234,7 +255,7 @@ namespace Orly {
          a field in the given instance of TSomeObj.  Returns success/failure,
          based on whether or not the field's type supports the 'unknown'
          state. */
-      virtual bool TrySetUnknown(TSomeObj *that) const = 0;
+      virtual bool TrySetNull(TSomeObj *that) const = 0;
 
       protected:
 
@@ -274,9 +295,9 @@ namespace Orly {
       /* Set to 'unknown' the value of a field in the given instance of
          TSomeObj.  Returns success/failure, based on whether or not the
          field's type supports the 'unknown' state. */
-      virtual bool TrySetUnknown(TSomeObj *that) const override {
+      virtual bool TrySetNull(TSomeObj *that) const override {
         assert(this);
-        return NoJson<TVal>::TrySetUnknown(that->*Member);
+        return NoJson<TVal>::TrySetNull(that->*Member);
       }
 
       private:
@@ -349,7 +370,7 @@ namespace Orly {
           const TJson *sub_json = json.TryFind(name);
           if (sub_json) {
             field_ptr->SetVal(obj, *sub_json);
-          } else if (!field_ptr->TrySetUnknown(obj)) {
+          } else if (!field_ptr->TrySetNull(obj)) {
             THROW_ERROR(TJsonMismatch)
                 << "JSON object has no field named \""
                 << name << '"';

@@ -92,8 +92,6 @@ class TFoo final
 
 };  // TFoo
 
-//ostream &operator<<(ostream &strm, const TTimePnt &) { return strm; }
-
 FIXTURE(Typical) {
   TFoo foo;
   TranslateJson(foo, TJson::TObject {
@@ -159,4 +157,39 @@ FIXTURE(MissingOptionalField) {
     caught = true;
   }
   EXPECT_FALSE(caught);
+}
+
+/* Another structure to play with. */
+class TBaz final
+    : public TObj {
+  NO_COPY(TBaz);
+  public:
+
+  /* Initialize the fields to known values, so we can tell when we've
+     changed them. */
+  TBaz() {}
+
+  /* Some fields to play with. */
+  unique_ptr<TGeo> A, B;
+
+  /* Required by TObj. */
+  virtual const TAnyFields &GetFields() const override {
+    static const TFields<TBaz> fields {
+      NEW_FIELD(TBaz, A),
+      NEW_FIELD(TBaz, B)
+    };
+    return fields;
+  }
+
+};  // TBaz
+
+FIXTURE(UniquePtr) {
+  TBaz baz;
+  TranslateJson(baz, TJson::TObject {
+      { "A", TJson::TObject { { "Lat", 12.34 }, { "Lon", 56.78 } } } });
+  if (EXPECT_TRUE(baz.A)) {
+    EXPECT_EQ(baz.A->Lat, 12.34);
+    EXPECT_EQ(baz.A->Lon, 56.78);
+  }
+  EXPECT_FALSE(baz.B);
 }
