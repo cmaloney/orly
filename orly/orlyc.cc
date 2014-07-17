@@ -52,11 +52,10 @@ class TCompilerConfig : public Base::TCmd {
       Param(&TCompilerConfig::DebugOutput, "debug_output", Optional, "debug\0d\0", "Compile the orly package in debug mode.");
       Param(&TCompilerConfig::MachineForm, "machine_form", Optional, "machine-form\0m\0", "Print out machine readable progress.");
       Param(&TCompilerConfig::OutputDir, "output_directory", Optional, "output\0o\0", "The directory to write output to.");
-      Param(&TCompilerConfig::SemanticOnly, "semantic_only", Optional, "symantic-only\0", "Don't actually produce output, just syntactically and semantically validate the program.");
+      Param(&TCompilerConfig::SemanticOnly, "semantic_only", Optional, "semantic-only\0", "Don't actually produce output, just syntactically and semantically validate the program.");
       Param(&TCompilerConfig::SkipTests, "skip_tests", Optional, "skip-tests\0", "Don't run tests after compiling.");
       Param(&TCompilerConfig::VerboseTests, "verbose_tests", Optional, "v\0",
           "Run tests in 'verbose' mode, printing out the result of every test, rather than just failing tests.");
-      //TODO: It would be nice if we could make this "Required"...
       Param(&TCompilerConfig::Source, "source", Required, "The Orly source file to compile.");
     }
 
@@ -107,8 +106,9 @@ int CompileCode(const TCompilerConfig &cmd) {
                             Base::TPath(src),
                             cmd.OutputDir,
                             cmd.DebugOutput,
-                            cmd.MachineForm); //TODO: SemanticOnly);
-    if(!cmd.SkipTests) {
+                            cmd.MachineForm,
+                            cmd.SemanticOnly);
+    if(!cmd.SkipTests && !cmd.SemanticOnly) {
       if(cmd.MachineForm) {
         cout<<"MM_NOTICE: Running tests"<<endl;
       }

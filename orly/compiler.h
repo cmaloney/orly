@@ -38,6 +38,7 @@ namespace Orly {
         const Jhm::TTree &out_tree,
         bool debug_cc,
         bool machine_mode,
+        bool semantic_only,
         std::ostream &out_strm = std::cout);
 
   }  // Compiler

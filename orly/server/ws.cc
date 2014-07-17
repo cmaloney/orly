@@ -378,6 +378,7 @@ class TWsImpl final
                                        Conn->Ws->SessionManager->GetPackageManager().GetPackageDir(),
                                        true,
                                        false,
+                                       false,
                                        out_strm);
           Result["status"] = "ok";
           Result["name"] = AsStr(pkg.Name);
