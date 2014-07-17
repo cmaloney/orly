@@ -124,6 +124,7 @@ Package::TVersionedName Orly::Compiler::Compile(
       const TTree &out_tree,
       bool debug_cc,
       bool machine_mode,
+      bool semantic_only,
       ostream &out_strm) {
   /* Nabbed by Compile() to prevent multiple threads from trying to compile. */
   static mutex Compiling;
@@ -210,6 +211,13 @@ Package::TVersionedName Orly::Compiler::Compile(
     throw TCompileFailure(HERE, "Compiling Orly language");
   }
 
+  auto versioned_name = Package::TVersionedName{
+      packages[core_rel]->GetName(), packages[core_rel]->GetVersion()};
+
+  if (semantic_only) {
+    return versioned_name;
+  }
+
   /* extra */ {
     if(machine_mode) {
       out_strm << "MM_NOTICE: Compiling C++" << endl;
@@ -258,5 +266,5 @@ Package::TVersionedName Orly::Compiler::Compile(
   }
   */
 
-  return Package::TVersionedName{packages[core_rel]->GetName(), packages[core_rel]->GetVersion()};
+  return versioned_name;
 }
