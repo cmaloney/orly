@@ -207,12 +207,12 @@ Package::TVersionedName Orly::Compiler::Compile(
     } while (!todo.empty());
   }
 
-  auto versioned_name = Package::TVersionedName{
-      packages[core_rel]->GetName(), packages[core_rel]->GetVersion()};
-
   if(failed) {
     throw TCompileFailure(HERE, "Compiling Orly language");
   }
+
+  auto versioned_name = Package::TVersionedName{
+      packages[core_rel]->GetName(), packages[core_rel]->GetVersion()};
 
   if (semantic_only) {
     return versioned_name;
