@@ -451,29 +451,28 @@ class TWsImpl final
         TranslatePathName(package_name, stmt->GetNameList());
         TPath filename(package_name, {"orly"});
         string src_filename = AsStr(Conn->Ws->SessionManager->GetPackageManager().GetPackageDir().GetAbsPath(filename));
-        // We want the line numbers of the top-level function definitions.
-        auto cst = Package::Syntax::TPackage::ParseFile(src_filename.data());
-        if (cst.HasErrors()) {
-          throw invalid_argument("invalid source file.");
-        }  // if
-        TJson line_nums(TJson::Object);
-        Synth::ForEach<Package::Syntax::TDef>(
-            cst.Get()->GetOptDefSeq(),
-            [&line_nums](const Package::Syntax::TDef *def) {
-              auto *func_def =
-                  dynamic_cast<const Package::Syntax::TFuncDef *>(def);
-              if (func_def) {
-                auto lexeme = func_def->GetName()->GetLexeme();
-                auto name = lexeme.GetText();
-                auto line_num = lexeme.GetPosRange().GetStart().GetLineNumber();
-                line_nums[name] = line_num;
-              }  // if
-              return true;
-            });
         Result = TJson::Object;
         Result["code"] = ReadAll(TFd(open(src_filename.c_str(), O_RDONLY)));
         Result["filename"] = AsStr(filename);
-        Result["line_nums"] = std::move(line_nums);
+        // The "line_nums" field is set if the the source is parsable.
+        auto cst = Package::Syntax::TPackage::ParseFile(src_filename.data());
+        if (!cst.HasErrors()) {
+          TJson line_nums(TJson::Object);
+          Synth::ForEach<Package::Syntax::TDef>(
+              cst.Get()->GetOptDefSeq(),
+              [&line_nums](const Package::Syntax::TDef *def) {
+                auto *func_def =
+                    dynamic_cast<const Package::Syntax::TFuncDef *>(def);
+                if (func_def) {
+                  auto lexeme = func_def->GetName()->GetLexeme();
+                  auto name = lexeme.GetText();
+                  auto line_num = lexeme.GetPosRange().GetStart().GetLineNumber();
+                  line_nums[name] = line_num;
+                }  // if
+                return true;
+              });
+          Result["line_nums"] = std::move(line_nums);
+        }  // if
       }
 
       private:
