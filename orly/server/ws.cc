@@ -38,8 +38,10 @@
 #include <orly/client/program/parse_stmt.h>
 #include <orly/client/program/translate_expr.h>
 #include <orly/indy/key.h>
+#include <orly/orly.package.cst.h>
 #include <orly/sabot/state_dumper.h>
 #include <orly/sabot/type_dumper.h>
+#include <orly/synth/cst_utils.h>
 #include <orly/type/orlyify.h>
 #include <orly/var/jsonify.h>
 #include <orly/var/sabot_to_var.h>
@@ -453,6 +455,25 @@ class TWsImpl final
         Result = TJson::Object;
         Result["code"] = ReadAll(TFd(open(src_filename.c_str(), O_RDONLY)));
         Result["filename"] = AsStr(filename);
+        // The "line_nums" field is set if the the source is parsable.
+        auto cst = Package::Syntax::TPackage::ParseFile(src_filename.data());
+        if (!cst.HasErrors()) {
+          TJson line_nums(TJson::Object);
+          Synth::ForEach<Package::Syntax::TDef>(
+              cst.Get()->GetOptDefSeq(),
+              [&line_nums](const Package::Syntax::TDef *def) {
+                auto *func_def =
+                    dynamic_cast<const Package::Syntax::TFuncDef *>(def);
+                if (func_def) {
+                  auto lexeme = func_def->GetName()->GetLexeme();
+                  auto name = lexeme.GetText();
+                  auto line_num = lexeme.GetPosRange().GetStart().GetLineNumber();
+                  line_nums[name] = line_num;
+                }  // if
+                return true;
+              });
+          Result["line_nums"] = std::move(line_nums);
+        }  // if
       }
 
       private:
