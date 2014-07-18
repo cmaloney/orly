@@ -234,22 +234,23 @@ struct TStatusObj :
 
 constexpr int64_t ReplyToTweet = 0;
 constexpr int64_t ReplyToUser = 1;
-constexpr int64_t DidMentionUser = 2;
-constexpr int64_t MentionedByUser = 3;
-constexpr int64_t PersonUsedTag = 4;
-constexpr int64_t TagUsedByPerson = 5;
-constexpr int64_t PersonLocation = 6;
-constexpr int64_t Following = 7;
-constexpr int64_t FollowedBy = 8;
+constexpr int64_t ReplyFromUser = 2;
+constexpr int64_t DidMentionUser = 3;
+constexpr int64_t MentionedByUser = 4;
+constexpr int64_t PersonUsedTag = 5;
+constexpr int64_t TagUsedByPerson = 6;
+constexpr int64_t PersonLocation = 7;
+constexpr int64_t Following = 8;
+constexpr int64_t FollowedBy = 9;
 
 void TranslateFollow(TJsonIter &input) {
   assert(&input);
   // following
-  using t_person_following_key = std::tuple<int64_t, int64_t, int64_t>;  // IndexId, user id, tweet id
+  using t_person_following_key = std::tuple<int64_t, int64_t, int64_t>;  // IndexId, user id, following id
   using t_person_following_val = bool;  // unused
   TCoreVectorGenerator<t_person_following_key, t_person_following_val> person_following_cvg("person_following");
   // followed by
-  using t_person_followed_by_key = std::tuple<int64_t, int64_t, int64_t>;  // IndexId, user id, tweet id
+  using t_person_followed_by_key = std::tuple<int64_t, int64_t, int64_t>;  // IndexId, user id, follower id
   using t_person_followed_by_val = bool;  // unused
   TCoreVectorGenerator<t_person_followed_by_key, t_person_followed_by_val> person_followed_by_cvg("person_followed_by");
   for (; input; ++input) {
@@ -263,11 +264,20 @@ void TranslateFollow(TJsonIter &input) {
 
 void TranslateUser(TJsonIter &input) {
   assert(&input);
+  // user screen name -> id
+  using t_user_by_screen_key = std::tuple<std::string>;  // screen name
+  using t_user_by_screen_val = int64_t;  // user_id
+  TCoreVectorGenerator<t_user_by_screen_key, t_user_by_screen_val> user_by_screen_cvg("user_by_screen");
+  // user id -> screen name
+  using t_screen_by_user_key = std::tuple<int64_t>;  // user id
+  using t_screen_by_user_val = std::string;  // screen name
+  TCoreVectorGenerator<t_screen_by_user_key, t_screen_by_user_val> screen_by_user_cvg("screen_by_user");
   for (; input; ++input) {
     const TJson &user_obj_json = *input;
     TUserObj user_obj;
     TranslateJson(user_obj, user_obj_json);
-    printf("uid=[%ld], name=[%s]\n", user_obj.id, user_obj.screen_name.c_str());
+    user_by_screen_cvg.Push(t_user_by_screen_key(user_obj.screen_name), user_obj.id);
+    screen_by_user_cvg.Push(t_screen_by_user_key(user_obj.id), user_obj.screen_name);
   }
 }
 
@@ -306,9 +316,12 @@ void TranslateStatus(TJsonIter &input) {
   using t_person_tweeted_tweet_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, id of replied to tweet, id of user who replied to it, tweet id of reply
   using t_person_tweeted_tweet_val = Base::Chrono::TTimePnt;  // date
   TCoreVectorGenerator<t_person_tweeted_tweet_key, t_person_tweeted_tweet_val> person_tweeted_tweet_cvg("person_tweeted_in_reply_to_tweet");
-  using t_person_tweeted_user_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, id of replied to user, id of user who replied to it, tweet id of reply
+  using t_person_tweeted_user_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, id of user who replied to it, id of replied to user, tweet id of reply
   using t_person_tweeted_user_val = Base::Chrono::TTimePnt;  // date
   TCoreVectorGenerator<t_person_tweeted_user_key, t_person_tweeted_user_val> person_tweeted_user_cvg("person_tweeted_in_reply_to_user");
+  using t_user_received_reply_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, id of replied to user, id of user who replied, tweet id of reply
+  using t_user_received_reply_val = Base::Chrono::TTimePnt;  // date
+  TCoreVectorGenerator<t_user_received_reply_key, t_user_received_reply_val> user_received_reply_cvg("user_received_reply");
   using t_person_location_key = std::tuple<int64_t, int64_t, Base::Chrono::TTimePnt, double, double>;  // IndexId, id of user, date, longitude, latitude
   using t_person_location_val = int64_t;  // tweet id
   TCoreVectorGenerator<t_person_location_key, t_person_location_val> person_location_cvg("person_location");
@@ -330,7 +343,8 @@ void TranslateStatus(TJsonIter &input) {
       person_tweeted_tweet_cvg.Push(t_person_tweeted_tweet_key(ReplyToTweet, *reply_to_tweet_id, uid, tid), date);
     }
     if (reply_to_user_id) {
-      person_tweeted_user_cvg.Push(t_person_tweeted_user_key(ReplyToUser, *reply_to_user_id, uid, tid), date);
+      person_tweeted_user_cvg.Push(t_person_tweeted_user_key(ReplyToUser, uid, *reply_to_user_id, tid), date);
+      user_received_reply_cvg.Push(t_user_received_reply_key(ReplyFromUser, *reply_to_user_id, uid, tid), date);
     }
     if (coordinates) {
       person_location_cvg.Push(t_person_location_key(PersonLocation, uid, date, coordinates->coordinates[0], coordinates->coordinates[1]), tid);

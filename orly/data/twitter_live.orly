@@ -1,0 +1,89 @@
+package #1;
+
+/****************************
+**** Top Level Functions ****
+****************************/
+
+followers = (followers_seq(.uid:uid) as {int}) where {
+  uid = given::(int);
+};
+
+following = (following_seq(.uid:uid) as {int}) where {
+  uid = given::(int);
+};
+
+mentioned_users = (keys (time_pnt) @ <[DidMentionUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+  uid = given::(int);
+};
+
+mentioned_by_users = (keys (time_pnt) @ <[MentionedByUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+  uid = given::(int);
+};
+
+hashtags_used_by_user = (keys (time_pnt) @ <[TagUsedByPersonID, uid, free::(str), free::(int)]>.2 as {str}) where {
+  uid = given::(int);
+};
+
+users_who_used_hashtag = (keys (time_pnt) @ <[PersonLocationID, hashtag, free::(int), free::(int)]>.2 as {int}) where {
+  hashtag = given::(str);
+};
+
+user_location_history = (user_location_history_seq(.uid:uid) as [<[time_pnt, real, real]>]) where {
+  uid = given::(int);
+};
+
+users_replied_to = (keys (time_pnt) @ <[ReplyToUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+  uid = given::(int);
+};
+
+users_received_reply_from = (keys (time_pnt) @ <[ReplyFromUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+  uid = given::(int);
+};
+
+/******************************
+**** Helpers Returning Seq ****
+******************************/
+
+followers_seq = (keys (bool) @ <[FollowedByID, uid, free::(int)]>.2) where {
+  uid = given::(int);
+};
+
+following_seq = (keys (bool) @ <[FollowingID, uid, free::(int)]>.2) where {
+  uid = given::(int);
+};
+
+mentioned_users_seq = (**mentioned_users(.uid:uid)) where {
+  uid = given::(int);
+};
+
+mentioned_by_users_seq = (**mentioned_by_users(.uid:uid)) where {
+  uid = given::(int);
+};
+
+hashtags_used_by_user_seq = (**hashtags_used_by_user(.uid:uid)) where {
+  uid = given::(int);
+};
+
+users_who_used_hashtag_seq = (**users_who_used_hashtag(.hashtag:hashtag)) where {
+  hashtag = given::(str);
+};
+
+user_location_history_seq = (<[location_history.2, location_history.3, location_history.4]>) where {
+  location_history = keys(int) @ <[PersonLocationID, uid, free::(time_pnt), free::(real), free::(real)]>;
+  uid = given::(int);
+};
+
+/****************************
+***** Index Identifiers *****
+****************************/
+
+ReplyToTweetID = 0;
+ReplyToUserID = 1;
+ReplyFromUserID = 2;
+DidMentionUserID = 3;
+MentionedByUserID = 4;
+PersonUsedTagID = 5;
+TagUsedByPersonID = 6;
+PersonLocationID = 7;
+FollowingID = 8;
+FollowedByID = 9;
