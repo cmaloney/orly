@@ -7,7 +7,7 @@ DATA_DIR=$(PREFIX)/data
 RELEASE_OUT=../out/release/
 #Apps get installed on 'make install'
 ORLY_APPS=orly/orlyc orly/server/orlyi orly/spa/spa orly/client/orly_client orly/indy/disk/util/orly_dm orly/core_import
-ORLY_DATASET_GEN=beer complete_graph game_of_thrones money_laundering belgian_beer friends_of_friends matrix shakespeare twitter twitter_ego
+ORLY_DATASET_GEN=beer complete_graph game_of_thrones money_laundering belgian_beer friends_of_friends matrix shakespeare social_graph twitter twitter_ego twitter_live
 JHM_CMD=jhm $(JHM_FLAGS)
 .PHONY: apps debug release bootstrap nycr test test_lang clean install
 
