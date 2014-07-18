@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="static/branding/orly.png?raw=true" alt="Orly" />
+  <img src="static/branding/orly.png?raw=true" height="100" alt="Orly" />
 </p>
 
 [![tip for next commit](http://tip4commit.com/projects/860.svg)](http://tip4commit.com/projects/860)
