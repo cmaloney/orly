@@ -19,11 +19,15 @@ using namespace Orly::Data;
 struct TFollowObj :
     public Orly::CsvToBin::TObj {
   int64_t follower;
+  std::string follower_handle;
   int64_t followed;
+  std::string followed_handle;
   virtual const TAnyFields &GetFields() const override {
     static const TFields<TFollowObj> fields {
       NEW_FIELD(TFollowObj, follower),
-      NEW_FIELD(TFollowObj, followed)
+      NEW_FIELD(TFollowObj, follower_handle),
+      NEW_FIELD(TFollowObj, followed),
+      NEW_FIELD(TFollowObj, followed_handle)
     };
     return fields;
   }
@@ -247,19 +251,19 @@ constexpr int64_t FollowedBy = 9;
 void TranslateFollow(TJsonIter &input) {
   assert(&input);
   // following
-  using t_person_following_key = std::tuple<int64_t, int64_t, int64_t>;  // IndexId, user id, following id
-  using t_person_following_val = bool;  // unused
+  using t_person_following_key = std::tuple<int64_t, int64_t, int64_t>;  // IndexId, follower user id, followed user id
+  using t_person_following_val = std::tuple<std::string, std::string>;  // user handle (following), user handle (followed)
   TCoreVectorGenerator<t_person_following_key, t_person_following_val> person_following_cvg("person_following");
   // followed by
-  using t_person_followed_by_key = std::tuple<int64_t, int64_t, int64_t>;  // IndexId, user id, follower id
-  using t_person_followed_by_val = bool;  // unused
+  using t_person_followed_by_key = std::tuple<int64_t, int64_t, int64_t>;  // IndexId, followed user id, follower user id
+  using t_person_followed_by_val = std::tuple<std::string, std::string>;  // user handle (followed), user handle (following)
   TCoreVectorGenerator<t_person_followed_by_key, t_person_followed_by_val> person_followed_by_cvg("person_followed_by");
   for (; input; ++input) {
     const TJson &follow_obj_json = *input;
     TFollowObj follow_obj;
     TranslateJson(follow_obj, follow_obj_json);
-    person_following_cvg.Push(t_person_following_key(Following, follow_obj.follower, follow_obj.followed), true);
-    person_followed_by_cvg.Push(t_person_followed_by_key(FollowedBy, follow_obj.followed, follow_obj.follower), true);
+    person_following_cvg.Push(t_person_following_key(Following, follow_obj.follower, follow_obj.followed), t_person_following_val(follow_obj.follower_handle, follow_obj.followed_handle));
+    person_followed_by_cvg.Push(t_person_followed_by_key(FollowedBy, follow_obj.followed, follow_obj.follower), t_person_followed_by_val(follow_obj.followed_handle, follow_obj.follower_handle));
   }
 }
 
@@ -315,21 +319,23 @@ void TranslateStatus(TJsonIter &input) {
   using t_person_tweeted_val = TPersonTweetedVal;  // text
   TCoreVectorGenerator<t_person_tweeted_key, t_person_tweeted_val> person_tweeted_cvg("person_tweeted");
   using t_person_tweeted_tweet_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, id of replied to tweet, id of user who replied to it, tweet id of reply
-  using t_person_tweeted_tweet_val = Base::Chrono::TTimePnt;  // date
+  using t_person_tweeted_tweet_val = std::tuple<std::string, Base::Chrono::TTimePnt>;  // user handle, date
   TCoreVectorGenerator<t_person_tweeted_tweet_key, t_person_tweeted_tweet_val> person_tweeted_tweet_cvg("person_tweeted_in_reply_to_tweet");
   using t_person_tweeted_user_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, id of user who replied to it, id of replied to user, tweet id of reply
-  using t_person_tweeted_user_val = Base::Chrono::TTimePnt;  // date
+  using t_person_tweeted_user_val = std::tuple<std::string, std::string, Base::Chrono::TTimePnt>; // user handle (of person that made reply) user handle (of replied), date
   TCoreVectorGenerator<t_person_tweeted_user_key, t_person_tweeted_user_val> person_tweeted_user_cvg("person_tweeted_in_reply_to_user");
   using t_user_received_reply_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, id of replied to user, id of user who replied, tweet id of reply
-  using t_user_received_reply_val = Base::Chrono::TTimePnt;  // date
+  using t_user_received_reply_val = std::tuple<std::string, std::string, Base::Chrono::TTimePnt>; // user handle (of replied) user handle (of person that made reply), date
   TCoreVectorGenerator<t_user_received_reply_key, t_user_received_reply_val> user_received_reply_cvg("user_received_reply");
-  using t_person_location_key = std::tuple<int64_t, int64_t, Base::Chrono::TTimePnt, double, double>;  // IndexId, id of user, date, longitude, latitude
-  using t_person_location_val = int64_t;  // tweet id
+  using t_person_location_key = std::tuple<int64_t, int64_t, Base::Chrono::TTimePnt, double, double>;  // IndexId, id of user, user handle, date, longitude, latitude
+  using t_person_location_val = std::tuple<std::string, int64_t>;  // user handle, tweet id
   TCoreVectorGenerator<t_person_location_key, t_person_location_val> person_location_cvg("person_location");
   auto person_tweeted = [&](int64_t uid,
+                            const std::string &handle,
                             int64_t tid,
                             const Base::TOpt<int64_t> &reply_to_tweet_id,
                             const Base::TOpt<int64_t> &reply_to_user_id,
+                            const Base::TOpt<std::string> &reply_to_screen_name,
                             int64_t retweet_count,
                             const Base::Chrono::TTimePnt &date,
                             const std::string &text,
@@ -341,51 +347,61 @@ void TranslateStatus(TJsonIter &input) {
                                                                                  text,
                                                                                  coordinates));
     if (reply_to_tweet_id) {
-      person_tweeted_tweet_cvg.Push(t_person_tweeted_tweet_key(ReplyToTweet, *reply_to_tweet_id, uid, tid), date);
+      person_tweeted_tweet_cvg.Push(t_person_tweeted_tweet_key(ReplyToTweet, *reply_to_tweet_id, uid, tid), t_person_tweeted_tweet_val(handle, date));
     }
     if (reply_to_user_id) {
-      person_tweeted_user_cvg.Push(t_person_tweeted_user_key(ReplyToUser, uid, *reply_to_user_id, tid), date);
-      user_received_reply_cvg.Push(t_user_received_reply_key(ReplyFromUser, *reply_to_user_id, uid, tid), date);
+      assert(reply_to_screen_name);
+      person_tweeted_user_cvg.Push(t_person_tweeted_user_key(ReplyToUser, uid, *reply_to_user_id, tid), t_person_tweeted_user_val(handle, *reply_to_screen_name, date));
+      user_received_reply_cvg.Push(t_user_received_reply_key(ReplyFromUser, *reply_to_user_id, uid, tid), t_user_received_reply_val(*reply_to_screen_name, handle, date));
     }
     if (coordinates) {
-      person_location_cvg.Push(t_person_location_key(PersonLocation, uid, date, coordinates->coordinates[0], coordinates->coordinates[1]), tid);
+      person_location_cvg.Push(t_person_location_key(PersonLocation, uid, date, coordinates->coordinates[0], coordinates->coordinates[1]), t_person_location_val(handle, tid));
     }
   };
   // person mentioned
   using t_person_did_mention_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, user id, mentioned user id, tweet id
-  using t_person_did_mention_val = Base::Chrono::TTimePnt;  // date
+  using t_person_did_mention_val = std::tuple<std::string, std::string, Base::Chrono::TTimePnt>;  // user handle (did mention), user handle (mentioned), date
   TCoreVectorGenerator<t_person_did_mention_key, t_person_did_mention_val> person_did_mention_cvg("person_did_mention");
   using t_person_mentioned_by_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, mentioned user id, user id, tweet id
-  using t_person_mentioned_by_val = Base::Chrono::TTimePnt;  // date
+  using t_person_mentioned_by_val = std::tuple<std::string, std::string, Base::Chrono::TTimePnt>;  // user handle (mentioned), user handle (did mention), date
   TCoreVectorGenerator<t_person_mentioned_by_key, t_person_mentioned_by_val> person_mentioned_by_cvg("person_mentioned_by");
-  auto person_mentioned = [&](int64_t uid, int64_t muid, int64_t tid, const Base::Chrono::TTimePnt &date) {
-    person_did_mention_cvg.Push(t_person_did_mention_key(DidMentionUser, uid, muid, tid), date);
-    person_mentioned_by_cvg.Push(t_person_mentioned_by_key(MentionedByUser, muid, uid, tid), date);
+  auto person_mentioned = [&](int64_t uid,
+                              const std::string &handle,
+                              int64_t muid,
+                              const std::string &mhandle,
+                              int64_t tid,
+                              const Base::Chrono::TTimePnt &date) {
+    person_did_mention_cvg.Push(t_person_did_mention_key(DidMentionUser, uid, muid, tid), t_person_did_mention_val(handle, mhandle, date));
+    person_mentioned_by_cvg.Push(t_person_mentioned_by_key(MentionedByUser, muid, uid, tid), t_person_mentioned_by_val(mhandle, handle, date));
   };
   // person used hashtag
   using t_person_used_tag_key = std::tuple<int64_t, int64_t, std::string, int64_t>;  // IndexId, user id, hashtag, tweet id
-  using t_person_used_tag_val = Base::Chrono::TTimePnt;  // date
+  using t_person_used_tag_val = std::tuple<std::string, Base::Chrono::TTimePnt>;  // user handle, date
   TCoreVectorGenerator<t_person_used_tag_key, t_person_used_tag_val> person_used_tag_cvg("person_used_tag");
-  using t_tag_used_by_key = std::tuple<int64_t, std::string, int64_t, int64_t>;  // IndexId, hashtag, user id, tweet id
-  using t_tag_used_by_val = Base::Chrono::TTimePnt;  // date
+  using t_tag_used_by_key = std::tuple<int64_t, std::string, int64_t, int64_t>;  // IndexId, hashtag, user id, user handle, tweet id
+  using t_tag_used_by_val = std::tuple<std::string, Base::Chrono::TTimePnt>;  // user handle, date
   TCoreVectorGenerator<t_tag_used_by_key, t_tag_used_by_val> tag_used_by_cvg("tag_used_by");
-  auto person_tagged = [&](int64_t uid, const std::string &hashtag, int64_t tid, const Base::Chrono::TTimePnt &date) {
-    person_used_tag_cvg.Push(t_person_used_tag_key(PersonUsedTag, uid, hashtag, tid), date);
-    tag_used_by_cvg.Push(t_tag_used_by_key(TagUsedByPerson, hashtag, uid, tid), date);
+  auto person_tagged = [&](int64_t uid,
+                           const std::string &handle,
+                           const std::string &hashtag,
+                           int64_t tid,
+                           const Base::Chrono::TTimePnt &date) {
+    person_used_tag_cvg.Push(t_person_used_tag_key(PersonUsedTag, uid, hashtag, tid), t_person_used_tag_val(handle, date));
+    tag_used_by_cvg.Push(t_tag_used_by_key(TagUsedByPerson, hashtag, uid, tid), t_tag_used_by_val(handle, date));
   };
 
   for (; input; ++input) {
     const TJson &status_obj_json = *input;
     TStatusObj obj;
     TranslateJson(obj, status_obj_json);
-    person_tweeted(obj.user.id, obj.id, obj.in_reply_to_status_id, obj.in_reply_to_user_id, obj.retweet_count, obj.created_at, obj.text, obj.coordinates);
+    person_tweeted(obj.user.id, obj.user.screen_name, obj.id, obj.in_reply_to_status_id, obj.in_reply_to_user_id, obj.in_reply_to_screen_name, obj.retweet_count, obj.created_at, obj.text, obj.coordinates);
     stringstream ss;
     ss << obj.created_at;
     for (const auto &mention : obj.entities.user_mentions) {
-      person_mentioned(obj.user.id, mention.id, obj.id, obj.created_at);
+      person_mentioned(obj.user.id, obj.user.screen_name, mention.id, mention.screen_name, obj.id, obj.created_at);
     }
     for (const auto &tag : obj.entities.hashtags) {
-      person_tagged(obj.user.id, tag.text, obj.id, obj.created_at);
+      person_tagged(obj.user.id, obj.user.screen_name, tag.text, obj.id, obj.created_at);
     }
   }
 }
