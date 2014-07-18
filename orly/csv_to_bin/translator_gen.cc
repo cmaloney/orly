@@ -31,6 +31,7 @@
 #include <orly/csv_to_bin/write_orly.h>
 #include <orly/code_gen/cpp_printer.h>
 #include <util/error.h>
+#include <util/io.h>
 #include <util/path.h>
 
 using namespace std;
@@ -71,23 +72,6 @@ class TCmd final
 
 };  // TCmd
 
-template <typename TStrm>
-static void OpenFile(TStrm &strm, const string &path) {
-  assert(&strm);
-  assert(&path);
-  strm.exceptions(ifstream::failbit);
-  try {
-    strm.open(path);
-  } catch (const ifstream::failure &ex) {
-    char temp[256];
-    cerr
-        << "could not open \"" << path
-        << "\"; " << Util::Strerror(errno, temp, sizeof(temp))
-        << endl;
-    exit(EXIT_FAILURE);
-  }
-}
-
 int main(int argc, char *argv[]) {
   TCmd cmd(argc, argv);
   Base::TLog log(cmd);
@@ -95,9 +79,9 @@ int main(int argc, char *argv[]) {
   string orly_outfile = cmd.StarterScript + ".orly";
   try {
     ifstream instrm;
-    OpenFile(instrm, cmd.Schema);
+    Util::OpenFile(instrm, cmd.Schema);
     ofstream cc_outstrm;
-    OpenFile(cc_outstrm, cc_outfile);
+    Util::OpenFile<ofstream>(cc_outstrm, cc_outfile);
     TCppPrinter orly_printer(orly_outfile, "Orly script");
     string sql(istreambuf_iterator<char>{instrm}, istreambuf_iterator<char>{});
     auto table = NewTable(cerr, sql.data());

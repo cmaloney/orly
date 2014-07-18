@@ -18,9 +18,31 @@
 
 #pragma once
 
+#include <iomanip>
 #include <stdexcept>
 
+#include <base/thrower.h>
+#include <util/error.h>
+
 namespace Util {
+
+  DEFINE_ERROR(TOpenFileError, std::runtime_error, "could not open file")
+
+  template <typename TStrm>
+  void OpenFile(TStrm &strm, const std::string &path) {
+    //TODO: This should move out the stream, but we can't because libstdc++ 4.9 hasn't implemented move for at least ifstream
+    assert(&path);
+
+    strm.exceptions(std::ios_base::failbit);
+    try {
+      strm.open(path);
+    } catch (const std::ios_base::failure &ex) {
+      char temp[256];
+      temp[0] = '\0';
+      Util::Strerror(errno, temp, sizeof(temp));
+      THROW_ERROR(TOpenFileError) << std::quoted(path) << Base::EndOfPart << temp;
+    }
+  }
 
   /* Returns true iff the fd is valid. */
   bool IsValidFd(int fd);
