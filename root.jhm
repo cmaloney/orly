@@ -20,7 +20,9 @@
       "orly/data/social_graph",
       "orly/data/twitter",
       "orly/data/twitter_ego",
-      "orly/data/twitter_query"
+      "orly/data/twitter_query",
+      "orly/data/twitter_live",
+      "orly/csv_to_bin/translator_gen"
     ],
   "cmd": {
     "g++" : [

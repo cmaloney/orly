@@ -7,6 +7,7 @@
 #include <orly/csv_to_bin/translate.h>
 #include <orly/data/core_vector_generator.h>
 #include <orly/desc.h>
+#include <util/io.h>
 
 using namespace std;
 using namespace Base::Chrono;
@@ -389,38 +390,16 @@ void TranslateStatus(TJsonIter &input) {
   }
 }
 
-template <typename TStrm>
-static void OpenFile(TStrm &strm, const string &path) {
-  assert(&strm);
-  assert(&path);
-  strm.exceptions(ifstream::failbit);
-  try {
-    strm.open(path);
-  } catch (const ifstream::failure &ex) {
-    char temp[256];
-    cerr
-        << "could not open \"" << path
-        << "\"; " << Util::Strerror(errno, temp, sizeof(temp))
-        << endl;
-    exit(EXIT_FAILURE);
-  }
-}
 
 class TCmd final
     : public Base::TLog::TCmd {
   public:
 
-  TCmd(int argc, char *argv[])
-      : IsUserData(false),
-        IsFollowerData(false),
-        IsStatusData(false) {
+  TCmd(int argc, char *argv[]) {
     Parse(argc, argv, TMeta());
   }
 
-  string Json;
-  bool IsUserData;
-  bool IsFollowerData;
-  bool IsStatusData;
+  string Username;
 
   private:
 
@@ -430,18 +409,7 @@ class TCmd final
 
     TMeta()
         : Base::TLog::TCmd::TMeta("CSV to Orly binary converter generator.") {
-      Param(
-          &TCmd::Json, "json", Required,
-          "The path to the json file to read from.");
-      Param(
-          &TCmd::IsUserData, "user", Optional, "user\0u\0",
-          "A flag to indicate this file is user data.");
-      Param(
-          &TCmd::IsFollowerData, "follower", Optional, "follower\0f\0",
-          "A flag to indicate this file is follower data.");
-      Param(
-          &TCmd::IsStatusData, "status", Optional, "status\0s\0",
-          "A flag to indicate this file is status data.");
+      Param(&TCmd::Username, "username", Required, "The user whose json we should read");
     }
 
   };  // TMeta
@@ -451,15 +419,24 @@ class TCmd final
 int main(int argc, char *argv[]) {
   TCmd cmd(argc, argv);
   Base::TLog log(cmd);
-  ifstream instrm;
-  OpenFile(instrm, cmd.Json);
-  TJsonIter json_iter(instrm);
-  if (cmd.IsUserData) {
-    TranslateUser(json_iter);
-  } else if (cmd.IsFollowerData) {
-    TranslateFollow(json_iter);
-  } else if (cmd.IsStatusData) {
-    TranslateStatus(json_iter);
+
+  const vector<string> datasets = {"users", "follows", "statuses"};
+  for (const string &dataset: datasets) {
+    try {
+      ifstream in;
+      Util::OpenFile(in, cmd.Username + '.' + dataset + ".json");
+      TJsonIter json_iter(in);
+      if (dataset == "users") {
+        TranslateUser(json_iter);
+      } else if (dataset == "follows") {
+        TranslateFollow(json_iter);
+      } else if (dataset == "statuses") {
+        TranslateStatus(json_iter);
+      }
+    } catch (const Util::TOpenFileError &ex) {
+      cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(cmd.Username) << endl;
+      cout << ex.what() << endl;
+    }
   }
 }
 
