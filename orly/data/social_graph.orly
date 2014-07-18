@@ -43,12 +43,37 @@ received_view_time_id = 43;
 
 edge_t is <{.type: str, .source: int, .target: int}>;
 
-/* get_graph :: (edges::[<[int, int, int]>]) -> [<{.type: str, .data: [edge_t]}>]
+/* Given */
+friends_of_friends =
+    (get_graph(
+       .type: 'progressive_graph',
+       .edges: get_friend_subgraph(
+                 .users: get_n_degrees_before(
+                           .user: user,
+                           .degrees: 2,
+                           .before: before)))) where {
+  user = given::(int);
+  year = given::(int);
+  month = given::(int);
+  day = given::(int);
+  before = time_pnt(.year: year,
+                    .month: month,
+                    .day: day,
+                    .hour: 0,
+                    .minute: 0,
+                    .second: 0,
+                    .nanosecond: 0,
+                    .utc_offset: 0);
+};
+
+/* get_graph :: (type::str, edges::[<[int, int, int]>]) -> [<{.type: str, .data: [edge_t]}>]
  
+   type is either "graph" or "progressive_graph".
+
    Transform a list of edges of type <[int, int, int]> into a graph format 
    acceptable by the js client. */
-get_graph = (<{.type: "graph", 
-               .data: format(.edge: **edges) as [edge_t]}>) where {
+get_graph = (<{.type: type, .data: format(.edge: **edges) as [edge_t]}>) where {
+  type = given::(str);
   edges = given::([<[int, int, int]>]);
   format = (<{.type: edge_names[edge.0], .source: edge.1, .target: edge.2}>) where {
     edge_names = {3 : "friendship",
