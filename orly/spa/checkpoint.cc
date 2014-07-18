@@ -156,6 +156,13 @@ class TExprVisitor : public Orly::Checkpoint::Syntax::TExpr::TVisitor {
   /* TODO */
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInCeiling *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInFloor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInCos *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInSin *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInTan *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInAcos *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInAsin *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInAtan *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInAtan2 *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog2 *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog10 *) const {NOT_IMPLEMENTED();}

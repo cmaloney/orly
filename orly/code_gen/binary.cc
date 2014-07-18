@@ -34,6 +34,8 @@ void TBinary::WriteExpr(TCppPrinter &out) const {
       break;
     case And: Call(out, "And");
       break;
+    case Atan2: Call(out, "atan2");
+      break;
     case Div: Call(out, "Div");
       break;
     case EqEq: Call(out, "EqEq");
