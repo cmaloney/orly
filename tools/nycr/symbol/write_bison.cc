@@ -89,20 +89,19 @@ static void WriteBisonCc(const char *root, const char *branch, const char *atom,
   CreateOutputFile(root, branch, atom, language, ".y", strm);
   strm
       << "%{" << endl
-      << "#include <tools/nycr/error.h>" << endl
       << "#include <" << TPath(branch, atom,language) << ".cst.h>" << endl
       << TUsingNamespace(language)
-      << "#define YYLOC_DEFAULT " << TUnderscore(language) << "yylloc_default" << endl
       << "#define YYMAXDEPTH 1000000" << endl
       << "#define YYINITDEPTH 1000000" << endl
       << "%}" << endl << endl
       << "%code {" << endl
-      << "  int " << TUnderscore(language) << "lex(YYSTYPE *, YYLTYPE *);" << endl
-      << "  void " << TUnderscore(language) << "error(const YYLTYPE *, const std::unique_ptr<" << TType(language->GetName()) <<"> &, char const *);" << endl
+      << "  int " << TUnderscore(language) << "lex(YYSTYPE *, YYLTYPE *, void *scanner);" << endl
+      << "  void " << TUnderscore(language) << "error(const YYLTYPE *, void*, Tools::Nycr::TContext &, char const *);" << endl
       << "}" << endl << endl
       << "%defines" << endl
       << "%locations" << endl
-      << "%parse-param {std::unique_ptr<" << TType(language->GetName()) << "> &cst_out}" << endl
+      << "%param{void *scanner}"
+      << "%parse-param {Tools::Nycr::TContextBuilt<" << TType(language->GetName()) << "> &ctx}" << endl
       << "%define api.pure" << endl
       << "%name-prefix \"" << TUnderscore(language) <<"\"" << endl
       << "%glr-parser" << endl
@@ -158,8 +157,8 @@ static void WriteBisonCc(const char *root, const char *branch, const char *atom,
   strm
       << endl
       << "%%" << endl << endl
-      << "void " << TUnderscore(language) << "error(const YYLTYPE *loc, const std::unique_ptr<" << TType(language->GetName()) <<"> &, char const *msg) {" << endl
-      << "  new ::Tools::Nycr::TError(loc->first_line, loc->first_column, loc->last_line, loc->last_column, msg);" << endl
+      << "void " << TUnderscore(language) << "error(const YYLTYPE *loc, void*, Tools::Nycr::TContext &ctx, char const *msg) {" << endl
+      << "  ctx.AddError(Tools::Nycr::TPosRange(Tools::Nycr::TPos(loc->first_line, loc->first_column), Tools::Nycr::TPos(loc->last_line, loc->last_column)), msg);" << endl
       << '}' << endl;
 }
 
@@ -234,7 +233,7 @@ static void WriteRule(const TKind *kind, ostream &strm) {
       }
       Strm << ");" << endl;
       if (is_language) {
-        Strm << "    cst_out = std::unique_ptr<" << TType(that->GetName()) << ">($$);" << endl
+        Strm << "    ctx.Set($$);" << endl
              << "    $$ = nullptr;" << endl;
       }
       Strm << "  }" << endl;

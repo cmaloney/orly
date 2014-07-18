@@ -24,6 +24,7 @@
 #include <orly/spa/honcho.h>
 #include <orly/spa/service.h>
 #include <orly/type.h>
+#include <util/path.h>
 
 using namespace std;
 using namespace Orly;
@@ -32,8 +33,13 @@ using namespace Orly::Spa; // Sort of ug. Would be nice to remove. Not strictly 
 class TCompilerConfig : public Base::TCmd {
   public:
   TCompilerConfig(int argc, char **argv)
-      : DebugOutput(false), InfoReport(false), MachineForm(false), SemanticOnly(false),
-        SkipTests(false), VerboseTests(false) {
+      : DebugOutput(false),
+        InfoReport(false),
+        MachineForm(false),
+        OutputDir(Util::GetCwd()),
+        SemanticOnly(false),
+        SkipTests(false),
+        VerboseTests(false) {
 
     Parse(argc, argv, TMeta());
   }
@@ -46,11 +52,10 @@ class TCompilerConfig : public Base::TCmd {
       Param(&TCompilerConfig::DebugOutput, "debug_output", Optional, "debug\0d\0", "Compile the orly package in debug mode.");
       Param(&TCompilerConfig::MachineForm, "machine_form", Optional, "machine-form\0m\0", "Print out machine readable progress.");
       Param(&TCompilerConfig::OutputDir, "output_directory", Optional, "output\0o\0", "The directory to write output to.");
-      Param(&TCompilerConfig::SemanticOnly, "semantic_only", Optional, "symantic-only\0", "Don't actually produce output, just syntactically and semantically validate the program.");
+      Param(&TCompilerConfig::SemanticOnly, "semantic_only", Optional, "semantic-only\0", "Don't actually produce output, just syntactically and semantically validate the program.");
       Param(&TCompilerConfig::SkipTests, "skip_tests", Optional, "skip-tests\0", "Don't run tests after compiling.");
       Param(&TCompilerConfig::VerboseTests, "verbose_tests", Optional, "v\0",
           "Run tests in 'verbose' mode, printing out the result of every test, rather than just failing tests.");
-      //TODO: It would be nice if we could make this "Required"...
       Param(&TCompilerConfig::Source, "source", Required, "The Orly source file to compile.");
     }
 
@@ -87,18 +92,23 @@ class TCompilerConfig : public Base::TCmd {
 int CompileCode(const TCompilerConfig &cmd) {
   assert(&cmd);
 
-  bool found_root = false;
-  Jhm::TAbsBase root = Jhm::TAbsBase::Find("__orly__", found_root /* out param*/);
+  //TODO: This 'make absolute' is something we do fairly commonly. (At least here and <jhm/jhm>). Should canonicalize.
+  string src = cmd.Source;
+  if(src.front() != '/') {
+    src = Util::GetCwd() + '/' + src;
+  }
 
+  //TODO: Practically speaking for each src file given, esp. if we have more than one
+  // We need to find the root of it's repository (__orly__) file. And use that
   int result = EXIT_FAILURE;
   try {
     const auto output = Compiler::Compile(
-                            root.GetAbsPath(cmd.Source),
-                            Jhm::TAbsBase(cmd.OutputDir),
-                            found_root,
+                            Base::TPath(src),
+                            cmd.OutputDir,
                             cmd.DebugOutput,
-                            cmd.MachineForm); //TODO: SemanticOnly);
-    if(!cmd.SkipTests) {
+                            cmd.MachineForm,
+                            cmd.SemanticOnly);
+    if(!cmd.SkipTests && !cmd.SemanticOnly) {
       if(cmd.MachineForm) {
         cout<<"MM_NOTICE: Running tests"<<endl;
       }
@@ -128,10 +138,8 @@ int CompileCode(const TCompilerConfig &cmd) {
   } catch (const TSourceError &src_error) {
     //TODO: It would be nice to put the orly code location at the end, and only in debug mode.
     cerr << src_error.GetPosRange() << ' ' << src_error.what() << endl;
-  } catch (const Base::TError &ex) {
-    cerr << "general error: " << ex.what() << endl;
   } catch (const exception &ex) {
-    cerr << "exception: " << ex.what() << endl;
+    cerr << "error: " << ex.what() << endl;
   }
 
   return result;

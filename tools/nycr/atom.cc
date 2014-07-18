@@ -21,7 +21,7 @@
 #include <cassert>
 
 #include <tools/nycr/all_decls.h>
-#include <tools/nycr/error.h>
+#include <tools/nycr/globals.h>
 
 using namespace std;
 using namespace Tools::Nycr;
@@ -57,7 +57,7 @@ TAtom::TAtom(const Syntax::TName *name, const Syntax::TOptSuper *opt_super, cons
   try {
     pattern->GetStrLiteral()->Accept(TStrLiteralVisitor(pos_range, PatternText));
   } catch (const exception &ex) {
-    TError::TBuilder(*pos_range) << ex.what();
+    GetContext().AddError(*pos_range, ex.what());
   }
   GetOptInt<Syntax::TPriLevel, Syntax::TNoPriLevel>(pattern->GetOptPriLevel(), Pri);
 }

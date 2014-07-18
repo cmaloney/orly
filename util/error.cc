@@ -21,6 +21,8 @@
 #include <cassert>
 #include <cstring>
 
+#include <iostream>
+
 namespace Util {
 
   const char *Strerror(int errno_value, char *buf, size_t buf_size) {
@@ -48,4 +50,8 @@ namespace Util {
 #endif
   }
 
+  void Abort(const Base::TCodeLocation &code_location) {
+    std::cerr << "aborting at " << code_location << std::endl;
+    abort();
+  }
 }  // Util

@@ -34,7 +34,7 @@ Type::TType TId::GetType() const {
 }
 
 void TId::Write(std::ostream &strm) const {
-  strm << "TUUID(\"" << Val << "\")";
+  strm << "Base::TUuid(\"" << Val << "\")";
 }
 
 void TId::Accept(const TVisitor &visitor) const {
@@ -112,7 +112,7 @@ TId &TId::Xor(const TVar &) {
   throw Rt::TSystemError(HERE, "Xor not supported on Id.");
 }
 
-TId::TId(const TUUID &that) : Val(that) {}
+TId::TId(const Base::TUuid &that) : Val(that) {}
 
 TId::~TId() {}
 
@@ -121,10 +121,10 @@ TVar TId::Copy() const {
   return TId::New(Val);
 }
 
-TVar TId::New(const TUUID &that) {
+TVar TId::New(const Base::TUuid &that) {
   return (new TId(that))->AsVar();
 }
 
-TVar::TVar(const TUUID &that) {
+TVar::TVar(const Base::TUuid &that) {
   *this = TId::New(that);
 }

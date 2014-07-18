@@ -20,6 +20,7 @@
 
 #include <fstream>
 
+#include <base/path.h>
 #include <base/scheduler.h>
 #include <orly/compiler.h>
 #include <orly/spa/honcho.h>
@@ -121,7 +122,7 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
       package_file.open("/tmp/context.orly");
       package_file << sample_package;
       package_file.close();
-      Orly::Compiler::Compile(Jhm::TAbsPath(Jhm::TAbsBase("/tmp/"), Jhm::TRelPath("context.orly")), string("/tmp/"), false, false, false);
+      Orly::Compiler::Compile(Base::TPath("/tmp/context.orly"), string("/tmp/"), false, false);
 
       Base::TThreadLocalGlobalPoolManager<Orly::Indy::Fiber::TFrame, size_t, Orly::Indy::Fiber::TRunner *> *frame_pool_manager = Orly::Indy::Fiber::TFrame::LocalFramePool->GetPoolManager();
       Base::TFd solo_sock;
@@ -184,7 +185,7 @@ void RunTestLogic(const std::function<void (const Base::TUuid &session_id,
       Orly::Server::TRepoTetrisManager *tetris_manager= new Orly::Server::TRepoTetrisManager(&scheduler, runner_cons, frame_pool_manager, tetris_runner_setup_cb, true /*is master*/, manager.get(), &package_manager, durable_manager.get(), true);
       manager->SetTetrisManager(tetris_manager);
 
-      package_manager.Install(unordered_set<Package::TVersionedName>{ Package::TVersionedName { string("context"), 1 } });
+      package_manager.Install(unordered_set<Package::TVersionedName>{ Package::TVersionedName { std::vector<std::string>{string("context")}, 1 } });
 
       /* Merge memory layers in a repo. */
       Fiber::TRunner mem_merge_runner(runner_cons);
@@ -372,7 +373,7 @@ FIXTURE(Keys) {
     /* context scope */ {
       TSuprena context_arena;
       TContext context(repo, &context_arena);
-      TIndyContext package_context(Rt::TOpt<TUUID>(), TUUID(), context, &context_arena, &scheduler, run_time, random_seed);
+      TIndyContext package_context(Rt::TOpt<Base::TUuid>(), Base::TUuid(), context, &context_arena, &scheduler, run_time, random_seed);
 
       std::unique_ptr<TKeyCursor> key_cursor_ptr(package_context.NewKeyCursor(&context, TIndexKey(idx_id, TKey(make_tuple(Native::TFree<int64_t>()), &arena, state_alloc))));
       TKeyCursor &cursor = *key_cursor_ptr;
@@ -445,7 +446,7 @@ FIXTURE(Tombstone) {
     /* context scope */ {
       TSuprena context_arena;
       TContext context(repo, &context_arena);
-      TIndyContext package_context(Rt::TOpt<TUUID>(), TUUID(), context, &context_arena, &scheduler, run_time, random_seed);
+      TIndyContext package_context(Rt::TOpt<Base::TUuid>(), Base::TUuid(), context, &context_arena, &scheduler, run_time, random_seed);
 
       std::unique_ptr<TKeyCursor> key_cursor_ptr(package_context.NewKeyCursor(&context, TIndexKey(idx_id, TKey(make_tuple(Native::TFree<int64_t>()), &arena, state_alloc))));
       TKeyCursor &cursor = *key_cursor_ptr;

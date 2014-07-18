@@ -177,15 +177,7 @@ namespace Orly {
         : public TVar::TDoubleVisitor {
       public:
 
-      class TVarCompareError
-          : public Base::TFinalError<TVarCompareError> {
-        public:
-
-        TVarCompareError(const Base::TCodeLocation &loc) {
-          PostCtor(loc, "Trying to compare types that are not comparable.");
-        }
-
-      };  // TVarCompareError
+      DEFINE_ERROR(TVarCompareError, std::runtime_error, "Trying to compare types that are not comparable.");
 
       TCompareDoubleVisitor(int &comp, bool is_eqeq) : Comp(comp), IsEqeq(is_eqeq) {}
 

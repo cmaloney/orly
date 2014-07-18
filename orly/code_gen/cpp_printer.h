@@ -1,3 +1,4 @@
+
 /* <orly/code_gen/cpp_printer.h>
 
    TODO
@@ -23,9 +24,9 @@
 
 //TODO: Needed for the namspace printer. Should really move the namespace printer to a seperate file
 #include <base/split.h>
-#include <jhm/naming.h>
+#include <base/path.h>
 #include <orly/code_gen/error.h>
-#include <orly/code_gen/util.h>
+#include <orly/package/name.h>
 
 namespace Orly {
 
@@ -41,9 +42,9 @@ namespace Orly {
       NO_COPY(TCppPrinter);
       public:
 
-      TCppPrinter(const std::string &filename) : Indent(0), Out(filename),  StartOfLine(true) {
+      TCppPrinter(const std::string &filename, const std::string &file_desc = "IR") : Indent(0), Out(filename),  StartOfLine(true) {
         if (!Out.good()) {
-          throw TCgError(HERE, ("Unable open file '" + filename + "' for writing IR to.").c_str());
+          throw TCgError(HERE, ("Unable open file '" + filename + "' for writing " + file_desc + " to.").c_str());
         }
       }
 
@@ -122,8 +123,10 @@ namespace Orly {
     //TODO: Move implementation details to CC
     class TNamespacePrinter {
       public:
-      TNamespacePrinter(const Jhm::TNamespace &ns, TCppPrinter &out) : Namespace(ns), Out(out) {
-        All(Namespace.Get(), bind(&TNamespacePrinter::Start, this, std::placeholders::_1));
+      TNamespacePrinter(const Base::TNamespace &ns_, TCppPrinter &out) : Namespace(ns_), Out(out) {
+        for (const auto &ns: Namespace) {
+          Start(ns);
+        }
       }
 
       void Start(const std::string &str) const {
@@ -137,21 +140,23 @@ namespace Orly {
       }
 
       ~TNamespacePrinter() {
-        for(auto it = Namespace.Get().begin(); it != Namespace.Get().end(); ++it) {
-          End(*it);
+        for (const auto &ns: Namespace) {
+          End(ns);
         }
       }
 
       private:
-      const Jhm::TNamespace Namespace;
+      const Base::TNamespace Namespace;
       TCppPrinter &Out;
     }; // TNamespacePrinter
 
     //TODO: Move implementation details to CC
     class TOrlyNamespacePrinter {
       public:
-      TOrlyNamespacePrinter(const Jhm::TNamespace &ns, TCppPrinter &out) : Namespace(ns), Out(out) {
-        All(Namespace.Get(), bind(&TOrlyNamespacePrinter::Start, this, std::placeholders::_1));
+      TOrlyNamespacePrinter(const Package::TName &name_, TCppPrinter &out) : Name(name_), Out(out) {
+        for(const auto &ns: Name.Name) {
+          Start(ns);
+        }
       }
 
       void Start(const std::string &str) const {
@@ -165,31 +170,19 @@ namespace Orly {
       }
 
       ~TOrlyNamespacePrinter() {
-        for(auto it = Namespace.Get().begin(); it != Namespace.Get().end(); ++it) {
-          End(*it);
+        for(const auto &ns: Name.Name) {
+          End(ns);
         }
       }
 
       private:
-      const Jhm::TNamespace Namespace;
+      const Package::TName Name;
       TCppPrinter &Out;
     }; // TOrlyNamespacePrinter
 
-    class TOrlyNamespace {
-      public:
-      TOrlyNamespace(const Jhm::TNamespace &ns) : Namespace(ns) {}
-
-      const Jhm::TNamespace &GetNamespace() const {
-        return Namespace;
-      }
-
-      private:
-      const Jhm::TNamespace Namespace;
-    };
-
     template <>
-    inline void TCppPrinter::Write(const TOrlyNamespace &sns) {
-      *this << Base::Join(sns.GetNamespace().Get(),
+    inline void TCppPrinter::Write(const Package::TName &sns) {
+      *this << Base::Join(sns.Name,
                           "::",
                           [](TCppPrinter &out, const std::string &str) {
                             out << "NS" << str;

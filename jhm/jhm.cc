@@ -29,6 +29,7 @@
 #include <thread>
 
 #include <base/cmd.h>
+#include <base/split.h>
 #include <base/thrower.h>
 #include <jhm/env.h>
 #include <jhm/status_line.h>
@@ -42,8 +43,6 @@ using namespace std;
 using namespace std::placeholders;
 using namespace Util;
 
-#include <base/split.h>
-
 /* Converts relative file to absolute path if needed, then has the environment find/make the actual file object. */
 TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const string &name) {
   if (name.size() < 1) {
@@ -55,23 +54,21 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
   TFile *file = nullptr;
   if (name[0] == '/') {
     // Starts with a '/', so relative to src / an absolute pathname
-    file = env.GetFile(TRelPath(name.substr(1)));
+    file = env.GetFile(TRelPath(TPath(name)));
   } else {
     // Doesn't start with a '/' so relative to execution location name.
-    string abs_path = cwd + '/' + name;
-    string rel_path;
-    if(env.GetSrc().Contains(abs_path)) {
-      // +2 to remove the forward and trailing '/'
-      rel_path = abs_path.substr(env.GetSrc().Get().size()+2);
-    } else if (env.GetOut().Contains(abs_path)) {
-      rel_path = abs_path.substr(env.GetOut().Get().size()+2);
+    TPath abs_path(cwd + '/' + name);
+    const TTree *tree;
+    if(env.GetSrc()->Contains(abs_path)) {
+      tree = env.GetSrc();
+    } else if (env.GetOut()->Contains(abs_path)) {
+      tree = env.GetOut();
     } else {
       THROW_ERROR(runtime_error) << "Target " << quoted(name)
                                  << " not relative to 'jhm' execution in either `src` or `out` directory";
     }
-    file = env.GetFile(TRelPath(rel_path));
+    file = env.GetFile(tree->GetRelPath(move(abs_path)));
   }
-
 
   if (!file) {
     // TODO: Do we want to report the relative path to the file here rather than the provided name?
@@ -80,7 +77,7 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
 
   // If the file isn't buildable as is, try making it an executable (Add an empty extension to the end)
   if (!work_finder.IsBuildable(file)) {
-    file = env.GetFile(file->GetPath().GetRelPath().AddExtension({""}));
+    file = env.GetFile(TRelPath(AddExtension(TPath(file->GetRelPath().Path), {""})));
   }
 
   return file;
@@ -94,24 +91,18 @@ class TJhm : public TCmd {
 
   int Run() {
     auto cwd = GetCwd();
-    // Build up the environment. Find the root, grab the project, user, and system configuration
-    bool found_root = false;
-    TAbsBase root = TAbsBase::Find(".jhm", found_root);
-    if (!found_root) {
-      THROW_ERROR(runtime_error) << "Unable to find '.jhm' directory indicating root of workspace";
-    }
 
+    // Build up the environment. Find the root, grab the project, user, and system configuration
     // TODO: proj_name should be the folder immediately inside the root that executed inside, so long as it doesn't
     // begin with "out".
-    TEnv env(root, "src", Config, ConfigMixin);
+    TEnv env(TTree::Find(cwd, ".jhm"), "src", Config, ConfigMixin);
 
     // chdir to the src folder so we can always use relative paths. for commands
-    // NOTE: has to come after the 'TAbsBase::Find' as that calls GetCwd, which this by it's nature upsets.
-    /* extra */ {
+    /* abs_root */ {
 
-      auto abs_root = "/" + env.GetSrc().Get();
+      auto abs_root = AsStr(*env.GetSrc());
       if (!ExistsPath(abs_root.c_str())) {
-        THROW_ERROR(runtime_error) << "Source directory '/" << env.GetSrc().Get() << "' does not exist";
+        THROW_ERROR(runtime_error) << "Source directory " << quoted(abs_root) << " does not exist";
       }
       IfLt0(chdir(abs_root.c_str()));
     }
@@ -167,15 +158,12 @@ class TJhm : public TCmd {
           if (!out.is_open()) {
             THROW_ERROR(runtime_error) << "Unable to open file " << quoted(PrintTests) << "to write tests out to.";
           }
-          // NOTE: We're hand-rolling the writing json because it's easier.
-          out
-            << '['
-            << Join(tests,
-                    ", ",
-                    [](ostream &strm, TFile *file) {
-                      strm << quoted(file->GetPath().AsStr());
-                    })
-            << ']';
+          TJson::TArray tmp;
+          tmp.reserve(tests.size());
+          std::for_each(tests.begin(), tests.end(), [&tmp] (const TFile *f) {
+            tmp.push_back(AsStr(f->GetPath()));
+          });
+          out << TJson(move(tmp));
           out.close();
         }
 
@@ -207,12 +195,12 @@ class TJhm : public TCmd {
     TPump pump;
     auto RunTest = [this,&pump](TFile *test) {
       // TODO: Make a status line context object, which automatically does the Cleanup() at end of scope?
-      auto cmd = test->GetPath().AsStr();
+      auto cmd = AsStr(test->GetPath());
       if (VerboseTests) {
         cmd += " -v";
-        cout << "TEST: " << test->GetPath().GetRelPath();
+        cout << "TEST: " << test;
       } else {
-        TStatusLine() << "TEST: " << test->GetPath().GetRelPath();
+        TStatusLine() << "TEST: " << test;
       }
       auto subprocess = TSubprocess::New(pump, cmd.c_str());
       auto status = subprocess->Wait();
@@ -231,7 +219,7 @@ class TJhm : public TCmd {
     };
 
     for (TFile *f: target_files) {
-      if (EndsWith(f->GetPath().GetRelPath().GetName().GetExtensions(), {"test",""})) {
+      if (f->GetRelPath().Path.EndsWith({"test",""})) {
         if(!RunTest(f)) {
           return 2;
         }

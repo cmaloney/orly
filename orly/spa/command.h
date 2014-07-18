@@ -20,23 +20,13 @@
 
 #include <base/class_traits.h>
 #include <base/code_location.h>
-#include <base/error.h>
 #include <orly/var.h>
 
 namespace Orly {
 
   namespace Spa {
 
-    /* Your errors should inherit from this */
-    class TGeneralCommandError : public Base::TFinalError<TGeneralCommandError> {
-
-      public:
-
-      /* TODO */
-      TGeneralCommandError(const Base::TCodeLocation &loc, const char *error) {
-        PostCtor(loc, error);
-      }
-    };  // TGeneralCommandError
+    DEFINE_ERROR(TGeneralCommandError, std::runtime_error, "error parsing");
 
     //Parses the given text using the orly command sublanguage
     bool ParseCommand(const char *text, Var::TVar &var);

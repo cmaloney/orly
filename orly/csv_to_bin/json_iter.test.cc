@@ -1,6 +1,6 @@
-/* <base/past_end_error.h>
+/* <orly/csv_to_bin/json_iter.test.cc>
 
-   You went to the well once too often, didncha?
+   An input stream of JSON objects.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,20 +16,18 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#pragma once
+#include <orly/csv_to_bin/json_iter.h>
 
-#include <base/error.h>
+#include <sstream>
 
-namespace Base {
+#include <test/kit.h>
 
-  /* TODO */
-  class TPastEndError : public TFinalError<TPastEndError> {
-    public:
+using namespace std;
+using namespace Orly::CsvToBin;
 
-    /* TODO */
-    TPastEndError(const TCodeLocation &code_location) {
-      PostCtor(code_location);
-    }
-  };
-
+FIXTURE(Typical) {
+  istringstream strm("{}\n{}\n{}\n");
+  int count = 0;
+  for (TJsonIter iter(strm); iter; ++iter, ++count);
+  EXPECT_EQ(count, 3);
 }

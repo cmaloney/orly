@@ -29,7 +29,6 @@
 #include <orly/synth/cst_utils.h>
 #include <orly/var/mutation.h>
 #include <tools/nycr/pos_range.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Checkpoint::Syntax;
@@ -157,6 +156,13 @@ class TExprVisitor : public Orly::Checkpoint::Syntax::TExpr::TVisitor {
   /* TODO */
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInCeiling *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInFloor *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInCos *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInSin *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInTan *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInAcos *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInAsin *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInAtan *) const {NOT_IMPLEMENTED();}
+  virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInAtan2 *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog2 *) const {NOT_IMPLEMENTED();}
   virtual void operator()(const Orly::Checkpoint::Syntax::TBuiltInLog10 *) const {NOT_IMPLEMENTED();}
@@ -443,7 +449,7 @@ class TLiteralVisitor : public TLiteral::TVisitor {
   virtual void operator()(const TIdLiteral *that) const {
     //TODO: The copy is annoying...
     std::string tmp = that->GetLexeme().GetText().substr(1, that->GetLexeme().GetText().size() - 2);
-    Var = Var::TVar(TUUID(tmp.c_str()));
+    Var = Var::TVar(Base::TUuid(tmp.c_str()));
   }
 
   private:
@@ -489,7 +495,7 @@ class TCheckpointStmtVisitor : public TCheckpointStmt::TVisitor {
       return true;
     });
 
-    InsertOrFail(Packages, Package::TVersionedName{Package::TName(final_name),
+    InsertOrFail(Packages, Package::TVersionedName{Package::TName{move(final_name)},
         package_name->GetPackageVersion()->GetIntLiteral()->GetLexeme().AsUInt32()});
   }
 
@@ -655,14 +661,14 @@ void Spa::ReadCheckpoint(const char *path, TCheckpointStmts &stmts, TCheckpointP
   assert(&stmts);
   assert(&packages);
 
-  auto Checkpoint = Checkpoint::Syntax::TCheckpoint::ParseFile(path);
-  if (Tools::Nycr::TError::GetFirstError()) {
-    Tools::Nycr::TError::PrintSortedErrors(std::cerr);
+  auto checkpoint = Checkpoint::Syntax::TCheckpoint::ParseFile(path);
+  if (checkpoint.HasErrors()) {
+    checkpoint.PrintErrors(std::cerr);
     throw Rt::TSystemError(HERE, "Error loading checkpoint file");
   }
 
   TCheckpointStmtVisitor visitor(stmts, packages, arena);
-  Synth::ForEach<TCheckpointStmt>(Checkpoint->GetOptCheckpointStmtSeq(), [&visitor](const TCheckpointStmt *stmt) {
+  Synth::ForEach<TCheckpointStmt>(checkpoint.Get()->GetOptCheckpointStmtSeq(), [&visitor](const TCheckpointStmt *stmt) {
     stmt->Accept(visitor);
     return true;
   });

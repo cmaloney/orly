@@ -38,8 +38,10 @@
 #include <orly/client/program/parse_stmt.h>
 #include <orly/client/program/translate_expr.h>
 #include <orly/indy/key.h>
+#include <orly/orly.package.cst.h>
 #include <orly/sabot/state_dumper.h>
 #include <orly/sabot/type_dumper.h>
+#include <orly/synth/cst_utils.h>
 #include <orly/type/orlyify.h>
 #include <orly/var/jsonify.h>
 #include <orly/var/sabot_to_var.h>
@@ -374,22 +376,14 @@ class TWsImpl final
           TTmpCopyToFile tmp_file(
               Conn->Ws->TmpDirMaker.GetPath(), Translate(stmt->GetStrExpr()),
               "tmp_pkg_", ".orly");
-          /* Having just made the full path to the temp file and already knowing
-             the dir in which to place the compiler outputs, we must now parse these
-             apart again and reformat them to suit the JHM file name classes which
-             the compiler uses.  This is ugly. */
-          const auto &tmp_path = tmp_file.GetPath();
-          auto last_pos = tmp_path.find_last_of('/');
-          Jhm::TAbsPath abs_path_to_src(
-              Jhm::TAbsBase(tmp_path.substr(0, last_pos)),
-              Jhm::TRelPath(tmp_path.substr(last_pos + 1)));
-          Jhm::TAbsBase abs_base_to_dir(
-              Conn->Ws->SessionManager->GetPackageDir());
-          auto pkg = Compiler::Compile(
-              abs_path_to_src, abs_base_to_dir,
-              true, true, false, out_strm);
+          auto pkg = Compiler::Compile(TPath(tmp_file.GetPath()),
+                                       Conn->Ws->SessionManager->GetPackageManager().GetPackageDir(),
+                                       true,
+                                       false,
+                                       false,
+                                       out_strm);
           Result["status"] = "ok";
-          Result["name"] = pkg.Name.ToRelPath().AsStr();
+          Result["name"] = AsStr(pkg.Name);
           Result["version"] = pkg.Version;
         } catch (const Compiler::TCompileFailure &ex) {
           Result["status"] = "error";
@@ -400,13 +394,6 @@ class TWsImpl final
           Result["kind"] = "compiler internal";
           Result["msg"] = src_error.what();
           Result["pos"] = src_error.GetPosRange().AsStr();
-        } catch (const Base::TError &ex) {
-          const auto &code_loc = ex.GetCodeLocation();
-          Result["status"] = "error";
-          Result["kind"] = "server system";
-          Result["msg"] = ex.what();
-          Result["file"] = code_loc.GetFile();
-          Result["line"] = code_loc.GetLineNumber();
         } catch (const exception &ex) {
           Result["status"] = "error";
           Result["kind"] = "std exception";
@@ -420,7 +407,7 @@ class TWsImpl final
         auto &package_manager = Conn->Ws->SessionManager->GetPackageManager();
         package_manager.YieldInstalled([&packages, &package_manager](const Package::TVersionedName &versioned_name) {
           TJson::TObject package_info;
-          package_info["name"] = versioned_name.Name.AsStr();
+          package_info["name"] = AsStr(versioned_name.Name);
           package_info["version"] = versioned_name.Version;
 
           /* get each function's info */ {
@@ -461,16 +448,32 @@ class TWsImpl final
       virtual void operator()(const TGetSourceStmt *stmt) const override {
         assert(this);
         assert(stmt);
-
         vector<string> package_name;
         TranslatePathName(package_name, stmt->GetNameList());
-
-        auto rel_path = Orly::Package::TName(package_name).ToRelPath({"orly"});
-        string src_filename = AsStr(Jhm::TAbsPath(Conn->Ws->SessionManager->GetPackageDir(), rel_path));
-        syslog(LOG_INFO, "filename = \"%s\"", src_filename.c_str());
+        TPath filename(package_name, {"orly"});
+        string src_filename = AsStr(Conn->Ws->SessionManager->GetPackageManager().GetPackageDir().GetAbsPath(filename));
         Result = TJson::Object;
         Result["code"] = ReadAll(TFd(open(src_filename.c_str(), O_RDONLY)));
-        Result["filename"] = AsStr(rel_path);
+        Result["filename"] = AsStr(filename);
+        // The "line_nums" field is set if the the source is parsable.
+        auto cst = Package::Syntax::TPackage::ParseFile(src_filename.data());
+        if (!cst.HasErrors()) {
+          TJson line_nums(TJson::Object);
+          Synth::ForEach<Package::Syntax::TDef>(
+              cst.Get()->GetOptDefSeq(),
+              [&line_nums](const Package::Syntax::TDef *def) {
+                auto *func_def =
+                    dynamic_cast<const Package::Syntax::TFuncDef *>(def);
+                if (func_def) {
+                  auto lexeme = func_def->GetName()->GetLexeme();
+                  auto name = lexeme.GetText();
+                  auto line_num = lexeme.GetPosRange().GetStart().GetLineNumber();
+                  line_nums[name] = line_num;
+                }  // if
+                return true;
+              });
+          Result["line_nums"] = std::move(line_nums);
+        }  // if
       }
 
       private:

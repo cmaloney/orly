@@ -45,7 +45,6 @@ namespace Base {
     /* Thrown when extracting from a malformed stream. */
     DEFINE_ERROR(TSyntaxError, std::runtime_error, "json syntax error");
 
-
     /* Aliases for constructed types from which we may construct. */
     using TArray  = std::vector<TJson>;
     using TObject = std::map<std::string, TJson>;
@@ -82,8 +81,6 @@ namespace Base {
     static void WriteString(std::ostream &strm, const std::string &text) {
       strm << '"';
       const auto end = text.end();
-
-      //TODO: We build a lot of these escape / unescape things. Should have a <base/> library function for doing it.
       for(auto it = text.begin(); it != end; ++it) {
         char c = *it;
         switch(c) {
@@ -126,74 +123,85 @@ namespace Base {
     /* Read from the given input string to find a JSON string which starts/ends with '"' and properly unescape escaped
        characters. */
     static std::string ReadQuotedString(std::istream &strm) {
-      DEFINE_ERROR(not_implemented_t, TSyntaxError, "not currently implemented");
-      std::string text;
-      text.reserve(64);
-
-      // Keep around the old flags so we can put strm back how we found it;
-      auto flags = strm.flags(strm.flags() & ~std::ios_base::skipws);
-      try  {
-        // Helper function
-        auto read_character = [&strm] () {
-          char ret;
-          strm >> ret;
-          if (unlikely(!strm.good())) {
-            THROW_ERROR(TSyntaxError) << "Unexpected I/O error while reading string (likely end of string)";
-          }
-          return ret;
-        };
-
-        if (unlikely(read_character() != '"')) {
-          THROW_ERROR(TSyntaxError) << "Expected '\"' at start of string but didn't find it.";
-        }
-
-        // Loop over each input character processing escape sequences and
-        while(true) {
-          char c = read_character();
-          if (c == '"') {
-            break;
-          } else if (c == '\\') {
-            c = read_character();
-            switch(c) {
-              case '\\':
-                c = '\\';
-                break;
-              case '"':
-                c = '"';
-                break;
-              case '/':
-                c = '/';
-                break;
-              case 'b':
-                c = '\b';
-                break;
-              case 'f':
-                c = '\f';
-                break;
-              case 'n':
-                c = '\n';
-                break;
-              case 'r':
-                c = '\r';
-                break;
-              case 't':
-                c = '\t';
-                break;
-              case 'u':
-                THROW_ERROR(not_implemented_t) << " parsing of unicode escape sequences '\\u four-hex-digits'";
-              default:
-                THROW_ERROR(TSyntaxError) << "Invalid escape sequence '\\" << c << '\'';
-            }
-          }
-          text += c;
-        }
-      } catch (...) {
-        strm.flags(flags);
-        throw;
+      assert(&strm);
+      /* Eat the opening quote. */
+      if (unlikely(strm.peek() != '"')) {
+        THROW_ERROR(TSyntaxError) << "missing opening quote";
       }
-      //Reset flags to what they were
-      strm.flags(flags);
-      return text;
+      strm.ignore();
+      /* Loop over the input until we find the closing quote, accumulating
+         characters as we go. */
+      std::ostringstream accum;
+      bool keep_going = true;
+      do {
+        auto c = strm.peek();
+        switch (c) {
+          /* Closing quote. */
+          case '"': {
+            strm.ignore();
+            keep_going = false;
+            break;
+          }
+          /* Escape sequence. */
+          case '\\': {
+            strm.ignore();
+            switch (strm.peek()) {
+              case '\\': { accum << '\\'; break; }
+              case '"':  { accum << '\"'; break; }
+              case '/':  { accum << '/';  break; }
+              case 'b':  { accum << '\b'; break; }
+              case 'f':  { accum << '\f'; break; }
+              case 'n':  { accum << '\n'; break; }
+              case 'r':  { accum << '\r'; break; }
+              case 't':  { accum << '\t'; break; }
+              case 'u': {
+                uint32_t val = 0;
+                for (size_t i = 0; i < 4; ++i) {
+                  strm.ignore();
+                  c= strm.peek();
+                  if (c >= '0' && c <= '9') {
+                    c -= '0';
+                  } else if (c >= 'A' && c <= 'F') {
+                    c -= 'A' - 10;
+                  } else if (c >= 'a' && c <= 'f') {
+                    c -= 'a' - 10;
+                  } else {
+                    THROW_ERROR(TSyntaxError) << "bad hex";
+                  }
+                  val = val * 16 + c;
+                }  // for
+                if (val <= 0x7F) {
+                  accum.put(val);
+                } else if (val <= 0x7FF) {
+                  accum.put(0xC0 | (val >> 6));
+                  accum.put(0x80 | (val & 0x3F));
+                } else if (val <= 0xFFFF) {
+                  accum.put(0xE0 | (val >> 12));
+                  accum.put(0x80 | ((val >> 6) & 0x3F));
+                  accum.put(0x80 | (val & 0x3F));
+                } else {
+                  THROW_ERROR(TSyntaxError) << "hex not in UTF-8 range";
+                }
+                break;
+              }
+              default: {
+                THROW_ERROR(TSyntaxError) << "bad escape sequence";
+              }
+            }  // switch
+            strm.ignore();
+            break;
+          }
+          /* Normal character or EOF. */
+          default: {
+            if (c < 0) {
+              THROW_ERROR(TSyntaxError) << "missing closing quote";
+            }
+            accum << static_cast<char>(c);
+            strm.ignore();
+          }
+        }  // switch
+      } while (keep_going);
+      return accum.str();
     }
 
     /* Read our extension to JSON, a raw string. */
@@ -571,7 +579,13 @@ namespace Base {
       }
     }
 
-    TArray &GetArray() {
+    const TArray &GetArray() const noexcept {
+      assert(this);
+      assert(Kind == Array);
+      return Array_;
+    }
+
+    TArray &GetArray() noexcept {
       assert(this);
       assert(Kind == Array);
       return Array_;
@@ -685,6 +699,138 @@ namespace Base {
       new (this) TJson(std::move(that));
       new (&that) TJson(std::move(temp));
       return *this;
+    }
+
+    /* If we contain a bool, get it and return true;
+       otherwise, return false. */
+    bool TryAs(bool &out) const {
+      assert(this);
+      bool success = (Kind == Bool);
+      if (success) {
+        out = Bool_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(int8_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(int16_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(int32_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(int64_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(uint8_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(uint16_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(uint32_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(uint64_t &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(float &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a number, get it and return true;
+       otherwise, return false. */
+    bool TryAs(double &out) const {
+      assert(this);
+      bool success = (Kind == Number);
+      if (success) {
+        out = Number_;
+      }
+      return success;
+    }
+
+    /* If we contain a string, get it and return true;
+       otherwise, return false. */
+    bool TryAs(std::string &out) const {
+      assert(this);
+      bool success = (Kind == String);
+      if (success) {
+        out = String_;
+      }
+      return success;
     }
 
     /* A pointer to the named element in the object, or null if we have no

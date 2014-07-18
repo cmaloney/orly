@@ -26,16 +26,7 @@ namespace Orly {
 
   namespace Rt {
 
-    class TDivisionByZeroError
-        : public TRuntimeError, public Base::TFinalError<TDivisionByZeroError> {
-      public:
-
-      /* Constructor. */
-      TDivisionByZeroError(const Base::TCodeLocation &code_location) {
-        PostCtor(code_location, "Attempted to perform a division by 0.");
-      }
-
-    };  // TDivisionByZeroError
+    DEFINE_ERROR(TDivisionByZeroError, TRuntimeError, "Attempted to perform a division by zero");
 
     inline double Div(double lhs, double rhs) {
       if (rhs == 0) {

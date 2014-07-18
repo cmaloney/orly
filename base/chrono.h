@@ -24,22 +24,13 @@
 #include <chrono>
 #include <ctime>
 
-#include <base/error.h>
+#include <base/thrower.h>
 
 namespace Base {
 
   namespace Chrono {
 
-    /* TODO */
-    class TChronoError : public Base::TFinalError<TChronoError> {
-      public:
-
-      /* Constructor */
-      TChronoError(const TCodeLocation &code_location, const char *message = nullptr) {
-        PostCtor(code_location, message);
-      }
-
-    };  // TChronoError
+    DEFINE_ERROR(TChronoError, std::runtime_error, "chrono error");
 
     /* convenience typedef for std::chrono::system_clock */
     typedef std::chrono::system_clock TClock;

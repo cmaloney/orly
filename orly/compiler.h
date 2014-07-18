@@ -21,7 +21,8 @@
 #include <iostream>
 #include <string>
 
-#include <base/error.h>
+#include <base/path.h>
+#include <base/thrower.h>
 #include <jhm/naming.h>
 #include <orly/package/name.h>
 
@@ -30,23 +31,14 @@ namespace Orly {
   namespace Compiler {
 
     /* Thrown when we compilation fails. Errors will have been printed to the out-stream. */
-    class TCompileFailure
-        : public Base::TFinalError<TCompileFailure> {
-      public:
-
-      /* Constructor. */
-      TCompileFailure(const Base::TCodeLocation &code_location, const char *message = nullptr) {
-        PostCtor(code_location, message);
-      }
-
-    };  // TCompileFailure
+    DEFINE_ERROR(TCompileFailure, std::runtime_error, "compile failure");
 
     Package::TVersionedName Compile(
-        const Jhm::TAbsPath &core_file,
-        const Jhm::TAbsBase &out_tree,
-        bool found_root, // Only if we found the root can we look at sub scopes.
+        Base::TPath core_file,
+        const Jhm::TTree &out_tree,
         bool debug_cc,
         bool machine_mode,
+        bool semantic_only,
         std::ostream &out_strm = std::cout);
 
   }  // Compiler

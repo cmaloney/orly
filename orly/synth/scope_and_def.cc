@@ -18,9 +18,12 @@
 
 #include <orly/synth/scope_and_def.h>
 
+#include <iomanip>
+
+#include <base/as_str.h>
 #include <base/assert_true.h>
 #include <base/no_default_case.h>
-#include <tools/nycr/error.h>
+#include <orly/synth/context.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -59,16 +62,17 @@ TDef *TScope::TryGetAnyDef(const TName &name) const {
       def = scope->Defs.TryGetFirstMember(name);
       if (def) {
         if (def->GetScopeMembership()->TryGetNextMemberWithSameKey()) {
-          Tools::Nycr::TError::TBuilder(name.GetPosRange())
-            << '"' << name.GetText() << "\" is declared multiple times";
+          GetContext().AddError(name.GetPosRange(),
+                                Base::AsStr(std::quoted(name.GetText()), " is declared multiple times"));
           def = nullptr;
         }
         break;
       }
       scope = scope->Parent;
       if (!scope) {
-        Tools::Nycr::TError::TBuilder(name.GetPosRange())
-          << '"' << name.GetText() << "\" is not declared";
+        GetContext().AddError(
+            name.GetPosRange(),
+            Base::AsStr(std::quoted(name.GetText()), std::quoted(name.GetText()), " is not declared"));
         break;
       }
     }
@@ -81,8 +85,7 @@ TDef *TScope::TryGetAnyDef(const TName &name) const {
 void TScope::AddError(const TName &name, const char *expected_type) {
   assert(&name);
   assert(expected_type);
-  Tools::Nycr::TError::TBuilder(name.GetPosRange())
-    << '"' << name.GetText() << "\" does not refer to " << expected_type;
+  GetContext().AddError(name.GetPosRange(), Base::AsStr(std::quoted(name.GetText()), " does not refer to ", expected_type));
 }
 
 TDef::~TDef() {}
@@ -127,9 +130,10 @@ TDef::TDef(TScope *outer_scope, const TName &name)
       Readiness(0), State(Ready) {
   auto prev = ScopeMembership.TryGetPrevMemberWithSameKey();
   if (prev) {
-    Tools::Nycr::TError::TBuilder(name.GetPosRange())
-        << "duplicate name \"" << name.GetText()
-        << "\" previously declared at " << prev->GetName().GetPosRange();
+    GetContext().AddError(
+        name.GetPosRange(),
+        Base::AsStr(
+            "duplicate name ", std::quoted(name.GetText()), " previously declared at ", prev->GetName().GetPosRange()));
   }
 }
 
@@ -186,8 +190,7 @@ TAction TDef::BuildHelper(int pass) {
       case InProgress: {
         // We have encountered ourself during a predecessor walk.  This means we have a cycle.
         const TName &name = GetName();
-        Tools::Nycr::TError::TBuilder(name.GetPosRange())
-            << '"' << name.GetText() << "\" has a cycle in its build dependencies";
+        GetContext().AddError(name.GetPosRange(), Base::AsStr(std::quoted(name.GetText()), " has a cycle in its build dependencies"));
         action = Fail;
         /* TODO: Provide a mechanism to customize this error message so that we can describe the pass in which the cycle was found. */
         break;

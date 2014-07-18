@@ -21,7 +21,6 @@
 #include <map>
 #include <string>
 
-#include <jhm/naming.h>
 #include <orly/code_gen/cpp_printer.h>
 #include <orly/code_gen/inline.h>
 #include <orly/type/impl.h>
@@ -30,15 +29,7 @@ namespace Orly {
 
   namespace CodeGen {
 
-    /* TODO */
-    class TGenObjError : public Base::TFinalError<TGenObjError> {
-      public:
-
-      /* Constructor. */
-      TGenObjError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TGenObjError
+    DEFINE_ERROR(TGenObjError, std::runtime_error, "error generating object");
 
     class TObjCtor : public TInline {
       NO_COPY(TObjCtor);
@@ -65,7 +56,7 @@ namespace Orly {
 
 
     void GenObjComparison(const Type::TType &obj1, const Type::TType &obj2, TCppPrinter &strm);
-    void GenObjHeader(const Jhm::TAbsBase &out_dir, const Type::TType &obj_type);
+    void GenObjHeader(const std::string &out_dir, const Type::TType &obj_type);
     void GenObjInclude(const Type::TType &obj, TCppPrinter &strm);
 
   } // CodeGen

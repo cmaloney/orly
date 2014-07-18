@@ -18,11 +18,14 @@
 
 #include <orly/synth/test_case_block.h>
 
+#include <iomanip>
+
+#include <base/as_str.h>
 #include <base/assert_true.h>
 #include <orly/symbol/test/test_case_block.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -83,9 +86,11 @@ TTestCaseBlock::TTestCaseBlock(const TExprFactory *expr_factory, const Package::
       if (result.second) {
         AddTestCase(name.GetText(), that->GetExpr(), that->GetOptTestCaseBlock(), GetPosRange(that));
       } else {
-        Tools::Nycr::TError::TBuilder(name.GetPosRange())
-            << "duplicate name \"" << name.GetText()
-            << "\" previously declared at " << result.first->GetPosRange();
+        GetContext().AddError(name.GetPosRange(),
+                              Base::AsStr("duplicate name ",
+                                          std::quoted(name.GetText()),
+                                          " previously declared at ",
+                                          result.first->GetPosRange()));
       }
     }
     virtual void operator()(const Package::Syntax::TUnlabeledTestCase *that) const {

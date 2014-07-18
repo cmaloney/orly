@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <base/error.h>
+#include <base/thrower.h>
 #include <orly/package/loaded.h>
 #include <orly/package/name.h>
 
@@ -31,37 +31,21 @@ namespace Orly {
 
   namespace Package {
 
-    /* TODO */
-    class TManagerError : public Base::TFinalError<TManagerError> {
-      public:
-
-      /* Constructor. */
-      TManagerError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TManagerError
-
     /* Co-ordinates the loading, upgrading, and uninstalling of packages, as well as getting a package to do work
        with it. Also does proper graph upgrades of packages and the like. */
     class TManager {
       public:
 
+      DEFINE_ERROR(TError, std::runtime_error, "package manager error");
+
+      DEFINE_ERROR(TPackageDirError, std::runtime_error, "package dir error");
+
       typedef std::unordered_map<TName, TLoaded::TPtr> TInstalled;
       typedef std::unordered_set<TName> TNames;
       typedef std::unordered_set<TVersionedName> TVersionedNames;
 
-      /* TODO */
-      class TPackageDirError : public Base::TFinalError<TPackageDirError> {
-        public:
-
-        /* Constructor. */
-        TPackageDirError(const Base::TCodeLocation &loc, const char *msg) {
-          PostCtor(loc, msg);
-        }
-      };  // TPackageDirError
-
       /* Make a new package manager which will load packages from the given directory. */
-      TManager(const Jhm::TAbsBase &package_dir);
+      TManager(const Jhm::TTree &package_dir);
 
       /* Unload (But don't uninstall) all currently used packages. There is no chance of failure. */
       ~TManager();
@@ -82,8 +66,11 @@ namespace Orly {
                 const std::function<void(TLoaded::TPtr, bool is_new_version)> &pre_install_step = [](TLoaded::TPtr,
                                                                                                      bool) {});
 
+      /* Get the package directory. */
+      const Jhm::TTree &GetPackageDir() const;
+
       /* Set the package directory. An explicit call, because TService statically constructs... */
-      void SetPackageDir(const Jhm::TAbsBase &package_dir);
+      void SetPackageDir(const Jhm::TTree &package_dir);
 
       /* Uninstall a package. Simply removes it from the installed package set, which means when the last reference
          goes away, the package will be dlclosed. This is identical to Unload as packages can't have uninstallers at
@@ -96,7 +83,7 @@ namespace Orly {
       protected:
 
       private:
-      Jhm::TAbsBase PackageDir;
+      Jhm::TTree PackageDir;
 
       //TODO: Engineer the lock out of existence as much as possible.
       mutable std::shared_timed_mutex InstallLock;

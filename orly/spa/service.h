@@ -65,13 +65,13 @@ namespace Orly {
       ~TService();
 
       /* TODO */
-      void CreateSession(const Base::TOpt<TUUID> &acct, int ttl, TUUID &out);
+      void CreateSession(const Base::TOpt<Base::TUuid> &acct, int ttl, Base::TUuid &out);
 
       /* TODO */
-      void CreatePrivatePov(const TUUID &session, const Base::TOpt<TUUID> &parent, int ttl, bool paused, TUUID &out);
+      void CreatePrivatePov(const Base::TUuid &session, const Base::TOpt<Base::TUuid> &parent, int ttl, bool paused, Base::TUuid &out);
 
       /* TODO */
-      void CreateSharedPov(const Base::TOpt<TUUID> &parent, int ttl, bool paused, TUUID &out);
+      void CreateSharedPov(const Base::TOpt<Base::TUuid> &parent, int ttl, bool paused, Base::TUuid &out);
 
       /* TODO */
       void Finalize();
@@ -95,17 +95,17 @@ namespace Orly {
       /* TODO */
       void Do(
           const std::shared_ptr<Package::TFuncHolder> &func,
-          const TUUID &private_pov,
+          const Base::TUuid &private_pov,
           TOrlyArg &orly_args,
           Var::TVar &var
         );
 
       /* TODO */
       void Poll(
-          const TUUID &session,
-          const std::unordered_set<TUUID> &notifiers,
+          const Base::TUuid &session,
+          const std::unordered_set<Base::TUuid> &notifiers,
           Base::TOpt<std::chrono::milliseconds> timeout,
-          std::unordered_map<TUUID, FluxCapacitor::TNotifierState> &out
+          std::unordered_map<Base::TUuid, FluxCapacitor::TNotifierState> &out
         );
 
       /* Calls the given function in the given package within the given private point of view with the given arguments.
@@ -115,12 +115,12 @@ namespace Orly {
          detect this case. */
       void Try(
           const Package::TFuncHolder::TPtr &func,
-          const TUUID &private_pov,
-          const std::unordered_set<TUUID> &notify_povs,
+          const Base::TUuid &private_pov,
+          const std::unordered_set<Base::TUuid> &notify_povs,
           const TOrlyArg &orly_args,
           Atom::TCore &result_core,
           Atom::TSuprena &result_arena,
-          std::unordered_map<TUUID, TUUID> &notifiers
+          std::unordered_map<Base::TUuid, Base::TUuid> &notifiers
         );
 
       /* TODO */
@@ -137,8 +137,8 @@ namespace Orly {
       void OnPovFail(FluxCapacitor::TPov *pov);
 
       //TODO: Should really be const functions on the service...
-      bool RunTest(const TUUID &session, const TUUID &spov_outer, const Package::TTestCase &test, bool verbose);
-      bool RunTestBlock(const TUUID &session, const TUUID &spov, const Package::TTestBlock &test_block, bool verbose);
+      bool RunTest(const Base::TUuid &session, const Base::TUuid &spov_outer, const Package::TTestCase &test, bool verbose);
+      bool RunTestBlock(const Base::TUuid &session, const Base::TUuid &spov, const Package::TTestBlock &test_block, bool verbose);
 
       Package::TManager PackageManager;
 

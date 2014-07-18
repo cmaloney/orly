@@ -18,7 +18,7 @@
 
 #include <orly/spa/flux_capacitor/sync.h>
 
-#include <base/os_error.h>
+#include <util/error.h>
 
 using namespace Base;
 using namespace Orly::Spa::FluxCapacitor;
@@ -29,9 +29,9 @@ TSyncException TSyncExcept;
 
 TSync::TSync() : KeyInitialized(false), RwLockInitialized(false) {
   try {
-    TOsError::IfNe0(HERE, pthread_key_create(&Key, TLocal::DeleteLocal));
+    Util::IfNe0(pthread_key_create(&Key, TLocal::DeleteLocal));
     KeyInitialized = true;
-    TOsError::IfNe0(HERE, pthread_rwlock_init(&RwLock, 0));
+    Util::IfNe0(pthread_rwlock_init(&RwLock, 0));
     RwLockInitialized = true;
   } catch (...) {
     Cleanup();
@@ -69,7 +69,7 @@ void TSync::TLocal::IncrLockCount(bool is_exclusive) {
   }
   #endif
   if (!LockCount) {
-    TOsError::IfNe0(HERE, (is_exclusive ? pthread_rwlock_wrlock : pthread_rwlock_rdlock)(&Sync.RwLock));
+    Util::IfNe0((is_exclusive ? pthread_rwlock_wrlock : pthread_rwlock_rdlock)(&Sync.RwLock));
     IsExclusive = is_exclusive;
   }
   ++LockCount;
@@ -87,7 +87,7 @@ TSync::TLocal *TSync::TLocal::GetLocal(const TSync &sync) {
   if (!local) {
     local = new TLocal(sync);
     try {
-      TOsError::IfNe0(HERE, pthread_setspecific(sync.Key, local));
+      Util::IfNe0(pthread_setspecific(sync.Key, local));
     } catch (...) {
       delete local;
       throw;

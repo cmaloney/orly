@@ -18,33 +18,21 @@
 
 #pragma once
 
-#include <sys/stat.h>
 #include <time.h>
 
 #include <ostream>
 #include <string>
 
 #include <base/opt.h>
-#include <util/error.h>
 
 namespace Jhm {
 
   /* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
-  inline Base::TOpt<timespec> TryGetTimestamp(const std::string &name) {
-    struct stat st;
-    if (stat(name.c_str(), &st) != 0) {
-      if (errno == ENOENT) {
-        return Base::TOpt<timespec>::GetUnknown();
-      }
-      Util::ThrowSystemError(errno);
-    }
-    return st.st_mtim;
-  }
-  inline timespec GetTimestamp(const std::string &name) {
-    struct stat st;
-    Util::IfLt0(stat(name.c_str(), &st));
-    return st.st_mtim;
-  }
+  Base::TOpt<timespec> TryGetTimestamp(const std::string &name);
+
+  timespec GetTimestamp(const std::string &name);
+
+  timespec GetTimestampSearchingPath(const std::string &name);
 
   inline bool IsNewer(const timespec &lhs, const timespec &rhs) {
     return lhs.tv_sec > rhs.tv_sec || (lhs.tv_sec == rhs.tv_sec && lhs.tv_nsec > rhs.tv_nsec);

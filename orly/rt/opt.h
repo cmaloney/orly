@@ -20,7 +20,6 @@
 
 #include <cassert>
 
-#include <base/error.h>
 #include <base/opt.h>  // For conversion from Base::TOpt to Rt::TOpt
 #include <orly/rt/runtime_error.h>
 
@@ -28,17 +27,7 @@ namespace Orly {
 
   namespace Rt {
 
-    class TDerefUnknownError
-        : public TRuntimeError,
-          public Base::TFinalError<TDerefUnknownError> {
-      public:
-
-      /* Constructor. */
-      TDerefUnknownError(const Base::TCodeLocation &loc) {
-        PostCtor(loc, "Attempted to perform 'known' operation on an unknown optional value.");
-      }
-
-    };  // TPastEndError
+    DEFINE_ERROR(TDerefUnknownError, TRuntimeError, "Attempted to perform 'known' operation on an unknown optional value.");
 
     template <typename _TVal>
     class TOpt {

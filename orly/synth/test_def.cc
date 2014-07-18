@@ -27,7 +27,6 @@
 #include <orly/synth/new_expr.h>
 #include <orly/synth/test_case_block.h>
 #include <orly/synth/with_clause.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;

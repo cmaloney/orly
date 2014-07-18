@@ -56,6 +56,14 @@ class expr_visitor_t
   virtual void operator()(const TThat *)        const {}
   virtual void operator()(const TUnknown *)     const {}
   virtual void operator()(const TUserId *)      const {}
+  // Trig
+  virtual void operator()(const TCos *that)             const { Unary(that); }
+  virtual void operator()(const TSin *that)             const { Unary(that); }
+  virtual void operator()(const TTan *that)             const { Unary(that); }
+  virtual void operator()(const TAcos *that)            const { Unary(that); }
+  virtual void operator()(const TAsin *that)            const { Unary(that); }
+  virtual void operator()(const TAtan *that)            const { Unary(that); }
+  virtual void operator()(const TAtan2 *that)           const { Binary(that); }
   // Unary
   virtual void operator()(const TAddrMember *that)      const { Unary(that); }
   virtual void operator()(const TAddrOf *that)          const { Unary(that); }
@@ -274,6 +282,14 @@ class expr_visitor_t
     virtual void operator()(const TThat *)        const {}
     virtual void operator()(const TUnknown *)     const {}
     virtual void operator()(const TUserId *)      const {}
+    // Trig
+    virtual void operator()(const TCos *that)             const { Unary(that); }
+    virtual void operator()(const TSin *that)             const { Unary(that); }
+    virtual void operator()(const TTan *that)             const { Unary(that); }
+    virtual void operator()(const TAcos *that)            const { Unary(that); }
+    virtual void operator()(const TAsin *that)            const { Unary(that); }
+    virtual void operator()(const TAtan *that)            const { Unary(that); }
+    virtual void operator()(const TAtan2 *that)           const { Binary(that); }
     // Unary
     virtual void operator()(const TAddrMember *that)      const { Unary(that); }
     virtual void operator()(const TAddrOf *that)          const { Unary(that); }

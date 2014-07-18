@@ -21,6 +21,7 @@
 #include <cassert>
 
 #include <base/class_traits.h>
+#include <base/mini_cache.h>
 #include <orly/atom/kit2.h>
 #include <orly/atom/suprena.h>
 #include <orly/indy/disk/util/engine.h>
@@ -176,9 +177,7 @@ namespace Orly {
           assert(this);
           AsyncTrigger.Wait();
           if (MaxLocalCacheSize > 0) {
-            for (const auto &cache_slot : LocalBufCache) {
-              Cache->Release(cache_slot.second.first, cache_slot.first);
-            }
+            /* do-little: LocalBufCache releases cache state correctly */
           } else if (MainSlot) {
             Cache->Release(MainSlot, LoadedPageId);
           }
@@ -499,22 +498,16 @@ namespace Orly {
             }
           }
           if (MaxLocalCacheSize > 0) {
-            auto pos = LocalBufCache.find(page_id);
-            if (pos != LocalBufCache.end()) {
-              MainSlot = pos->second.first;
-              DataSlot = pos->second.second;
+            const TSlotStruct *pos = LocalBufCache.TryGet(page_id);
+            if (pos) {
+              MainSlot = pos->MainSlot;
+              DataSlot = pos->DataSlot;
               BufData = DataSlot->KnownGetData(Cache);
             } else {
-              if (LocalBufCache.size() >= MaxLocalCacheSize) {
-                const auto &cache_slot = LocalBufCache.begin();
-                Cache->Release(cache_slot->second.first, cache_slot->first);
-                LocalBufCache.erase(LocalBufCache.begin());
-              }
               try {
                 MainSlot = Cache->Get(page_id, DataSlot);
                 BufData = DataSlot->SyncGetData(CodeLocation, Priority, Cache, BufKind, UtilSrc, page_id, SyncTrigger);
-                //SyncTrigger.Wait();
-                LocalBufCache.emplace(page_id, std::make_pair(MainSlot, DataSlot));
+                LocalBufCache.Emplace(std::forward_as_tuple(page_id), std::forward_as_tuple(page_id, Cache, MainSlot, DataSlot));
               } catch (const Disk::TDiskFailure &err) {
                 MainSlot = nullptr;
                 DataSlot = nullptr;
@@ -532,7 +525,6 @@ namespace Orly {
             try {
               MainSlot = Cache->Get(page_id, DataSlot);
               BufData = DataSlot->SyncGetData(CodeLocation, Priority, Cache, BufKind, UtilSrc, page_id, SyncTrigger);
-              //SyncTrigger.Wait();
             } catch (const Disk::TDiskFailure &err) {
               MainSlot = nullptr;
               DataSlot = nullptr;
@@ -586,9 +578,25 @@ namespace Orly {
         const char *BufData;
 
         /* TODO */
-        std::unordered_map<size_t,
-          std::pair<typename Util::TCache<PhysicalCachePageSize>::TSlot */*main_slot*/,
-                    typename Util::TCache<PhysicalCachePageSize>::TSlot */*data_slot*/>> LocalBufCache; /* block_id -> buf cache slot */
+        struct TSlotStruct {
+          TSlotStruct(size_t page_id,
+                      Util::TCache<PhysicalCachePageSize> *cache,
+                      typename Util::TCache<PhysicalCachePageSize>::TSlot *main_slot,
+                      typename Util::TCache<PhysicalCachePageSize>::TSlot *data_slot)
+              : PageId(page_id),
+                Cache(cache),
+                MainSlot(main_slot),
+                DataSlot(data_slot) {}
+          ~TSlotStruct() {
+            assert(this);
+            Cache->Release(MainSlot, PageId);
+          }
+          const size_t PageId;
+          Util::TCache<PhysicalCachePageSize> *const Cache;
+          typename Util::TCache<PhysicalCachePageSize>::TSlot *const MainSlot;
+          typename Util::TCache<PhysicalCachePageSize>::TSlot *const DataSlot;
+        };
+        Base::TMiniCache<MaxLocalCacheSize, size_t, TSlotStruct> LocalBufCache;
 
         /* TODO */
         size_t FetchCount;

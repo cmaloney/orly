@@ -19,13 +19,15 @@
 #include <orly/synth/obj_ctor.h>
 
 #include <cassert>
+#include <iomanip>
 
+#include <base/as_str.h>
 #include <base/assert_true.h>
 #include <orly/pos_range.h>
+#include <orly/synth/context.h>
 #include <orly/synth/cst_utils.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/expr/obj.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -35,17 +37,18 @@ TObjCtor::TObjCtor(const TExprFactory *expr_factory, const Package::Syntax::TObj
   assert(expr_factory);
   try {
     ForEach<Package::Syntax::TObjMember>(ObjCtor->GetOptObjMemberList(),
-        [this, expr_factory](const Package::Syntax::TObjMember *obj_member) -> bool {
+                                         [ this, expr_factory ](const Package::Syntax::TObjMember * obj_member)->bool {
           auto name = TName(obj_member->GetName());
           auto result = Members.insert(std::make_pair(name, expr_factory->NewExpr(obj_member->GetExpr())));
           if (!result.second) {
-            Tools::Nycr::TError::TBuilder(name.GetPosRange())
-                << "duplicate object member name \"" << name.GetText() << '"';
-            Tools::Nycr::TError::TBuilder((result.first)->first.GetPosRange())
-                << "  first specified here";
+            GetContext().AddError(name.GetPosRange(),
+                                  Base::AsStr("duplicate object member name ",
+                                              std::quoted(name.GetText()),
+                                              result.first->first.GetPosRange(),
+                                              " first specified here"));
           }
           return true;
-        });
+    });
   } catch (...) {
     Cleanup();
     throw;

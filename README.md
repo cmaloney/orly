@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="static/branding/orly.png?raw=true" height="100" alt="Orly" />
+</p>
+
+[![tip for next commit](http://tip4commit.com/projects/860.svg)](http://tip4commit.com/projects/860)
+
 This is the repository for the Orly (pronounced "Oh Really") non-relational database. It's meant to be fast and to scale for billions of users.  Orly provides a single path to data and will eliminate our need for memcache due to its speed and high concurrency.
 
 ## Orly features:

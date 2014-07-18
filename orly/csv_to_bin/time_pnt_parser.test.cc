@@ -1,6 +1,6 @@
-/* <orly/code_gen/util.h>
+/* <orly/csv_to_bin/time_pnt_parser.test.cc>
 
-   Useful functions for code generation.
+   Unit test for <orly/csv_to_bin/time_pnt_parser.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,17 +16,13 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
+#include <orly/csv_to_bin/time_pnt_parser.h>
 
-#pragma once
-namespace Orly {
-  namespace CodeGen {
+#include <test/kit.h>
 
-    template <typename TContainer, typename TFunc>
-    void All(TContainer container, const TFunc &func) {
-      for(auto &it: container) {
-        func(it);
-      }
-    }
+using namespace std;
+using namespace Orly::CsvToBin;
 
-  } // CodeGen
-} // Orly
+FIXTURE(Typical) {
+
+}

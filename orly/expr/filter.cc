@@ -20,9 +20,9 @@
 
 #include <orly/error.h>
 #include <orly/expr/visitor.h>
+#include <orly/synth/context.h>
 #include <orly/type/unwrap.h>
 #include <orly/type/unwrap_visitor.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Expr;
@@ -67,8 +67,7 @@ Type::TType TFilter::GetType() const {
   Type::TType type;
   GetLhs()->GetType().Accept(TFilterTypeVisitor(type, GetPosRange()));
   if (Type::Unwrap(GetRhs()->GetType()) != Type::TBool::Get()) {
-    Tools::Nycr::TError::TBuilder(GetPosRange())
-      << "Predicate expression for filter must evaluate to a bool";
+    Synth::GetContext().AddError(GetPosRange(), "Predicate expression for filter must evaluate to a bool");
   }
   return type;
 }

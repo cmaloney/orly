@@ -40,6 +40,7 @@
 #include <strm/past_end.h>
 #include <util/error.h>
 #include <util/io.h>
+#include <util/path.h>
 
 using namespace std;
 using namespace chrono;
@@ -421,7 +422,7 @@ TServer::TCmd::TCmd()
       UpdatePoolSize(100000UL),
       UpdateEntryPoolSize(200000UL),
       DiskBufferBlockPoolSize(7500UL),
-      PackageDirectory("") {
+      PackageDirectory(GetCwd()) {
   /* TEMP DEBUG : computing defaults for settings */ {
     std::stringstream ss;
     const size_t page_size = getpagesize();
@@ -1192,11 +1193,6 @@ TServer::~TServer() {
   Fiber::TFrame::LocalFramePool->Free(Frame);
 }
 
-const string &TServer::GetPackageDir() const {
-  assert(this);
-  return Cmd.PackageDirectory;
-}
-
 TWs::TSessionPin *TServer::NewSession() {
   assert(this);
   assert(DurableManager);
@@ -1623,9 +1619,11 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
     ~TJobRunner() {}
 
     void Run() {
+      double pool_thresh = 0.8;
       void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
       void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
       std::unordered_map<Base::TUuid, Base::TUuid> index_id_remapper;
+      std::vector<size_t> local_gen_id_vec;
       const size_t orig_seq_num = SeqNum;
       size_t last_dot = File.find_last_of('.');
       if (last_dot == std::string::npos) {
@@ -1643,11 +1641,38 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
           syslog(LOG_ERR, "Invalid import file [%s]", File.c_str());
           return;
         }
-        TMemoryLayer *mem_layer = new TMemoryLayer(Server->RepoManager.get());
+        std::unique_ptr<TMemoryLayer> mem_layer = std::make_unique<TMemoryLayer>(Server->RepoManager.get());
         try {
           size_t num_entry_inserted = 0UL;
           auto entry_sort_func = [](const TUpdate::TEntry *lhs, const TUpdate::TEntry *rhs) {
             return lhs->GetEntryKey() <= rhs->GetEntryKey();
+          };
+          auto flush_mem_layer = [&]() {
+            if (num_entry_inserted > 0) {
+              /* sort and fix the mem_layer */ {
+                std::vector<TUpdate::TEntry *> entry_vec;
+                entry_vec.reserve(num_entry_inserted);
+                for (TMemoryLayer::TUpdateCollection::TCursor update_csr(mem_layer->GetUpdateCollection()); update_csr; ++update_csr) {
+                  for (TUpdate::TEntryCollection::TCursor entry_csr(update_csr->GetEntryCollection()); entry_csr; ++entry_csr) {
+                    entry_vec.push_back(&*entry_csr);
+                  }
+                }
+                std::sort(entry_vec.begin(), entry_vec.end(), entry_sort_func);
+                for (auto entry : entry_vec) {
+                  mem_layer->ImporterAppendEntry(entry);
+                }
+              }
+              /* write the mem layer to disk in the global repo */ {
+                auto global_repo = Server->GetGlobalRepo();
+                size_t num_keys = 0UL;
+                TSequenceNumber saved_low_seq = 0UL, saved_high_seq = 0UL;
+                size_t gen_id = global_repo->WriteFile(mem_layer.get(), StorageSpeed, saved_low_seq, saved_high_seq, num_keys, 0UL);
+                syslog(LOG_INFO, "written file id=[%ld] with [%ld] kvs\n", gen_id, num_entry_inserted);
+                mem_layer = std::make_unique<TMemoryLayer>(Server->RepoManager.get());
+                num_entry_inserted = 0UL;
+                local_gen_id_vec.push_back(gen_id);
+              }
+            }
           };
           /* read file */ {
             Io::TBinaryInputOnlyStream strm(producer);
@@ -1746,40 +1771,22 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
                 ++pos_in_vec;
                 ++pos_in_vec;
               }
+              if (TUpdate::GetUpdatePoolUsedPct() > pool_thresh || TUpdate::GetUpdateEntryPoolUsedPct() > pool_thresh) {
+                flush_mem_layer();
+              }
               TUpdate *update = new TUpdate(op_by_key, tx_meta, TKey(tx_id, &arena, lhs_state_alloc), lhs_state_alloc);
               update->SetSequenceNumber(SeqNum);
               ++SeqNum;
               mem_layer->ImporterAppendUpdate(update);
+              num_entry_inserted += num_kv;
             }
             producer.reset();
           } /* finish reading file */
-          /* sort and fix the mem_layer */ {
-            std::vector<TUpdate::TEntry *> entry_vec;
-            entry_vec.reserve(num_entry_inserted);
-            for (TMemoryLayer::TUpdateCollection::TCursor update_csr(mem_layer->GetUpdateCollection()); update_csr; ++update_csr) {
-              for (TUpdate::TEntryCollection::TCursor entry_csr(update_csr->GetEntryCollection()); entry_csr; ++entry_csr) {
-                entry_vec.push_back(&*entry_csr);
-              }
-            }
-            std::sort(entry_vec.begin(), entry_vec.end(), entry_sort_func);
-            for (auto entry : entry_vec) {
-              mem_layer->ImporterAppendEntry(entry);
-            }
-          }
-          /* write the mem layer to disk in the global repo */ {
-            auto global_repo = Server->GetGlobalRepo();
-
-            size_t num_keys = 0UL;
-            TSequenceNumber saved_low_seq = 0UL, saved_high_seq = 0UL;
-            size_t gen_id = global_repo->WriteFile(mem_layer, StorageSpeed, saved_low_seq, saved_high_seq, num_keys, 0UL);
-            delete mem_layer;
-            mem_layer = nullptr;
-            Sem.Pop();
-            std::lock_guard<std::mutex> lock(Mut);
-            GenIdVec.push_back(gen_id);
-          }
+          flush_mem_layer();
+          Sem.Pop();
+          std::lock_guard<std::mutex> lock(Mut);
+          GenIdVec.insert(GenIdVec.end(), local_gen_id_vec.begin(), local_gen_id_vec.end());
         } catch (const exception &ex) {
-          delete mem_layer;
           syslog(LOG_ERR, "Error while trying to import file %s : %s", File.c_str(), ex.what());
           return;
         }

@@ -38,19 +38,19 @@ void TCompileCFamily::AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std:
   }
   out << Join(options, ' ')
       // Add the src and out directories as sources of includes.
-      << " -I" << env.GetSrc() << " -I" << env.GetOut()
+      << " -I" << *env.GetSrc() << " -I" << *env.GetOut()
          // Let the code know where the root of the tree was (So it can remove the SRC prefix if needed)
-      << " -D'SRC_ROOT=\"" << env.GetSrc() << "/\"'";
+      << " -D'SRC_ROOT=\"" << *env.GetSrc() << "/\"'";
 }
 
 static TRelPath GetOutputName(const TRelPath &input, bool is_cpp) {
-  assert(EndsWith(input.GetName().GetExtensions(), {is_cpp ? "cc" : "c"}));
-  return input.SwapLastExtension("o");
+  assert(input.Path.EndsWith({is_cpp ? "cc" : "c"}));
+  return TRelPath(SwapExtension(TPath(input.Path), {"o"}));
 }
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output, bool is_cpp) {
-  if (EndsWith(output.GetName().GetExtensions(), {"o"})) {
-    return output.SwapLastExtension(is_cpp ? "cc" : "c");
+  if (output.Path.EndsWith({"o"})) {
+    return TRelPath(SwapExtension(TPath(output.Path), {is_cpp ? "cc" : "c"}));
   } else {
     return TOpt<TRelPath>();
   }
@@ -108,13 +108,7 @@ string TCompileCFamily::GetCmd() {
   }
 
   // add output, input filenames
-  oss << " -o" << GetSoleOutput()->GetPath() << ' ';
-  TFile *input = GetInput();
-  if (input->IsSrc()) {
-    oss << input->GetPath().GetRelPath();
-  } else {
-    oss << input->GetPath();
-  }
+  oss << " -o" << GetSoleOutput()->GetPath() << ' ' << GetInput()->GetPath();
 
   // Tell GCC we're only compiling to a .o
   oss << " -c ";
@@ -123,6 +117,14 @@ string TCompileCFamily::GetCmd() {
   AddStandardArgs(GetInput(), IsCpp, Env, oss);
 
   return oss.str();
+}
+
+
+timespec TCompileCFamily::GetCmdTimestamp() const {
+  static timespec gcc_timestamp = GetTimestampSearchingPath("gcc");
+  static timespec gpp_timestamp = GetTimestampSearchingPath("g++");
+
+  return IsCpp ? gpp_timestamp : gcc_timestamp;
 }
 
 bool TCompileCFamily::IsComplete() {
@@ -138,7 +140,7 @@ bool TCompileCFamily::IsComplete() {
     // TODO: We really only need the TRelPaths here, not jumping all the way to the file objects.
     TFile *include_file = Env.TryGetFileFromPath(include);
     if (include_file) {
-      filtered_includes.push_back(include_file->GetPath().AsStr());
+      filtered_includes.push_back(AsStr(include_file->GetPath()));
     }
   }
 
@@ -149,7 +151,7 @@ bool TCompileCFamily::IsComplete() {
 }
 
 TCompileCFamily::TCompileCFamily(TEnv &env, TFile *in_file, bool is_cpp)
-    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetPath().GetRelPath(), is_cpp))}),
+    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath(), is_cpp))}),
       Env(env),
       IsCpp(is_cpp),
-      Need(Env.GetFile(GetInput()->GetPath().GetRelPath().AddExtension({"dep"}))) {}
+      Need(Env.GetFile(TRelPath(AddExtension(TPath(GetInput()->GetRelPath().Path), {"dep"})))) {}

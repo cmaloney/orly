@@ -33,13 +33,13 @@ FIXTURE(GenObjHeader) {
   //TODO: Should really make sure the genned code is valid here, but oh well.
   //A basic object
   auto obj1 = TObj::Get({{"a", TInt::Get()}, {"b", TBool::Get()}});
-  GenObjHeader(Jhm::TAbsBase("/tmp/"), obj1);
+  GenObjHeader("/tmp/", obj1);
 
   //An object full of complex types.
   auto obj2 = TObj::Get({{"a", TDict::Get(TInt::Get(), TBool::Get())}, {"b", TSet::Get(TBool::Get())}, {"c", TList::Get(TInt::Get())}});
-  GenObjHeader(Jhm::TAbsBase("/tmp/"), obj2);
+  GenObjHeader("/tmp/", obj2);
 
   //An object with more interesting variable
   auto obj3 = TObj::Get({{"mutable", obj2}, {"irtual", TInt::Get()}, {"float", TInt::Get()}});
-  GenObjHeader(Jhm::TAbsBase("/tmp/"), obj3);
+  GenObjHeader("/tmp/", obj3);
 }

@@ -18,6 +18,7 @@
 
 #include <orly/client/program/parse_stmt.h>
 
+#include <iomanip>
 #include <memory>
 
 #include <base/thrower.h>
@@ -27,11 +28,11 @@ using namespace std;
 using namespace Base;
 using namespace Orly::Client::Program;
 
-static void ForStmt(const TProgram *program, const TForStmt &cb) {
-  ThrowSyntaxErrors();
-  assert(program);
+static void ForStmt(const Tools::Nycr::TContextBuilt<TProgram> &program, const TForStmt &cb) {
+  assert(&program);
   assert(&cb);
-  auto stmt = dynamic_cast<const TStmt *>(program->GetTop());
+  ThrowSyntaxErrors(program);
+  auto stmt = dynamic_cast<const TStmt *>(program.Get()->GetTop());
   if (!stmt) {
     DEFINE_ERROR(error_t, runtime_error, "not a stmt");
     THROW_ERROR(error_t);
@@ -40,9 +41,9 @@ static void ForStmt(const TProgram *program, const TForStmt &cb) {
 }
 
 void Orly::Client::Program::ParseStmtFile(const char *path, const TForStmt &cb) {
-  ForStmt(TProgram::ParseFile(path).get(), cb);
+  ForStmt(TProgram::ParseFile(path), cb);
 }
 
 void Orly::Client::Program::ParseStmtStr(const char *str, const TForStmt &cb) {
-  ForStmt(TProgram::ParseStr(str).get(), cb);
+  ForStmt(TProgram::ParseStr(str), cb);
 }

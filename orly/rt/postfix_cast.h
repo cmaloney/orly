@@ -24,14 +24,15 @@
 #include <string>
 #include <utility>
 
+#include <base/as_str.h>
 #include <base/chrono.h>
 #include <base/class_traits.h>
+#include <base/uuid.h>
 #include <orly/rt/containers.h>
 #include <orly/rt/generator.h>
 #include <orly/rt/mutable.h>
 #include <orly/rt/opt.h>
 #include <orly/rt/runtime_error.h>
-#include <orly/uuid.h>
 
 namespace Orly {
 
@@ -163,12 +164,12 @@ namespace Orly {
 
     /* TODO */
     template <>
-    struct CastAs<TUUID, std::string> {
+    struct CastAs<Base::TUuid, std::string> {
       NO_CONSTRUCTION(CastAs);
 
       /* TODO */
-      static TUUID Do(const std::string &val) {
-        return TUUID(val.c_str());
+      static Base::TUuid Do(const std::string &val) {
+        return Base::TUuid(val.c_str());
       }
 
     };  // CastAs<double, int64_t>
@@ -176,13 +177,11 @@ namespace Orly {
 
     /* TODO */
     template <>
-    struct CastAs<std::string, TUUID> {
+    struct CastAs<std::string, Base::TUuid> {
       NO_CONSTRUCTION(CastAs);
 
-      /* TODO */
-      static std::string Do(const TUUID &val) {
-        assert(&val);
-        return val.AsString();
+      static std::string Do(const Base::TUuid &val) {
+        return Base::AsStr(val);
       }
 
     };  // CastAs<double, int64_t>

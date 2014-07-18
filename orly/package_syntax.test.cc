@@ -57,7 +57,7 @@ FIXTURE(Take) {
     "    OptDefSeq -> NoDefSeq;\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }
 FIXTURE(While) {
   auto cst = TPackage::ParseStr("x = [1..5] while (that < 3);");
@@ -102,5 +102,5 @@ FIXTURE(While) {
     "    OptDefSeq -> NoDefSeq;\n"
     "  }\n"
     "}\n";
-  EXPECT_TRUE(cst->Test(ParseNode(ts).get(), 0));
+  EXPECT_TRUE(cst.Get()->Test(ParseNode(ts).get(), 0));
 }

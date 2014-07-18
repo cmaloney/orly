@@ -7,7 +7,6 @@
 #include <unistd.h>
 
 #include <base/thrower.h>
-#include <tools/nycr/error.h>
 #include <tools/nycr/syntax/nycr.cst.h>
 
 using namespace std;
@@ -28,15 +27,16 @@ int main(int argc, char *argv[]) {
     if (optind < argc - 1) {
       THROW << "multiple compilands not allowed";
     }
-    auto cst = Tools::Nycr::Syntax::TNycr::ParseFile(argv[optind]);
-    if (!Tools::Nycr::TError::GetFirstError()) {
-      assert(cst);
-      cst->Write(cout, 0, 0);
+    auto ctx = Tools::Nycr::Syntax::TNycr::ParseFile(argv[optind]);
+    if (!ctx.HasErrors()) {
+      assert(ctx.Get());
+      ctx.Get()->Write(cout, 0, 0);
       result = EXIT_SUCCESS;
     } else {
-      for (const Tools::Nycr::TError *error = Tools::Nycr::TError::GetFirstError(); error; error = error->GetNextError()) {
-        cerr << error->GetPosRange() << ' ' << error->GetMsg() << endl;
-      }
+      ctx.ForEachError([] (const Tools::Nycr::TPosRange &pos, const string &msg) {
+        cerr << pos << ' ' << msg << endl;
+        return true;
+      });
       result = EXIT_FAILURE;
     }
   } catch (const exception &ex) {

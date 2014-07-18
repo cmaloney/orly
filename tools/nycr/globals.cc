@@ -1,6 +1,4 @@
-/* <base/make_dir.h>
-
-   Make a directory recursively.
+/* <tools/nycr/globals.cc>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,12 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#pragma once
+#include <tools/nycr/globals.h>
 
-namespace Base {
-
-  /* Makes a directory, recursively if needed.  Throws if the directory
-     cannot be made. Does not error if the directory  already exists. */
-  void MakeDirs(const char *path);
-
-}  // Base
+Tools::Nycr::TContext &Tools::Nycr::GetContext() {
+  static Tools::Nycr::TContext ctx;
+  return ctx;
+}

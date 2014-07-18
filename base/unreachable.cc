@@ -20,10 +20,9 @@
 
 #include <iostream>
 
-#include <base/error.h>
 #include <base/thrower.h>
 #include <server/daemonize.h>
-
+#include <util/error.h>
 
 using namespace Base;
 
@@ -40,6 +39,6 @@ void Base::Unreachable(const TCodeLocation &loc) {
   Server::BacktraceToLog();
   TThrower<unreachable_t>{loc};
 #else
-  TError::Abort(loc);
+  Util::Abort(loc);
 #endif
 }

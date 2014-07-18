@@ -18,10 +18,11 @@
 
 #include <orly/synth/where_expr.h>
 
+#include <base/as_str.h>
 #include <base/assert_true.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -115,5 +116,6 @@ void TWhereExpr::TLocalDefFactory::OnTopLevel(const char *desc, const TPosRange 
   assert(this);
   assert(desc);
   assert(&pos_range);
-  Tools::Nycr::TError::TBuilder(pos_range) << desc << " is not allowed within a where clause";
+
+  GetContext().AddError(pos_range, Base::AsStr(desc," is not allowed within a where clause"));
 }

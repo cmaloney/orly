@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <orly/client/program/program.program.cst.h>
+#include <tools/nycr/context.h>
 
 namespace Orly {
 
@@ -27,7 +27,7 @@ namespace Orly {
     namespace Program {
 
       /* TODO */
-      void ThrowSyntaxErrors();
+      void ThrowSyntaxErrors(const Tools::Nycr::TContext &ctx);
 
     }  // Program
 

@@ -25,26 +25,11 @@ using namespace Base;
 using namespace Orly;
 using namespace Orly::Indy;
 
-#if 0
-__thread TContext::TKeyCursorCollection::TImpl *TContext::KeyCursorCollection;
-
-static TContext::TKeyCursorCollection::TImpl *CheckConstructKeyCursor(TContext *context) {
-  if (!TContext::KeyCursorCollection) {
-    TContext::KeyCursorCollection = new TContext::TKeyCursorCollection::TImpl(context);
-  }
-  return TContext::KeyCursorCollection;
-}
-
-static void CheckDestroyKeyCursor() {
-  if (TContext::KeyCursorCollection && TContext::KeyCursorCollection->IsEmpty()) {
-    delete TContext::KeyCursorCollection;
-    TContext::KeyCursorCollection = nullptr;
-  }
-}
-#endif
+auto KeyCursorCollector = Fiber::MakeFiberLocal<TContext::TKeyCursorCollector>();
 
 TContext::TContext(const Indy::L0::TManager::TPtr<TRepo> &private_repo, Atom::TCore::TExtensibleArena *arena)
-    : TContextBase(arena), KeyCursorCollection(this), WalkerCount(0UL) {
+    : TContextBase(arena), WalkerCount(0UL) {
+  assert(KeyCursorCollector->KeyCursorCollection.IsEmpty());
   Indy::L0::TManager::TPtr<L0::TManager::TRepo> cur_repo = private_repo;
   RepoTree.push_back(make_pair(private_repo, make_unique<TRepo::TView>(private_repo)));
   for (;cur_repo->GetParentRepo(); cur_repo = *cur_repo->GetParentRepo()) {
@@ -53,14 +38,16 @@ TContext::TContext(const Indy::L0::TManager::TPtr<TRepo> &private_repo, Atom::TC
   }
 }
 
-TContext::~TContext() {}
+TContext::~TContext() {
+  assert(KeyCursorCollector->KeyCursorCollection.IsEmpty());
+}
 
 Indy::TKey TContext::operator[](const Indy::TIndexKey &index_key) {
   /* check to see if any of our current key cursors are on this key.
      We're doing this as a quick fix to the fact that we've lost which cursor (if any) this key
      originated from in the code gen. (loss of information). */
   const auto &key = index_key.GetKey();
-  for (TKeyCursorCollection::TCursor csr(&KeyCursorCollection); csr; ++csr) {
+  for (TKeyCursorCollection::TCursor csr(&KeyCursorCollector->KeyCursorCollection); csr; ++csr) {
     const Indy::TPresentWalker::TItem &cur_item = csr->GetVal();
     if (Indy::TKey::EqEq(cur_item.Key, cur_item.KeyArena, key.GetCore(), key.GetArena())) {
       /* we found a cursor that is on the key we're looking for. let's just return the result. */
@@ -230,11 +217,7 @@ void TContext::TKeyCursor::Refresh() const {
     if (Csr) {
       Item = Indy::TKey((*Csr).Key, (*Csr).KeyArena);
       /* insert ourselves into the thread local key cursor collection */
-      /* re-think thread_local caching strategy for fibers... */
-      #if 0
-      assert(MyCollection);
-      ContextMembership.Insert(MyCollection);
-      #endif
+      ContextMembership.Insert(&(KeyCursorCollector->KeyCursorCollection));
     } else {
       Valid = false;
     }

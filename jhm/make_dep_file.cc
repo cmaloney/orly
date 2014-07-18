@@ -29,9 +29,6 @@
 #include <base/split.h>
 #include <base/subprocess.h>
 #include <base/thrower.h>
-#include <strm/fd.h>
-#include <strm/in.h>
-#include <strm/bin/in.h>
 
 using namespace Base;
 using namespace std;

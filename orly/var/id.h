@@ -1,6 +1,6 @@
 /* <orly/var/id.h>
 
-   A Orly id, which is Orly::TUUID.
+   A Orly id, which is Base::TUuid.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -18,10 +18,8 @@
 
 #pragma once
 
-#include <iostream>
-
+#include <base/as_str.h>
 #include <orly/rt/runtime_error.h>
-#include <orly/uuid.h>
 #include <orly/var/impl.h>
 
 namespace Orly {
@@ -72,7 +70,7 @@ namespace Orly {
       virtual TId &Xor(const TVar &);
 
       /* TODO */
-      TUUID GetVal() const {
+      Base::TUuid GetVal() const {
         assert(this);
         return Val;
       }
@@ -90,12 +88,12 @@ namespace Orly {
       virtual void Write(std::ostream &) const;
 
       /* TODO */
-      static TVar New(const TUUID &that);
+      static TVar New(const Base::TUuid &that);
 
       private:
 
       /* TODO */
-      TId(const TUUID &that);
+      TId(const Base::TUuid &that);
 
       /* TODO */
       virtual ~TId();
@@ -107,25 +105,25 @@ namespace Orly {
       virtual TVar Copy() const;
 
       /* TODO */
-      TUUID Val;
+      Base::TUuid Val;
 
     };  // TId
 
     /* TODO */
     template <>
-    struct TVar::TDt<TUUID> {
+    struct TVar::TDt<Base::TUuid> {
 
       /* TODO */
-      TUUID static As(const TVar &that) {
+      Base::TUuid static As(const TVar &that) {
         TId *ptr = dynamic_cast<TId *>(that.Impl.get());
         if (ptr) {
           return ptr->GetVal();
         }
-        std::cerr << "Var is a " << that.GetType() << std::endl;
-        throw Rt::TSystemError(HERE, "Trying to cast dynamic Var to id. Var is not an id.");
+        throw Rt::TSystemError(
+            HERE, Base::AsStr("Trying to dynamic cast Var to id. \"", that.GetType(), "\" is not an id.").c_str());
       }
 
-    };  // TDt<TUUID>
+    };  // TDt<Base::TUuid>
 
   }  // Var
 

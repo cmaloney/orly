@@ -222,7 +222,7 @@ namespace Orly {
           const std::function<void(Package::TContext &ctx)> &func,
           const Base::TUuid &parent_pov_id);
 
-      bool RunTestBlock(const TUUID &parent_pov_id,
+      bool RunTestBlock(const Base::TUuid &parent_pov_id,
           const Package::TTestBlock &test_block, bool verbose);
 
       /* Stream out. */

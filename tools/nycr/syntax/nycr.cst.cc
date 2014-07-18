@@ -8,40 +8,47 @@
 
 #include <base/class_traits.h>
 #include <base/thrower.h>
-#include <tools/nycr/error.h>
 #include <tools/nycr/test.h>
 #include <tools/nycr/syntax/nycr.bison.h>
 #include <tools/nycr/syntax/nycr.flex.h>
 
 #include <iostream>
-extern FILE *tools_nycr_syntax__in;
-extern void tools_nycr_syntax__NycrPrepStr(const char *str);
-extern void tools_nycr_syntax__NycrCleanStr();
-
 using namespace std;
 using namespace Tools::Nycr::Syntax;
-extern void tools_nycr_syntax__parse(std::unique_ptr<TNycr> &cst_out);
+extern void *tools_nycr_syntax___scan_string (const char *yy_str ,void *yyscanner );
+extern void tools_nycr_syntax__parse(void *scanner, Tools::Nycr::TContextBuilt<TNycr> &cst_out);
 
-unique_ptr<TNycr> TNycr::ParseFile(const char *path) {
-  tools_nycr_syntax__in = fopen(path, "r");
-  if (!tools_nycr_syntax__in) {
+extern void tools_nycr_syntax__set_in(FILE *in_str ,void *yyscanner );
+extern int tools_nycr_syntax__lex_init(void **ptr_yy_globals);
+extern int tools_nycr_syntax__lex_destroy(void *ptr_yy_globals);
+extern void tools_nycr_syntax__set_extra(yy_extra_t, void *yyscanner);
+
+Tools::Nycr::TContextBuilt<TNycr> TNycr::ParseFile(const char *path) {
+  Tools::Nycr::TContextBuilt<TNycr> ctx;
+  void *scanner;
+  tools_nycr_syntax__lex_init(&scanner);
+  tools_nycr_syntax__set_extra({&ctx, 0, 1, 1}, scanner);
+  FILE *in_file = fopen(path, "r");
+  if (!in_file) {
     THROW << "could not open \"" << path << '\"';
   }
-  ::Tools::Nycr::TError::DeleteEach();
-  std::unique_ptr<TNycr> cst;
-
-  tools_nycr_syntax__parse(cst);
-  return cst;
+  tools_nycr_syntax__set_in(in_file, scanner);
+  tools_nycr_syntax__parse(scanner, ctx);
+  tools_nycr_syntax__lex_destroy(scanner);
+  fclose(in_file);
+  ctx.SortErrors();
+  return ctx;
 }
 
-unique_ptr<TNycr> TNycr::ParseStr(const char *str) {
-  ::Tools::Nycr::TError::DeleteEach();
-  tools_nycr_syntax__NycrPrepStr(str);
-  std::unique_ptr<TNycr> cst;
-
-  tools_nycr_syntax__parse(cst);
-  tools_nycr_syntax__NycrCleanStr();
-  return cst;
+Tools::Nycr::TContextBuilt<TNycr> TNycr::ParseStr(const char *str) {
+  Tools::Nycr::TContextBuilt<TNycr> ctx;
+  void *scanner;  tools_nycr_syntax__lex_init(&scanner);
+  tools_nycr_syntax__set_extra({&ctx, 0, 1, 1}, scanner);
+  tools_nycr_syntax___scan_string(str, scanner);
+  tools_nycr_syntax__parse(scanner, ctx);
+  tools_nycr_syntax__lex_destroy(scanner);
+  ctx.SortErrors();
+  return ctx;
 }
 
 TNycr::~TNycr() = default;

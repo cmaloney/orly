@@ -22,7 +22,6 @@
 
 #include <base/assert_true.h>
 #include <base/class_traits.h>
-#include <jhm/naming.h>
 #include <orly/symbol/package.h>
 #include <orly/synth/def_factory.h>
 #include <orly/synth/scope_and_def.h>
@@ -38,7 +37,7 @@ namespace Orly {
       public:
 
       /* Constructor */
-      TPackage(const Jhm::TNamespace &ns, const Package::Syntax::TPackage *root, bool report_version = false);
+      TPackage(const Package::TName &name, const Package::Syntax::TPackage *root, bool report_version = false);
 
       /* This is the master driver for the build process.  Call this on the root scope and,
          by the time it returns, everything will have been bound and built. */
@@ -48,7 +47,7 @@ namespace Orly {
       void BuildSymbol();
 
       /* TODO */
-      const Jhm::TNamespace &GetNamespace() const;
+      const Package::TName &GetName() const;
 
       /* Return the scope version of the package symbol */
       Symbol::TScope::TPtr GetScopeSymbol() const;
@@ -91,7 +90,7 @@ namespace Orly {
       };  // TTopLevelDefFactory
 
       /* See accesor */
-      Jhm::TNamespace Namespace;
+      Package::TName Name;
 
       /* See accesor */
       Symbol::TPackage::TPtr Symbol;

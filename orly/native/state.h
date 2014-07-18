@@ -27,7 +27,6 @@
 #include <orly/native/type.h>
 #include <orly/rt/mutable.h>
 #include <orly/sabot/state.h>
-#include <orly/uuid.h>
 #include <util/tuple.h>
 
 namespace Orly {
@@ -435,19 +434,6 @@ namespace Orly {
         bool Val;
       };
 
-      class TOrlyUUID final
-          : public TScalar<Sabot::State::TUuid> {
-        public:
-        TOrlyUUID(const Orly::TUUID &val)
-            : TScalar<Sabot::State::TUuid>(Val), Val(val.GetRaw()) {}
-        virtual Sabot::Type::TUuid *GetUuidType(void *type_alloc) const override {
-          return Type::For<Base::TUuid>::GetType(type_alloc);
-        }
-        private:
-        Base::TUuid Val;
-      };
-
-
       /* States used for blob and str. */
       #define ARRAY_OF_SCALARS(name)  \
         class T##name final  \
@@ -516,6 +502,33 @@ namespace Orly {
         const Base::TOpt<TElem> &Val;
 
       };  // TOpt<TElem>
+
+      /* State used for Base::TOpt<TElem>. */
+      template <typename TElem>
+      class TOpt2 final
+          : public TArrayOfSingleStates<Sabot::State::TOpt> {
+        public:
+
+        /* Do-little. */
+        TOpt2(const Rt::TOpt<TElem> &val)
+            : TArrayOfSingleStates<Sabot::State::TOpt>(val.IsKnown() ? 1 : 0), Val(val) {}
+
+        /* See Sabot::State::TOpt. */
+        virtual Sabot::Type::TOpt *GetOptType(void *type_alloc) const override {
+          return Type::For<Base::TOpt<TElem>>::GetOptType(type_alloc);
+        }
+
+        private:
+
+        /* See TArrayOfSingleStates<TElem>. */
+        virtual TAny *NewElem(size_t, void *state_alloc) const override {
+          return Factory<TElem>::New(Val.GetVal(), state_alloc);
+        }
+
+        /* Cached reference to the value we are sabot to. */
+        const Rt::TOpt<TElem> &Val;
+
+      };  // TOpt2<TElem>
 
       /* State used for std::set<TElem>. */
       template <typename TElem, typename TCompare = std::less<TElem>>
@@ -787,15 +800,6 @@ namespace Orly {
       }
     };
 
-    template <>
-    class State::Factory<Orly::TUUID> final {
-      NO_CONSTRUCTION(Factory);
-      public:
-      static TAny *New(const Orly::TUUID &val, void *state_alloc) {
-        return new (state_alloc) TOrlyUUID(val);
-      }
-    };
-
     /* Explicit specialization for Native::TBlob. */
     template <>
     class State::Factory<Native::TBlob> final {
@@ -880,6 +884,19 @@ namespace Orly {
       }
 
     };  // State::Factory<Base::TOpt<TElem>>
+
+    /* Explicit specialization for Base::TOpt<TElem>. */
+    template <typename TElem>
+    class State::Factory<Rt::TOpt<TElem>> final {
+      NO_CONSTRUCTION(Factory);
+      public:
+
+      /* Construct a new state sabot around the value. */
+      static TAny *New(const Rt::TOpt<TElem> &val, void *state_alloc) {
+        return new (state_alloc) TOpt2<TElem>(val);
+      }
+
+    };  // State::Factory<Rt::TOpt<TElem>>
 
     /* Explicit specialization for std::set<TElem>. */
     template <typename TElem, typename TCompare>

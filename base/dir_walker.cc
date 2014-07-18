@@ -23,7 +23,6 @@
 
 #include <sys/stat.h>
 
-#include <base/error.h>
 #include <base/no_default_case.h>
 #include <util/error.h>
 
@@ -118,7 +117,7 @@ bool TDirWalker::Walk(const char *root) {
             case S_IFDIR:
             case S_IFLNK:
             case S_IFREG: {
-              TError::Abort(HERE);
+              Util::Abort(HERE);
               break;
             }
             /* We have no clue what this entry is, but report it anyway. */

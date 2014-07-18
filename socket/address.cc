@@ -27,7 +27,6 @@
 #include <unistd.h>
 
 #include <base/no_default_case.h>
-#include <base/os_error.h>
 #include <base/zero.h>
 #include <io/endian.h>
 #include <socket/named_unix_socket.h>
@@ -140,14 +139,14 @@ TAddress::TAddress(istream &&strm) {
     if (is_ipv6) {
       Zero(IPv4);
       if (!inet_pton(AF_INET6, buf, &IPv6.sin6_addr)) {
-        throw TOsError(HERE);
+        ThrowSystemError(errno);
       }
       IPv6.sin6_family = AF_INET6;
       IPv6.sin6_port = port;
     } else {
       Zero(IPv6);
       if (!inet_pton(AF_INET, buf, &IPv4.sin_addr)) {
-        throw TOsError(HERE);
+        ThrowSystemError(errno);
       }
       IPv4.sin_family = AF_INET;
       IPv4.sin_port = port;
@@ -279,7 +278,7 @@ void TAddress::Write(ostream &strm) const {
     case AF_INET: {
       char buf[INET_ADDRSTRLEN];
       if (!inet_ntop(AF_INET, &IPv4.sin_addr, buf, sizeof(buf))) {
-        throw TOsError(HERE);
+        ThrowSystemError(errno);
       }
       strm << buf;
       port = IPv4.sin_port;
@@ -288,7 +287,7 @@ void TAddress::Write(ostream &strm) const {
     case AF_INET6: {
       char buf[INET6_ADDRSTRLEN];
       if (!inet_ntop(AF_INET6, &IPv6.sin6_addr, buf, sizeof(buf))) {
-        throw TOsError(HERE);
+        ThrowSystemError(errno);
       }
       strm << '[' << buf << ']';
       port = IPv6.sin6_port;

@@ -20,7 +20,7 @@
 
 #include <dlfcn.h>
 
-#include <base/os_error.h>
+#include <base/as_str.h>
 #include <base/thrower.h>
 #include <orly/package/api.h>
 
@@ -29,19 +29,14 @@ using namespace Jhm;
 using namespace std;
 using namespace Orly::Package;
 
-void *TDlError::IfNull(const Base::TCodeLocation &code_location, void *handle) {
+static void *IfNull(const Base::TCodeLocation &code_location, void *handle) {
   if(!handle) {
     throw TDlError(code_location, dlerror());
   }
   return handle;
 }
 
-TDlError::TDlError(const Base::TCodeLocation &code_location, const char *msg) {
-  PostCtor(code_location, msg);
-}
-
-
-TLoaded::TPtr TLoaded::Load(const Jhm::TAbsBase &package_dir, const TVersionedName &name) {
+TLoaded::TPtr TLoaded::Load(const Jhm::TTree &package_dir, const TVersionedName &name) {
   return TPtr(new TLoaded(package_dir, name));
 }
 
@@ -109,25 +104,25 @@ bool TLoaded::ForEachIndexId(const std::function <bool (Base::TUuid *)> &cb) con
   return true;
 }
 
-TLoaded::TLoaded(const Jhm::TAbsBase &package_dir, const TVersionedName &name) : Name(name) {
-  string filename = TAbsPath(package_dir, name.GetSoRelPath()).AsStr();
+TLoaded::TLoaded(const Jhm::TTree &package_dir, const TVersionedName &name) : Name(name) {
+  string filename = AsStr(package_dir.GetAbsPath(name.GetSoRelPath()));
 
-  Handle = TDlError::IfNull(HERE, dlopen(filename.c_str(), RTLD_NOW));
+  Handle = IfNull(HERE, dlopen(filename.c_str(), RTLD_NOW));
 
   try {
 
     //TODO: We can actually link in such a way that we can use a dynamic cast here.
-    int32_t api_verno = reinterpret_cast<int32_t (*)()>(TDlError::IfNull(HERE, dlsym(Handle, "GetApiVersion")))();
+    int32_t api_verno = reinterpret_cast<int32_t (*)()>(IfNull(HERE, dlsym(Handle, "GetApiVersion")))();
     if(ORLY_API_VERSION != api_verno) {
       throw TLoaderError(HERE, "Package API version doesn't match server API version");
     }
 
-    LinkInfo = reinterpret_cast<TLinkInfo*>(reinterpret_cast<TLinkInfo *(*)()>(TDlError::IfNull(HERE, dlsym(Handle, "GetLinkInfo")))());
+    LinkInfo = reinterpret_cast<TLinkInfo*>(reinterpret_cast<TLinkInfo *(*)()>(IfNull(HERE, dlsym(Handle, "GetLinkInfo")))());
 
     assert(LinkInfo);
-    if(LinkInfo->PrimaryName != name.Name.AsStr()) {
+    if(LinkInfo->PrimaryName != AsStr(name.Name)) {
       std::ostringstream oss;
-      oss << "Package name inside the package doesn't match the filename. It is illegal to rename Orly package '.so' files. Named '" << LinkInfo->PrimaryName << "' in package, expected '" << name.Name.AsStr() << "'.";
+      oss << "Package name inside the package doesn't match the filename. It is illegal to rename Orly package '.so' files. Named '" << LinkInfo->PrimaryName << "' in package, expected '" << AsStr(name.Name) << "'.";
       throw TLoaderError(HERE, oss.str().c_str());
     }
 

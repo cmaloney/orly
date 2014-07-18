@@ -62,6 +62,7 @@ static void WriteCstH(const char *root, const char *branch, const char *atom, co
       << "#include <cassert>" << endl
       << "#include <ostream>" << endl << endl
       << "#include <base/class_traits.h>" << endl
+      << "#include <tools/nycr/context.h>" << endl
       << "#include <tools/nycr/indent.h>" << endl
       << "#include <tools/nycr/lexeme.h>" << endl
       << "#include <tools/nycr/test.h>" << endl << endl;
@@ -76,6 +77,10 @@ static void WriteCstH(const char *root, const char *branch, const char *atom, co
     namespace_prefix_builder << "::";
     strm << endl;
   }
+
+  strm << endl
+       << "struct yy_extra_t { Tools::Nycr::TContext*ctx; int depth; int line; int column; };" << endl
+       << endl;
   const string namespace_prefix = namespace_prefix_builder.str();
   ForEachKnownKind(language, bind(WriteFwdDecl, _1, ref(strm)));
   ForEachKnownKind(language, bind(WriteDecl, _1, cref(namespace_prefix), ref(strm)));
@@ -96,35 +101,46 @@ static void WriteCstCc(const char *root, const char *branch, const char *atom, c
       << "#include <cstdio>" << endl << endl
       << "#include <base/class_traits.h>" << endl
       << "#include <base/thrower.h>" << endl
-      << "#include <tools/nycr/error.h>" << endl
       << "#include <tools/nycr/test.h>" << endl
       << "#include <" << TPath(branch, atom, language) << ".bison.h>" << endl
       << "#include <" << TPath(branch, atom, language) << ".flex.h>" << endl << endl
       << "#include <iostream>" << endl
-      << "extern FILE *" << TUnderscore(language) << "in;" << endl
-      << "extern void " << TUnderscore(language) << "NycrPrepStr(const char *str);" << endl
-      << "extern void " << TUnderscore(language) << "NycrCleanStr();" << endl << endl
       << "using namespace std;" << endl
       << TUsingNamespace(language)
-      << "extern void " << TUnderscore(language) << "parse(std::unique_ptr<" << TType(language->GetName()) << "> &cst_out);" << endl << endl
-      << "unique_ptr<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseFile(const char *path) {" << endl
-      << "  " << TUnderscore(language) << "in = fopen(path, \"r\");" << endl
-      << "  if (!" << TUnderscore(language) << "in) {" << endl
+      << "extern void *" << TUnderscore(language) << "_scan_string (const char *yy_str ,void *yyscanner );" << endl
+      << "extern void " << TUnderscore(language) << "parse(void *scanner, Tools::Nycr::TContextBuilt<" << TType(language->GetName()) << "> &cst_out);" << endl << endl
+      << "extern void " << TUnderscore(language) << "set_in(FILE *in_str ,void *yyscanner );" << endl
+      << "extern int " << TUnderscore(language) << "lex_init(void **ptr_yy_globals);" << endl
+      << "extern int " << TUnderscore(language) << "lex_destroy(void *ptr_yy_globals);" << endl
+      << "extern void " << TUnderscore(language) << "set_extra(yy_extra_t, void *yyscanner);" << endl
+      << endl
+      << "Tools::Nycr::TContextBuilt<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseFile(const char *path) {" << endl
+      << "  Tools::Nycr::TContextBuilt<" << TType(language->GetName()) << "> ctx;" << endl
+      << "  void *scanner;" << endl
+      << "  " << TUnderscore(language) << "lex_init(&scanner);" << endl
+      << "  " << TUnderscore(language) << "set_extra({&ctx, 0, 1, 1}, scanner);" << endl
+      << "  FILE *in_file = fopen(path, \"r\");" << endl
+      << "  if (!in_file) {" << endl
       << "    THROW << \"could not open \\\"\" << path << '\\\"';" << endl
       << "  }" << endl
-      << "  ::Tools::Nycr::TError::DeleteEach();" << endl
-      << "  std::unique_ptr<" << TType(language->GetName()) << "> cst;" << endl << endl
-      << "  " << TUnderscore(language) << "parse(cst);" << endl
-      << "  return cst;" << endl
+      << "  " << TUnderscore(language) << "set_in(in_file, scanner);" << endl
+      << "  " << TUnderscore(language) << "parse(scanner, ctx);" << endl
+      << "  " << TUnderscore(language) << "lex_destroy(scanner);" << endl
+      << "  fclose(in_file);" << endl
+      << "  ctx.SortErrors();" << endl
+      << "  return ctx;" << endl
       << '}' << endl
       << endl
-      << "unique_ptr<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseStr(const char *str) {" << endl
-      << "  ::Tools::Nycr::TError::DeleteEach();" << endl
-      << "  " << TUnderscore(language) << "NycrPrepStr(str);"<<endl
-      << "  std::unique_ptr<" << TType(language->GetName()) << "> cst;" << endl << endl
-      << "  " << TUnderscore(language) << "parse(cst);" << endl
-      << "  " << TUnderscore(language) << "NycrCleanStr();" <<endl
-      << "  return cst;" << endl
+      << "Tools::Nycr::TContextBuilt<" << TType(language->GetName()) << "> " << TType(language->GetName()) << "::ParseStr(const char *str) {" << endl
+      << "  Tools::Nycr::TContextBuilt<" << TType(language->GetName()) << "> ctx;" << endl
+      << "  void *scanner;"
+      << "  " << TUnderscore(language) << "lex_init(&scanner);" << endl
+      << "  " << TUnderscore(language) << "set_extra({&ctx, 0, 1, 1}, scanner);" << endl
+      << "  " << TUnderscore(language) << "_scan_string(str, scanner);" << endl
+      << "  " << TUnderscore(language) << "parse(scanner, ctx);" << endl
+      << "  " << TUnderscore(language) << "lex_destroy(scanner);" << endl
+      << "  ctx.SortErrors();" << endl
+      << "  return ctx;" << endl
       << '}' << endl;
   ForEachKnownKind(language, bind(WriteDef, _1, ref(strm)));
 }
@@ -257,8 +273,8 @@ static void WriteDecl(const TKind *kind, const string &namespace_prefix, ostream
       Strm << "  virtual void Write(std::ostream &strm, size_t depth, const char *as_member) const;" << endl;
       Strm << "  virtual bool Test(::Tools::Nycr::Test::TNode *that, const char *as_member) const;" << endl;
       if (is_language) {
-        Strm << "  static std::unique_ptr<" << TType(that->GetName()) << "> ParseFile(const char *path);" << endl;
-        Strm << "  static std::unique_ptr<" << TType(that->GetName()) << "> ParseStr(const char *str);" << endl;
+        Strm << "  static ::Tools::Nycr::TContextBuilt<" << TType(that->GetName()) << "> ParseFile(const char *path);" << endl;
+        Strm << "  static ::Tools::Nycr::TContextBuilt<" << TType(that->GetName()) << "> ParseStr(const char *str);" << endl;
       }
       if (!members_in_order.empty()) {
         Strm << "  private:" << endl;

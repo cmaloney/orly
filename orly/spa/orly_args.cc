@@ -22,6 +22,7 @@
 
 #include <orly/spa/error.h>
 #include <orly/spa/command.h>
+#include <util/error.h>
 
 using namespace std;
 using namespace Server;
@@ -113,7 +114,7 @@ TArgs::TArgs(const char *qs) : VerifiedAllUsed(false) {
 TArgs::~TArgs() {
   if(!VerifiedAllUsed) {
     //TODO: Selectively disable based on whether or not this is a "Dev" build. We make this have no chance of occuring by having spa.cc error properly.
-    Base::TError::Abort(HERE); //The user must call VerifyAllUsed exactly once during the TArgs lifetime.
+    Util::Abort(HERE); //The user must call VerifyAllUsed exactly once during the TArgs lifetime.
   }
 }
 
@@ -218,15 +219,15 @@ void TArgs::Convert(const std::string &str, long &val) {
   }
 }
 
-void TArgs::Convert(const std::string &str, TUUID &uuid) {
+void TArgs::Convert(const std::string &str, Base::TUuid &uuid) {
   assert(this);
   assert(&str);
   assert(&uuid);
 
-  if(!TUUID::IsValidUuid(str.c_str())) {
+  if(!Base::TUuid::IsValidUuid(str.c_str())) {
     throw TIntArgError("uuid");
   }
-  uuid=TUUID(str.c_str());
+  uuid=Base::TUuid(str.c_str());
 }
 
 void TArgs::Convert(const std::string &str, Var::TVar &var) {

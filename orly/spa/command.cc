@@ -29,7 +29,6 @@
 #include <orly/rt/containers.h>
 #include <orly/orly.command.cst.h>
 #include <orly/type.h>
-#include <tools/nycr/error.h>
 
 using namespace Base;
 using namespace Orly;
@@ -166,6 +165,13 @@ namespace FooBar {
     /* TODO */
     virtual void operator()(const Syntax::TBuiltInCeiling *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TBuiltInFloor *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInCos *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInSin *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInTan *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInAcos *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInAsin *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInAtan *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInAtan2 *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TBuiltInLog *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TBuiltInLog2 *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TBuiltInLog10 *) const {NOT_IMPLEMENTED();}
@@ -451,7 +457,7 @@ namespace FooBar {
     virtual void operator()(const TIdLiteral *that) const {
       //TODO: The copy is annoying...
       std::string tmp = that->GetLexeme().GetText().substr(1,that->GetLexeme().GetText().size()-2);
-      Var = Var::TVar(TUUID(tmp.c_str()));
+      Var = Var::TVar(Base::TUuid(tmp.c_str()));
     }
 
     private:
@@ -760,15 +766,15 @@ namespace FooBar {
 bool Orly::Spa::ParseCommand(const char *text, Var::TVar &var) {
   std::lock_guard<std::mutex> Lock(CommandParserLock);
   //Parse the text
-  std::unique_ptr<TCommand> cst(TCommand::ParseStr(text));
+  auto cst = TCommand::ParseStr(text);
 
   //TODO: Promote the parser errors out in a cleaner fashion, so the end user can see why their literal failed.
-  if(Tools::Nycr::TError::GetFirstError()) {
+  if (cst.HasErrors()) {
     return false;
   }
 
   //Determine the Var from the expression
-  cst->GetExpr()->Accept(FooBar::TExprVisitor(var));
+  cst.Get()->GetExpr()->Accept(FooBar::TExprVisitor(var));
 
   return true;
 }

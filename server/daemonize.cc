@@ -27,10 +27,9 @@
 #include <syslog.h>
 #include <sys/stat.h>
 
-#include <base/os_error.h>
+#include <util/error.h>
 
 using namespace std;
-using namespace Base;
 
 /* DefendAgainstSignals installs this signal handler
    for SIGINT, SIGTERM, and SIGHUP. */
@@ -81,7 +80,7 @@ pid_t Server::Daemonize() {
   /* Check our parent's PID to see if we're already a daemon. */
   if (getppid() != 1) {
     /* We're not already a daemon. */
-    TOsError::IfLt0(HERE, result = fork());
+    result = Util::IfLt0(fork());
     /* We've forked.  If we're the daemon child... */
     if (!result) {
       /* Obtain a new process group. */

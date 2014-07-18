@@ -28,15 +28,15 @@ using namespace Jhm::Job;
 using namespace std;
 using namespace std::placeholders;
 
-const static vector<TExtension> OutExtensions = {
+const static vector<vector<string>> OutExtensions = {
   {"flex","cc"},
 };
 
 //TODO: this is duplicated / copied in both bison.cc and flex.cc
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
   for (const auto &ext : OutExtensions) {
-    if (EndsWith(output.GetName().GetExtensions(), ext)) {
-      return output.DropExtension(ext.size()).AddExtension({"l"});
+    if (output.Path.EndsWith(ext)) {
+      return TRelPath(AddExtension(DropExtension(TPath(output.Path), ext.size()), {"l"}));
     }
   }
   return TOpt<TRelPath>();
@@ -71,6 +71,12 @@ string TFlex::GetCmd() {
   return oss.str();
 }
 
+timespec TFlex::GetCmdTimestamp() const {
+  static timespec timestamp = GetTimestampSearchingPath("flex");
+  return timestamp;
+}
+
+
 bool TFlex::IsComplete() {
   GetSoleOutput()->PushComputedConfig(
       TJson::TObject{{"cmd", TJson::TObject{{"g++", Env.GetConfig().GetEntry({"cmd","flex","g++"})}}}});
@@ -79,4 +85,4 @@ bool TFlex::IsComplete() {
 
 
 TFlex::TFlex(TEnv &env, TFile *in_file)
-    : TJob(in_file, GetOutputSet(OutExtensions, env, in_file->GetPath().GetRelPath())), Env(env) {}
+    : TJob(in_file, GetOutputSet(OutExtensions, env, in_file->GetRelPath())), Env(env) {}

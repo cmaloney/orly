@@ -46,9 +46,10 @@ namespace Orly {
 
       /* Forward Declarations. */
       class TKeyCursor;
+      class TKeyCursorCollector;
 
       /* TODO */
-      typedef InvCon::UnorderedList::TCollection<TContext, TKeyCursor> TKeyCursorCollection;
+      typedef InvCon::UnorderedList::TCollection<TKeyCursorCollector, TKeyCursor> TKeyCursorCollection;
 
       private:
 
@@ -109,7 +110,7 @@ namespace Orly {
         public:
 
         /* TODO */
-        typedef InvCon::UnorderedList::TMembership<TKeyCursor, TContext> TContextMembership;
+        typedef InvCon::UnorderedList::TMembership<TKeyCursor, TKeyCursorCollector> TContextMembership;
 
         /* TODO */
         TKeyCursor(TContext *context, const Indy::TIndexKey &pattern);
@@ -188,7 +189,16 @@ namespace Orly {
       }
 
       /* TODO */
-      TKeyCursorCollection::TImpl KeyCursorCollection;
+      struct TKeyCursorCollector {
+        NO_COPY(TKeyCursorCollector);
+
+        /* TODO */
+        TKeyCursorCollector() : KeyCursorCollection(this) {}
+
+        /* TODO */
+        TKeyCursorCollection::TImpl KeyCursorCollection;
+
+      };  // TKeyCursorCollector
 
       private:
 
@@ -214,8 +224,8 @@ namespace Orly {
 
       /* TODO */
       TIndyContext(
-          const Rt::TOpt<TUUID> &user_id,
-          const TUUID &session_id,
+          const Rt::TOpt<Base::TUuid> &user_id,
+          const Base::TUuid &session_id,
           Indy::TContext &context,
           Atom::TCore::TExtensibleArena *arena,
           Base::TScheduler *scheduler,

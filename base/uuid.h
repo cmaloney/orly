@@ -106,6 +106,8 @@ namespace Base {
 
     };  // TUnsafeError
 
+    static bool IsValidUuid(const char *s);
+
     /* Default construct in the null state. */
     TUuid() {
       uuid_clear(Data);

@@ -145,19 +145,19 @@ bool Orly::Client::Program::InterpretStmt(const TStmt *stmt, const shared_ptr<TC
       Client->SetUserId(id)->Sync();
     }
     virtual void operator()(const TNewSessionStmt *) const override {
-      throw invalid_argument("'new session' not allowed or required in binary connection");
+      throw invalid_argument("'new session' stmt is not allowed or required in binary connection");
     }
     virtual void operator()(const TResumeSessionStmt *) const override {
-      throw invalid_argument("'resume session' not allowed or required in binary connection");
+      throw invalid_argument("'resume session' stmt is not allowed or required in binary connection");
     }
     virtual void operator()(const TCompileStmt *) const override {
       throw runtime_error("'compile' stmt not implemented in this interface");
     }
     virtual void operator()(const TListPackageStmt *) const override {
-      throw runtime_error("Listing packages is not implemented in this interface");
+      throw runtime_error("'list_packages' stmt is not implemented in this interface");
     }
     virtual void operator()(const TGetSourceStmt *) const override {
-      throw runtime_error("Listing packages is not implemented in this interface");
+      throw runtime_error("'get_source' stmt is not implemented in this interface");
     }
     private:
     bool &Result;

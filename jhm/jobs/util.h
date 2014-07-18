@@ -25,6 +25,8 @@ namespace Jhm {
   class TFile;
   class TEnv;
 
-  std::unordered_set<TFile *> GetOutputSet(const std::vector<TExtension> &out_exts, TEnv &env, const TRelPath &input);
-  TFile *GetOutputWithExtension(std::unordered_set<TFile *> output_set, const TExtension &ext);
+  std::unordered_set<TFile *> GetOutputSet(const std::vector<std::vector<std::string>> &out_exts,
+                                           TEnv &env,
+                                           const TRelPath &input);
+  TFile *GetOutputWithExtension(std::unordered_set<TFile *> output_set, const std::vector<std::string> &ext);
 }

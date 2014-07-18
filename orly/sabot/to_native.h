@@ -23,9 +23,9 @@
 
 #include <orly/desc.h>
 #include <orly/native/defs.h>
+#include <orly/rt/opt.h>
 #include <orly/sabot/state.h>
 #include <orly/sabot/state_dumper.h>
-#include <orly/uuid.h>
 
 namespace Orly {
 
@@ -636,45 +636,6 @@ namespace Orly {
     };  // TToNativeVisitor
 
     template <>
-    class TToNativeVisitor<Orly::TUUID> final
-        : public TStateVisitor {
-      NO_COPY(TToNativeVisitor);
-      public:
-      /* TODO */
-      TToNativeVisitor(Orly::TUUID &out) : Out(out) {}
-      /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &state) const override           { Out = Orly::TUUID(state.Get().GetRaw()); }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
-      private:
-      Orly::TUUID &Out;
-    };  // TToNativeVisitor
-
-    template <>
     class TToNativeVisitor<std::string> final
         : public TStateVisitor {
       NO_COPY(TToNativeVisitor);
@@ -809,6 +770,56 @@ namespace Orly {
       virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
       private:
       Base::TOpt<TVal> &Out;
+    };  // TToNativeVisitor
+
+    template <typename TVal>
+    class TToNativeVisitor<Rt::TOpt<TVal>> final
+        : public TStateVisitor {
+      NO_COPY(TToNativeVisitor);
+      public:
+      /* TODO */
+      TToNativeVisitor(Rt::TOpt<TVal> &out) : Out(out) {}
+      /* Overrides. */
+      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TOpt &state) const override            {
+        void *pin_alloc = alloca(State::GetMaxStatePinSize());
+        State::TOpt::TPin::TWrapper pin(state.Pin(pin_alloc));
+        if (pin->GetElemCount()) {
+          void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+          TVal val;
+          ToNative(*Sabot::State::TAny::TWrapper(pin->NewElem(0, state_alloc)), val);
+          Out = Rt::TOpt<TVal>(val);
+        } else {
+          Out.Reset();
+        }
+      }
+      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
+      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      private:
+      Rt::TOpt<TVal> &Out;
     };  // TToNativeVisitor
 
     template <typename TVal>

@@ -30,15 +30,15 @@ using namespace std;
 using namespace Util;
 
 static TRelPath GetOutputName(const TRelPath &input) {
-  assert(EndsWith(input.GetName().GetExtensions(), {"o"}));
-  return input.SwapLastExtension("");
+  assert(input.Path.EndsWith({"o"}));
+  return TRelPath(SwapExtension(TPath(input.Path), {""}));
 }
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
   //TODO: Allow non-trivial prefixes before the empty extension.
-  const auto &ext = output.GetName().GetExtensions();
+  const auto &ext = output.Path.Extension;
   if (ext.size() > 0 && ext.at(ext.size()-1) == "") {
-    return output.SwapLastExtension("o");
+    return TRelPath(SwapExtension(TPath(output.Path), {"o"}));
   }
 
   return TOpt<TRelPath>();
@@ -98,7 +98,7 @@ const unordered_set<TFile*> TLink::GetNeeds() {
         THROW_ERROR(std::logic_error)
             << "Internal Error; We didn't find the C++ source file which should be in the src tre...";
       }
-      TFile *obj_file = Env.GetFile(include_file->GetPath().GetRelPath().SwapLastExtension("o"));
+      TFile *obj_file = Env.GetFile(TRelPath(SwapExtension(TPath(include_file->GetRelPath().Path), {"o"})));
       if (Env.IsBuildable(obj_file)) {
         // Add the link. If it's new, queue it to be checked for new links that we need
         if (ObjFiles.insert(obj_file).second) {
@@ -141,6 +141,11 @@ string TLink::GetCmd() {
   return oss.str();
 }
 
+timespec TLink::GetCmdTimestamp() const {
+  static timespec timestamp = GetTimestampSearchingPath("g++");
+  return timestamp;
+}
+
 bool TLink::IsComplete() {
   assert(this);
 
@@ -149,4 +154,4 @@ bool TLink::IsComplete() {
 
 
 TLink::TLink(TEnv &env, TFile *in_file)
-    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetPath().GetRelPath()))}), Env(env) {}
+    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath()))}), Env(env) {}

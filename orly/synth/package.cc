@@ -20,16 +20,17 @@
 
 #include <iostream>
 
+#include <base/as_str.h>
 #include <orly/error.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
 
-TPackage::TPackage(const Jhm::TNamespace &ns, const Package::Syntax::TPackage *root, bool report_version)
-    : Namespace(ns), Symbol(nullptr) {
+TPackage::TPackage(const Package::TName &name, const Package::Syntax::TPackage *root, bool report_version)
+    : Name(name), Symbol(nullptr) {
   assert(root);
   const Package::Syntax::TInstallerDef *installer_def = nullptr;
   TExprFactory expr_factory(this);
@@ -38,7 +39,7 @@ TPackage::TPackage(const Jhm::TNamespace &ns, const Package::Syntax::TPackage *r
   if (report_version) {
     std::cout << Version << std::endl;
   } else {
-    if (!Tools::Nycr::TError::GetFirstError()) {
+    if (!GetContext().HasErrors()) {
       BuildSymbol();
       Build();
     }
@@ -49,7 +50,7 @@ void TPackage::Build() const {
   assert(this);
   Bind();
   int pass = 0;
-  while (!Tools::Nycr::TError::GetFirstError()) {
+  while (!GetContext().HasErrors()) {
     ++pass;
     if (BuildEachDef(pass) != Continue) {
       break;
@@ -60,12 +61,12 @@ void TPackage::Build() const {
 void TPackage::BuildSymbol() {
   assert(this);
   assert(!Symbol);
-  Symbol = Symbol::TPackage::New(Namespace, Version);
+  Symbol = Symbol::TPackage::New(Name, Version);
 }
 
-const Jhm::TNamespace &TPackage::GetNamespace() const {
+const Package::TName &TPackage::GetName() const {
   assert(this);
-  return Namespace;
+  return Name;
 }
 
 Symbol::TScope::TPtr TPackage::GetScopeSymbol() const {
@@ -103,8 +104,8 @@ void TPackage::TTopLevelDefFactory::operator()(const Package::Syntax::TInstaller
   if (!InstallerDef) {
     InstallerDef = that;
   } else {
-    Tools::Nycr::TError::TBuilder(GetPosRange(that))
-        << " package installer already defined at " << GetPosRange(InstallerDef);
+    GetContext().AddError(GetPosRange(that),
+                          Base::AsStr("package installer already defined at ", GetPosRange(InstallerDef)));
   }
 }
 

@@ -68,6 +68,7 @@
 #include <orly/expr/take.h>
 #include <orly/expr/that.h>
 #include <orly/expr/time_obj.h>
+#include <orly/expr/trig.h>
 #include <orly/expr/unknown.h>
 #include <orly/expr/user_id.h>
 #include <orly/expr/where.h>

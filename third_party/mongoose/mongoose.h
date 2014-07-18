@@ -23,7 +23,6 @@
 
 #ifdef __cplusplus
 #include <base/class_traits.h>
-#include <base/os_error.h>
 extern "C" {
 #endif // __cplusplus
 
@@ -249,7 +248,7 @@ namespace Mongoose {
       Stop();
       Handle = mg_start(Callback, this, options);
       if (!Handle) {
-        throw Base::TOsError(HERE);
+        Util::ThrowSystemError(errno);
       }
     }
 

@@ -27,12 +27,12 @@
 
 #include <base/chrono.h>
 #include <base/class_traits.h>
-#include <base/error.h>
+#include <base/impossible_error.h>
+#include <base/uuid.h>
 #include <orly/shared_enum.h>
 //NOTE: We would include <orly/rt.h> but that includes <orly/rt/built_in.h> which includes this
 #include <orly/rt/containers.h>
 #include <orly/type/impl.h>
-#include <orly/uuid.h>
 
 namespace Orly {
 
@@ -192,7 +192,7 @@ namespace Orly {
 
       /* Construct a new TVar from a uuid.
          See <orly/var/id.h>. */
-      TVar(const TUUID &that);
+      TVar(const Base::TUuid &that);
 
       /* Construct a new TVar from a time_diff.
          See <orly/var/time_diff.h>. */

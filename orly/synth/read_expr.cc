@@ -22,10 +22,10 @@
 #include <orly/expr/keys.h>
 #include <orly/expr/read.h>
 #include <orly/pos_range.h>
+#include <orly/synth/context.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 #include <orly/synth/new_type.h>
-#include <tools/nycr/error.h>
 
 using namespace Orly;
 using namespace Orly::Synth;
@@ -56,7 +56,8 @@ Expr::TExpr::TPtr TReadExpr::Build() const {
   Expr::TKeys *k = dynamic_cast<Expr::TKeys *>(keys_expr_ptr.get());
   /* If read is on a keys expression, check that the keys value type is the same as the as_type of the read expression */
   if (k && k->GetValueType() != as_type) {
-    Tools::Nycr::TError::TBuilder(GetPosRange(ReadExpr)) << "read expression is dereferencing keys who's value type does not match the read's type";
+    GetContext().AddError(GetPosRange(ReadExpr),
+                          "read expression is dereferencing keys who's value type does not match the read's type");
   }
   return Expr::TRead::New(keys_expr_ptr, as_type, GetPosRange(ReadExpr));
 }

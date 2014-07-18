@@ -18,16 +18,17 @@
 
 #pragma once
 
+#include <iomanip>
 #include <list>
 #include <string>
 #include <unordered_map>
 
-#include <base/error.h>
 #include <base/piece.h>
 #include <base/split.h>
+#include <base/thrower.h>
+#include <base/uuid.h>
 #include <server/url_decode.h>
 #include <orly/indy/key.h>
-#include <orly/uuid.h>
 #include <orly/var.h>
 
 /* TODO: The argument parsing here should probably share a decent amount of code with <base/cmd.h>*/
@@ -35,27 +36,13 @@ namespace Orly {
 
   namespace Spa {
 
-      /* Throw an instance of this class when you either cannot find a required argument
-         or cannot convert the argument's token into the required type. */
-      class TArgError : public Base::TFinalError<TArgError> {
+      class TArgError : public std::runtime_error {
         public:
+        TArgError(const Base::TCodeLocation &loc, size_t offset, const char *msg)
+            : std::runtime_error(Base::AsStr(loc, msg).c_str()), Offset(offset) {}
 
-        /* Construct with the name of the problematic argument. */
-        TArgError(const Base::TCodeLocation &loc, size_t offset, const char *msg) : Offset(offset) {
-          PostCtor(loc, msg);
-        }
-
-        /* The name of the problematic argument.  Never null. */
-        size_t GetOffset() const {
-          assert(this);
-          return Offset;
-        }
-
-        private:
-
-        /* See accessor. */
-        size_t Offset;
-      };  // TArgError
+        const size_t Offset;
+      };
 
       /* A collection of HTTP arguments. Builds up a map on a first pass through, and as arguments are requested decodes
          them when asked. It has a method to check that all the arguments it was given have been used, and it will abort
@@ -101,12 +88,7 @@ namespace Orly {
           try {
             Convert(str, val);
           } catch (const TIntArgError &e) {
-            std::ostringstream s;
-            s<<"argument '";
-            s.write(name.GetStart(), name.GetSize());
-            s<<"' not a valid "<<e.GetMsg();
-
-            throw TArgError(HERE, e.GetOffset(), s.str().c_str());
+            throw TArgError(HERE, e.GetOffset(), Base::AsStr("argument ", std::quoted(Base::AsStr(name)), " not a valid ", e.GetMsg()).c_str());
           }
         }
 
@@ -231,7 +213,7 @@ namespace Orly {
         void Convert(const std::string &s, int &val);
         void Convert(const std::string &s, long &val);
         void Convert(const std::string &str, uint64_t &val);
-        void Convert(const std::string &s, TUUID &uuid);
+        void Convert(const std::string &s, Base::TUuid &uuid);
         void Convert(const std::string &s, Var::TVar &var);
         void Convert(const std::string &s, std::chrono::milliseconds &val);
 

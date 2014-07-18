@@ -24,6 +24,7 @@ namespace Orly {
 
   namespace Expr {
 
+    class TAcos;
     class TAdd;
     class TAddr;
     class TAddrMember;
@@ -31,10 +32,14 @@ namespace Orly {
     class TAnd;
     class TAndThen;
     class TAs;
+    class TAsin;
     class TAssert;
+    class TAtan;
+    class TAtan2;
     class TCeiling;
     class TCollatedBy;
     class TCollectedBy;
+    class TCos;
     class TDict;
     class TDiv;
     class TEffect;
@@ -86,6 +91,7 @@ namespace Orly {
     class TSessionId;
     class TSequenceOf;
     class TSet;
+    class TSin;
     class TSkip;
     class TSlice;
     class TSort;
@@ -94,6 +100,7 @@ namespace Orly {
     class TSub;
     class TSymmetricDiff;
     class TTake;
+    class TTan;
     class TThat;
     class TTimeObj;
     class TToLower;
@@ -110,6 +117,7 @@ namespace Orly {
 
       virtual ~TVisitor() = default;
 
+      virtual void operator()(const TAcos          *) const = 0;
       virtual void operator()(const TAdd           *) const = 0;
       virtual void operator()(const TAddr          *) const = 0;
       virtual void operator()(const TAddrMember    *) const = 0;
@@ -117,10 +125,14 @@ namespace Orly {
       virtual void operator()(const TAnd           *) const = 0;
       virtual void operator()(const TAndThen       *) const = 0;
       virtual void operator()(const TAs            *) const = 0;
+      virtual void operator()(const TAsin          *) const = 0;
       virtual void operator()(const TAssert        *) const = 0;
+      virtual void operator()(const TAtan          *) const = 0;
+      virtual void operator()(const TAtan2         *) const = 0;
       virtual void operator()(const TCeiling       *) const = 0;
       virtual void operator()(const TCollatedBy    *) const = 0;
       virtual void operator()(const TCollectedBy   *) const = 0;
+      virtual void operator()(const TCos           *) const = 0;
       virtual void operator()(const TDict          *) const = 0;
       virtual void operator()(const TDiv           *) const = 0;
       virtual void operator()(const TEffect        *) const = 0;
@@ -172,6 +184,7 @@ namespace Orly {
       virtual void operator()(const TSessionId     *) const = 0;
       virtual void operator()(const TSequenceOf    *) const = 0;
       virtual void operator()(const TSet           *) const = 0;
+      virtual void operator()(const TSin           *) const = 0;
       virtual void operator()(const TSkip          *) const = 0;
       virtual void operator()(const TSlice         *) const = 0;
       virtual void operator()(const TSort          *) const = 0;
@@ -180,6 +193,7 @@ namespace Orly {
       virtual void operator()(const TSub           *) const = 0;
       virtual void operator()(const TSymmetricDiff *) const = 0;
       virtual void operator()(const TTake          *) const = 0;
+      virtual void operator()(const TTan           *) const = 0;
       virtual void operator()(const TThat          *) const = 0;
       virtual void operator()(const TTimeObj       *) const = 0;
       virtual void operator()(const TToLower       *) const = 0;

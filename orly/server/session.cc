@@ -166,15 +166,15 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
     AddPov(pov);
     auto repo = pov->GetRepo(server);
     Indy::TContext context(repo, &my_arena);
-    Rt::TOpt<TUUID> user_id;
+    Rt::TOpt<Base::TUuid> user_id;
     if (UserId) {
       user_id = UserId->GetRaw();
     }
-    TUUID session_id = GetId().GetRaw();
+    Base::TUuid session_id = GetId().GetRaw();
     Indy::TIndyContext indy_context(user_id, session_id, context, &my_arena, server->GetScheduler(),
       Rt::TOpt<Base::Chrono::TTimePnt>(), Rt::TOpt<uint32_t>());
     // Func it.
-    auto func = server->GetPackageManager().Get(fq_name)->GetFunctionInfo(AsPiece(closure.GetMethodName()));
+    auto func = server->GetPackageManager().Get(Package::TName{fq_name})->GetFunctionInfo(AsPiece(closure.GetMethodName()));
     Package::TContext::TEffects effects;
     call_timer.Start();
     result_core = func->Call(indy_context, prog_args);
@@ -370,11 +370,11 @@ void TSession::RunInPrivateChildPov(TServer *server,
   const Indy::L0::TManager::TPtr<Indy::TRepo> &repo = child_pov->GetRepo(server);
   TSuprena child_arena;
   Indy::TContext context(repo, &child_arena);
-  Rt::TOpt<TUUID> user_id;
+  Rt::TOpt<Base::TUuid> user_id;
   if (UserId) {
     user_id = UserId->GetRaw();
   }
-  TUUID session_id = GetId().GetRaw();
+  Base::TUuid session_id = GetId().GetRaw();
   Indy::TIndyContext indy_context(user_id, session_id, context, &child_arena, server->GetScheduler(),
       Base::Chrono::CreateTimePnt(2013, 10, 23, 17, 47, 14, 0, 0), 0);
   func(indy_context);
@@ -428,7 +428,7 @@ void TSession::RunInPrivateChildPov(TServer *server,
   }
 }
 
-bool TSession::RunTestBlock(const TUUID &/*parent_pov_id*/,
+bool TSession::RunTestBlock(const Base::TUuid &/*parent_pov_id*/,
     const Package::TTestBlock &/*test_block*/, bool /*verbose*/) {
   // TODO: finish implementation
   return true;

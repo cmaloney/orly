@@ -49,14 +49,7 @@ namespace Orly {
     }  // DictCtor
 
     /* TODO */
-    class TAssertionError : public TRuntimeError, public Base::TFinalError<TAssertionError> {
-      public:
-
-      /* Constructor. */
-      TAssertionError(const Base::TCodeLocation &loc, const char *msg=0) {
-        PostCtor(loc, msg);
-      }
-    };  // TAssertionError
+    DEFINE_ERROR(TAssertionError, TRuntimeError, "Assertion Error");
 
     inline void Assert(const char *msg, bool result) {
       if (!result) {

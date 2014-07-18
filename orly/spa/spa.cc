@@ -33,7 +33,6 @@
 #include <base/cmd.h>
 #include <base/dir_iter.h>
 #include <base/not_implemented.h>
-#include <base/os_error.h>
 #include <base/zero.h>
 #include <orly/spa/honcho.h>
 #include <orly/spa/flux_capacitor/api.h>
@@ -48,6 +47,7 @@
 #include <socket/address.h>
 #include <third_party/mongoose/mongoose.h>
 #include <tools/nycr/escape.h> // Sort of ug dependency here...
+#include <util/error.h>
 
 using namespace std;
 using namespace Base;
@@ -99,17 +99,7 @@ class TLogger {
 };
 
 
-/* TODO */
-class TCheckpointPathInvalidError : public Base::TFinalError<TCheckpointPathInvalidError> {
-  public:
-
-  /* TODO */
-  TCheckpointPathInvalidError(const TCodeLocation &loc, const char *msg) {
-    PostCtor(loc, msg);
-  }
-
-};  // TCheckpointPathInvalidError
-
+DEFINE_ERROR(TCheckpointPathInvalidError, std::runtime_error, "invalid path");
 
 //TODO: This is sort of fug to have laying around
 static void ParseFilename(string &filename, string &checkpoint_name, unsigned int &CheckpointNum) {
@@ -290,8 +280,7 @@ class TSpa : public Mongoose::TMongoose {
     bool success = false;
     if (Cmd.Daemon) {
       /* We're been asked to launch as a daemon, so it's time to fork. */
-      pid_t pid;
-      TOsError::IfLt0(HERE, pid = Daemonize());
+      pid_t pid = Util::IfLt0(Daemonize());
       if (pid) {
         /* We're the parent, so report the PID of the daemon and we're done. */
         cout << pid << endl;
@@ -344,22 +333,19 @@ class TSpa : public Mongoose::TMongoose {
       }
     } catch (const TArgError &arg_error) {
       ArgErrors.Increment();
-      TLogger("arg error") << arg_error.what() <<" at query string offset " << arg_error.GetOffset();
-      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[%s at query string offset %d]", arg_error.what(), arg_error.GetOffset());
+
+      TLogger("arg error") << arg_error.what() <<" at query string offset " << arg_error.Offset;
+      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[%s at query string offset %d]", arg_error.what(), arg_error.Offset);
       is_handled = true;
     } catch (const TUrlDecodeError &url_decode_error) {
       UrlDecodeErrors.Increment();
       TLogger("url decode error") << url_decode_error.what() << " at query string offset " << url_decode_error.GetOffset();
       mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[%s at query string offset %d]", url_decode_error.what(), url_decode_error.GetOffset());
       is_handled = true;
-    } catch (const Base::TError &ex) {
-      TLogger("general error") << ex.what() << request_info->uri << request_info->query_string;
-      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[%s][%s]", ex.what(), request_info->query_string);
-      is_handled = true;
     }  catch(const std::exception &ex) {
       GeneralErrors.Increment();
-      TLogger("std::exception") << ex.what() << request_info->uri << request_info->query_string;
-      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[std::exception][%s]", ex.what());
+      TLogger("exception") << ex.what() << request_info->uri << request_info->query_string;
+      mg_printf(conn, "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/plain\r\n\r\n[exception][%s]", ex.what());
       is_handled = true;
     }
     return is_handled ? const_cast<char *>("") : 0;
@@ -455,7 +441,7 @@ class TSpa : public Mongoose::TMongoose {
       //Make a nicer error out of has verified.
       if(!args.HasVerified()) {
         TLogger("args.HasVerified", LOG_CRIT) << method << uri;
-        //NOTE: This is a soft fail when not in dev mode. TError::Abort(HERE);
+        //NOTE: This is a soft fail when not in dev mode. Util::Abort(HERE);
         args.FakeVerify(); //TODO: It would be WAAAYYYY nicer to have an ifdef "DEV" / "PROD"
       }
     } catch (...) {
@@ -471,9 +457,9 @@ class TSpa : public Mongoose::TMongoose {
   bool OnPoll(TArgs &args, ostream &strm) {
     assert(this);
 
-    std::unordered_set<TUUID> notifiers;
+    std::unordered_set<Base::TUuid> notifiers;
     TOpt<chrono::milliseconds> timeout;
-    TUUID session;
+    Base::TUuid session;
     args.Get("notifiers", notifiers);
     args.Get("timeout", timeout);
     args.Get("session", session);
@@ -481,7 +467,7 @@ class TSpa : public Mongoose::TMongoose {
 
     TLogger("Poll") << timeout;
 
-    std::unordered_map<TUUID, FluxCapacitor::TNotifierState> notifier_states;
+    std::unordered_map<Base::TUuid, FluxCapacitor::TNotifierState> notifier_states;
     Base::AssertTrue(Service)->Poll(session, notifiers, timeout, notifier_states);
     bool first;
     for(auto notifier_state: notifier_states) {
@@ -497,7 +483,7 @@ class TSpa : public Mongoose::TMongoose {
   /* Handles "POST /sys/create_session". */
   bool OnPostCreateSession(TArgs &args, ostream &strm) {
     assert(this);
-    TOpt<TUUID> acct;
+    TOpt<Base::TUuid> acct;
     int ttl;
 
     args.Get("acct", acct);
@@ -506,7 +492,7 @@ class TSpa : public Mongoose::TMongoose {
 
     TLogger("CreateSession") << acct << ttl;
 
-    TUUID session;
+    Base::TUuid session;
     Base::AssertTrue(Service)->CreateSession(acct, ttl, session);
     strm<<session;
     return true;
@@ -516,8 +502,8 @@ class TSpa : public Mongoose::TMongoose {
   bool OnPostCreatePrivatePov(TArgs &args, ostream &strm) {
     assert(this);
 
-    TUUID session;
-    TOpt<TUUID> parent;
+    Base::TUuid session;
+    TOpt<Base::TUuid> parent;
     int ttl;
     bool paused = false;
     args.Get("session", session);
@@ -528,7 +514,7 @@ class TSpa : public Mongoose::TMongoose {
 
     TLogger("CreatePrivatePov") << session << parent << ttl;
 
-    TUUID ppov;
+    Base::TUuid ppov;
     Base::AssertTrue(Service)->CreatePrivatePov(session, parent, ttl, paused, ppov);
     strm<<ppov;
     return true;
@@ -538,7 +524,7 @@ class TSpa : public Mongoose::TMongoose {
   bool OnPostCreateSharedPov(TArgs &args, ostream &strm) {
     assert(this);
 
-    TOpt<TUUID> parent;
+    TOpt<Base::TUuid> parent;
     int ttl;
     bool paused = false;
     args.Get("parent", parent);
@@ -548,7 +534,7 @@ class TSpa : public Mongoose::TMongoose {
 
     TLogger("CreateSharedPov") << parent << ttl;
 
-    TUUID spov;
+    Base::TUuid spov;
     Base::AssertTrue(Service)->CreateSharedPov(parent, ttl, paused, spov);
     strm<<spov;
     return true;
@@ -611,8 +597,8 @@ class TSpa : public Mongoose::TMongoose {
     //TODO: Pull checking if the package exists to here.
     //TODO: Better enum arg grabbing (json, orly).
     //TODO: Refactor so that argument list checking functionality is here
-    TUUID ppov;
-    std::unordered_set<TUUID> notify_povs;
+    Base::TUuid ppov;
+    std::unordered_set<Base::TUuid> notify_povs;
     std::string output("json");
     args.Get("private_pov", ppov);
     args.GetOpt("notify_pov", notify_povs);
@@ -633,7 +619,7 @@ class TSpa : public Mongoose::TMongoose {
     }
 
     //Get the function
-    auto func = Base::AssertTrue(Service)->GetPackageManager().Get(Jhm::TNamespace(TPiece<const char>(uri, dot_pos)))
+    auto func = Base::AssertTrue(Service)->GetPackageManager().Get(Package::TName::Parse(std::string(uri, dot_pos)))
         ->GetFunctionInfo(AsPiece(dot_pos + 1));
 
     //Get the arguments
@@ -651,7 +637,7 @@ class TSpa : public Mongoose::TMongoose {
     args.VerifyAllUsed();
 
     //Call the function
-    std::unordered_map<TUUID, TUUID> notifiers;
+    std::unordered_map<Base::TUuid, Base::TUuid> notifiers;
 
     TLogger("Try") << uri;
 

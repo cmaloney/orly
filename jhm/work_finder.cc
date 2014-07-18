@@ -38,7 +38,7 @@ using namespace std;
 using namespace Util;
 
 string GetCacheFilename(const TFile *file) {
-  return file->GetPath().AsStr() + ".jhm-cache";
+  return AsStr(file->GetPath()) + ".jhm-cache";
 }
 
 bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
@@ -90,7 +90,7 @@ void TWorkFinder::ProcessReady() {
       // If we're about to run the job, ensure the output directories for it exist
       // TODO: Move this to a more logical place.
       for (TFile *out : job->GetOutput()) {
-        EnsureDirExists(out->GetPath().AsStr().c_str(), true);
+        EnsureDirExists(AsStr(out->GetPath()).c_str(), true);
       }
       Runner.Queue(job);
       InsertOrFail(Running, job);
@@ -103,7 +103,7 @@ TJson::TArray BuildJsonArray(const unordered_set<TFile *> &files) {
   ret.reserve(files.size());
 
   for(TFile *f: files) {
-    ret.emplace_back(f->GetPath().AsStr());
+    ret.emplace_back(AsStr(f->GetPath()));
   }
   return ret;
 }
@@ -128,14 +128,14 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
 
   TJson::TArray job_output;
   for(TFile *f: result.Job->GetOutput()) {
-    job_output.push_back(f->GetPath().AsStr());
+    job_output.push_back(AsStr(f->GetPath()));
   }
 
   TJson job_info(TJson::TObject{
       {"build_info", TJson::TObject{
         {"job", TJson::TObject{
           {"name", result.Job->GetName()},
-          {"input", result.Job->GetInput()->GetPath().AsStr()},
+          {"input", AsStr(result.Job->GetInput()->GetPath())},
           {"output", job_output},
           {"needs",  BuildJsonArray(result.Job->GetNeeds()) },
           {"anti_needs", BuildJsonArray(result.Job->GetAntiNeeds()) }
@@ -145,7 +145,7 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
 
   for (TFile *out_file : result.Job->GetOutput()) {
     // Sanity check that all output files now exist.
-    if (!ExistsPath(out_file->GetPath().AsStr().c_str())) {
+    if (!ExistsPath(AsStr(out_file->GetPath()).c_str())) {
       THROW_ERROR(logic_error) << "Job " << result.Job << " Didn't produce the output file '" << out_file
                                << " which it was supposed to yet returned successfully...";
     }
@@ -313,7 +313,7 @@ TFile *TWorkFinder::TryGetOutputFileFromPath(const std::string &filename) {
   TFile *ret = TryGetFileFromPath(filename);
   // If we aren't buildable, try finding the executable form.
   if (ret && !IsBuildable(ret)) {
-    ret = GetFile(ret->GetPath().GetRelPath().AddExtension({""}));
+    ret = GetFile(TRelPath(AddExtension(TPath(ret->GetRelPath().Path), {""})));
   }
   return ret;
 }
@@ -374,6 +374,9 @@ void TWorkFinder::CacheCheck(TJob *job) {
     }
   }
 
+  // If the job's command is new / updated, we need to rebuild
+  in_timestamp = Newer(job->GetCmdTimestamp(), in_timestamp);
+
   // For all known outputs (There is always at least one), choose one at random and load it's cache file / treat it as
   // the magic cache entry.
   TFile *base_out = GrabOne(job->GetOutput());
@@ -394,9 +397,10 @@ void TWorkFinder::CacheCheck(TJob *job) {
   vector<string> output_filename_list;
 
   try {
+    const string in_name = AsStr(job->GetInput()->GetPath());
     // Check the ideal out matches the job
     if (ideal_out.Read<string>({"build_info","job","name"}) != job->GetName() ||
-        ideal_out.Read<string>({"build_info","job","input"}) != job->GetInput()->GetPath().AsStr() ||
+        ideal_out.Read<string>({"build_info","job","input"}) != in_name ||
         ideal_out.Read<string>({"build_info","config_timestamp"}) != ConfigTimestampStr) {
       return;
     }
@@ -438,7 +442,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
       if (!output) {
         return;
       }
-      if (!Util::ExistsPath(output->GetPath().AsStr().c_str())) {
+      if (!Util::ExistsPath(AsStr(output->GetPath()).c_str())) {
         return;
       }
       if (IsNewer(in_timestamp, GetTimestampOutput(output))) {
@@ -447,10 +451,11 @@ void TWorkFinder::CacheCheck(TJob *job) {
 
       // NOTE: Technically all build info should match exactly. But this should be good enough (and faster).
       // Check the ideal out matches the job
+      // TODO: Cache the AsStr.
       TConfig output_cache;
       output_cache.LoadComputed(GetCacheFilename(output));
       if (output_cache.Read<string>({"build_info","job","name"}) != job->GetName() ||
-          output_cache.Read<string>({"build_info","job","input"}) != job->GetInput()->GetPath().AsStr()) {
+          output_cache.Read<string>({"build_info","job","input"}) != in_name) {
         return;
       }
 

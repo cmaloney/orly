@@ -1,6 +1,6 @@
-/* <base/not_found_error.h>
+/* <strm/utf8/in.test.cc>
 
-   Whatever you were looking for ain't there.
+   Unit test for <strm/utf8/in.h>.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,21 +16,25 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#pragma once
+#include <strm/utf8/in.h>
 
-#include <base/error.h>
+#include <strm/mem/static_in.h>
+#include <test/kit.h>
 
-namespace Base {
+using namespace std;
+using namespace Strm;
 
-  /* TODO */
-  class TNotFoundError : public Base::TFinalError<TNotFoundError> {
-    public:
-
-    /* Constructor */
-    TNotFoundError(const TCodeLocation &code_location, const char *message = nullptr) {
-      PostCtor(code_location, message);
+FIXTURE(Typical) {
+  static constexpr size_t expected_size = 4;
+  static const char32_t expected[expected_size] = {
+      0x00024, 0x000A2, 0x020AC, 0x24B62 };
+  Mem::TStaticIn mem("\x24\xC2\xA2\xE2\x82\xAC\xF0\xA4\xAD\xA2");
+  Utf8::TIn strm(&mem);
+  for (size_t i = 0; i < expected_size; ++i, ++strm) {
+    if (!EXPECT_TRUE(strm)) {
+      break;
     }
-
-  };  // TNotFoundError
-
-}  // Base
+    EXPECT_EQ(*strm, expected[i]);
+  }
+  EXPECT_FALSE(strm);
+}

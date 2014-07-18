@@ -102,6 +102,13 @@ TExpr *TExprFactory::NewExpr(const Package::Syntax::TExpr *root) const {
     virtual void operator()(const Syntax::TAssertExpr *that) const { Out = new TAssertExpr(ExprFactory, that); }
     virtual void operator()(const Syntax::TBuiltInCeiling *that) const { OnAffix(that->GetExpr(), Expr::TCeiling::New, GetPosRange(that->GetCeilingKwd())); }
     virtual void operator()(const Syntax::TBuiltInFloor *that) const { OnAffix(that->GetExpr(), Expr::TFloor::New, GetPosRange(that->GetFloorKwd())); }
+    virtual void operator()(const Syntax::TBuiltInCos *that) const { OnAffix(that->GetExpr(), Expr::TCos::New, GetPosRange(that->GetCosKwd())); }
+    virtual void operator()(const Syntax::TBuiltInSin *that) const { OnAffix(that->GetExpr(), Expr::TSin::New, GetPosRange(that->GetSinKwd())); }
+    virtual void operator()(const Syntax::TBuiltInTan *that) const { OnAffix(that->GetExpr(), Expr::TTan::New, GetPosRange(that->GetTanKwd())); }
+    virtual void operator()(const Syntax::TBuiltInAcos *that) const { OnAffix(that->GetExpr(), Expr::TAcos::New, GetPosRange(that->GetAcosKwd())); }
+    virtual void operator()(const Syntax::TBuiltInAsin *that) const { OnAffix(that->GetExpr(), Expr::TAsin::New, GetPosRange(that->GetAsinKwd())); }
+    virtual void operator()(const Syntax::TBuiltInAtan *that) const { OnAffix(that->GetExpr(), Expr::TAtan::New, GetPosRange(that->GetAtanKwd())); }
+    virtual void operator()(const Syntax::TBuiltInAtan2 *that) const { OnInfix(that->GetLhs(), that->GetRhs(), Expr::TAtan2::New, GetPosRange(that->GetAtan2Kwd())); }
     virtual void operator()(const Syntax::TBuiltInLog *that) const { OnAffix(that->GetExpr(), Expr::TLog::New, GetPosRange(that->GetLogKwd())); }
     virtual void operator()(const Syntax::TBuiltInLog2 *that) const { OnAffix(that->GetExpr(), Expr::TLog2::New, GetPosRange(that->GetLog2Kwd())); }
     virtual void operator()(const Syntax::TBuiltInLog10 *that) const { OnAffix(that->GetExpr(), Expr::TLog10::New, GetPosRange(that->GetLog10Kwd())); }

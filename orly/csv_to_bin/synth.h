@@ -1,6 +1,7 @@
-/* <base/error.test.cc>
+/* <orly/csv_to_bin/synth.h>
 
-   Unit test for <base/error.h>.
+   Construct a new table symbol (along with its columns and keys) from
+   an SQL-like source text.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -16,23 +17,23 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <base/error.h>
+#pragma once
 
-#include <test/kit.h>
+#include <memory>
+#include <ostream>
 
-using namespace Base;
+#include <orly/csv_to_bin/symbol/kit.h>
 
-class TMyError : public TFinalError<TMyError> {
-  public:
+namespace Orly {
 
-  TMyError(const TCodeLocation &code_location, const char *details = 0) {
-    PostCtor(code_location, details);
-  }
-  TMyError(const TCodeLocation &code_location, const char *details_start, const char *details_end) {
-    PostCtor(code_location, details_start, details_end);
-  }
-};
+  namespace CsvToBin {
 
-FIXTURE(Typical) {
-  TMyError my_error(HERE);
-}
+    /* Construct a new table symbol (along with its columns and keys) from
+       an SQL-like source text.  If there are errors, write the diagnostic
+       messages to the given stream and return null. */
+    std::unique_ptr<Symbol::TTable> NewTable(
+        std::ostream &strm, const char *src_text);
+
+  }  // Csv2Bin
+
+}  // Orly

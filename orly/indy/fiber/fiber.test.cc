@@ -29,6 +29,25 @@ using namespace std;
 using namespace Base;
 using namespace Orly::Indy::Fiber;
 
+class TTestClass {
+  NO_COPY(TTestClass);
+  public:
+
+  TTestClass(int64_t v1, double v2, std::atomic<int64_t> &v3)
+      : V1(v1), V2(v2), V3(v3) {}
+
+  int64_t V1;
+  double V2;
+  std::atomic<int64_t> &V3;
+};
+
+static int64_t V1Init = 2;
+static double V2Init = 3.0;
+static std::atomic<int64_t> V3Init(42);
+static std::atomic<int64_t> ExpectedV3(42);
+static auto MyLocal =
+    MakeFiberLocal<TTestClass>(V1Init, V2Init, std::ref(V3Init));
+
 FIXTURE(Typical) {
   TRunner::TRunnerCons runner_cons(1);
   TRunner runner(runner_cons);
@@ -39,6 +58,77 @@ FIXTURE(Typical) {
   sleep(2);
   runner.ShutDown();
   t1.join();
+}
+
+FIXTURE(FiberLocal) {
+  class TTest : public TRunnable {
+    NO_COPY(TTest);
+    public:
+    TTest(TRunner *runner, const std::function<void ()> &completion_cb) : CompletionCb(completion_cb) {
+      Frame = TFrame::LocalFramePool->Alloc();
+      try {
+        Frame->Latch(runner, this, static_cast<TRunnable::TFunc>(&TTest::Run));
+      } catch (...) {
+        TFrame::LocalFramePool->Free(Frame);
+        throw;
+      }
+    }
+    ~TTest() {
+      TFrame::LocalFramePool->Free(Frame);
+    }
+    void Run() {
+      EXPECT_EQ(MyLocal->V1, V1Init);
+      EXPECT_EQ(MyLocal->V2, V2Init);
+      EXPECT_EQ(MyLocal->V3, V3Init);
+      MyLocal->V1 *= 2;
+      MyLocal->V2 *= 2;
+      MyLocal->V3 = MyLocal->V3 * 2L;
+      ExpectedV3 = ExpectedV3 * 2L;
+      EXPECT_EQ(MyLocal->V1, V1Init * 2);
+      EXPECT_EQ(MyLocal->V2, V2Init * 2);
+      EXPECT_EQ(MyLocal->V3, V3Init);
+      EXPECT_EQ(MyLocal->V3, ExpectedV3);
+      CompletionCb();
+    }
+    private:
+    TFrame *Frame;
+    const std::function<void ()> CompletionCb;
+  };
+  const size_t num_frames = 2UL;
+  const size_t stack_size = 1 * 1024 * 1024;
+  TRunner::TRunnerCons runner_cons(1);
+  TRunner runner(runner_cons);
+  TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *> frame_pool_manager(num_frames, stack_size, &runner);
+  TFrame::LocalFramePool = new TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool(&frame_pool_manager);
+  try {
+    auto launch_fiber_sched = [&]() {
+      runner.Run();
+    };
+    thread t1(launch_fiber_sched);
+    sleep(1);
+    std::mutex mut;
+    std::condition_variable cond;
+    size_t finished_count = 0UL;
+    auto completion_cb = [&]() {
+      std::lock_guard<std::mutex> lock(mut);
+      ++finished_count;
+      cond.notify_one();
+    };
+    TTest runnable1(&runner, completion_cb);
+    TTest runnable2(&runner, completion_cb);
+    std::unique_lock<std::mutex> lock(mut);
+    while (finished_count < 2UL) {
+      cond.wait(lock);
+    }
+    runner.ShutDown();
+    t1.join();
+  } catch (...) {
+    delete TFrame::LocalFramePool;
+    TFrame::LocalFramePool = nullptr;
+    throw;
+  }
+  delete TFrame::LocalFramePool;
+  TFrame::LocalFramePool = nullptr;
 }
 
 class TCoIterRunnable
