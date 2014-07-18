@@ -1,26 +1,10 @@
 package #1;
 
-/****************************
-**** Top Level Functions ****
-****************************/
-
-followers = (followers_seq(.uid:uid) as {int}) where {
-  uid = given::(int);
+user_id_by_handle = (*<[handle]>::(int)) where {
+  handle = given::(str);
 };
 
-following = (following_seq(.uid:uid) as {int}) where {
-  uid = given::(int);
-};
-
-mentioned_users = (keys (time_pnt) @ <[DidMentionUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
-  uid = given::(int);
-};
-
-mentioned_by_users = (keys (time_pnt) @ <[MentionedByUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
-  uid = given::(int);
-};
-
-hashtags_used_by_user = (keys (time_pnt) @ <[TagUsedByPersonID, uid, free::(str), free::(int)]>.2 as {str}) where {
+handle_by_user_id = (*<[uid]>::(str)) where {
   uid = given::(int);
 };
 
@@ -28,15 +12,77 @@ users_who_used_hashtag = (keys (time_pnt) @ <[PersonLocationID, hashtag, free::(
   hashtag = given::(str);
 };
 
-user_location_history = (user_location_history_seq(.uid:uid) as [<[time_pnt, real, real]>]) where {
+/****************************
+**** Top Level Functions ****
+********* By Handle *********
+****************************/
+
+followers = (_followers(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+following = (_following(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+mentioned_users = (_mentioned_users(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+mentioned_by_users = (_mentioned_by_users(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+hashtags_used_by_user = (_hashtags_used_by_user(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+user_location_history = (_user_location_history(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+users_replied_to = (_users_replied_to(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+users_received_reply_from = (_users_received_reply_from(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+/****************************
+**** Top Level Functions ****
+*********** By UID **********
+****************************/
+
+_followers = (followers_seq(.uid:uid) as {int}) where {
   uid = given::(int);
 };
 
-users_replied_to = (keys (time_pnt) @ <[ReplyToUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+_following = (following_seq(.uid:uid) as {int}) where {
   uid = given::(int);
 };
 
-users_received_reply_from = (keys (time_pnt) @ <[ReplyFromUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+_mentioned_users = (keys (time_pnt) @ <[DidMentionUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+  uid = given::(int);
+};
+
+_mentioned_by_users = (keys (time_pnt) @ <[MentionedByUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+  uid = given::(int);
+};
+
+_hashtags_used_by_user = (keys (time_pnt) @ <[TagUsedByPersonID, uid, free::(str), free::(int)]>.2 as {str}) where {
+  uid = given::(int);
+};
+
+_user_location_history = (user_location_history_seq(.uid:uid) as [<[time_pnt, real, real]>]) where {
+  uid = given::(int);
+};
+
+_users_replied_to = (keys (time_pnt) @ <[ReplyToUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
+  uid = given::(int);
+};
+
+_users_received_reply_from = (keys (time_pnt) @ <[ReplyFromUserID, uid, free::(int), free::(int)]>.2 as {int}) where {
   uid = given::(int);
 };
 
@@ -52,15 +98,15 @@ following_seq = (keys (bool) @ <[FollowingID, uid, free::(int)]>.2) where {
   uid = given::(int);
 };
 
-mentioned_users_seq = (**mentioned_users(.uid:uid)) where {
+mentioned_users_seq = (**_mentioned_users(.uid:uid)) where {
   uid = given::(int);
 };
 
-mentioned_by_users_seq = (**mentioned_by_users(.uid:uid)) where {
+mentioned_by_users_seq = (**_mentioned_by_users(.uid:uid)) where {
   uid = given::(int);
 };
 
-hashtags_used_by_user_seq = (**hashtags_used_by_user(.uid:uid)) where {
+hashtags_used_by_user_seq = (**_hashtags_used_by_user(.uid:uid)) where {
   uid = given::(int);
 };
 
