@@ -66,6 +66,7 @@ bool IsCoreSeq(const Expr::TExpr::TPtr &expr) {
     TVisitor(bool &res) : Res(res) {}
 
     //NOTE: Lhs, Rhs, that are all more or less refs with magic names.
+    virtual void operator()(const Expr::TAcos          *) const {}
     virtual void operator()(const Expr::TAdd           *) const {}
     virtual void operator()(const Expr::TAddr          *) const {}
     virtual void operator()(const Expr::TAddrMember    *) const {}
@@ -73,10 +74,14 @@ bool IsCoreSeq(const Expr::TExpr::TPtr &expr) {
     virtual void operator()(const Expr::TAnd           *) const {}
     virtual void operator()(const Expr::TAndThen       *) const {}
     virtual void operator()(const Expr::TAs            *) const {}
+    virtual void operator()(const Expr::TAsin          *) const {}
     virtual void operator()(const Expr::TAssert        *) const {}
+    virtual void operator()(const Expr::TAtan          *) const {}
+    virtual void operator()(const Expr::TAtan2         *) const {}
     virtual void operator()(const Expr::TCeiling       *) const {}
     virtual void operator()(const Expr::TCollatedBy    *) const { Res = true; }
     virtual void operator()(const Expr::TCollectedBy   *) const {}
+    virtual void operator()(const Expr::TCos           *) const {}
     virtual void operator()(const Expr::TDict          *) const {}
     virtual void operator()(const Expr::TDiv           *) const {}
     virtual void operator()(const Expr::TEffect        *) const {}
@@ -149,6 +154,7 @@ bool IsCoreSeq(const Expr::TExpr::TPtr &expr) {
     virtual void operator()(const Expr::TSessionId     *) const {}
     virtual void operator()(const Expr::TSequenceOf    *) const { Res = true; }
     virtual void operator()(const Expr::TSet           *) const {}
+    virtual void operator()(const Expr::TSin           *) const {}
     virtual void operator()(const Expr::TSkip          *) const { Res = true; }
     virtual void operator()(const Expr::TSlice         *) const {}
     virtual void operator()(const Expr::TSort          *) const {}
@@ -157,6 +163,7 @@ bool IsCoreSeq(const Expr::TExpr::TPtr &expr) {
     virtual void operator()(const Expr::TSub           *) const {}
     virtual void operator()(const Expr::TSymmetricDiff *) const {}
     virtual void operator()(const Expr::TTake          *) const { Res = true; }
+    virtual void operator()(const Expr::TTan           *) const {}
     virtual void operator()(const Expr::TThat          *) const { Res = true; }
     virtual void operator()(const Expr::TTimeObj       *) const {}
     virtual void operator()(const Expr::TToLower       *) const {}
@@ -292,6 +299,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
     TVisitor(const L0::TPackage *package, TInline::TPtr& res, Type::TType ret_type)
         : Interner(Context::GetInterner()), Res(res), ReturnType(ret_type), Package(package) {}
 
+    virtual void operator()(const Expr::TAcos *that) const { Unary(Package, TUnary::Acos, that); }
     virtual void operator()(const Expr::TAdd *that) const { Binary(Package, TBinary::Add, that); }
     virtual void operator()(const Expr::TAddr *that) const {
       TAddrContainer elems;
@@ -318,6 +326,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
         Unary(Package, TUnary::Cast, that);
       }
     }
+    virtual void operator()(const Expr::TAsin *that) const { Unary(Package, TUnary::Asin, that); }
     virtual void operator()(const Expr::TAssert *that) const {
       //TODO: Assertion predicates?
       //TODO: Report file name with assertion failures.
@@ -337,6 +346,8 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
         Context::GetScope()->AddAssertion(name, Build(Package, it->GetExpr(), false));
       }
     }
+    virtual void operator()(const Expr::TAtan *that) const { Unary(Package, TUnary::Atan, that); }
+    virtual void operator()(const Expr::TAtan2 *that) const { Binary(Package, TBinary::Atan2, that); }
     virtual void operator()(const Expr::TCeiling *that) const { Unary(Package, TUnary::Ceiling, that); }
     virtual void operator()(const Expr::TCollatedBy *that) const {
       auto reduce_func = TImplicitFunc::New(
@@ -387,6 +398,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
               BuildInline(Package, that->GetLhs(), false),
               collect_func);
     }
+    virtual void operator()(const Expr::TCos *that) const { Unary(Package, TUnary::Cos, that); }
     virtual void operator()(const Expr::TDict *that) const {
       TDictContainer elems;
       for(auto &it: that->GetMembers()) {
@@ -603,6 +615,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
     }
     virtual void operator()(const Expr::TSessionId *) const { Res = Interner.GetContextVar(Package, TContextVar::SessionId); }
     virtual void operator()(const Expr::TSequenceOf *that) const { Unary(Package, TUnary::SequenceOf, that); }
+    virtual void operator()(const Expr::TSin *that) const { Unary(Package, TUnary::Sin, that); }
     virtual void operator()(const Expr::TSkip *that) const {
       Res = TSkip::New(Package, ReturnType, BuildInline(Package, that->GetLhs(), false), Build(Package, that->GetRhs(), false));
     }
@@ -638,6 +651,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
     virtual void operator()(const Expr::TTake *that) const {
       Res = TTake::New(Package, ReturnType, BuildInline(Package, that->GetLhs(), false), Build(Package, that->GetRhs(), false));
     }
+    virtual void operator()(const Expr::TTan *that) const { Unary(Package, TUnary::Tan, that); }
     virtual void operator()(const Expr::TThat *) const { Res = Context::GetThat(); }
     virtual void operator()(const Expr::TTimeObj *that) const {
       auto type = that->GetType();

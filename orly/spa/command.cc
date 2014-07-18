@@ -165,6 +165,13 @@ namespace FooBar {
     /* TODO */
     virtual void operator()(const Syntax::TBuiltInCeiling *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TBuiltInFloor *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInCos *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInSin *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInTan *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInAcos *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInAsin *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInAtan *) const {NOT_IMPLEMENTED();}
+    virtual void operator()(const Syntax::TBuiltInAtan2 *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TBuiltInLog *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TBuiltInLog2 *) const {NOT_IMPLEMENTED();}
     virtual void operator()(const Syntax::TBuiltInLog10 *) const {NOT_IMPLEMENTED();}
