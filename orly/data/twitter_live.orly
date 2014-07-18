@@ -12,6 +12,11 @@ users_who_used_hashtag = (keys (time_pnt) @ <[PersonLocationID, hashtag, free::(
   hashtag = given::(str);
 };
 
+users_who_used_hashtags = (**hashtags reduce (start start_val & users_who_used_hashtag(.hashtag:that))) where {
+  start_val = ((**hashtags take 1) reduce (start empty {int} | users_who_used_hashtag(.hashtag:that)));
+  hashtags = given::({str});
+};
+
 pi = acos(-1.0);
 
 deg_to_rad = ((deg * pi) / 180.0) where {
@@ -128,6 +133,11 @@ users_received_reply_from = (_users_received_reply_from(.uid:user_id_by_handle(.
   handle = given::(str);
 };
 
+common_hashtags = (_common_hashtags(.uid1:user_id_by_handle(.handle:handle1), .uid2:user_id_by_handle(.handle:handle2))) where {
+  handle1 = given::(str);
+  handle2 = given::(str);
+};
+
 /****************************
 **** Top Level Functions ****
 *********** By UID **********
@@ -165,6 +175,27 @@ _users_received_reply_from = (keys (time_pnt) @ <[ReplyFromUserID, uid, free::(i
   uid = given::(int);
 };
 
+_common_hashtags = (_hashtags_used_by_user(.uid:uid1) & _hashtags_used_by_user(.uid:uid2)) where {
+  uid1 = given::(int);
+  uid2 = given::(int);
+};
+
+_2nd_degree_followers = ((followers_seq(.uid:uid) reduce (start empty {int} | _followers(.uid:that))) - {uid}) where {
+  uid = given::(int);
+};
+
+_2nd_degree_following = ((following_seq(.uid:uid) reduce (start empty {int} | _following(.uid:that))) - {uid}) where {
+  uid = given::(int);
+};
+
+_2nd_degree_mentions = ((mentioned_users_seq(.uid:uid) reduce (start empty {int} | _mentioned_users(.uid:that))) - {uid}) where {
+  uid = given::(int);
+};
+
+_2nd_degree_mentioned_by = ((mentioned_by_users_seq(.uid:uid) reduce (start empty {int} | _mentioned_by_users(.uid:that))) - {uid}) where {
+  uid = given::(int);
+};
+
 /******************************
 **** Helpers Returning Seq ****
 ******************************/
@@ -196,6 +227,26 @@ users_who_used_hashtag_seq = (**users_who_used_hashtag(.hashtag:hashtag)) where 
 user_location_history_seq = (<[location_history.2, location_history.3, location_history.4]>) where {
   location_history = keys(int) @ <[PersonLocationID, uid, free::(time_pnt), free::(real), free::(real)]>;
   uid = given::(int);
+};
+
+_2nd_degree_followers_with_common_hashtags_seq = (**_2nd_degree_followers(.uid:uid) if (length_of(_hashtags_used_by_user(.uid:that) & hashtags_for_uid) > 0)) where {
+  uid = given::(int);
+  hashtags_for_uid = _hashtags_used_by_user(.uid:uid);
+};
+
+_2nd_degree_following_with_common_hashtags_seq = (**_2nd_degree_following(.uid:uid) if (length_of(_hashtags_used_by_user(.uid:that) & hashtags_for_uid) > 0)) where {
+  uid = given::(int);
+  hashtags_for_uid = _hashtags_used_by_user(.uid:uid);
+};
+
+_2nd_degree_mentions_with_common_hashtags_seq = (**_2nd_degree_mentions(.uid:uid) if (length_of(_hashtags_used_by_user(.uid:that) & hashtags_for_uid) > 0)) where {
+  uid = given::(int);
+  hashtags_for_uid = _hashtags_used_by_user(.uid:uid);
+};
+
+_2nd_degree_mentioned_by_with_common_hashtags_seq = (**_2nd_degree_mentioned_by(.uid:uid) if (length_of(_hashtags_used_by_user(.uid:that) & hashtags_for_uid) > 0)) where {
+  uid = given::(int);
+  hashtags_for_uid = _hashtags_used_by_user(.uid:uid);
 };
 
 /****************************
