@@ -1,22 +1,20 @@
 /* matrix.orly
 
-   This is a package written to play with the matrix data for the js web console.  */
+   <[0]> <- "Neo";
+   <[1]> <- "Morpheus";
+   <[2]> <- "Trinity";
+   <[3]> <- "Cypher";
+   <[4]> <- "Agent Smith";
+   <[5]> <- "The Architect";
 
-/* Set up nodes and edges. */
-setup = (true) effecting {
-  new <[0]> <- "Neo";
-  new <[1]> <- "Morpheus";
-  new <[2]> <- "Trinity";
-  new <[3]> <- "Cypher";
-  new <[4]> <- "Agent Smith";
-  new <[5]> <- "The Architect";
-  new <[0, "Knows", 1]> <- true;
-  new <[0, "Loves", 2]> <- true;
-  new <[1, "Knows", 2]> <- true;
-  new <[1, "Knows", 3]> <- true;
-  new <[3, "Knows", 4]> <- true;
-  new <[4, "CodedBy", 5]> <- true;
-};
+   <[0, "Knows", 1]> <- true;
+   <[0, "Loves", 2]> <- true;
+   <[1, "Knows", 2]> <- true;
+   <[1, "Knows", 3]> <- true;
+   <[3, "Knows", 4]> <- true;
+   <[4, "CodedBy", 5]> <- true;
+
+*/
 
 /* Convenience type aliases. */
 link_t is <{.source: str, .type: str, .target: str}>;
@@ -102,9 +100,20 @@ test {
   join(.texts: ["x", "y"], .delimiter: ", ") == "x, y";
 };
 
-test {
-  setup {
-    bfs(.n: 0, .edge: "Knows") == [[0, 1], [0, 1, 2], [0, 1, 3], [0, 1, 3, 4]];
-  };
+with {
+  <[0]> <- "Neo";
+  <[1]> <- "Morpheus";
+  <[2]> <- "Trinity";
+  <[3]> <- "Cypher";
+  <[4]> <- "Agent Smith";
+  <[5]> <- "The Architect";
+  <[0, "Knows", 1]> <- true;
+  <[0, "Loves", 2]> <- true;
+  <[1, "Knows", 2]> <- true;
+  <[1, "Knows", 3]> <- true;
+  <[3, "Knows", 4]> <- true;
+  <[4, "CodedBy", 5]> <- true;
+} test {
+  bfs(.n: 0, .edge: "Knows") == [[0, 1], [0, 1, 2], [0, 1, 3], [0, 1, 3, 4]];
 };
 
