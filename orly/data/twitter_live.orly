@@ -12,6 +12,76 @@ users_who_used_hashtag = (keys (time_pnt) @ <[PersonLocationID, hashtag, free::(
   hashtag = given::(str);
 };
 
+pi = acos(-1.0);
+
+deg_to_rad = ((deg * pi) / 180.0) where {
+  deg = given::(real);
+};
+
+compute_haversine_from_degrees = (d) where {
+  delta_lat = rlat2 - rlat1;
+  delta_lon = rlon2 - rlon1;
+  a = (sin(delta_lat / 2.0) ** 2.0) + cos(rlat1) * cos(rlat2) * (sin(delta_lon / 2.0) ** 2.0);
+  c = 2 * atan2(a ** 0.5, (1 - a) ** 0.5);
+  d = R * c;
+  rlon1 = deg_to_rad(.deg:lon1);
+  rlon2 = deg_to_rad(.deg:lon2);
+  rlat1 = deg_to_rad(.deg:lat1);
+  rlat2 = deg_to_rad(.deg:lat2);
+  lon1 = given::(real);
+  lon2 = given::(real);
+  lat1 = given::(real);
+  lat2 = given::(real);
+  R = given::(real);
+};
+
+with {
+} test {
+  t1: compute_haversine_from_degrees(.lon1:50.0, .lon2:51.0, .lat1:50.0, .lat2:51.0, .R:6372.8) < 131.9;
+  t2: compute_haversine_from_degrees(.lon1:50.0, .lon2:51.0, .lat1:50.0, .lat2:51.0, .R:6372.8) > 131.7;
+};
+
+compute_distance_between_degrees = (compute_haversine_from_degrees(.lon1:lon1, .lon2:lon2, .lat1:lat1, .lat2:lat2, .R:6372.8)) where {
+  lon1 = given::(real);
+  lon2 = given::(real);
+  lat1 = given::(real);
+  lat2 = given::(real);
+};
+
+when_were_users_close = (nearby_when) where {
+  location_history1 = user_location_history_seq(.uid:uid1);
+  location_history2 = user_location_history_seq(.uid:uid2);
+  nearby_when = location_history1 reduce (start empty[<[real, time_pnt, real, real, time_pnt, real, real]>] + search_cartesian(.input:that));
+  search_cartesian = (res) where {
+    res = location_history2 reduce (start empty [<[real, time_pnt, real, real, time_pnt, real, real]>] + ([<[distance(.lon2:that.1, .lat2:that.2), input.0, input.1, input.2, that.0, that.1, that.2]>] if (valid_time_margin(.t1:that.0, .t2:input.0) and distance(.lon2:that.1, .lat2:that.2) <= distance_margin) else empty [<[real, time_pnt, real, real, time_pnt, real, real]>]));
+    valid_time_margin = (((t1 - t2 <= time_margin) if t1 > t2 else (t2 - t1 <= time_margin))) where {
+      t1 = given::(time_pnt);
+      t2 = given::(time_pnt);
+    };
+    distance = (compute_distance_between_degrees(.lon1:input.1, .lat1:input.2, .lon2:lon2, .lat2:lat2)) where {
+      lon2 = given::(real);
+      lat2 = given::(real);
+    };
+    input = given::(<[time_pnt, real, real]>);
+  };
+  time_margin = given::(time_diff);
+  distance_margin = given::(real);
+  uid1 = given::(int);
+  uid2 = given::(int);
+};
+
+with {
+  <[PersonLocationID, 1, {1970-01-01T00:00:00Z}, 50.0, 50.0]> <- 1;
+  <[PersonLocationID, 1, {1971-01-01T00:00:01Z}, 75.0, 75.0]> <- 1;
+  <[PersonLocationID, 2, {1970-01-01T00:00:02Z}, 50.1, 50.1]> <- 1;
+  <[PersonLocationID, 2, {1970-01-01T00:00:03Z}, 80.0, 80.0]> <- 1;
+  <[PersonLocationID, 2, {1971-01-01T00:00:04Z}, 50.1, 50.1]> <- 1;
+} test {
+  t1: when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:1:0}, .distance_margin:100.0) == [<[compute_distance_between_degrees(.lon1:50.0, .lat1:50.0, .lon2:50.1, .lat2:50.1), {1970-01-01T00:00:00Z}, 50.0, 50.0, {1970-01-01T00:00:02Z}, 50.1, 50.1]>];
+  t2: when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:1:0}, .distance_margin:1.0) == empty [<[real, time_pnt, real, real, time_pnt, real, real]>];
+  t3: when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:0:1}, .distance_margin:100.0) == empty [<[real, time_pnt, real, real, time_pnt, real, real]>];
+};
+
 /****************************
 **** Top Level Functions ****
 ********* By Handle *********
