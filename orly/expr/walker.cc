@@ -38,6 +38,9 @@ void Orly::Expr::ForEachExpr(const TExpr::TPtr &root, const TCb &cb, bool includ
     expr_visitor_t(const TCb &cb, bool include_inner_funcs)
         : Cb(cb), IncludeInnerFuncs(include_inner_funcs) {}
     virtual ~expr_visitor_t() noexcept {};
+    virtual void operator()(const TAcos *that) const {
+      Unary(that);
+    }
     virtual void operator()(const TAdd *that) const {
       Binary(that);
     }
@@ -61,11 +64,20 @@ void Orly::Expr::ForEachExpr(const TExpr::TPtr &root, const TCb &cb, bool includ
     virtual void operator()(const TAs *that) const {
       Unary(that);
     }
+    virtual void operator()(const TAsin *that) const {
+      Unary(that);
+    }
     virtual void operator()(const TAssert *that) const {
       Unary(that);
       for(auto &it: that->GetAssertCases()) {
         Yield(it->GetExpr());
       }
+    }
+    virtual void operator()(const TAtan *that) const {
+      Unary(that);
+    }
+    virtual void operator()(const TAtan2 *that) const {
+      Binary(that);
     }
     virtual void operator()(const TCeiling *that) const {
       Unary(that);
@@ -77,6 +89,9 @@ void Orly::Expr::ForEachExpr(const TExpr::TPtr &root, const TCb &cb, bool includ
     }
     virtual void operator()(const TCollectedBy *that) const {
       Binary(that);
+    }
+    virtual void operator()(const TCos *that) const {
+      Unary(that);
     }
     virtual void operator()(const TDict *that) const {
       for(auto &it: that->GetMembers()) {
@@ -242,6 +257,9 @@ void Orly::Expr::ForEachExpr(const TExpr::TPtr &root, const TCb &cb, bool includ
         Yield(it);
       }
     }
+    virtual void operator()(const TSin *that) const {
+      Unary(that);
+    }
     virtual void operator()(const TSkip *that) const {
       Binary(that);
     }
@@ -269,6 +287,9 @@ void Orly::Expr::ForEachExpr(const TExpr::TPtr &root, const TCb &cb, bool includ
     }
     virtual void operator()(const TTake *that) const {
       Binary(that);
+    }
+    virtual void operator()(const TTan *that) const {
+      Unary(that);
     }
     virtual void operator()(const TThat *) const {}
     virtual void operator()(const TTimeObj *that) const {

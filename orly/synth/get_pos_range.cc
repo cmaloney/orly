@@ -568,6 +568,13 @@ TPosRange Orly::Synth::GetPosRange(const Package::Syntax::TExpr *expr) {
     virtual void operator()(const Package::Syntax::TAssertExpr           *that) const { PosRange = Orly::Synth::GetPosRange(that); }
     virtual void operator()(const Package::Syntax::TBuiltInCeiling       *that) const { PosRange = Orly::Synth::GetPosRange(that->GetCeilingKwd()); }
     virtual void operator()(const Package::Syntax::TBuiltInFloor         *that) const { PosRange = Orly::Synth::GetPosRange(that->GetFloorKwd()); }
+    virtual void operator()(const Package::Syntax::TBuiltInCos           *that) const { PosRange = Orly::Synth::GetPosRange(that->GetCosKwd()); }
+    virtual void operator()(const Package::Syntax::TBuiltInSin           *that) const { PosRange = Orly::Synth::GetPosRange(that->GetSinKwd()); }
+    virtual void operator()(const Package::Syntax::TBuiltInTan           *that) const { PosRange = Orly::Synth::GetPosRange(that->GetTanKwd()); }
+    virtual void operator()(const Package::Syntax::TBuiltInAcos          *that) const { PosRange = Orly::Synth::GetPosRange(that->GetAcosKwd()); }
+    virtual void operator()(const Package::Syntax::TBuiltInAsin          *that) const { PosRange = Orly::Synth::GetPosRange(that->GetAsinKwd()); }
+    virtual void operator()(const Package::Syntax::TBuiltInAtan          *that) const { PosRange = Orly::Synth::GetPosRange(that->GetAtanKwd()); }
+    virtual void operator()(const Package::Syntax::TBuiltInAtan2         *that) const { PosRange = Orly::Synth::GetPosRange(that->GetAtan2Kwd()); }
     virtual void operator()(const Package::Syntax::TBuiltInLog           *that) const { PosRange = Orly::Synth::GetPosRange(that->GetLogKwd()); }
     virtual void operator()(const Package::Syntax::TBuiltInLog2          *that) const { PosRange = Orly::Synth::GetPosRange(that->GetLog2Kwd()); }
     virtual void operator()(const Package::Syntax::TBuiltInLog10         *that) const { PosRange = Orly::Synth::GetPosRange(that->GetLog10Kwd()); }

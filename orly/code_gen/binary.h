@@ -31,7 +31,7 @@ namespace Orly {
 
       typedef std::shared_ptr<const TBinary> TPtr;
 
-      enum TOp {Add, And, Div, EqEq, Exponent, Gt, GtEq, In, Intersection, IsKnownExpr, Lt, LtEq, Modulo, Mult,
+      enum TOp {Add, And, Atan2, Div, EqEq, Exponent, Gt, GtEq, In, Intersection, IsKnownExpr, Lt, LtEq, Modulo, Mult,
                 Neq, Or, Sub, SymmetricDiff, Union, Xor};
 
       TBinary(const L0::TPackage *package, const Type::TType &ret_type, TOp op, const TInline::TPtr &lhs, const TInline::TPtr &rhs);

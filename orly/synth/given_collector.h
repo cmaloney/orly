@@ -74,6 +74,13 @@ namespace Orly {
       virtual void operator()(const Package::Syntax::TAssertExpr *that) const { Push(that->GetExpr()); }
       virtual void operator()(const Package::Syntax::TBuiltInCeiling *that) const { Push(that->GetExpr()); }
       virtual void operator()(const Package::Syntax::TBuiltInFloor *that) const { Push(that->GetExpr()); }
+      virtual void operator()(const Package::Syntax::TBuiltInCos *that) const { Push(that->GetExpr()); }
+      virtual void operator()(const Package::Syntax::TBuiltInSin *that) const { Push(that->GetExpr()); }
+      virtual void operator()(const Package::Syntax::TBuiltInTan *that) const { Push(that->GetExpr()); }
+      virtual void operator()(const Package::Syntax::TBuiltInAcos *that) const { Push(that->GetExpr()); }
+      virtual void operator()(const Package::Syntax::TBuiltInAsin *that) const { Push(that->GetExpr()); }
+      virtual void operator()(const Package::Syntax::TBuiltInAtan *that) const { Push(that->GetExpr()); }
+      virtual void operator()(const Package::Syntax::TBuiltInAtan2 *that) const { Push(that->GetLhs(), that->GetRhs()); }
       virtual void operator()(const Package::Syntax::TBuiltInLog *that) const { Push(that->GetExpr()); }
       virtual void operator()(const Package::Syntax::TBuiltInLog2 *that) const { Push(that->GetExpr()); }
       virtual void operator()(const Package::Syntax::TBuiltInLog10 *that) const { Push(that->GetExpr()); }

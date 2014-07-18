@@ -31,8 +31,8 @@ namespace Orly {
       typedef std::shared_ptr<const TUnary> TPtr;
 
       //TODO: effect
-      enum TOp {AddressOf, Cast, Ceiling, Floor, IsEmpty, IsKnown, IsUnknown, Known, LengthOf, Log,
-                Log2, Log10, Negative, Not, Read, ReverseOf, SequenceOf, TimeDiffObj, TimePntObj, ToLower, ToUpper, UnwrapMutable };
+      enum TOp {Acos, AddressOf, Asin, Atan, Cast, Ceiling, Cos, Floor, IsEmpty, IsKnown, IsUnknown, Known, LengthOf, Log,
+                Log2, Log10, Negative, Not, Read, ReverseOf, SequenceOf, Sin, Tan, TimeDiffObj, TimePntObj, ToLower, ToUpper, UnwrapMutable };
 
       TUnary(const L0::TPackage *package, const Type::TType &ret_type, TOp op, const TInline::TPtr &expr);
 

@@ -32,7 +32,13 @@ TUnary::TUnary(const L0::TPackage *package,
 
 void TUnary::WriteExpr(TCppPrinter &out) const {
   switch(Op) {
+    case Acos: Call(out, "acos");
+      break;
     case AddressOf: Postfix(out, "GetOptAddr");
+      break;
+    case Asin: Call(out, "asin");
+      break;
+    case Atan: Call(out, "atan");
       break;
     case Cast: out << "CastAs<" << GetReturnType() << ", " << Expr->GetReturnType() << ">::Do(" << Expr << ')';
       break;
@@ -47,6 +53,8 @@ void TUnary::WriteExpr(TCppPrinter &out) const {
       break;
     }
     #endif
+    case Cos: Call(out, "cos");
+      break;
     case Floor: Call(out, "floor");
       break;
     case IsEmpty: Call(out, "IsEmpty");
@@ -79,6 +87,10 @@ void TUnary::WriteExpr(TCppPrinter &out) const {
     case ReverseOf: Call(out, "Reverse");
       break;
     case SequenceOf: Call(out, "MakeGenerator");
+      break;
+    case Sin: Call(out, "sin");
+      break;
+    case Tan: Call(out, "tan");
       break;
     case TimeDiffObj: Call(out, "Rt::Objects::TObjO6i3dayi4hourb10is_forwardi6minutei10nanosecondi6second");
       break;
