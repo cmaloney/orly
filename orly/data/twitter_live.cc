@@ -247,6 +247,10 @@ constexpr int64_t TagUsedByPerson = 6;
 constexpr int64_t PersonLocation = 7;
 constexpr int64_t Following = 8;
 constexpr int64_t FollowedBy = 9;
+constexpr int64_t PersonRetweeted = 10;
+constexpr int64_t PersonRetweetedTweet = 11;
+constexpr int64_t PersonWasRetweeted = 12;
+constexpr int64_t TweetWasRetweeted = 13;
 
 void TranslateFollow(TJsonIter &input) {
   assert(&input);
@@ -389,6 +393,31 @@ void TranslateStatus(TJsonIter &input) {
     person_used_tag_cvg.Push(t_person_used_tag_key(PersonUsedTag, uid, hashtag, tid), t_person_used_tag_val(handle, date));
     tag_used_by_cvg.Push(t_tag_used_by_key(TagUsedByPerson, hashtag, uid, tid), t_tag_used_by_val(handle, date));
   };
+  // person retweeted
+  using t_person_retweet_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, user id, id of original tweet user , tweet id
+  using t_person_retweet_val = std::tuple<std::string, std::string, int64_t, Base::Chrono::TTimePnt>;  // user handle, user handle of originator, original tweet id, date
+  TCoreVectorGenerator<t_person_retweet_key, t_person_retweet_val> person_retweet_cvg("person_retweet_user");
+  using t_person_retweet_tweet_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, user id, original tweet id, tweet id
+  using t_person_retweet_tweet_val = std::tuple<std::string, std::string, int64_t, Base::Chrono::TTimePnt>;  // user handle, user handle of originator, user id of originator, date
+  TCoreVectorGenerator<t_person_retweet_tweet_key, t_person_retweet_tweet_val> person_retweet_tweet_cvg("person_retweet_tweet");
+  using t_person_was_retweeted_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, user id of original user, user who retweeted , tweet id
+  using t_person_was_retweeted_val = std::tuple<std::string, std::string, int64_t, Base::Chrono::TTimePnt>;  // user handle of original user, user handle of retweeter, original tweet id, date
+  TCoreVectorGenerator<t_person_was_retweeted_key, t_person_was_retweeted_val> person_was_retweeted_cvg("person_was_retweeted");
+  using t_tweet_was_retweeted_key = std::tuple<int64_t, int64_t, int64_t, int64_t>;  // IndexId, original tweet id, user id who retweeted , tweet id
+  using t_tweet_was_retweeted_val = std::tuple<std::string, std::string, int64_t, Base::Chrono::TTimePnt>;  // user handle of original user, user handle of retweeter, user id of original user, date
+  TCoreVectorGenerator<t_tweet_was_retweeted_key, t_tweet_was_retweeted_val> tweet_was_retweeted_cvg("tweet_was_retweeted");
+  auto person_retweeted = [&](int64_t uid,
+                              const std::string &handle,
+                              int64_t ouid,
+                              const std::string &ohandle,
+                              int64_t tid,
+                              int64_t otid,
+                              const Base::Chrono::TTimePnt &date) {
+    person_retweet_cvg.Push(t_person_retweet_key(PersonRetweeted, uid, ouid, tid), t_person_retweet_val(handle, ohandle, otid, date));
+    person_retweet_tweet_cvg.Push(t_person_retweet_tweet_key(PersonRetweetedTweet, uid, otid, tid), t_person_retweet_tweet_val(handle, ohandle, ouid, date));
+    person_was_retweeted_cvg.Push(t_person_was_retweeted_key(PersonWasRetweeted, ouid, uid, tid), t_person_was_retweeted_val(ohandle, handle, otid, date));
+    tweet_was_retweeted_cvg.Push(t_tweet_was_retweeted_key(TweetWasRetweeted, otid, uid, tid), t_tweet_was_retweeted_val(ohandle, handle, ouid, date));
+  };
 
   for (; input; ++input) {
     const TJson &status_obj_json = *input;
@@ -402,6 +431,15 @@ void TranslateStatus(TJsonIter &input) {
     }
     for (const auto &tag : obj.entities.hashtags) {
       person_tagged(obj.user.id, obj.user.screen_name, tag.text, obj.id, obj.created_at);
+    }
+    if (obj.retweeted_status) {
+      person_retweeted(obj.user.id,
+                       obj.user.screen_name,
+                       obj.retweeted_status->user.id,
+                       obj.retweeted_status->user.screen_name,
+                       obj.id,
+                       obj.retweeted_status->id,
+                       obj.created_at);
     }
   }
 }
@@ -445,7 +483,7 @@ int main(int argc, char *argv[]) {
       if (dataset == "users") {
         TranslateUser(json_iter);
       } else if (dataset == "follows") {
-        TranslateFollow(json_iter);
+        //TranslateFollow(json_iter);
       } else if (dataset == "statuses") {
         TranslateStatus(json_iter);
       }

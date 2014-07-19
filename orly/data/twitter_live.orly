@@ -278,3 +278,7 @@ TagUsedByPersonID = 6;
 PersonLocationID = 7;
 FollowingID = 8;
 FollowedByID = 9;
+PersonRetweetedID = 10;
+PersonRetweetedTweetID = 11;
+PersonWasRetweetedID = 12;
+TweetWasRetweetedID = 13;
