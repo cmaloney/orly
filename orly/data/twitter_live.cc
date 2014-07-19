@@ -186,7 +186,7 @@ struct TStatusObj :
     }
   };
 
-  Base::TOpt<std::vector<TContributorObj>> contributors;
+  //Base::TOpt<std::vector<TContributorObj>> contributors;  // TODO: issue parsing contributors for now
   Base::TOpt<TCoordinateObj> coordinates;
   Base::Chrono::TTimePnt created_at;
   TEntitiesObj entities;
@@ -214,7 +214,7 @@ struct TStatusObj :
 
   virtual const TAnyFields &GetFields() const override {
     static const TFields<TStatusObj> fields {
-      NEW_FIELD(TStatusObj, contributors),
+      //NEW_FIELD(TStatusObj, contributors),
       NEW_FIELD(TStatusObj, coordinates),
       NEW_FIELD(TStatusObj, created_at),
       NEW_FIELD(TStatusObj, entities),
@@ -495,6 +495,10 @@ int main(int argc, char *argv[]) {
         } catch (const Util::TOpenFileError &ex) {
           cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(cmd.Username) << " file " << quoted(ss.str()) << endl;
           cout << ex.what() << endl;
+        } catch (const std::exception &ex) {
+          cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(cmd.Username) << " file " << quoted(string(name)) << endl;
+          cout << ex.what() << endl;
+          throw ex;
         }
         return true;
       });
