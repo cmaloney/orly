@@ -1,5 +1,3 @@
-package #1;
-
 SimpleUser is <[int, str]>;
 HandleTime is <[str, time_pnt]>;
 HandleHandleTime is <[str, str, time_pnt]>;
@@ -12,9 +10,21 @@ handle_by_user_id = (*<[uid]>::(str)) where {
   uid = given::(int);
 };
 
+users_by_handle = ((seq if (lim <= 0) else seq take lim) as [str]) where {
+  seq = users_by_handle_seq;
+  lim = given::(int);
+};
+
 users_who_used_hashtag = (<[k.2, *k::(HandleTime).0]> as {SimpleUser}) where {
   k = keys (HandleTime) @ <[TagUsedByPersonID, hashtag, free::(int), free::(int)]>;
   hashtag = given::(str);
+};
+
+users_with_location_data = ((res_seq if (lim <= 0) else res_seq take lim) as [<[str, int]>]) where {
+  seq = keys(<[str, int]>) @ <[PersonLocationID, free::(int), free::(time_pnt), free::(real), free::(real)]>;
+  input_seq = *seq::(<[str, int]>).0;
+  res_seq = input_seq collated_by start 0 + 1 having that;
+  lim = given::(int);
 };
 
 users_who_used_hashtags = (**hashtags reduce (start start_val & users_who_used_hashtag(.hashtag:that))) where {
@@ -212,6 +222,8 @@ _2nd_degree_mentioned_by = ((mentioned_by_users_seq(.uid:uid) reduce (start empt
 /******************************
 **** Helpers Returning Seq ****
 ******************************/
+
+users_by_handle_seq =  keys (int) @ <[free::(str)]>.0;
 
 followers_seq = (<[k.2, *k::(<[str, str]>).1]>) where {
   k = keys (<[str, str]>) @ <[FollowedByID, uid, free::(int)]>;
