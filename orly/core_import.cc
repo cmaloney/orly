@@ -57,6 +57,8 @@ class TCmd final
   /* The file pattern from which to import. */
   string ImportPattern;
 
+  string ImportPkg;
+
   /* TODO */
   int64_t NumLoadThreads = 0;
 
@@ -92,6 +94,10 @@ class TCmd final
           &TCmd::ImportPattern, "import_pattern", Required, "import_pattern\0",
           "A file pattern from which to import."
       );
+      Param(
+          &TCmd::ImportPkg, "import_pkg", Required, "import_pkg\0",
+          "Name of package to import the data as / to."
+        );
       Param(
           &TCmd::NumLoadThreads, "num_load_threads", Required, "num_load_threads\0",
           "The number of files to import at the same time."
@@ -149,7 +155,7 @@ int main(int argc, char *argv[]) {
     client->BeginImport();
     syslog(LOG_INFO, "import mode begun");
     try {
-      client->ImportCoreVector(cmd.ImportPattern, cmd.NumLoadThreads, cmd.NumMergeThreads, cmd.NumSimMerge)->Sync();
+      client->ImportCoreVector(cmd.ImportPattern, cmd.ImportPkg, cmd.NumLoadThreads, cmd.NumMergeThreads, cmd.NumSimMerge)->Sync();
     } catch (...) {
       syslog(LOG_INFO, "ending import mode due to exception");
       client->EndImport();

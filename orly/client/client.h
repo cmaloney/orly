@@ -97,7 +97,7 @@ namespace Orly {
       std::shared_ptr<Rpc::TFuture<void>> TailGlobalPov();
 
       /* TODO */
-      std::shared_ptr<Rpc::TFuture<std::string>> ImportCoreVector(const std::string &file_pattern, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous);
+      std::shared_ptr<Rpc::TFuture<std::string>> ImportCoreVector(const std::string &file_pattern, const std::string &pkg_name, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous);
 
       /* TODO */
       const Base::TOpt<Base::TUuid> &GetSessionId() const {

@@ -363,7 +363,7 @@ class TWsImpl final
             load_threads = Translate(stmt->GetLoadThreads()),
             merge_threads = Translate(stmt->GetMergeThreads()),
             merge_sim = Translate(stmt->GetMergeSim());
-        GetSession()->Import(path, load_threads, merge_threads, merge_sim);
+        GetSession()->Import(path, Translate(stmt->GetPkgName()), load_threads, merge_threads, merge_sim);
       }
 
       /* Compile Orlyscript into an installable package. */
@@ -474,6 +474,21 @@ class TWsImpl final
               });
           Result["line_nums"] = std::move(line_nums);
         }  // if
+      }
+
+      virtual void operator()(const TListSchemaStmt *stmt) const override {
+        assert(this);
+        assert(stmt);
+        Result = TJson::Object;
+        Conn->Ws->SessionManager->ForEachIndex([this](const std::string &pkg,
+                                                  const std::string &key,
+                                                  const std::string &val) {
+          if (!Result.Contains(pkg)) {
+            Result[pkg] = TJson::Object;
+          }
+          Result[pkg][key] = val;
+          return true;
+        });
       }
 
       private:

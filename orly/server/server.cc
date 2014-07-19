@@ -21,6 +21,7 @@
 #include <poll.h>
 #include <sys/syscall.h>
 
+#include <base/as_str.h>
 #include <base/booster.h>
 #include <base/glob.h>
 #include <base/not_implemented.h>
@@ -34,6 +35,7 @@
 #include <orly/mynde/protocol.h>
 #include <orly/mynde/value.h>
 #include <orly/protocol.h>
+#include <orly/sabot/to_native.h>
 #include <strm/fd.h>
 #include <strm/bin/in.h>
 #include <strm/bin/out.h>
@@ -830,31 +832,27 @@ void TServer::Init() {
         session->InsertNotification(Notification::TUpdateProgress::New(repo_id, tracker_id, Notification::TUpdateProgress::Replicated));
       }
     };
-    auto on_replicate_index_id_cb = [this](const Base::TUuid &idx_id, const Indy::TKey &key, const Indy::TKey &val) {
-      void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+    auto on_replicate_index_id_cb = [this](
+        const Base::TUuid &idx_id, const std::string &pkg_key, const Indy::TKey &val) {
       void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
       std::lock_guard<std::mutex> lock(IndexMapMutex);
-      Sabot::Type::TAny::TWrapper key_type_wrapper(key.GetCore().GetType(key.GetArena(), key_type_alloc));
       Sabot::Type::TAny::TWrapper val_type_wrapper(val.GetCore().GetType(val.GetArena(), val_type_alloc));
-      auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(Atom::TCore(&IndexMapArena, *key_type_wrapper), &IndexMapArena),
-                                                     TKey(Atom::TCore(&IndexMapArena, *val_type_wrapper), &IndexMapArena)),
-                                          idx_id);
+
+      auto ret = IndexByIndexId.emplace(
+          TIndexType(string(pkg_key), TKey(Atom::TCore(&IndexMapArena, *val_type_wrapper), &IndexMapArena)), idx_id);
       bool is_new = ret.second;
       if (is_new) {
         IndexIdSet.insert(idx_id);
         stringstream ss;
-        ss << "Replicating index [" << idx_id << "] ";
-        key_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-        ss << " <- ";
+        ss << "Replicating index [" << idx_id << "] " << pkg_key << " <- ";
         val_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-        ss << std::endl;
-        syslog(LOG_INFO, "%s", ss.str().c_str());
+        syslog(LOG_INFO, "%s\n", ss.str().c_str());
       }
     };
-    auto for_each_index_cb = [this](const std::function<void (const Base::TUuid &, const Indy::TKey &, const Indy::TKey &)> &cb) {
+    auto for_each_index_cb = [this](const TManager::TIndexCb &cb) {
       std::lock_guard<std::mutex> lock(IndexMapMutex);
-      for (const auto &iter : IndexTypeByIdMap) {
-        cb(iter.second, iter.first.GetKey(), iter.first.GetVal());
+      for (const auto &iter : IndexByIndexId) {
+        cb(iter.second, iter.first.GetPackageKey(), iter.first.GetVal());
       }
     };
 
@@ -950,7 +948,8 @@ void TServer::Init() {
 
     /* figure out what index ids we currently support */ {
       std::lock_guard<std::mutex> lock(IndexMapMutex);
-      engine_ptr->ForEachFile([engine_ptr, this, key_type_alloc, val_type_alloc](const Base::TUuid &file_uid, const Indy::Disk::TFileObj &file_obj) {
+      engine_ptr->ForEachFile([engine_ptr, this, key_type_alloc, val_type_alloc](const Base::TUuid &file_uid,
+                                                                                 const Indy::Disk::TFileObj &file_obj) {
         if (file_uid != Indy::TManager::SystemRepoId) {
           switch (file_obj.Kind) {
             case Indy::Disk::TFileObj::TKind::DataFile: {
@@ -965,21 +964,21 @@ void TServer::Init() {
                   TKey key((*csr).Key, index_arena.get());
                   TKey val((*csr).Value, main_arena.get());
 
+                  string pkg_key = Sabot::AsNative<string>(*Sabot::State::TAny::TWrapper(key.GetState(key_type_alloc)));
+
                   Sabot::Type::TAny::TWrapper key_type_wrapper(key.GetCore().GetType(index_arena.get(), key_type_alloc));
                   Sabot::Type::TAny::TWrapper val_type_wrapper(val.GetCore().GetType(main_arena.get(), val_type_alloc));
-                  auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(Atom::TCore(&IndexMapArena, *key_type_wrapper), &IndexMapArena),
-                                                                 TKey(Atom::TCore(&IndexMapArena, *val_type_wrapper), &IndexMapArena)),
-                                                      idx_pair.first);
+
+                  auto ret = IndexByIndexId.emplace(
+                      TIndexType(string(pkg_key), TKey(Atom::TCore(&IndexMapArena, *val_type_wrapper), &IndexMapArena)),
+                      idx_pair.first);
                   bool is_new = ret.second;
                   if (is_new) {
                     IndexIdSet.insert(idx_pair.first);
                     stringstream ss;
-                    ss << "Loading index [" << idx_pair.first << "] ";
-                    key_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-                    ss << " <- ";
+                    ss << "Loading index [" << idx_pair.first << "] " << pkg_key << " <- ";
                     val_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-                    ss << std::endl;
-                    syslog(LOG_INFO, "%s", ss.str().c_str());
+                    syslog(LOG_INFO, "%s\n", ss.str().c_str());
                   }
                 }
               }
@@ -1124,14 +1123,14 @@ void TServer::Init() {
         void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
         Sabot::Type::TAny::TWrapper key_type_wrapper(Orly::Native::Type::For<Mynde::TKey>::GetType(key_type_alloc));
         Sabot::Type::TAny::TWrapper val_type_wrapper(Orly::Native::Type::For<Mynde::TValue>::GetType(val_type_alloc));
-        Atom::TCore key_core(&IndexMapArena, *key_type_wrapper);
+        string pkg_key = "memcache " + AsStrFunc(Sabot::DumpType, *key_type_wrapper);
         Atom::TCore val_core(&IndexMapArena, *val_type_wrapper);
-        auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)),
-                                            Mynde::MemcachedIndexUuid);
+        auto ret = IndexByIndexId.emplace(TIndexType(string(pkg_key), TKey(val_core, &IndexMapArena)),
+                                          Mynde::MemcachedIndexUuid);
         if (ret.second) {
           /* TODO: clean up the index_id_replication obj... refactor this logic into a function */
-          RepoManager->Enqueue(new TIndexIdReplication(
-              Mynde::MemcachedIndexUuid, TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)));
+          RepoManager->Enqueue(
+              new TIndexIdReplication(Mynde::MemcachedIndexUuid, pkg_key, TKey(val_core, &IndexMapArena)));
           IndexIdSet.insert(Mynde::MemcachedIndexUuid);
         }
       }
@@ -1205,6 +1204,28 @@ TWs::TSessionPin *TServer::ResumeSession(const TUuid &id) {
   return new TSessionPin(this, id);
 }
 
+bool TServer::ForEachIndex(const std::function<
+    bool(const std::string &pkg, const std::string &key_type, const std::string &val_type)> &cb) const {
+  assert(this);
+  lock_guard<mutex> lock(IndexMapMutex);
+  Atom::TSuprena temp_arena;
+  for(const auto &idx: IndexByIndexId) {
+    const string &pkg_key = idx.first.GetPackageKey();
+    auto pkg_key_split = pkg_key.find(' ');
+    string pkg = pkg_key.substr(0, pkg_key_split);
+
+    void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
+    Sabot::Type::TAny::TWrapper val_type_wrapper(idx.first.GetVal().GetCore().GetType(&temp_arena, val_type_alloc));
+
+    if (!cb(pkg_key.substr(0, pkg_key_split),
+            pkg_key.substr(pkg_key_split + 1),
+            AsStrFunc(Sabot::DumpType, *val_type_wrapper))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 TServer::TSessionPin::TSessionPin(TServer *server) {
   assert(server);
   server->RunWs(Indy::Fiber::TJumpRunnable([this, server] {
@@ -1242,12 +1263,18 @@ const Base::TUuid &TServer::TSessionPin::GetId() const {
   return Conn->GetSession()->GetId();
 }
 
-void TServer::TSessionPin::Import(
-    const string &file_pattern, int64_t num_load_threads,
-    int64_t num_merge_threads, int64_t merge_simultaneous) const {
-  Conn->RunWs(Indy::Fiber::TJumpRunnable(bind(
-      &TConnection::ImportCoreVector, Conn.get(),
-      cref(file_pattern), num_load_threads, num_merge_threads, merge_simultaneous)));
+void TServer::TSessionPin::Import(const string &file_pattern,
+                                  const string &pkg_name,
+                                  int64_t num_load_threads,
+                                  int64_t num_merge_threads,
+                                  int64_t merge_simultaneous) const {
+  Conn->RunWs(Indy::Fiber::TJumpRunnable(bind(&TConnection::ImportCoreVector,
+                                              Conn.get(),
+                                              cref(file_pattern),
+                                              cref(pkg_name),
+                                              num_load_threads,
+                                              num_merge_threads,
+                                              merge_simultaneous)));
 }
 
 void TServer::TSessionPin::InstallPackage(
@@ -1461,7 +1488,7 @@ TServer::TConnection::TProtocol::TProtocol() {
   Register<TConnection, TMethodResult, TUuid, vector<string>, TClosure, TUuid>(ServerRpc::DoInPast, &TConnection::DoInPast);
   Register<TConnection, void>(ServerRpc::BeginImport, &TConnection::BeginImport);
   Register<TConnection, void>(ServerRpc::EndImport, &TConnection::EndImport);
-  Register<TConnection, string, string, int64_t, int64_t, int64_t>(ServerRpc::ImportCoreVector, &TConnection::ImportCoreVector);
+  Register<TConnection, string, string, string, int64_t, int64_t, int64_t>(ServerRpc::ImportCoreVector, &TConnection::ImportCoreVector);
   Register<TConnection, void>(ServerRpc::TailGlobalPov, &TConnection::TailGlobalPov);
 }
 
@@ -1550,7 +1577,11 @@ void TServer::TailGlobalPov() {
   Scheduler->Schedule(std::bind(run_func, total_block_slots_available / 4));
 }
 
-string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous_in) {
+string TServer::ImportCoreVector(const string &file_pattern,
+                                 const string &pkg_name,
+                                 int64_t num_load_threads,
+                                 int64_t num_merge_threads,
+                                 int64_t merge_simultaneous_in) {
   /* these are the proposed steps:
       1. write out all the data files in parallel to the file system, keeping track of them locally. They are not yet in the repo system
       2. merge all our generated files from the file system iteratively till we have 1 file
@@ -1583,6 +1614,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
     TJobRunner(Fiber::TRunner *runner,
                TServer *server,
                const std::string &file,
+               const std::string &pkg_name,
                Base::TEventSemaphore &sem,
                TSequenceNumber seq_num,
                Disk::Util::TVolume::TDesc::TStorageSpeed storage_speed,
@@ -1595,6 +1627,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
                const std::vector<string> &file_vec)
         : Server(server),
           File(file),
+          PkgName(pkg_name),
           Sem(sem),
           SeqNum(seq_num),
           StorageSpeed(storage_speed),
@@ -1741,12 +1774,15 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
                   Atom::TSuprena temp_arena;
                   Sabot::Type::TAny::TWrapper key_type_wrapper(key.GetCore().GetType(core_vec.GetArena(), key_type_alloc));
                   Sabot::Type::TAny::TWrapper val_type_wrapper(val.GetCore().GetType(core_vec.GetArena(), val_type_alloc));
+                  string pkg_key = PkgName + " " + AsStrFunc(Sabot::DumpType, *key_type_wrapper);
                   Atom::TCore key_core(&temp_arena, *key_type_wrapper);
                   Atom::TCore val_core(&temp_arena, *val_type_wrapper);
                   /* this does not exist yet, uncommon case: at this point we grab the lock, recheck against the master copy (possibly update it),
                      and update our copy. */ {
                     std::lock_guard<std::mutex> lock(Server->IndexMapMutex);
-                    auto new_ret = Server->IndexTypeByIdMap.emplace(TIndexType(TKey(&Server->IndexMapArena, lhs_state_alloc, TKey(key_core, &temp_arena)), TKey(&Server->IndexMapArena, rhs_state_alloc, TKey(val_core, &temp_arena))), index_id);
+                    auto new_ret = Server->IndexByIndexId.emplace(
+                        TIndexType(string(pkg_key), TKey(&Server->IndexMapArena, rhs_state_alloc, TKey(val_core, &temp_arena))),
+                        index_id);
                     if (!new_ret.second) {
                       /* it's already there, use the id that was inserted before us */
                       index_id_remapper.emplace(index_id, new_ret.first->second);
@@ -1757,12 +1793,9 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
                       Server->IndexIdSet.insert(index_id);
 
                       stringstream ss;
-                      ss << "Importer adding Index [" << index_id << "]\t";
-                      key_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-                      ss << " <- ";
+                      ss << "Importer adding Index [" << index_id << "]\t" << pkg_key << " <- ";
                       val_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-                      ss << std::endl;
-                      syslog(LOG_INFO, "%s", ss.str().c_str());
+                      syslog(LOG_INFO, "%s\n", ss.str().c_str());
                     }
                   } /* release lock */
                   op_by_key[TIndexKey(index_id, key)] = val;
@@ -1808,6 +1841,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
 
     TServer *Server;
     std::string File;
+    std::string PkgName;
     Base::TEventSemaphore &Sem;
     TSequenceNumber SeqNum;
     Disk::Util::TVolume::TDesc::TStorageSpeed StorageSpeed;
@@ -1837,6 +1871,7 @@ string TServer::ImportCoreVector(const string &file_pattern, int64_t num_load_th
       new TJobRunner(MergeDiskRunnerVec[expected_runner_idx].get(),
                      this,
                      file,
+                     pkg_name,
                      *sem,
                      starting_number,
                      storage_speed,
@@ -2031,7 +2066,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       return;
     }
     std::lock_guard<std::mutex> lock(IndexMapMutex);
-    const auto &type_by_index_map = pkg_ptr->GetTypeByIndexMap();
+    const auto &type_by_index_map = pkg_ptr->GetIndexByIndexId();
     for (const auto &addr_pair : type_by_index_map) {
       void *key_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
       void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
@@ -2039,15 +2074,16 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
       Sabot::Type::TAny::TWrapper val_type_wrapper(Type::NewSabot(val_type_alloc, addr_pair.second.second));
       Atom::TCore key_core(&IndexMapArena, *key_type_wrapper);
       Atom::TCore val_core(&IndexMapArena, *val_type_wrapper);
+      string pkg_key = pkg_ptr->GetIndexPrefix() + ' ' + AsStrFunc(Sabot::DumpType, *key_type_wrapper);
       stringstream ss;
-      ss << "Package[" << pkg_ptr->GetName() << "] Index [" << addr_pair.first << "]\t";
-      key_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-      ss << " <- ";
-      val_type_wrapper->Accept(Sabot::TTypeDumper(ss));
-      ss << std::endl;
-      syslog(LOG_INFO, "%s", ss.str().c_str());
+      ss << "Package[" << pkg_ptr->GetName() << "] Index [" << pkg_ptr->GetIndexPrefix() << "] [" << addr_pair.first
+         << "]\t" << pkg_key << " <- ";
+      DumpType(ss, *val_type_wrapper);
+      syslog(LOG_INFO, "%s\n", ss.str().c_str());
 
-      auto ret = IndexTypeByIdMap.emplace(TIndexType(TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)), addr_pair.first);
+      auto ret = IndexByIndexId.emplace(
+          TIndexType(string(pkg_key), TKey(val_core, &IndexMapArena)),
+          addr_pair.first);
       bool is_new = ret.second;
       if (!is_new) {
         stringstream ss;
@@ -2079,7 +2115,7 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
 
       } else {
         /* TODO: clean up the index_id_replication obj... refactor this logic into a function */
-        RepoManager->Enqueue(new TIndexIdReplication(addr_pair.first, TKey(key_core, &IndexMapArena), TKey(val_core, &IndexMapArena)));
+        RepoManager->Enqueue(new TIndexIdReplication(addr_pair.first, pkg_key, TKey(val_core, &IndexMapArena)));
         IndexIdSet.insert(addr_pair.first);
       }
     }

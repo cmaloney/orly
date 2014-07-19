@@ -64,7 +64,7 @@ namespace Orly {
 
           /* Override to perform the request. */
           virtual void Import(
-              const std::string &file_pattern, int64_t num_load_threads,
+              const std::string &file_pattern, const std::string &pkg_name, int64_t num_load_threads,
               int64_t num_merge_threads, int64_t merge_simultaneous) const = 0;
 
           /* Override to perform the request. */
@@ -118,6 +118,9 @@ namespace Orly {
 
           /* Called when the connection wishes to resume an old session. */
           virtual TSessionPin *ResumeSession(const Base::TUuid &id) = 0;
+
+          virtual bool ForEachIndex(const std::function<
+              bool(const std::string &pkg, const std::string &key_type, const std::string &val_type)> &cb) const = 0;
 
           protected:
 

@@ -60,9 +60,11 @@ namespace Orly {
 
       const TVersionedName &GetName() const;
 
-      const TTypeByIndexIdMap &GetTypeByIndexMap() const;
+      const TIndexByIndexId &GetIndexByIndexId() const;
 
       const TIndexIdSet &GetIndexIdSet() const;
+
+      const std::string &GetIndexPrefix() const;
 
       bool ForEachIndexId(const std::function <bool (Base::TUuid *)> &cb) const;
 

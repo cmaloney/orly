@@ -114,6 +114,7 @@ try:
                      '--import_pattern={}'.format(os.path.join(root, '*.bin*')),
                      '--num_load_threads=1',
                      '--num_merge_threads=1',
+                     '--import_pkg={}'.format(args.dataset),
                      '--num_sim_merge={}'.format(max(8, len(files)))],
                     stderr=subprocess.STDOUT)
     line = '{:=^80}'.format('')

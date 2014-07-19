@@ -147,6 +147,7 @@ to_lower_kwd      = '"to_lower"';
 to_upper_kwd      = '"to_upper"';
 unknown_kwd       = '"unknown"' unary_prec right;
 user_id_kwd       = '"user_id"';
+using_kwd         = '"using"';
 where_kwd         = '"where"';
 while_kwd	  = '"while"' lowest_prec left;  /* like if */
 with_kwd          = '"with"';
@@ -236,9 +237,13 @@ type_def      : def -> name is_kwd type semi;                                /* 
   literal_package_ref : package_ref -> package_kwd package_name;
 
 top_level_def : def;
-installer_def   : top_level_def -> package_kwd package_version opt_expr semi;           /* package #10 ...; */
+installer_def   : top_level_def -> package_kwd package_version opt_expr opt_using semi; /* package #10 ... [using]; */
 uninstaller_def : top_level_def -> not_kwd package_kwd opt_expr semi;                   /* not package ...; */
 upgrader_def    : top_level_def -> package_kwd from_kwd package_version opt_expr semi;  /* package from #9 ...; */
+
+  opt_using;
+  no_using   : opt_using -> empty;
+  using_name : opt_using -> using_kwd lt package_name_member_list gt;
 
   opt_with_clause;
   no_with_clause : opt_with_clause -> empty;

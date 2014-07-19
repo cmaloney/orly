@@ -456,8 +456,8 @@ void TPackage::WriteLink(TCppPrinter &out, const TRelPath &path) const {
                       << "\"}, &" << name << "::PackageInfo}";
                   });
     }
-    out
-      << "}," << Eol
+    out << "}," << Eol
+      << '"' << Symbol->GetIndexName() << "\"," << Eol
       << "std::unordered_map<Base::TUuid, std::pair<Orly::Type::TType, Orly::Type::TType>>{" << Eol
       << Join(AddrMap,
               ", \n",

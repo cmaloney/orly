@@ -23,6 +23,7 @@
 #include <base/as_str.h>
 #include <orly/error.h>
 #include <orly/synth/context.h>
+#include <orly/synth/cst_utils.h>
 #include <orly/synth/get_pos_range.h>
 #include <orly/synth/new_expr.h>
 
@@ -35,7 +36,26 @@ TPackage::TPackage(const Package::TName &name, const Package::Syntax::TPackage *
   const Package::Syntax::TInstallerDef *installer_def = nullptr;
   TExprFactory expr_factory(this);
   TTopLevelDefFactory::NewDefs(&expr_factory, installer_def, root->GetOptDefSeq());
-  Version = installer_def ? installer_def->GetPackageVersion()->GetIntLiteral()->GetLexeme().AsUInt32() : 0;
+
+  if (installer_def) {
+    Version = installer_def->GetPackageVersion()->GetIntLiteral()->GetLexeme().AsUInt32();
+    auto using_stmt = TryGetNode<Package::Syntax::TUsingName, Package::Syntax::TNoUsing>(installer_def->GetOptUsing());
+    if (using_stmt) {
+      Package::TName index_name;
+
+      Synth::ForEach<Package::Syntax::TName>(using_stmt->GetPackageNameMemberList(),
+                                             [&index_name](const Package::Syntax::TName *name) {
+        index_name.Name.push_back(name->GetLexeme().GetText());
+        return true;
+      });
+
+      IndexName = Base::AsStr(index_name);
+    }
+  } else {
+    Version = 0;
+    IndexName = Base::AsStr(name);
+  }
+
   if (report_version) {
     std::cout << Version << std::endl;
   } else {
@@ -61,7 +81,7 @@ void TPackage::Build() const {
 void TPackage::BuildSymbol() {
   assert(this);
   assert(!Symbol);
-  Symbol = Symbol::TPackage::New(Name, Version);
+  Symbol = Symbol::TPackage::New(Name, IndexName, Version);
 }
 
 const Package::TName &TPackage::GetName() const {

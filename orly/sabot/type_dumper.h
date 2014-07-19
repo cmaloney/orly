@@ -27,6 +27,8 @@ namespace Orly {
 
   namespace Sabot {
 
+    void DumpType(std::ostream &strm, const Type::TAny &type);
+
     /* Dump a human-readable description of a sabot type. */
     class TTypeDumper final
         : public TTypeVisitor {

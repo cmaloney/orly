@@ -26,7 +26,7 @@ namespace std {
 
 FIXTURE(Package) {
   /* package scope */
-  TPackage::TPtr package = TPackage::New({{"foo"}}, 1);
+  TPackage::TPtr package = TPackage::New({{"foo"}}, "foo", 1);
   EXPECT_EQ(package->GetVersion(), 1U);
   EXPECT_EQ(package->GetName(), Package::TName{{"foo"}});
 

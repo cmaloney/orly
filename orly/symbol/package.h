@@ -38,10 +38,12 @@ namespace Orly {
       typedef std::shared_ptr<TPackage> TPtr;
 
       /* Returns a std::shared_ptr to a new TPackage instance */
-      static TPtr New(const Package::TName &name, unsigned int version);
+      static TPtr New(const Package::TName &name, const std::string &index_name, unsigned int version);
 
       /* Return the Package's namespace. */
       const Package::TName &GetName() const;
+
+      const std::string &GetIndexName() const;
 
       /* Returns the package version number */
       unsigned int GetVersion() const;
@@ -49,10 +51,12 @@ namespace Orly {
       private:
 
       /* Do-little */
-      TPackage(const Package::TName &name, unsigned int version);
+      TPackage(const Package::TName &name, const std::string &index_name, unsigned int version);
 
       /* See accessor */
       Package::TName Name;
+
+      std::string IndexName;
 
       /* See accessor */
       unsigned int Version;

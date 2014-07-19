@@ -85,6 +85,7 @@ resume_kwd        = '"resume"';
 compile_kwd       = '"compile"';
 list_package_kwd  = '"list_packages"';
 get_source_kwd    = '"get_source"';
+list_schema_kwd   = '"list_schema"';
 
 unary_placeholder = '' unary_prec right;
 name = '[_a-zA-Z][_a-zA-Z0-9]*' pri 2;
@@ -125,7 +126,7 @@ stmt : top;
 exit_stmt           : stmt -> exit_kwd semi;
 begin_import_stmt   : stmt -> begin_kwd import_kwd semi;
 end_import_stmt     : stmt -> end_kwd import_kwd semi;
-import_stmt         : stmt -> import_kwd file:str_expr load_threads:int_expr merge_threads:int_expr merge_sim:int_expr semi;
+import_stmt         : stmt -> import_kwd file:str_expr pkg_name:str_expr load_threads:int_expr merge_threads:int_expr merge_sim:int_expr semi;
 install_stmt        : stmt -> install_kwd package_name semi;
 uninstall_stmt      : stmt -> uninstall_kwd package_name semi;
 pov_cons_stmt       : stmt -> new_kwd pov_guarantee pov_kind pov_kwd opt_parent semi;
@@ -140,6 +141,7 @@ resume_session_stmt : stmt -> resume_kwd session_kwd id_expr semi;
 compile_stmt        : stmt -> compile_kwd str_expr semi;
 list_package_stmt   : stmt -> list_package_kwd semi;
 get_source_stmt     : stmt -> get_source_kwd name_list semi;
+list_schema_stmt    : stmt -> list_schema_kwd semi;
 
 image : top -> image_kwd open_brace opt_xact_seq close_brace;
 

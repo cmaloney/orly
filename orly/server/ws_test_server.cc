@@ -67,6 +67,11 @@ class TWsTestServer::TSessionManager
     return iter->second->NewPin();
   }
 
+  virtual bool ForEachIndex(const std::function<
+      bool(const std::string &pkg, const std::string &key_type, const std::string &val_type)> &) const final {
+    return true;
+  }
+
   private:
 
   /* A session object, which survives multiple connect/disconnect events.
@@ -94,7 +99,7 @@ class TWsTestServer::TSessionManager
     }
 
     /* Do-little. */
-    void Import(const string &, int64_t, int64_t, int64_t) const {}
+    void Import(const string &, const string &, int64_t, int64_t, int64_t) const {}
 
     /* Do-little. */
     void InstallPackage(const vector<string> &/*name*/, uint64_t /*version*/) {}
@@ -170,9 +175,9 @@ class TWsTestServer::TSessionManager
       virtual void EndImport() const override { Session->EndImport(); }
       virtual const TUuid &GetId() const override { return Session->GetId(); }
       virtual void Import(
-              const string &file_pattern, int64_t num_load_threads,
+              const string &file_pattern, const string &pkg_name, int64_t num_load_threads,
               int64_t num_merge_threads, int64_t merge_simultaneous) const override {
-        Session->Import(file_pattern, num_load_threads, num_merge_threads, merge_simultaneous);
+        Session->Import(file_pattern, pkg_name, num_load_threads, num_merge_threads, merge_simultaneous);
       }
       virtual void InstallPackage(const vector<string> &name, uint64_t version) const override { Session->InstallPackage(name, version); }
       virtual TUuid NewPov(bool is_safe, bool is_shared, const TOpt<TUuid> &parent_id) const override { return Session->NewPov(is_safe, is_shared, parent_id); }

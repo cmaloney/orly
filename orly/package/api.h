@@ -44,7 +44,7 @@ namespace Orly {
 
     typedef std::unordered_map<std::string, Type::TType> TParamMap;
     typedef std::unordered_map<std::string, Indy::TKey> TArgMap;
-    typedef std::unordered_map<Base::TUuid, std::pair<Orly::Type::TType, Orly::Type::TType>> TTypeByIndexIdMap;
+    typedef std::unordered_map<Base::TUuid, std::pair<Orly::Type::TType, Orly::Type::TType>> TIndexByIndexId;
     typedef std::unordered_set<Base::TUuid *> TIndexIdSet;
 
     /* Note: We use a vector here rather than an unordered set because we want test execution output to be deterministic.
@@ -69,10 +69,13 @@ namespace Orly {
          that were needed because of imports. */
       std::unordered_map<std::vector<std::string>, const TInfo*> IncludedPackages;
 
+      /* The name which the indexes this package accesses are prefixed with. */
+      std::string IndexName;
+
       /* A dictionary of the index ids to the <key, val> types they map to. This is an intermediate solution, as in the future we would
          like to be able to assign a different index even if this type combination is the same. This requires a tighter bond between the
          compiler and the server. */
-      TTypeByIndexIdMap TypeByIndexIdMap;
+      TIndexByIndexId IndexByIndexId;
     }; // TLinkInfo
 
     /* Information about a packages top level function. */

@@ -123,6 +123,7 @@ namespace {
       Infos.push_back({"end import", "end import;", "End an import"});
     }
     virtual void operator()(const TImportStmt *) const override {}
+    virtual void operator()(const TListSchemaStmt *) const override {}
     private:
     std::vector<TInfo> &Infos;
   };  // TGetInfo
@@ -177,7 +178,8 @@ namespace {
                    TGetSourceStmt,
                    TListPackageStmt,
                    TEndImportStmt,
-                   TImportStmt>(TGetInfo(result));
+                   TImportStmt,
+                   TListSchemaStmt>(TGetInfo(result));
       return result;
     }();
     return infos;

@@ -20,7 +20,7 @@
 
 FIXTURE(Typical) {
   /* package scope */
-  TPackage::TPtr package = TPackage::New({{"foo"}}, 1);
+  TPackage::TPtr package = TPackage::New({{"foo"}}, "foo", 1);
   /*
      foo = (x) where {
        x = given::(real);

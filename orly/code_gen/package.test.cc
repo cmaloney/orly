@@ -35,7 +35,7 @@ const char *test_dir = "/tmp/package_test";
 FIXTURE(Typical) {
   Type::TTypeCzar type_czar;
   //Build up a symbolic package
-  Symbol::TPackage::TPtr p_sym = Symbol::TPackage::New({{"test"}}, 1);
+  Symbol::TPackage::TPtr p_sym = Symbol::TPackage::New({{"test"}}, "test", 1);
   Symbol::TFunction::TPtr foo = Symbol::TFunction::New(p_sym, "foo", TPosRange());
   Symbol::TResultDef::TPtr foo_result = Symbol::TResultDef::New(foo, "bar", TPosRange());
   foo->SetExpr(Expr::TAdd::New(Expr::TLiteral::New(Var::TVar(10), TPosRange()), Expr::TLiteral::New(Var::TVar(10), TPosRange()), TPosRange()));

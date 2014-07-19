@@ -353,7 +353,7 @@ namespace Orly {
          Exit import mode entered by calling BeginImport(). */
       EndImport = 1015,
 
-    /* ImportCoreVector(std::string file, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous) -> string
+    /* ImportCoreVector(std::string file, std::string pkg_name, int64_t num_load_threads, int64_t num_merge_threads, int64_t merge_simultaneous) -> string
          Import the files from the given string pattern. */
       ImportCoreVector = 1017,
 

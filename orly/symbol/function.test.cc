@@ -22,7 +22,7 @@ using namespace Util;
 
 FIXTURE(Function) {
   /* package scope; */
-  TPackage::TPtr package = TPackage::New({{"foo"}}, 1);
+  TPackage::TPtr package = TPackage::New({{"foo"}}, "foo", 1);
   EXPECT_EQ(package->GetVersion(), 1U);
 
   /* foo = 10; */
