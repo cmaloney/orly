@@ -43,10 +43,13 @@ namespace Orly {
       public:
 
       /* TODO */
-      explicit TCoreVectorGenerator(const std::string &file_name = "out", size_t max_kvs_per_file = 50000)
+      explicit TCoreVectorGenerator(const std::string &file_name = "out", size_t max_kvs_per_file = 50000) : TCoreVectorGenerator(file_name, "", max_kvs_per_file) {}
+
+      explicit TCoreVectorGenerator(const std::string &file_name, const std::string &prefix, size_t max_kvs_per_file = 50000)
         : Finalized(false),
           IndexId(Base::TUuid::Twister),
           Count(0UL),
+          Prefix(prefix),
           FileName(file_name),
           FileNum(0UL),
           MaxKVPerFile(max_kvs_per_file) {
@@ -97,7 +100,7 @@ namespace Orly {
       void Flush() {
         assert(Count > 0);
         std::stringstream ss;
-        ss << FileName << "_" << ++FileNum << ".bin.gz";
+        ss << Prefix << (Prefix.size() ? "_" : "") << FileName << "_" << ++FileNum << ".bin.gz";
         const std::string fname = ss.str();
         Io::TBinaryOutputOnlyStream strm(std::make_shared<Gz::TOutputConsumer>(fname.c_str(), "w"));
         // Here we adjust the transaction count post-hoc. It's the first entry in the core-vector file
@@ -130,6 +133,7 @@ namespace Orly {
       int64_t Count;
 
       /* TODO */
+      const std::string Prefix;
       const std::string FileName;
       size_t FileNum;
 
