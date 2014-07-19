@@ -16,18 +16,18 @@ using namespace Orly;
 using namespace Orly::CsvToBin;
 using namespace Orly::Data;
 
-// {"follower":2209624286,"followed":9627972}
+// {"follower_id":107618080,"followed_screen_name":"kf","follower_screen_name":"christensenp","followed_id":7178502}
 struct TFollowObj :
     public Orly::CsvToBin::TObj {
-  int64_t follower;
+  int64_t follower_id;
   std::string follower_screen_name;
-  int64_t followed;
+  int64_t followed_id;
   std::string followed_screen_name;
   virtual const TAnyFields &GetFields() const override {
     static const TFields<TFollowObj> fields {
-      NEW_FIELD(TFollowObj, follower),
+      NEW_FIELD(TFollowObj, follower_id),
       NEW_FIELD(TFollowObj, follower_screen_name),
-      NEW_FIELD(TFollowObj, followed),
+      NEW_FIELD(TFollowObj, followed_id),
       NEW_FIELD(TFollowObj, followed_screen_name)
     };
     return fields;
@@ -267,8 +267,8 @@ void TranslateFollow(TJsonIter &input) {
     const TJson &follow_obj_json = *input;
     TFollowObj follow_obj;
     TranslateJson(follow_obj, follow_obj_json);
-    person_following_cvg.Push(t_person_following_key(Following, follow_obj.follower, follow_obj.followed), t_person_following_val(follow_obj.follower_screen_name, follow_obj.followed_screen_name));
-    person_followed_by_cvg.Push(t_person_followed_by_key(FollowedBy, follow_obj.followed, follow_obj.follower), t_person_followed_by_val(follow_obj.followed_screen_name, follow_obj.follower_screen_name));
+    person_following_cvg.Push(t_person_following_key(Following, follow_obj.follower_id, follow_obj.followed_id), t_person_following_val(follow_obj.follower_screen_name, follow_obj.followed_screen_name));
+    person_followed_by_cvg.Push(t_person_followed_by_key(FollowedBy, follow_obj.followed_id, follow_obj.follower_id), t_person_followed_by_val(follow_obj.followed_screen_name, follow_obj.follower_screen_name));
   }
 }
 
