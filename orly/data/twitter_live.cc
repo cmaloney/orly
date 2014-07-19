@@ -1,5 +1,6 @@
 #include <syslog.h>
 #include <base/cmd.h>
+#include <base/glob.h>
 #include <base/log.h>
 #include <base/opt.h>
 #include <orly/csv_to_bin/field.h>
@@ -476,21 +477,27 @@ int main(int argc, char *argv[]) {
 
   const vector<string> datasets = {"users", "follows", "statuses"};
   for (const string &dataset: datasets) {
-    try {
-      ifstream in;
-      Util::OpenFile(in, cmd.Username + '.' + dataset + ".json");
-      TJsonIter json_iter(in);
-      if (dataset == "users") {
-        TranslateUser(json_iter);
-      } else if (dataset == "follows") {
-        //TranslateFollow(json_iter);
-      } else if (dataset == "statuses") {
-        TranslateStatus(json_iter);
-      }
-    } catch (const Util::TOpenFileError &ex) {
-      cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(cmd.Username) << endl;
-      cout << ex.what() << endl;
-    }
+    stringstream ss;
+    ss << cmd.Username << '.' << dataset << ".json";
+    Base::Glob(ss.str().c_str(),
+      [&](const char *name) -> bool {
+        try {
+          ifstream in;
+          Util::OpenFile(in, name);
+          TJsonIter json_iter(in);
+          if (dataset == "users") {
+            TranslateUser(json_iter);
+          } else if (dataset == "follows") {
+            TranslateFollow(json_iter);
+          } else if (dataset == "statuses") {
+            TranslateStatus(json_iter);
+          }
+        } catch (const Util::TOpenFileError &ex) {
+          cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(cmd.Username) << " file " << quoted(ss.str()) << endl;
+          cout << ex.what() << endl;
+        }
+        return true;
+      });
   }
 }
 
