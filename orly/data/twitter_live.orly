@@ -11,8 +11,9 @@ handle_by_user_id = (*<[uid]>::(str)) where {
 };
 
 users_by_handle = ((seq if (lim <= 0) else seq take lim) as [str]) where {
-  seq = users_by_handle_seq;
+  seq = users_by_handle_seq skip offset;
   lim = given::(int);
+  offset = given::(int);
 };
 
 users_who_used_hashtag = (<[k.2, *k::(HandleTime).0]> as {SimpleUser}) where {
@@ -21,10 +22,11 @@ users_who_used_hashtag = (<[k.2, *k::(HandleTime).0]> as {SimpleUser}) where {
 };
 
 users_with_location_data = ((res_seq if (lim <= 0) else res_seq take lim) as [<[str, int]>]) where {
-  seq = keys(<[str, int]>) @ <[PersonLocationID, free::(int), free::(time_pnt), free::(real), free::(real)]>;
+  seq = keys(<[str, int]>) @ <[PersonLocationID, free::(int), free::(time_pnt), free::(real), free::(real)]> skip offset;
   input_seq = *seq::(<[str, int]>).0;
   res_seq = input_seq collated_by start 0 + 1 having that;
   lim = given::(int);
+  offset = given::(int);
 };
 
 users_who_used_hashtags = (**hashtags reduce (start start_val & users_who_used_hashtag(.hashtag:that))) where {
@@ -77,26 +79,14 @@ MatchingLocationObj is <{
   .lon2:real,
   .lat2:real
 }>;
-when_were_users_close = (nearby_when) where {
-  location_history1 = user_location_history_seq(.uid:uid1);
-  location_history2 = user_location_history_seq(.uid:uid2);
-  nearby_when = location_history1 reduce (start empty[MatchingLocationObj] + search_cartesian(.input:that));
-  search_cartesian = (res) where {
-    res = location_history2 reduce (start empty [MatchingLocationObj] + ([<{.distance:distance(.lon2:that.1, .lat2:that.2), .time1:input.0, .lon1:input.1, .lat1:input.2, .time2:that.0, .lon2:that.1, .lat2:that.2}>] if (valid_time_margin(.t1:that.0, .t2:input.0) and distance(.lon2:that.1, .lat2:that.2) <= distance_margin) else empty [MatchingLocationObj]));
-    valid_time_margin = (((t1 - t2 <= time_margin) if t1 > t2 else (t2 - t1 <= time_margin))) where {
-      t1 = given::(time_pnt);
-      t2 = given::(time_pnt);
-    };
-    distance = (compute_distance_between_degrees(.lon1:input.1, .lat1:input.2, .lon2:lon2, .lat2:lat2)) where {
-      lon2 = given::(real);
-      lat2 = given::(real);
-    };
-    input = given::(<[time_pnt, real, real]>);
-  };
+
+when_were_users_close = (_when_were_users_close(.uid1:uid1, .uid2:uid2, .time_margin:time_margin, .distance_margin:distance_margin)) where {
   time_margin = given::(time_diff);
   distance_margin = given::(real);
-  uid1 = given::(int);
-  uid2 = given::(int);
+  uid1 = user_id_by_handle(.handle:uhandle1);
+  uid2 = user_id_by_handle(.handle:uhandle2);
+  uhandle1 = given::(str);
+  uhandle2 = given::(str);
 };
 
 with {
@@ -106,9 +96,23 @@ with {
   <[PersonLocationID, 2, {1970-01-01T00:00:03Z}, 80.0, 80.0]> <- <["bob", 3]>;
   <[PersonLocationID, 2, {1971-01-01T00:00:04Z}, 50.1, 50.1]> <- <["bob", 5]>;
 } test {
-  t1: when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:1:0}, .distance_margin:100.0) == [<{.distance:compute_distance_between_degrees(.lon1:50.0, .lat1:50.0, .lon2:50.1, .lat2:50.1), .time1:{1970-01-01T00:00:00Z}, .lon1:50.0, .lat1:50.0, .time2:{1970-01-01T00:00:02Z}, .lon2:50.1, .lat2:50.1}>];
-  t2: when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:1:0}, .distance_margin:1.0) == empty [MatchingLocationObj];
-  t3: when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:0:1}, .distance_margin:100.0) == empty [MatchingLocationObj];
+  t1: _when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:1:0}, .distance_margin:100.0) == [<{.distance:compute_distance_between_degrees(.lon1:50.0, .lat1:50.0, .lon2:50.1, .lat2:50.1), .time1:{1970-01-01T00:00:00Z}, .lon1:50.0, .lat1:50.0, .time2:{1970-01-01T00:00:02Z}, .lon2:50.1, .lat2:50.1}>];
+  t2: _when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:1:0}, .distance_margin:1.0) == empty [MatchingLocationObj];
+  t3: _when_were_users_close(.uid1:1, .uid2:2, .time_margin:{+0T0:0:1}, .distance_margin:100.0) == empty [MatchingLocationObj];
+};
+
+/****************************
+****** Time Lapse Graph *****
+****************************/
+
+edge_t is <{.type: str, .source: str, .target: str}>;
+
+mentions_graph = (_mentions_graph(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
+};
+
+mentioned_graph = (_mentioned_graph(.uid:user_id_by_handle(.handle:handle))) where {
+  handle = given::(str);
 };
 
 /****************************
@@ -217,6 +221,106 @@ _2nd_degree_mentions = ((mentioned_users_seq(.uid:uid) reduce (start empty {Simp
 _2nd_degree_mentioned_by = ((mentioned_by_users_seq(.uid:uid) reduce (start empty {SimpleUser} | _mentioned_by_users(.uid:that.0))) - {<[uid, uhandle]>}) where {
   uid = given::(int);
   uhandle = handle_by_user_id(.uid:uid);
+};
+
+_when_were_users_close = (nearby_when) where {
+  location_history1 = user_location_history_seq(.uid:uid1);
+  location_history2 = user_location_history_seq(.uid:uid2);
+  nearby_when = location_history1 reduce (start empty[MatchingLocationObj] + search_cartesian(.input:that));
+  search_cartesian = (res) where {
+    res = location_history2 reduce (start empty [MatchingLocationObj] + ([<{.distance:distance(.lon2:that.1, .lat2:that.2), .time1:input.0, .lon1:input.1, .lat1:input.2, .time2:that.0, .lon2:that.1, .lat2:that.2}>] if (valid_time_margin(.t1:that.0, .t2:input.0) and distance(.lon2:that.1, .lat2:that.2) <= distance_margin) else empty [MatchingLocationObj]));
+    valid_time_margin = (((t1 - t2 <= time_margin) if t1 > t2 else (t2 - t1 <= time_margin))) where {
+      t1 = given::(time_pnt);
+      t2 = given::(time_pnt);
+    };
+    distance = (compute_distance_between_degrees(.lon1:input.1, .lat1:input.2, .lon2:lon2, .lat2:lat2)) where {
+      lon2 = given::(real);
+      lat2 = given::(real);
+    };
+    input = given::(<[time_pnt, real, real]>);
+  };
+  time_margin = given::(time_diff);
+  distance_margin = given::(real);
+  uid1 = given::(int);
+  uid2 = given::(int);
+};
+
+_mentions_graph = (<{.type:"graph", .data:edges}>) where {
+  edges = <{.type:"mentioned", .source:sorted.0, .target:sorted.1}> as [edge_t];
+  sorted = **(unsorted sorted_by lhs.2 < rhs.2);
+  unsorted = <[vals.0, vals.1, vals.2]> as [<[str, str, time_pnt]>];
+  vals = *k::(HandleHandleTime);
+  k = keys (HandleHandleTime) @ <[DidMentionUserID, uid, free::(int), free::(int)]>;
+  uid = given::(int);
+};
+
+_mentioned_graph = (<{.type:"graph", .data:edges}>) where {
+  edges = <{.type:"mentioned by", .source:sorted.1, .target:sorted.0}> as [edge_t];
+  sorted = **(unsorted sorted_by lhs.2 < rhs.2);
+  unsorted = <[vals.0, vals.1, vals.2]> as [<[str, str, time_pnt]>];
+  vals = *k::(HandleHandleTime);
+  k = keys (HandleHandleTime) @ <[MentionedByUserID, uid, free::(int), free::(int)]>;
+  uid = given::(int);
+};
+
+add_count = (<[t.1, s.1 + 1]>) where {
+  t = given::(<[int, HandleHandleTime]>);
+  s = given::(<[HandleHandleTime, int]>);
+};
+
+edge_t2 is <{.type: int, .source: str, .target: str}>;
+_mentioned_count_edges = (edges) where {
+  edges = <{.type:(vals.1).1, .source:((vals.1).0).1, .target:((vals.1).0).0}> as [edge_t2];
+  vals = <[k.2, *k::(HandleHandleTime)]> collated_by add_count(.s:start <[<["", "", now]>, 0]>, .t:that) having that.0;
+  k = keys (HandleHandleTime) @ <[MentionedByUserID, uid, free::(int), free::(int)]>;
+  uid = given::(int);
+};
+
+_mentioned_count_graph = (<{.type:"progressive_graph", .data:_mentioned_count_edges(.uid:uid)}>) where {
+  uid = given::(int);
+};
+
+mentioned_2nd_degree_count_edges = (edges) where {
+  edges = **(_mentioned_by_users(.uid:uid) | {<[uid, uhandle]>}) reduce start empty [edge_t2] + _mentioned_count_edges(.uid:that.0);
+  uhandle = given::(str);
+  uid = user_id_by_handle(.handle:uhandle);
+};
+
+mentioned_2nd_degree_count_graph = (<{.type:"graph", .data:(mentioned_2nd_degree_count_edges(.uhandle:uhandle))}>) where {
+  uhandle = given::(str);
+};
+
+top_n_mentioned_2nd_degree_count_graph = (<{.type:"graph", .data:edges}>) where {
+  edges = (**(mentioned_2nd_degree_count_edges(.uhandle:uhandle) sorted_by lhs.type > rhs.type) take n) as [edge_t2];
+  uhandle = given::(str);
+  n = given::(int);
+};
+
+_mentions_count_edges = (edges) where {
+  edges = <{.type:(vals.1).1, .source:((vals.1).0).0, .target:((vals.1).0).1}> as [edge_t2];
+  vals = <[k.2, *k::(HandleHandleTime)]> collated_by add_count(.s:start <[<["", "", now]>, 0]>, .t:that) having that.0;
+  k = keys (HandleHandleTime) @ <[DidMentionUserID, uid, free::(int), free::(int)]>;
+  uid = given::(int);
+};
+
+_mentions_count_graph = (<{.type:"progressive_graph", .data:_mentions_count_edges(.uid:uid)}>) where {
+  uid = given::(int);
+};
+
+mentions_2nd_degree_count_edges = (edges) where {
+  edges = **(_mentioned_users(.uid:uid) | {<[uid, uhandle]>}) reduce start empty [edge_t2] + _mentions_count_edges(.uid:that.0);
+  uhandle = given::(str);
+  uid = user_id_by_handle(.handle:uhandle);
+};
+
+mentions_2nd_degree_count_graph = (<{.type:"graph", .data:(mentions_2nd_degree_count_edges(.uhandle:uhandle))}>) where {
+  uhandle = given::(str);
+};
+
+top_n_mentions_2nd_degree_count_graph = (<{.type:"graph", .data:edges}>) where {
+  edges = (**(mentions_2nd_degree_count_edges(.uhandle:uhandle) sorted_by lhs.type > rhs.type) take n) as [edge_t2];
+  uhandle = given::(str);
+  n = given::(int);
 };
 
 /******************************
