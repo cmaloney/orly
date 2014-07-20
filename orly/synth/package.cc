@@ -37,6 +37,9 @@ TPackage::TPackage(const Package::TName &name, const Package::Syntax::TPackage *
   TExprFactory expr_factory(this);
   TTopLevelDefFactory::NewDefs(&expr_factory, installer_def, root->GetOptDefSeq());
 
+  Version = 0;
+  IndexName = Base::AsStr(name);
+
   if (installer_def) {
     Version = installer_def->GetPackageVersion()->GetIntLiteral()->GetLexeme().AsUInt32();
     auto using_stmt = TryGetNode<Package::Syntax::TUsingName, Package::Syntax::TNoUsing>(installer_def->GetOptUsing());
@@ -51,9 +54,6 @@ TPackage::TPackage(const Package::TName &name, const Package::Syntax::TPackage *
 
       IndexName = Base::AsStr(index_name);
     }
-  } else {
-    Version = 0;
-    IndexName = Base::AsStr(name);
   }
 
   if (report_version) {
