@@ -510,40 +510,7 @@ Sabot::Type::TUuid *State::TId::GetUuidType(void *type_alloc) const {
 
 State::TTimePnt::TTimePnt(const TTimePntExpr *expr) {
   assert(expr);
-  using tm_t = struct tm;
-  using field_t = int (tm_t::*);
-  constexpr size_t field_count = 6;
-  constexpr field_t field_array[field_count] = { &tm_t::tm_year, &tm_t::tm_mon, &tm_t::tm_mday, &tm_t::tm_hour, &tm_t::tm_min, &tm_t::tm_sec };
-  constexpr char delim_array[field_count] = { '-', '-', 'T', ':', ':', 'Z' };
-  constexpr size_t max_size = 20;
-  tm_t tm;
-  Zero(tm);
-  const string &text = expr->GetLexeme().GetText();
-  const char
-      *start = text.data() + 1,
-      *limit = start + text.size() - 2;  // The adjustments here remove the curly braces.
-  char buf[max_size + 1];
-  size_t field_idx = 0;
-  for (const char *cursor = start; cursor < limit && field_idx < field_count; ++cursor) {
-    if (*cursor == delim_array[field_idx]) {
-      size_t size = cursor - start;
-      if (size <= max_size) {
-        memcpy(buf, start, size);
-        buf[size] = '\0';
-        tm.*(field_array[field_idx]) = atoi(buf);
-      }
-      ++field_idx;
-      ++cursor;
-      start = cursor;
-    }
-  }
-  if (field_idx > 0) {
-    tm.tm_year -= 1900;
-  }
-  if (field_idx > 1) {
-    tm.tm_mon -= 1;
-  }
-  Val = system_clock::from_time_t(mktime(&tm) - timezone);
+  Val = expr->GetLexeme().AsTimePnt();
 }
 
 const Sabot::TStdTimePoint &State::TTimePnt::Get() const {
