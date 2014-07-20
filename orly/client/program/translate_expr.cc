@@ -18,6 +18,7 @@
 
 #include <orly/client/program/translate_expr.h>
 
+#include <base/chrono.h>
 #include <base/thrower.h>
 #include <base/zero.h>
 #include <orly/sabot/compare_states.h>
@@ -556,34 +557,7 @@ Sabot::Type::TTimePoint *State::TTimePnt::GetTimePointType(void *type_alloc) con
 
 State::TTimeDiff::TTimeDiff(const TTimeDiffExpr *expr) {
   assert(expr);
-  struct diff_t { int days, hrs, mins, secs; };
-  using field_t = int (diff_t::*);
-  constexpr size_t field_count = 4;
-  constexpr field_t field_array[field_count] = { &diff_t::days, &diff_t::hrs, &diff_t::mins, &diff_t::secs };
-  constexpr char delim_array[field_count] = { 'T', ':', ':', '}' };
-  constexpr size_t max_size = 20;
-  diff_t diff;
-  Zero(diff);
-  const string &text = expr->GetLexeme().GetText();
-  const char
-      *start = text.data() + 1,
-      *limit = start + text.size() - 1;  // The adjustments here remove the opening curly brace but leave the closing one as a delimiter.
-  char buf[max_size + 1];
-  size_t field_idx = 0;
-  for (const char *cursor = start; cursor < limit && field_idx < field_count; ++cursor) {
-    if (*cursor == delim_array[field_idx]) {
-      size_t size = cursor - start;
-      if (size <= max_size) {
-        memcpy(buf, start, size);
-        buf[size] = '\0';
-        diff.*(field_array[field_idx]) = atoi(buf);
-      }
-      ++field_idx;
-      ++cursor;
-      start = cursor;
-    }
-  }
-  Val = Sabot::TStdDuration(((diff.days * 86400) + (diff.hrs * 3600) + (diff.mins * 60) + diff.secs) * 1000);
+  Val = expr->GetLexeme().AsTimeDiff();
 }
 
 const Sabot::TStdDuration &State::TTimeDiff::Get() const {

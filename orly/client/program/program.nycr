@@ -212,8 +212,8 @@ true_expr      : expr = '"true"';
 id_expr        : expr = r'\{[[:xdigit:]]{8}\-([[:xdigit:]]{4}\-){3}[[:xdigit:]]{12}\}';
 int_expr       : expr = r'[\-\+]?[[:digit:]]+';
 real_expr      : expr = r'[\-\+]?[[:digit:]]+\.[[:digit:]]+([eE][\-\+]?[[:digit:]]+)?';
-time_diff_expr : expr = r'\{[\-\+]?[[:digit:]]+T([[:digit:]]+\:){2}[[:digit:]]+\}';
-time_pnt_expr  : expr = r'\{[[:digit:]]+(\-[[:digit:]]{1,2}){2}T([[:digit:]]{1,2}\:){2}[[:digit:]]{1,2}(Z|([\-\+][[:digit:]]{1,2}\:[[:digit:]]{1,2}))\}';
+time_diff_expr : expr = r'\{[\-\+]?[[:digit:]]+T([[:digit:]]+\:){2}[[:digit:]]+(\.[[:digit:]]{1,9})?\}';
+time_pnt_expr  : expr = r'\{[[:digit:]]+(\-[[:digit:]]{1,2}){2}T([[:digit:]]{1,2}\:){2}[[:digit:]]{1,2}(\.[[:digit:]]{1,9})?(Z|([\-\+][[:digit:]]{1,2}\:[[:digit:]]{1,2}))\}';
 
 str_expr : expr;
 double_quoted_raw_str_expr : str_expr = '{DOUBLE_QUOTED_RAW_STRING}' pri 1;
