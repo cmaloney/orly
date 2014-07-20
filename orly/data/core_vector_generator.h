@@ -100,7 +100,7 @@ namespace Orly {
       void Flush() {
         assert(Count > 0);
         std::stringstream ss;
-        ss << Prefix << (Prefix.size() ? "_" : "") << FileName << "_" << ++FileNum << ".bin.gz";
+        ss << Prefix << (Prefix.empty() ? "" : "_") << FileName << "_" << ++FileNum << ".bin.gz";
         const std::string fname = ss.str();
         Io::TBinaryOutputOnlyStream strm(std::make_shared<Gz::TOutputConsumer>(fname.c_str(), "w"));
         // Here we adjust the transaction count post-hoc. It's the first entry in the core-vector file
