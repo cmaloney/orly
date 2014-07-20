@@ -44,7 +44,7 @@ datasets = ['enron', 'matrix', 'social_graph', 'twitter']
 # Argparse.
 parser = argparse.ArgumentParser(description='Run the Orly demo.')
 parser.add_argument(
-    '-s', '--dataset', choices=datasets, help='dataset to load.', type=str)
+    '-s', '--dataset', choices=datasets, help='dataset to load.', type=str, default='matrix')
 parser.add_argument(
     '-d', '--data-dir',
     default=os.path.join(cwd, 'data'),
@@ -59,7 +59,7 @@ parser.add_argument(
     help='directory where the webui live.')
 parser.add_argument(
     '-m', '--mem-sim-mb',
-    default=8192, help='amount of memory to be used by orlyi.', type=int)
+    default=1024, help='amount of memory to be used by orlyi.', type=int)
 args = parser.parse_args()
 paths = [args.data_dir, args.packages_dir, args.webui_dir]
 dataset_dir = os.path.join(args.data_dir, args.dataset) if args.dataset else ''
@@ -89,7 +89,7 @@ try:
                 stderr=subprocess.STDOUT,
                 preexec_fn=os.setpgrp)
     laravel = subprocess.Popen(
-                  ['php', os.path.join(args.webui_dir, 'artisan'), 'serve'],
+                  ['php', os.path.join(args.webui_dir, 'artisan'), 'serve', '--host=0.0.0.0'],
                   stderr=subprocess.STDOUT)
     # Register signal handler for Ctrl-C.
     signal.signal(signal.SIGINT, ctrl_c)
@@ -115,7 +115,7 @@ try:
                      '--num_load_threads=1',
                      '--num_merge_threads=1',
                      '--import_pkg={}'.format(args.dataset),
-                     '--num_sim_merge={}'.format(max(8, len(files)))],
+                     '--num_sim_merge={}'.format(max(min(os.cpu_count(), 2), len(files)))],
                     stderr=subprocess.STDOUT)
     line = '{:=^80}'.format('')
     msg = lambda msg: '{0:=^5}{1: ^70}{0:=^5}'.format('', msg)
