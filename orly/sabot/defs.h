@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <string>
 
+#include <base/chrono.h>
 #include <base/opt.h>
 #include <base/uuid.h>
 
@@ -32,8 +33,8 @@ namespace Orly {
   namespace Sabot {
 
     /* Types used for time. */
-    using TStdDuration = std::chrono::nanoseconds;
-    using TStdTimePoint = std::chrono::time_point<std::chrono::system_clock, TStdDuration>;
+    using TStdDuration = Base::Chrono::TTimeDiff;
+    using TStdTimePoint = Base::Chrono::TTimePnt;
 
     /* Thrown by the subscripting functions when the requested index is larger than the number of elements. */
     class TIdxTooBig
