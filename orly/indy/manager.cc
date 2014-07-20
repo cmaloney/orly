@@ -1287,6 +1287,36 @@ void TManager::SaveRepo(TRepo *base_repo) {
   }
 }
 
+void TManager::SaveIndexNamespaceMapping(const Base::TUuid &index_id, const std::string &namespace_name) {
+  void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+  /* Perform transaction on System repo to save this mapping */ {
+    TSuprena arena;
+    auto transaction = NewTransaction();
+    auto update = TUpdate::NewUpdate(TUpdate::TOpByKey{ {
+      TIndexKey(SystemIDNSIndexId, TKey(make_tuple(index_id), &arena, state_alloc)),
+      TKey(namespace_name, &arena, state_alloc)} }, TKey(), TKey(TUuid(TUuid::Twister), &arena, state_alloc));
+    transaction->Push(SystemRepo, update);
+    transaction->Prepare();
+    transaction->CommitAction();
+  }
+}
+
+std::unordered_map<Base::TUuid, std::string> TManager::GetIndexNamespaceMapping() {
+  void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
+  TSuprena arena;
+  std::unordered_map<Base::TUuid, std::string> ret;
+  auto view = make_unique<Indy::TRepo::TView>(SystemRepo);
+  auto walker_ptr = SystemRepo->NewPresentWalker(view, TIndexKey(SystemIDNSIndexId, TKey(make_tuple(Native::TFree<Base::TUuid>()), &arena, state_alloc)), true);
+  for (auto &walker = *walker_ptr; walker; ++walker) {
+    std::tuple<Base::TUuid> index_id_tuple;
+    std::string pkg_key;
+    Sabot::ToNative(*Sabot::State::TAny::TWrapper((*walker).Key.NewState((*walker).KeyArena, state_alloc)), index_id_tuple);
+    Sabot::ToNative(*Sabot::State::TAny::TWrapper((*walker).Op.NewState((*walker).OpArena, state_alloc)), pkg_key);
+    ret.emplace(std::get<0>(index_id_tuple), pkg_key);
+  }
+  return ret;
+}
+
 void TManager::OnSlaveJoin(const Base::TFd &fd) {
   assert(Indy::Fiber::TRunner::LocalRunner);
   Indy::Fiber::TRunner *orig_slow_runner = Indy::Fiber::TRunner::LocalRunner;

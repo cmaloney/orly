@@ -35,6 +35,8 @@ namespace Orly {
 
     /* The index id of the system repo. */
     const Base::TUuid SystemRepoIndexId("9D3DAB7C-2D75-452C-8200-30180FF584F1");
+    /* The index id of the system repo space used to store index namespace mappings */
+    const Base::TUuid SystemIDNSIndexId("9154D7AE-FA10-42D5-9A10-AC68664B0092");
 
     /* TODO */
     class TManager
@@ -520,6 +522,12 @@ namespace Orly {
 
       /* TODO */
       virtual void SaveRepo(TRepo *base_repo) override;
+
+      /* TODO */
+      void SaveIndexNamespaceMapping(const Base::TUuid &index_id, const std::string &namespace_name);
+
+      /* TODO */
+      std::unordered_map<Base::TUuid, std::string> GetIndexNamespaceMapping();
 
       /* TODO */
       void OnSlaveJoin(const Base::TFd &fd);

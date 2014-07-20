@@ -842,6 +842,8 @@ void TServer::Init() {
           TIndexType(string(pkg_key), TKey(Atom::TCore(&IndexMapArena, *val_type_wrapper), &IndexMapArena)), idx_id);
       bool is_new = ret.second;
       if (is_new) {
+        assert(RepoManager);
+        RepoManager->SaveIndexNamespaceMapping(idx_id, pkg_key);
         IndexIdSet.insert(idx_id);
         stringstream ss;
         ss << "Replicating index [" << idx_id << "] " << pkg_key << " <- ";
@@ -947,9 +949,15 @@ void TServer::Init() {
     void *val_type_alloc = alloca(Sabot::Type::GetMaxTypeSize());
 
     /* figure out what index ids we currently support */ {
+      std::unordered_map<Base::TUuid, std::string> pkg_key_mapping;
+      Indy::Fiber::TJumpRunnable idns_jumper([this, &pkg_key_mapping] {
+          pkg_key_mapping = RepoManager->GetIndexNamespaceMapping();
+      });
+      idns_jumper(FramePoolManager.get(), &BGFastRunner);
+      //auto pkg_key_mapping = RepoManager->GetIndexNamespaceMapping();
       std::lock_guard<std::mutex> lock(IndexMapMutex);
-      engine_ptr->ForEachFile([engine_ptr, this, key_type_alloc, val_type_alloc](const Base::TUuid &file_uid,
-                                                                                 const Indy::Disk::TFileObj &file_obj) {
+      engine_ptr->ForEachFile([engine_ptr, this, key_type_alloc, val_type_alloc, &pkg_key_mapping](const Base::TUuid &file_uid,
+                                                                                                   const Indy::Disk::TFileObj &file_obj) {
         if (file_uid != Indy::TManager::SystemRepoId) {
           switch (file_obj.Kind) {
             case Indy::Disk::TFileObj::TKind::DataFile: {
@@ -964,7 +972,15 @@ void TServer::Init() {
                   TKey key((*csr).Key, index_arena.get());
                   TKey val((*csr).Value, main_arena.get());
 
-                  string pkg_key = Sabot::AsNative<string>(*Sabot::State::TAny::TWrapper(key.GetState(key_type_alloc)));
+                  //const string &pkg_key = Sabot::AsNative<string>(*Sabot::State::TAny::TWrapper(key.GetState(key_type_alloc)));
+                  auto pkg_key_pos = pkg_key_mapping.find(idx_pair.first);
+                  if (pkg_key_pos == pkg_key_mapping.end()) {
+                    stringstream ss;
+                    ss << idx_pair.first;
+                    syslog(LOG_ERR, "Could not find package namespace for index id [%s]\n", ss.str().c_str());
+                    abort();
+                  }
+                  const string &pkg_key = pkg_key_pos->second;
 
                   Sabot::Type::TAny::TWrapper key_type_wrapper(key.GetCore().GetType(index_arena.get(), key_type_alloc));
                   Sabot::Type::TAny::TWrapper val_type_wrapper(val.GetCore().GetType(main_arena.get(), val_type_alloc));
@@ -1129,6 +1145,8 @@ void TServer::Init() {
                                           Mynde::MemcachedIndexUuid);
         if (ret.second) {
           /* TODO: clean up the index_id_replication obj... refactor this logic into a function */
+          assert(RepoManager);
+          RepoManager->SaveIndexNamespaceMapping(Mynde::MemcachedIndexUuid, pkg_key);
           RepoManager->Enqueue(
               new TIndexIdReplication(Mynde::MemcachedIndexUuid, pkg_key, TKey(val_core, &IndexMapArena)));
           IndexIdSet.insert(Mynde::MemcachedIndexUuid);
@@ -1789,6 +1807,8 @@ string TServer::ImportCoreVector(const string &file_pattern,
                       index_id = new_ret.first->second;
                     } else {
                       /* TODO: replicate index id */
+                      assert(Server->RepoManager);
+                      Server->RepoManager->SaveIndexNamespaceMapping(index_id, pkg_key);
                       index_id_remapper.emplace(index_id, index_id);
                       Server->IndexIdSet.insert(index_id);
 
@@ -2115,6 +2135,8 @@ void TServer::InstallPackage(const vector<string> &package_name, uint64_t versio
 
       } else {
         /* TODO: clean up the index_id_replication obj... refactor this logic into a function */
+        assert(RepoManager);
+        RepoManager->SaveIndexNamespaceMapping(addr_pair.first, pkg_key);
         RepoManager->Enqueue(new TIndexIdReplication(addr_pair.first, pkg_key, TKey(val_core, &IndexMapArena)));
         IndexIdSet.insert(addr_pair.first);
       }
