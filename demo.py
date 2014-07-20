@@ -89,7 +89,7 @@ try:
                 stderr=subprocess.STDOUT,
                 preexec_fn=os.setpgrp)
     laravel = subprocess.Popen(
-                  ['php', os.path.join(args.webui_dir, 'artisan'), 'serve'],
+                  ['php', os.path.join(args.webui_dir, 'artisan'), 'serve', '--host=0.0.0.0'],
                   stderr=subprocess.STDOUT)
     # Register signal handler for Ctrl-C.
     signal.signal(signal.SIGINT, ctrl_c)
