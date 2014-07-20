@@ -481,8 +481,8 @@ int main(int argc, char *argv[]) {
     ss << cmd.Username << '.' << dataset << ".json";
     Base::Glob(ss.str().c_str(),
       [&](const char *name) -> bool {
+        std::string username(name, strchr(name, '.'));
         try {
-          std::string username(name, strchr(name, '.'));
           ifstream in;
           Util::OpenFile(in, name);
           TJsonIter json_iter(in);
@@ -494,10 +494,10 @@ int main(int argc, char *argv[]) {
             TranslateStatus(json_iter, username);
           }
         } catch (const Util::TOpenFileError &ex) {
-          cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(cmd.Username) << " file " << quoted(ss.str()) << endl;
+          cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(username) << " file " << quoted(ss.str()) << endl;
           cout << ex.what() << endl;
         } catch (const std::exception &ex) {
-          cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(cmd.Username) << " file " << quoted(string(name)) << endl;
+          cout << "ERROR: Processing dataset " << quoted(dataset) << " for user " << quoted(username) << " file " << quoted(ss.str()) << endl;
           cout << ex.what() << endl;
           throw ex;
         }
