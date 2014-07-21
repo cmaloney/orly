@@ -46,7 +46,7 @@ namespace Orly {
 
       /* Forward Declarations. */
       class TKeyCursor;
-      class TKeyCursorCollector;
+      struct TKeyCursorCollector;
 
       /* TODO */
       typedef InvCon::UnorderedList::TCollection<TKeyCursorCollector, TKeyCursor> TKeyCursorCollection;
