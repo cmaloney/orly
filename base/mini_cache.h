@@ -158,7 +158,6 @@ namespace Base {
   };  // TMiniCache
 
   /* Specialization of an empty (non)-cache that saves space. */
-  template <>
   template <typename TKey, typename TVal>
   class TMiniCache<0, TKey, TVal> {
     NO_COPY(TMiniCache);
