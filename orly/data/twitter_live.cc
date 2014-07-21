@@ -252,7 +252,8 @@ constexpr int64_t PersonRetweeted = 10;
 constexpr int64_t PersonRetweetedTweet = 11;
 constexpr int64_t PersonWasRetweeted = 12;
 constexpr int64_t TweetWasRetweeted = 13;
-constexpr int64_t PersonGeoGrid = 14;
+constexpr int64_t PersonGeoGridSmall = 14;
+constexpr int64_t PersonGeoGridBig = 15;
 
 void TranslateFollow(TJsonIter &input, const std::string &username) {
   assert(&input);
@@ -365,9 +366,12 @@ void TranslateStatus(TJsonIter &input, const std::string &username) {
     }
     if (coordinates) {
       person_location_cvg.Push(t_person_location_key(PersonLocation, uid, date, coordinates->coordinates[0], coordinates->coordinates[1]), t_person_location_val(handle, tid));
-      const int64_t lon_grid = coordinates->coordinates[0] * 1000;
-      const int64_t lat_grid = coordinates->coordinates[1] * 1000;
-      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGrid, lon_grid, lat_grid, date, uid), t_person_geo_grid_val(handle, tid));
+      const int64_t lon_grid_small = coordinates->coordinates[0] * 1000;
+      const int64_t lat_grid_small = coordinates->coordinates[1] * 1000;
+      const int64_t lon_grid_big = coordinates->coordinates[0] * 10;
+      const int64_t lat_grid_big = coordinates->coordinates[1] * 10;
+      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGridSmall, lon_grid_small, lat_grid_small, date, uid), t_person_geo_grid_val(handle, tid));
+      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGridBig, lon_grid_big, lat_grid_big, date, uid), t_person_geo_grid_val(handle, tid));
     }
   };
   // person mentioned
