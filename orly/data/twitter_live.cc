@@ -338,7 +338,7 @@ void TranslateStatus(TJsonIter &input, const std::string &username) {
   using t_person_location_val = std::tuple<std::string, int64_t>;  // user handle, tweet id
   TCoreVectorGenerator<t_person_location_key, t_person_location_val> person_location_cvg("person_location", username);
   using t_person_geo_grid_key = std::tuple<int64_t, int64_t, int64_t, Base::Chrono::TTimePnt, int64_t>;  // IndexId, longitude grid, latitude grid, date, id of user
-  using t_person_geo_grid_val = std::tuple<std::string, int64_t>;  // user handle, tweet id
+  using t_person_geo_grid_val = std::tuple<std::string, int64_t, double, double>;  // user handle, tweet id, longitude, latitude
   TCoreVectorGenerator<t_person_geo_grid_key, t_person_geo_grid_val> person_geo_grid_cvg("person_geo_grid", username);
   auto person_tweeted = [&](int64_t uid,
                             const std::string &handle,
@@ -370,8 +370,8 @@ void TranslateStatus(TJsonIter &input, const std::string &username) {
       const int64_t lat_grid_small = coordinates->coordinates[1] * 1000;
       const int64_t lon_grid_big = coordinates->coordinates[0] * 10;
       const int64_t lat_grid_big = coordinates->coordinates[1] * 10;
-      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGridSmall, lon_grid_small, lat_grid_small, date, uid), t_person_geo_grid_val(handle, tid));
-      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGridBig, lon_grid_big, lat_grid_big, date, uid), t_person_geo_grid_val(handle, tid));
+      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGridSmall, lon_grid_small, lat_grid_small, date, uid), t_person_geo_grid_val(handle, tid, coordinates->coordinates[0], coordinates->coordinates[1]));
+      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGridBig, lon_grid_big, lat_grid_big, date, uid), t_person_geo_grid_val(handle, tid, coordinates->coordinates[0], coordinates->coordinates[1]));
     }
   };
   // person mentioned
