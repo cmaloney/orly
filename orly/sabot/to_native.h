@@ -19,8 +19,8 @@
 #pragma once
 
 #include <cassert>
-#include <ostream>
 
+#include <base/thrower.h>
 #include <orly/desc.h>
 #include <orly/native/defs.h>
 #include <orly/rt/opt.h>
@@ -30,6 +30,8 @@
 namespace Orly {
 
   namespace Sabot {
+
+    DEFINE_ERROR(TInvalidConversion, std::runtime_error, "Unable to convert sabot to given native type");
 
     /* TODO */
     template <typename TVal>
@@ -57,33 +59,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(int8_t &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TInt8 &state) const override           { Out = state.Get(); }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       int8_t &Out;
     };  // TToNativeVisitor
@@ -96,33 +98,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(int16_t &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TInt16 &state) const override          { Out = state.Get(); }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       int16_t &Out;
     };  // TToNativeVisitor
@@ -135,33 +137,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(int32_t &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TInt32 &state) const override          { Out = state.Get(); }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       int32_t &Out;
     };  // TToNativeVisitor
@@ -174,33 +176,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(int64_t &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TInt64 &state) const override          { Out = state.Get(); }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       int64_t &Out;
     };  // TToNativeVisitor
@@ -213,33 +215,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(uint8_t &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TUInt8 &state) const override          { Out = state.Get(); }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       uint8_t &Out;
     };  // TToNativeVisitor
@@ -252,33 +254,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(uint16_t &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TUInt16 &state) const override         { Out = state.Get(); }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       uint16_t &Out;
     };  // TToNativeVisitor
@@ -291,33 +293,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(uint32_t &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TUInt32 &state) const override         { Out = state.Get(); }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       uint32_t &Out;
     };  // TToNativeVisitor
@@ -330,33 +332,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(uint64_t &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TUInt64 &state) const override         { Out = state.Get(); }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       uint64_t &Out;
     };  // TToNativeVisitor
@@ -369,33 +371,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(bool &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TBool &state) const override           { Out = state.Get(); }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       bool &Out;
     };  // TToNativeVisitor
@@ -408,33 +410,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(char &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TChar &state) const override           { Out = state.Get(); }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       char &Out;
     };  // TToNativeVisitor
@@ -447,33 +449,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(float &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TFloat &state) const override          { Out = state.Get(); }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       float &Out;
     };  // TToNativeVisitor
@@ -487,33 +489,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(double &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TDouble &state) const override         { Out = state.Get(); }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       double &Out;
     };  // TToNativeVisitor
@@ -526,33 +528,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(Sabot::TStdDuration &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TDuration &state) const override       { Out = state.Get(); }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       Sabot::TStdDuration &Out;
     };  // TToNativeVisitor
@@ -565,33 +567,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(Sabot::TStdTimePoint &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TTimePoint &state) const override      { Out = state.Get(); }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       Sabot::TStdTimePoint &Out;
     };  // TToNativeVisitor
@@ -604,33 +606,33 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(Base::TUuid &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TUuid &state) const override           { Out = state.Get(); }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       Base::TUuid &Out;
     };  // TToNativeVisitor
@@ -643,32 +645,32 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(std::string &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TStr &state) const override {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TStr::TPin::TWrapper pin(state.Pin(pin_alloc));
@@ -686,37 +688,37 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(Native::TBlob &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TBlob &state) const override       {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TBlob::TPin::TWrapper pin(state.Pin(pin_alloc));
         Out.assign(pin->GetStart(), pin->GetLimit());
       }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
       private:
       Native::TBlob &Out;
     };  // TToNativeVisitor
@@ -730,27 +732,27 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(Base::TOpt<TVal> &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TOpt &state) const override            {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TOpt::TPin::TWrapper pin(state.Pin(pin_alloc));
@@ -763,11 +765,11 @@ namespace Orly {
           Out.Reset();
         }
       }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       Base::TOpt<TVal> &Out;
     };  // TToNativeVisitor
@@ -780,27 +782,27 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(Rt::TOpt<TVal> &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TOpt &state) const override            {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TOpt::TPin::TWrapper pin(state.Pin(pin_alloc));
@@ -813,11 +815,11 @@ namespace Orly {
           Out.Reset();
         }
       }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       Rt::TOpt<TVal> &Out;
     };  // TToNativeVisitor
@@ -830,26 +832,26 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(Orly::TDesc<TVal> &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TDesc &state) const override           {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TDesc::TPin::TWrapper pin(state.Pin(pin_alloc));
@@ -857,12 +859,12 @@ namespace Orly {
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
         ToNative(*Sabot::State::TAny::TWrapper(pin->NewElem(0, state_alloc)), *Out);
       }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       Orly::TDesc<TVal> &Out;
     };  // TToNativeVisitor
@@ -875,29 +877,29 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(std::vector<TVal> &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TVector &state) const override         {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TVector::TPin::TWrapper pin(state.Pin(pin_alloc));
@@ -909,9 +911,9 @@ namespace Orly {
           ToNative(*Sabot::State::TAny::TWrapper(pin->NewElem(elem_idx, state_alloc)), Out[elem_idx]);
         }
       }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       std::vector<TVal> &Out;
     };  // TToNativeVisitor
@@ -925,29 +927,29 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(std::vector<bool> &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TVector &state) const override         {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TVector::TPin::TWrapper pin(state.Pin(pin_alloc));
@@ -960,9 +962,9 @@ namespace Orly {
           Out[elem_idx] = dummy;
         }
       }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       std::vector<bool> &Out;
     };  // TToNativeVisitor
@@ -975,28 +977,28 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(std::set<TVal, TCompare> &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TSet &state) const override            {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TVector::TPin::TWrapper pin(state.Pin(pin_alloc));
@@ -1008,10 +1010,10 @@ namespace Orly {
           Out.insert(Out.end(), dummy);
         }
       }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       std::set<TVal, TCompare> &Out;
     };  // TToNativeVisitor
@@ -1026,30 +1028,30 @@ namespace Orly {
         out.clear();
       }
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TMap &state) const override {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TMap::TPin::TWrapper pin(state.Pin(pin_alloc));
@@ -1062,8 +1064,8 @@ namespace Orly {
           Out.insert(Out.end(), item);
         }
       }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TTuple &/*state*/) const override      { throw; }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTuple &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
       private:
       std::map<TLhs, TRhs, TCompare> &Out;
     };  // TToNativeVisitor<std::map<TLhs, TRhs, TCompare>>
@@ -1102,32 +1104,32 @@ namespace Orly {
       /* TODO */
       TToNativeVisitor(std::tuple<TElems...> &out) : Out(out) {}
       /* Overrides. */
-      virtual void operator()(const State::TFree &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TTombstone &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TVoid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt8 &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TInt16 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt32 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TInt64 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt8 &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TUInt16 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt32 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TUInt64 &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TBool &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TChar &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TFloat &/*state*/) const override      { throw; }
-      virtual void operator()(const State::TDouble &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TDuration &/*state*/) const override   { throw; }
-      virtual void operator()(const State::TTimePoint &/*state*/) const override  { throw; }
-      virtual void operator()(const State::TUuid &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TBlob &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TStr &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TDesc &/*state*/) const override       { throw; }
-      virtual void operator()(const State::TOpt &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TSet &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TVector &/*state*/) const override     { throw; }
-      virtual void operator()(const State::TMap &/*state*/) const override        { throw; }
-      virtual void operator()(const State::TRecord &/*state*/) const override     { throw; }
+      virtual void operator()(const State::TFree &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTombstone &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVoid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt8 &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt16 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt32 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TInt64 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt8 &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt16 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt32 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUInt64 &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBool &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TChar &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TFloat &/*state*/) const override      { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDouble &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDuration &/*state*/) const override   { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TTimePoint &/*state*/) const override  { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TUuid &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TBlob &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TStr &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TDesc &/*state*/) const override       { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TOpt &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TSet &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TVector &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TMap &/*state*/) const override        { THROW_ERROR(TInvalidConversion); }
+      virtual void operator()(const State::TRecord &/*state*/) const override     { THROW_ERROR(TInvalidConversion); }
       virtual void operator()(const State::TTuple &state) const override          {
         void *pin_alloc = alloca(State::GetMaxStatePinSize());
         State::TTuple::TPin::TWrapper pin(state.Pin(pin_alloc));
