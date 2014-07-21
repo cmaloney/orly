@@ -252,6 +252,8 @@ constexpr int64_t PersonRetweeted = 10;
 constexpr int64_t PersonRetweetedTweet = 11;
 constexpr int64_t PersonWasRetweeted = 12;
 constexpr int64_t TweetWasRetweeted = 13;
+constexpr int64_t PersonGeoGridSmall = 14;
+constexpr int64_t PersonGeoGridBig = 15;
 
 void TranslateFollow(TJsonIter &input, const std::string &username) {
   assert(&input);
@@ -335,6 +337,9 @@ void TranslateStatus(TJsonIter &input, const std::string &username) {
   using t_person_location_key = std::tuple<int64_t, int64_t, Base::Chrono::TTimePnt, double, double>;  // IndexId, id of user, user handle, date, longitude, latitude
   using t_person_location_val = std::tuple<std::string, int64_t>;  // user handle, tweet id
   TCoreVectorGenerator<t_person_location_key, t_person_location_val> person_location_cvg("person_location", username);
+  using t_person_geo_grid_key = std::tuple<int64_t, int64_t, int64_t, Base::Chrono::TTimePnt, int64_t>;  // IndexId, longitude grid, latitude grid, date, id of user
+  using t_person_geo_grid_val = std::tuple<std::string, int64_t>;  // user handle, tweet id
+  TCoreVectorGenerator<t_person_geo_grid_key, t_person_geo_grid_val> person_geo_grid_cvg("person_geo_grid", username);
   auto person_tweeted = [&](int64_t uid,
                             const std::string &handle,
                             int64_t tid,
@@ -361,6 +366,12 @@ void TranslateStatus(TJsonIter &input, const std::string &username) {
     }
     if (coordinates) {
       person_location_cvg.Push(t_person_location_key(PersonLocation, uid, date, coordinates->coordinates[0], coordinates->coordinates[1]), t_person_location_val(handle, tid));
+      const int64_t lon_grid_small = coordinates->coordinates[0] * 1000;
+      const int64_t lat_grid_small = coordinates->coordinates[1] * 1000;
+      const int64_t lon_grid_big = coordinates->coordinates[0] * 10;
+      const int64_t lat_grid_big = coordinates->coordinates[1] * 10;
+      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGridSmall, lon_grid_small, lat_grid_small, date, uid), t_person_geo_grid_val(handle, tid));
+      person_geo_grid_cvg.Push(t_person_geo_grid_key(PersonGeoGridBig, lon_grid_big, lat_grid_big, date, uid), t_person_geo_grid_val(handle, tid));
     }
   };
   // person mentioned
