@@ -45,7 +45,6 @@
       "-isystem third_party/websocketpp/"
     ],
     "gcc": [
-      "-std=c11",
       "-Werror",
       "-Wall",
       "-Wextra",

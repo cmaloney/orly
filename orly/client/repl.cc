@@ -19,49 +19,25 @@
 #include <orly/client/repl.h>
 
 #include <cassert>
-#include <csetjmp>
-#include <exception>
-#include <iostream>
-#include <limits>
-#include <memory>
-#include <sstream>
+#include <stdexcept>
 #include <string>
 
 #include <unistd.h>
 
+#include <base/repl.h>
 #include <orly/protocol.h>
 #include <orly/client/program/interpret_stmt.h>
 #include <orly/client/program/parse_stmt.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <util/io.h>
-#include <util/error.h>
 
 using namespace std;
-using namespace chrono;
+using namespace std::chrono;
 using namespace Base;
 using namespace Socket;
 using namespace Orly;
 using namespace Orly::Client;
 using namespace Orly::Client::Program;
-using namespace Tools;
-using namespace Util;
 
 namespace {
-
-  /* Command info. */
-  struct TInfo {
-
-    /* Prefix of a command. Used for auto-complete. */
-    const char *Name;
-
-    /* Example. Shown in the help message. */
-    const char *Example;
-
-    /* Description of what the command does. */
-    const char *Desc;
-
-  };  // TInfo
 
   /* Populate the suggestion and description of each of the top-level stmts. */
   class TGetInfo : public TTop::TVisitor {
@@ -184,23 +160,6 @@ namespace {
     }();
     return infos;
   }
-
-  /* Returns the size of the longest grammar out of GetInfos. */
-  int GetMaxExampleLen() {
-    static int max_len = []() {
-      std::size_t result = 0;
-      for (const auto &info : GetInfos()) {
-        result = std::max(result, strlen(info.Example));
-      }  // for
-      assert(result < std::numeric_limits<int>::max());
-      return result;
-    }();
-    return max_len;
-  }
-
-  /* Handle interrupt through CtrlC. */
-  sigjmp_buf CtrlC;
-
 }
 
 int TRepl::Main(int argc, char *argv[]) NO_THROW {
@@ -255,103 +214,24 @@ TRepl::TCmd::TMeta::TMeta()
 }
 
 TRepl::TRepl(const TCmd &cmd)
-    : Client(make_shared<TClient>(
-          cmd.ServerAddress, cmd.SessionId, seconds(cmd.TimeToLive))),
-      SigIntHandler(SIGINT, [](int) { siglongjmp(CtrlC, 1); }) {}
+    : Client(make_shared<TClient>(cmd.ServerAddress, cmd.SessionId, seconds(cmd.TimeToLive))) {}
 
 TRepl::~TRepl() {
   assert(this);
 }
 
-void TRepl::ForEachStr(const function<bool (const string &)> &cb) {
-  assert(this);
-  assert(&cb);
-  // Turn off filename completion.
-  rl_completion_entry_function = [](const char *, int) -> char * {
-    return nullptr;
-  };
-  rl_attempted_completion_function = [](const char *text, int start, int) {
-    char **matches = nullptr;
-    // Only provide suggestions if the word is at column 0.
-    if (start == 0) {
-      matches = rl_completion_matches(text, [](const char *text, int state) {
-        static std::size_t i = 0, len = 0;
-        if (!state) {
-          i = 0;
-          len = strlen(text);
-        }  // if
-        char *result = nullptr;
-        const auto &infos = GetInfos();
-        // Return the next name which partially matches.
-        while (i < infos.size()) {
-          const char *name = infos[i].Name;
-          ++i;
-          if (strncmp(name, text, len) == 0) {
-            result = strdup(name);
-            break;
-          }  // if
-        }  // for
-        return result;
-      });
-    }  // if
-    return matches;
-  };
-  ostringstream strm;
-  bool is_cont = false;
-  if (sigsetjmp(CtrlC, 1) == 1) {
-    strm.str("");
-    is_cont = false;
-    cout << endl;
-  }  // if
-  for (;;) {
-    unique_ptr<const char> buf(readline(is_cont ? " ...> " : "orly> "));
-    if (!buf.get()) {
-      cout << endl;
-      break;
-    }  // if
-    if (!is_cont) {
-      strm.str("");
-    }  // if
-    strm << buf.get();
-    string cmd = strm.str();
-    if (cmd == "?" || cmd == "help") {
-      add_history(cmd.data());
-      for (const auto &info : GetInfos()) {
-        printf("%-*s    %s.\n", GetMaxExampleLen(), info.Example, info.Desc);
-      }  // for
-      continue;
-    }  // if
-    is_cont = cmd.back() != ';';
-    if (is_cont) {
-      strm << endl;
-    } else {
-      add_history(cmd.data());
-      cmd += '\n';
-      if (!cb(cmd)) {
-        break;
-      }  // if
-    }  // if
-  }  // for
-}
-
 int TRepl::Run() {
   assert(this);
-  ForEachStr(
-      [this](const string &str) {
-        bool keep_going = true;
-        try {
-          ParseStmtStr(
-              str.c_str(),
-              [this, &keep_going](const TStmt *stmt) {
-                keep_going = InterpretStmt(stmt, Client);
-              }
-          );
-        } catch (const exception &ex) {
-          cout << ex.what() << endl;
-        }
-        return keep_going;
-      }
-  );
+  Repl("orly> ", GetInfos(), [this](const string &str) {
+    bool keep_going = true;
+    try {
+      ParseStmtStr(str.c_str(), [this, &keep_going](const TStmt *stmt) { keep_going = InterpretStmt(stmt, Client); });
+    }
+    catch (const exception &ex) {
+      cout << ex.what() << endl;
+    }
+    return keep_going;
+  });
   if (Client->GetSessionId()) {
     cout << "(session_id = " << Client->GetSessionId() << ", time_to_live = " << Client->GetTimeToLive().count() << " sec(s))" << endl;
   } else {
