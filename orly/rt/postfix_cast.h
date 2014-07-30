@@ -186,17 +186,33 @@ namespace Orly {
 
     };  // CastAs<double, int64_t>
 
-    /* TODO */
+    template <typename TTo, typename TFrom>
+    struct CastAs<Rt::TOpt<TTo>, Rt::TOpt<TFrom>> {
+      NO_CONSTRUCTION(CastAs);
+      static Rt::TOpt<TTo> Do(const Rt::TOpt<TFrom> &val) {
+        return val.IsKnown() ? Rt::TOpt<TTo>(CastAs<TTo, TFrom>::Do(val.GetVal())) : Rt::TOpt<TTo>();
+      }
+    }; // CastAs<Rt::TOpt<TTo>, Rt::TOpt<TFrom>>
+
     template <typename TVal>
-    struct CastAs<Rt::TOpt<TVal>, TVal> {
+    struct CastAs<Rt::TOpt<TVal>, Rt::TOpt<TVal>> {
+      NO_CONSTRUCTION(CastAs);
+      static const Rt::TOpt<TVal> &Do(const Rt::TOpt<TVal> &val) {
+        return val;
+      }
+    }; // CastAs<RT::TOpt<TVal>, Rt::TOpt<TVal>
+
+    /* TODO */
+    template <typename TTo, typename TFrom>
+    struct CastAs<Rt::TOpt<TTo>, TFrom> {
       NO_CONSTRUCTION(CastAs);
 
       /* TODO */
-      static Rt::TOpt<TVal> Do(const TVal &val) {
-        return Rt::TOpt<TVal>(val);
+      static Rt::TOpt<TTo> Do(const TFrom &val) {
+        return Rt::TOpt<TTo>(CastAs<TTo, TFrom>::Do(val));
       }
 
-    };  // CastAs<Rt::TOpt<TVal>, TVal>
+    };  // CastAs<Rt::TOpt<TTo>, TFrom>
 
 
     /* TODO */

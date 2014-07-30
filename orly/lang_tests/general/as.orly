@@ -87,4 +87,8 @@ test {
   toptconv9: (({1:true, 2:false, 3:true} as {int:bool}?) == {1:true, 2:false, 3:true}) is known true;
   toptconv10: ((<[1]> as <[int]>?) == <[1]>) is known true;
   toptconv11: ((<{.a:1, .b:2, .c:3}> as <{.a:int, .b:int, .c:int}>?) == <{.a:1, .b:2, .c:3}>) is known true;
+  toptconv12: (1.0 as int?) == 1 is known true;
+  toptconv14: (1 as real?) is known 1.0;
+  toptconv15: (1 as int?  as real?) == 1.0 is known true;
+  toptconv16: (1.0 as real? as real?) == 1.0 is known true;
 };
