@@ -118,7 +118,7 @@ void TStateDumper::operator()(const State::TDouble &state) const {
 void TStateDumper::operator()(const State::TDuration &state) const {
   assert(this);
   assert(&state);
-  Strm << state.Get().count() << "ms";
+  Strm << state.Get().count() << "ns";
 }
 
 void TStateDumper::operator()(const State::TTimePoint &state) const {

@@ -110,8 +110,8 @@ FIXTURE(TDouble) {
 }
 
 FIXTURE(TDuration) {
-  EXPECT_EQ(ToString(Sabot::TStdDuration(0)), "0ms");
-  EXPECT_EQ(ToString(Sabot::TStdDuration(1234)), "1234ms");
+  EXPECT_EQ(ToString(Sabot::TStdDuration(0)), "0ns");
+  EXPECT_EQ(ToString(Sabot::TStdDuration(1234)), "1234ns");
 }
 
 FIXTURE(TTimePoint) {
