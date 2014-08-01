@@ -382,22 +382,15 @@ class TWsImpl final
                                        false,
                                        false,
                                        out_strm);
-          Result["status"] = "ok";
           Result["name"] = AsStr(pkg.Name);
           Result["version"] = pkg.Version;
-        } catch (const Compiler::TCompileFailure &ex) {
-          Result["status"] = "error";
-          Result["kind"] = "compiler";
-          Result["diagnostics"] = out_strm.str();
+        } catch (const Compiler::TCompileFailure &) {
+          THROW << out_strm.str();
         } catch (const TSourceError &src_error) {
-          Result["status"] = "error";
-          Result["kind"] = "compiler internal";
-          Result["msg"] = src_error.what();
-          Result["pos"] = src_error.GetPosRange().AsStr();
+          THROW << src_error.what() << ' '
+                << '[' << src_error.GetPosRange().AsStr() << ']';
         } catch (const exception &ex) {
-          Result["status"] = "error";
-          Result["kind"] = "std exception";
-          Result["msg"] = ex.what();
+          THROW << ex.what();
         }
       }
 
