@@ -388,7 +388,7 @@ class TWsImpl final
           THROW << out_strm.str();
         } catch (const TSourceError &src_error) {
           THROW << src_error.what() << ' '
-                << '[' << src_error.GetPosRange().AsStr() << ']';
+                << '[' << AsStr(src_error.GetPosRange()) << ']';
         } catch (const exception &ex) {
           THROW << ex.what();
         }

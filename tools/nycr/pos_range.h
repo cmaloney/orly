@@ -62,14 +62,6 @@ namespace Tools {
         return Start != that.Start || Limit != that.Limit;
       }
 
-      //NOTE: Use the streamer if you can.
-      std::string AsStr() const {
-        assert(this);
-        std::ostringstream out;
-        Write(out);
-        return out.str();
-      }
-
       /* The limiting position of the range. */
       const TPos &GetLimit() const {
         assert(this);

@@ -18,6 +18,7 @@
 
 #include <orly/code_gen/builder.h>
 
+#include <base/as_str.h>
 #include <base/not_implemented.h>
 #include <base/time_maps.h>
 #include <orly/code_gen/binary_scoped_rhs.h>
@@ -337,7 +338,7 @@ TInline::TPtr Orly::CodeGen::Build(const L0::TPackage *package, const Expr::TExp
 
       //Build the individual asserts
       for(auto &it: that->GetAssertCases()) {
-        string name = it->GetExpr()->GetPosRange().AsStr();
+        string name = Base::AsStr(it->GetExpr()->GetPosRange());
         if(it->HasName()) {
           name += " " + it->GetName();
         }
