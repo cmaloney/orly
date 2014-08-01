@@ -1,26 +1,66 @@
 SimpleUser is <[int, str]>;
 HandleTime is <[str, time_pnt]>;
+HandleIdGeo is <[str, int, real, real]>;
 HandleHandleTime is <[str, str, time_pnt]>;
+edge_t is <{.type: str, .source: str, .target: str}>;
 
+/* turn a twitter handle into a twitter id */
 user_id_by_handle = (*<[handle]>::(int)) where {
   handle = given::(str);
 };
 
+tweets_by_people_edges = (sorted_data.1 as [edge_t]) where {
+  sorted_data = **(data sorted_by lhs.0 < rhs.0);
+  data = **(user_ids as {int}) reduce start empty [<[time_pnt, edge_t]>] + did_mention(.uid:that) + did_tag(.uid:that);
+  beg = given::(time_pnt);
+  handles = given::({str});
+  user_ids = user_id_by_handle(.handle:(**handles));
+  did_mention = (<[*k::(HandleHandleTime).2, <{.type:"mentioned", .source:*k::(HandleHandleTime).0, .target:*k::(HandleHandleTime).1}>]> as [<[time_pnt, edge_t]>]) where {
+    k = keys (HandleHandleTime) @ <[DidMentionUserID, uid, free::(int), free::(int)]> if (*that::(HandleHandleTime).2 >= beg);
+    uid = given::(int);
+  };
+  did_tag = (<[*k::(HandleTime).1, <{.type:"tag", .source:*k::(HandleTime).0, .target:k.2}>]> as [<[time_pnt, edge_t]>]) where {
+    k = keys (HandleTime) @ <[PersonUsedTagID, uid, free::(str), free::(int)]> if (*that::(HandleTime).1 >= beg);
+    uid = given::(int);
+  };
+};
+
+/* a progressive graph of all the mentions and hashtags for all the people in the given set of twitter handles, from a given time point on */
+tweets_by_people_graph = (<{.type:"progressive_graph", .data:tweets_by_people_edges(.beg:beg, .handles:handles)}>) where {
+  beg = given::(time_pnt);
+  handles = given::({str});
+};
+
+/* all the hashtags used, sorted by popularity */
+all_hashtags = ((s as [<[str, int]>]) sorted_by lhs.1 > rhs.1) where {
+  s = k collated_by start 0 + 1 having that.1;
+  k = keys (HandleTime) @ <[TagUsedByPersonID, free::(str), free::(int), free::(int)]>;
+};
+
+/* the top n most popular hashtags */
+top_n_hashtags = ((**all_hashtags take n) as [<[str, int]>]) where {
+  n = given::(int);
+};
+
+/* turn a twitter id into a twitter handle */
 handle_by_user_id = (*<[uid]>::(str)) where {
   uid = given::(int);
 };
 
+/* return all the twitter handles available, from offset, take lim */
 users_by_handle = ((seq if (lim <= 0) else seq take lim) as [str]) where {
   seq = users_by_handle_seq skip offset;
   lim = given::(int);
   offset = given::(int);
 };
 
+/* return the user objects of people who used a given hashtag */
 users_who_used_hashtag = (<[k.2, *k::(HandleTime).0]> as {SimpleUser}) where {
   k = keys (HandleTime) @ <[TagUsedByPersonID, hashtag, free::(int), free::(int)]>;
   hashtag = given::(str);
 };
 
+/* return a list of users and how many pieces of geo-location data we have about them */
 users_with_location_data = ((res_seq if (lim <= 0) else res_seq take lim) as [<[str, int]>]) where {
   seq = keys(<[str, int]>) @ <[PersonLocationID, free::(int), free::(time_pnt), free::(real), free::(real)]> skip offset;
   input_seq = *seq::(<[str, int]>).0;
@@ -29,17 +69,236 @@ users_with_location_data = ((res_seq if (lim <= 0) else res_seq take lim) as [<[
   offset = given::(int);
 };
 
-users_who_used_hashtags = (**hashtags reduce (start start_val & users_who_used_hashtag(.hashtag:that))) where {
+/* a set of user objects of people who used all of the given hashtags in the set */
+users_who_used_all_hashtags = (**hashtags reduce (start start_val & users_who_used_hashtag(.hashtag:that))) where {
   start_val = ((**hashtags take 1) reduce (start empty {SimpleUser} | users_who_used_hashtag(.hashtag:that)));
   hashtags = given::({str});
 };
 
+/* compute pi */
 pi = acos(-1.0);
 
+/* turn degrees into radians */
 deg_to_rad = ((deg * pi) / 180.0) where {
   deg = given::(real);
 };
 
+rad_to_deg = (rad * (180.0 / pi)) where {
+  rad = given::(real);
+};
+
+compute_point_on_sphere_given_distance_bearing_in_degrees = (<[lon2, lat2]>) where {
+  lon2 = (lon2o if (lon2o <= 180.0 and lon2o >= -180.0) else (lon2o - 360.0 if lon2o > 180.0 else lon2o + 360.0));
+  lat2 = (lat2o if (lat2o <= 90.0 and lat2o >= -90.0) else (lat2o - 180.0 if lat2o > 90.0 else lat2o + 180.0));
+  lon2o = rad_to_deg(.rad:rlon2);
+  lat2o = rad_to_deg(.rad:rlat2);
+  rlat2 = asin(sin(rlat1) * cos(rangdist) + cos(rlat1) * sin(rangdist) * cos(rbearing));
+  rlon2 = rlon1 + atan2(sin(rbearing) * sin(rangdist) * cos(rlat1), cos(rangdist) - sin(rlat1) * sin(rlat2));
+  rlon1 = deg_to_rad(.deg:lon1);
+  rlat1 = deg_to_rad(.deg:lat1);
+  rbearing = deg_to_rad(.deg:bearing);
+  rangdist = d / R;
+  lon1 = given::(real);
+  lat1 = given::(real);
+  bearing = given::(real);
+  d = given::(real);
+  R = given::(real);
+};
+
+compute_point_given_distance_bearing_in_degrees = (compute_point_on_sphere_given_distance_bearing_in_degrees(.lon1:lon1, .lat1:lat1, .bearing:bearing, .d:d, .R:6372.8)) where {
+  lon1 = given::(real);
+  lat1 = given::(real);
+  bearing = given::(real);
+  d = given::(real);
+};
+
+with {
+  <[PersonGeoGridSmallID, 45000, 45000, {1970-01-01T00:00:00Z}, 1]> <- <["jim", 5, 45.0, 45.0]>;
+  <[PersonGeoGridBigID, 450, 450, {1970-01-01T00:00:00Z}, 1]> <- <["jim", 5, 45.0, 45.0]>;
+} test {
+  t1: length_of what_happened_around_here(.time:{1970-01-01T00:00:00Z}, .distance_margin:10.0, .time_margin:{+0T0:1:0}, .lon:45.0, .lat:45.0) == 1;
+};
+
+/* date, user handle, distance, lon, lat, userid, tid */
+geo_val_t is <{.time:time_pnt, .handle:str, .distance:real, .lon:real, .lat:real, .uid:int, .tid:int, .cdiff:str}>;
+/* TODO: deal with crossing IDL or poles */
+what_happened_around_here = ((scan(.segs:small_segs, .mult:1000.0, .idx_key:PersonGeoGridSmallID) if distance_margin < 2.5 else scan(.segs:big_segs, .mult:10.0, .idx_key:PersonGeoGridBigID))) where {
+  scan = ((**segs reduce start empty [geo_val_t] + (g(.ilon:that.0,.ilat:that.1, .olon:lon, .olat:lat) as [geo_val_t])) sorted_by lhs.time < rhs.time) where {
+    mult = given::(real);
+    segs = given::({<[int, int]>});
+    idx_key = given::(int);
+    g = (<{.time:k.3, .cdiff:*k::(HandleIdGeo).0, .handle:*k::(HandleIdGeo).0, .distance:compute_distance_between_degrees(.lon1:olon, .lat1:olat, .lon2:*k::(HandleIdGeo).2, .lat2:*k::(HandleIdGeo).3), .lon:*k::(HandleIdGeo).2, .lat:*k::(HandleIdGeo).3, .uid:k.4, .tid:*k::(HandleIdGeo).1}>) where {
+      k = (keys (HandleIdGeo) @ <[idx_key, ilon, ilat, free::(time_pnt), free::(int)]> if (((that.3 - time <= time_margin) if that.3 > time else (time - that.3 <= time_margin)) and
+                                                                                           compute_distance_between_degrees(.lon1:olon, .lat1:olat, .lon2:*that::(HandleIdGeo).2, .lat2:*that::(HandleIdGeo).3) <= distance_margin));
+      ilon = given::(int);
+      ilat = given::(int);
+      olon = given::(real);
+      olat = given::(real);
+    };
+  };
+  compute_segs = ([start_lon .. end_lon] reduce start {<[lon * mult as int, lat * mult as int]>} | compute_lats(.in_lon:that)) where {
+    compute_lats = (([start_lat .. end_lat] if (is_seg_in_range(.x:in_lon as real, .y:that as real))) reduce start empty {<[int, int]>} | {<[in_lon, that]>}) where {
+      is_seg_in_range = (compute_distance_between_degrees(.lon1:lon, .lat1:lat, .lon2:(x / mult), .lat2:(y / mult)) <= distance_margin or
+                         compute_distance_between_degrees(.lon1:lon, .lat1:lat, .lon2:((x + 1) / mult), .lat2:((y + 1) / mult)) <= distance_margin or
+                         compute_distance_between_degrees(.lon1:lon, .lat1:lat, .lon2:(x / mult), .lat2:(y / mult)) <= distance_margin or
+                         compute_distance_between_degrees(.lon1:lon, .lat1:lat, .lon2:((x + 1) / mult), .lat2:((y + 1) / mult)) <= distance_margin) where {
+        x = given::(real);
+        y = given::(real);
+      };
+      in_lon = given::(int);
+    };
+    mult = given::(real);
+    start_lon = given::(int);
+    end_lon = given::(int);
+    start_lat = given::(int);
+    end_lat = given::(int);
+  };
+  small_segs = compute_segs(.mult:1000.0, .start_lon:min_lon_small, .end_lon:max_lon_small , .start_lat:min_lat_small, .end_lat:max_lat_small);
+  big_segs = compute_segs(.mult:10.0, .start_lon:min_lon_big, .end_lon:max_lon_big, .start_lat:min_lat_big, .end_lat:max_lat_big);
+  min_lon_small = (min_lon * 1000.0) as int;
+  max_lon_small = (max_lon * 1000.0) as int;
+  min_lat_small = (min_lat * 1000.0) as int;
+  max_lat_small = (max_lat * 1000.0) as int;
+  min_lon_big = (min_lon * 10.0) as int;
+  max_lon_big = (max_lon * 10.0) as int;
+  min_lat_big = (min_lat * 10.0) as int;
+  max_lat_big = (max_lat * 10.0) as int;
+  min_lon = compute_point_given_distance_bearing_in_degrees(.lon1:lon, .lat1:lat, .bearing:270.0, .d:distance_margin * 1.1).0;
+  max_lon = compute_point_given_distance_bearing_in_degrees(.lon1:lon, .lat1:lat, .bearing:90.0, .d:distance_margin * 1.1).0;
+  min_lat = compute_point_given_distance_bearing_in_degrees(.lon1:lon, .lat1:lat, .bearing:180.0, .d:distance_margin * 1.1).1;
+  max_lat = compute_point_given_distance_bearing_in_degrees(.lon1:lon, .lat1:lat, .bearing:0.0, .d:distance_margin * 1.1).1;
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+};
+
+what_happened_around_here_map = (<{.type:"map", .lon:lon, .lat:lat, .data:what_happened_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat)}>) where {
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+};
+
+geo_mentioned_val_t is <{.time:time_pnt, .handle:str, .distance:real, .lon:real, .lat:real, .cdiff:[str]}>;
+what_was_mentioned_around_here = (t as [geo_mentioned_val_t]) where {
+  t = <{.time:seq.time, .handle:seq.handle, .distance:seq.distance, .lon:seq.lon, .lat:seq.lat, .cdiff:get_mentions(.uid:seq.uid, .tid:seq.tid)}>;
+  get_mentions = ((k if that.3 == tid) reduce start empty [str] + [*that::(HandleHandleTime).1]) where {
+    k = keys (HandleHandleTime) @ <[DidMentionUserID, uid, free::(int), free::(int)]>;
+    uid = given::(int);
+    tid = given::(int);
+  };
+  seq = **what_happened_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat);
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+};
+
+mentioned_around_here = ((t if length_of that.cdiff > 0) as [geo_mentioned_val_t]) where {
+  t = <{.time:seq.time, .handle:seq.handle, .distance:seq.distance, .lon:seq.lon, .lat:seq.lat, .cdiff:get_mentions(.uid:seq.uid, .tid:seq.tid)}>;
+  get_mentions = ((k if that.3 == tid and *that::(HandleHandleTime).1 in handles) reduce start empty [str] + [*that::(HandleHandleTime).1]) where {
+    k = keys (HandleHandleTime) @ <[DidMentionUserID, uid, free::(int), free::(int)]>;
+    uid = given::(int);
+    tid = given::(int);
+  };
+  seq = **what_happened_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat);
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+  handles = given::({str});
+};
+
+what_was_mentioned_around_here_map = (<{.type:"map", .lon:lon, .lat:lat, .data:what_was_mentioned_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat)}>) where {
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+};
+
+mentioned_around_here_map = (<{.type:"map", .lon:lon, .lat:lat, .data:mentioned_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat, .handles:handles)}>) where {
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+  handles = given::({str});
+};
+
+geo_tagged_val_t is <{.time:time_pnt, .handle:str, .distance:real, .lon:real, .lat:real, .cdiff:[str]}>;
+what_was_tagged_around_here = (t as [geo_tagged_val_t]) where {
+  t = <{.time:seq.time, .handle:seq.handle, .distance:seq.distance, .lon:seq.lon, .lat:seq.lat, .cdiff:get_tags(.uid:seq.uid, .tid:seq.tid)}>;
+  get_tags = ((k if that.3 == tid) reduce start empty [str] + [that.2]) where {
+    k = keys (HandleTime) @ <[PersonUsedTagID, uid, free::(str), free::(int)]>;
+    uid = given::(int);
+    tid = given::(int);
+  };
+  seq = **what_happened_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat);
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+};
+
+tagged_around_here = ((t if length_of that.cdiff > 0) as [geo_tagged_val_t]) where {
+  t = <{.time:seq.time, .handle:seq.handle, .distance:seq.distance, .lon:seq.lon, .lat:seq.lat, .cdiff:get_tags(.uid:seq.uid, .tid:seq.tid)}>;
+  get_tags = ((k if that.3 == tid and that.2 in hashtags) reduce start empty [str] + [that.2]) where {
+    k = keys (HandleTime) @ <[PersonUsedTagID, uid, free::(str), free::(int)]>;
+    uid = given::(int);
+    tid = given::(int);
+  };
+  seq = **what_happened_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat);
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+  hashtags = given::({str});
+};
+
+what_was_tagged_around_here_map = (<{.type:"map", .lon:lon, .lat:lat, .data:what_was_tagged_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat)}>) where {
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+};
+
+tagged_around_here_map = (<{.type:"map", .lon:lon, .lat:lat, .data:tagged_around_here(.time:time, .distance_margin:distance_margin, .time_margin:time_margin, .lon:lon, .lat:lat, .hashtags:hashtags)}>) where {
+  time = given::(time_pnt);
+  distance_margin = given::(real);
+  time_margin = given::(time_diff);
+  lon = given::(real);
+  lat = given::(real);
+  hashtags = given::({str});
+};
+
+heat_map_user = (<{.type:"heat_map", .lon:data[0].lon, .lat:data[0].lat, .data:data}>) where {
+  data = <{.lon:seq.1, .lat:seq.2}> as [<{.lon:real, .lat:real}>];
+  seq = **user_location_history(.handle:handle);
+  handle = given::(str);
+};
+
+travel_map_user = (<{.type:"travel_map", .lon:data[0].lon, .lat:data[0].lat, .data:data}>) where {
+  data = <{.lon:seq.1, .lat:seq.2}> as [<{.lon:real, .lat:real}>];
+  seq = **user_location_history(.handle:handle);
+  handle = given::(str);
+};
+
+progressive_travel_map_user = (<{.type:"progressive_travel_map", .lon:data[0].lon, .lat:data[0].lat, .data:data}>) where {
+  data = <{.lon:seq.1, .lat:seq.2}> as [<{.lon:real, .lat:real}>];
+  seq = **user_location_history(.handle:handle);
+  handle = given::(str);
+};
+
+/* compute the distance between 2 points along the outside of a sphere with radius R, where the lon / lat are given as degrees */
 compute_haversine_from_degrees = (d) where {
   delta_lat = rlat2 - rlat1;
   delta_lon = rlon2 - rlon1;
@@ -63,6 +322,7 @@ with {
   t2: compute_haversine_from_degrees(.lon1:50.0, .lon2:51.0, .lat1:50.0, .lat2:51.0, .R:6372.8) > 131.7;
 };
 
+/* compute the distance between 2 points on earth in kilometers. Assumes a perfect sphere */
 compute_distance_between_degrees = (compute_haversine_from_degrees(.lon1:lon1, .lon2:lon2, .lat1:lat1, .lat2:lat2, .R:6372.8)) where {
   lon1 = given::(real);
   lon2 = given::(real);
@@ -80,6 +340,7 @@ MatchingLocationObj is <{
   .lat2:real
 }>;
 
+/* find all pairs of points in time where the given 2 users were within the given distance (in km) within the given time margin */
 when_were_users_close = (_when_were_users_close(.uid1:uid1, .uid2:uid2, .time_margin:time_margin, .distance_margin:distance_margin)) where {
   time_margin = given::(time_diff);
   distance_margin = given::(real);
@@ -102,10 +363,8 @@ with {
 };
 
 /****************************
-****** Time Lapse Graph *****
+************ Graph **********
 ****************************/
-
-edge_t is <{.type: str, .source: str, .target: str}>;
 
 mentions_graph = (_mentions_graph(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
@@ -115,43 +374,77 @@ mentioned_graph = (_mentioned_graph(.uid:user_id_by_handle(.handle:handle))) whe
   handle = given::(str);
 };
 
+any_hashtags_edges = (**(**hashtags reduce (start empty {edge_t} | user_edges_who_used_hashtag(.hashtag:that))) as [edge_t]) where {
+  user_edges_who_used_hashtag = (<{.type:"tag", .target:k.1, .source:*k::(HandleTime).0}> as {edge_t}) where {
+    k = keys (HandleTime) @ <[TagUsedByPersonID, hashtag, free::(int), free::(int)]>;
+    hashtag = given::(str);
+  };
+  hashtags = given::({str});
+};
+
+/* a graph that shows all hashtag usage by people who used any of the given hashtags */
+any_hashtags_graph = (<{.type:"graph", .data:any_hashtags_edges(.hashtags:hashtags)}>) where {
+  hashtags = given::({str});
+};
+
+all_hashtags_edges = ((k if that.source in user_handles) as [edge_t]) where {
+  k = **any_hashtags_edges(.hashtags:hashtags);
+  user_handles = (**users).1 as {str};
+  users = users_who_used_all_hashtags(.hashtags:hashtags);
+  hashtags = given::({str});
+};
+
+/* a graph that shows all hashtag usage by people who used all of the given hashtags */
+all_hashtags_graph = (<{.type:"graph", .data:all_hashtags_edges(.hashtags:hashtags)}>) where {
+  hashtags = given::({str});
+};
+
 /****************************
 **** Top Level Functions ****
 ********* By Handle *********
 ****************************/
 
+/* the set of users who follow the given handle */
 followers = (_followers(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
 };
 
+/* the set of users who the given handle follows */
 following = (_following(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
 };
 
+/* the set of users who the given handle mentions in tweets */
 mentioned_users = (_mentioned_users(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
 };
 
+/* the set of users who have mentioned the given handle */
 mentioned_by_users = (_mentioned_by_users(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
 };
 
+/* the set of hashtags used by the given user */
 hashtags_used_by_user = (_hashtags_used_by_user(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
 };
 
+/* a time-series of geo-location data for the given data */
 user_location_history = (_user_location_history(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
 };
 
+/* a set of users that the given handle replied to */
 users_replied_to = (_users_replied_to(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
 };
 
+/* a set of users who replied to the given handle */
 users_received_reply_from = (_users_received_reply_from(.uid:user_id_by_handle(.handle:handle))) where {
   handle = given::(str);
 };
 
+/* a set of hashtags that the given users have in common */
 common_hashtags = (_common_hashtags(.uid1:user_id_by_handle(.handle:handle1), .uid2:user_id_by_handle(.handle:handle2))) where {
   handle1 = given::(str);
   handle2 = given::(str);
@@ -180,7 +473,7 @@ _mentioned_by_users = (<[k.2, *k::(HandleHandleTime).1]> as {SimpleUser}) where 
   uid = given::(int);
 };
 
-_hashtags_used_by_user = (keys (HandleTime) @ <[TagUsedByPersonID, uid, free::(str), free::(int)]>.2 as {str}) where {
+_hashtags_used_by_user = (keys (HandleTime) @ <[PersonUsedTagID, uid, free::(str), free::(int)]>.2 as {str}) where {
   uid = given::(int);
 };
 
@@ -323,6 +616,22 @@ top_n_mentions_2nd_degree_count_graph = (<{.type:"graph", .data:edges}>) where {
   n = given::(int);
 };
 
+degree_2nd_followers_with_common_hashtags = (_2nd_degree_followers_with_common_hashtags_seq(.uid:user_id_by_handle(.handle:handle)) as {SimpleUser}) where {
+  handle = given::(str);
+};
+
+degree_2nd_following_with_common_hashtags = (_2nd_degree_following_with_common_hashtags_seq(.uid:user_id_by_handle(.handle:handle)) as {SimpleUser}) where {
+  handle = given::(str);
+};
+
+degree_2nd_mentions_with_common_hashtags = (_2nd_degree_mentions_with_common_hashtags_seq(.uid:user_id_by_handle(.handle:handle)) as {SimpleUser}) where {
+  handle = given::(str);
+};
+
+degree_2nd_mentioned_by_with_common_hashtags = (_2nd_degree_mentioned_by_with_common_hashtags_seq(.uid:user_id_by_handle(.handle:handle)) as {SimpleUser}) where {
+  handle = given::(str);
+};
+
 /******************************
 **** Helpers Returning Seq ****
 ******************************/
@@ -398,3 +707,5 @@ PersonRetweetedID = 10;
 PersonRetweetedTweetID = 11;
 PersonWasRetweetedID = 12;
 TweetWasRetweetedID = 13;
+PersonGeoGridSmallID = 14;
+PersonGeoGridBigID = 15;
