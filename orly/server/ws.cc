@@ -316,9 +316,9 @@ class TWsImpl final
         }
         TMethodResult result = GetSession()->Try(TMethodRequest(pov_id, fq_name, closure));
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-        Result = AsStrFunc(
+        Result = TJson::Parse(AsStrFunc(
             &Var::Jsonify,
-            Var::ToVar(*TWrapper(Indy::TKey(result.GetValue(), result.GetArena().get()).GetState(state_alloc))));
+            Var::ToVar(*TWrapper(Indy::TKey(result.GetValue(), result.GetArena().get()).GetState(state_alloc)))));
       }
 
       /* Pause or unpause a pov. */
