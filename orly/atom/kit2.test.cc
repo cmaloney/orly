@@ -172,8 +172,8 @@ FIXTURE(TDouble) {
 }
 
 FIXTURE(TDuration) {
-  EXPECT_EQ(ToString(TCore::TStdDuration(0)), "0ms");
-  EXPECT_EQ(ToString(TCore::TStdDuration(1234)), "1234ms");
+  EXPECT_EQ(ToString(TCore::TStdDuration(0)), "0ns");
+  EXPECT_EQ(ToString(TCore::TStdDuration(1234)), "1234ns");
 }
 
 FIXTURE(TTimePoint) {

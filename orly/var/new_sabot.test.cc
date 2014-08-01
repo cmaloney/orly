@@ -60,8 +60,8 @@ FIXTURE(Real) {
 }
 
 FIXTURE(TimeDiff) {
-  EXPECT_EQ(ToString(Var::TVar(Base::Chrono::TTimeDiff(0))), "0ms");
-  EXPECT_EQ(ToString(Var::TVar(Base::Chrono::TTimeDiff(1))), "1ms");
+  EXPECT_EQ(ToString(Var::TVar(Base::Chrono::TTimeDiff(0))), "0ns");
+  EXPECT_EQ(ToString(Var::TVar(Base::Chrono::TTimeDiff(1))), "1ns");
 }
 
 FIXTURE(TTimePnt) {

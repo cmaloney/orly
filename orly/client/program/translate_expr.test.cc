@@ -108,9 +108,9 @@ FIXTURE(TimePnt) {
 
 FIXTURE(TimeDiff) {
   EXPECT_EQ(DumpType("{+5T0:0:0}"), "duration");
-  EXPECT_EQ(DumpState("{+5T0:0:0}"), "432000000ms");
-  EXPECT_EQ(DumpState("{0T0:0:1}"), "1000ms");
-  EXPECT_EQ(DumpState("{0T0:0:0}"), "0ms");
+  EXPECT_EQ(DumpState("{+5T0:0:0}"), "432000000000000ns");
+  EXPECT_EQ(DumpState("{0T0:0:1}"), "1000000000ns");
+  EXPECT_EQ(DumpState("{0T0:0:0}"), "0ns");
 }
 
 FIXTURE(Str) {
