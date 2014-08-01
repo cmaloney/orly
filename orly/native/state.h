@@ -714,7 +714,7 @@ namespace Orly {
                                  void *state_alloc,
                                  std::index_sequence<Is...>) {
           using TFn = TAny *(*)(const TStdTuple &, void *);
-          constexpr const std::array<TFn, sizeof...(Is)> fns = { NewElemFn<Is>... };
+          constexpr const std::array<TFn, sizeof...(Is)> fns {{  NewElemFn<Is>... }};
           return fns.at(elem_idx)(that, state_alloc);
         }
 

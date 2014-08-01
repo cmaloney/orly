@@ -40,9 +40,9 @@ using TFollows = std::vector<std::pair<int64_t, int64_t>>;
 using THashtags = std::vector<std::pair<int64_t, std::string>>;
 using TMentions = std::vector<std::pair<int64_t, std::string>>;
 
-static const auto FollowsIndexId(Base::TUuid(Base::TUuid::Twister));
-static const auto HashtagsIndexId(Base::TUuid(Base::TUuid::Twister));
-static const auto MentionsIndexId(Base::TUuid(Base::TUuid::Twister));
+static const Base::TUuid FollowsIndexId{Base::TUuid::Twister};
+static const Base::TUuid HashtagsIndexId{Base::TUuid::Twister};
+static const Base::TUuid MentionsIndexId{Base::TUuid::Twister};
 
 std::tuple<TFollows, THashtags, TMentions> Parse() {
   bool has_feature;

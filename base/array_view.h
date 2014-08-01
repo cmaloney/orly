@@ -41,7 +41,7 @@ namespace Base {
     template <typename TOther>
     using From = typename std::integral_constant<
         bool,
-        std::is_same<TOther, nullptr_t>::value ||
+        std::is_same<TOther, std::nullptr_t>::value ||
             std::is_convertible<TOther*, TElem*>::value>::type;
 
     /* Construct an empty view. */
