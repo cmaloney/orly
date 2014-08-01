@@ -26,6 +26,7 @@
 
 #include <orly/symbol/package.h>
 #include <orly/type.h>
+#include <orly/type/unwrap.h>
 
 namespace Orly {
 
@@ -49,7 +50,9 @@ namespace Orly {
         /* TODO */
         inline const Base::TUuid &GetIndexIdFor(const Type::TType &addr, const Type::TType &val) const {
           assert(this);
-          auto pos = ReverseAddrMap.find(std::make_pair(addr, val));
+          auto pos = ReverseAddrMap.find(
+              std::make_pair(Type::UnwrapSequence(addr),
+                             Type::UnwrapOptional(Type::UnwrapMutable(val))));
           assert(pos!= ReverseAddrMap.end());
           return pos->second;
         }

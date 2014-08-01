@@ -78,7 +78,8 @@ void TUnary::WriteExpr(TCppPrinter &out) const {
     case Not: Call(out, "Not");
       break;
     case Read: {
-      const Base::TUuid &index_id = Package->GetIndexIdFor(Expr->GetReturnType(), Type::UnwrapOptional(Type::UnwrapMutable(GetReturnType())));
+      const Base::TUuid &index_id =
+          Package->GetIndexIdFor(Expr->GetReturnType(), GetReturnType());
       char uuid[37];
       index_id.FormatUnderscore(uuid);
       out << "Read<" << Type::UnwrapMutable(GetReturnType()) << ">(ctx.GetFlux(), " << Expr << ", " << Package->GetName() << "::My" << uuid << ")";

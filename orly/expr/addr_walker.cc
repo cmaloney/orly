@@ -70,7 +70,9 @@ class expr_visitor_t
   virtual void operator()(const TAs *that)              const { Unary(that); }
   virtual void operator()(const TCeiling *that)         const { Unary(that); }
   virtual void operator()(const TExists *that)          const {
-    Addrs.insert(make_pair(that->GetExpr()->GetType(), that->GetValueType()));
+    Addrs.insert(make_pair(
+        Type::UnwrapSequence(that->GetExpr()->GetType()),
+        Type::UnwrapOptional(Type::UnwrapMutable(that->GetValueType()))));
     Unary(that);
   }
   virtual void operator()(const TFloor *that)           const { Unary(that); }
@@ -89,7 +91,9 @@ class expr_visitor_t
   virtual void operator()(const TRead *that)            const {
     Type::TType val_type = Type::UnwrapSequence(that->GetType());
     val_type = val_type.As<Type::TMutable>()->GetSrcAtAddr();
-    Addrs.insert(make_pair(that->GetExpr()->GetType(), val_type));
+    Addrs.insert(make_pair(
+        Type::UnwrapSequence(that->GetExpr()->GetType()),
+        Type::UnwrapOptional(Type::UnwrapMutable(val_type))));
     Unary(that);
   }
   virtual void operator()(const TReverseOf *that)       const { Unary(that); }
