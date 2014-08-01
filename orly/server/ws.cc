@@ -386,11 +386,6 @@ class TWsImpl final
           Result["version"] = pkg.Version;
         } catch (const Compiler::TCompileFailure &) {
           THROW << out_strm.str();
-        } catch (const TSourceError &src_error) {
-          THROW << src_error.what() << ' '
-                << '[' << AsStr(src_error.GetPosRange()) << ']';
-        } catch (const exception &ex) {
-          THROW << ex.what();
         }
       }
 
@@ -600,6 +595,10 @@ class TWsImpl final
     try {
       reply["result"] = conn->OnMsg(msg);
       reply["status"] = "ok";
+    } catch (const TSourceError &src_error) {
+      reply["result"] = src_error.what();
+      reply["pos"] = AsStr(src_error.GetPosRange());
+      reply["status"] = "source_error";
     } catch (const exception &ex) {
       reply["result"] = ex.what();
       reply["status"] = "exception";
