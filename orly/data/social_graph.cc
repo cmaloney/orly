@@ -17,6 +17,8 @@
    limitations under the License. */
 
 #include <iomanip>
+#include <iostream>
+
 #include <fcntl.h>
 #include <unistd.h>
 

@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <iostream> /* TODO GET RID OF */
-
 #include <cassert>
 #include <cstdlib>
 #include <mutex>
@@ -27,6 +25,7 @@
 #include <string>
 
 #include <base/class_traits.h>
+#include <base/thrower.h>
 #include <orly/atom/comparison.h>
 #include <orly/native/all.h>
 #include <orly/sabot/match_prefix_type.h>
@@ -80,14 +79,7 @@ namespace Orly {
       };  // TBadType
 
       /* An error thrown when corrupt data is encountered. */
-      class TCorrupt
-          : public std::runtime_error {
-        public:
-
-        /* Do-little. */
-        TCorrupt();
-
-      };  // TCorrupt
+      DEFINE_ERROR(TCorrupt, std::runtime_error, "corrupt data encountered")
 
       /* A comparator for cores that assumes their offsets reference the same *ordered* arena. */
       class TOrderedArenaCompare {
@@ -1262,7 +1254,7 @@ namespace Orly {
                 (Tycon >= TTycon::MinDirectBlob && Tycon <= TTycon::MaxDirectBlob)) {
               break;
             }
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
         }
       }
@@ -1456,7 +1448,7 @@ namespace Orly {
       assert(&limit);
       #ifndef NDEBUG
       if (RawSize % sizeof(TVal)) {
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
       #endif
       start = GetStart<TVal>();
@@ -1625,12 +1617,12 @@ namespace Orly {
           break;
         }
         default: {
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
       }
       #ifndef NDEBUG
       if (raw_size % elem_size) {
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
       #endif
       return raw_size / elem_size;
@@ -1747,8 +1739,7 @@ namespace Orly {
           limit = start + static_cast<TTyconNumeric>(TTycon::MaxDirectBlob) - static_cast<TTyconNumeric>(Core->Tycon);
         } else {
           /* We're hosed up. */
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         return new (alloc) TPin(start, limit);
       }
@@ -1766,8 +1757,7 @@ namespace Orly {
           size_t size = GetLimit() - GetStart();
           #ifndef NDEBUG
           if (size < min_size) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -1822,8 +1812,7 @@ namespace Orly {
           limit = start + MaxDirectSize - static_cast<TTyconNumeric>(Core->Tycon);
         } else {
           /* We're hosed up. */
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         return new (alloc) TPin(start, limit);
       }
@@ -1841,8 +1830,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t size = GetLimit() - GetStart();
           if (size < min_size) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -1885,8 +1873,7 @@ namespace Orly {
         assert(this);
         #ifndef NDEBUG
         if (Core->IndirectCoreArray.ElemCount < 1) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         void *pin_alloc = alloca(sizeof(TArena::TFinalPin));
         TArena::TFinalPin::TWrapper pin(Arena->Pin(Core->IndirectCoreArray.Offset,
@@ -1895,8 +1882,7 @@ namespace Orly {
         const TCore *start, *limit;
         pin->GetNote()->Get(start, limit);
         if (start == limit) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         #endif
       }
@@ -1923,8 +1909,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t elem_count = limit - Cores;
           if (elem_count < owner->Core->IndirectCoreArray.ElemCount) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -1998,8 +1983,7 @@ namespace Orly {
         assert(this);
         #ifndef NDEBUG
         if (Core->IndirectCoreArray.ElemCount < 1) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         void *pin_alloc = alloca(sizeof(TArena::TFinalPin));
         TArena::TFinalPin::TWrapper pin(Arena->Pin(Core->IndirectCoreArray.Offset,
@@ -2008,8 +1992,7 @@ namespace Orly {
         const TCore *start, *limit;
         pin->GetNote()->Get(start, limit);
         if (start == limit) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         #endif
       }
@@ -2036,8 +2019,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t elem_count = limit - Cores;
           if (elem_count < owner->Core->IndirectCoreArray.ElemCount) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -2099,8 +2081,7 @@ namespace Orly {
         assert(core);
         #ifndef NDEBUG
         if (core->IndirectCoreArray.ElemCount < 1) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         void *pin_alloc = alloca(sizeof(TArena::TFinalPin));
         TArena::TFinalPin::TWrapper pin(arena->Pin(core->IndirectCoreArray.Offset,
@@ -2109,8 +2090,7 @@ namespace Orly {
         const TCore *start, *limit;
         pin->GetNote()->Get(start, limit);
         if (start == limit) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         #endif
       }
@@ -2155,8 +2135,7 @@ namespace Orly {
         assert(this);
         #ifndef NDEBUG
         if (Core->IndirectCoreArray.ElemCount < 1) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         void *pin_alloc = alloca(sizeof(TArena::TFinalPin));
         TArena::TFinalPin::TWrapper pin(Arena->Pin(Core->IndirectCoreArray.Offset,
@@ -2165,8 +2144,7 @@ namespace Orly {
         const TNote::TPairOfCores *start, *limit;
         pin->GetNote()->Get(start, limit);
         if (start == limit) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         #endif
       }
@@ -2193,8 +2171,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t elem_count = limit - PairsOfCores;
           if (elem_count < owner->Core->IndirectCoreArray.ElemCount) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -2269,8 +2246,7 @@ namespace Orly {
         assert(this);
         #ifndef NDEBUG
         if (Core->IndirectCoreArray.ElemCount < 1) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         void *pin_alloc = alloca(sizeof(TArena::TFinalPin));
         TArena::TFinalPin::TWrapper pin(Arena->Pin(Core->IndirectCoreArray.Offset,
@@ -2279,8 +2255,7 @@ namespace Orly {
         const TNote::TPairOfCores *start, *limit;
         pin->GetNote()->Get(start, limit);
         if (start == limit) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         #endif
       }
@@ -2307,8 +2282,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t elem_count = limit - PairsOfCores;
           if (elem_count < owner->Core->IndirectCoreArray.ElemCount) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -2377,8 +2351,7 @@ namespace Orly {
         pin->GetNote()->Get(start, limit);
         size_t elem_count = limit - start;
         if (elem_count < core->IndirectCoreArray.ElemCount) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         #endif
       }
@@ -2418,8 +2391,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t elem_count = limit - PairsOfCores;
           if (elem_count < owner->Core->IndirectCoreArray.ElemCount) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -2479,8 +2451,7 @@ namespace Orly {
         pin->GetNote()->Get(start, limit);
         size_t elem_count = limit - start;
         if (elem_count < core->IndirectCoreArray.ElemCount) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         limit = start + core->IndirectCoreArray.ElemCount;
         #endif
@@ -2527,8 +2498,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t elem_count = limit - PairsOfCores;
           if (elem_count < owner->Core->IndirectCoreArray.ElemCount) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -2576,8 +2546,7 @@ namespace Orly {
         pin->GetNote()->Get(start, limit);
         size_t elem_count = limit - start;
         if (elem_count < core->IndirectCoreArray.ElemCount) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         #endif
       }
@@ -2613,8 +2582,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t elem_count = limit - Cores;
           if (elem_count < owner->Core->IndirectCoreArray.ElemCount) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }
@@ -2662,8 +2630,7 @@ namespace Orly {
         pin->GetNote()->Get(start, limit);
         size_t elem_count = limit - start;
         if (elem_count < core->IndirectCoreArray.ElemCount) {
-          std::cerr << HERE << std::endl;
-          throw TCorrupt();
+          throw TCorrupt(HERE);
         }
         #endif
       }
@@ -2706,8 +2673,7 @@ namespace Orly {
           #ifndef NDEBUG
           size_t elem_count = limit - Cores;
           if (elem_count < owner->Core->IndirectCoreArray.ElemCount) {
-            std::cerr << HERE << std::endl;
-            throw TCorrupt();
+            throw TCorrupt(HERE);
           }
           #endif
         }

@@ -32,9 +32,6 @@ using namespace Orly::Atom;
 TCore::TBadType::TBadType()
     : runtime_error("core or note is of incorrect type") {}
 
-TCore::TCorrupt::TCorrupt()
-    : runtime_error("core or note is corrupt") {}
-
 bool TCore::TOrderedArenaCompare::operator()(const TCore &lhs, const TCore &rhs) const {
   const TOffset *lhs_offset = lhs.TryGetOffset();
   const TOffset *rhs_offset = rhs.TryGetOffset();
@@ -127,7 +124,7 @@ bool TCore::TOrderedArenaCompare::operator()(const TCore &lhs, const TCore &rhs)
           rhs_limit = rhs_start + static_cast<TTyconNumeric>(TTycon::MaxDirectBlob) - static_cast<TTyconNumeric>(rhs.Tycon);
           return Atom::IsLt(QuickCompareMem(lhs_start, rhs_start, (lhs_limit - lhs_start), (rhs_limit - rhs_start)));
         }
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
     }
   } else if (lhs_offset) { /* left is an indirection */
@@ -158,7 +155,7 @@ bool TCore::TOrderedArenaCompare::operator()(const TCore &lhs, const TCore &rhs)
       rhs_limit = rhs_start + static_cast<TTyconNumeric>(TTycon::MaxDirectBlob) - static_cast<TTyconNumeric>(rhs.Tycon);
       return Atom::IsLt(QuickCompareMem(lhs_start, rhs_start, (lhs_limit - lhs_start), (rhs_limit - rhs_start)));
     }
-    throw TCorrupt();
+    throw TCorrupt(HERE);
   } else { /* right is an indirection */
     if (lhs.Tycon >= TTycon::MinDirectStr && lhs.Tycon <= TTycon::MaxDirectStr) { /* they should both be strings */
       assert(rhs.Tycon == TTycon::Str);
@@ -187,7 +184,7 @@ bool TCore::TOrderedArenaCompare::operator()(const TCore &lhs, const TCore &rhs)
       lhs_limit = lhs_start + static_cast<TTyconNumeric>(TTycon::MaxDirectBlob) - static_cast<TTyconNumeric>(lhs.Tycon);
       return Atom::IsLt(QuickCompareMem(lhs_start, rhs_start, (lhs_limit - lhs_start), (rhs_limit - rhs_start)));
     }
-    throw TCorrupt();
+    throw TCorrupt(HERE);
   }
 }
 
@@ -222,7 +219,7 @@ TCore::TCore(TOffset offset, const TNote *note) {
       break;
     }
     default: {
-      throw TCorrupt();
+      throw TCorrupt(HERE);
     }
   }
 }
@@ -414,7 +411,7 @@ TCore::Type::TAny *TCore::GetType(TArena *arena, void *type_alloc) const {
       pin->GetNote()->Get(start, limit);
       size_t elem_count = limit - start;
       if (elem_count < IndirectCoreArray.ElemCount) {
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
       #endif
       result = new (type_alloc) ST::TRecord(arena, this);
@@ -430,7 +427,7 @@ TCore::Type::TAny *TCore::GetType(TArena *arena, void *type_alloc) const {
       pin->GetNote()->Get(start, limit);
       size_t elem_count = limit - start;
       if (elem_count < IndirectCoreArray.ElemCount) {
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
       #endif
       result = new (type_alloc) ST::TTuple(arena, this);
@@ -442,7 +439,7 @@ TCore::Type::TAny *TCore::GetType(TArena *arena, void *type_alloc) const {
       } else if (Tycon >= TTycon::MinDirectStr && Tycon <= TTycon::MaxDirectStr) {
         result = new (type_alloc) Sabot::Type::TStr();
       } else {
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
     }
   }
@@ -486,7 +483,7 @@ TCore::State::TAny *TCore::NewState(TArena *arena, void *state_alloc) const {
       } else if (Tycon >= TTycon::MinDirectStr && Tycon <= TTycon::MaxDirectStr) {
         result = new (state_alloc) SS::TStr(arena, this);
       } else {
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
     }
   }
@@ -534,7 +531,7 @@ void TCore::Remap(const TRemap &remap) {
     default: {
       if (!(Tycon >= TTycon::MinDirectBlob && Tycon <= TTycon::MaxDirectBlob) &&
           !(Tycon >= TTycon::MinDirectStr  && Tycon <= TTycon::MaxDirectStr )) {
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
     }
   }
@@ -581,7 +578,7 @@ const TCore::TOffset *TCore::TryGetOffset() const {
     default: {
       if (!(Tycon >= TTycon::MinDirectBlob && Tycon <= TTycon::MaxDirectBlob) &&
           !(Tycon >= TTycon::MinDirectStr  && Tycon <= TTycon::MaxDirectStr )) {
-        throw TCorrupt();
+        throw TCorrupt(HERE);
       }
     }
   }
@@ -656,7 +653,7 @@ void TCore::CopyOut(TArena *arena, string &out) const {
     /* We throw 'corrupt' here instead of 'bad type' because this function is only used when accessing the
        elements of a record.  If we expect a string (as an element name) and get something else, that's
        a corruption. */
-    throw TCorrupt();
+    throw TCorrupt(HERE);
   }
 }
 
@@ -1062,7 +1059,7 @@ bool TCore::TNote::TOrderedArenaCompare::operator()(const TNote &lhs, const TNot
       break;
     }
     default: {
-      throw TCorrupt();
+      throw TCorrupt(HERE);
     }
   }
 }
@@ -1125,7 +1122,7 @@ void TCore::TNote::ForOffset(const std::function<void (Atom::TCore::TOffset)> &c
       break;
     }
     default: {
-      throw TCorrupt();
+      throw TCorrupt(HERE);
     }
   }
 }
@@ -1161,7 +1158,7 @@ void TCore::TNote::Remap(const TRemap &remap) {
       break;
     }
     default: {
-      throw TCorrupt();
+      throw TCorrupt(HERE);
     }
   }
 }

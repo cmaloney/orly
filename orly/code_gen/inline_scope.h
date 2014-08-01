@@ -35,8 +35,6 @@ namespace Orly {
 
       static TInlineScope::TPtr New(const L0::TPackage *package, const Expr::TExpr::TPtr &expr, bool keep_mutable=true);
 
-      ~TInlineScope();
-
       void WriteExpr(TCppPrinter &out) const;
 
       /* Dependency graph */
@@ -48,9 +46,9 @@ namespace Orly {
 
       private:
       /* NOTE: Takes ownership of the scope. */
-      TInlineScope(const L0::TPackage *package, TCodeScope *scope, const TInline::TPtr &body);
+      TInlineScope(const L0::TPackage *package, std::unique_ptr<TCodeScope> &&scope, const TInline::TPtr &body);
       TInline::TPtr Body;
-      TCodeScope *Scope;
+      std::unique_ptr<TCodeScope> Scope;
     }; // TInlineScope
 
     Orly::CodeGen::TCppPrinter &operator<<(Orly::CodeGen::TCppPrinter &out,

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cctype>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <tuple>
 #include <vector>

@@ -26,18 +26,9 @@ using namespace Orly;
 using namespace Orly::CodeGen;
 
 TInlineScope::TPtr TInlineScope::New(const L0::TPackage *package, const Expr::TExpr::TPtr &expr, bool keep_mutable) {
-  TCodeScope *cs = new TCodeScope(Context::GetScope()->GetIdScope());
-  try {
-    TScopeCtx ctx(cs);
-    return TPtr(new TInlineScope(package, cs, BuildInline(package, expr, keep_mutable)));
-  } catch (...) {
-    delete cs;
-    throw;
-  }
-}
-
-TInlineScope::~TInlineScope() {
-  delete Scope;
+  auto cs = std::make_unique<TCodeScope>(Context::GetScope()->GetIdScope());
+  TScopeCtx ctx(cs.get());
+  return TPtr(new TInlineScope(package, std::move(cs), BuildInline(package, expr, keep_mutable)));
 }
 
 void TInlineScope::WriteExpr(TCppPrinter &out) const {
@@ -54,8 +45,8 @@ void TInlineScope::WriteExpr(TCppPrinter &out) const {
   out << "}";
 }
 
-TInlineScope::TInlineScope(const L0::TPackage *package, TCodeScope *scope, const TInline::TPtr &body) : TInline(package, body->GetReturnType()), Body(body),
-    Scope(Base::AssertTrue(scope)) {}
+TInlineScope::TInlineScope(const L0::TPackage *package, std::unique_ptr<TCodeScope> &&scope, const TInline::TPtr &body) : TInline(package, body->GetReturnType()), Body(body),
+    Scope(std::move(scope)) {}
 
 TCppPrinter &Orly::CodeGen::operator<<(TCppPrinter &out, const Orly::CodeGen::TInlineScope::TPtr &that) {
   that->Write(out);
