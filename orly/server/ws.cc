@@ -316,9 +316,9 @@ class TWsImpl final
         }
         TMethodResult result = GetSession()->Try(TMethodRequest(pov_id, fq_name, closure));
         void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-        Result = AsStrFunc(
+        Result = TJson::Parse(AsStrFunc(
             &Var::Jsonify,
-            Var::ToVar(*TWrapper(Indy::TKey(result.GetValue(), result.GetArena().get()).GetState(state_alloc))));
+            Var::ToVar(*TWrapper(Indy::TKey(result.GetValue(), result.GetArena().get()).GetState(state_alloc)))));
       }
 
       /* Pause or unpause a pov. */
@@ -386,11 +386,6 @@ class TWsImpl final
           Result["version"] = pkg.Version;
         } catch (const Compiler::TCompileFailure &) {
           THROW << out_strm.str();
-        } catch (const TSourceError &src_error) {
-          THROW << src_error.what() << ' '
-                << '[' << src_error.GetPosRange().AsStr() << ']';
-        } catch (const exception &ex) {
-          THROW << ex.what();
         }
       }
 
@@ -600,6 +595,10 @@ class TWsImpl final
     try {
       reply["result"] = conn->OnMsg(msg);
       reply["status"] = "ok";
+    } catch (const TSourceError &src_error) {
+      reply["result"] = src_error.what();
+      reply["pos"] = AsStr(src_error.GetPosRange());
+      reply["status"] = "source_error";
     } catch (const exception &ex) {
       reply["result"] = ex.what();
       reply["status"] = "exception";
