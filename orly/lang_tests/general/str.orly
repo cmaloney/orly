@@ -1,0 +1,7 @@
+x = "\"hello\"";
+y = "'hello'";
+
+test {
+  x == '"hello"';
+  y == '\'hello\'';
+};

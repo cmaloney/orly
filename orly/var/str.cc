@@ -18,6 +18,8 @@
 
 #include <orly/var/str.h>
 
+#include <iomanip>
+
 #include <orly/type/str.h>
 
 using namespace Orly;
@@ -35,7 +37,7 @@ Type::TType TStr::GetType() const {
 
 void TStr::Write(std::ostream &strm) const {
   assert(this);
-  strm << "std::string(\"" << Val << "\")";
+  strm << "std::string(" << std::quoted(Val) << ')';
 }
 
 void TStr::Accept(const TVisitor &visitor) const {
