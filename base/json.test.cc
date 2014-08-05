@@ -86,12 +86,6 @@ FIXTURE(Format) {
   EXPECT_EQ(TJson().Format(), "null");
   EXPECT_EQ(TJson(true).Format(), "true");
   EXPECT_EQ(TJson(false).Format(), "false");
-  EXPECT_EQ(TJson(0).Format(), "0");
-  EXPECT_EQ(TJson(101).Format(), "101");
-  EXPECT_EQ(TJson(-101).Format(), "-101");
-  EXPECT_EQ(TJson(98.6).Format(), "98.6");
-  EXPECT_EQ(TJson(Array).Format(), "[1,2,3]");
-  EXPECT_EQ(TJson(Object).Format(), R"({"a":1,"b":2,"c":3})");
   EXPECT_EQ(TJson("").Format(), R"("")");
   EXPECT_EQ(TJson('x').Format(), R"("x")");
   EXPECT_EQ(TJson("foo").Format(), R"("foo")");
@@ -205,4 +199,14 @@ FIXTURE(KindToStr) {
   EXPECT_EQ(AsStr(TJson::Array), "array");
   EXPECT_EQ(AsStr(TJson::Object), "object");
   EXPECT_EQ(AsStr(TJson::String), "string");
+}
+
+FIXTURE(RoundTrip) {
+  EXPECT_EQ(TJson::Parse(TJson(12345678).Format()), 12345678);
+  EXPECT_EQ(TJson::Parse(TJson(0).Format()), 0);
+  EXPECT_EQ(TJson::Parse(TJson(101).Format()), 101);
+  EXPECT_EQ(TJson::Parse(TJson(-101).Format()), -101);
+  EXPECT_EQ(TJson::Parse(TJson(98.6).Format()), 98.6);
+  EXPECT_EQ(TJson::Parse(TJson(Array).Format()), Array);
+  EXPECT_EQ(TJson::Parse(TJson(Object).Format()), Object);
 }
