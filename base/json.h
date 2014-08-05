@@ -856,7 +856,8 @@ namespace Base {
           break;
         }
         case Number: {
-          strm << Number_;
+          strm << std::fixed << Number_;
+          strm.unsetf(std::ios_base::floatfield);
           break;
         }
         case Array: {
