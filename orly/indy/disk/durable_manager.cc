@@ -18,10 +18,9 @@
 
 #include <orly/indy/disk/durable_manager.h>
 
-#include <thread>
-
 #include <base/booster.h>
 #include <orly/indy/disk/util/hash_util.h>
+#include <util/time.h>
 
 using namespace std;
 using namespace Base;
@@ -37,9 +36,7 @@ TFlush::TFlush(chrono::milliseconds delay) : Delay(delay) {
 }
 
 void TFlush::WaitFor() {
-  if (Next < chrono::steady_clock::now()) {
-    this_thread::sleep_until(Next);
-  }
+  ::Util::SleepUntil(Next);
   UpdateNext();
 }
 void TFlush::UpdateNext() {

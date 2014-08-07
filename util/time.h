@@ -24,6 +24,7 @@
 
 #include <chrono>
 #include <string>
+#include <thread>
 
 #include <base/opt.h>
 
@@ -31,6 +32,18 @@ namespace Util {
 
   using TTimestamp = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
   using TOptTimestamp = Base::TOpt<TTimestamp>;
+
+  template <typename TClock>
+  bool HasPassed(std::chrono::time_point<TClock> time) {
+    return time <= TClock::now();
+  }
+
+  template <typename TClock>
+  void SleepUntil(std::chrono::time_point<TClock> time) {
+    if (time < std::chrono::steady_clock::now()) {
+      std::this_thread::sleep_until(time);
+    }
+  }
 
   timespec ToTimespec(std::chrono::nanoseconds time);
 

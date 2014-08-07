@@ -22,6 +22,7 @@
 #include <base/shutting_down.h>
 #include <orly/indy/file_sync.h>
 #include <orly/server/meta_record.h>
+#include <util/time.h>
 
 #include <iostream> /* TODO GET RID OF */
 
@@ -307,7 +308,7 @@ void TManager::RunReplicateTransaction() {
           break;
         }
       }
-      this_thread::sleep_until(ReplicationNextTime);
+      SleepUntil(ReplicationNextTime);
       ReplicationNextTime = chrono::steady_clock::now() + ReplicationDelay;
       TReplicationStreamer replication_streamer;
       TState state_used;

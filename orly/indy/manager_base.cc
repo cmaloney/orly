@@ -22,6 +22,7 @@
 
 #include <base/assert_true.h>
 #include <base/shutting_down.h>
+#include <util/time.h>
 
 using namespace std;
 using namespace Base;
@@ -318,8 +319,8 @@ void TManager::RunMergeMem() {
   while(!ShuttingDown) {
     /* we can only have 1 thread waiting on MergeMemSem at a time */ {
       lock_guard<mutex> epoll_lock(MergeMemEpollLock);
-      if (should_sleep && deadline < chrono::steady_clock::now()) {
-        this_thread::sleep_until(deadline);
+      if (should_sleep) {
+        SleepUntil(deadline);
       }
       MergeMemSem.Pop();
     }
@@ -389,8 +390,8 @@ void TManager::RunMergeDisk() {
   while (!ShuttingDown) {
     /* we can only have 1 thread waiting on MergeDiskSem at a time */ {
       Fiber::TFiberLock::TLock lock(MergeDiskEpollLock);
-      if (should_sleep && deadline < chrono::steady_clock::now()) {
-        this_thread::sleep_until(deadline);
+      if (should_sleep) {
+        SleepUntil(deadline);
         /* TODO: we need a fiber way to sleep instead of doing nanosleep. doesn't matter so much in this case since it's a dedicated runner. */
       }
       MergeDiskSem.Pop();
