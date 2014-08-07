@@ -26,8 +26,8 @@
 
 #include <base/opt.h>
 #include <jhm/naming.h>
-#include <jhm/timestamp.h>
 #include <util/stl.h>
+#include <util/time.h>
 
 namespace Jhm {
 
@@ -94,7 +94,7 @@ namespace Jhm {
 
     virtual std::string GetCmd() = 0;
 
-    virtual timespec GetCmdTimestamp() const = 0;
+    virtual Util::TTimestamp GetCmdTimestamp() const = 0;
 
     bool HasUnknownOutputs() const {
       assert(this);

@@ -27,7 +27,7 @@
 #include <base/as_str.h>
 #include <jhm/job_runner.h>
 #include <jhm/naming.h>
-#include <jhm/timestamp.h>
+#include <util/time.h>
 
 namespace Jhm {
 
@@ -42,12 +42,12 @@ namespace Jhm {
     public:
     TWorkFinder(uint32_t worker_count,
                 bool print_cmd,
-                timespec config_timestamp,
+                Util::TTimestamp config_timestamp,
                 std::function<std::unordered_set<TJob *>(TFile *)> &&get_jobs_producing_file,
                 std::function<TFile *(TRelPath name)> &&get_file,
                 std::function<TFile *(const std::string &)> &&try_get_file_from_path)
         : ConfigTimestamp(config_timestamp),
-          ConfigTimestampStr(Base::AsStr(config_timestamp)),
+          ConfigTimestampStr(Util::ToStr(config_timestamp)),
           GetJobsProducingFile(std::move(get_jobs_producing_file)),
           GetFile(move(get_file)),
           TryGetFileFromPath(move(try_get_file_from_path)),
@@ -114,7 +114,7 @@ namespace Jhm {
     // input file.
     std::unordered_map<TFile *, TJob *> Producers;
 
-    const timespec ConfigTimestamp;
+    const Util::TTimestamp ConfigTimestamp;
     const std::string ConfigTimestampStr;
     std::function<std::unordered_set<TJob*> (TFile *)> GetJobsProducingFile;
     std::function<TFile *(TRelPath name)> GetFile;

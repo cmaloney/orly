@@ -27,7 +27,6 @@
 #include <jhm/file.h>
 #include <jhm/job.h>
 #include <jhm/status_line.h>
-#include <jhm/timestamp.h>
 #include <util/error.h>
 #include <util/path.h>
 #include <util/stl.h>
@@ -174,7 +173,6 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
       assert(job);
       auto &count = Waiting.at(job);
       --count;
-      assert(count >= 0);
       if (count == 0) {
         // Move the job to ready, as it has nothing left it's waiting on.
         EraseOrFail(Waiting, job);
@@ -318,16 +316,18 @@ TFile *TWorkFinder::TryGetOutputFileFromPath(const std::string &filename) {
   return ret;
 }
 
-TOpt<timespec> GetTimestampOutput(TFile *file) {
+TOptTimestamp GetTimestampOutput(TFile *file) {
   assert(file);
-  TOpt<timespec> ret = file->GetTimestamp();
+  auto ret = file->GetTimestamp();
   if (!file->IsSrc()) {
     ret = Older(ret, TryGetTimestamp(GetCacheFilename(file)));
+  } else {
+    assert(ret);
   }
   return ret;
 }
 
-timespec GetTimestampInput(TFile *file) {
+auto GetTimestampInput(TFile *file) {
   return *GetTimestampOutput(file);
 }
 
@@ -360,7 +360,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
   }
 
   // If config is newer than the source, exit fast.
-  timespec in_timestamp = GetTimestampInput(in);
+  auto in_timestamp = GetTimestampInput(in);
 
   // If the input file is in the source tree, then it's timestamp relative to the config doesn't matter.
   // The newest of the two is considered the file's timestamp for comparison to the output files.
@@ -369,7 +369,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
     in_timestamp = Newer(ConfigTimestamp, in_timestamp);
   } else {
     // If we're in output, we must be newer than the config timestamp, or we need ot be rebuilt
-    if (IsNewer(ConfigTimestamp, in_timestamp)) {
+    if (ConfigTimestamp > in_timestamp) {
       return;
     }
   }

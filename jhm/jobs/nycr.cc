@@ -30,6 +30,7 @@ using namespace Base;
 using namespace Jhm;
 using namespace Jhm::Job;
 using namespace std;
+using namespace Util;
 
 static void AddNycr(ostream &out, TEnv &env) {
   out << *env.GetRoot() << "/out/bootstrap/tools/nycr/nycr";
@@ -70,8 +71,8 @@ std::string TNycrLang::GetCmd() {
 }
 
 
-timespec TNycrLang::GetCmdTimestamp() const {
-  static timespec timestamp = GetTimestamp(AsStrFunc(AddNycr, Env));
+TTimestamp TNycrLang::GetCmdTimestamp() const {
+  static TTimestamp timestamp = GetTimestamp(AsStrFunc(AddNycr, Env));
   return timestamp;
 }
 
@@ -188,7 +189,7 @@ string TNycr::GetCmd() {
   return oss.str();
 }
 
-timespec TNycr::GetCmdTimestamp() const {
+TTimestamp TNycr::GetCmdTimestamp() const {
   return GetTimestamp(AsStrFunc(AddNycr, Env));
 }
 

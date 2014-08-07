@@ -23,6 +23,7 @@
 using namespace Base;
 using namespace Jhm;
 using namespace std;
+using namespace Util;
 
 TConfig::TConfig() {}
 

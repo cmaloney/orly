@@ -1,4 +1,4 @@
-/* <jhm/timestamp.cc>
+/* <util/time.cc>
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -14,36 +14,43 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <jhm/timestamp.h>
+#include <util/time.h>
 
 #include <sys/stat.h>
+#include <time.h>
 
+#include <base/as_str.h>
 #include <base/split.h>
 #include <util/error.h>
 
 using namespace Base;
 using namespace std;
+using namespace std::chrono;
 using namespace Util;
 
+TTimestamp Util::ToTimestamp(timespec time) {
+  return TTimestamp(chrono::seconds(time.tv_sec) + chrono::nanoseconds(time.tv_nsec));
+}
+
 /* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
-Base::TOpt<timespec> Jhm::TryGetTimestamp(const std::string &name) {
+TOptTimestamp Util::TryGetTimestamp(const std::string &name) {
   struct stat st;
   if (stat(name.c_str(), &st) != 0) {
     if (errno == ENOENT) {
-      return Base::TOpt<timespec>::GetUnknown();
+      return Base::TOpt<TTimestamp>::GetUnknown();
     }
-    Util::ThrowSystemError(errno);
+    ThrowSystemError(errno);
   }
-  return st.st_mtim;
+  return ToTimestamp(st.st_mtim);
 }
 
-timespec Jhm::GetTimestamp(const std::string &name) {
+TTimestamp Util::GetTimestamp(const std::string &name) {
   struct stat st;
-  Util::IfLt0(stat(name.c_str(), &st));
-  return st.st_mtim;
+  IfLt0(stat(name.c_str(), &st));
+  return ToTimestamp(st.st_mtim);
 }
 
-timespec Jhm::GetTimestampSearchingPath(const string &name) {
+TTimestamp Util::GetTimestampSearchingPath(const string &name) {
   char *path = getenv("PATH");
 
   vector<string> potential;
@@ -62,9 +69,46 @@ timespec Jhm::GetTimestampSearchingPath(const string &name) {
         ThrowSystemError(errno);
       }
     } else {
-      return st.st_mtim;
+      return ToTimestamp(st.st_mtim);
     }
   }
   ThrowSystemError(ENOENT);
 }
 
+bool Util::IsNewer(TTimestamp lhs, TOptTimestamp rhs) {
+  if (rhs) {
+    return lhs > *rhs;
+  }
+  return true;
+}
+
+TTimestamp Util::Newer(TTimestamp lhs, TOptTimestamp rhs) {
+  if (rhs) {
+    return std::max(lhs, *rhs);
+  }
+  return lhs;
+}
+
+TOptTimestamp Util::Newer(TOptTimestamp lhs, TOptTimestamp rhs) {
+  if (!lhs) {
+    return rhs;
+  }
+  if(!rhs) {
+    return lhs;
+  }
+  return std::max(*lhs, *rhs);
+}
+
+TOptTimestamp Util::Older(TOptTimestamp lhs, TOptTimestamp rhs) {
+  if (!lhs) {
+    return rhs;
+  }
+  if (!rhs) {
+    return lhs;
+  }
+  return std::min(*lhs, *rhs);
+}
+
+std::string Util::ToStr(const TTimestamp &ts) {
+  return AsStr(ts.time_since_epoch().count());
+}
