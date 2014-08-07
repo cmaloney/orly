@@ -330,11 +330,12 @@ void TManager::RunMergeMem() {
       if (repo && !ShuttingDown) {
         deadline = repo->GetTimeOfNextMergeMem();
         bool cont = false;
-        if (deadline < chrono::steady_clock::now()) {
+        auto now = chrono::steady_clock::now();
+        if (deadline < now) {
           should_sleep = true;
           cont = true;
         } else {
-          repo->SetTimeOfNextMergeMem(chrono::steady_clock::now() + MergeMemDelay);
+          repo->SetTimeOfNextMergeMem(now + MergeMemDelay);
           repo->MergeMemMembership.Remove();
         }
         if (!MergeMemQueue.IsEmpty()) {
@@ -402,11 +403,12 @@ void TManager::RunMergeDisk() {
       if (repo && !ShuttingDown) {
         deadline = repo->GetTimeOfNextMergeDisk();
         bool cont = false;
-        if (deadline < chrono::steady_clock::now()) {
+        auto now = chrono::steady_clock::now();
+        if (deadline < now) {
           should_sleep = true;
           cont = true;
         } else {
-          repo->SetTimeOfNextMergeDisk(chrono::steady_clock::now() + MergeDiskDelay);
+          repo->SetTimeOfNextMergeDisk(now + MergeDiskDelay);
           repo->MergeDiskMembership.Remove();
         }
         if (!MergeDiskQueue.IsEmpty()) {
