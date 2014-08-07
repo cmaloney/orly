@@ -53,7 +53,7 @@ namespace Jhm {
 
     /* Computes (and doesn't cache!) the timestamp for the given file. Newest of either it's config or file in the tree) */
     Util::TOptTimestamp GetTimestamp() const {
-      return Util::Newer(Util::TryGetTimestamp(Base::AsStr(Path)), Config.GetTimestamp());
+      return Util::Newest(Util::TryGetTimestamp(Base::AsStr(Path)), Config.GetTimestamp());
     }
 
     void PushComputedConfig(Base::TJson &&config) {

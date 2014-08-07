@@ -17,7 +17,6 @@
 #include <util/time.h>
 
 #include <sys/stat.h>
-#include <time.h>
 
 #include <base/as_str.h>
 #include <base/split.h>
@@ -35,7 +34,7 @@ timespec Util::ToTimespec(nanoseconds ns) {
 }
 
 TTimestamp Util::ToTimestamp(timespec time) {
-  return TTimestamp(seconds(time.tv_sec) + nanoseconds(time.tv_nsec));
+  return ToTimestampClock<system_clock>(time);
 }
 
 /* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
@@ -88,14 +87,14 @@ bool Util::IsNewer(TTimestamp lhs, TOptTimestamp rhs) {
   return true;
 }
 
-TTimestamp Util::Newer(TTimestamp lhs, TOptTimestamp rhs) {
+TTimestamp Util::Newest(TTimestamp lhs, TOptTimestamp rhs) {
   if (rhs) {
     return std::max(lhs, *rhs);
   }
   return lhs;
 }
 
-TOptTimestamp Util::Newer(TOptTimestamp lhs, TOptTimestamp rhs) {
+TOptTimestamp Util::Newest(TOptTimestamp lhs, TOptTimestamp rhs) {
   if (!lhs) {
     return rhs;
   }
@@ -105,7 +104,7 @@ TOptTimestamp Util::Newer(TOptTimestamp lhs, TOptTimestamp rhs) {
   return std::max(*lhs, *rhs);
 }
 
-TOptTimestamp Util::Older(TOptTimestamp lhs, TOptTimestamp rhs) {
+TOptTimestamp Util::Oldest(TOptTimestamp lhs, TOptTimestamp rhs) {
   if (!lhs) {
     return rhs;
   }

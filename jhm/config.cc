@@ -218,7 +218,7 @@ void TConfig::AddConfig(TJson &&config, bool top) {
 void TConfig::AddFile(const string &filename) {
   auto timestamp = TryGetTimestamp(filename);
   if (timestamp) {
-    Timestamp = Newer(Timestamp, timestamp);
+    Timestamp = Newest(Timestamp, timestamp);
     AddConfig(TJson::Read(filename.c_str()));
   }
 }

@@ -320,7 +320,7 @@ TOptTimestamp GetTimestampOutput(TFile *file) {
   assert(file);
   auto ret = file->GetTimestamp();
   if (!file->IsSrc()) {
-    ret = Older(ret, TryGetTimestamp(GetCacheFilename(file)));
+    ret = Oldest(ret, TryGetTimestamp(GetCacheFilename(file)));
   } else {
     assert(ret);
   }
@@ -366,7 +366,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
   // The newest of the two is considered the file's timestamp for comparison to the output files.
   // NOTE: All job outputs are always not src, so they don't need this check.
   if (in->IsSrc()) {
-    in_timestamp = Newer(ConfigTimestamp, in_timestamp);
+    in_timestamp = Newest(ConfigTimestamp, in_timestamp);
   } else {
     // If we're in output, we must be newer than the config timestamp, or we need ot be rebuilt
     if (ConfigTimestamp > in_timestamp) {
@@ -375,7 +375,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
   }
 
   // If the job's command is new / updated, we need to rebuild
-  in_timestamp = Newer(job->GetCmdTimestamp(), in_timestamp);
+  in_timestamp = Newest(job->GetCmdTimestamp(), in_timestamp);
 
   // For all known outputs (There is always at least one), choose one at random and load it's cache file / treat it as
   // the magic cache entry.
@@ -411,7 +411,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
       if (!need || !IsFileDone(need)) {
         return;
       }
-      in_timestamp = Newer(in_timestamp, GetTimestampInput  (need));
+      in_timestamp = Newest(in_timestamp, GetTimestampInput  (need));
     }
 
     // Any files which weren't buildable that need to stay not buildable should stay not buildable.
