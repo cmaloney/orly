@@ -22,7 +22,6 @@
 
 #include <base/log.h>
 #include <base/sigma_calc.h>
-#include <base/time.h>
 #include <base/timer.h>
 #include <orly/protocol.h>
 #include <orly/client/client.h>

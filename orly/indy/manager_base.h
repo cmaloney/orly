@@ -17,12 +17,12 @@
 #pragma once
 
 #include <cassert>
+#include <chrono>
 
 #include <base/class_traits.h>
 #include <base/event_semaphore.h>
 #include <base/sigma_calc.h>
 #include <base/spin_lock.h>
-#include <base/time.h>
 #include <base/timer_fd.h>
 #include <base/uuid.h>
 #include <inv_con/unordered_list.h>
@@ -351,7 +351,7 @@ namespace Orly {
           class TDataLayer;
 
           /* TODO */
-          typedef InvCon::OrderedList::TMembership<TRepo, TManager, Base::TTime> TQueueMembership;
+          typedef InvCon::OrderedList::TMembership<TRepo, TManager, std::chrono::steady_clock::time_point> TQueueMembership;
 
           /* TODO */
           virtual ~TRepo();
@@ -680,12 +680,12 @@ namespace Orly {
           private:
 
           /* TODO */
-          inline const Base::TTime &GetTimeOfNextMergeMem() const;
-          inline const Base::TTime &GetTimeOfNextMergeDisk() const;
+          inline const std::chrono::steady_clock::time_point &GetTimeOfNextMergeMem() const;
+          inline const std::chrono::steady_clock::time_point &GetTimeOfNextMergeDisk() const;
 
           /* TODO */
-          inline void SetTimeOfNextMergeMem(const Base::TTime &time);
-          inline void SetTimeOfNextMergeDisk(const Base::TTime &time);
+          inline void SetTimeOfNextMergeMem(const std::chrono::steady_clock::time_point &time);
+          inline void SetTimeOfNextMergeDisk(const std::chrono::steady_clock::time_point &time);
 
           TPtr<TRepo> DirtyPtr;
 
@@ -849,15 +849,15 @@ namespace Orly {
         protected:
 
         /* TODO */
-        typedef InvCon::OrderedList::TCollection<TManager, TRepo, Base::TTime> TRepoQueue;
+        typedef InvCon::OrderedList::TCollection<TManager, TRepo, std::chrono::steady_clock::time_point> TRepoQueue;
 
         /* TODO */
         TManager(Disk::Util::TEngine *engine,
-                 size_t merge_mem_delay,
-                 size_t merge_disk_delay,
+                 std::chrono::milliseconds merge_mem_delay,
+                 std::chrono::milliseconds merge_disk_delay,
                  bool allow_tailing,
                  bool no_realtime,
-                 size_t layer_cleaning_interval_milliseconds,
+                 std::chrono::milliseconds layer_cleaning_interval,
                  Base::TScheduler *scheduler,
                  size_t block_slots_available_per_merger,
                  size_t max_repo_cache_size,
@@ -941,8 +941,8 @@ namespace Orly {
         Fiber::TSingleSem MergeDiskSem;
 
         /* TODO */
-        size_t MergeMemDelay;
-        size_t MergeDiskDelay;
+        std::chrono::milliseconds MergeMemDelay;
+        std::chrono::milliseconds MergeDiskDelay;
 
         /* TODO */
         size_t BlockSlotsAvailablePerMerger;
@@ -1065,22 +1065,22 @@ namespace Orly {
         throw std::logic_error("TODO: implement TRepo::RemoveFromClosedBuffer");
       }
 
-      inline const Base::TTime &TManager::TRepo::GetTimeOfNextMergeMem() const {
+      inline const std::chrono::steady_clock::time_point &TManager::TRepo::GetTimeOfNextMergeMem() const {
         assert(this);
         return MergeMemMembership.GetKey();
       }
 
-      inline const Base::TTime &TManager::TRepo::GetTimeOfNextMergeDisk() const {
+      inline const std::chrono::steady_clock::time_point &TManager::TRepo::GetTimeOfNextMergeDisk() const {
         assert(this);
         return MergeDiskMembership.GetKey();
       }
 
-      inline void TManager::TRepo::SetTimeOfNextMergeMem(const Base::TTime &time) {
+      inline void TManager::TRepo::SetTimeOfNextMergeMem(const std::chrono::steady_clock::time_point &time) {
         assert(this);
         MergeMemMembership.SetKey(time);
       }
 
-      inline void TManager::TRepo::SetTimeOfNextMergeDisk(const Base::TTime &time) {
+      inline void TManager::TRepo::SetTimeOfNextMergeDisk(const std::chrono::steady_clock::time_point &time) {
         assert(this);
         MergeDiskMembership.SetKey(time);
       }

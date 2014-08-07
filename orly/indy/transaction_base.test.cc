@@ -26,7 +26,7 @@
 #include <test/kit.h>
 
 using namespace std;
-using namespace chrono;
+using namespace std::literals;
 using namespace Base;
 using namespace Orly;
 using namespace Orly::Atom;
@@ -57,11 +57,11 @@ class TMyManager
              const std::vector<size_t> &mem_merge_cores,
              const std::vector<size_t> &disk_merge_cores)
       : TManager(engine,
-                 10UL,
-                 100UL,
+                 10ms,
+                 100ms,
                  true,
                  true,
-                 1000UL,
+                 1000ms,
                  scheduler,
                  100UL,
                  100UL,
@@ -141,7 +141,7 @@ FIXTURE(Typical) {
   Fiber::TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
     TSuprena arena;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-    const TScheduler::TPolicy scheduler_policy(10, 10, milliseconds(10));
+    const TScheduler::TPolicy scheduler_policy(10, 10, 10ms);
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
     Orly::Indy::Disk::Sim::TMemEngine mem_engine(&scheduler,
@@ -274,7 +274,7 @@ FIXTURE(Promoter) {
   Fiber::TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
     TSuprena arena;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-    const TScheduler::TPolicy scheduler_policy(10, 10, milliseconds(10));
+    const TScheduler::TPolicy scheduler_policy(10, 10, 10ms);
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
     Orly::Indy::Disk::Sim::TMemEngine mem_engine(&scheduler,
@@ -342,7 +342,7 @@ FIXTURE(DiskPromoter) {
   Fiber::TFiberTestRunner runner([](std::mutex &mut, std::condition_variable &cond, bool &fin, Fiber::TRunner::TRunnerCons &) {
     TSuprena arena;
     void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-    const TScheduler::TPolicy scheduler_policy(4, 4, milliseconds(10));
+    const TScheduler::TPolicy scheduler_policy(4, 4, 10ms);
     TScheduler scheduler;
     scheduler.SetPolicy(scheduler_policy);
 

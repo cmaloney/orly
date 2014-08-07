@@ -13,6 +13,7 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License. */
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <signal.h>
@@ -22,7 +23,6 @@
 
 #include <base/hash.h>
 #include <base/log.h>
-#include <base/time.h>
 #include <base/timer.h>
 #include <orly/protocol.h>
 #include <orly/client/client.h>
@@ -162,8 +162,7 @@ class TCmd final
 void Runner(int64_t start, int64_t limit, const ::TCmd &cmd) {
   printf("Runner() starting \n");
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-  Base::TTime till_next;
-  till_next.Now();
+  std::chrono::nanoseconds till_next = std::chrono::steady_clock::now();
   std::mt19937_64 engine(rand());
   std::vector<uint64_t> inserted_id_vec;
   inserted_id_vec.reserve(100000000);

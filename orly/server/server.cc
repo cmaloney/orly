@@ -675,7 +675,7 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
       PackageManager(cmd.PackageDirectory),
       Scheduler(scheduler),
       Cmd(cmd),
-      HousecleaningTimer(cmd.HousecleaningInterval) {
+      HousecleaningTimer(chrono::milliseconds(cmd.HousecleaningInterval)) {
   InitalizeFramePoolManager(Cmd.NumFiberFrames, StackSize, &BGFastRunner);
   Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(Cmd.NumDiskEvents);
   using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,
@@ -915,10 +915,10 @@ void TServer::Init() {
     };
     RepoManager = make_unique<Orly::Indy::TManager>(engine_ptr,
                                                     Cmd.ReplicationSyncBufMB,
-                                                    Cmd.MergeMemInterval,
-                                                    Cmd.MergeDiskInterval,
-                                                    Cmd.LayerCleaningInterval,
-                                                    Cmd.ReplicationInterval,
+                                                    chrono::milliseconds(Cmd.MergeMemInterval),
+                                                    chrono::milliseconds(Cmd.MergeDiskInterval),
+                                                    chrono::milliseconds(Cmd.LayerCleaningInterval),
+                                                    chrono::milliseconds(Cmd.ReplicationInterval),
                                                     RepoState,
                                                     Cmd.AllowTailing,
                                                     Cmd.AllowFileSync,
@@ -1016,9 +1016,9 @@ void TServer::Init() {
                                                                     RepoManager.get(),
                                                                     RepoManager->GetEngine(),
                                                                     Cmd.DurableCacheSize,
-                                                                    Cmd.DurableWriteInterval,
-                                                                    Cmd.DurableMergeInterval,
-                                                                    Cmd.LayerCleaningInterval,
+                                                                    chrono::milliseconds(Cmd.DurableWriteInterval),
+                                                                    chrono::milliseconds(Cmd.DurableMergeInterval),
+                                                                    chrono::milliseconds(Cmd.LayerCleaningInterval),
                                                                     Cmd.TempFileConsolidationThreshold,
                                                                     Cmd.Create);
     RepoManager->SetDurableManager(DurableManager);

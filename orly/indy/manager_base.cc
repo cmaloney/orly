@@ -113,8 +113,7 @@ TManager::TRepo::TRepo(TManager *manager, const TUuid &repo_id, const TTtl &ttl,
       Id(repo_id),
       MergeMemMembership(this),
       MergeDiskMembership(this) {
-  TTime now;
-  now.Now();
+  auto now = chrono::steady_clock::now();
   SetTimeOfNextMergeMem(now);
   SetTimeOfNextMergeDisk(now);
 }
@@ -195,11 +194,11 @@ void TManager::TRepo::RemoveFromDirty() {
 }
 
 TManager::TManager(Disk::Util::TEngine *engine,
-                   size_t merge_mem_delay,
-                   size_t merge_disk_delay,
+                   std::chrono::milliseconds merge_mem_delay,
+                   std::chrono::milliseconds merge_disk_delay,
                    bool allow_tailing,
                    bool /*no_realtime*/,
-                   size_t layer_cleaning_interval_milliseconds,
+                   std::chrono::milliseconds layer_cleaning_interval,
                    Base::TScheduler *scheduler,
                    size_t block_slots_available_per_merger,
                    size_t max_repo_cache_size,
@@ -212,7 +211,7 @@ TManager::TManager(Disk::Util::TEngine *engine,
       ShuttingDown(false),
       AllowTailing(allow_tailing),
       RemovalCollection(this),
-      LayerCleanerTimer(layer_cleaning_interval_milliseconds),
+      LayerCleanerTimer(layer_cleaning_interval),
       MergeMemQueue(this),
       MergeDiskQueue(this),
       MergeMemDelay(merge_mem_delay),
@@ -303,9 +302,11 @@ void TManager::RunMergeMem() {
     assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
     Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
-  int timeout = -1;
-  Base::TTime deadline;
-  TRepo *repo = nullptr;
+
+  bool should_sleep = true;
+  chrono::steady_clock::time_point deadline;
+
+    TRepo *repo = nullptr;
   /* Register ourselves for CPU time collection */ {
     lock_guard<mutex> lock(MergeThreadCPUMutex);
     timespec start_val;
@@ -314,15 +315,11 @@ void TManager::RunMergeMem() {
     IfLt0(clock_gettime(cid, &start_val));
     MergeMemThreadCPUMap.insert(make_pair(pthread_self(), start_val));
   }
-  for (; !ShuttingDown;) {
+  while(!ShuttingDown) {
     /* we can only have 1 thread waiting on MergeMemSem at a time */ {
       lock_guard<mutex> epoll_lock(MergeMemEpollLock);
-      if (timeout > 0) {
-        timeout = deadline.Remaining();
-        if (timeout > 0) {
-          timespec wait_time {timeout / 1000, (timeout % 1000L) * 1000000L};
-          nanosleep(&wait_time, NULL);
-        }
+      if (should_sleep && deadline < chrono::steady_clock::now()) {
+        this_thread::sleep_until(deadline);
       }
       MergeMemSem.Pop();
     }
@@ -331,16 +328,12 @@ void TManager::RunMergeMem() {
       repo = MergeMemQueue.TryGetFirstMember();
       if (repo && !ShuttingDown) {
         deadline = repo->GetTimeOfNextMergeMem();
-        size_t remaining = deadline.Remaining();
         bool cont = false;
-        if (remaining) {
-          timeout = remaining;
+        if (deadline < chrono::steady_clock::now()) {
+          should_sleep = true;
           cont = true;
         } else {
-          TTime next;
-          next.Now();
-          next += MergeMemDelay;
-          repo->SetTimeOfNextMergeMem(next);
+          repo->SetTimeOfNextMergeMem(chrono::steady_clock::now() + MergeMemDelay);
           repo->MergeMemMembership.Remove();
         }
         if (!MergeMemQueue.IsEmpty()) {
@@ -350,7 +343,7 @@ void TManager::RunMergeMem() {
           continue;
         }
       } else {
-        timeout = -1;
+        should_sleep = false;
         continue;
       }
     }  // release MergeMem lock
@@ -382,8 +375,8 @@ void TManager::RunMergeDisk() {
     assert(!Disk::Util::TDiskController::TEvent::LocalEventPool);
     Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
-  int timeout = -1;
-  Base::TTime deadline;
+  bool should_sleep = true;
+  chrono::steady_clock::time_point deadline;
   TRepo *repo = nullptr;
   /* Register ourselves for CPU time collection */ {
     lock_guard<mutex> lock(MergeThreadCPUMutex);
@@ -393,16 +386,12 @@ void TManager::RunMergeDisk() {
     IfLt0(clock_gettime(cid, &start_val));
     MergeDiskThreadCPUMap.insert(make_pair(pthread_self(), start_val));
   }
-  for (; !ShuttingDown;) {
+  while (!ShuttingDown) {
     /* we can only have 1 thread waiting on MergeDiskSem at a time */ {
       Fiber::TFiberLock::TLock lock(MergeDiskEpollLock);
-      if (timeout > 0) {
-        timeout = deadline.Remaining();
-        if (timeout > 0) {
-          timespec wait_time {timeout / 1000, (timeout % 1000L) * 1000000L};
-          nanosleep(&wait_time, NULL);
-          /* TODO: we need a fiber way to sleep instead of doing nanosleep. doesn't matter so much in this case since it's a dedicated runner. */
-        }
+      if (should_sleep && deadline < chrono::steady_clock::now()) {
+        this_thread::sleep_until(deadline);
+        /* TODO: we need a fiber way to sleep instead of doing nanosleep. doesn't matter so much in this case since it's a dedicated runner. */
       }
       MergeDiskSem.Pop();
     }
@@ -411,16 +400,12 @@ void TManager::RunMergeDisk() {
       repo = MergeDiskQueue.TryGetFirstMember();
       if (repo && !ShuttingDown) {
         deadline = repo->GetTimeOfNextMergeDisk();
-        size_t remaining = deadline.Remaining();
         bool cont = false;
-        if (remaining) {
-          timeout = remaining;
+        if (deadline < chrono::steady_clock::now()) {
+          should_sleep = true;
           cont = true;
         } else {
-          TTime next;
-          next.Now();
-          next += MergeDiskDelay;
-          repo->SetTimeOfNextMergeDisk(next);
+          repo->SetTimeOfNextMergeDisk(chrono::steady_clock::now() + MergeDiskDelay);
           repo->MergeDiskMembership.Remove();
         }
         if (!MergeDiskQueue.IsEmpty()) {
@@ -430,7 +415,7 @@ void TManager::RunMergeDisk() {
           continue;
         }
       } else {
-        timeout = -1;
+        should_sleep = false;
         continue;
       }
     }  // release MergeDisk lock

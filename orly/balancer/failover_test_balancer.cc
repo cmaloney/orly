@@ -21,14 +21,18 @@
 #include <base/epoll.h>
 #include <base/timer_fd.h>
 #include <orly/protocol.h>
+#include <util/io.h>
 
 using namespace std;
 using namespace Base;
+using namespace Util;
 using namespace Orly::Handshake;
 using namespace Orly::Balancer;
 
-TFailoverTestBalancer::TFailoverTestBalancer(TScheduler *scheduler, const TBalancer::TCmd &cmd, size_t milli_interval)
-    : TBalancer(scheduler, cmd), MilliInterval(milli_interval), Running(true) {
+TFailoverTestBalancer::TFailoverTestBalancer(TScheduler *scheduler,
+                                             const TBalancer::TCmd &cmd,
+                                             chrono::milliseconds interval)
+    : TBalancer(scheduler, cmd), Interval(interval), Running(true) {
   scheduler->Schedule(bind(&TFailoverTestBalancer::CheckHosts, this));
 }
 
@@ -57,7 +61,7 @@ void TFailoverTestBalancer::RegisterHost(const Socket::TAddress &address) {
 }
 
 void TFailoverTestBalancer::CheckHosts() {
-  Base::TTimerFd check_hosts(MilliInterval);
+  Base::TTimerFd check_hosts(Interval);
   TEpoll poll;
   poll.Add(check_hosts.GetFd());
   poll.Add(ErrorSem.GetFd());

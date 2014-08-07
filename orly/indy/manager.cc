@@ -49,10 +49,10 @@ RECORD_ELEM(TManager::TSavedRepoObj, int                                , State)
 
 TManager::TManager(Disk::Util::TEngine *engine,
                    size_t replication_sync_slave_buf_size_mb,
-                   size_t merge_mem_delay,
-                   size_t merge_disk_delay,
-                   size_t layer_cleaning_interval_milliseconds,
-                   size_t replication_delay,
+                   chrono::milliseconds merge_mem_delay,
+                   chrono::milliseconds merge_disk_delay,
+                   chrono::milliseconds layer_cleaning_interval,
+                   std::chrono::milliseconds replication_delay,
                    TState state,
                    bool allow_tailing,
                    bool allow_file_sync,
@@ -77,7 +77,7 @@ TManager::TManager(Disk::Util::TEngine *engine,
                    merge_disk_delay,
                    allow_tailing,
                    no_realtime,
-                   layer_cleaning_interval_milliseconds,
+                   layer_cleaning_interval,
                    scheduler,
                    block_slots_available_per_merger,
                    max_repo_cache_size,
@@ -90,6 +90,7 @@ TManager::TManager(Disk::Util::TEngine *engine,
       StateChangeCb(state_change_cb),
       ReplicationRead(false),
       ReplicationWork(false),
+      ReplicationNextTime(chrono::steady_clock::now()),
       ReplicationDelay(replication_delay),
       UpdateReplicationNotificationCb(update_replication_notification_cb),
       OnReplicateIndexIdCb(on_replicate_index_id),
@@ -113,7 +114,6 @@ TManager::TManager(Disk::Util::TEngine *engine,
   IfLt0(epoll_ctl(ReplicationQueueEpollFd, EPOLL_CTL_ADD, ReplicationQueueSem.GetFd(), &ReplicationQueueEvent));
   IfLt0(epoll_ctl(ReplicationWorkEpollFd, EPOLL_CTL_ADD, ReplicationWorkSem.GetFd(), &ReplicationWorkEvent));
   IfLt0(epoll_ctl(ReplicationEpollFd, EPOLL_CTL_ADD, ReplicationSem.GetFd(), &ReplicationEvent));
-  TimeToNextReplication.Now();
 
   auto system_ttl = TTtl::max();
   if (create_new) {
@@ -307,13 +307,8 @@ void TManager::RunReplicateTransaction() {
           break;
         }
       }
-      long remaining = TimeToNextReplication.Remaining();
-      if (remaining) {
-        timespec wait {remaining / 1000, remaining * 1000000L};
-        nanosleep(&wait, NULL);
-      }
-      TimeToNextReplication.Now();
-      TimeToNextReplication += ReplicationDelay;
+      this_thread::sleep_until(ReplicationNextTime);
+      ReplicationNextTime = chrono::steady_clock::now() + ReplicationDelay;
       TReplicationStreamer replication_streamer;
       TState state_used;
       TReplicationQueue copy_queue;

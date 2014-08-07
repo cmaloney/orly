@@ -20,24 +20,19 @@
 
 #include <algorithm>
 
-#include <base/zero.h>
 #include <util/error.h>
 
 using namespace std;
+using namespace std::chrono;
 using namespace Base;
 using namespace Util;
 
-TTimerFd::TTimerFd(size_t milliseconds)
+TTimerFd::TTimerFd(milliseconds ms)
     : Fd(timerfd_create(CLOCK_MONOTONIC, 0)) {
-  itimerspec its;
-  Zero(its);
   //seconds = max(seconds, static_cast<uint32_t>(1));
-  uint32_t seconds = milliseconds / 1000UL;
-  int64_t nanoseconds = (milliseconds % 1000UL) * 1000000L;
-  its.it_interval.tv_sec = seconds;
-  its.it_interval.tv_nsec = nanoseconds;
-  its.it_value.tv_sec = seconds;
-  its.it_value.tv_nsec = nanoseconds;
+  auto s = duration_cast<seconds>(ms);
+  auto ns = duration_cast<nanoseconds>(ms - s);
+  itimerspec its = {{s.count(), ns.count()}, {s.count(), ns.count()}};
   IfLt0(timerfd_settime(Fd, 0, &its, nullptr));
 }
 

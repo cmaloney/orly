@@ -32,7 +32,9 @@ namespace Orly {
       public:
 
       /* TODO */
-      TFailoverTestBalancer(Base::TScheduler *scheduler, const TBalancer::TCmd &cmd, size_t milli_interval);
+      TFailoverTestBalancer(Base::TScheduler *scheduler,
+                            const TBalancer::TCmd &cmd,
+                            std::chrono::milliseconds interval);
 
       /* TODO */
       virtual ~TFailoverTestBalancer();
@@ -61,7 +63,7 @@ namespace Orly {
       std::condition_variable HostCond;
 
       /* TODO */
-      size_t MilliInterval;
+      std::chrono::milliseconds Interval;
 
       /* TODO */
       bool Running;

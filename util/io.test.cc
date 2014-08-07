@@ -31,6 +31,7 @@
 
 using namespace Base;
 using namespace std;
+using namespace std::literals;
 using namespace Util;
 
 static const char *ExpectedData = "Mofo the Psychic Gorilla";
@@ -50,7 +51,7 @@ FIXTURE(ReadAtMost) {
   }
   bool timed_out = false;
   try {
-    actual_size = ReadAtMost(readable, ActualData, MaxActualSize, 1000);
+    actual_size = ReadAtMost(readable, ActualData, MaxActualSize, 1000ms);
   } catch (const system_error &x) {
     if (x.code().value() == ETIMEDOUT) {
       timed_out = true;
@@ -84,7 +85,7 @@ FIXTURE(WriteAtMost) {
   bool timed_out = false;
   try {
     for (; ; ) {
-      WriteAtMost(writeable, ExpectedData, ExpectedSize, 1000);
+      WriteAtMost(writeable, ExpectedData, ExpectedSize, 1000ms);
     }
   } catch (const system_error &x) {
     if (x.code().value() == ETIMEDOUT) {
@@ -115,7 +116,7 @@ FIXTURE(TryReadExactlyTimeout) {
   TFd::Pipe(readable, writeable);
   bool timed_out = false;
   try {
-    TryReadExactly(readable, ActualData, ExpectedSize, 1000);
+    TryReadExactly(readable, ActualData, ExpectedSize, 1000ms);
   } catch (const system_error &x) {
     if (x.code().value() == ETIMEDOUT) {
       timed_out = true;
@@ -132,7 +133,7 @@ FIXTURE(TryWriteExactlyTimeout) {
   bool timed_out = false;
   try {
     for (; ; ) {
-      TryWriteExactly(writeable, ExpectedData, ExpectedSize, 1000);
+      TryWriteExactly(writeable, ExpectedData, ExpectedSize, 1000ms);
     }
   } catch (const system_error &x) {
     if (x.code().value() == ETIMEDOUT) {
