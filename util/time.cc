@@ -28,8 +28,14 @@ using namespace std;
 using namespace std::chrono;
 using namespace Util;
 
+timespec Util::ToTimespec(nanoseconds ns) {
+  auto s = duration_cast<seconds>(ns);
+  ns -= s;
+  return timespec{s.count(), ns.count()};
+}
+
 TTimestamp Util::ToTimestamp(timespec time) {
-  return TTimestamp(chrono::seconds(time.tv_sec) + chrono::nanoseconds(time.tv_nsec));
+  return TTimestamp(seconds(time.tv_sec) + nanoseconds(time.tv_nsec));
 }
 
 /* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */

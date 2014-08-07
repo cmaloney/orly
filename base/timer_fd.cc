@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include <util/error.h>
+#include <util/time.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -29,10 +30,8 @@ using namespace Util;
 
 TTimerFd::TTimerFd(milliseconds ms)
     : Fd(timerfd_create(CLOCK_MONOTONIC, 0)) {
-  //seconds = max(seconds, static_cast<uint32_t>(1));
-  auto s = duration_cast<seconds>(ms);
-  auto ns = duration_cast<nanoseconds>(ms - s);
-  itimerspec its = {{s.count(), ns.count()}, {s.count(), ns.count()}};
+  timespec ts = ToTimespec(duration_cast<nanoseconds>(ms));
+  itimerspec its = {ts, ts};
   IfLt0(timerfd_settime(Fd, 0, &its, nullptr));
 }
 

@@ -32,6 +32,8 @@ namespace Util {
   using TTimestamp = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
   using TOptTimestamp = Base::TOpt<TTimestamp>;
 
+  timespec ToTimespec(std::chrono::nanoseconds time);
+
   TTimestamp ToTimestamp(timespec time);
 
   /* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
