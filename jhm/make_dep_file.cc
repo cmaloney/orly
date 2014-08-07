@@ -56,6 +56,8 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
   auto subproc = TSubprocess::New(pump, cmd.str().c_str());
   auto ret = subproc->Wait();
   if (ret != 0) {
+    EchoOutput(subproc->TakeStdOutFromChild());
+    EchoOutput(subproc->TakeStdErrFromChild());
     THROW_ERROR(runtime_error) << "Non-zero (" << ret << ") exit from command " << quoted(cmd.str());
   }
 
