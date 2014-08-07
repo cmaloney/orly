@@ -146,7 +146,6 @@ TEnv::TEnv(const TTree &root, const string &proj_name, const string &config, con
     : Root(root),
       Src(CopyAppendVector(Root.Root, "src")),
       Out(GetOutDirName(root, proj_name, config, config_mixin)),
-      // TODO: Make the timestamp a property of TConfig
       Config(GetConfigList(root, proj_name, config, config_mixin)) {
 
   if (config == "root") {
@@ -162,21 +161,6 @@ TEnv::TEnv(const TTree &root, const string &proj_name, const string &config, con
   /*
   // Load the configuation
   // TODO: Gracefully degrade on removal of a config.
-  auto add_conf_if_exists = [this] (const string &filename, bool top) {
-    if (ExistsPath(filename.c_str())) {
-      Config.AddBase(TJson::Read(filename.c_str()), top);
-      ConfigTimestamp = Newer(GetTimestamp(filename), ConfigTimestamp);
-    }
-  };
-
-  // Add the project root overrides if they exist (Comes after project config)
-  add_conf_if_exists('/' + Root.Get() + '/' + config_mixin + ".jhm_mixin", false);
-  add_conf_if_exists('/' + Root.Get() + '/' + config + ".jhm", false);
-
-  // Add config mixin if it exists (Comes before project config)
-  add_conf_if_exists('/' + Src.Get() + config_mixin + ".jhm_mixin", true);
-
-  // TODO: Include trees (useful for multi-repo JHM)
   */
 
   Jobs.Register(Job::TDep::GetProducer());
