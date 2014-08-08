@@ -1,6 +1,6 @@
 /* <orly/lang_tests/general/random.orly>
 
-   Check that random compiles and behaves as expected w.r.t. caching/storing. */
+   Check that random compiles and behaves as expected w.r.t. caching/storing.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
