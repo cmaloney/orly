@@ -31,31 +31,27 @@ bool TDeviceUtil::ProbeDevice(const char *path, TOrlyDevice &out_device) {
   try {
     Base::TFd fd = open(path, O_RDONLY);
     auto buf = Base::MemAlignedAlloc<uint64_t>(BlockSize, BlockSize);
-    try {
-      IfLt0(pread(fd, buf.get(), BlockSize, 0UL));
-      if (buf.get()[MagicNumberPos] != OrlyFSMagicNumber) {
-        return false;
-      }
-      uint64_t check = Base::Murmur(buf.get(), NumDataElem, 0UL);
-      if (check != buf.get()[NumDataElem]) {
-        throw std::runtime_error("Orly system block corrupt");
-      }
-      memcpy(&(out_device.VolumeId), &buf.get()[VolumeIdPos], sizeof(TVolumeId));
-      out_device.VolumeDeviceNumber = buf.get()[VolumeDeviceNumberPos];
-      out_device.NumDevicesInVolume = buf.get()[NumDevicesInVolumePos];
-      out_device.LogicalExtentStart = buf.get()[LogicalExtentStartPos];
-      out_device.LogicalExtentSize = buf.get()[LogicalExtentSizePos];
-      out_device.VolumeStrategy = buf.get()[VolumeStrategyPos];
-      out_device.VolumeSpeed = buf.get()[VolumeSpeedPos];
-      out_device.ReplicationFactor = buf.get()[ReplicationFactorPos];
-      out_device.StripeSizeKB = buf.get()[StripeSizeKBPos];
-      out_device.LogicalBlockSize = buf.get()[LogicalBlockSizePos];
-      out_device.PhysicalBlockSize = buf.get()[PhysicalBlockSizePos];
-      out_device.NumLogicalBlockExposed = buf.get()[NumLogicalBlockExposedPos];
-      out_device.MinDiscardBlocks = buf.get()[MinDiscardBlocksPos];
-    } catch (...) {
-      throw;
+    IfLt0(pread(fd, buf.get(), BlockSize, 0UL));
+    if (buf.get()[MagicNumberPos] != OrlyFSMagicNumber) {
+      return false;
     }
+    uint64_t check = Base::Murmur(buf.get(), NumDataElem, 0UL);
+    if (check != buf.get()[NumDataElem]) {
+      throw std::runtime_error("Orly system block corrupt");
+    }
+    memcpy(&(out_device.VolumeId), &buf.get()[VolumeIdPos], sizeof(TVolumeId));
+    out_device.VolumeDeviceNumber = buf.get()[VolumeDeviceNumberPos];
+    out_device.NumDevicesInVolume = buf.get()[NumDevicesInVolumePos];
+    out_device.LogicalExtentStart = buf.get()[LogicalExtentStartPos];
+    out_device.LogicalExtentSize = buf.get()[LogicalExtentSizePos];
+    out_device.VolumeStrategy = buf.get()[VolumeStrategyPos];
+    out_device.VolumeSpeed = buf.get()[VolumeSpeedPos];
+    out_device.ReplicationFactor = buf.get()[ReplicationFactorPos];
+    out_device.StripeSizeKB = buf.get()[StripeSizeKBPos];
+    out_device.LogicalBlockSize = buf.get()[LogicalBlockSizePos];
+    out_device.PhysicalBlockSize = buf.get()[PhysicalBlockSizePos];
+    out_device.NumLogicalBlockExposed = buf.get()[NumLogicalBlockExposedPos];
+    out_device.MinDiscardBlocks = buf.get()[MinDiscardBlocksPos];
   } catch (const std::exception &ex) {
     return false;
   }
