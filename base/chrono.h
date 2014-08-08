@@ -52,7 +52,7 @@ namespace Base {
           uint64_t hour,
           uint64_t minute,
           uint64_t second,
-	  uint64_t nanosecond);
+	        uint64_t nanosecond);
 
       /* TODO */
       TTimeDiffInfo(const std::string &str);
@@ -118,7 +118,7 @@ namespace Base {
       TTimePntInfo(
           uint64_t year, uint64_t month, uint64_t day,
           uint64_t hour, uint64_t minute, uint64_t second,
-	  uint64_t nanosecond,
+          uint64_t nanosecond,
           int64_t utc_offset);
 
       /* TODO */

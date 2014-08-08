@@ -25,13 +25,15 @@
 #include <base/timer.h>
 #include <orly/protocol.h>
 #include <orly/client/client.h>
+#include <util/time.h>
 
-using namespace std;
-using namespace chrono;
 using namespace Base;
-using namespace Socket;
 using namespace Orly;
-using namespace Client;
+using namespace Orly::Client;
+using namespace std;
+using namespace std::chrono;
+using namespace Socket;
+using namespace Util;
 
 class TExerciseClient final
    : public TClient {
@@ -107,8 +109,8 @@ void GetUsers(const ::TCmd &cmd) {
      }
      timer.Stop();
      stringstream ss;
-     ss << "Users function returned [" << user_set.size() << "] users in time [" << timer.GetTotalSeconds() << "s]"
-        << std::endl;
+     ss << "Users function returned [" << user_set.size() << "] users in time [" << ToSecondsDouble(timer.GetTotal())
+        << "s]" << std::endl;
      std::cout << ss.str();
    }
    /* twitter.1.total_tweet_count */ {
@@ -120,7 +122,7 @@ void GetUsers(const ::TCmd &cmd) {
      }
      timer.Stop();
      stringstream ss;
-     ss << "Total Tweet Count function returned [" << out << "] tweets in time [" << timer.GetTotalSeconds() << "s]"
+     ss << "Total Tweet Count function returned [" << out << "] tweets in time [" << ToSecondsDouble(timer.GetTotal()) << "s]"
         << std::endl;
      std::cout << ss.str();
    }
@@ -147,7 +149,7 @@ void GetUsers(const ::TCmd &cmd) {
      }
      timer.Stop();
      stringstream ss;
-     auto total_seconds = timer.GetTotalSeconds();
+     auto total_seconds = ToSecondsDouble(timer.GetTotal());
      ss << "Tweet Count Per User function [" << tweet_count_calc << "] in [" << total_seconds << "]s\t["
         << (user_set.size() / total_seconds) << "]qps" << std::endl;
      std::cout << ss.str();
@@ -175,7 +177,7 @@ void GetUsers(const ::TCmd &cmd) {
      }
      timer.Stop();
      stringstream ss;
-     auto total_seconds = timer.GetTotalSeconds();
+     auto total_seconds = ToSecondsDouble(timer.GetTotal());
      ss << "Responded Count Per User function [" << tweet_count_calc << "] in [" << total_seconds << "]s\t["
         << (user_set.size() / total_seconds) << "]qps" << std::endl;
      std::cout << ss.str();

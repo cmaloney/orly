@@ -62,6 +62,10 @@ namespace Util {
                                                               std::chrono::nanoseconds(time.tv_nsec)));
   }
 
+  template<typename TDuration>
+  double ToSecondsDouble(TDuration duration) {
+    return std::chrono::duration_cast<std::chrono::duration<double>>(duration).count();
+  }
 
   /* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
   TOptTimestamp TryGetTimestamp(const std::string &name);

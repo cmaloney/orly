@@ -43,6 +43,7 @@
 #include <util/error.h>
 #include <util/io.h>
 #include <util/path.h>
+#include <util/time.h>
 
 using namespace std;
 using namespace chrono;
@@ -2769,7 +2770,7 @@ void TIndyReporter::AddReport(std::stringstream &ss) const {
     try_count = try_read_count + try_write_count;
   }  // release TryTime lock
   ReportTimer.Stop();
-  double elapsed_time = ReportTimer.GetLapSeconds();
+  double elapsed_time = ToSecondsDouble(ReportTimer.GetLap());
   #ifdef PERF_STATS
   ss << "Page LRU Buf Free = " << num_buf_in_page_lru << " / " << max_buf_in_page_lru << endl;
   ss << "Block LRU Buf Free = " << num_buf_in_block_lru << " / " << max_buf_in_block_lru << endl;
@@ -2794,9 +2795,9 @@ void TIndyReporter::AddReport(std::stringstream &ss) const {
   ss << "Try Read Count / s = " << (try_read_count / elapsed_time) << endl;
   ss << "Try Write Count / s = " << (try_write_count / elapsed_time) << endl;
 
-  ss << "MergeMem Step CPU (s) = " << (duration_cast<duration<float>>(merge_mem_step_cpu) / elapsed_time) << endl;
+  ss << "MergeMem Step CPU (s) = " << ToSecondsDouble(merge_mem_step_cpu) / elapsed_time << endl;
 
-  ss << "MergeDisk Step CPU (s) = " << (duration_cast<duration<float>>(merge_disk_step_cpu) / elapsed_time) << endl;
+  ss << "MergeDisk Step CPU (s) = " << ToSecondsDouble(merge_disk_step_cpu) / elapsed_time << endl;
 
   size_t tetris_push_count = Server->TetrisManager->PushCount.exchange(0UL);
   size_t tetris_pop_count = Server->TetrisManager->PopCount.exchange(0UL);

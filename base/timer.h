@@ -62,19 +62,9 @@ namespace Base {
       return Lap;
     }
 
-    //TODO: Should probably be a helper converter
-    double GetLapSeconds() const {
-      return std::chrono::duration_cast<std::chrono::duration<double>>(Lap).count();
-    }
-
     /* Returns the total time elapsed across all Stop() calls. */
     duration GetTotal() const {
       return Total;
-    }
-
-    //TODO: Should probably be a helper converter
-    double GetTotalSeconds() const {
-      return std::chrono::duration_cast<std::chrono::duration<double>>(Total).count();
     }
 
     private:

@@ -396,7 +396,7 @@ void TManager::RunReplicateTransaction() {
               auto future = context->Write<void>(TSlave::PushNotificationsId, replication_streamer);
               timer.Stop();
               if (timer.GetTotal() < 1s) {
-                syslog(LOG_INFO, "Write TSlave::PushNotificationsId took [%fs]", timer.GetTotalSeconds());
+                syslog(LOG_INFO, "Write TSlave::PushNotificationsId took [%fs]", ToSecondsDouble(timer.GetTotal()));
               }
               assert(future);
               future->Sync();  // wait for the future to complete
@@ -530,7 +530,7 @@ TContextInputStreamer TManager::TMaster::FetchUpdates(const TUuid &repo_id, TSeq
   }
   timer.Stop();
   std::cout << "TMaster::FetchUpdates(" << repo_id << ") [" << lowest << " -> " << highest << "] took ["
-            << timer.GetTotalSeconds() << "s]" << std::endl;
+            << ToSecondsDouble(timer.GetTotal()) << "s]" << std::endl;
   return context;
 }
 
@@ -747,7 +747,7 @@ void TManager::TSlave::PullUpdateRange(const Base::TUuid &repo_id, TManager::TPt
       }
       timer.Stop();
       std::cout << "received " << context.UpdateVec.size() << " updates from repo " << repo_id << "\tcommit took ["
-                << timer.GetTotalSeconds() << "s]" << std::endl;
+                << ToSecondsDouble(timer.GetTotal()) << "s]" << std::endl;
     }
   } catch (...) {
     std::ostringstream ss;
@@ -971,7 +971,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
             syslog(LOG_INFO,
                    "Slave PushNotification [%ld] took [%fs]",
                    num_transactions_applied,
-                   timer.GetTotalSeconds());
+                   ToSecondsDouble(timer.GetTotal()));
           }
         } catch (const exception &ex) {
           syslog(LOG_ERR, "Exception in TManager::TSlave::PushNotifications()::Slave [%s]", ex.what());

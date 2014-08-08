@@ -20,9 +20,12 @@
 
 #include <stdexcept>
 
+#include <util/time.h>
+
 using namespace std;
 using namespace Base;
 using namespace Orly::Indy::Disk;
+using namespace Util;
 
 void TIndyUtilReporter::Push(uint8_t source, TUtilizationReporter::TKind kind, size_t num_bytes, DiskPriority /*priority*/) {
   assert(this);
@@ -49,7 +52,7 @@ void TIndyUtilReporter::Push(uint8_t source, TUtilizationReporter::TKind kind, s
 void TIndyUtilReporter::Report(std::stringstream &ss) {
   assert(this);
   ReportTimer.Stop();
-  double elapsed_time = ReportTimer.GetLapSeconds();
+  double elapsed_time = ToSecondsDouble(ReportTimer.GetLap());
   size_t sync_read_bytes[NumFields];
   size_t async_read_bytes[NumFields];
   size_t write_bytes[NumFields];

@@ -29,6 +29,7 @@
 #include <base/subprocess.h>
 #include <base/tmp_file.h>
 #include <base/timer.h>
+#include <util/time.h>
 
 #include <test/kit.h>
 
@@ -55,10 +56,9 @@ void Compile(const char *name, const char *filename, int num_trials = 3) {
     }
     trials[i] = timer.GetTotal();
   }
-  std::cout << name
-            << " took: " << duration_cast<duration<float>>(
-                                std::accumulate(std::begin(trials), std::end(trials), nanoseconds::zero())).count() /
-                                num_trials << std::endl;
+  std::cout << name << " took: "
+            << Util::ToSecondsDouble(std::accumulate(std::begin(trials), std::end(trials), nanoseconds::zero())) /
+                   num_trials << std::endl;
   unlink("a.out");  // Clean up.
 }
 

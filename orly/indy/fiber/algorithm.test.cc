@@ -25,10 +25,13 @@
 
 #include <base/timer.h>
 #include <base/usage_meter.h>
+#include <util/time.h>
+
 #include <test/kit.h>
 
 using namespace Base;
 using namespace Orly::Indy::Fiber;
+using namespace Util;
 
 template <typename TVal, size_t ParallelThresh>
 class TSortRunnable
@@ -67,7 +70,7 @@ class TSortRunnable
     parallel_timer.Stop();
     usage_meter.Stop();
     printf("parallel sort =[%f], usr=[%f], sys=[%f]\n",
-           parallel_timer.GetTotalSeconds(),
+           ToSecondsDouble(parallel_timer.GetTotal()),
            usage_meter.GetTotalUserCPU(),
            usage_meter.GetTotalSystemCPU());
     std::lock_guard<std::mutex> lock(Mut);
@@ -102,7 +105,7 @@ void TestSort(const std::vector<TVal> &input_data, const size_t num_workers) {
   expected_timer.Stop();
   usage_meter.Stop();
   printf("single threaded sort =[%f], usr=[%f], sys=[%f]\n",
-         expected_timer.GetTotalSeconds(),
+         ToSecondsDouble(expected_timer.GetTotal()),
          usage_meter.GetTotalUserCPU(),
          usage_meter.GetTotalSystemCPU());
   EXPECT_TRUE(expected_data != input_data);
