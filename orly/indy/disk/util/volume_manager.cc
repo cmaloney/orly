@@ -31,6 +31,7 @@
 #include <orly/indy/disk/util/corruption_detector.h>
 
 using namespace std;
+using namespace std::literals;
 using namespace Base;
 using namespace Orly::Indy::Disk::Util;
 using namespace ::Util;
@@ -168,12 +169,11 @@ void TDiskController::QueueRunner(std::vector<TPersistentDevice *> device_vec, b
   try {
     memset(io_ev, 0, max_aio_num * sizeof(struct io_event));
     size_t num_laps_without_work = 0UL;
-    const timespec lap_wait{0, 10000UL};
     const size_t laps_before_sleep = 5UL;
     for (;;) {
       ++num_laps_without_work;
       if (num_laps_without_work > laps_before_sleep) {
-        nanosleep(&lap_wait, NULL);
+        this_thread::sleep_for(10000ns);
       }
       /* wait for a queue to be ready */
       for (TPersistentDevice *ready_device : device_vec) {

@@ -51,7 +51,6 @@ TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), 2000000UL);
 TPool Disk::TController::TEvent::Pool(max(sizeof(Disk::TController::TWriteV), sizeof(Disk::TController::TRead)), 10000);
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 20000);
 TPool Disk::TCache::TObj::Pool(sizeof(Disk::TCache::TObj), 11000);
-timespec Disk::TCache::ReadWait;
 
 template <typename TVal>
 void Check(const TVal &lhs, const TVal &rhs) {

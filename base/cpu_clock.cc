@@ -18,10 +18,24 @@
 
 #include <time.h>
 
+#include <util/error.h>
 #include <util/time.h>
+
+using namespace Util;
 
 Base::cpu_clock::time_point Base::cpu_clock::now() noexcept {
   timespec ts;
   clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
-  return Util::ToTimestampClock<Base::cpu_clock>(ts);
+  return ToTimestampClock<Base::thread_clock>(ts);
+}
+
+Base::thread_clock::thread_clock(pthread_t thread_id) {
+  IfLt0(pthread_getcpuclockid(thread_id, &ClockId));
+}
+
+Base::thread_clock::time_point Base::thread_clock::now() {
+  timespec ts;
+
+  IfLt0(clock_gettime(ClockId, &ts));
+  return ToTimestampClock<Base::thread_clock>(ts);
 }

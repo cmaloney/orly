@@ -176,7 +176,6 @@ TPool TUpdate::TEntry::Pool(sizeof(TUpdate::TEntry), 2000000UL, "Entry");
 TPool Disk::TController::TEvent::Pool(max(sizeof(Disk::TController::TWriteV), sizeof(Disk::TController::TRead)), 10000, "Controller Event");
 Disk::TBufBlock::TPool Disk::TBufBlock::Pool(BlockSize, 20000);
 TPool Disk::TCache::TObj::Pool(sizeof(Disk::TCache::TObj), 11000, "Cache Block");
-timespec Disk::TCache::ReadWait;
 
 void ScheduleDiskController(TScheduler *scheduler, Disk::TController *controller) {
   assert(scheduler);

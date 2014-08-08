@@ -173,7 +173,7 @@ namespace Orly {
                   /* if the highest bit is not set, then we use the second highest bit to see if someone is already loading this data. */
                   if ((val & SecondHighestBit) == SecondHighestBit) {
                     /* second highest bit is set, someone is loading the data, we just have to wait. */
-                    //nanosleep(&(cache->ReadWait), NULL);
+                    //std::this_thread::sleep_for(std::chrono::nanoseconds(25000));
                     /* TODO: we should try to join some form of queue of frames that will get re-activated when the frame performing the read on our
                        behalf is finished. */
                     Fiber::YieldSlow();
@@ -238,8 +238,6 @@ namespace Orly {
                 SlotArray(new TSlot[NumSlots]),
                 LRUArray(new TLRU[NumLRU]),
                 PageData(nullptr) {
-            ReadWait.tv_sec = 0;
-            ReadWait.tv_nsec = 25000L;
             Base::MlockN(&SlotArray[0], NumSlots);
             Base::MlockN(&LRUArray[0], NumLRU);
             assert(PageSize >= static_cast<size_t>(getpagesize()));
@@ -926,9 +924,6 @@ namespace Orly {
 
           /* TODO */
           std::unique_ptr<char> PageData;
-
-          /* TODO */
-          timespec ReadWait;
 
           /* TODO */
           std::function<bool (const TSlot &, TSlot *&, size_t &, size_t &)> TryRemoveSlotFunc;

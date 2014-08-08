@@ -20,6 +20,7 @@
 #include <chrono>
 
 #include <base/class_traits.h>
+#include <base/cpu_clock.h>
 #include <base/event_semaphore.h>
 #include <base/sigma_calc.h>
 #include <base/spin_lock.h>
@@ -737,7 +738,7 @@ namespace Orly {
         void SetTetrisManager(Server::TTetrisManager *tetris_manager);
 
         /* TODO */
-        void ReportMergeCPUTime(double &out_merge_mem, double &out_merge_disk);
+        void ReportMergeCPUTime(std::chrono::nanoseconds &out_merge_mem, std::chrono::nanoseconds &out_merge_disk);
 
         /* TODO */
         virtual void ForEachScheduler(const std::function<bool (Fiber::TRunner *)> &cb) const = 0;
@@ -969,8 +970,8 @@ namespace Orly {
         std::function<void (TRepo *)> OnCloseCb;
 
         /* Merge CPU Timer Information */
-        std::unordered_map<pthread_t, timespec> MergeMemThreadCPUMap;
-        std::unordered_map<pthread_t, timespec> MergeDiskThreadCPUMap;
+        std::unordered_map<pthread_t, Base::thread_clock::time_point> MergeMemThreadCPUMap;
+        std::unordered_map<pthread_t, Base::thread_clock::time_point> MergeDiskThreadCPUMap;
         std::mutex MergeThreadCPUMutex;
 
         /* TODO */

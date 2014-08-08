@@ -2710,8 +2710,8 @@ void TIndyReporter::AddReport(std::stringstream &ss) const {
     try_fetch_count_mean,
     try_fetch_count_sigma;
 
-  double merge_disk_step_cpu = 0.0;
-  double merge_mem_step_cpu = 0.0;
+  nanoseconds merge_disk_step_cpu;
+  nanoseconds merge_mem_step_cpu;
   size_t merge_mem_count = 0UL;
   double
     merge_mem_key_min = 0.0,
@@ -2794,9 +2794,9 @@ void TIndyReporter::AddReport(std::stringstream &ss) const {
   ss << "Try Read Count / s = " << (try_read_count / elapsed_time) << endl;
   ss << "Try Write Count / s = " << (try_write_count / elapsed_time) << endl;
 
-  ss << "MergeMem Step CPU = " << (merge_mem_step_cpu / elapsed_time) << endl;
+  ss << "MergeMem Step CPU (s) = " << (duration_cast<duration<float>>(merge_mem_step_cpu) / elapsed_time) << endl;
 
-  ss << "MergeDisk Step CPU = " << (merge_disk_step_cpu / elapsed_time) << endl;
+  ss << "MergeDisk Step CPU (s) = " << (duration_cast<duration<float>>(merge_disk_step_cpu) / elapsed_time) << endl;
 
   size_t tetris_push_count = Server->TetrisManager->PushCount.exchange(0UL);
   size_t tetris_pop_count = Server->TetrisManager->PopCount.exchange(0UL);

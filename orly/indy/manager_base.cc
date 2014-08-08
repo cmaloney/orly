@@ -21,10 +21,12 @@
 #include <sys/syscall.h>
 
 #include <base/assert_true.h>
+#include <base/cpu_clock.h>
 #include <base/shutting_down.h>
 #include <util/time.h>
 
 using namespace std;
+using namespace std::chrono;
 using namespace Base;
 using namespace Orly::Indy::L0;
 using namespace Util;
@@ -114,7 +116,7 @@ TManager::TRepo::TRepo(TManager *manager, const TUuid &repo_id, const TTtl &ttl,
       Id(repo_id),
       MergeMemMembership(this),
       MergeDiskMembership(this) {
-  auto now = chrono::steady_clock::now();
+  auto now = steady_clock::now();
   SetTimeOfNextMergeMem(now);
   SetTimeOfNextMergeDisk(now);
 }
@@ -123,7 +125,7 @@ void TManager::TRepo::PreDtor() {
   assert(this);
   /* We should be able to re-construct repo information by what files is made up of */
   #if 0
-  if (GetTtl() > std::chrono::seconds(0)) {
+  if (GetTtl() > std::seconds(0)) {
     Manager->SaveRepo(this);
   }
   #endif
@@ -195,11 +197,11 @@ void TManager::TRepo::RemoveFromDirty() {
 }
 
 TManager::TManager(Disk::Util::TEngine *engine,
-                   std::chrono::milliseconds merge_mem_delay,
-                   std::chrono::milliseconds merge_disk_delay,
+                   milliseconds merge_mem_delay,
+                   milliseconds merge_disk_delay,
                    bool allow_tailing,
                    bool /*no_realtime*/,
-                   std::chrono::milliseconds layer_cleaning_interval,
+                   milliseconds layer_cleaning_interval,
                    Base::TScheduler *scheduler,
                    size_t block_slots_available_per_merger,
                    size_t max_repo_cache_size,
@@ -305,16 +307,12 @@ void TManager::RunMergeMem() {
   }
 
   bool should_sleep = true;
-  chrono::steady_clock::time_point deadline;
+  steady_clock::time_point deadline;
 
     TRepo *repo = nullptr;
   /* Register ourselves for CPU time collection */ {
     lock_guard<mutex> lock(MergeThreadCPUMutex);
-    timespec start_val;
-    clockid_t cid;
-    IfNe0(pthread_getcpuclockid(pthread_self(), &cid));
-    IfLt0(clock_gettime(cid, &start_val));
-    MergeMemThreadCPUMap.insert(make_pair(pthread_self(), start_val));
+    MergeMemThreadCPUMap.insert(make_pair(pthread_self(), cpu_clock::now()));
   }
   while(!ShuttingDown) {
     /* we can only have 1 thread waiting on MergeMemSem at a time */ {
@@ -330,7 +328,7 @@ void TManager::RunMergeMem() {
       if (repo && !ShuttingDown) {
         deadline = repo->GetTimeOfNextMergeMem();
         bool cont = false;
-        auto now = chrono::steady_clock::now();
+        auto now = steady_clock::now();
         if (deadline < now) {
           should_sleep = true;
           cont = true;
@@ -378,14 +376,11 @@ void TManager::RunMergeDisk() {
     Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
   bool should_sleep = true;
-  chrono::steady_clock::time_point deadline;
+  steady_clock::time_point deadline;
   TRepo *repo = nullptr;
   /* Register ourselves for CPU time collection */ {
     lock_guard<mutex> lock(MergeThreadCPUMutex);
-    timespec start_val;
-    clockid_t cid;
-    IfNe0(pthread_getcpuclockid(pthread_self(), &cid));
-    IfLt0(clock_gettime(cid, &start_val));
+    auto start_val = cpu_clock::now();
     MergeDiskThreadCPUMap.insert(make_pair(pthread_self(), start_val));
   }
   while (!ShuttingDown) {
@@ -403,7 +398,7 @@ void TManager::RunMergeDisk() {
       if (repo && !ShuttingDown) {
         deadline = repo->GetTimeOfNextMergeDisk();
         bool cont = false;
-        auto now = chrono::steady_clock::now();
+        auto now = steady_clock::now();
         if (deadline < now) {
           should_sleep = true;
           cont = true;
@@ -436,29 +431,21 @@ void TManager::RunMergeDisk() {
   }
 }
 
-void TManager::ReportMergeCPUTime(double &out_merge_mem, double &out_merge_disk) {
+void TManager::ReportMergeCPUTime(nanoseconds &out_merge_mem, nanoseconds &out_merge_disk) {
   assert(this);
-  out_merge_mem = 0.0;
-  out_merge_disk = 0.0;
+  out_merge_mem = nanoseconds::zero();
+  out_merge_disk = nanoseconds::zero();
   lock_guard<mutex> lock(MergeThreadCPUMutex);
   for (auto &iter : MergeMemThreadCPUMap) {
-    timespec cur_val;
-    clockid_t cid;
-    IfNe0(pthread_getcpuclockid(iter.first, &cid));
-    IfLt0(clock_gettime(cid, &cur_val));
-    out_merge_mem += ((cur_val.tv_sec - iter.second.tv_sec) * 1000000000L) + (cur_val.tv_nsec - iter.second.tv_nsec);
+    auto cur_val = thread_clock(iter.first).now();
+    out_merge_mem += cur_val.time_since_epoch();
     std::swap(iter.second, cur_val);
   }
   for (auto &iter : MergeDiskThreadCPUMap) {
-    timespec cur_val;
-    clockid_t cid;
-    IfNe0(pthread_getcpuclockid(iter.first, &cid));
-    IfLt0(clock_gettime(cid, &cur_val));
-    out_merge_disk += ((cur_val.tv_sec - iter.second.tv_sec) * 1000000000L) + (cur_val.tv_nsec - iter.second.tv_nsec);
+    auto cur_val = thread_clock(iter.first).now();
+    out_merge_disk += cur_val.time_since_epoch();
     std::swap(iter.second, cur_val);
   }
-  out_merge_mem /= 1000000000.0;
-  out_merge_disk /= 1000000000.0;
 }
 
 void TManager::GetFileGenSet(const Base::TUuid &repo_id, std::vector<Disk::TFileObj> &file_vec) {

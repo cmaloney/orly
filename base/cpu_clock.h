@@ -26,15 +26,35 @@
 
 #include <chrono>
 
+#include <pthread.h>
+
 namespace Base {
 
+  /* Clock for a specific pthread thread */
+  class thread_clock {
+      public:
+    thread_clock(pthread_t thread_id);
+    using duration = std::chrono::nanoseconds;
+    using rep = duration::rep;
+    using period = duration::period;
+    using time_point = std::chrono::time_point<thread_clock, duration>;
+
+    static constexpr bool is_steady = true;
+    time_point now();
+
+    private:
+    clockid_t ClockId;
+  };
+
+  /* Clock for the current thread */
   struct cpu_clock {
     using duration = std::chrono::nanoseconds;
     using rep = duration::rep;
     using period = duration::period;
-    using time_point = std::chrono::time_point<cpu_clock, duration>;
+    using time_point = std::chrono::time_point<thread_clock, duration>;
 
-    static constexpr bool is_steady = false;
+    static constexpr bool is_steady = true;
     static time_point now() noexcept;
   };
+
 }

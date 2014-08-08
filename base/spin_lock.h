@@ -67,8 +67,7 @@ namespace Base {
           if (++tries == YieldCount) {
             tries = 0UL;
             #if 0
-            timespec wait{0, 10000};
-            nanosleep(&wait, nullptr);
+            std::this_thread::sleep_for(std::chrono::nanoseconds(10000));
             #endif
             sched_yield();
           }
