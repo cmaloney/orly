@@ -9,7 +9,6 @@
 
 #include <sched.h>
 
-#include <base/timer.h>
 #include <orly/indy/disk/sim/mem_engine.h>
 
 #include <test/kit.h>

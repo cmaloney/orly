@@ -42,7 +42,6 @@
 #include <base/mlock.h>
 #include <base/scheduler.h>
 #include <base/sigma_calc.h>
-#include <base/timer.h>
 #include <inv_con/ordered_list.h>
 #include <inv_con/unordered_list.h>
 #include <inv_con/unordered_multimap.h>

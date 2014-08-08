@@ -340,10 +340,10 @@ void TRepoTetrisManager::TPlayer::Play() {
   commit_timer.Stop();
 
   std::lock_guard<std::mutex> lock(RepoTetrisManager->TetrisTimerLock);
-  RepoTetrisManager->TetrisSnapshotCPUTime.Push(snapshot_timer.Total());
-  RepoTetrisManager->TetrisSortCPUTime.Push(sort_timer.Total());
-  RepoTetrisManager->TetrisPlayCPUTime.Push(play_timer.Total());
-  RepoTetrisManager->TetrisCommitCPUTime.Push(commit_timer.Total());
+  RepoTetrisManager->TetrisSnapshotCPUTime.Push(snapshot_timer.GetTotalSeconds());
+  RepoTetrisManager->TetrisSortCPUTime.Push(sort_timer.GetTotalSeconds());
+  RepoTetrisManager->TetrisPlayCPUTime.Push(play_timer.GetTotalSeconds());
+  RepoTetrisManager->TetrisCommitCPUTime.Push(commit_timer.GetTotalSeconds());
 }
 
 TTetrisManager::TPlayer *TRepoTetrisManager::NewPlayer(const TUuid &parent_pov_id, const TUuid &child_pov_id, bool is_paused, bool is_master) {

@@ -27,6 +27,7 @@
 #include <iostream> /* TODO GET RID OF */
 
 using namespace std;
+using namespace std::literals;
 using namespace Base;
 using namespace Io;
 using namespace Orly::Atom;
@@ -391,12 +392,11 @@ void TManager::RunReplicateTransaction() {
           if (!replication_streamer.IsEmpty()) {
             try {
               Base::TTimer timer;
-              timer.Start();
               //auto future = context->Write<void>(TSlave::PushNotificationsId, replication_streamer);
               auto future = context->Write<void>(TSlave::PushNotificationsId, replication_streamer);
               timer.Stop();
-              if (timer.Total() > 1) {
-                syslog(LOG_INFO, "Write TSlave::PushNotificationsId took [%f]", timer.Total());
+              if (timer.GetTotal() < 1s) {
+                syslog(LOG_INFO, "Write TSlave::PushNotificationsId took [%fs]", timer.GetTotalSeconds());
               }
               assert(future);
               future->Sync();  // wait for the future to complete
@@ -520,7 +520,6 @@ TContextInputStreamer TManager::TMaster::FetchUpdates(const TUuid &repo_id, TSeq
   assert(this);
   std::cout << "TMaster::FetchUpdates(" << repo_id << ") [" << lowest << " -> " << highest << "]" << std::endl;
   Base::TTimer timer;
-  timer.Start();
   auto repo = Manager->ForceGetRepo(repo_id);
   assert(Manager->SlaveSyncViewMap.find(repo_id) != Manager->SlaveSyncViewMap.end());
   const auto &view = Manager->SlaveSyncViewMap.find(repo_id)->second;
@@ -530,7 +529,8 @@ TContextInputStreamer TManager::TMaster::FetchUpdates(const TUuid &repo_id, TSeq
     context.AppendUpdate(repo_id, *walker);
   }
   timer.Stop();
-  std::cout << "TMaster::FetchUpdates(" << repo_id << ") [" << lowest << " -> " << highest << "] took [" << timer.Total() << "]" << std::endl;
+  std::cout << "TMaster::FetchUpdates(" << repo_id << ") [" << lowest << " -> " << highest << "] took ["
+            << timer.GetTotalSeconds() << "s]" << std::endl;
   return context;
 }
 
@@ -704,7 +704,6 @@ void TManager::TSlave::PullUpdateRange(const Base::TUuid &repo_id, TManager::TPt
       assert(future);
       Util::TContextInputStreamer context = **future;
       Base::TTimer timer;
-      timer.Start();
 
       TMemoryLayer *mem_layer = new TMemoryLayer(Manager);
       size_t num_entry_inserted = 0UL;
@@ -747,7 +746,8 @@ void TManager::TSlave::PullUpdateRange(const Base::TUuid &repo_id, TManager::TPt
         repo->AddImportLayer(mem_layer, sem, storage_speed);
       }
       timer.Stop();
-      std::cout << "received " << context.UpdateVec.size() << " updates from repo " << repo_id << "\tcommit took [" << timer.Total() << "]" << std::endl;
+      std::cout << "received " << context.UpdateVec.size() << " updates from repo " << repo_id << "\tcommit took ["
+                << timer.GetTotalSeconds() << "s]" << std::endl;
     }
   } catch (...) {
     std::ostringstream ss;
@@ -965,11 +965,13 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
           }
           /* Apply the transactions next */
           Base::TTimer timer;
-          timer.Start();
           const size_t num_transactions_applied = ApplyCoreVectorTransactions(replication_streamer.GetTransactionVec().GetCores(), replication_streamer.GetTransactionVec().GetArena());
           timer.Stop();
-          if (timer.Total() > 1) {
-            syslog(LOG_INFO, "Slave PushNotification [%ld] took [%f]", num_transactions_applied, timer.Total());
+          if (timer.GetTotal() > 1s) {
+            syslog(LOG_INFO,
+                   "Slave PushNotification [%ld] took [%fs]",
+                   num_transactions_applied,
+                   timer.GetTotalSeconds());
           }
         } catch (const exception &ex) {
           syslog(LOG_ERR, "Exception in TManager::TSlave::PushNotifications()::Slave [%s]", ex.what());

@@ -85,9 +85,7 @@ namespace Orly {
         public:
 
         /* TODO */
-        TIndyUtilReporter() {
-          ReportTimer.Start();
-        }
+        TIndyUtilReporter() = default;
 
         /* TODO */
         virtual ~TIndyUtilReporter() {}

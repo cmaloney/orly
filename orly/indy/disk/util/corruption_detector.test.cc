@@ -22,7 +22,6 @@
 #include <random>
 
 #include <base/scheduler.h>
-#include <base/timer.h>
 
 #include <test/kit.h>
 

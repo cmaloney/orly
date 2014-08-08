@@ -44,12 +44,12 @@ int main() {
   size_t found_eq = 0UL;
   size_t num_iter = 100000UL;
   Base::TTimer timer;
-  timer.Start();
   for (size_t i = 0; i < num_iter; ++i) {
     found_eq += IsEq(CheckTypes<int8_t, int8_t>()) ? 1UL : 0UL;
   }
   timer.Stop();
-  std::cout << num_iter << " Comparisons took " << timer.Total() << " [" << (timer.Total() / num_iter) << " / s] " << std::endl;
+  std::cout << num_iter << " Comparisons took " << timer.GetTotalSeconds() << " ["
+            << (timer.GetTotalSeconds() / num_iter) << " / s] " << std::endl;
   if (found_eq != num_iter) {
     throw std::runtime_error("Did not match");
   }

@@ -2769,9 +2769,7 @@ void TIndyReporter::AddReport(std::stringstream &ss) const {
     try_count = try_read_count + try_write_count;
   }  // release TryTime lock
   ReportTimer.Stop();
-  double elapsed_time = ReportTimer.Total();
-  ReportTimer.Reset();
-  ReportTimer.Start();
+  double elapsed_time = ReportTimer.GetLapSeconds();
   #ifdef PERF_STATS
   ss << "Page LRU Buf Free = " << num_buf_in_page_lru << " / " << max_buf_in_page_lru << endl;
   ss << "Block LRU Buf Free = " << num_buf_in_block_lru << " / " << max_buf_in_block_lru << endl;

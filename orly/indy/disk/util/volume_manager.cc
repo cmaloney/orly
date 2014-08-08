@@ -27,7 +27,6 @@
 
 #include <base/booster.h>
 #include <base/sigma_calc.h>
-#include <base/timer.h>
 #include <base/zero.h>
 #include <orly/indy/disk/util/corruption_detector.h>
 

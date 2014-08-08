@@ -101,27 +101,27 @@ void GetUsers(const ::TCmd &cmd) {
    std::set<int64_t> user_set;
    /* twitter.1.users */ {
      Base::TTimer timer;
-     timer.Start();
      /* read */ {
        auto read_result = client->Try(id_to_use, { "twitter" }, TClosure(string("users")));
        Sabot::ToNative(*Sabot::State::TAny::TWrapper((*read_result)->GetValue().NewState((*read_result)->GetArena().get(), state_alloc)), user_set);
      }
      timer.Stop();
      stringstream ss;
-     ss << "Users function returned [" << user_set.size() << "] users in time [" << timer.Total() << "s]" << std::endl;
+     ss << "Users function returned [" << user_set.size() << "] users in time [" << timer.GetTotalSeconds() << "s]"
+        << std::endl;
      std::cout << ss.str();
    }
    /* twitter.1.total_tweet_count */ {
      int64_t out;
      Base::TTimer timer;
-     timer.Start();
      /* read */ {
        auto read_result = client->Try(id_to_use, { "twitter" }, TClosure(string("total_tweet_count")));
        Sabot::ToNative(*Sabot::State::TAny::TWrapper((*read_result)->GetValue().NewState((*read_result)->GetArena().get(), state_alloc)), out);
      }
      timer.Stop();
      stringstream ss;
-     ss << "Total Tweet Count function returned [" << out << "] tweets in time [" << timer.Total() << "s]" << std::endl;
+     ss << "Total Tweet Count function returned [" << out << "] tweets in time [" << timer.GetTotalSeconds() << "s]"
+        << std::endl;
      std::cout << ss.str();
    }
    /* twitter.1.tweet_count */ {
@@ -129,7 +129,6 @@ void GetUsers(const ::TCmd &cmd) {
      std::list<std::shared_ptr<Rpc::TFuture<TMethodResult>>> outstanding_reqs;
      int64_t out;
      Base::TTimer timer;
-     timer.Start();
      for (int64_t uid : user_set) {
        /* read */ {
          if (outstanding_reqs.size() >= 500) {
@@ -148,7 +147,9 @@ void GetUsers(const ::TCmd &cmd) {
      }
      timer.Stop();
      stringstream ss;
-     ss << "Tweet Count Per User function [" << tweet_count_calc << "] in [" << timer.Total() << "]s\t[" << (user_set.size() / timer.Total()) << "]qps" << std::endl;
+     auto total_seconds = timer.GetTotalSeconds();
+     ss << "Tweet Count Per User function [" << tweet_count_calc << "] in [" << total_seconds << "]s\t["
+        << (user_set.size() / total_seconds) << "]qps" << std::endl;
      std::cout << ss.str();
    }
    /* twitter.1.responded_to */ {
@@ -156,7 +157,6 @@ void GetUsers(const ::TCmd &cmd) {
      std::list<std::shared_ptr<Rpc::TFuture<TMethodResult>>> outstanding_reqs;
      std::set<int64_t> out;
      Base::TTimer timer;
-     timer.Start();
      for (int64_t uid : user_set) {
        /* read */ {
          if (outstanding_reqs.size() >= 500) {
@@ -175,7 +175,9 @@ void GetUsers(const ::TCmd &cmd) {
      }
      timer.Stop();
      stringstream ss;
-     ss << "Responded Count Per User function [" << tweet_count_calc << "] in [" << timer.Total() << "]s\t[" << (user_set.size() / timer.Total()) << "]qps" << std::endl;
+     auto total_seconds = timer.GetTotalSeconds();
+     ss << "Responded Count Per User function [" << tweet_count_calc << "] in [" << total_seconds << "]s\t["
+        << (user_set.size() / total_seconds) << "]qps" << std::endl;
      std::cout << ss.str();
    }
  } catch (const std::exception &ex) {

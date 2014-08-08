@@ -49,9 +49,7 @@ void TIndyUtilReporter::Push(uint8_t source, TUtilizationReporter::TKind kind, s
 void TIndyUtilReporter::Report(std::stringstream &ss) {
   assert(this);
   ReportTimer.Stop();
-  double elapsed_time = ReportTimer.Total();
-  ReportTimer.Reset();
-  ReportTimer.Start();
+  double elapsed_time = ReportTimer.GetLapSeconds();
   size_t sync_read_bytes[NumFields];
   size_t async_read_bytes[NumFields];
   size_t write_bytes[NumFields];

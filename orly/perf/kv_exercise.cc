@@ -15,6 +15,7 @@
    limitations under the License. */
 #include <chrono>
 #include <condition_variable>
+#include <iostream>
 #include <mutex>
 #include <signal.h>
 #include <unistd.h>
@@ -27,13 +28,14 @@
 #include <orly/protocol.h>
 #include <orly/client/client.h>
 #include <util/error.h>
+#include <util/time.h>
 
-using namespace std;
-using namespace chrono;
 using namespace Base;
-using namespace Socket;
 using namespace Orly;
-using namespace Client;
+using namespace Orly::Client;
+using namespace Socket;
+using namespace std;
+using namespace std::chrono;
 using namespace Util;
 
 class TExerciseClient final
@@ -162,12 +164,12 @@ class TCmd final
 void Runner(int64_t start, int64_t limit, const ::TCmd &cmd) {
   printf("Runner() starting \n");
   void *state_alloc = alloca(Sabot::State::GetMaxStateSize());
-  std::chrono::nanoseconds till_next = std::chrono::steady_clock::now();
+  auto till_next = std::chrono::steady_clock::now();
   std::mt19937_64 engine(rand());
   std::vector<uint64_t> inserted_id_vec;
   inserted_id_vec.reserve(100000000);
   try {
-    Base::TOpt<TUuid> session_id();
+    Base::TOpt<TUuid> session_id;
     auto client = make_shared<TExerciseClient>(session_id, cmd.Addr);
     auto pov_id = client->NewFastPrivatePov(TOpt<TUuid>::GetUnknown(), seconds(10));
     printf("Runner() new fast pov \n");
@@ -178,17 +180,14 @@ void Runner(int64_t start, int64_t limit, const ::TCmd &cmd) {
         //printf("Runner() [%ld] \n", i);
         for (;;) { /* error retry loop */
           try {
-            till_next += cmd.FlushIntervalMs;
+            till_next += milliseconds(cmd.FlushIntervalMs);
             if (i % 1000 == 0) {
               std::cout << i << std::endl;
             }
-            int64_t seconds = till_next.Remaining() / 1000;
-            timespec wait_time {seconds, static_cast<int64_t>(till_next.Remaining() % 1000) * 1000000L};
-            nanosleep(&wait_time, nullptr);
+            SleepUntil(till_next);
             /* insert data */ {
               int64_t uid = engine() % NumUsers;
               Base::TTimer timer;
-              timer.Start();
               auto push_result = client->Try(id_to_use, { "kv" }, TClosure(string("insert"),
                                                                            string("uid"), uid,
                                                                            string("val"), uid * 2L));
@@ -196,17 +195,15 @@ void Runner(int64_t start, int64_t limit, const ::TCmd &cmd) {
               Sabot::ToNative(*Sabot::State::TAny::TWrapper((*push_result)->GetValue().NewState((*push_result)->GetArena().get(), state_alloc)), out);
               timer.Stop();
               inserted_id_vec.push_back(uid);
-              if (timer.Total() > 0.1) {
-                stringstream ss;
-                ss << "Write time [" << timer.Total() << "]" << std::endl;
-                std::cout << ss.str();
+              if (timer.GetTotal() > 100ms) {
+                // Build the string first to force atomicity of the write
+                cout << AsStr("Write time [", timer.GetTotalSeconds(),"]\n");
               }
             }
             /* read data */ {
               for (size_t j = 0; j < cmd.NumReadsPerWrite; ++j) {
                 int64_t uid = inserted_id_vec[engine() % inserted_id_vec.size()];
                 Base::TTimer timer;
-                timer.Start();
                 auto read_result = client->Try(id_to_use, { "kv" }, TClosure(string("get_key"),
                                                                              string("uid"), uid));
                 std::vector<int64_t> out;
@@ -218,10 +215,9 @@ void Runner(int64_t start, int64_t limit, const ::TCmd &cmd) {
                 }
                 timer.Stop();
                 inserted_id_vec.push_back(uid);
-                if (timer.Total() > 0.1) {
-                  stringstream ss;
-                  ss << "Read time [" << timer.Total() << "]" << std::endl;
-                  std::cout << ss.str();
+                if (timer.GetTotal() > 100ms) {
+                  // Build the string first to force atomicity of the write
+                  cout << AsStr("Read time [", timer.GetTotalSeconds(), "]\n");
                 }
               }
             }
@@ -253,7 +249,6 @@ int main(int argc, char *argv[]) {
   }
   string error;
   Base::TTimer timer;
-  timer.Start();
   vector<thread *> thread_vec;
   for (size_t i = 0; i < cmd.NumThreads; ++i) {
     thread_vec.push_back(new thread(Runner, i * (NumIter / cmd.NumThreads), (i + 1) * (NumIter / cmd.NumThreads), cref(cmd)));
@@ -264,5 +259,6 @@ int main(int argc, char *argv[]) {
     delete iter;
   }
   timer.Stop();
-  cout << "Time : " << timer.Total() << " for [" << Completed.load() << "] is [" << (Completed.load() / timer.Total()) << " / s]" << endl;
+  cout << "Time : " << timer.GetTotalSeconds() << " for [" << Completed.load() << "] is ["
+       << (Completed.load() / timer.GetTotalSeconds()) << " / s]" << endl;
 }
