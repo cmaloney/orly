@@ -90,7 +90,7 @@ namespace Orly {
 
       const TAssertCaseSet &GetAssertCases() const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       void Insert(const TAssertCase::TPtr &assert_case);
 

@@ -40,7 +40,7 @@ void TLhs::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TLhs::GetType() const {
+Type::TType TLhs::GetTypeImpl() const {
   assert(this);
   return LhsRhsable->GetLhsRhsType();
 }
@@ -63,7 +63,7 @@ void TRhs::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TRhs::GetType() const {
+Type::TType TRhs::GetTypeImpl() const {
   assert(this);
   return LhsRhsable->GetLhsRhsType();
 }

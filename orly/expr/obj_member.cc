@@ -42,7 +42,7 @@ void TObjMember::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TObjMember::GetType() const {
+Type::TType TObjMember::GetTypeImpl() const {
   class TObjMemberTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TObjMemberTypeVisitor);

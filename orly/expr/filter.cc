@@ -40,7 +40,7 @@ void TFilter::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TFilter::GetType() const {
+Type::TType TFilter::GetTypeImpl() const {
   class TFilterTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TFilterTypeVisitor);

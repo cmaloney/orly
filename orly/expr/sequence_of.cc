@@ -41,7 +41,7 @@ void TSequenceOf::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TSequenceOf::GetType() const {
+Type::TType TSequenceOf::GetTypeImpl() const {
   class TSequenceOfTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TSequenceOfTypeVisitor);

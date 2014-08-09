@@ -48,7 +48,7 @@ void TIntersection::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TIntersection::GetType() const {
+Type::TType TIntersection::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TSetOpsTypeVisitor(type, GetPosRange()));
@@ -68,7 +68,7 @@ void TSymmetricDiff::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TSymmetricDiff::GetType() const {
+Type::TType TSymmetricDiff::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TSetOpsTypeVisitor(type, GetPosRange()));
@@ -88,7 +88,7 @@ void TUnion::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TUnion::GetType() const {
+Type::TType TUnion::GetTypeImpl () const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TSetOpsTypeVisitor(type, GetPosRange()));

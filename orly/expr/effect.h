@@ -40,7 +40,7 @@ namespace Orly {
 
       const Symbol::Stmt::TStmtBlock::TPtr &GetStmtBlock() const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       void SetStmtBlock(const Symbol::Stmt::TStmtBlock::TPtr &stmt_block);
 

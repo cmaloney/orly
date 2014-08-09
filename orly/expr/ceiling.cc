@@ -62,7 +62,7 @@ void TCeiling::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TCeiling::GetType() const {
+Type::TType TCeiling::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TCeilingTypeVisitor(type, GetPosRange()));

@@ -37,7 +37,7 @@ void TLiteral::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TLiteral::GetType() const {
+Type::TType TLiteral::GetTypeImpl() const {
   assert(this);
   return Val.GetType();
 }

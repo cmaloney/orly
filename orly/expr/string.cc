@@ -62,7 +62,7 @@ void TToLower::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TToLower::GetType() const {
+Type::TType TToLower::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TStringTypeVisitor(type, GetPosRange()));
@@ -82,7 +82,7 @@ void TToUpper::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TToUpper::GetType() const {
+Type::TType TToUpper::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TStringTypeVisitor(type, GetPosRange()));

@@ -54,7 +54,7 @@ void TList::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TList::GetType() const {
+Type::TType TList::GetTypeImpl() const {
   assert(this);
   if (!Type) {
     Type::TType elem = Type::Unwrap(GetExprs().front()->GetType());

@@ -66,7 +66,7 @@ const TExpr::TPtr &TIfElse::GetFalse() const {
   return GetExprs()[2];
 }
 
-Type::TType TIfElse::GetType() const {
+Type::TType TIfElse::GetTypeImpl() const {
   class TIfElseVisitor : public Type::TEqualVisitor {
     NO_COPY(TIfElseVisitor);
     public:

@@ -53,7 +53,7 @@ void TSet::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TSet::GetType() const {
+Type::TType TSet::GetTypeImpl() const {
   assert(this);
   if (!Type) {
     Type::TType elem = Type::Unwrap((*(GetExprs().begin()))->GetType());

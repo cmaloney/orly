@@ -62,7 +62,7 @@ void TLog::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TLog::GetType() const {
+Type::TType TLog::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TLogTypeVisitor(type, GetPosRange()));
@@ -82,7 +82,7 @@ void TLog2::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TLog2::GetType() const {
+Type::TType TLog2::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TLogTypeVisitor(type, GetPosRange()));
@@ -102,7 +102,7 @@ void TLog10::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TLog10::GetType() const {
+Type::TType TLog10::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TLogTypeVisitor(type, GetPosRange()));

@@ -51,7 +51,7 @@ namespace Orly {
       virtual Type::TType GetAddrType() const;
 
       /* A sequence of GetAddrType */
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       /* Get's the type of the value stored in keys expression */
       const Type::TType &GetValueType() const {

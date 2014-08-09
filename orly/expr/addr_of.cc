@@ -41,7 +41,7 @@ void TAddrOf::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAddrOf::GetType() const {
+Type::TType TAddrOf::GetTypeImpl() const {
   class TAddrOfTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TAddrOfTypeVisitor);

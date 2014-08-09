@@ -50,7 +50,7 @@ void TAnd::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAnd::GetType() const {
+Type::TType TAnd::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TLogicalOpsTypeVisitor(type, GetPosRange()));
@@ -70,7 +70,7 @@ void TAndThen::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAndThen::GetType() const {
+Type::TType TAndThen::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TLogicalOpsTypeVisitor(type, GetPosRange()));
@@ -90,7 +90,7 @@ void TNot::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TNot::GetType() const {
+Type::TType TNot::GetTypeImpl() const {
   class TNotTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TNotTypeVisitor);
@@ -131,7 +131,7 @@ void TOr::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TOr::GetType() const {
+Type::TType TOr::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TLogicalOpsTypeVisitor(type, GetPosRange()));
@@ -151,7 +151,7 @@ void TOrElse::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TOrElse::GetType() const {
+Type::TType TOrElse::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TLogicalOpsTypeVisitor(type, GetPosRange()));
@@ -171,7 +171,7 @@ void TXor::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TXor::GetType() const {
+Type::TType TXor::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TLogicalOpsTypeVisitor(type, GetPosRange()));

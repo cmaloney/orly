@@ -63,7 +63,7 @@ void TCos::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TCos::GetType() const {
+Type::TType TCos::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TTrigTypeVisitor(type, GetPosRange()));
@@ -84,7 +84,7 @@ void TSin::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TSin::GetType() const {
+Type::TType TSin::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TTrigTypeVisitor(type, GetPosRange()));
@@ -105,7 +105,7 @@ void TTan::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TTan::GetType() const {
+Type::TType TTan::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TTrigTypeVisitor(type, GetPosRange()));
@@ -126,7 +126,7 @@ void TAcos::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAcos::GetType() const {
+Type::TType TAcos::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TTrigTypeVisitor(type, GetPosRange()));
@@ -147,7 +147,7 @@ void TAsin::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAsin::GetType() const {
+Type::TType TAsin::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TTrigTypeVisitor(type, GetPosRange()));
@@ -168,7 +168,7 @@ void TAtan::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAtan::GetType() const {
+Type::TType TAtan::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TTrigTypeVisitor(type, GetPosRange()));
@@ -189,7 +189,7 @@ void TAtan2::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAtan2::GetType() const {
+Type::TType TAtan2::GetTypeImpl() const {
   assert(this);
   Type::TType type_lhs;
   Type::TType type_rhs;

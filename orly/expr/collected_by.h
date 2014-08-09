@@ -56,7 +56,7 @@ namespace Orly {
         return GetAddrElems()[1].second;
       }
 
-      virtual Type::TType GetType() const {
+      virtual Type::TType GetTypeImpl() const override {
         assert(this);
         /* This visitor is used to make sure that the type that arises from the expression on the
            right of the collected_by matches the type of the 'lhs' and 'rhs' keywords. */

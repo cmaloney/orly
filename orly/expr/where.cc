@@ -38,7 +38,7 @@ void TWhere::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TWhere::GetType() const {
+Type::TType TWhere::GetTypeImpl() const {
   assert(this);
   return GetExpr()->GetType();
 }

@@ -38,7 +38,7 @@ void TSessionId::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TSessionId::GetType() const {
+Type::TType TSessionId::GetTypeImpl() const {
   assert(this);
   return Type::TId::Get();
 }

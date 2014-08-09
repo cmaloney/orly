@@ -41,7 +41,7 @@ void TThat::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TThat::GetType() const {
+Type::TType TThat::GetTypeImpl() const {
   assert(this);
   return Thatable->GetThatType();
 }

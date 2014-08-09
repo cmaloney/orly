@@ -385,7 +385,7 @@ void TTake::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TTake::GetType() const {
+Type::TType TTake::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TTakeTypeVisitor(type, GetPosRange()));

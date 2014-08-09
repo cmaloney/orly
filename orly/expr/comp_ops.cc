@@ -40,7 +40,7 @@ void TEqEq::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TEqEq::GetType() const {
+Type::TType TEqEq::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), Type::TEqCompVisitor(type, GetPosRange()));
@@ -60,7 +60,7 @@ void TNeq::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TNeq::GetType() const {
+Type::TType TNeq::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), Type::TEqCompVisitor(type, GetPosRange()));
@@ -80,7 +80,7 @@ void TLt::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TLt::GetType() const {
+Type::TType TLt::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), Type::TIneqCompVisitor(type, GetPosRange()));
@@ -100,7 +100,7 @@ void TLtEq::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TLtEq::GetType() const {
+Type::TType TLtEq::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), Type::TIneqCompVisitor(type, GetPosRange()));
@@ -120,7 +120,7 @@ void TGt::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TGt::GetType() const {
+Type::TType TGt::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), Type::TIneqCompVisitor(type, GetPosRange()));
@@ -140,7 +140,7 @@ void TGtEq::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TGtEq::GetType() const {
+Type::TType TGtEq::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), Type::TIneqCompVisitor(type, GetPosRange()));

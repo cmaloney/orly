@@ -40,7 +40,7 @@ void TIn::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TIn::GetType() const {
+Type::TType TIn::GetTypeImpl() const {
   class TInTypeVisitor
       : public Type::TInfixVisitor {
     NO_COPY(TInTypeVisitor);

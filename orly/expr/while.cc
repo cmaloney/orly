@@ -40,7 +40,7 @@ void TWhile::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TWhile::GetType() const {
+Type::TType TWhile::GetTypeImpl() const {
   class TWhileTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TWhileTypeVisitor);

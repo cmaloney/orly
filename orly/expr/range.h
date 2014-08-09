@@ -46,7 +46,7 @@ namespace Orly {
 
       virtual void Accept(const TVisitor &visitor) const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       inline const TExprArray &GetExprs() const {
         assert(this);

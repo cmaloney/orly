@@ -49,7 +49,7 @@ void TDiv::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TDiv::GetType() const {
+Type::TType TDiv::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TDivTypeVisitor(type, GetPosRange()));

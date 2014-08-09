@@ -69,7 +69,7 @@ void TNegative::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TNegative::GetType() const {
+Type::TType TNegative::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TSignTypeVisitor(type, GetPosRange()));
@@ -89,7 +89,7 @@ void TPositive::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TPositive::GetType() const {
+Type::TType TPositive::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TSignTypeVisitor(type, GetPosRange()));

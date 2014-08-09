@@ -41,7 +41,7 @@ void TLengthOf::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TLengthOf::GetType() const {
+Type::TType TLengthOf::GetTypeImpl() const {
   class TLengthOfTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TLengthOfTypeVisitor);

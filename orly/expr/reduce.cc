@@ -45,7 +45,7 @@ void TReduce::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TReduce::GetType() const {
+Type::TType TReduce::GetTypeImpl() const {
   assert(this);
   if (!GetLhs()->GetType().Is<Type::TSeq>()) {
     throw TExprError(HERE, GetPosRange(), "The lhs of reduce expression must result in a sequence");

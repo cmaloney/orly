@@ -43,7 +43,7 @@ namespace Orly {
 
       const TLhsRhsable *GetLhsRhsable() const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       private:
 
@@ -66,7 +66,7 @@ namespace Orly {
 
       const TLhsRhsable *GetLhsRhsable() const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       private:
 

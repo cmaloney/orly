@@ -44,7 +44,7 @@ void TAs::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAs::GetType() const {
+Type::TType TAs::GetTypeImpl() const {
   class TAsTypeVisitor
       : public Type::TInfixVisitor {
     NO_COPY(TAsTypeVisitor);

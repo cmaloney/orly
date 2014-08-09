@@ -37,7 +37,7 @@ void TStart::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TStart::GetType() const {
+Type::TType TStart::GetTypeImpl() const {
   assert(this);
   return GetExpr()->GetType();
 }

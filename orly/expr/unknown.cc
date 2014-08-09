@@ -45,7 +45,7 @@ const Type::TType &TUnknown::GetCoreType() const {
   return Type;
 }
 
-Type::TType TUnknown::GetType() const {
+Type::TType TUnknown::GetTypeImpl() const {
   class TUnknownVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TUnknownVisitor);

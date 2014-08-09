@@ -41,7 +41,7 @@ void TIsEmpty::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TIsEmpty::GetType() const {
+Type::TType TIsEmpty::GetTypeImpl() const {
   class TIsEmptyTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TIsEmptyTypeVisitor);

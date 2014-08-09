@@ -88,7 +88,7 @@ void TIsKnown::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TIsKnown::GetType() const {
+Type::TType TIsKnown::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TIsKnownUnknownTypeVisitor(type, GetPosRange()));
@@ -108,7 +108,7 @@ void TIsUnknown::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TIsUnknown::GetType() const {
+Type::TType TIsUnknown::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TIsKnownUnknownTypeVisitor(type, GetPosRange()));
@@ -128,7 +128,7 @@ void TIsKnownExpr::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TIsKnownExpr::GetType() const {
+Type::TType TIsKnownExpr::GetTypeImpl() const {
   class TIsKnownExprTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TIsKnownExprTypeVisitor);
@@ -172,7 +172,7 @@ void TKnown::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TKnown::GetType() const {
+Type::TType TKnown::GetTypeImpl() const {
   class TKnownTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TKnownTypeVisitor);

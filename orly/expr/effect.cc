@@ -40,7 +40,7 @@ const Symbol::Stmt::TStmtBlock::TPtr &TEffect::GetStmtBlock() const {
   return StmtBlock;
 }
 
-Type::TType TEffect::GetType() const {
+Type::TType TEffect::GetTypeImpl() const {
   assert(this);
   assert(StmtBlock);
   StmtBlock->TypeCheck();

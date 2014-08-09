@@ -43,7 +43,7 @@ void TTimeObj::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TTimeObj::GetType() const {
+Type::TType TTimeObj::GetTypeImpl() const {
   class TTimeObjTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TTimeObjTypeVisitor);

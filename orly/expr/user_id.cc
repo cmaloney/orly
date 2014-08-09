@@ -39,7 +39,7 @@ void TUserId::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TUserId::GetType() const {
+Type::TType TUserId::GetTypeImpl() const {
   assert(this);
   return Type::TOpt::Get(Type::TId::Get());
 }

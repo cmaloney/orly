@@ -55,7 +55,7 @@ void TDict::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TDict::GetType() const {
+Type::TType TDict::GetTypeImpl() const {
   assert(this);
   if (!Type) {
     Type::TType key_type = Type::Unwrap(GetMembers().begin()->first->GetType());

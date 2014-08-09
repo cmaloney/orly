@@ -43,7 +43,7 @@ void TSplit::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TSplit::GetType() const {
+Type::TType TSplit::GetTypeImpl() const {
   class TSplitTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TSplitTypeVisitor);
