@@ -46,7 +46,7 @@ void TRef::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TRef::GetType() const {
+Type::TType TRef::GetTypeImpl() const {
   /*
     NOTE: Currently we do a check that the ref points to a zero parameter function
           This works because the only place we allow a ref to point to a non-zero parameter function is

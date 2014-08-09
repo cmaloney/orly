@@ -55,6 +55,6 @@ Type::TType TKeys::GetAddrType() const {
   return type;
 }
 
-Type::TType TKeys::GetType() const {
+Type::TType TKeys::GetTypeImpl() const {
   return Type::TSeq::Get(this->GetAddrType());
 }

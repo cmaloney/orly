@@ -49,7 +49,7 @@ void TMod::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TMod::GetType() const {
+Type::TType TMod::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TModTypeVisitor(type, GetPosRange()));

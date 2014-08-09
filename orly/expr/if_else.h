@@ -57,7 +57,7 @@ namespace Orly {
 
       const TExpr::TPtr &GetFalse() const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       private:
 

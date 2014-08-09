@@ -48,7 +48,7 @@ namespace Orly {
         return GetContainer();
       }
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       private:
 

@@ -43,7 +43,7 @@ void TMatch::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TMatch::GetType() const {
+Type::TType TMatch::GetTypeImpl() const {
   class TMatchTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TMatchTypeVisitor);

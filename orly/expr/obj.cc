@@ -40,7 +40,7 @@ void TObj::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TObj::GetType() const {
+Type::TType TObj::GetTypeImpl() const {
   assert(this);
   Type::TObj::TElems elem_map;
   bool is_sequence = false;

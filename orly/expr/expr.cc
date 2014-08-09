@@ -18,6 +18,8 @@
 
 #include <orly/expr/expr.h>
 
+#include <orly/type/util.h>
+
 using namespace Orly;
 using namespace Orly::Expr;
 
@@ -28,6 +30,19 @@ const TExprParent *TExpr::GetExprParent() const {
   assert(this);
   assert(ExprParent);
   return ExprParent;
+}
+
+Type::TType TExpr::GetType() const {
+  if (CachedType) {
+    return *CachedType;
+  }
+
+  auto type = GetTypeImpl();
+  if (!type.Is<Type::TAny>()) {
+    assert (!CachedType || *CachedType == type);
+    CachedType = type;
+  }
+  return type;
 }
 
 void TExpr::SetExprParent(const TExprParent *expr_parent) {

@@ -41,7 +41,7 @@ namespace Orly {
 
       size_t GetIndex() const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const override;
 
       private:
 

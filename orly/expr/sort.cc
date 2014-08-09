@@ -69,7 +69,7 @@ Type::TType TSort::GetLhsRhsType() const {
   return type;
 }
 
-Type::TType TSort::GetType() const {
+Type::TType TSort::GetTypeImpl() const {
   class TSortTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TSortTypeVisitor);

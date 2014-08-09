@@ -48,7 +48,7 @@ void TAdd::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAdd::GetType() const {
+Type::TType TAdd::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TAddTypeVisitor(type, GetPosRange()));

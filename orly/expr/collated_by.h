@@ -65,7 +65,7 @@ namespace Orly {
         visitor(this);
       }
 
-      virtual Type::TType GetType() const {
+      virtual Type::TType GetTypeImpl() const override {
         assert(this);
         if (!GetSeq()->GetType().Is<Type::TSeq>()) {
           throw TExprError(

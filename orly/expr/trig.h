@@ -37,7 +37,7 @@ namespace Orly {
 
       virtual void Accept(const TVisitor &visitor) const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const;
 
       private:
 
@@ -56,7 +56,7 @@ namespace Orly {
 
       virtual void Accept(const TVisitor &visitor) const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const;
 
       private:
 
@@ -75,7 +75,7 @@ namespace Orly {
 
       virtual void Accept(const TVisitor &visitor) const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const;
 
       private:
 
@@ -94,7 +94,7 @@ namespace Orly {
 
       virtual void Accept(const TVisitor &visitor) const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const;
 
       private:
 
@@ -113,7 +113,7 @@ namespace Orly {
 
       virtual void Accept(const TVisitor &visitor) const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const;
 
       private:
 
@@ -132,7 +132,7 @@ namespace Orly {
 
       virtual void Accept(const TVisitor &visitor) const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const;
 
       private:
 
@@ -151,7 +151,7 @@ namespace Orly {
 
       virtual void Accept(const TVisitor &visitor) const;
 
-      virtual Type::TType GetType() const;
+      virtual Type::TType GetTypeImpl() const;
 
       private:
 

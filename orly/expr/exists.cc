@@ -42,7 +42,7 @@ void TExists::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TExists::GetType() const {
+Type::TType TExists::GetTypeImpl() const {
   class TExistsTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TExistsTypeVisitor);

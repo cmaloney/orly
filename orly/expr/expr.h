@@ -22,6 +22,7 @@
 
 #include <base/assert_true.h>
 #include <base/class_traits.h>
+#include <base/opt.h>
 #include <orly/expr/expr_parent.h>
 #include <orly/pos_range.h>
 #include <orly/type/impl.h>
@@ -51,7 +52,7 @@ namespace Orly {
 
       const TPosRange &GetPosRange() const;
 
-      virtual Type::TType GetType() const = 0;
+      Type::TType GetType() const;
 
       template <typename TFinal>
       bool Is() const;
@@ -63,9 +64,13 @@ namespace Orly {
 
       protected:
 
+      virtual Type::TType GetTypeImpl() const = 0;
+
       TExpr(const TPosRange &pos_range);
 
       private:
+
+      mutable Base::TOpt<Type::TType> CachedType;
 
       const TExprParent *ExprParent;
 

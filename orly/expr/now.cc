@@ -40,7 +40,7 @@ void TNow::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TNow::GetType() const {
+Type::TType TNow::GetTypeImpl() const {
   assert(this);
   return Type::TTimePnt::Get();
 }

@@ -62,7 +62,7 @@ void TFloor::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TFloor::GetType() const {
+Type::TType TFloor::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   GetExpr()->GetType().Accept(TFloorTypeVisitor(type, GetPosRange()));

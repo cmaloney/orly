@@ -52,7 +52,7 @@ void TRange::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TRange::GetType() const {
+Type::TType TRange::GetTypeImpl() const {
   class TRangeTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TRangeTypeVisitor);

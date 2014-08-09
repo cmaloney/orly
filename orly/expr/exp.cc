@@ -49,7 +49,7 @@ void TExp::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TExp::GetType() const {
+Type::TType TExp::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TExpTypeVisitor(type, GetPosRange()));

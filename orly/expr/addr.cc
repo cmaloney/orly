@@ -42,7 +42,7 @@ void TAddr::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TAddr::GetType() const {
+Type::TType TAddr::GetTypeImpl() const {
   assert(this);
   Type::TAddr::TElems elems;
   bool is_sequence = false;

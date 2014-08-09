@@ -41,7 +41,7 @@ void TReverseOf::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TReverseOf::GetType() const {
+Type::TType TReverseOf::GetTypeImpl() const {
   class TReverseOfTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TReverseOfTypeVisitor);

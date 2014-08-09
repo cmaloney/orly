@@ -106,7 +106,7 @@ const TAssert::TAssertCaseSet &TAssert::GetAssertCases() const {
   return AssertCases;
 }
 
-Type::TType TAssert::GetType() const {
+Type::TType TAssert::GetTypeImpl() const {
   assert(this);
   for (const auto &assert_case : AssertCases) {
     assert_case->TypeCheck();

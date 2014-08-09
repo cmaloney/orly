@@ -44,7 +44,7 @@ size_t TAddrMember::GetIndex() const {
   return Index;
 }
 
-Type::TType TAddrMember::GetType() const {
+Type::TType TAddrMember::GetTypeImpl() const {
   class TAddrMemberTypeVisitor
       : public Type::TUnwrapVisitor {
     NO_COPY(TAddrMemberTypeVisitor);

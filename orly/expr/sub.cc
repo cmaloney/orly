@@ -48,7 +48,7 @@ void TSub::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TSub::GetType() const {
+Type::TType TSub::GetTypeImpl() const {
   assert(this);
   Type::TType type;
   Type::TType::Accept(GetLhs()->GetType(), GetRhs()->GetType(), TSubTypeVisitor(type, GetPosRange()));

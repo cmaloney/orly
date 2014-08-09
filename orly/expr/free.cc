@@ -36,7 +36,7 @@ void TFree::Accept(const TVisitor &visitor) const {
   visitor(this);
 }
 
-Type::TType TFree::GetType() const {
+Type::TType TFree::GetTypeImpl() const {
   assert(this);
   return Type;
 }

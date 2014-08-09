@@ -117,7 +117,7 @@ const TFunctionApp::TFunctionAppArgMap &TFunctionApp::GetFunctionAppArgs() const
   return FunctionAppArgs;
 }
 
-Type::TType TFunctionApp::GetType() const {
+Type::TType TFunctionApp::GetTypeImpl() const {
   assert(this);
   auto function = GetFunction();
   auto function_app_args = FunctionAppArgs;
