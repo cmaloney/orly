@@ -212,7 +212,7 @@ class TJhm : public TCmd {
       }
 
       if (status) {
-        cout << "\n\nEXITCODE: " << status << '\n';
+        cout << "EXITCODE: " << status << '\n';
         return false;
       }
       return true;
