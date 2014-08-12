@@ -70,7 +70,6 @@ void TRunner::Run() {
   } catch (...) {
     TApp::TLogger(true) << "unknown exception";
     Pass = false;
-    throw;
   }
 }
 
