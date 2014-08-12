@@ -85,6 +85,7 @@ static void PrintSegfaultBacktrace(int) {
 }
 
 int main(int argc, char *argv[]) {
+  SetBacktraceOnTerminate();
   Signal::THandlerInstaller signal_handler(SIGSEGV, &PrintSegfaultBacktrace);
   ExtraInit();
   TApp::TCmd cmd(argc, argv);

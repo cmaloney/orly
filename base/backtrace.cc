@@ -46,3 +46,20 @@ void Base::GenBacktrace(int max_frame_count, const function<void (const string &
     cb(frame_print);
   }
 }
+
+void Base::SetBacktraceOnTerminate() {
+  std::set_terminate([]() {
+    static bool tried_throw = false;
+    try {
+      if (!tried_throw++) throw;
+      cerr << "TERMINATE (no exception)" << endl;
+    } catch (const std::exception &ex) {
+      cerr << "TERMINATE (standard exception): " << ex.what() << endl;
+    } catch (...) {
+      cerr << "TERMINATE (unknown exception): " << endl;
+    }
+    cerr << "BACKTRACE" << endl;
+    PrintBacktrace(100);
+    cerr << "TERMINATED" << endl;
+  });
+}
