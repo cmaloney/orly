@@ -63,14 +63,9 @@ void TRunner::Run() {
   try {
     (*Fixture->GetFunc())();
   } catch (const exception &ex) {
-    TApp::TLogger logger(true);
-    logger << "exception";
-    try {
-      logger<<"("<<Demangle(typeid(ex)).get()<<")";
-    } catch (const std::exception &ex) {
-    }
-
-    logger <<": "<< ex.what();
+    TApp::TLogger(true) << "exception"
+                        << "(" << Demangle(typeid(ex)).get() << ")"
+                        << ": " << ex.what();
     Pass = false;
   } catch (...) {
     TApp::TLogger(true) << "unknown exception";
