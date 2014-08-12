@@ -21,12 +21,12 @@
 #include <initializer_list>
 
 #include <signal.h>
-#include <execinfo.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <syslog.h>
 #include <sys/stat.h>
 
+#include <base/backtrace.h>
 #include <util/error.h>
 
 using namespace std;
@@ -61,18 +61,10 @@ static void InstallSignalHandlers(initializer_list<int> signals, void (*handler)
 }
 
 void Server::BacktraceToLog() {
-  static const int max_frame_count = 100;
-  void *frames[max_frame_count];
-  int frame_count = backtrace(frames, max_frame_count);
-  char **symbols = backtrace_symbols(frames, frame_count);
-  if (symbols) {
-    for (int frame_idx = 0; frame_idx < frame_count; ++frame_idx) {
-      syslog(LOG_ERR, "[backtrace][frame %d of %d][%s]", frame_idx + 1, frame_count, symbols[frame_idx]);
-    }
-    free(symbols);
-  } else {
-      syslog(LOG_ERR, "[backtrace][failed to get %d frames]", frame_count);
-  }
+  Base::GenBacktrace(100, [](const std::string &msg) {
+    syslog(LOG_ERR, "[backtrace]%s", msg.c_str());
+    return true;
+  });
 }
 
 pid_t Server::Daemonize() {
