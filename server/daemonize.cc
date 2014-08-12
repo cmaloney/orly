@@ -63,7 +63,6 @@ static void InstallSignalHandlers(initializer_list<int> signals, void (*handler)
 void Server::BacktraceToLog() {
   Base::GenBacktrace(100, [](const std::string &msg) {
     syslog(LOG_ERR, "[backtrace]%s", msg.c_str());
-    return true;
   });
 }
 

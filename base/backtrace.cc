@@ -16,13 +16,23 @@
 
 #include <base/backtrace.h>
 
+#include <iostream>
+
 #include <execinfo.h>
 
 #include <base/as_str.h>
 
 using namespace Base;
+using namespace std;
 
-void Base::GenBacktrace(int max_frame_count, const std::function<bool (const std::string &)> &cb) {
+void Base::PrintBacktrace(int max_frame_count) {
+  GenBacktrace(max_frame_count, [] (const string &msg) {
+    cout << msg << endl;
+    return true;
+  });
+}
+
+void Base::GenBacktrace(int max_frame_count, const function<void (const string &)> &cb) {
   void *frames[max_frame_count+1];
   int frame_count = backtrace(frames, max_frame_count+1);
   char **symbols = backtrace_symbols(frames, frame_count);
@@ -33,8 +43,6 @@ void Base::GenBacktrace(int max_frame_count, const std::function<bool (const std
     } else {
       frame_print += AsStr(frames[frame_idx]);
     }
-    if (!cb(frame_print)) {
-      return;
-    }
+    cb(frame_print);
   }
 }
