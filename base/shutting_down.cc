@@ -18,4 +18,73 @@
 
 #include <base/shutting_down.h>
 
-std::atomic_bool Base::ShuttingDown;
+#include <atomic>
+#include <functional>
+#include <map>
+#include <mutex>
+
+#include <base/opt.h>
+#include <util/stl.h>
+
+using namespace Base;
+using namespace std;
+
+/* If shutting_down is true, returns true iff this is the thread that first set shut down.
+   If shutting_down is false, returns the value of the internal ShuttingDown flag. */
+static bool SetOrGetShuttingDown(bool shutting_down) {
+  static atomic<bool> ShuttingDown(false);
+
+  if (shutting_down) {
+    return !ShuttingDown.exchange(shutting_down);
+  }
+  return ShuttingDown;
+}
+
+typedef function<void ()> TShutdownListener;
+typedef map<uint64_t, TShutdownListener> TListenerCollection;
+
+/* We keep track of the shutdown listeners by an id so we can add/remove easily with an RAII wrapper. */
+static uint64_t ManipulateShutdownListeners(TShutdownListener new_listener,
+                                     Base::TOpt<uint64_t> remove_id,
+                                     const function<void(TShutdownListener)> &for_each_listener) {
+  static TListenerCollection Listeners;
+  static uint64_t NextListenerId=1; // We start at 1 so we can use 0 as "no id removed".
+  static recursive_mutex Mutex;
+
+  lock_guard<recursive_mutex> lock(Mutex);
+  if (remove_id) {
+    Util::EraseOrFail(Listeners, *remove_id);
+  }
+  if (for_each_listener) {
+    for(auto &listener: Listeners) {
+      for_each_listener(listener.second);
+    }
+  }
+  if (new_listener) {
+    uint64_t new_id = NextListenerId;
+    ++NextListenerId;
+    Listeners.emplace(new_id, move(new_listener));
+    return new_id;
+  }
+  return 0;
+}
+
+void Base::ShutDown() {
+  if (SetOrGetShuttingDown(true)) {
+    // Notify all listeners
+    ManipulateShutdownListeners(TShutdownListener(), Base::TOpt<uint64_t>(), [](TShutdownListener cb) {
+      cb();
+    });
+  }
+}
+
+bool Base::IsShuttingDown() {
+  return SetOrGetShuttingDown(false);
+}
+
+TShutdownCallback::TShutdownCallback(TShutdownListener callback)
+    : Id(ManipulateShutdownListeners(move(callback), Base::TOpt<uint64_t>(), function<void(TShutdownListener)>())) {}
+
+TShutdownCallback::~TShutdownCallback() {
+  ManipulateShutdownListeners(nullptr, Id, function<void(TShutdownListener)>());
+}

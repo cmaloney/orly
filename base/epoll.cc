@@ -53,7 +53,7 @@ size_t TEpoll::Wait(size_t max_event_count, int timeout) {
     if (result >= 0) {
       break;
     }
-    if (errno != EINTR || ShuttingDown) {
+    if (errno != EINTR || IsShuttingDown()) {
       ThrowSystemError(errno);
     }
   }

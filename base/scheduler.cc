@@ -45,13 +45,12 @@ TScheduler::TPolicy::TPolicy(size_t min_worker_count, size_t max_worker_count, c
 void TScheduler::TPolicy::RunUntilCtrlC(TMainJob &&main_job) const {
   assert(this);
   assert(&main_job);
-  ShuttingDown = false;
   try {
     TMasker masker(*TSet(TSet::Full));
     THandlerInstaller handler(
         SIGINT,
         [](int) {
-          ShuttingDown = true;
+          ShutDown();
         }
     );
     TScheduler scheduler(*this, pthread_self(), &main_job);
@@ -66,13 +65,12 @@ void TScheduler::TPolicy::RunUntilCtrlC(TMainJob &&main_job) const {
 const TScheduler::TPolicy TScheduler::TPolicy::Shutdown;
 
 TScheduler::TScheduler(const TPolicy &policy)
-    : TScheduler(policy, TOpt<pthread_t>::GetUnknown()) {
-  ShuttingDown = false;
-}
+    : TScheduler(policy, TOpt<pthread_t>::GetUnknown()) {}
 
 TScheduler::~TScheduler() {
   assert(this);
-  ShuttingDown = true;
+  //TODO: This shutdown should be seperate from a global shutdown.
+  ShutDown();
   Shutdown(milliseconds(0));
 }
 
@@ -112,7 +110,7 @@ bool TScheduler::Schedule(TJob &&job, int priority) {
 
 bool TScheduler::Shutdown(const milliseconds &timeout) {
   assert(this);
-  ShuttingDown = true;
+  ShutDown();
   bool is_clean = true;
   unique_lock<mutex> lock(Mutex);
   if (WorkerCount) {

@@ -189,7 +189,7 @@ void TManager::RunReplicationQueue() {
       for (;;) {
         int ret = epoll_wait(ReplicationQueueEpollFd, &event, 1, timeout);
         if (ret < 0 && errno == EINTR) {
-          if (Base::ShuttingDown) {
+          if (Base::IsShuttingDown()) {
             throw std::runtime_error("RunReplicationQueue() Service Shutdown");
           } else {
             continue;
@@ -250,7 +250,7 @@ void TManager::RunReplicationWork() {
       for (;;) {
         int ret = epoll_wait(ReplicationWorkEpollFd, &event, 1, timeout);
         if (ret < 0 && errno == EINTR) {
-          if (Base::ShuttingDown) {
+          if (Base::IsShuttingDown()) {
             throw std::runtime_error("RunReplicationWork() Service Shutdown");
           } else {
             continue;
@@ -299,7 +299,7 @@ void TManager::RunReplicateTransaction() {
       for (;;) {
         int ret = epoll_wait(ReplicationEpollFd, &event, 1, timeout);
         if (ret < 0 && errno == EINTR) {
-          if (Base::ShuttingDown) {
+          if (Base::IsShuttingDown()) {
             throw std::runtime_error("RunReplicateTransaction() Service Shutdown");
           } else {
             continue;
@@ -483,7 +483,7 @@ void TManager::RunReplicateTransaction() {
       }
     } catch (const std::exception &ex) {
       syslog(LOG_ERR, "RunReplicateTransaction error: [%s]", ex.what());
-      if (Base::ShuttingDown) {
+      if (Base::IsShuttingDown()) {
         throw;
       }
     } catch (...) {
