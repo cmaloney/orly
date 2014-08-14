@@ -125,7 +125,7 @@ void TManager::TRepo::PreDtor() {
   assert(this);
   /* We should be able to re-construct repo information by what files is made up of */
   #if 0
-  if (GetTtl() > std::seconds(0)) {
+  if (GetTtl() > chrono::seconds(0)) {
     Manager->SaveRepo(this);
   }
   #endif

@@ -25,11 +25,15 @@ using namespace Util;
 
 Base::cpu_clock::time_point Base::cpu_clock::now() noexcept {
   timespec ts;
-  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
+  //NOTE: The IfLt0 is just a safety precaution. Could be removed for perf
+  //      None of the error conditions should apply here
+  IfLt0(clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts));
   return ToTimestampClock<Base::thread_clock>(ts);
 }
 
 Base::thread_clock::thread_clock(pthread_t thread_id) {
+  //NOTE: The IfLt0 is just a safety precaution. Could be removed for perf
+  //      None of the error conditions should apply here
   IfLt0(pthread_getcpuclockid(thread_id, &ClockId));
 }
 

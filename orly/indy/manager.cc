@@ -54,7 +54,7 @@ TManager::TManager(Disk::Util::TEngine *engine,
                    chrono::milliseconds merge_mem_delay,
                    chrono::milliseconds merge_disk_delay,
                    chrono::milliseconds layer_cleaning_interval,
-                   std::chrono::milliseconds replication_delay,
+                   chrono::milliseconds replication_delay,
                    TState state,
                    bool allow_tailing,
                    bool allow_file_sync,
@@ -611,7 +611,7 @@ void TManager::TSlave::SyncInventory() {
       parent_repo = Manager->ForceGetRepo(*parent_repo_id);
     }
     std::cout << "TSlave::Inventory::GetRepo(" << repo_id << ")" << std::endl;
-    auto repo = Manager->GetRepo(repo_id, std::chrono::seconds(ttl), parent_repo, is_safe, false);
+    auto repo = Manager->GetRepo(repo_id, chrono::seconds(ttl), parent_repo, is_safe, false);
     std::cout << "done TSlave::Inventory::GetRepo(" << repo_id << ")" << std::endl;
     //repo->SetNextSequenceNumber(next_id);
     repo->SetReleasedUpTo(next_id > 0UL ? next_id - 1UL : 0UL);
@@ -853,7 +853,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), repo_id);
               ++repo_iter;
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), repo_nsec_ttl);
-              repo_ttl = std::chrono::duration_cast<TTtl>(repo_nsec_ttl);
+              repo_ttl = chrono::duration_cast<TTtl>(repo_nsec_ttl);
               ++repo_iter;
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), is_safe);
               ++repo_iter;
@@ -863,7 +863,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
             }
           }
           /* Store the durable saves next */ {
-            auto now = std::chrono::system_clock::now();
+            auto now = chrono::system_clock::now();
             std::vector<TCore>::const_iterator durable_iter = replication_streamer.GetDurableVec().GetCores().begin();
             std::vector<TCore>::const_iterator durable_end = replication_streamer.GetDurableVec().GetCores().end();
             TCore::TArena *durable_arena = replication_streamer.GetDurableVec().GetArena();
@@ -935,7 +935,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), repo_id);
               ++repo_iter;
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), repo_nsec_ttl);
-              repo_ttl = std::chrono::duration_cast<TTtl>(repo_nsec_ttl);
+              repo_ttl = chrono::duration_cast<TTtl>(repo_nsec_ttl);
               ++repo_iter;
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), is_safe);
               ++repo_iter;
@@ -945,7 +945,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
             }
           }
           /* Store the durable saves next */ {
-            auto now = std::chrono::system_clock::now();
+            auto now = chrono::system_clock::now();
             std::vector<TCore>::const_iterator durable_iter = replication_streamer.GetDurableVec().GetCores().begin();
             std::vector<TCore>::const_iterator durable_end = replication_streamer.GetDurableVec().GetCores().end();
             TCore::TArena *durable_arena = replication_streamer.GetDurableVec().GetArena();
@@ -1396,7 +1396,7 @@ void TManager::OnSlaveJoin(const Base::TFd &fd) {
                 throw std::runtime_error("Future did not complete.");
               }
             }
-            SlaveNotifyCond.wait_for(slave_notify_lock, std::chrono::milliseconds(2000));
+            SlaveNotifyCond.wait_for(slave_notify_lock, 2000ms);
           }
           std::cout << "Slave says he's finished." << std::endl;
         }
