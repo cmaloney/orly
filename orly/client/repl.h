@@ -117,19 +117,11 @@ namespace Orly {
       /* Tears down the terminal. */
       ~TRepl();
 
-      /* Call back for each string entered at the terminal.
-         Keeps going until the user hits INTR or until the callback returns false.
-         Returns true iff. exit was caused by INTR. */
-      void ForEachStr(const std::function<bool (const std::string &)> &cb);
-
       /* Run the REPL. */
       int Run();
 
       /* Our end of the full-duplex RPC conversation with the server. */
       std::shared_ptr<TClient> Client;
-
-      /* This handler prevents SIGINT from shutting down our process. */
-      Signal::THandlerInstaller SigIntHandler;
 
     };  // TRepl
 
