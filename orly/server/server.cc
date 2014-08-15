@@ -600,7 +600,7 @@ TServer::TCmd::TCmd()
       }
 
       DiskControllerCoreVec.emplace_back(2UL);
-      for (size_t i = 2; i < 4; ++i) {FastCoreVec.emplace_back(i);}
+      for (size_t i = 3; i < 4; ++i) {FastCoreVec.emplace_back(i);}
       for (size_t i = 6; i < 8; ++i) {FastCoreVec.emplace_back(i);}
     } else if (num_proc >= 4) {
       MemMergeCoreVec.emplace_back(2UL);
@@ -608,14 +608,14 @@ TServer::TCmd::TCmd()
 
       SlowCoreVec.emplace_back(0UL);
 
-      DiskControllerCoreVec.emplace_back(1UL);
+      DiskControllerCoreVec.emplace_back(2UL);
       FastCoreVec.emplace_back(1UL);
       FastCoreVec.emplace_back(3UL);
     } else if (num_proc >= 2) {
       MemMergeCoreVec.emplace_back(0UL);
       DiskMergeCoreVec.emplace_back(0UL);
       SlowCoreVec.emplace_back(0UL);
-      DiskControllerCoreVec.emplace_back(1UL);
+      DiskControllerCoreVec.emplace_back(0UL);
       FastCoreVec.emplace_back(1UL);
     }
 
