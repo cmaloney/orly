@@ -36,6 +36,7 @@
       "-Wno-delete-non-virtual-dtor",
       "-msse2",
       "-pthread",
+      "-fcolor-diagnostics",
       "-fno-strict-aliasing",
       "-ftemplate-depth=1024",
 
@@ -52,6 +53,7 @@
       "-Wno-type-limits",
       "-Wno-parentheses",
       "-pthread",
+      "-fcolor-diagnostics",
       "-fno-strict-aliasing",
 
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
