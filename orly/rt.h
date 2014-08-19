@@ -26,6 +26,7 @@
 #include <orly/rt/mutable.h>
 #include <orly/rt/opt.h>
 #include <orly/rt/runtime_error.h>
+#include <orly/rt/shortest_path.h>
 #include <orly/rt/string.h>
 #include <orly/rt/str_replace.h>
 #include <orly/rt/time_diff_obj.h>
