@@ -27,6 +27,70 @@ __thread TFrame *TFrame::LocalFrame = nullptr;
 __thread Base::TThreadLocalGlobalPoolManager<TFrame, size_t, TRunner *>::TThreadLocalPool *TFrame::LocalFramePool = nullptr;
 FiberLocal::TFiberLocal *FiberLocal::TFiberLocal::Root = nullptr;
 
+/********************************************************/
+/******************* EXTERN FIBER ***********************/
+/********************************************************/
+
+void Orly::Indy::ExternFiber::SchedTaskLocally(const std::function<void ()> &func) {
+  class TRunFunc : public TRunnable {
+    NO_COPY(TRunFunc);
+    public:
+    TRunFunc(const std::function<void ()> &func)
+        : FramePool(Indy::Fiber::TFrame::LocalFramePool),
+          Func(func) {
+      assert(FramePool);
+      auto *frame = FramePool->Alloc();
+      assert(frame);
+      try {
+        frame->Latch(TRunner::LocalRunner, this, static_cast<Indy::Fiber::TRunnable::TFunc>(&TRunFunc::Run));
+      } catch (...) {
+        Indy::Fiber::TFrame::LocalFramePool->Free(frame);
+        throw;
+      }
+    }
+    ~TRunFunc() {
+      assert(this);
+      FreeMyFrame(FramePool);
+    }
+    void Run() {
+      Func();
+      delete this;
+    }
+    private:
+    Base::TThreadLocalGlobalPoolManager<Indy::Fiber::TFrame, size_t, Indy::Fiber::TRunner *>::TThreadLocalPool *FramePool;
+    const std::function<void ()> Func;
+  };
+  new TRunFunc(func);
+}
+
+Orly::Indy::ExternFiber::TSync::TSync(size_t waiting_for) {
+  new (GetImpl()) Fiber::TSync(waiting_for);
+}
+
+Orly::Indy::ExternFiber::TSync::~TSync() {
+  assert(this);
+  GetImpl()->~TSync();
+}
+
+void Orly::Indy::ExternFiber::TSync::Sync(bool come_back_right_away) {
+  assert(this);
+  GetImpl()->Sync(come_back_right_away);
+}
+
+void Orly::Indy::ExternFiber::TSync::Complete() {
+  assert(this);
+  GetImpl()->Complete();
+}
+
+void Orly::Indy::ExternFiber::TSync::WaitForMore(size_t num) {
+  assert(this);
+  GetImpl()->WaitForMore(num);
+}
+
+/********************************************************/
+/***************** END EXTERN FIBER *********************/
+/********************************************************/
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 void TRunner::Run() {
