@@ -19,6 +19,7 @@
 #include <orly/client/repl.h>
 
 #include <cassert>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
