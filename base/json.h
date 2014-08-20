@@ -917,6 +917,13 @@ namespace Base {
         }
         strm.ignore();
       }
+
+      // If we close right after the comma, we have a trailing comma and are actually done
+      c = std::ws(strm).peek();
+      if (c == close_mark) {
+        strm.ignore();
+        return false;
+      }
       return true;
     }
 

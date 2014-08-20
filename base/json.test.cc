@@ -180,6 +180,8 @@ FIXTURE(Parse) {
 
   EXPECT_EQ(TJson::Parse(R"(["/usr/include/stdc-predef.h","/usr/include/c++/4.9.0/ostream"])"),
             TJson::TArray({"/usr/include/stdc-predef.h", "/usr/include/c++/4.9.0/ostream"}));
+  EXPECT_EQ(TJson::Parse("[1,]"), TJson::TArray({1}));
+  EXPECT_EQ(TJson::Parse("{\"a\": 1,}"), TJson::TObject({{"a", 1}}));
 }
 
 FIXTURE(EscapeSequences) {
