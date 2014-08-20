@@ -27,6 +27,7 @@ using namespace Jhm;
 using namespace Jhm::Job;
 using namespace std;
 using namespace std::placeholders;
+using namespace Util;
 
 void TCompileCFamily::AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std::ostream &out) {
 
@@ -120,9 +121,9 @@ string TCompileCFamily::GetCmd() {
 }
 
 
-timespec TCompileCFamily::GetCmdTimestamp() const {
-  static timespec gcc_timestamp = GetTimestampSearchingPath("gcc");
-  static timespec gpp_timestamp = GetTimestampSearchingPath("g++");
+TTimestamp TCompileCFamily::GetCmdTimestamp() const {
+  static TTimestamp gcc_timestamp = GetTimestampSearchingPath("gcc");
+  static TTimestamp gpp_timestamp = GetTimestampSearchingPath("g++");
 
   return IsCpp ? gpp_timestamp : gcc_timestamp;
 }

@@ -40,8 +40,8 @@ class TRouter : public TBalancer {
   NO_COPY(TRouter);
   public:
 
-  TRouter(TScheduler *scheduler, const TBalancer::TCmd &cmd, size_t milli_interval) : TBalancer(scheduler, cmd), Running(true) {
-    scheduler->Schedule(bind(&TRouter::CheckHosts, this, milli_interval));
+  TRouter(TScheduler *scheduler, const TBalancer::TCmd &cmd, chrono::milliseconds interval) : TBalancer(scheduler, cmd), Running(true) {
+    scheduler->Schedule(bind(&TRouter::CheckHosts, this, interval));
   }
 
   virtual ~TRouter() {
@@ -116,8 +116,8 @@ class TRouter : public TBalancer {
 
   };
 
-  void CheckHosts(size_t milli_interval) {
-    Base::TTimerFd check_hosts(milli_interval);
+  void CheckHosts(chrono::milliseconds interval) {
+    Base::TTimerFd check_hosts(interval);
     for (;Running;) {
       check_hosts.Pop();
       std::lock_guard<std::mutex> lock(HostMutex);
@@ -391,7 +391,7 @@ const TTestServer::TConnection::TProtocol TTestServer::TConnection::TProtocol::P
 const TTestClient::TConnection::TProtocol TTestClient::TConnection::TProtocol::Protocol;
 
 FIXTURE(Typical) {
-  const size_t check_interval_milli = 500;
+  const auto check_interval = 500ms;
   TBalancer::TCmd cmd;
   const TScheduler::TPolicy scheduler_policy(4, 1000, milliseconds(1000));
   TScheduler scheduler;
@@ -399,7 +399,7 @@ FIXTURE(Typical) {
   TAddress router_address(TAddress::IPv4Loopback, 19380);
   TAddress server_1_address(TAddress::IPv4Loopback, 19381);
   TAddress server_2_address(TAddress::IPv4Loopback, 19382);
-  TRouter router(&scheduler, cmd, check_interval_milli);
+  TRouter router(&scheduler, cmd, check_interval);
   auto test_server_1 = make_unique<TTestServer>(&scheduler, 19381, 'M');
   router.AddHost(server_1_address);
   auto test_server_2 = make_unique<TTestServer>(&scheduler, 19382, 'S');

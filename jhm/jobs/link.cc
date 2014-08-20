@@ -141,8 +141,8 @@ string TLink::GetCmd() {
   return oss.str();
 }
 
-timespec TLink::GetCmdTimestamp() const {
-  static timespec timestamp = GetTimestampSearchingPath("g++");
+TTimestamp TLink::GetCmdTimestamp() const {
+  static TTimestamp timestamp = GetTimestampSearchingPath("g++");
   return timestamp;
 }
 

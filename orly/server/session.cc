@@ -23,6 +23,7 @@
 #include <orly/notification/all.h>
 #include <orly/server/meta_record.h>
 #include <orly/spa/orly_args.h>
+#include <util/time.h>
 
 using namespace std;
 using namespace chrono;
@@ -31,6 +32,7 @@ using namespace Orly;
 using namespace Orly::Atom;
 using namespace Orly::Notification;
 using namespace Orly::Server;
+using namespace Util;
 
 TMethodResult TSession::DoInPast(
     TServer */*server*/, const TUuid &/*pov_id*/, const vector<string> &/*fq_name*/, const TClosure &/*closure*/, const TUuid &/*tracking_id*/) {
@@ -143,7 +145,6 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
   TCore result_core;
   Base::TTimer timer;
   Base::TTimer call_timer;
-  timer.Start();
   bool had_effects = false;
   TOpt<TTracker> tracker = TOpt<TTracker>();
   size_t walker_count = 0UL;
@@ -238,14 +239,14 @@ TMethodResult TSession::Try(TServer *server, const TUuid &pov_id, const vector<s
     /* Acquire TryTime lock */ {
       std::lock_guard<std::mutex> lock(TServer::TryTimeLock);
       if (had_effects) {
-        TServer::TryWriteTimeCalc.Push(timer.Total());
-        TServer::TryWriteCallTimerCalc.Push(call_timer.Total());
+        TServer::TryWriteTimeCalc.Push(ToSecondsDouble(timer.GetTotal()));
+        TServer::TryWriteCallTimerCalc.Push(ToSecondsDouble(call_timer.GetTotal()));
       } else {
-        TServer::TryReadTimeCalc.Push(timer.Total());
-        TServer::TryReadCallTimerCalc.Push(call_timer.Total());
+        TServer::TryReadTimeCalc.Push(ToSecondsDouble(timer.GetTotal()));
+        TServer::TryReadCallTimerCalc.Push(ToSecondsDouble(call_timer.GetTotal()));
       }
       TServer::TryWalkerCountCalc.Push(walker_count);
-      TServer::TryWalkerConsTimerCalc.Push(context.GetPresentWalkConsTimer().Total());
+      TServer::TryWalkerConsTimerCalc.Push(ToSecondsDouble(context.GetPresentWalkConsTimer().GetTotal()));
     }
     return TMethodResult(indy_context.GetArena(), result_core, tracker);
   } catch (const exception &ex) {

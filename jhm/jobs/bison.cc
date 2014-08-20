@@ -26,7 +26,7 @@ using namespace Base;
 using namespace Jhm;
 using namespace Jhm::Job;
 using namespace std;
-using namespace std::placeholders;
+using namespace Util;
 
 const static vector<vector<string>> OutExtensions = {
   {"bison","cc"},
@@ -74,8 +74,8 @@ string TBison::GetCmd() {
 }
 
 
-timespec TBison::GetCmdTimestamp() const {
-  static timespec timestamp = GetTimestampSearchingPath("bison");
+TTimestamp TBison::GetCmdTimestamp() const {
+  static TTimestamp timestamp = GetTimestampSearchingPath("bison");
   return timestamp;
 }
 

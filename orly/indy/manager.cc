@@ -22,10 +22,12 @@
 #include <base/shutting_down.h>
 #include <orly/indy/file_sync.h>
 #include <orly/server/meta_record.h>
+#include <util/time.h>
 
 #include <iostream> /* TODO GET RID OF */
 
 using namespace std;
+using namespace std::literals;
 using namespace Base;
 using namespace Io;
 using namespace Orly::Atom;
@@ -49,10 +51,10 @@ RECORD_ELEM(TManager::TSavedRepoObj, int                                , State)
 
 TManager::TManager(Disk::Util::TEngine *engine,
                    size_t replication_sync_slave_buf_size_mb,
-                   size_t merge_mem_delay,
-                   size_t merge_disk_delay,
-                   size_t layer_cleaning_interval_milliseconds,
-                   size_t replication_delay,
+                   chrono::milliseconds merge_mem_delay,
+                   chrono::milliseconds merge_disk_delay,
+                   chrono::milliseconds layer_cleaning_interval,
+                   chrono::milliseconds replication_delay,
                    TState state,
                    bool allow_tailing,
                    bool allow_file_sync,
@@ -77,7 +79,7 @@ TManager::TManager(Disk::Util::TEngine *engine,
                    merge_disk_delay,
                    allow_tailing,
                    no_realtime,
-                   layer_cleaning_interval_milliseconds,
+                   layer_cleaning_interval,
                    scheduler,
                    block_slots_available_per_merger,
                    max_repo_cache_size,
@@ -90,6 +92,7 @@ TManager::TManager(Disk::Util::TEngine *engine,
       StateChangeCb(state_change_cb),
       ReplicationRead(false),
       ReplicationWork(false),
+      ReplicationNextTime(chrono::steady_clock::now()),
       ReplicationDelay(replication_delay),
       UpdateReplicationNotificationCb(update_replication_notification_cb),
       OnReplicateIndexIdCb(on_replicate_index_id),
@@ -113,7 +116,6 @@ TManager::TManager(Disk::Util::TEngine *engine,
   IfLt0(epoll_ctl(ReplicationQueueEpollFd, EPOLL_CTL_ADD, ReplicationQueueSem.GetFd(), &ReplicationQueueEvent));
   IfLt0(epoll_ctl(ReplicationWorkEpollFd, EPOLL_CTL_ADD, ReplicationWorkSem.GetFd(), &ReplicationWorkEvent));
   IfLt0(epoll_ctl(ReplicationEpollFd, EPOLL_CTL_ADD, ReplicationSem.GetFd(), &ReplicationEvent));
-  TimeToNextReplication.Now();
 
   auto system_ttl = TTtl::max();
   if (create_new) {
@@ -307,13 +309,8 @@ void TManager::RunReplicateTransaction() {
           break;
         }
       }
-      long remaining = TimeToNextReplication.Remaining();
-      if (remaining) {
-        timespec wait {remaining / 1000, remaining * 1000000L};
-        nanosleep(&wait, NULL);
-      }
-      TimeToNextReplication.Now();
-      TimeToNextReplication += ReplicationDelay;
+      SleepUntil(ReplicationNextTime);
+      ReplicationNextTime = chrono::steady_clock::now() + ReplicationDelay;
       TReplicationStreamer replication_streamer;
       TState state_used;
       TReplicationQueue copy_queue;
@@ -395,12 +392,11 @@ void TManager::RunReplicateTransaction() {
           if (!replication_streamer.IsEmpty()) {
             try {
               Base::TTimer timer;
-              timer.Start();
               //auto future = context->Write<void>(TSlave::PushNotificationsId, replication_streamer);
               auto future = context->Write<void>(TSlave::PushNotificationsId, replication_streamer);
               timer.Stop();
-              if (timer.Total() > 1) {
-                syslog(LOG_INFO, "Write TSlave::PushNotificationsId took [%f]", timer.Total());
+              if (timer.GetTotal() < 1s) {
+                syslog(LOG_INFO, "Write TSlave::PushNotificationsId took [%fs]", ToSecondsDouble(timer.GetTotal()));
               }
               assert(future);
               future->Sync();  // wait for the future to complete
@@ -524,7 +520,6 @@ TContextInputStreamer TManager::TMaster::FetchUpdates(const TUuid &repo_id, TSeq
   assert(this);
   std::cout << "TMaster::FetchUpdates(" << repo_id << ") [" << lowest << " -> " << highest << "]" << std::endl;
   Base::TTimer timer;
-  timer.Start();
   auto repo = Manager->ForceGetRepo(repo_id);
   assert(Manager->SlaveSyncViewMap.find(repo_id) != Manager->SlaveSyncViewMap.end());
   const auto &view = Manager->SlaveSyncViewMap.find(repo_id)->second;
@@ -534,7 +529,8 @@ TContextInputStreamer TManager::TMaster::FetchUpdates(const TUuid &repo_id, TSeq
     context.AppendUpdate(repo_id, *walker);
   }
   timer.Stop();
-  std::cout << "TMaster::FetchUpdates(" << repo_id << ") [" << lowest << " -> " << highest << "] took [" << timer.Total() << "]" << std::endl;
+  std::cout << "TMaster::FetchUpdates(" << repo_id << ") [" << lowest << " -> " << highest << "] took ["
+            << ToSecondsDouble(timer.GetTotal()) << "s]" << std::endl;
   return context;
 }
 
@@ -615,7 +611,7 @@ void TManager::TSlave::SyncInventory() {
       parent_repo = Manager->ForceGetRepo(*parent_repo_id);
     }
     std::cout << "TSlave::Inventory::GetRepo(" << repo_id << ")" << std::endl;
-    auto repo = Manager->GetRepo(repo_id, std::chrono::seconds(ttl), parent_repo, is_safe, false);
+    auto repo = Manager->GetRepo(repo_id, chrono::seconds(ttl), parent_repo, is_safe, false);
     std::cout << "done TSlave::Inventory::GetRepo(" << repo_id << ")" << std::endl;
     //repo->SetNextSequenceNumber(next_id);
     repo->SetReleasedUpTo(next_id > 0UL ? next_id - 1UL : 0UL);
@@ -708,7 +704,6 @@ void TManager::TSlave::PullUpdateRange(const Base::TUuid &repo_id, TManager::TPt
       assert(future);
       Util::TContextInputStreamer context = **future;
       Base::TTimer timer;
-      timer.Start();
 
       TMemoryLayer *mem_layer = new TMemoryLayer(Manager);
       size_t num_entry_inserted = 0UL;
@@ -751,7 +746,8 @@ void TManager::TSlave::PullUpdateRange(const Base::TUuid &repo_id, TManager::TPt
         repo->AddImportLayer(mem_layer, sem, storage_speed);
       }
       timer.Stop();
-      std::cout << "received " << context.UpdateVec.size() << " updates from repo " << repo_id << "\tcommit took [" << timer.Total() << "]" << std::endl;
+      std::cout << "received " << context.UpdateVec.size() << " updates from repo " << repo_id << "\tcommit took ["
+                << ToSecondsDouble(timer.GetTotal()) << "s]" << std::endl;
     }
   } catch (...) {
     std::ostringstream ss;
@@ -857,7 +853,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), repo_id);
               ++repo_iter;
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), repo_nsec_ttl);
-              repo_ttl = std::chrono::duration_cast<TTtl>(repo_nsec_ttl);
+              repo_ttl = chrono::duration_cast<TTtl>(repo_nsec_ttl);
               ++repo_iter;
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), is_safe);
               ++repo_iter;
@@ -867,7 +863,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
             }
           }
           /* Store the durable saves next */ {
-            auto now = std::chrono::system_clock::now();
+            auto now = chrono::system_clock::now();
             std::vector<TCore>::const_iterator durable_iter = replication_streamer.GetDurableVec().GetCores().begin();
             std::vector<TCore>::const_iterator durable_end = replication_streamer.GetDurableVec().GetCores().end();
             TCore::TArena *durable_arena = replication_streamer.GetDurableVec().GetArena();
@@ -939,7 +935,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), repo_id);
               ++repo_iter;
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), repo_nsec_ttl);
-              repo_ttl = std::chrono::duration_cast<TTtl>(repo_nsec_ttl);
+              repo_ttl = chrono::duration_cast<TTtl>(repo_nsec_ttl);
               ++repo_iter;
               Sabot::ToNative(*Sabot::State::TAny::TWrapper(repo_iter->NewState(repo_arena, state_alloc)), is_safe);
               ++repo_iter;
@@ -949,7 +945,7 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
             }
           }
           /* Store the durable saves next */ {
-            auto now = std::chrono::system_clock::now();
+            auto now = chrono::system_clock::now();
             std::vector<TCore>::const_iterator durable_iter = replication_streamer.GetDurableVec().GetCores().begin();
             std::vector<TCore>::const_iterator durable_end = replication_streamer.GetDurableVec().GetCores().end();
             TCore::TArena *durable_arena = replication_streamer.GetDurableVec().GetArena();
@@ -969,11 +965,13 @@ void TManager::TSlave::PushNotifications(const TReplicationStreamer &replication
           }
           /* Apply the transactions next */
           Base::TTimer timer;
-          timer.Start();
           const size_t num_transactions_applied = ApplyCoreVectorTransactions(replication_streamer.GetTransactionVec().GetCores(), replication_streamer.GetTransactionVec().GetArena());
           timer.Stop();
-          if (timer.Total() > 1) {
-            syslog(LOG_INFO, "Slave PushNotification [%ld] took [%f]", num_transactions_applied, timer.Total());
+          if (timer.GetTotal() > 1s) {
+            syslog(LOG_INFO,
+                   "Slave PushNotification [%ld] took [%fs]",
+                   num_transactions_applied,
+                   ToSecondsDouble(timer.GetTotal()));
           }
         } catch (const exception &ex) {
           syslog(LOG_ERR, "Exception in TManager::TSlave::PushNotifications()::Slave [%s]", ex.what());
@@ -1398,7 +1396,7 @@ void TManager::OnSlaveJoin(const Base::TFd &fd) {
                 throw std::runtime_error("Future did not complete.");
               }
             }
-            SlaveNotifyCond.wait_for(slave_notify_lock, std::chrono::milliseconds(2000));
+            SlaveNotifyCond.wait_for(slave_notify_lock, 2000ms);
           }
           std::cout << "Slave says he's finished." << std::endl;
         }

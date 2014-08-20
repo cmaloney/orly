@@ -26,6 +26,7 @@
 #include <unistd.h>
 
 #include <base/timer.h>
+#include <util/time.h>
 #include <util/error.h>
 
 #include <test/kit.h>
@@ -145,7 +146,6 @@ FIXTURE(Typical) {
     ++pos;
   }
   Base::TTimer timer;
-  timer.Start();
   /* can start */ {
     std::lock_guard<std::mutex> lock(mut);
     can_start = true;
@@ -160,7 +160,11 @@ FIXTURE(Typical) {
     }
   }
   timer.Stop();
-  printf("Total time = [%f], [%f] per, [%ld] / s\n", timer.Total(), timer.Total() / (num_iter * num_threads), static_cast<size_t>((num_iter * num_threads * num_runnable_per_thread) / timer.Total()));
+  auto total_seconds = ToSecondsDouble(timer.GetTotal());
+  printf("Total time = [%f], [%f] per, [%ld] / s\n",
+         total_seconds,
+         total_seconds / (num_iter * num_threads),
+         static_cast<size_t>((num_iter * num_threads * num_runnable_per_thread) / total_seconds));
   for (auto r : runner_vec) {
     r->ShutDown();
   }

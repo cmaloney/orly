@@ -43,6 +43,7 @@
 #include <util/error.h>
 #include <util/io.h>
 #include <util/path.h>
+#include <util/time.h>
 
 using namespace std;
 using namespace chrono;
@@ -675,7 +676,7 @@ TServer::TServer(TScheduler *scheduler, const TCmd &cmd)
       PackageManager(cmd.PackageDirectory),
       Scheduler(scheduler),
       Cmd(cmd),
-      HousecleaningTimer(cmd.HousecleaningInterval) {
+      HousecleaningTimer(chrono::milliseconds(cmd.HousecleaningInterval)) {
   InitalizeFramePoolManager(Cmd.NumFiberFrames, StackSize, &BGFastRunner);
   Disk::Util::TDiskController::TEvent::InitializeDiskEventPoolManager(Cmd.NumDiskEvents);
   using TLocalReadFileCache = Orly::Indy::Disk::TLocalReadFileCache<Orly::Indy::Disk::Util::LogicalPageSize,
@@ -915,10 +916,10 @@ void TServer::Init() {
     };
     RepoManager = make_unique<Orly::Indy::TManager>(engine_ptr,
                                                     Cmd.ReplicationSyncBufMB,
-                                                    Cmd.MergeMemInterval,
-                                                    Cmd.MergeDiskInterval,
-                                                    Cmd.LayerCleaningInterval,
-                                                    Cmd.ReplicationInterval,
+                                                    chrono::milliseconds(Cmd.MergeMemInterval),
+                                                    chrono::milliseconds(Cmd.MergeDiskInterval),
+                                                    chrono::milliseconds(Cmd.LayerCleaningInterval),
+                                                    chrono::milliseconds(Cmd.ReplicationInterval),
                                                     RepoState,
                                                     Cmd.AllowTailing,
                                                     Cmd.AllowFileSync,
@@ -1016,9 +1017,9 @@ void TServer::Init() {
                                                                     RepoManager.get(),
                                                                     RepoManager->GetEngine(),
                                                                     Cmd.DurableCacheSize,
-                                                                    Cmd.DurableWriteInterval,
-                                                                    Cmd.DurableMergeInterval,
-                                                                    Cmd.LayerCleaningInterval,
+                                                                    chrono::milliseconds(Cmd.DurableWriteInterval),
+                                                                    chrono::milliseconds(Cmd.DurableMergeInterval),
+                                                                    chrono::milliseconds(Cmd.LayerCleaningInterval),
                                                                     Cmd.TempFileConsolidationThreshold,
                                                                     Cmd.Create);
     RepoManager->SetDurableManager(DurableManager);
@@ -2710,8 +2711,8 @@ void TIndyReporter::AddReport(std::stringstream &ss) const {
     try_fetch_count_mean,
     try_fetch_count_sigma;
 
-  double merge_disk_step_cpu = 0.0;
-  double merge_mem_step_cpu = 0.0;
+  nanoseconds merge_disk_step_cpu;
+  nanoseconds merge_mem_step_cpu;
   size_t merge_mem_count = 0UL;
   double
     merge_mem_key_min = 0.0,
@@ -2769,9 +2770,7 @@ void TIndyReporter::AddReport(std::stringstream &ss) const {
     try_count = try_read_count + try_write_count;
   }  // release TryTime lock
   ReportTimer.Stop();
-  double elapsed_time = ReportTimer.Total();
-  ReportTimer.Reset();
-  ReportTimer.Start();
+  double elapsed_time = ToSecondsDouble(ReportTimer.GetLap());
   #ifdef PERF_STATS
   ss << "Page LRU Buf Free = " << num_buf_in_page_lru << " / " << max_buf_in_page_lru << endl;
   ss << "Block LRU Buf Free = " << num_buf_in_block_lru << " / " << max_buf_in_block_lru << endl;
@@ -2796,9 +2795,9 @@ void TIndyReporter::AddReport(std::stringstream &ss) const {
   ss << "Try Read Count / s = " << (try_read_count / elapsed_time) << endl;
   ss << "Try Write Count / s = " << (try_write_count / elapsed_time) << endl;
 
-  ss << "MergeMem Step CPU = " << (merge_mem_step_cpu / elapsed_time) << endl;
+  ss << "MergeMem Step CPU (s) = " << ToSecondsDouble(merge_mem_step_cpu) / elapsed_time << endl;
 
-  ss << "MergeDisk Step CPU = " << (merge_disk_step_cpu / elapsed_time) << endl;
+  ss << "MergeDisk Step CPU (s) = " << ToSecondsDouble(merge_disk_step_cpu) / elapsed_time << endl;
 
   size_t tetris_push_count = Server->TetrisManager->PushCount.exchange(0UL);
   size_t tetris_pop_count = Server->TetrisManager->PopCount.exchange(0UL);

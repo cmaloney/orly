@@ -33,7 +33,7 @@ namespace Jhm {
       virtual const char *GetName() final;
       virtual const TSet<TFile*> GetNeeds() final;
       virtual std::string GetCmd() final;
-      virtual timespec GetCmdTimestamp() const final;
+      virtual Util::TTimestamp GetCmdTimestamp() const final;
       virtual bool IsComplete() final;
 
       private:
@@ -50,7 +50,7 @@ namespace Jhm {
       virtual const char *GetName() final;
       virtual const TSet<TFile*> GetNeeds() final;
       virtual std::string GetCmd() final;
-      virtual timespec GetCmdTimestamp() const final;
+      virtual Util::TTimestamp GetCmdTimestamp() const final;
       virtual bool IsComplete() final;
 
       private:

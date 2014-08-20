@@ -23,12 +23,14 @@
 #include <orly/mynde/protocol.h> // For Mynde::PackageName
 #include <orly/notification/pov_failure.h>
 #include <orly/notification/update_progress.h>
+#include <util/time.h>
 
 using namespace std;
 using namespace chrono;
 using namespace Base;
 using namespace Orly::Indy;
 using namespace Orly::Server;
+using namespace ::Util;
 
 TRepoTetrisManager::TRepoTetrisManager(
     TScheduler *scheduler,
@@ -340,10 +342,10 @@ void TRepoTetrisManager::TPlayer::Play() {
   commit_timer.Stop();
 
   std::lock_guard<std::mutex> lock(RepoTetrisManager->TetrisTimerLock);
-  RepoTetrisManager->TetrisSnapshotCPUTime.Push(snapshot_timer.Total());
-  RepoTetrisManager->TetrisSortCPUTime.Push(sort_timer.Total());
-  RepoTetrisManager->TetrisPlayCPUTime.Push(play_timer.Total());
-  RepoTetrisManager->TetrisCommitCPUTime.Push(commit_timer.Total());
+  RepoTetrisManager->TetrisSnapshotCPUTime.Push(ToSecondsDouble(snapshot_timer.GetTotal()));
+  RepoTetrisManager->TetrisSortCPUTime.Push(ToSecondsDouble(sort_timer.GetTotal()));
+  RepoTetrisManager->TetrisPlayCPUTime.Push(ToSecondsDouble(play_timer.GetTotal()));
+  RepoTetrisManager->TetrisCommitCPUTime.Push(ToSecondsDouble(commit_timer.GetTotal()));
 }
 
 TTetrisManager::TPlayer *TRepoTetrisManager::NewPlayer(const TUuid &parent_pov_id, const TUuid &child_pov_id, bool is_paused, bool is_master) {

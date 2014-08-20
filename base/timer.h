@@ -2,7 +2,6 @@
 
    Provide a timer to allow efficiency analysis of code.
 
-
    Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,94 +18,65 @@
 
 #pragma once
 
-#include <time.h>
-
 #include <base/class_traits.h>
+#include <base/cpu_clock.h>
 
 namespace Base {
 
-  /* TODO */
-  class TTimer {
-    NO_COPY(TTimer);
+  /* Simple timer class which wraps a std::chrono clock.
+
+     NOTE: Timers implicitly start on construction. */
+  template <typename TClock>
+  class TGenericTimer {
+    NO_COPY(TGenericTimer);
     public:
 
-    /* TODO */
-    TTimer(clockid_t type = CLOCK_REALTIME) : LapTime(0L), TotalTime(0L), Type(type) {
-      clock_gettime(Type, &StartTime);
-    }
+    using duration = typename TClock::duration;
+    using time_point = typename TClock::time_point;
 
-    /* TODO */
+    TGenericTimer() { Start(); }
+
+    /* Updates the start time, resetting lap and total time. */
     void Start() {
-      clock_gettime(Type, &StartTime);
+      StartTime = TClock::now();
+      Total = duration::zero();
+      Lap = duration::zero();
     }
 
-    /* TODO */
+    /* Completes a lap, updating the total time and lap time.
+       NOTE: Also updates the starttime to be now. */
     void Stop() {
-      clock_gettime(Type, &Now);
-      LapTime = ((Now.tv_sec - StartTime.tv_sec) * 1000000000L) + (Now.tv_nsec - StartTime.tv_nsec);
-      StartTime = Now;
-      TotalTime += LapTime;
+      auto now = TClock::now();
+      Lap = now - StartTime;
+      StartTime = now;
+      Total += Lap;
     }
 
-    /* TODO */
-    double Elapsed() const {
-      clock_gettime(Type, &Now);
-      return (((Now.tv_sec - StartTime.tv_sec) * 1000000000L) + (Now.tv_nsec - StartTime.tv_nsec)) / 1000000000.0;
+    /* Returns the time elapsed since the start */
+    duration GetElapsed() const {
+      return TClock::now() - StartTime;
     }
 
-    /* TODO */
-    double Lap() const {
-      return LapTime / 1000000000.0;
+    /* Returns the time between the last two stop calls. */
+    duration GetLap() const {
+      return Lap;
     }
 
-    /* TODO */
-    double Total() const {
-      return TotalTime / 1000000000.0;
-    }
-
-    /* TODO */
-    void Reset() {
-      LapTime = 0L;
-      TotalTime = 0L;
+    /* Returns the total time elapsed across all Stop() calls. */
+    duration GetTotal() const {
+      return Total;
     }
 
     private:
-
-    /* TODO */
-    timespec StartTime;
-
-    /* TODO */
-    mutable timespec Now;
-
-    /* TODO */
-    long LapTime;
-
-    /* TODO */
-    long TotalTime;
-
-    /* TODO */
-    clockid_t Type;
+    time_point StartTime;
+    duration Lap;
+    duration Total;
   };
 
-  /* TODO */
-  class TCPUTimer : public TTimer {
-    NO_COPY(TCPUTimer);
-    public:
+  //TODO:  this should actually be a monotonic clock. For now keeping the old behavior / semantics.
+  /* Easy-access generic timer. */
+  using TTimer = TGenericTimer<std::chrono::system_clock>;
 
-    /* TODO */
-    TCPUTimer() : TTimer(CLOCK_THREAD_CPUTIME_ID) {}
-
-  };
-
-  /* TODO */
-  struct timespec TsAdd(const struct timespec &lhs, const struct timespec &rhs);
-
-  /* TODO */
-  struct timespec TsAdd(const struct timespec &lhs, size_t msec);
-
-  /* The amount of time left in milliseconds before val; returns 0 if val has already passed */
-  size_t TsTimeLeftMsec(const struct timespec &val);
-
-  /* TODO */
-  int TsCompare(const struct timespec &lhs, const struct timespec &rhs);
+  /* Easy-access timer which gives the cpu time for the given thread. */
+  using TCPUTimer = TGenericTimer<Base::cpu_clock>;
 }

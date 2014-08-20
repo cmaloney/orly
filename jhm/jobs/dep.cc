@@ -27,6 +27,7 @@ using namespace Base;
 using namespace Jhm;
 using namespace Jhm::Job;
 using namespace std;
+using namespace Util;
 
 static TRelPath GetOutputName(const TRelPath &input) {
   return TRelPath(AddExtension(TPath(input.Path), {"dep"}));
@@ -84,8 +85,8 @@ string TDep::GetCmd() {
 }
 
 
-timespec TDep::GetCmdTimestamp() const {
-  static timespec timestamp = GetTimestampSearchingPath("g++");
+TTimestamp TDep::GetCmdTimestamp() const {
+  static TTimestamp timestamp = GetTimestampSearchingPath("g++");
   return timestamp;
 }
 

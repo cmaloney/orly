@@ -25,7 +25,7 @@
 #include <base/path.h>
 #include <jhm/config.h>
 #include <jhm/naming.h>
-#include <jhm/timestamp.h>
+#include <util/time.h>
 
 namespace Jhm {
 
@@ -52,8 +52,8 @@ namespace Jhm {
     }
 
     /* Computes (and doesn't cache!) the timestamp for the given file. Newest of either it's config or file in the tree) */
-    Base::TOpt<timespec> GetTimestamp() const {
-      return Newer(TryGetTimestamp(Base::AsStr(Path)), Config.GetTimestamp());
+    Util::TOptTimestamp GetTimestamp() const {
+      return Util::Newest(Util::TryGetTimestamp(Base::AsStr(Path)), Config.GetTimestamp());
     }
 
     void PushComputedConfig(Base::TJson &&config) {

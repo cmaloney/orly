@@ -17,6 +17,7 @@
 #pragma once
 
 #include <mutex>
+#include <thread>
 
 #include <orly/atom/core_vector.h>
 #include <orly/atom/core_vector_builder.h>
@@ -59,10 +60,10 @@ namespace Orly {
       /* TODO */
       TManager(Disk::Util::TEngine *engine,
                size_t replication_sync_slave_buf_size_mb,
-               size_t merge_mem_delay,
-               size_t merge_disk_delay,
-               size_t layer_cleaning_interval_milliseconds,
-               size_t replication_delay,
+               std::chrono::milliseconds merge_mem_delay,
+               std::chrono::milliseconds merge_disk_delay,
+               std::chrono::milliseconds layer_cleaning_interval,
+               std::chrono::milliseconds replication_delay,
                TState state,
                bool allow_tailing,
                bool allow_file_sync,
@@ -623,10 +624,10 @@ namespace Orly {
       std::mutex ReplicationEpollLock;
       epoll_event ReplicationEvent;
       Base::TEventSemaphore ReplicationSem;
-      Base::TTime TimeToNextReplication;
+      std::chrono::steady_clock::time_point ReplicationNextTime;
 
       /* TODO */
-      size_t ReplicationDelay;
+      std::chrono::milliseconds ReplicationDelay;
 
       /* TODO */
       std::function<void (const Base::TUuid &, const Base::TUuid &, const Base::TUuid &)> UpdateReplicationNotificationCb;

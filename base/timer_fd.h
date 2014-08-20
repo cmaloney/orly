@@ -19,6 +19,7 @@
 #pragma once
 
 #include <cassert>
+#include <chrono>
 #include <cstdint>
 
 #include <sys/timerfd.h>
@@ -34,7 +35,7 @@ namespace Base {
     public:
 
     /* TODO */
-    TTimerFd(size_t milliseconds);
+    TTimerFd(std::chrono::milliseconds milliseconds);
 
     /* TODO */
     const TFd &GetFd() const {

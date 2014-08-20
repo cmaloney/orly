@@ -27,7 +27,6 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 
-#include <base/time.h>
 #include <util/error.h>
 
 using namespace Base;
@@ -41,13 +40,13 @@ size_t Util::ReadAtMost(int fd, void *buf, size_t max_size) {
   return IfLt0(read(fd, buf, max_size));
 }
 
-size_t Util::ReadAtMost(int fd, void *buf, size_t max_size, int timeout_ms) {
-  if (timeout_ms >= 0) {
+size_t Util::ReadAtMost(int fd, void *buf, size_t max_size, std::chrono::milliseconds timeout) {
+  if (timeout >= chrono::milliseconds::zero()) {
     struct pollfd event;
     event.fd = fd;
     event.events = POLLIN;
     event.revents = 0;
-    int ret = IfLt0(poll(&event, 1, timeout_ms));
+    int ret = IfLt0(poll(&event, 1, timeout.count()));
 
     if (ret == 0) {
       ThrowSystemError(ETIMEDOUT);
@@ -63,14 +62,13 @@ size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
   return IfLt0(S_ISSOCK(stat.st_mode) ? send(fd, buf, max_size, MSG_NOSIGNAL) : write(fd, buf, max_size));
 }
 
-size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size,
-    int timeout_ms) {
-  if (timeout_ms >= 0) {
+size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size, chrono::milliseconds timeout) {
+  if (timeout >= chrono::milliseconds::zero()) {
     struct pollfd event;
     event.fd = fd;
     event.events = POLLOUT;
     event.revents = 0;
-    int ret = IfLt0(poll(&event, 1, timeout_ms));
+    int ret = IfLt0(poll(&event, 1, timeout.count()));
 
     if (ret == 0) {
       ThrowSystemError(ETIMEDOUT);
@@ -97,8 +95,8 @@ bool Util::TryReadExactly(int fd, void *buf, size_t size) {
   return true;
 }
 
-bool Util::TryReadExactly(int fd, void *buf, size_t size, int timeout_ms) {
-  if (timeout_ms < 0) {
+bool Util::TryReadExactly(int fd, void *buf, size_t size, chrono::milliseconds timeout) {
+  if (timeout < chrono::milliseconds::zero()) {
     return TryReadExactly(fd, buf, size);
   }
 
@@ -108,12 +106,10 @@ bool Util::TryReadExactly(int fd, void *buf, size_t size, int timeout_ms) {
 
   char
       *csr = static_cast<char *>(buf),
-      *end = csr + size;;
-  const clockid_t CLOCK_TYPE = CLOCK_MONOTONIC_RAW;
-  TTime deadline;
-  deadline.Now(CLOCK_TYPE);
-  deadline += timeout_ms;
-  int time_left = timeout_ms;
+      *end = csr + size;
+
+  auto deadline = chrono::steady_clock::now() + timeout;
+  auto time_left = timeout;
 
   for (; ; ) {
     size_t actual_size = ReadAtMost(fd, csr, end - csr, time_left);
@@ -133,7 +129,7 @@ bool Util::TryReadExactly(int fd, void *buf, size_t size, int timeout_ms) {
       break;
     }
 
-    time_left = deadline.Remaining(CLOCK_TYPE);
+    time_left = chrono::duration_cast<chrono::milliseconds>(max(deadline - chrono::steady_clock::now(), chrono::steady_clock::duration::zero()));
   }
 
   return true;
@@ -157,9 +153,8 @@ bool Util::TryWriteExactly(int fd, const void *buf,
   return true;
 }
 
-bool Util::TryWriteExactly(int fd, const void *buf, size_t size,
-    int timeout_ms) {
-  if (timeout_ms < 0) {
+bool Util::TryWriteExactly(int fd, const void *buf, size_t size, chrono::milliseconds timeout) {
+  if (timeout < chrono::milliseconds::zero()) {
     return TryWriteExactly(fd, buf, size);
   }
 
@@ -170,11 +165,8 @@ bool Util::TryWriteExactly(int fd, const void *buf, size_t size,
   const char
       *csr = static_cast<const char *>(buf),
       *end = csr + size;;
-  const clockid_t CLOCK_TYPE = CLOCK_MONOTONIC_RAW;
-  TTime deadline;
-  deadline.Now(CLOCK_TYPE);
-  deadline += timeout_ms;
-  int time_left = timeout_ms;
+  auto deadline = chrono::steady_clock::now() + timeout;
+  auto time_left = timeout;
 
   for (; ; ) {
     size_t actual_size = WriteAtMost(fd, csr, end - csr, time_left);
@@ -194,7 +186,7 @@ bool Util::TryWriteExactly(int fd, const void *buf, size_t size,
       break;
     }
 
-    time_left = deadline.Remaining(CLOCK_TYPE);
+    time_left = chrono::duration_cast<chrono::milliseconds>(max(deadline - chrono::steady_clock::now(), chrono::steady_clock::duration::zero()));
   }
 
   return true;

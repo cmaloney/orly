@@ -24,7 +24,7 @@
 #include <base/json.h>
 #include <base/opt.h>
 #include <base/split.h>
-#include <jhm/timestamp.h>
+#include <util/time.h>
 
 namespace Jhm {
   /* Configuration system. Handles stacked configuration files ('parent', 'include' statements)
@@ -96,7 +96,7 @@ namespace Jhm {
     /* Call back the given function for each computed config (in order). */
     bool ForEachComputed(const std::function<bool (const Base::TJson &conf)> &cb) const;
 
-    const Base::TOpt<timespec> &GetTimestamp() const {
+    const Util::TOptTimestamp &GetTimestamp() const {
       assert(this);
       return Timestamp;
     }
@@ -114,7 +114,7 @@ namespace Jhm {
     void AddConfig(Base::TJson &&config, bool top=true);
     void AddFile(const std::string &filename);
 
-    Base::TOpt<timespec> Timestamp;
+    Util::TOptTimestamp Timestamp;
     Base::TOpt<uint32_t> ComputedStart;
     mutable bool ComputedLocked = false; // This is purely an internal safety check / correctness check
     std::deque<Base::TJson> Config;

@@ -29,20 +29,22 @@
 #include <base/subprocess.h>
 #include <base/tmp_file.h>
 #include <base/timer.h>
+#include <util/time.h>
 
 #include <test/kit.h>
+
+using namespace std::chrono;
 
 /* Temporary file used for files. */
 static Base::TTmpFile File("compile_time_genXXXXXX.cc", true);
 
 /* Compiles and measures the average compile time over num_trials (default = 3). */
 void Compile(const char *name, const char *filename, int num_trials = 3) {
-  std::vector<double> trials(num_trials);
+  std::vector<nanoseconds> trials(num_trials);
   for (int i = 0; i < num_trials; ++i) {
-    Base::TTimer timer;
     std::ostringstream strm;
     strm << "g++ -std=c++1y -I" << SRC_ROOT << ' ' << filename;
-    timer.Start();
+    Base::TTimer timer;
 
     Base::TPump pump;
     auto subproc = Base::TSubprocess::New(pump, strm.str().c_str());
@@ -52,9 +54,11 @@ void Compile(const char *name, const char *filename, int num_trials = 3) {
       Base::EchoOutput(subproc->TakeStdOutFromChild());
       Base::EchoOutput(subproc->TakeStdErrFromChild());
     }
-    trials[i] = timer.Total();
+    trials[i] = timer.GetTotal();
   }
-  std::cout << name <<  " took: " << std::accumulate(std::begin(trials), std::end(trials), 0.0) / num_trials << std::endl;
+  std::cout << name << " took: "
+            << Util::ToSecondsDouble(std::accumulate(std::begin(trials), std::end(trials), nanoseconds::zero())) /
+                   num_trials << std::endl;
   unlink("a.out");  // Clean up.
 }
 

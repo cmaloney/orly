@@ -23,7 +23,7 @@
 #include <cstddef>
 #include <mutex>
 #include <new>
-#include <time.h>
+#include <thread>
 #include <syslog.h>
 
 #include <base/class_traits.h>
@@ -63,12 +63,9 @@ namespace Orly {
           void *ptr = TryAlloc(size);
           if (!ptr) {
             size_t retry = 2000UL;
-            timespec wait;
-            wait.tv_sec = 0;
-            wait.tv_nsec = 1000000;
             while (!ptr && retry) {
               --retry;
-              nanosleep(&wait, NULL);
+              std::this_thread::sleep_for(std::chrono::milliseconds(1));
               ptr = TryAlloc(size);
             }
             if (ptr) {

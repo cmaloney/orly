@@ -20,6 +20,7 @@
 
 #include <base/booster.h>
 #include <orly/indy/disk/util/hash_util.h>
+#include <util/time.h>
 
 using namespace std;
 using namespace Base;
@@ -29,6 +30,18 @@ using namespace Orly::Indy::Disk;
 const Base::TUuid TDurableManager::DurableByIdFileId("20E91BAE-3465-4E9B-918F-C234DF84762A");
 
 const Base::TUuid TDurableManager::TSortedByIdFile::NullId("00000000-0000-0000-0000-000000000000");
+
+TFlush::TFlush(chrono::milliseconds delay) : Delay(delay) {
+  UpdateNext();
+}
+
+void TFlush::WaitFor() {
+  ::Util::SleepUntil(Next);
+  UpdateNext();
+}
+void TFlush::UpdateNext() {
+  Next = chrono::steady_clock::now() + Delay;
+}
 
 TDurableManager::TMapping::~TMapping() {
   assert(this);
@@ -82,9 +95,9 @@ TDurableManager::TDurableManager(TScheduler *scheduler,
                                  DurableManager::TManager *manager,
                                  Util::TEngine *engine,
                                  size_t max_cache_size,
-                                 size_t write_delay,
-                                 size_t merge_delay,
-                                 size_t layer_cleaning_interval_milliseconds,
+                                 chrono::milliseconds write_delay,
+                                 chrono::milliseconds merge_delay,
+                                 chrono::milliseconds layer_cleaning_interval,
                                  size_t temp_file_consol_thresh,
                                  bool create,
                                  const TNotify *notify)
@@ -105,7 +118,7 @@ TDurableManager::TDurableManager(TScheduler *scheduler,
       ShutDown(false),
       MappingCollection(this),
       RemovalCollection(this),
-      LayerCleanerTimer(layer_cleaning_interval_milliseconds),
+      LayerCleanerTimer(layer_cleaning_interval),
       Notify(notify) {
   /* acquire Mapping lock */ {
     std::lock_guard<std::mutex> mapping_lock(MappingLock);
@@ -273,19 +286,10 @@ void TDurableManager::RunWriter() {
     Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
   Disk::Util::TVolume::TDesc::TStorageSpeed storage_speed = Disk::Util::TVolume::TDesc::TStorageSpeed::Fast;
-  Base::TTime next_flush;
-  next_flush.Now();
-  next_flush += DurableWriteDelay;
+  TFlush next_flush(DurableWriteDelay);
   SlushSem.Pop();
   for (;!ShutDown; SlushSem.Pop()) {
-    int64_t remaining = next_flush.Remaining();
-    if (remaining) {
-      timespec wait_spec {0, remaining * 1000000L};
-      nanosleep(&wait_spec, nullptr);
-    }
-
-    next_flush.Now();
-    next_flush += DurableWriteDelay;
+    next_flush.WaitFor();
 
     TMemSlushLayer *old_mem_layer = nullptr;
     /* acquire DataLayer lock */ {
@@ -337,6 +341,7 @@ void TDurableManager::RunWriter() {
   WriterFinishedSem.Push();
 }
 
+
 void TDurableManager::RunMerger() {
   assert(this);
   if (Engine->IsDiskBased()) {
@@ -345,22 +350,10 @@ void TDurableManager::RunMerger() {
     Disk::Util::TDiskController::TEvent::LocalEventPool = new TThreadLocalGlobalPoolManager<Disk::Util::TDiskController::TEvent>::TThreadLocalPool(Disk::Util::TDiskController::TEvent::DiskEventPoolManager.get());
   }
   Disk::Util::TVolume::TDesc::TStorageSpeed storage_speed = Disk::Util::TVolume::TDesc::TStorageSpeed::Fast;
-  Base::TTime next_flush;
-  next_flush.Now();
-  next_flush += DurableMergeDelay;
+  TFlush next_flush(DurableMergeDelay);
   MergeSem.Pop();
   for (;!ShutDown; MergeSem.Pop()) {
-
-    int64_t remaining = next_flush.Remaining();
-    if (remaining) {
-      timespec wait_spec {0, remaining * 1000000L};
-      nanosleep(&wait_spec, nullptr);
-    }
-
-    next_flush.Now();
-    next_flush += DurableMergeDelay;
-
-
+    next_flush.WaitFor();
     std::vector<size_t> gen_vec;
     std::map<size_t, std::vector<TDiskOrderedLayer *>> gen_to_gen_id_map;
     std::vector<TDiskOrderedLayer *> gen_layer_vec;

@@ -27,6 +27,7 @@ using namespace Jhm;
 using namespace Jhm::Job;
 using namespace std;
 using namespace std::placeholders;
+using namespace Util;
 
 const static vector<vector<string>> OutExtensions = {
   {"flex","cc"},
@@ -71,8 +72,8 @@ string TFlex::GetCmd() {
   return oss.str();
 }
 
-timespec TFlex::GetCmdTimestamp() const {
-  static timespec timestamp = GetTimestampSearchingPath("flex");
+TTimestamp TFlex::GetCmdTimestamp() const {
+  static TTimestamp timestamp = GetTimestampSearchingPath("flex");
   return timestamp;
 }
 

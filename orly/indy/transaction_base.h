@@ -595,11 +595,11 @@ namespace Orly {
 
         /* TODO */
         TManager(Disk::Util::TEngine *engine,
-                 size_t merge_mem_delay,
-                 size_t merge_disk_delay,
+                 std::chrono::milliseconds merge_mem_delay,
+                 std::chrono::milliseconds merge_disk_delay,
                  bool allow_tailing,
                  bool no_realtime,
-                 size_t layer_cleaning_interval_milliseconds,
+                 std::chrono::milliseconds layer_cleaning_interval,
                  Base::TScheduler *scheduler,
                  size_t block_slots_available_per_merger,
                  size_t max_repo_cache_size,

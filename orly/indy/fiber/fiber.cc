@@ -20,6 +20,9 @@
 
 #include <xmmintrin.h>
 
+#include <thread>
+
+using namespace std::literals;
 using namespace Orly::Indy::Fiber;
 
 __thread TRunner *TRunner::LocalRunner = nullptr;
@@ -35,8 +38,6 @@ void TRunner::Run() {
   TFrame *rt_queue = nullptr; /* we use this to push come back right away jobs to the front... */
   TFrame *next_frame = nullptr; /* we use this to loop through a queue... */
   try {
-    const timespec lap_wait{0, 10000UL};
-    const timespec long_lap_wait{0, 100000UL};
     const size_t laps_before_short_sleep = 100UL;
     const size_t laps_before_long_sleep = 100UL;
     size_t laps_without_work = 0UL;
@@ -112,9 +113,9 @@ void TRunner::Run() {
       } else {
         ++laps_without_work;
         if (laps_without_work >= laps_before_long_sleep) {
-          nanosleep(&lap_wait, NULL);
+          std::this_thread::sleep_for(10000ns);
         } else if (laps_without_work >= laps_before_short_sleep) {
-          nanosleep(&long_lap_wait, NULL);
+          std::this_thread::sleep_for(100000ns);
         }
       }
       for (;;) {

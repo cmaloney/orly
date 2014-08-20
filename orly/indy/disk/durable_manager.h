@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <cstdint>
 #include <functional>
 
@@ -26,7 +27,6 @@
 #include <base/event_counter.h>
 #include <base/event_semaphore.h>
 #include <base/scheduler.h>
-#include <base/time.h>
 #include <base/timer_fd.h>
 #include <base/uuid.h>
 #include <inv_con/unordered_list.h>
@@ -59,6 +59,7 @@ namespace Orly {
 
     }
 
+
     /* TODO */
     namespace DurableManager {
 
@@ -90,6 +91,22 @@ namespace Orly {
     }  // DurableManager
 
     namespace Disk {
+
+      /* Helper Used for maintaining a simple counter of when to flush. */
+      class TFlush {
+        public:
+
+        /* Sets the next flush for delay milliseconds after construction */
+        TFlush(std::chrono::milliseconds delay);
+
+        /* Sleeps until the current next flush time, then updates the flush time. */
+        void WaitFor();
+        void UpdateNext();
+
+        private:
+        std::chrono::milliseconds Delay;
+        std::chrono::steady_clock::time_point Next;
+      };
 
       /* TODO */
       class TDurableManager
@@ -126,9 +143,9 @@ namespace Orly {
                         DurableManager::TManager *manager,
                         Util::TEngine *engine,
                         size_t max_cache_size,
-                        size_t write_delay,
-                        size_t merge_delay,
-                        size_t layer_cleaning_interval_milliseconds,
+                        std::chrono::milliseconds write_delay,
+                        std::chrono::milliseconds merge_delay,
+                        std::chrono::milliseconds layer_cleaning_interval,
                         size_t temp_file_consol_thresh,
                         bool create,
                         const TNotify *notify = nullptr);
@@ -919,8 +936,8 @@ namespace Orly {
         size_t TempFileConsolThresh;
 
         /* TODO */
-        size_t DurableWriteDelay;
-        size_t DurableMergeDelay;
+        std::chrono::milliseconds DurableWriteDelay;
+        std::chrono::milliseconds DurableMergeDelay;
 
         /* TODO */
         bool ShutDown;

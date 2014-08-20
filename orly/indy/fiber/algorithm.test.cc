@@ -25,10 +25,13 @@
 
 #include <base/timer.h>
 #include <base/usage_meter.h>
+#include <util/time.h>
+
 #include <test/kit.h>
 
 using namespace Base;
 using namespace Orly::Indy::Fiber;
+using namespace Util;
 
 template <typename TVal, size_t ParallelThresh>
 class TSortRunnable
@@ -63,12 +66,13 @@ class TSortRunnable
   void RunMe() {
     Base::TUsageMeter usage_meter(RUSAGE_SELF);
     Base::TTimer parallel_timer;
-    usage_meter.Start();
-    parallel_timer.Start();
     Sort<ParallelThresh>(WorkPool, Data.begin(), Data.end());
     parallel_timer.Stop();
     usage_meter.Stop();
-    printf("parallel sort =[%f], usr=[%f], sys=[%f]\n", parallel_timer.Total(), usage_meter.GetTotalUserCPU(), usage_meter.GetTotalSystemCPU());
+    printf("parallel sort =[%f], usr=[%f], sys=[%f]\n",
+           ToSecondsDouble(parallel_timer.GetTotal()),
+           usage_meter.GetTotalUserCPU(),
+           usage_meter.GetTotalSystemCPU());
     std::lock_guard<std::mutex> lock(Mut);
     Fin = true;
     Cond.notify_one();
@@ -96,13 +100,14 @@ void TestSort(const std::vector<TVal> &input_data, const size_t num_workers) {
   std::vector<TVal> expected_data(input_data.begin(), input_data.end());
   std::vector<TVal> fiber_data(input_data.begin(), input_data.end());
   Base::TUsageMeter usage_meter(RUSAGE_SELF);
-  usage_meter.Start();
   Base::TTimer expected_timer;
-  expected_timer.Start();
   std::sort(expected_data.begin(), expected_data.end());
   expected_timer.Stop();
   usage_meter.Stop();
-  printf("single threaded sort =[%f], usr=[%f], sys=[%f]\n", expected_timer.Total(), usage_meter.GetTotalUserCPU(), usage_meter.GetTotalSystemCPU());
+  printf("single threaded sort =[%f], usr=[%f], sys=[%f]\n",
+         ToSecondsDouble(expected_timer.GetTotal()),
+         usage_meter.GetTotalUserCPU(),
+         usage_meter.GetTotalSystemCPU());
   EXPECT_TRUE(expected_data != input_data);
   EXPECT_TRUE(fiber_data != expected_data);
   TRunner::TRunnerCons runner_cons(1UL + num_workers);
