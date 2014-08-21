@@ -94,7 +94,6 @@ namespace Orly {
         size_t dep = 1UL;
         for (;keep_going; ++dep) {
           size_t num_explored = 0UL;
-          /* choose the for-loop path if there are only a few nodes to explore (as opposed to table scan) */
           sp_map_t tmp_sp_map;
           /* remove entries in sp_to that exist in seen_set. We are only interested in the ones we have not explored yet. */ {
             for (auto iter = sp_to.begin(); iter != sp_to.end();) {
@@ -113,7 +112,6 @@ namespace Orly {
             break;
           }
           /* Sub Scan Path */
-          size_t hits = 0UL;
           Indy::ExternFiber::TSync extern_sync(num_parallel);
           auto iter = sp_to.begin();
           auto sub_scanner_func = [&]() {
@@ -130,7 +128,6 @@ namespace Orly {
                                                                   state_alloc));
               std::unique_ptr<TKeyCursor> kcp(ctx.NewKeyCursor(&ctx.GetFlux(), search_key));
               for (auto &kc = *kcp; kc; ++kc) {
-                ++hits;
                 Sabot::ToNative(*Sabot::State::TAny::TWrapper(kc->GetState(state_alloc)), k);
                 const match_t &to = std::get<TargetPos>(k);
                 edge_vec.emplace_back(k);
@@ -154,11 +151,8 @@ namespace Orly {
             Indy::ExternFiber::SchedTaskLocally(sub_scanner_func);
           }
           extern_sync.Sync();
+          assert(num_explored == expected_to_see);
           sp_to.insert(tmp_sp_map.begin(), tmp_sp_map.end());
-          if (num_explored == 0) {
-            // if every node to explore has already been seen, we've explored the whole connected subgraph from the src!
-            return ret;
-          }
         }
       }
       return ret;
