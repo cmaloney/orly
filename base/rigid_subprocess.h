@@ -24,6 +24,8 @@
 #pragma once
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 #include <base/fd.h>
 
@@ -33,7 +35,15 @@ namespace Base {
   class TRigidSubprocess final {
     public:
 
-    /* Launch the subprocess to run the given command. */
+    /* Launch the subprocess to run the given command given argument by argument.
+
+       NOTE: We intentionally copy in the vector, because exec takes non-const argument strings */
+    TRigidSubprocess(std::vector<std::string> cmd);
+
+    /* Launch the subprocess to run the given command.
+
+       NOTE: This uses /bin/sh as an intermediary to launch the command. It is preferrable to use a vector of arguments
+       directly. */
     TRigidSubprocess(const char *cmd);
 
     /* The id of the child process. */
@@ -64,6 +74,7 @@ namespace Base {
     int Wait() const;
 
     private:
+    void LaunchSubprocess();
 
     /* See accessors. */
     TFd StdInToChild, StdOutFromChild, StdErrFromChild;
