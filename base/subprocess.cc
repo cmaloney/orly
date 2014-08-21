@@ -102,6 +102,6 @@ void Base::EchoOutput(TFd &&fd) {
 
   // Copy everything to cout error message
   while(size_t read = in_cons.TryRead(buf, 4096)) {
-    cout.write(reinterpret_cast<char*>(buf), read);
+    WriteExactly(STDOUT_FILENO, buf, read);
   }
 }
