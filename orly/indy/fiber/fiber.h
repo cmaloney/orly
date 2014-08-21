@@ -40,6 +40,7 @@
 #include <base/thread_local_global_pool.h>
 #include <base/zero.h>
 #include <inv_con/unordered_list.h>
+#include <orly/indy/fiber/extern_fiber.h>
 #include <util/error.h>
 
 namespace Orly {
@@ -731,6 +732,7 @@ namespace Orly {
         #endif
 
       };  // TSync
+      static_assert(ExternFiber::SyncImplSize == sizeof(TSync), "ExternFiber::SyncImplSize must be adjusted to equal sizeof(TSync)");
 
       /* This is a multi-scheduler safe version of TSync. There is more synchronization involved, so use this when you are actually parallelizing
          tasks as opposed to scheduling multiple fibers on the same scheduler. */
