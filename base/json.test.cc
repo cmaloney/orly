@@ -22,6 +22,7 @@
 #include <string>
 #include <tuple>
 
+#include <base/as_str.h>
 #include <test/kit.h>
 
 using namespace std;
@@ -83,13 +84,13 @@ static const TJson::TArray  Array  = { 1, 2, 3 };
 static const TJson::TObject Object = { { "a", 1 }, { "b", 2 }, { "c", 3 } };
 
 FIXTURE(Format) {
-  EXPECT_EQ(TJson().Format(), "null");
-  EXPECT_EQ(TJson(true).Format(), "true");
-  EXPECT_EQ(TJson(false).Format(), "false");
-  EXPECT_EQ(TJson("").Format(), R"("")");
-  EXPECT_EQ(TJson('x').Format(), R"("x")");
-  EXPECT_EQ(TJson("foo").Format(), R"("foo")");
-  EXPECT_EQ(TJson(string("bar")).Format(), R"("bar")");
+  EXPECT_EQ(AsStr(TJson()), "null");
+  EXPECT_EQ(AsStr(TJson(true)), "true");
+  EXPECT_EQ(AsStr(TJson(false)), "false");
+  EXPECT_EQ(AsStr(TJson("")), R"("")");
+  EXPECT_EQ(AsStr(TJson('x')), R"("x")");
+  EXPECT_EQ(AsStr(TJson("foo")), R"("foo")");
+  EXPECT_EQ(AsStr(TJson(string("bar"))), R"("bar")");
 }
 
 FIXTURE(Defaults) {
@@ -183,13 +184,7 @@ FIXTURE(Parse) {
 
 FIXTURE(EscapeSequences) {
   EXPECT_EQ(TJson::Parse(R"foo("\"\\\/\b\f\n\r\t")foo").GetString(), "\"\\/\b\f\n\r\t");
-  EXPECT_EQ(TJson("\"\\/\b\f\n\r\t7").Format(), R"foo("\"\\/\b\f\n\r\t7")foo");
-}
-
-std::string AsStr(Base::TJson::TKind kind) {
-  std::ostringstream oss;
-  oss << kind;
-  return oss.str();
+  EXPECT_EQ(AsStr(TJson("\"\\/\b\f\n\r\t7")), R"foo("\"\\/\b\f\n\r\t7")foo");
 }
 
 FIXTURE(KindToStr) {
@@ -202,11 +197,11 @@ FIXTURE(KindToStr) {
 }
 
 FIXTURE(RoundTrip) {
-  EXPECT_EQ(TJson::Parse(TJson(12345678).Format()), 12345678);
-  EXPECT_EQ(TJson::Parse(TJson(0).Format()), 0);
-  EXPECT_EQ(TJson::Parse(TJson(101).Format()), 101);
-  EXPECT_EQ(TJson::Parse(TJson(-101).Format()), -101);
-  EXPECT_EQ(TJson::Parse(TJson(98.6).Format()), 98.6);
-  EXPECT_EQ(TJson::Parse(TJson(Array).Format()), Array);
-  EXPECT_EQ(TJson::Parse(TJson(Object).Format()), Object);
+  EXPECT_EQ(TJson::Parse(AsStr(TJson(12345678))), 12345678);
+  EXPECT_EQ(TJson::Parse(AsStr(TJson(0))), 0);
+  EXPECT_EQ(TJson::Parse(AsStr(TJson(101))), 101);
+  EXPECT_EQ(TJson::Parse(AsStr(TJson(-101))), -101);
+  EXPECT_EQ(TJson::Parse(AsStr(TJson(98.6))), 98.6);
+  EXPECT_EQ(TJson::Parse(AsStr(TJson(Array))), Array);
+  EXPECT_EQ(TJson::Parse(AsStr(TJson(Object))), Object);
 }

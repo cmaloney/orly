@@ -550,14 +550,6 @@ namespace Base {
       return true;
     }
 
-    /* A string formatted from our state. */
-    std::string Format() const {
-      assert(this);
-      std::ostringstream strm;
-      Write(strm);
-      return strm.str();
-    }
-
     /* The kind of state we're in. */
     TKind GetKind() const noexcept {
       assert(this);
