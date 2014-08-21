@@ -34,10 +34,10 @@ namespace Orly {
                                                          const size_t num_parallel,
                                                          const Base::TUuid &idx_id,
                                                          const TSearchType &val_args,
-                                                         const typename std::tuple_element<SrcPos, TKeyType>::type &src,
-                                                         const typename std::tuple_element<TargetPos, TKeyType>::type &target) {
-      using match_t = typename std::tuple_element<SrcPos, TKeyType>::type;
-      static_assert(std::is_same<match_t, typename std::tuple_element<TargetPos, TKeyType>::type>::value, "Cannot follow links of differing types");
+                                                         const std::tuple_element_t<SrcPos, TKeyType> &src,
+                                                         const std::tuple_element_t<TargetPos, TKeyType> &target) {
+      using match_t = std::tuple_element_t<SrcPos, TKeyType>;
+      static_assert(std::is_same<match_t, std::tuple_element_t<TargetPos, TKeyType>>::value, "Cannot follow links of differing types");
       using edge_vec_t = std::vector<TKeyType>;
       std::vector<edge_vec_t> ret;
       Atom::TSuprena arena;
