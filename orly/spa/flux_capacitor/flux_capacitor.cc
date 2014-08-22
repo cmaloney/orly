@@ -130,7 +130,7 @@ bool TParentPov::PlayTetris(int timeout) {
   assert(this);
   vector<TSync::TExclusiveLock *> child_locks;
   unordered_set<TUpdate *> updates;
-  epoll_event *events = new epoll_event[ChildPovCount];
+  epoll_event events[ChildPovCount];
   try {
     int ready_count;
     Util::IfLt0(ready_count = epoll_wait(TetrisWaitHandle, events, ChildPovCount, timeout));
@@ -143,13 +143,11 @@ bool TParentPov::PlayTetris(int timeout) {
       }
     }
   } catch (...) {
-    delete [] events;
     for (auto lock: child_locks) {
       delete lock;
     }
     throw;
   }
-  delete [] events;
   bool success = !updates.empty();
   if (success) {
     TSync::TExclusiveLock lock(Sync);

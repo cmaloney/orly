@@ -1824,7 +1824,7 @@ void TVolume::TStrategy::DiscardRunner() {
     for (;;) {
       int ret = epoll_wait(DiscardEpollFd, &event, 1, timeout);
       if (ret < 0 && errno == EINTR) {
-        if (Base::ShuttingDown) {
+        if (Base::IsShuttingDown()) {
           throw TScheduler::TJobExit("Discard() runner shutting down.");
         } else {
           continue;

@@ -23,6 +23,8 @@
 #include <time.h>
 
 #include <base/cmd.h>
+#include <base/backtrace.h>
+#include <signal/handler_installer.h>
 #include <test/fixture.h>
 #include <test/is_in_test.h>
 
@@ -74,7 +76,17 @@ int TApp::Run() {
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static void PrintSegfaultBacktrace(int) {
+  cout << "ERROR: SIGSEGV / Segfault\n"
+       << "Backtrace: " << endl;
+  PrintBacktrace(500);
+  cerr << "SEGFAULT" << endl;
+  Util::Abort(HERE);
+}
+
 int main(int argc, char *argv[]) {
+  SetBacktraceOnTerminate();
+  Signal::THandlerInstaller signal_handler(SIGSEGV, &PrintSegfaultBacktrace);
   ExtraInit();
   TApp::TCmd cmd(argc, argv);
   TLog log(cmd);

@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <base/backtrace.h>
 #include <base/debug_log.h>
 #include <base/scheduler.h>
 #include <server/daemonize.h>
@@ -92,6 +93,8 @@ static void LaunchServer(TScheduler *scheduler, const ::TCmd &cmd, shared_ptr<TS
 }
 
 int main(int argc, char *argv[]) {
+  // Make std::terminate calls produce more data / info for us.
+  SetBacktraceOnTerminate();
   ::TCmd cmd(argc, argv);
   TLog log(cmd);
   if (cmd.Daemon) {

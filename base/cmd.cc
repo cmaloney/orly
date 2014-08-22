@@ -28,10 +28,12 @@
 
 #include <base/no_default_case.h>
 #include <base/zero.h>
+#include <util/stl.h>
 
 using namespace std;
-using namespace placeholders;
+using namespace std::placeholders;
 using namespace Base;
+using namespace Util;
 
 TCmd::TMeta::~TMeta() {
   assert(this);
@@ -536,8 +538,13 @@ bool TCmd::TMeta::TParser::TRun::CheckForRequired(const vector<const TParam *> &
   assert(this);
   assert(&params);
   assert(&cb);
+  std::unordered_set<const TParam *> missing_params;
   for (auto param: params) {
+    if (Contains(missing_params, param)) {
+      continue;
+    }
     if (param->GetBasis() == Required && CountByParam.find(param) == CountByParam.end()) {
+      missing_params.insert(param);
       ostringstream strm;
       strm << '"' << param->GetDiagnosticName() << "\": not given";
       if (!cb(strm.str())) {

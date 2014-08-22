@@ -1,6 +1,9 @@
 /* <base/shutting_down.h>
 
-   TODO
+   Functions and classes for helping notify and deal with in individual subsystems shutting down a process gracefully.
+
+   The core functionality is being able to call ShutDown. This notifys all the registered shutdown callbacks that a
+   shutdown is occuring, as well as making IsShuttingDown return true.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -18,11 +21,32 @@
 
 #pragma once
 
-#include <atomic>
+#include <cstdint>
+#include <functional>
+
+#include <base/class_traits.h>
 
 namespace Base {
 
-  /* TODO */
-  extern std::atomic_bool ShuttingDown;
+  /* Let subsystems know a shut down is happening */
+  void ShutDown();
 
+  /* Returns true iff. ShutDown() has been called. */
+  bool IsShuttingDown();
+
+  /* RAII insertion of a function which should be called when shut down is initiated.
+
+     NOTE: This uses a unique integer to identify the callback. As such, the most callbacks you can ever
+     register during the lifetime of the program / number of TShutdownCallbacks that can be constructed is
+     the max value of uint64_t */
+  class TShutdownCallback {
+    NO_COPY(TShutdownCallback);
+    NO_MOVE(TShutdownCallback);
+    public:
+    TShutdownCallback(std::function<void()> callback);
+    ~TShutdownCallback();
+
+    private:
+    uint64_t Id;
+  };
 }  // Base

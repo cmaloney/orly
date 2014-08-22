@@ -118,5 +118,5 @@ FIXTURE(PermanentQuiescence) {
   count = 0;
   TScheduler::TPolicy(1, 4, milliseconds(10)).RunUntilCtrlC(bind(LittleMain, _1, expected, ref(count)));
   EXPECT_EQ(count.load(), expected);
-  EXPECT_TRUE(ShuttingDown);
+  EXPECT_TRUE(IsShuttingDown());
 }
