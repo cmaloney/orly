@@ -28,7 +28,6 @@ using namespace std;
 void Base::PrintBacktrace(int max_frame_count) {
   GenBacktrace(max_frame_count, [] (const string &msg) {
     cout << msg << endl;
-    return true;
   });
 }
 
