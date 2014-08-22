@@ -89,9 +89,6 @@ TSubprocess::TSubprocess(TPump &pump) {
     stdin.Reset();
     stdout.Reset();
     stderr.Reset();
-    StdInToChild.Reset();
-    StdOutFromChild.Reset();
-    StdErrFromChild.Reset();
   }
 }
 

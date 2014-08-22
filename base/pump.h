@@ -7,13 +7,11 @@
    can lead to deadlocks when the reader and writer are synchronizing with each other.
 
    This pump seeks to alleviate the problem by reading avidly from the pipe and storing
-   the results in internal buffers until the actual reader is ready to read them.  The
-   pump runs a single background thread which can handle the traffic of many separate
-   pipes.
+   the results in. The pump runs a single background thread which can handle the traffic
+   of many separate pipes.
 
-   If writers outstrip readers, then the pump's memory usage will grow without limit.
-   However, the pump has a recycling system for its buffers, so, as long as traffic
-   remains more or less even, dynamic memory allocations won't happen.
+   The pump is backed by a infinitely growing collection of pages. This will consume ram
+   infinitely until we run out of space. Care should be taken not to have this happen.
 
    When the time comes to shut down the pump, you have two choices: shut it down nicely,
    waiting for any pending data to drain through, or shut it down hard, throwing away
@@ -29,8 +27,24 @@
    time limit was reached.
 
    For a hard shutdown, just destroy the pump.  The destructor will not return until the
-   background thread has halted and all unread data and recycled buffers have been thrown
-   away.
+   background thread has halted.
+
+   Sample Usage:
+    TPump pump;
+    TFd read, write;
+    pump.NewPipe(read, write);
+    WriteExactly(write, "test", 4);
+
+    char data[4];
+    ReadExactly(read, data, 4);
+
+    EXPECT_EQ(data[0], 'd');
+    EXPECT_EQ(data[1], 'a');
+    EXPECT_EQ(data[2], 't');
+    EXPECT_EQ(data[3], 'a');
+
+
+  TODO: Migrate to http://dvdhrm.wordpress.com/2014/06/10/memfd_create2/ once that is around.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -51,22 +65,65 @@
 #include <cassert>
 #include <chrono>
 #include <condition_variable>
+#include <memory>
 #include <mutex>
+#include <queue>
 #include <thread>
-
-#include <sys/epoll.h>
+#include <unordered_set>
 
 #include <base/class_traits.h>
 #include <base/event_semaphore.h>
 #include <base/fd.h>
-#include <base/no_default_case.h>
+#include <util/stl.h>
 
 namespace Base {
+
+  //TODO: this should be pulled out into a generic "pool of buffers" implementation
+  //TODO: Can we use <strm/> for this (Basically it is an uncapped I/O buffer inside a stream)
+  //NOTE: We never reclaim any blocks currently.
+  //TODO: Should really be an invasive containment type thing between pools and blocks so blocks can't get lost.
+  template<uint64_t BlockSize>
+  class TGrowingPool {
+    NO_COPY(TGrowingPool);
+    public:
+
+    using TPtr = std::unique_ptr<uint8_t[]>;
+
+    TGrowingPool() = default;
+
+    /* Get a new block (The block continues to be owned by the pool. */
+    uint8_t *Allocate() {
+      if(!AvailBlocks.empty()) {
+        return Util::Pop(AvailBlocks);
+      }
+
+      TPtr block(new uint8_t[BlockSize]);
+      auto ret = block.get();
+      Blocks.emplace_back(std::move(block));
+      return ret;
+    }
+
+    /* Return a block to the pool */
+    void Recycle(uint8_t *block) {
+      assert(block);
+      AvailBlocks.push(block);
+    }
+
+    private:
+    std::queue<uint8_t*> AvailBlocks;
+    std::vector<TPtr> Blocks;
+  };
 
   /* A pump for pipes. */
   class TPump final {
     NO_COPY(TPump);
     public:
+
+    /* Max number of bytes which are forwarded at a time through a TPipe */
+    static constexpr uint64_t ReadBufSize = 4096;
+
+    /* Max number of epoll events returned simultaneously */
+    static const size_t MaxEventCount = 64;
 
     /* Construct with no pipes. */
     TPump();
@@ -75,27 +132,25 @@ namespace Base {
     ~TPump();
 
     /* Create a new pipe and return both ends of it. */
-    void NewPipe(TFd &in, TFd &out) {
-      assert(this);
-      new TPipe(this, in, out);
-    }
+    void NewPipe(TFd &read, TFd &write);
 
     /* Wait for the pump to become idle. */
     void WaitForIdle() const {
       assert(this);
-      std::unique_lock<std::mutex> lock(Mutex);
-      while (FirstPipe) {
+      std::unique_lock<std::mutex> lock(PipeMutex);
+      while (!IsIdle()) {
         PipeDied.wait(lock);
       }
     }
 
+    //TODO: Figure out some cleaner way to make all of the ways you can wait on a condition_variable accessible.
     /* Wait for the pump to become idle, then return true.
        If the timeout is reached first, return false. */
     template <typename TRep, typename TPeriod>
     bool WaitForIdleFor(const std::chrono::duration<TRep, TPeriod> &timeout) const {
       assert(this);
-      std::unique_lock<std::mutex> lock(Mutex);
-      while (FirstPipe) {
+      std::unique_lock<std::mutex> lock(PipeMutex);
+      while (!IsIdle()) {
         if (PipeDied.wait_for(lock, timeout) == std::cv_status::timeout) {
           return false;
         }
@@ -108,8 +163,8 @@ namespace Base {
     template <typename TClock, typename TDuration>
     bool WaitForIdleUntil(const std::chrono::time_point<TClock, TDuration> &deadline) const {
       assert(this);
-      std::unique_lock<std::mutex> lock(Mutex);
-      while (FirstPipe) {
+      std::unique_lock<std::mutex> lock(PipeMutex);
+      while (!IsIdle()) {
         if (PipeDied.wait_until(lock, deadline) == std::cv_status::timeout) {
           return false;
         }
@@ -117,241 +172,46 @@ namespace Base {
       return true;
     }
 
+    bool IsIdle() const;
+
     private:
 
-    /* Just making the system type look more like a type. */
-    using epoll_event_t = epoll_event;
+    using TBlockPool = TGrowingPool<ReadBufSize>;
 
-    /* The maximum number of bytes we will pump through a pipe in a single step. */
-    static const size_t BufferSize = 65536;
-
-    /* The maximum number of epoll events we will handle in a single step.
-       This is NOT the maximum number of events an epoll can handle. */
-    static const size_t MaxEventCount = 64;
-
-    /* A pipe, which is really a pair of OS pipes, one inbound and one outbound. */
-    class TPipe final {
-      NO_COPY(TPipe);
-      public:
-
-      /* A page of data which is part of a linked list of pages.
-         If the page contains data ready to be used, then it is in a pipe's list of committed pages;
-         otherwise, it is in the pump's list of recycled pages, waiting to be used again. */
-      class TPage final {
-        NO_COPY(TPage);
-        public:
-
-        /* Construct as recycled. */
-        TPage(TPump *pump);
-
-        /* Unlink our the list, if any, and go. */
-        ~TPage();
-
-        /* Data storage space.  There are at least BufferSize bytes available. */
-        char *GetBuffer() const {
-          assert(this);
-          return Buffer;
-        }
-
-        /* The number of bytes in the buffer which contain good data. */
-        size_t GetSize() const {
-          assert(this);
-          return Size;
-        }
-
-        /* Append ourself to the given pipe's list of committed pages.
-           Set size of available data to the given value. */
-        void Commit(TPipe *pipe, size_t size);
-
-        /* Append ourself to the pump's list of recycled pages.
-           Set size of available data to zero. */
-        void Recycle(TPump *pump);
-
-        private:
-
-        /* The page's status indicates which list of pages it is currently linked to.
-           This also determines which field in the union (below) is currently valid. */
-        enum TStatus {
-
-          /* The page isn't linked to any list.
-             The Void field in the union is null. */
-          Unlinked,
-
-          /* The page is linked to the pump's list of recycled pages.
-             The Pump field in the union points to the pump. */
-          Recycled,
-
-          /* The page is linked to a pipe's list of committed pages.
-             The Pipe field in the union points to the pipe. */
-          Committed
-
-        };  // TPump::TPipe::TPage::TStatus
-
-        /* A reference to the pointer to the first page in our list.
-           It is not legal to call this function when we are unlinked. */
-        TPage *&GetFirstConj() const {
-          assert(this);
-          switch (Status) {
-            case Recycled: {
-              return Pump->FirstRecycledPage;
-            }
-            case Committed: {
-              return Pipe->FirstCommittedPage;
-            }
-            DEFAULT_UNREACHABLE;
-          }
-        }
-
-        /* A reference to the pointer to the last page in our list.
-           It is not legal to call this function when we are unlinked. */
-        TPage *&GetLastConj() const {
-          assert(this);
-          switch (Status) {
-            case Recycled: {
-              return Pump->LastRecycledPage;
-            }
-            case Committed: {
-              return Pipe->LastCommittedPage;
-            }
-            DEFAULT_UNREACHABLE;
-          }
-        }
-
-        /* A reference to the pointer which points to us from the next page.
-           It is not legal to call this function when we are unlinked. */
-        TPage *&GetNextConj() const {
-          assert(this);
-          return NextPage ? NextPage->PrevPage : GetLastConj();
-        }
-
-        /* A reference to the pointer which points to us from the previous page.
-           It is not legal to call this function when we are unlinked. */
-        TPage *&GetPrevConj() const {
-          assert(this);
-          return PrevPage ? PrevPage->NextPage : GetFirstConj();
-        }
-
-        /* Link to the end of the given pipe's list of committed pages.
-           If the given pointer is null, instead link to the end of the pump's list of recycled pages. */
-        void FixupLinks();
-
-        /* Unlink from whatever list we're currently in. */
-        void Unlink();
-
-        /* See TStatus. */
-        TStatus Status;
-
-        /* The object whose list we're currently linked to.  See TStatus. */
-        union {
-          void *Void;
-          TPump *Pump;
-          TPipe *Pipe;
-        };
-
-        /* Our sibling pages in whatever list we're in. */
-        TPage *NextPage, *PrevPage;
-
-        /* See accessor. */
-        size_t Size;
-
-        /* See accessor. */
-        mutable char Buffer[BufferSize];
-
-      };  // TPump::TPipe::TPage
-
-      /* Construct a new pipe in the given pump and return the
-         foreground ends of the inbound and outbound half-pipes. */
-      TPipe(TPump *pump, TFd &in, TFd &out);
-
-      /* Recycle all remaining committed pages and unlink from the pump. */
-      ~TPipe();
-
-      /* Try to read and/or write from/to the half-pipes.
-         Return true if we will need further service or false if we're ready to die. */
-      bool Service();
-
-      private:
-
-      /* A reference to the pointer which points to us from the next pipe. */
-      TPipe *&GetNextConj() const {
-        assert(this);
-        return NextPipe ? NextPipe->PrevPipe : Pump->LastPipe;
-      }
-
-      /* A reference to the pointer which points to us from the previous pipe. */
-      TPipe *&GetPrevConj() const {
-        assert(this);
-        return PrevPipe ? PrevPipe->NextPipe : Pump->FirstPipe;
-      }
-
-      /* Join the epoll as a writer. */
-      void StartWriting();
-
-      /* Part from the epoll as a writer. */
-      void StopWriting();
-
-      /* Part from the epoll as a reader. */
-      void StopReading();
-
-      /* The pump to which we belong.  Never null. */
-      TPump *Pump;
-
-      /* Out siblings in the pump's list of pipes. */
-      TPipe *NextPipe, *PrevPipe;
-
-      /* The first and last pages of committed data,
-         waiting to be written to the outbound half-pipe. */
-      TPage *FirstCommittedPage, *LastCommittedPage;
-
-      /* Our current position and limit in the first committed page. */
-      const char *Start, *Limit;
-
-      /* True iff. we're joined to the epoll as a writer. */
-      bool Writing;
-
-      /* The background ends of the in- and outbound half-pipes. */
-      TFd In, Out;
-
-    };  // TPump::TPipe
-
-    /* Convenience. */
-    using TPage = TPipe::TPage;
+    class TPipe;
 
     /* The entry point of the background thread. */
     void BackgroundMain();
 
-    /* Returns a page from the recycled list.  If the list
-       is empty it makes a new one, so this is never null. */
-    TPage *GetPage();
-
-    /* Add the given fd to the epoll with the given events and
-       associate the given pipe with it. */
-    void JoinEpoll(int fd, int events, TPipe *pipe);
+    /* Add the given fd to the epoll with the given events and associate the given pipe with it. */
+    void JoinEpoll(int fd, uint32_t events, TPipe *pipe);
 
     /* Remove the given fd from the epoll. */
     void PartEpoll(int fd);
 
-    /* Covers FirstPipe & LastPipe. */
-    mutable std::mutex Mutex;
-
     /* Signals when a pipe dies.  This wakes up the WaitForIdle() functions. */
+    mutable std::mutex PipeMutex;
     mutable std::condition_variable PipeDied;
 
     /* Pushed in the destructor.  It causes the background thread to exit. */
-    TEventSemaphore Deleting;
+    TEventSemaphore Shutdown;
 
-    /* The first and last pipes in the pump. */
-    TPipe *FirstPipe, *LastPipe;
+    /* Used when managing Pipes variable. */
 
-    /* The first and last pages in the recycled list. */
-    TPage *FirstRecycledPage, *LastRecycledPage;
+    /* Collection of the owned pipes.
+
+       NOTE: It would be really nice to use unique_ptr here, but we can't because we can't lookup a pipe given a raw
+       pointer later... */
+    std::unordered_set<TPipe*> Pipes;
 
     /* The epoll against which the background thread blocks. */
     TFd Epoll;
 
+    /* Pool of blocks for stashing I/O in temporarily. */
+    TBlockPool BlockPool;
+
     /* The background thread. */
     std::thread Background;
-
   };  // TPump
 
 }  // Base
