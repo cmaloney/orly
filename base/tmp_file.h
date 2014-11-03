@@ -33,11 +33,17 @@ namespace Base {
     ~TTmpFile();
 
     const char *GetName() const {
-      return &Name[0];
+      return Name.data();
     }
 
     const TFd &GetFd() const {
       return Fd;
+    }
+
+    /* Allows taking ownership of the fd so it has a independent lifetime
+       from the deletion of the file. */
+    TFd MoveFd() {
+      return TFd(std::move(Fd));
     }
 
     void SetDeleteOnDestroy(bool delete_on_destroy) {

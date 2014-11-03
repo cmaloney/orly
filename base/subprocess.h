@@ -20,6 +20,8 @@
 
 #include <cassert>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <base/pump.h>
 
@@ -82,7 +84,11 @@ namespace Base {
 
     /* Execute the given command in a shell.  This will replace the calling process
        entirely with the shell process, so don't expect this function to return. */
-    [[noreturn]] static void Exec(const char *cmd);
+    [[noreturn]] static void ExecStr(const char *cmd);
+
+    /* Execute the given command in a shell.  This will replace the calling process
+       entirely with the target command, so don't expect this function to return. */
+    [[noreturn]] static void Exec(const std::vector<std::string> &cmd);
 
     /* Fork a new child process.  If we are the parent, return a pointer to a newly
        allocated TSubprocess instance.  If we are the child, return null. */
@@ -98,7 +104,18 @@ namespace Base {
     /* Fork a new child process.  If we are the parent, return a pointer to a newly
        allocated TSubprocess instance.  If we are the child, shell out to execute the
        command and don't return at all. */
-    static std::unique_ptr<TSubprocess> New(TPump &pump, const char *cmd) {
+    static std::unique_ptr<TSubprocess> NewStr(TPump &pump, const char *cmd) {
+      auto subprocess = New(pump);
+      if (!subprocess) {
+        ExecStr(cmd);
+      }
+      return subprocess;
+    }
+
+    /* Fork a new child process.  If we are the parent, return a pointer to a newly
+       allocated TSubprocess instance.  If we are the child, shell out to execute the
+       command and don't return at all. */
+    static std::unique_ptr<TSubprocess> New(TPump &pump, const std::vector<std::string> &cmd) {
       auto subprocess = New(pump);
       if (!subprocess) {
         Exec(cmd);

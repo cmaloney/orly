@@ -17,8 +17,6 @@
 #include <jhm/jobs/nycr.h>
 
 #include <cassert>
-#include <fstream>
-#include <sstream>
 #include <stdexcept>
 
 #include <base/as_str.h>
@@ -32,9 +30,7 @@ using namespace Jhm::Job;
 using namespace std;
 using namespace Util;
 
-static void AddNycr(ostream &out, TEnv &env) {
-  out << *env.GetRoot() << "/out/bootstrap/tools/nycr/nycr";
-}
+static string GetNycrPath(TEnv &env) { return AsStr(*env.GetRoot()) + "/out/bootstrap/tools/nycr/nycr"; }
 
 static TOpt<TRelPath> GetNycrLangInputName(const TRelPath &output) {
   if (output.Path.EndsWith({"nycr", "lang"})) {
@@ -62,17 +58,14 @@ const char *TNycrLang::GetName() {
 const unordered_set<TFile*> TNycrLang::GetNeeds() {
   return unordered_set<TFile*>();
 }
-std::string TNycrLang::GetCmd() {
-  ostringstream oss;
-  AddNycr(oss, Env);
-  oss << " -l --language-report-file " << GetSoleOutput()->GetPath() << ' ' << GetInput()->GetPath();
 
-  return oss.str();
+vector<string> TNycrLang::GetCmd() {
+  return vector<string>{GetNycrPath(Env), "-l", "--language-report-file",
+                        GetSoleOutput()->GetPath(), GetInput()->GetPath()};
 }
 
-
 TTimestamp TNycrLang::GetCmdTimestamp() const {
-  static TTimestamp timestamp = GetTimestamp(AsStrFunc(AddNycr, Env));
+  static TTimestamp timestamp = GetTimestamp(GetNycrPath(Env));
   return timestamp;
 }
 
@@ -149,7 +142,7 @@ const unordered_set<TFile*> TNycr::GetNeeds() {
   return {Need};
 }
 
-string TNycr::GetCmd() {
+vector<string> TNycr::GetCmd() {
   assert(this);
 
   // Use the need to get the list of languages, finalize our output set.
@@ -176,21 +169,21 @@ string TNycr::GetCmd() {
   MarkAllOutputsKnown();
 
   //TODO: use nycr in path?
-  ostringstream oss;
-
-  AddNycr(oss, Env);
-
-  oss << " -a " << GetInput()->GetRelPath().Path.Name
-      << " -p " << Join(GetInput()->GetRelPath().Path.Namespace, '/')
-      // Note: This finding of the output root is correct, but should really be a call to a helper function.
-      << " -r " << *Env.GetOut();
-  WriteNamespace(oss, GetInput()->GetRelPath().Path.Namespace)
-      << ' ' << GetInput()->GetPath();
-  return oss.str();
+  return vector<string> {
+    GetNycrPath(Env),
+    "-a",
+    GetInput()->GetRelPath().Path.Name,
+    "-p",
+    AsStr(Join(GetInput()->GetRelPath().Path.Namespace, '/')),
+    // Note: This finding of the output root is correct, but should really be a call to a helper function.
+    "-r",
+    AsStr(*Env.GetOut()) + AsStrFunc(WriteNamespace, GetInput()->GetRelPath().Path.Namespace, true),
+    GetInput()->GetPath()
+  };
 }
 
 TTimestamp TNycr::GetCmdTimestamp() const {
-  return GetTimestamp(AsStrFunc(AddNycr, Env));
+  return GetTimestamp(GetNycrPath(Env));
 }
 
 bool TNycr::IsComplete() {

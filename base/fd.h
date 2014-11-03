@@ -78,7 +78,7 @@ namespace Base {
     /* Close the file descriptor we own, if any.  If the descriptor is in the stdio range (0-2), then don't close it. */
     ~TFd() {
       assert(this);
-      if (!IsSystemFd()) {
+      if (!IsSystemFd() && OsHandle != -1) {
         close(OsHandle);
       }
     }

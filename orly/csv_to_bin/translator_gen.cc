@@ -24,6 +24,7 @@
 #include <base/log.h>
 #include <base/path.h>
 #include <base/pump.h>
+#include <base/split.h>
 #include <base/source_root.h>
 #include <base/subprocess.h>
 #include <orly/csv_to_bin/synth.h>
@@ -94,11 +95,12 @@ int main(int argc, char *argv[]) {
     std::cout << "wrote [" << orly_outfile << "]" << std::endl;
     Base::TPump pump;
     #ifndef NDEBUG
-    const char *jhm_cmd = "jhm driver";
+    const vector<string> jhm_cmd = {"jhm","driver"};
     #else
-    const char *jhm_cmd = "jhm -c release driver";
+    const vector<string> jhm_cmd = {"jhm","-crelease","driver"};
     #endif
-    std::cout << "running [" << jhm_cmd << "]" << std::endl;
+    //TODO: A better joining of the strings
+    std::cout << "running [" << Base::Join(jhm_cmd, ' ') << "]" << std::endl;
     auto subprocess = Base::TSubprocess::New(pump, jhm_cmd);
     auto status = subprocess->Wait();
     if (status) {

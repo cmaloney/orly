@@ -71,7 +71,7 @@ namespace Jhm {
     void ProcessQueue();
 
     std::mutex ToRunMutex;
-    std::queue<std::tuple<TJob*, std::string>> ToRun;
+    std::queue<std::tuple<TJob*, std::vector<std::string>>> ToRun;
     // NOTE: ExitWorker only goes from false -> true on shutdown
     std::atomic<bool> ExitWorker;
     // NOTE: MoreResults is true so long as we're either processing, or going to process more jobs.

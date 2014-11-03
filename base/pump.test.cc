@@ -36,6 +36,28 @@ static const char *Msg = "Mofo the Psychic Gorilla!";
 
 static constexpr size_t MsgSize = 25;
 
+// Disable because the test harness sees the uint8_t* and tries to print it as a c-string
+// which means calling strlen() which reads past the end of the buffer...
+#if 0
+FIXTURE(GrowingPool) {
+  TGrowingPool<1024> pool;
+  auto b1 = pool.Allocate();
+  auto b2 = pool.Allocate();
+  auto b3 = pool.Allocate();
+  EXPECT_NE(b1, b2);
+  EXPECT_NE(b2, b3);
+  EXPECT_NE(b1, b3);
+
+  pool.Recycle(b2);
+  auto b4 = pool.Allocate();
+  EXPECT_EQ(b2, b4);
+
+  pool.Recycle(b3);
+  pool.Recycle(b1);
+  EXPECT_EQ(pool.Allocate(), b3);
+  EXPECT_EQ(pool.Allocate(), b1);
+}
+#endif
 
 FIXTURE(OnePipeManyCycles) {
   assert(strlen(Msg) == MsgSize);
@@ -47,28 +69,30 @@ FIXTURE(OnePipeManyCycles) {
         expected_size = msg_repeat_count * MsgSize;
     size_t actual_size = 0;
     TPump pump;
-    TFd in, out;
-    pump.NewPipe(in, out);
+    TFd read, write;
+    pump.NewPipe(read, write);
+    assert(read);
+    assert(write);
     thread reader(
-        [&actual_size, &in] {
+        [&actual_size, &read] {
           char buf[MsgSize / 3];
           for (;;) {
             ssize_t size;
-            IfLt0(size = ReadAtMost(in, buf, sizeof(buf)));
+            IfLt0(size = ReadAtMost(read, buf, sizeof(buf)));
             if (!size) {
               break;
             }
             actual_size += size;
           }
-          in.Reset();
+          read.Reset();
         }
     );
     thread writer(
-        [msg_repeat_count, &out] {
+        [msg_repeat_count, &write] {
           for (size_t i = 0; i < msg_repeat_count; ++i) {
-            WriteExactly(out, Msg, MsgSize);
+            WriteExactly(write, Msg, MsgSize);
           }
-          out.Reset();
+          write.Reset();
         }
     );
     reader.join();
@@ -86,33 +110,33 @@ FIXTURE(OneCycleManyPipes) {
   vector<thread> pipes;
   for (size_t i = 0; i < 300; ++i) {
     pipes.push_back(thread(
-        [&pump, &success_count] {
+        [&pump, &success_count, i] {
           const size_t
               msg_repeat_count = 300,
               expected_size = msg_repeat_count * MsgSize;
           size_t actual_size = 0;
-          TFd in, out;
-          pump.NewPipe(in, out);
+          TFd read, write;
+          pump.NewPipe(read, write);
           thread reader(
-              [&actual_size, &in] {
+              [&actual_size, &read] {
                 char buf[MsgSize / 3];
                 for (;;) {
                   ssize_t size;
-                  IfLt0(size = ReadAtMost(in, buf, sizeof(buf)));
+                  IfLt0(size = ReadAtMost(read, buf, sizeof(buf)));
                   if (!size) {
                     break;
                   }
                   actual_size += size;
                 }
-                in.Reset();
+                read.Reset();
               }
           );
           thread writer(
-              [msg_repeat_count, &out] {
+              [msg_repeat_count, &write] {
                 for (size_t i = 0; i < msg_repeat_count; ++i) {
-                  WriteExactly(out, Msg, MsgSize);
+                  WriteExactly(write, Msg, MsgSize);
                 }
-                out.Reset();
+                write.Reset();
               }
           );
           reader.join();
@@ -131,22 +155,22 @@ FIXTURE(OneCycleManyPipes) {
 
 FIXTURE(WaitForIdle) {
   TPump pump;
-  TFd in, out;
-  pump.NewPipe(in, out);
+  TFd read, write;
+  pump.NewPipe(read, write);
   thread waiter(
       [&pump] {
         pump.WaitForIdle();
       }
   );
-  in.Reset();
-  out.Reset();
+  read.Reset();
+  write.Reset();
   waiter.join();
 }
 
 FIXTURE(WaitForIdleForSuccess) {
   TPump pump;
-  TFd in, out;
-  pump.NewPipe(in, out);
+  TFd read, write;
+  pump.NewPipe(read, write);
   atomic_bool
       is_ready(false),
       is_idle(false);
@@ -156,8 +180,8 @@ FIXTURE(WaitForIdleForSuccess) {
         is_idle = pump.WaitForIdleFor(milliseconds(100));
       }
   );
-  in.Reset();
-  out.Reset();
+  read.Reset();
+  write.Reset();
   is_ready = true;
   waiter.join();
   EXPECT_TRUE(is_idle);
@@ -165,8 +189,8 @@ FIXTURE(WaitForIdleForSuccess) {
 
 FIXTURE(WaitForIdleForTimeout) {
   TPump pump;
-  TFd in, out;
-  pump.NewPipe(in, out);
+  TFd read, write;
+  pump.NewPipe(read, write);
   atomic_bool
       is_ready(false),
       is_idle(true);
@@ -183,8 +207,8 @@ FIXTURE(WaitForIdleForTimeout) {
 
 FIXTURE(WaitForIdleUntilSuccess) {
   TPump pump;
-  TFd in, out;
-  pump.NewPipe(in, out);
+  TFd read, write;
+  pump.NewPipe(read, write);
   atomic_bool
       is_ready(false),
       is_idle(false);
@@ -194,8 +218,8 @@ FIXTURE(WaitForIdleUntilSuccess) {
         is_idle = pump.WaitForIdleUntil(system_clock::now() + milliseconds(100));
       }
   );
-  in.Reset();
-  out.Reset();
+  read.Reset();
+  write.Reset();
   is_ready = true;
   waiter.join();
   EXPECT_TRUE(is_idle);
@@ -203,8 +227,8 @@ FIXTURE(WaitForIdleUntilSuccess) {
 
 FIXTURE(WaitUntilIdleForTimeout) {
   TPump pump;
-  TFd in, out;
-  pump.NewPipe(in, out);
+  TFd read, write;
+  pump.NewPipe(read, write);
   atomic_bool
       is_ready(false),
       is_idle(true);

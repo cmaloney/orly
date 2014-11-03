@@ -19,11 +19,9 @@
 #include <orly/compiler.h>
 
 #include <cassert>
-#include <fstream>
 #include <memory>
 #include <mutex>
 #include <queue>
-#include <sstream>
 #include <unistd.h>
 #include <unordered_map>
 
@@ -222,31 +220,33 @@ Package::TVersionedName Orly::Compiler::Compile(
     if(machine_mode) {
       out_strm << "MM_NOTICE: Compiling C++" << endl;
     }
-    stringstream args;
-    /* extra */ {
-      //Take all the packages needed directly or indirectly by the compilation and link  them together in one swoop.
-      ;
 
-      TPath out_path =
-          out_tree.GetAbsPath(SwapExtension(TPath(core_rel.Path), {to_string(packages[core_rel]->GetVersion()), "so"}));
-      // TODO: Check these compile flags.
-      args << "g++ -std=c++1y -x c++ -I" << GetSrcRoot() << " -fPIC -shared -o"<< out_path << " -iquote " << out_tree << ' '
-           << out_tree.GetAbsPath(SwapExtension(TPath(core_rel.Path), {"link","cc"}))
-           << Join(packages,
-                         ' ',
-                         [&out_tree](ostream &strm, const TPackageMap::value_type &that) {
-                           strm << ' ' << out_tree.GetAbsPath(SwapExtension(TPath(that.first.Path), {"cc"}));
-                         });
-      if (debug_cc) {
-        args << " -g -Wno-unused-variable -Wno-type-limits -Werror -Wno-parentheses -Wall -Wextra -Wno-unused-parameter";
-      } else {
-        //TODO: Better optimization flags.
-        args << " -O2 -DNDEBUG";
+    // TODO: Check these compile flags.
+    vector<string> gcc_cmd{"g++", "-std=c++1y", "-xc++", "-I" + GetSrcRoot(), "-fPIC", "-shared", "-o",
+                           AsStr(out_tree.GetAbsPath(SwapExtension(
+                               TPath(core_rel.Path), {to_string(packages[core_rel]->GetVersion()), "so"}))),
+                           "-iquote", AsStr(out_tree),
+                           AsStr(out_tree.GetAbsPath(SwapExtension(TPath(core_rel.Path), {"link", "cc"})))};
+    // Take all the packages needed directly or indirectly by the compilation and link  them together in one swoop.
+    for (const auto &package : packages) {
+      gcc_cmd.emplace_back(AsStr(out_tree.GetAbsPath(SwapExtension(TPath(package.first.Path), {"cc"}))));
+    }
+    if (debug_cc) {
+      const char *debug_args[] = {"-g",      "-Wno-unused-variable", "-Wno-type-limits",
+                                  "-Werror", "-Wno-parentheses",     "-Wall",
+                                  "-Wextra", "-Wno-unused-parameter"};
+      for (auto &arg : debug_args) {
+        gcc_cmd.emplace_back(arg);
       }
+    } else {
+      // TODO: Better optimization flags.
+      // TODO: vector append
+      gcc_cmd.push_back("-O2");
+      gcc_cmd.push_back("-DNDEBUG");
     }
 
     TPump pump;
-    auto subproc = TSubprocess::New(pump, args.str().c_str());
+    auto subproc = TSubprocess::New(pump, gcc_cmd);
     auto status = subproc->Wait();
     if (status || failed) {
       if (debug_cc) {

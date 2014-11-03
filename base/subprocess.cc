@@ -51,9 +51,24 @@ int TSubprocess::Wait() const {
   #pragma GCC diagnostic pop
 }
 
-void TSubprocess::Exec(const char *cmd) {
+void TSubprocess::ExecStr(const char *cmd) {
   static const char *sh = "/bin/sh";
-  IfLt0(execlp(sh, sh, "-c", cmd, nullptr));
+  IfLt0(execl(sh, sh, "-c", cmd, nullptr));
+  throw;
+}
+
+void TSubprocess::Exec(const vector<string> &cmd) {
+  assert(&cmd);
+  // NOTE: This is lots of copies. We're going to get all overwritten / eaten by the child though, so no big worries.
+  // Build an array
+
+  const char *argv[cmd.size() + 1];
+  argv[cmd.size()] = nullptr;
+  for (uint64_t i = 0; i < cmd.size(); ++i) {
+    argv[i] = cmd[i].c_str();
+  }
+  // NOTE: const_cast is unsafe. In this case though, we're going out of existence, so who cares.
+  IfLt0(execvp(cmd[0].c_str(), const_cast<char **>(argv)));
   throw;
 }
 
@@ -74,9 +89,6 @@ TSubprocess::TSubprocess(TPump &pump) {
     stdin.Reset();
     stdout.Reset();
     stderr.Reset();
-    StdInToChild.Reset();
-    StdOutFromChild.Reset();
-    StdErrFromChild.Reset();
   }
 }
 
@@ -87,6 +99,6 @@ void Base::EchoOutput(TFd &&fd) {
 
   // Copy everything to cout error message
   while(size_t read = in_cons.TryRead(buf, 4096)) {
-    cout.write(reinterpret_cast<char*>(buf), read);
+    WriteExactly(STDOUT_FILENO, buf, read);
   }
 }

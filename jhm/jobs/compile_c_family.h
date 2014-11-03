@@ -29,14 +29,14 @@ namespace Jhm {
     class TCompileCFamily final : public TJob {
       public:
 
-      static void AddStandardArgs(TFile *input, bool is_cpp, TEnv &env, std::ostream &out);
+      static std::vector<std::string> GetStandardArgs(TFile *input, bool is_cpp, const TEnv &env);
 
       static TJobProducer GetCProducer();
       static TJobProducer GetCppProducer();
 
       virtual const char *GetName() final;
       virtual const TSet<TFile*> GetNeeds() final;
-      virtual std::string GetCmd() final;
+      virtual std::vector<std::string> GetCmd() final;
       virtual Util::TTimestamp GetCmdTimestamp() const final;
       virtual bool IsComplete() final;
 

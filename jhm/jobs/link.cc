@@ -17,7 +17,6 @@
 #include <jhm/jobs/link.h>
 
 #include <queue>
-#include <sstream>
 
 #include <base/split.h>
 #include <jhm/env.h>
@@ -117,28 +116,26 @@ unordered_set<TFile*> TLink::GetAntiNeeds() {
   return AntiNeeds;
 }
 
-string TLink::GetCmd() {
+vector<string> TLink::GetCmd() {
   assert(this);
-  ostringstream oss;
 
   //TODO: If there are no C++ files, use 'gcc' to link instead of g++
-  oss
-    << "g++ -o " << GetSoleOutput()->GetPath() << ' '
-    << Join(Env.GetConfig().Read<vector<string>>({"cmd","ld","flags"}), ' ');
-
-  oss << ' ';
+  vector<string> cmd{"g++","-o" + GetSoleOutput()->GetPath()};
+  for (auto &flag: Env.GetConfig().Read<vector<string>>({"cmd","ld","flags"})) {
+    cmd.push_back(move(flag));
+  }
 
   // Link against every needed object file
-  oss << Join(ObjFiles,
-              ' ',
-              [] (ostream &out, TFile *f) {
-                out << f->GetPath();
-              });
+  for(TFile *f: ObjFiles) {
+    cmd.push_back(f->GetPath());
+  }
 
   // TODO: Be more intelligent / selective about link flags
-  oss << ' ' << Join(Env.GetConfig().Read<vector<string>>({"cmd","ld","libs"}), ' ');
+  for (auto &lib: Env.GetConfig().Read<vector<string>>({"cmd","ld","libs"})) {
+    cmd.push_back(move(lib));
+  }
 
-  return oss.str();
+  return cmd;
 }
 
 TTimestamp TLink::GetCmdTimestamp() const {

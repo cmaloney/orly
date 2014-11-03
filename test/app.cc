@@ -84,9 +84,17 @@ static void PrintSegfaultBacktrace(int) {
   Util::Abort(HERE);
 }
 
+static void PrintSigPipe(int) {
+  cout << "ERROR: SIGPIPE" << endl;
+  PrintBacktrace(500);
+  cerr << "SIGPIPE" << endl;
+  Util::Abort(HERE);
+}
+
 int main(int argc, char *argv[]) {
   SetBacktraceOnTerminate();
-  Signal::THandlerInstaller signal_handler(SIGSEGV, &PrintSegfaultBacktrace);
+  Signal::THandlerInstaller sigsegv(SIGSEGV, &PrintSegfaultBacktrace);
+  Signal::THandlerInstaller sigpipe(SIGPIPE, &PrintSigPipe);
   ExtraInit();
   TApp::TCmd cmd(argc, argv);
   TLog log(cmd);
