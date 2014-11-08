@@ -131,7 +131,8 @@ namespace Base {
       strm.ignore();
       /* Loop over the input until we find the closing quote, accumulating
          characters as we go. */
-      std::ostringstream accum;
+      std::string accum;
+      accum.reserve(200);
       bool keep_going = true;
       do {
         auto c = strm.peek();
@@ -146,42 +147,16 @@ namespace Base {
           case '\\': {
             strm.ignore();
             switch (strm.peek()) {
-              case '\\': { accum << '\\'; break; }
-              case '"':  { accum << '\"'; break; }
-              case '/':  { accum << '/';  break; }
-              case 'b':  { accum << '\b'; break; }
-              case 'f':  { accum << '\f'; break; }
-              case 'n':  { accum << '\n'; break; }
-              case 'r':  { accum << '\r'; break; }
-              case 't':  { accum << '\t'; break; }
+              case '\\': { accum += '\\'; break; }
+              case '"':  { accum += '\"'; break; }
+              case '/':  { accum += '/';  break; }
+              case 'b':  { accum += '\b'; break; }
+              case 'f':  { accum += '\f'; break; }
+              case 'n':  { accum += '\n'; break; }
+              case 'r':  { accum += '\r'; break; }
+              case 't':  { accum += '\t'; break; }
               case 'u': {
-                uint32_t val = 0;
-                for (size_t i = 0; i < 4; ++i) {
-                  strm.ignore();
-                  c= strm.peek();
-                  if (c >= '0' && c <= '9') {
-                    c -= '0';
-                  } else if (c >= 'A' && c <= 'F') {
-                    c -= 'A' - 10;
-                  } else if (c >= 'a' && c <= 'f') {
-                    c -= 'a' - 10;
-                  } else {
-                    THROW_ERROR(TSyntaxError) << "bad hex";
-                  }
-                  val = val * 16 + c;
-                }  // for
-                if (val <= 0x7F) {
-                  accum.put(val);
-                } else if (val <= 0x7FF) {
-                  accum.put(0xC0 | (val >> 6));
-                  accum.put(0x80 | (val & 0x3F));
-                } else if (val <= 0xFFFF) {
-                  accum.put(0xE0 | (val >> 12));
-                  accum.put(0x80 | ((val >> 6) & 0x3F));
-                  accum.put(0x80 | (val & 0x3F));
-                } else {
-                  THROW_ERROR(TSyntaxError) << "hex not in UTF-8 range";
-                }
+                THROW_ERROR(TSyntaxError) << "Unicode escapes aren't implemented";
                 break;
               }
               default: {
@@ -193,15 +168,15 @@ namespace Base {
           }
           /* Normal character or EOF. */
           default: {
-            if (c < 0) {
+            if (unlikely(c < 0)) {
               THROW_ERROR(TSyntaxError) << "missing closing quote";
             }
-            accum << static_cast<char>(c);
+            accum += c;
             strm.ignore();
           }
         }  // switch
       } while (keep_going);
-      return accum.str();
+      return accum;
     }
 
     /* Read our extension to JSON, a raw string. */
