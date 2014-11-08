@@ -10,31 +10,6 @@
       "-Wno-unused-parameter",
       "-Wno-unused-result"
     ],
-    "+gcc": [
-      "-U_FORTIFY_SOURCE",
-      "-O3",
-      "-g1",
-      "-DNDEBUG",
-      "-flto"
-    ],
-    "flex": {
-      "+g++": [
-        "-U_FORTIFY_SOURCE",
-        "-O3",
-        "-g1",
-        "-DNDEBUG",
-        "-flto"
-      ]
-    },
-    "bison": {
-      "+g++": [
-        "-U_FORTIFY_SOURCE",
-        "-O3",
-        "-g1",
-        "-DNDEBUG",
-        "-flto"
-      ]
-    },
     "ld": {
       "+flags": [
         "-O3",

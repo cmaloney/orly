@@ -18,38 +18,36 @@ set -e
 
 CC=g++
 common_flags=(
-  -O3 -DNDEBUG -flto
+  # Base compile
   -std=c++1y
   -Wall -Werror -Wextra -Wold-style-cast
-  -Wno-unused -Wno-unused-parameter -Wno-unused-result
-  -Wl,--hash-style=gnu -Wl,--no-copy-dt-needed-entries -Wl,-z,relro -Wl,--no-as-needed
+
+  # Optimize
+  -O3 -DNDEBUG -flto
+  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter
+
+  #Linking
+  -Wl,--hash-style=gnu -Wl,--no-copy-dt-needed-entries -Wl,-z,relro -Wl,--no-as-needed -pthread
   )
+
 
 #Build JHM
 $CC -o tools/jhm                                                                                                       \
  "${common_flags[@]}"                                                                                                  \
-  jhm/jobs/util.cc jhm/job.cc base/slice.cc jhm/test.cc jhm/jobs/flex.cc server/daemonize.cc                           \
-  io/input_consumer.cc io/output_consumer.cc base/thrower.cc strm/bin/in.cc jhm/naming.cc jhm/jhm.cc                   \
-  io/output_producer.cc io/chunk_and_pool.cc base/pos.cc base/code_location.cc util/string.cc base/cmd.cc              \
-  base/demangle.cc base/piece.cc jhm/job_runner.cc base/subprocess.cc util/path.cc strm/bin/var_int.cc                 \
-  jhm/env.cc jhm/jobs/compile_c_family.cc util/error.cc jhm/status_line.cc io/input_producer.cc                        \
-  jhm/work_finder.cc base/fd.cc base/pump.cc util/io.cc base/split.cc jhm/config.cc jhm/jobs/link.cc                   \
-  jhm/jobs/bison.cc strm/syntax_error.cc jhm/jobs/nycr.cc base/dir_walker.cc jhm/jobs/dep.cc util/time.cc              \
-  strm/out.cc base/event_semaphore.cc strm/in.cc strm/past_end.cc base/unreachable.cc base/path.cc base/backtrace.cc   \
-  -I./ -DSRC_ROOT=\"`pwd`\"                                                                                            \
-  -msse2 -pthread
+  strm/bin/var_int.cc jhm/jobs/util.cc jhm/jobs/link.cc jhm/jobs/compile_c_family.cc jhm/jobs/bison.cc strm/out.cc     \
+  strm/in.cc base/dir_walker.cc jhm/env.cc jhm/jhm.cc jhm/config.cc util/path.cc base/fd.cc base/split.cc util/time.cc \
+  base/thrower.cc strm/bin/in.cc base/demangle.cc util/io.cc base/cmd.cc jhm/job.cc base/backtrace.cc jhm/jobs/flex.cc \
+  jhm/naming.cc base/unreachable.cc strm/syntax_error.cc strm/past_end.cc base/path.cc jhm/status_line.cc              \
+  jhm/jobs/nycr.cc base/code_location.cc jhm/test.cc jhm/work_finder.cc util/error.cc base/pump.cc jhm/jobs/dep.cc     \
+  jhm/job_runner.cc base/subprocess.cc base/event_semaphore.cc                                                         \
+  -I./ -DSRC_ROOT=\"`pwd`\"
 
 #Build make_dep_file
 $CC -o tools/make_dep_file                                                                                             \
   "${common_flags[@]}"                                                                                                 \
-  strm/bin/var_int.cc strm/syntax_error.cc strm/out.cc strm/past_end.cc strm/in.cc strm/bin/in.cc                      \
-  util/io.cc base/demangle.cc base/code_location.cc base/event_semaphore.cc util/error.cc base/unreachable.cc          \
-  jhm/make_dep_file.cc base/thrower.cc base/fd.cc base/split.cc base/subprocess.cc base/pump.cc base/backtrace.cc      \
-  server/daemonize.cc                                                                                                  \
-  -I./ -DSRC_ROOT=\"`pwd`\"                                                                                            \
-  -msse2 -pthread
+  strm/bin/var_int.cc base/backtrace.cc strm/out.cc strm/bin/in.cc strm/past_end.cc strm/in.cc base/unreachable.cc     \
+  jhm/make_dep_file.cc base/fd.cc base/code_location.cc base/thrower.cc base/subprocess.cc strm/syntax_error.cc        \
+  base/split.cc util/io.cc base/demangle.cc base/pump.cc util/error.cc base/event_semaphore.cc                         \
+  -I./ -DSRC_ROOT=\"`pwd`\"
 
 mkdir -p ../.jhm
-
-#Build nycr
-./tools/jhm -c bootstrap

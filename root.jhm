@@ -15,30 +15,16 @@
       "-Wno-delete-non-virtual-dtor",
       "-msse2",
       "-pthread",
-      "-fno-strict-aliasing",
+      "-march=native",
+      "-mtune=native",
 
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
-    ],
-    "gcc": [
-      "-Werror",
-      "-Wall",
-      "-Wextra",
-      "-Wno-type-limits",
-      "-Wno-parentheses",
-      "-pthread",
-      "-fno-strict-aliasing",
-
-      "-DTEST_OUTPUT_DIR=\"/tmp/\"",
-
-      "-Wno-unused-but-set-parameter",
-      "-Wno-unused-but-set-variable"
     ],
     "ld": {
       "libs": [
         "-pthread",
         "-lrt",
-        "-ldl",
-        "-lboost_system",
+        "-ldl"
       ],
       "flags": [
         "-rdynamic",
