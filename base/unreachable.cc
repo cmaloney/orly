@@ -20,8 +20,8 @@
 
 #include <iostream>
 
+#include <base/backtrace.h>
 #include <base/thrower.h>
-#include <server/daemonize.h>
 #include <util/error.h>
 
 using namespace Base;
@@ -29,14 +29,13 @@ using namespace Base;
 void Base::Unreachable(const TCodeLocation &loc) {
   DEFINE_ERROR(unreachable_t, std::runtime_error, "Unreachable code");
 
-  Server::BacktraceToLog();
+  PrintBacktrace(100);
 
   std::cout << "Reached unreachable location: " << loc << std::endl;
 
 // In release builds, don't abort
+// TODO: Move this ndebug into abort?
 #ifdef NDEBUG
-  syslog(LOG_ERR, "Entered code location that was supposed to be unreachable.");
-  Server::BacktraceToLog();
   TThrower<unreachable_t>{loc};
 #else
   Util::Abort(loc);

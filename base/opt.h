@@ -23,9 +23,6 @@
 #include <ostream>
 #include <utility>
 
-#include <io/binary_input_stream.h>
-#include <io/binary_output_stream.h>
-
 namespace Base {
 
   /* An optional value; that is, a value which may or may not be known.  This is a value type, and TVal must also be a value type.  The domain of TVal
@@ -212,19 +209,6 @@ namespace Base {
       return *Val;
     }
 
-    /* Stream in. */
-    void Read(Io::TBinaryInputStream &strm) {
-      assert(this);
-      assert(&strm);
-      bool is_known;
-      strm >> is_known;
-      if (is_known) {
-        strm >> MakeKnown();
-      } else {
-        Reset();
-      }
-    }
-
     /* Forward our value to the out-parameter and resume the unknown state.
        We must already be known. */
     void Release(TVal &val) {
@@ -255,17 +239,6 @@ namespace Base {
     TVal *TryGet() {
       assert(this);
       return Val;
-    }
-
-    /* Stream out. */
-    void Write(Io::TBinaryOutputStream &strm) const {
-      assert(this);
-      assert(&strm);
-      bool is_known = *this;
-      strm << is_known;
-      if (is_known) {
-        strm << **this;
-      }
     }
 
     static const TOpt<TVal> &GetUnknown() {
@@ -305,22 +278,6 @@ namespace Base {
     } else {
       that.Reset();
     }
-    return strm;
-  }
-
-  /* Binary stream inserter for Base::TOpt<>. */
-  template <typename TVal>
-  Io::TBinaryOutputStream &operator<<(Io::TBinaryOutputStream &strm, const Base::TOpt<TVal> &that) {
-    assert(&that);
-    that.Write(strm);
-    return strm;
-  }
-
-  /* Binary stream extractor for Base::TOpt<>. */
-  template <typename TVal>
-  Io::TBinaryInputStream &operator>>(Io::TBinaryInputStream &strm, Base::TOpt<TVal> &that) {
-    assert(&that);
-    that.Read(strm);
     return strm;
   }
 

@@ -1,6 +1,0 @@
-seq_in_effecting = ((true) effecting {
-  new <[x]> <- x;
-}) where {
-  x = [1..5];
-};
-

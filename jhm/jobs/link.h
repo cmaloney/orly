@@ -20,6 +20,8 @@
 
 #include <jhm/job.h>
 
+#include <unordered_map>
+
 namespace Jhm {
 
   namespace Job {

@@ -21,6 +21,7 @@
 #include <jhm/job.h>
 
 #include <iostream>
+#include <unordered_map>
 
 using namespace Base;
 using namespace Jhm;

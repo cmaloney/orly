@@ -18,6 +18,7 @@
 
 #include <jhm/test.h>
 
+#include <algorithm>
 #include <iostream>
 
 #include <base/dir_walker.h>

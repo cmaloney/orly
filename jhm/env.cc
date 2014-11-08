@@ -16,6 +16,7 @@
 
 #include <jhm/env.h>
 
+#include <algorithm>
 #include <cassert>
 
 #include <jhm/jobs/bison.h>

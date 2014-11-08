@@ -26,7 +26,7 @@
 #include <syslog.h>
 
 #include <base/class_traits.h>
-#include <server/daemonize.h>
+#include <base/unreachable.h>
 
 namespace Util {
 
@@ -67,13 +67,9 @@ namespace Util {
   /* Insert the given value into the container.  If the value is already in the container, fail an assertion. */
   template <typename TContainer, typename... TArgs>
   void InsertOrFail(TContainer &container, TArgs &&...args) {
-    bool res = false;
-    std::tie(std::ignore, res) = container.emplace(std::forward<TArgs>(args)...);
-    if (!res) {
-      syslog(LOG_ERR, "[InsertOrFail");
-        Server::BacktraceToLog();
+    if(!container.emplace(std::forward<TArgs>(args)...).second) {
+      Base::Unreachable(HERE);
     }
-    assert(res);
   }
 
   /* Inserts the pointer-type value into the associative container under the given key.  If the container already contains a value for the key,
