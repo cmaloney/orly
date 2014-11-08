@@ -97,7 +97,6 @@ int main(int argc, char *argv[]) {
   Signal::THandlerInstaller sigpipe(SIGPIPE, &PrintSigPipe);
   ExtraInit();
   TApp::TCmd cmd(argc, argv);
-  TLog log(cmd);
   TApp app(cmd);
   return app.Run();
 }

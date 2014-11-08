@@ -25,7 +25,6 @@
 #include <fcntl.h>
 
 #include <test/kit.h>
-#include <base/dir_iter.h>
 #include <base/dir_walker.h>
 #include <base/fd.h>
 #include <base/tmp_copy_to_file.h>
@@ -41,67 +40,6 @@ using namespace Util;
 /* Creates an empty file. */
 static void CreateDummyFile(const char *path) {
   TFd(creat(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH));
-}
-
-/* Returns the contents of the given directory as an ordered set,
-   like this: "{ file [a], dir [b], symlink [c] }".  Doesn't descend
-   into directories or follow symlinks. */
-static string IterDir(const char *path) {
-  set<string> items;
-  for (TDirIter dir_iter(path); dir_iter; ++dir_iter) {
-    const char *kind_str;
-    switch (dir_iter.GetKind()) {
-      case TDirIter::BlockDev: {
-        kind_str = "block_dev";
-        break;
-      }
-      case TDirIter::CharDev: {
-        kind_str = "char_dev";
-        break;
-      }
-      case TDirIter::Dir: {
-        kind_str = "dir";
-        break;
-      }
-      case TDirIter::File: {
-        kind_str = "file";
-        break;
-      }
-      case TDirIter::NamedPipe: {
-        kind_str = "named_pipe";
-        break;
-      }
-      case TDirIter::Socket: {
-        kind_str = "socket";
-        break;
-      }
-      case TDirIter::SymLink: {
-        kind_str = "symlink";
-        break;
-      }
-      case TDirIter::Unknown: {
-        kind_str = "unknown";
-        break;
-      }
-    }
-    ostringstream strm;
-    strm << kind_str << " [" << dir_iter.GetName() << ']';
-    items.insert(strm.str());
-  }
-  ostringstream strm;
-  strm << '{';
-  bool sep = false;
-  for (const auto &item: items) {
-    if (sep) {
-      strm << ", ";
-    } else {
-      strm << ' ';
-      sep = true;
-    }
-    strm << item;
-  }
-  strm << (sep ? " }" : "}");
-  return strm.str();
 }
 
 /* Returns the contents of the given directory, ordering entries within each directory by name.
@@ -164,7 +102,6 @@ FIXTURE(TmpIterAndWalk) {
   /* Make the temp dir come and go with nothing in it. */ {
     TTmpDirMaker tmp_dir_maker(path);
     EXPECT_TRUE(ExistsPath(path));
-    EXPECT_EQ(IterDir(path), "{}");
     EXPECT_EQ(WalkDir(path), "dir 0 [path_utils.test] { }");
   }
   EXPECT_FALSE(ExistsPath(path));
@@ -172,7 +109,6 @@ FIXTURE(TmpIterAndWalk) {
     TTmpDirMaker tmp_dir_maker(path);
     EXPECT_TRUE(ExistsPath(path));
     CreateDummyFile("/tmp/path_utils.test/dummy.txt");
-    EXPECT_EQ(IterDir(path), "{ file [dummy.txt] }");
     EXPECT_EQ(WalkDir(path), "dir 0 [path_utils.test] { file [dummy.txt]; }");
   }
   EXPECT_FALSE(ExistsPath(path));
@@ -182,7 +118,6 @@ FIXTURE(TmpIterAndWalk) {
     CreateDummyFile("/tmp/path_utils.test/dummy1.txt");
     CreateDummyFile("/tmp/path_utils.test/dummy2.txt");
     IfLt0(symlink("/tmp/path_utils.test/dummy2.txt", "/tmp/path_utils.test/link_to_dummy2.txt"));
-    EXPECT_EQ(IterDir(path), "{ file [dummy1.txt], file [dummy2.txt], symlink [link_to_dummy2.txt] }");
     EXPECT_EQ(WalkDir(path), "dir 0 [path_utils.test] { file [dummy1.txt]; file [dummy2.txt]; symlink [link_to_dummy2.txt]; }");
   }
   EXPECT_FALSE(ExistsPath(path));
