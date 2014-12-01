@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <chrono>
 #include <iomanip>
 #include <stdexcept>
 
@@ -56,20 +55,10 @@ namespace Util {
   /* Read at most 'max_size' bytes into 'buf', throwing appropriately. */
   size_t ReadAtMost(int fd, void *buf, size_t max_size);
 
-  /* Same as above, but with timeout in milliseconds.  Throws std::system_error
-     with code of ETIMEDOUT on timeout.  A negative timeout value means
-     "infinite timeout". */
-  size_t ReadAtMost(int fd, void *buf, size_t max_size, std::chrono::milliseconds timeout);
-
   /* Write at most 'max_size' bytes from 'buf', throwing appropriately.
      If the fd is a socket, we will do this operation with send() instead of write(),
      to suppress SIGPIPE. */
   size_t WriteAtMost(int fd, const void *buf, size_t max_size);
-
-  /* Same as above, but with timeout in milliseconds.  Throws std::system_error
-     with code of ETIMEDOUT on timeout.  A negative timeout value means
-     "infinite timeout". */
-  size_t WriteAtMost(int fd, const void *buf, size_t max_size, std::chrono::milliseconds timeout);
 
   /* The 'TryExactly' versions of read and write will call the OS functions
      repeatedly until the full number of bytes is transferred.  If the first OS call
@@ -98,21 +87,11 @@ namespace Util {
      Throw appropriately. */
   bool TryReadExactly(int fd, void *buf, size_t size);
 
-  /* Same as above, but with timeout in milliseconds.  Throws std::system_error
-     with code of ETIMEDOUT if entire read is not completed within the timeout
-     period.  A negative timeout value means "infinite timeout". */
-  bool TryReadExactly(int fd, void *buf, size_t size, std::chrono::milliseconds timeout);
-
   /* Try to write exactly 'size' bytes from 'buf'.
      Retry until we put enough bytes, then return true.
      If we get a zero-length return, return false.
      Throw appropriately. */
   bool TryWriteExactly(int fd, const void *buf, size_t size);
-
-  /* Same as above, but with timeout in milliseconds.  Throws std::system_error
-     with code of ETIMEDOUT if entire write is not completed within the timeout
-     period.  A negative timeout value means "infinite timeout". */
-  bool TryWriteExactly(int fd, const void *buf, size_t size, std::chrono::milliseconds timeout);
 
   /* The 'Exactly' versions of read and write work like the 'TryExactly' versions
      (see above), except that they do not tolerate a failure to start.  If the transfer
@@ -137,33 +116,12 @@ namespace Util {
     }
   }
 
-  /* Same as above, but with timeout in milliseconds.  Throws std::system_error
-     with code of ETIMEDOUT if entire read is not completed within the timeout
-     period.  A negative timeout value means "infinite timeout". */
-  inline void ReadExactly(int fd, void *buf, size_t size, std::chrono::milliseconds timeout) {
-    if (!TryReadExactly(fd, buf, size, timeout)) {
-      throw TCouldNotStart();
-    }
-  }
-
   /* Write exactly 'size' bytes into 'buf', throwing appropriately. */
   inline void WriteExactly(int fd, const void *buf, size_t size) {
     if (!TryWriteExactly(fd, buf, size)) {
       throw TCouldNotStart();
     }
   }
-
-  /* Same as above, but with timeout in milliseconds.  Throws std::system_error
-     with code of ETIMEDOUT if entire write is not completed within the timeout
-     period.  A negative timeout value means "infinite timeout". */
-  inline void WriteExactly(int fd, const void *buf, size_t size, std::chrono::milliseconds timeout) {
-    if (!TryWriteExactly(fd, buf, size, timeout)) {
-      throw TCouldNotStart();
-    }
-  }
-
-  /* Sets the given fd to close-on-exec. */
-  void SetCloseOnExec(int fd);
 
   /* Sets the given fd to non-blocking I/O. */
   void SetNonBlocking(int fd);

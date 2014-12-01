@@ -49,17 +49,6 @@ FIXTURE(ReadAtMost) {
   if (EXPECT_EQ(actual_size, ExpectedSize)) {
     EXPECT_FALSE(strcmp(ActualData, ExpectedData));
   }
-  bool timed_out = false;
-  try {
-    actual_size = ReadAtMost(readable, ActualData, MaxActualSize, 1000ms);
-  } catch (const system_error &x) {
-    if (x.code().value() == ETIMEDOUT) {
-      timed_out = true;
-    } else {
-      EXPECT_TRUE(false);
-    }
-  }
-  EXPECT_TRUE(timed_out);
 }
 
 FIXTURE(WriteAtMost) {
@@ -81,20 +70,6 @@ FIXTURE(WriteAtMost) {
   }
   EXPECT_TRUE(caught_broken_pipe);
   writeable.Reset();
-  TFd::Pipe(readable, writeable);
-  bool timed_out = false;
-  try {
-    for (; ; ) {
-      WriteAtMost(writeable, ExpectedData, ExpectedSize, 1000ms);
-    }
-  } catch (const system_error &x) {
-    if (x.code().value() == ETIMEDOUT) {
-      timed_out = true;
-    } else {
-      EXPECT_TRUE(false);
-    }
-  }
-  EXPECT_TRUE(timed_out);
 }
 
 FIXTURE(TryReadExactlyNothing) {
@@ -109,40 +84,6 @@ FIXTURE(TryReadExactlyEverything) {
   TFd::Pipe(readable, writeable);
   WriteExactly(writeable, ExpectedData, ExpectedSize);
   EXPECT_TRUE(TryReadExactly(readable, ActualData, ExpectedSize));
-}
-
-FIXTURE(TryReadExactlyTimeout) {
-  TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
-  bool timed_out = false;
-  try {
-    TryReadExactly(readable, ActualData, ExpectedSize, 1000ms);
-  } catch (const system_error &x) {
-    if (x.code().value() == ETIMEDOUT) {
-      timed_out = true;
-    } else {
-      EXPECT_TRUE(false);
-    }
-  }
-  EXPECT_TRUE(timed_out);
-}
-
-FIXTURE(TryWriteExactlyTimeout) {
-  TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
-  bool timed_out = false;
-  try {
-    for (; ; ) {
-      TryWriteExactly(writeable, ExpectedData, ExpectedSize, 1000ms);
-    }
-  } catch (const system_error &x) {
-    if (x.code().value() == ETIMEDOUT) {
-      timed_out = true;
-    } else {
-      EXPECT_TRUE(false);
-    }
-  }
-  EXPECT_TRUE(timed_out);
 }
 
 FIXTURE(TryReadExactlySomething) {
