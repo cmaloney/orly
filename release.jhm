@@ -1,4 +1,10 @@
 {
+  "test": {
+    "build_with_default_targets": true,
+    "excluded": [
+      ".git"
+    ]
+  },
   "cmd": {
     "+g++" : [
       "-U_FORTIFY_SOURCE",
