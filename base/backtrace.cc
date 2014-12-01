@@ -48,7 +48,9 @@ void Base::SetBacktraceOnTerminate() {
   std::set_terminate([]() {
     static bool tried_throw = false;
     try {
-      if (!tried_throw++)
+      bool old_tried_throw = tried_throw;
+      tried_throw |= true;
+      if (!old_tried_throw)
         throw;
       cerr << "TERMINATE (no exception)" << endl;
     } catch (const std::exception &ex) {
