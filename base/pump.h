@@ -79,7 +79,6 @@
 namespace Base {
 
   //TODO: this should be pulled out into a generic "pool of buffers" implementation
-  //TODO: Can we use <strm/> for this (Basically it is an uncapped I/O buffer inside a stream)
   //NOTE: We never reclaim any blocks currently.
   //TODO: Should really be an invasive containment type thing between pools and blocks so blocks can't get lost.
   template<uint64_t BlockSize>

@@ -20,8 +20,7 @@
 
 #include <poll.h>
 
-#include <strm/bin/in.h>
-#include <strm/fd.h>
+#include <util/io.h>
 
 using namespace Base;
 
@@ -42,10 +41,8 @@ const TFd Base::In(STDIN_FILENO), Base::Out(STDOUT_FILENO), Base::Err(STDERR_FIL
    sufficiently dangerous if the data is coming from an untrustworthy source */
 std::string Base::ReadAll(TFd &&fd) {
   std::string out;
-  Strm::TFdDefault in_prod(std::move(fd));
-  Strm::Bin::TIn in_cons(&in_prod);
   uint8_t buf[4096];
-  while (size_t read = in_cons.TryRead(buf, 4096)) {
+  while (size_t read = Util::ReadAtMost(fd, buf, 4096)) {
     out.append(reinterpret_cast<char *>(buf), read);
   }
 

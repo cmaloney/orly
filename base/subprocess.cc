@@ -22,10 +22,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
-#include <iostream>
-
-#include <strm/bin/in.h>
-#include <strm/fd.h>
+#include <util/io.h>
 #include <util/error.h>
 
 using namespace std;
@@ -93,12 +90,10 @@ TSubprocess::TSubprocess(TPump &pump) {
 }
 
 void Base::EchoOutput(TFd &&fd) {
-  Strm::TFdDefault in_prod(move(fd));
-  Strm::Bin::TIn in_cons(&in_prod);
   uint8_t buf[4096];
 
   // Copy everything to cout error message
-  while(size_t read = in_cons.TryRead(buf, 4096)) {
+  while(size_t read = ReadAtMost(fd, buf, 4096)) {
     WriteExactly(STDOUT_FILENO, buf, read);
   }
 }
