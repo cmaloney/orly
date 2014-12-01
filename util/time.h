@@ -33,21 +33,6 @@ namespace Util {
   using TTimestamp = std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration>;
   using TOptTimestamp = Base::TOpt<TTimestamp>;
 
-  /* Returns true iff the time point has passed / now is after it. */
-  template <typename TClock>
-  bool HasPassed(std::chrono::time_point<TClock> time) {
-    return time <= TClock::now();
-  }
-
-  /* Sleep until the given time is reached. Does a comparison first because that provides a noticable speed boost in
-     testing done (a while ago at this point), which I don't want to remove / test at the moment. */
-  template <typename TClock>
-  void SleepUntil(std::chrono::time_point<TClock> time) {
-    if (time < std::chrono::steady_clock::now()) {
-      std::this_thread::sleep_until(time);
-    }
-  }
-
   /* Convert a duration in nanoseconds into a timespec struct, useful for timerfd calls. */
   timespec ToTimespec(std::chrono::nanoseconds time);
 
