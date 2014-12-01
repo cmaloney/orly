@@ -1,2 +1,16 @@
 Rewrite <base/cmd>
 Rewrite / rework test harness (Move to gtest?)
+
+Simpler <base/split.h> (With a better name)?
+
+Utilize CXX, CXXFLAGS, CC, CCFLAGS
+  - Have a 'setup' step analogous to ./configure
+  - Captures a static set of environment variables
+
+Bootstrap script generator
+
+Download third party packages / repositories
+
+Multi-project in one project folder functioning
+
+Cross-project includes / dependencies
