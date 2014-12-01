@@ -26,17 +26,15 @@ using namespace Base;
 using namespace std;
 
 void Base::PrintBacktrace(int max_frame_count) {
-  GenBacktrace(max_frame_count, [] (const string &msg) {
-    cout << msg << endl;
-  });
+  GenBacktrace(max_frame_count, [](const string &msg) { cout << msg << endl; });
 }
 
-void Base::GenBacktrace(int max_frame_count, const function<void (const string &)> &cb) {
-  void *frames[max_frame_count+1];
-  int frame_count = backtrace(frames, max_frame_count+1);
+void Base::GenBacktrace(int max_frame_count, const function<void(const string &)> &cb) {
+  void *frames[max_frame_count + 1];
+  int frame_count = backtrace(frames, max_frame_count + 1);
   char **symbols = backtrace_symbols(frames, frame_count);
   for (int frame_idx = 1; frame_idx < frame_count; ++frame_idx) {
-    auto frame_print = AsStr('[', frame_idx, '/', frame_count-1, "][");
+    auto frame_print = AsStr('[', frame_idx, '/', frame_count - 1, "][");
     if (symbols) {
       frame_print += symbols[frame_idx];
     } else {
@@ -50,7 +48,8 @@ void Base::SetBacktraceOnTerminate() {
   std::set_terminate([]() {
     static bool tried_throw = false;
     try {
-      if (!tried_throw++) throw;
+      if (!tried_throw++)
+        throw;
       cerr << "TERMINATE (no exception)" << endl;
     } catch (const std::exception &ex) {
       cerr << "TERMINATE (standard exception): " << ex.what() << endl;
@@ -62,3 +61,21 @@ void Base::SetBacktraceOnTerminate() {
     cerr << "TERMINATED" << endl;
   });
 }
+
+static void PrintSegfaultBacktrace(int) {
+  cout << "ERROR: SIGSEGV / Segfault\n"
+       << "Backtrace: " << endl;
+  PrintBacktrace(500);
+  cerr << "SEGFAULT" << endl;
+  Util::Abort(HERE);
+}
+
+static void PrintSigPipe(int) {
+  cout << "ERROR: SIGPIPE" << endl;
+  PrintBacktrace(500);
+  cerr << "SIGPIPE" << endl;
+  Util::Abort(HERE);
+}
+
+TBacktraceCatcher::TBacktraceCatcher()
+    : Sigsegv(SIGSEGV, &PrintSegfaultBacktrace), Sigpipe(SIGPIPE, &PrintSigPipe) {}

@@ -185,3 +185,9 @@ TPath Base::SwapExtension(TPath &&that, const vector<string> &new_extension) {
 ostream &Base::operator<<(ostream &out, const TPath &path) {
   return WriteExtension(WriteNamespace(out, path.Namespace) << path.Name, path.Extension);
 }
+
+size_t hash<TPath>::operator()(const TPath &rel_path) const {
+  // TODO(cmaloney): Switch to a more efficient hash generation than building
+  // a string.
+  return hash<std::string>()(AsStr(rel_path));
+}

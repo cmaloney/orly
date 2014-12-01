@@ -20,6 +20,7 @@
 
 #include <functional>
 #include <string>
+#include <util/signal.h>
 
 namespace Base {
 
@@ -29,5 +30,14 @@ namespace Base {
   void GenBacktrace(int max_frame_count, const std::function<void (const std::string &)> &cb);
 
   void SetBacktraceOnTerminate();
+
+  class TBacktraceCatcher {
+
+    public:
+      TBacktraceCatcher();
+
+    private:
+    Util::TSignalHandlerInstaller Sigsegv, Sigpipe;
+  };
 
 } // Base

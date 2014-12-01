@@ -101,3 +101,11 @@ namespace Base {
 
   std::ostream &operator<<(std::ostream &out, const TPath &path);
 } // Base
+
+
+namespace std {
+  template<>
+  struct hash<Base::TPath> {
+    size_t operator()(const Base::TPath &that) const;
+  };
+}

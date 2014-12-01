@@ -28,6 +28,7 @@
 #include <string>
 #include <thread>
 
+#include <base/backtrace.h>
 #include <base/cmd.h>
 #include <base/split.h>
 #include <base/thrower.h>
@@ -36,6 +37,7 @@
 #include <jhm/test.h>
 #include <jhm/work_finder.h>
 #include <util/path.h>
+#include <util/signal.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -272,6 +274,7 @@ class TJhm : public TCmd {
 
 int main(int argc, char *argv[]) {
   try {
+    TBacktraceCatcher backtrace;
     return TJhm(argc, argv).Run();
   }
   catch (const std::exception &ex) {

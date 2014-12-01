@@ -18,7 +18,6 @@
 
 #include <iomanip>
 
-#include <base/hash.h>
 #include <base/split.h>
 #include <util/path.h>
 
@@ -98,5 +97,5 @@ ostream &Jhm::operator<<(ostream &out, const TTree &that) {
 }
 
 size_t hash<TRelPath>::operator()(const TRelPath &rel_path) const {
-  return ChainHashes(rel_path.Path.Namespace, rel_path.Path.Name, rel_path.Path.Extension);
+  return std::hash<TPath>()(rel_path.Path);
 }
