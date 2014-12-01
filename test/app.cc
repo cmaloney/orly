@@ -25,16 +25,11 @@
 #include <base/cmd.h>
 #include <base/backtrace.h>
 #include <test/fixture.h>
-#include <test/is_in_test.h>
 #include <util/signal.h>
 
 using namespace std;
 using namespace Base;
 using namespace Test;
-
-void Test::ExtraInit() {
-  AvoidTheseWheneverPossible::MarkAsInTest();
-}
 
 TApp::TRunner::~TRunner() {}
 
@@ -95,7 +90,6 @@ int main(int argc, char *argv[]) {
   SetBacktraceOnTerminate();
   Util::TSignalHandlerInstaller sigsegv(SIGSEGV, &PrintSegfaultBacktrace);
   Util::TSignalHandlerInstaller sigpipe(SIGPIPE, &PrintSigPipe);
-  ExtraInit();
   TApp::TCmd cmd(argc, argv);
   TApp app(cmd);
   return app.Run();
