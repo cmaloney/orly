@@ -71,25 +71,8 @@ int TApp::Run() {
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static void PrintSegfaultBacktrace(int) {
-  cout << "ERROR: SIGSEGV / Segfault\n"
-       << "Backtrace: " << endl;
-  PrintBacktrace(500);
-  cerr << "SEGFAULT" << endl;
-  Util::Abort(HERE);
-}
-
-static void PrintSigPipe(int) {
-  cout << "ERROR: SIGPIPE" << endl;
-  PrintBacktrace(500);
-  cerr << "SIGPIPE" << endl;
-  Util::Abort(HERE);
-}
-
 int main(int argc, char *argv[]) {
-  SetBacktraceOnTerminate();
-  Util::TSignalHandlerInstaller sigsegv(SIGSEGV, &PrintSegfaultBacktrace);
-  Util::TSignalHandlerInstaller sigpipe(SIGPIPE, &PrintSigPipe);
+  TBacktraceCatcher backtrace;
   TApp::TCmd cmd(argc, argv);
   TApp app(cmd);
   return app.Run();
