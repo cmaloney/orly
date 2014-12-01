@@ -16,3 +16,11 @@ Cross-project includes / dependencies
 Remove TStr / TStrList
 
 A good Single Producer Multiple Consumer queue
+
+OS X Support
+
+buildit -- wrapper for other build systems (Need to ingest autoconf / makefiles, CMake)
+
+Unify on THROWER
+
+Simplify thrower interface
