@@ -30,6 +30,7 @@
 
 #include <base/backtrace.h>
 #include <base/cmd.h>
+#include <base/not_implemented.h>
 #include <base/split.h>
 #include <base/thrower.h>
 #include <jhm/env.h>
@@ -97,7 +98,16 @@ class TJhm : public TCmd {
     // Build up the environment. Find the root, grab the project, user, and system configuration
     // TODO: proj_name should be the folder immediately inside the root that executed inside, so long as it doesn't
     // begin with "out".
-    TEnv env(TTree::Find(cwd, ".jhm"), "src", Config, ConfigMixin);
+    TTree cwd_tree(cwd);
+    TTree jhm_root = TTree::Find(cwd, ".jhm");
+    if (jhm_root.Root.size() == cwd_tree.Root.size()) {
+      // TODO(cmaloney): Needed features:
+      // - nested vs. not nested out directory
+      // - Automatic finding of root project 'src'? Or grabbing all
+      //   sub dependencies.
+      NOT_IMPLEMENTED_S("Running JHM at the same level as the .jhm")
+    }
+    TEnv env(jhm_root, cwd_tree.Root.at(jhm_root.Root.size()), Config, ConfigMixin);
 
     // chdir to the src folder so we can always use relative paths. for commands
     /* abs_root */ {
