@@ -204,7 +204,9 @@ void TConfig::SetComputed(std::vector<Base::TJson> &&conf_stack) {
 }
 
 void TConfig::AddConfig(TJson &&config, bool top) {
-  assert(config.GetKind() == TJson::Object);
+  if (config.GetKind() != TJson::Object) {
+    throw TInvalidConfig("Invalid config file. Top level isn't a JSON object.");
+  }
 
   if (top) {
     Config.emplace_front(move(config));

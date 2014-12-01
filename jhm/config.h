@@ -54,6 +54,7 @@ namespace Jhm {
 
     DEFINE_ERROR(TInvalidValue, std::runtime_error, nullptr);
     DEFINE_ERROR(TNotFound, std::runtime_error, nullptr);
+    DEFINE_ERROR(TInvalidConfig, std::runtime_error, nullptr);
 
     explicit TConfig();
     TConfig(const std::string &filename);
