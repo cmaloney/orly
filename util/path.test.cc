@@ -24,13 +24,13 @@
 
 #include <fcntl.h>
 
-#include <test/kit.h>
 #include <base/dir_walker.h>
 #include <base/fd.h>
-#include <base/tmp_copy_to_file.h>
 #include <base/tmp_dir_maker.h>
 #include <util/error.h>
 #include <util/io.h>
+
+#include <test/kit.h>
 
 using namespace Base;
 using namespace std;
@@ -128,24 +128,6 @@ FIXTURE(MakePath) {
   EXPECT_EQ(MakePath(true, { "///usr///", "/include/" }, { "syslog", ".h" }), "/usr/include/syslog.h");
   EXPECT_EQ(MakePath(false, {}, { "just_this" }), "just_this");
   EXPECT_EQ(MakePath(true, {}, { "abs_just_this" }), "/abs_just_this");
-}
-
-FIXTURE(TmpCopyToFile) {
-  const string expected = "I'm safe in the tmp file.";
-  TTmpDirMaker tmp_dir_maker("/tmp/path_utils.test/tmp_copy_to_file");
-  string path;
-  /* extra */ {
-    TTmpCopyToFile tmp_copy_to_file(tmp_dir_maker.GetPath(), expected);
-    path = tmp_copy_to_file.GetPath();
-    if (EXPECT_TRUE(ExistsPath(path.c_str()))) {
-      TFd fd(open(path.c_str(), O_RDONLY));
-      char actual[128];
-      size_t size = ReadAtMost(fd, actual, sizeof(actual) - 1);
-      actual[size] = '\0';
-      EXPECT_EQ(string(actual), expected);
-    }
-  }
-  EXPECT_FALSE(ExistsPath(path.c_str()));
 }
 
 FIXTURE(GetCwd) {
