@@ -21,11 +21,6 @@
    all pending data.  If other threads continue to create pipes during this time, the
    wait may never be satisfied, so be sure you take steps to prevent this from happening.
 
-   If would like a nice shutdown, but don't have the patience to wait forever, you can
-   call WaitForIdleFor(), which takes a timeout, or WaitForIdleUntil(), which takes a
-   deadline.  Each of these functions returns true iff. the pump became idle before the
-   time limit was reached.
-
    For a hard shutdown, just destroy the pump.  The destructor will not return until the
    background thread has halted.
 
@@ -140,35 +135,6 @@ namespace Base {
       while (!IsIdle()) {
         PipeDied.wait(lock);
       }
-    }
-
-    //TODO: Figure out some cleaner way to make all of the ways you can wait on a condition_variable accessible.
-    /* Wait for the pump to become idle, then return true.
-       If the timeout is reached first, return false. */
-    template <typename TRep, typename TPeriod>
-    bool WaitForIdleFor(const std::chrono::duration<TRep, TPeriod> &timeout) const {
-      assert(this);
-      std::unique_lock<std::mutex> lock(PipeMutex);
-      while (!IsIdle()) {
-        if (PipeDied.wait_for(lock, timeout) == std::cv_status::timeout) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    /* Wait for the pump to become idle, then return true.
-       If the deadline is reached first, return false. */
-    template <typename TClock, typename TDuration>
-    bool WaitForIdleUntil(const std::chrono::time_point<TClock, TDuration> &deadline) const {
-      assert(this);
-      std::unique_lock<std::mutex> lock(PipeMutex);
-      while (!IsIdle()) {
-        if (PipeDied.wait_until(lock, deadline) == std::cv_status::timeout) {
-          return false;
-        }
-      }
-      return true;
     }
 
     bool IsIdle() const;
