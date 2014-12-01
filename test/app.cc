@@ -24,9 +24,9 @@
 
 #include <base/cmd.h>
 #include <base/backtrace.h>
-#include <signal/handler_installer.h>
 #include <test/fixture.h>
 #include <test/is_in_test.h>
+#include <util/signal.h>
 
 using namespace std;
 using namespace Base;
@@ -93,8 +93,8 @@ static void PrintSigPipe(int) {
 
 int main(int argc, char *argv[]) {
   SetBacktraceOnTerminate();
-  Signal::THandlerInstaller sigsegv(SIGSEGV, &PrintSegfaultBacktrace);
-  Signal::THandlerInstaller sigpipe(SIGPIPE, &PrintSigPipe);
+  Util::TSignalHandlerInstaller sigsegv(SIGSEGV, &PrintSegfaultBacktrace);
+  Util::TSignalHandlerInstaller sigpipe(SIGPIPE, &PrintSigPipe);
   ExtraInit();
   TApp::TCmd cmd(argc, argv);
   TApp app(cmd);

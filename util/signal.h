@@ -1,8 +1,4 @@
-/* <signal/handler_installer.h>
-
-   RAII for installing a signal handler.
-
-   Copyright 2010-2014 OrlyAtomics, Inc.
+/* Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -26,15 +22,15 @@
 #include <base/zero.h>
 #include <util/error.h>
 
-namespace Signal {
+namespace Util {
 
   /* RAII for installing a signal handler. */
-  class THandlerInstaller {
-    NO_COPY(THandlerInstaller);
+  class TSignalHandlerInstaller {
+    NO_COPY(TSignalHandlerInstaller);
     public:
 
     /* Set the mask to the given set. */
-    THandlerInstaller(int sig, void (*handler)(int) = DoNothing)
+    TSignalHandlerInstaller(int sig, void (*handler)(int) = DoNothing)
         : SignalNumber(sig) {
       struct sigaction new_act;
       Base::Zero(new_act);
@@ -43,7 +39,7 @@ namespace Signal {
     }
 
     /* Restore the old action. */
-    ~THandlerInstaller() {
+    ~TSignalHandlerInstaller() {
       assert(this);
       sigaction(SignalNumber, &OldAct, nullptr);
     }
@@ -65,6 +61,6 @@ namespace Signal {
     /* The action which we will restore. */
     struct sigaction OldAct;
 
-  };  // THandlerInstaller
+  };  // TSignalHandlerInstaller
 
 }  // Signal

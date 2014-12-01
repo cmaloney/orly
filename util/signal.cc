@@ -1,8 +1,4 @@
-/* <signal/handler_installer.cc>
-
-   Implements <signal/handler_installer.h>.
-
-   Copyright 2010-2014 OrlyAtomics, Inc.
+/* Copyright 2010-2014 OrlyAtomics, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,8 +12,6 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <signal/handler_installer.h>
+#include <util/signal.h>
 
-using namespace Signal;
-
-void THandlerInstaller::DoNothing(int) {}
+void Util::TSignalHandlerInstaller::DoNothing(int) {}
