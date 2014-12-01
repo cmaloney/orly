@@ -7,7 +7,6 @@
   },
   "cmd": {
     "+g++" : [
-      "-U_FORTIFY_SOURCE",
       "-O3",
       "-g1",
       "-DNDEBUG",
