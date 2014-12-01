@@ -28,6 +28,7 @@
 using namespace std;
 using namespace Base;
 
+#if 0
 /* Convert a c-string to a JSON string. */
 static TJson ToString(const char *text) {
   string temp;
@@ -50,6 +51,7 @@ FIXTURE(HexCode) {
   EXPECT_EQ(ToString("$\\u00a2$"), "$¢$");
   EXPECT_EQ(ToString("$\\u20AC$"), "$€$");
 }
+#endif
 
 template <typename TTpl, size_t... Idx>
 vector<TJson::TKind> GetKindsImpl(const index_sequence<Idx...> &) {
