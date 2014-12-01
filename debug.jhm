@@ -2,7 +2,6 @@
   "test": {
     "build_with_default_targets": true,
     "excluded": [
-      "third_party",
       ".git"
     ]
   },
