@@ -135,16 +135,15 @@ vector<string> GetConfigList(const TTree &root,
   return ret;
 }
 
-vector<string> CopyAppendVector(const vector<string> &src, string &&val) {
+vector<string> CopyAppendVector(const vector<string> &src, const string &val) {
   vector<string> ret(src);
   ret.push_back(val);
   return ret;
 }
 
-//TODO:
 TEnv::TEnv(const TTree &root, const string &proj_name, const string &config, const string &config_mixin)
     : Root(root),
-      Src(CopyAppendVector(Root.Root, "src")),
+      Src(CopyAppendVector(Root.Root, proj_name)),
       Out(GetOutDirName(root, proj_name, config, config_mixin)),
       Config(GetConfigList(root, proj_name, config, config_mixin)) {
 
