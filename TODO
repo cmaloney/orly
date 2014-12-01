@@ -11,6 +11,8 @@ Bootstrap script generator
 
 Download third party packages / repositories
 
-Multi-project in one project folder functioning
-
 Cross-project includes / dependencies
+
+Remove TStr / TStrList
+
+A good Single Producer Multiple Consumer queue
