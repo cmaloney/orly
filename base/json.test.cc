@@ -29,6 +29,7 @@ using namespace std;
 using namespace Base;
 
 #if 0
+// Unicode isn't currently supported
 /* Convert a c-string to a JSON string. */
 static TJson ToString(const char *text) {
   string temp;
@@ -182,7 +183,7 @@ FIXTURE(Parse) {
 
   EXPECT_EQ(TJson::Parse(R"(["/usr/include/stdc-predef.h","/usr/include/c++/4.9.0/ostream"])"),
             TJson::TArray({"/usr/include/stdc-predef.h", "/usr/include/c++/4.9.0/ostream"}));
-  EXPECT_EQ(TJson::Parse("[1,]"), TJson::TArray({1}));
+  EXPECT_EQ(TJson::Parse("[1,]"), TJson::TArray{1});
   EXPECT_EQ(TJson::Parse("{\"a\": 1,}"), TJson::TObject({{"a", 1}}));
 }
 
