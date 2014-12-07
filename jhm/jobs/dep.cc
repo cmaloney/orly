@@ -82,7 +82,7 @@ vector<string> TDep::GetCmd() {
 
 
 TTimestamp TDep::GetCmdTimestamp() const {
-  static TTimestamp timestamp = GetTimestampSearchingPath("g++");
+  static TTimestamp timestamp = GetTimestampSearchingPath("clang++");
   return timestamp;
 }
 

@@ -16,18 +16,16 @@
 
 set -e
 
-CC=g++
+CC=clang++
 common_flags=(
   # Base compile
   -std=c++1y
   -Wall -Werror -Wextra -Wold-style-cast
 
   # Optimize
-  -O3 -DNDEBUG -flto
-  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter
-
-  #Linking
-  -Wl,--hash-style=gnu -Wl,--no-copy-dt-needed-entries -Wl,-z,relro -Wl,--no-as-needed -pthread
+  -O3 -DNDEBUG
+  -Wno-unused-parameter -Wno-unused -Wno-unused-variable
+  -pthread
   )
 
 

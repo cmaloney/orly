@@ -8,9 +8,8 @@
   "cmd": {
     "+g++" : [
       "-O3",
-      "-g1",
       "-DNDEBUG",
-      "-flto",
+      "-g1",
       "-Wno-unused",
       "-Wno-unused-parameter",
       "-Wno-unused-result"
@@ -18,7 +17,8 @@
     "ld": {
       "+flags": [
         "-O3",
-        "-flto"
+        "-flto",
+        "-g1"
       ]
     }
   }

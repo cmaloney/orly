@@ -120,7 +120,7 @@ vector<string> TLink::GetCmd() {
   assert(this);
 
   //TODO: If there are no C++ files, use 'gcc' to link instead of g++
-  vector<string> cmd{"g++","-o" + GetSoleOutput()->GetPath()};
+  vector<string> cmd{"clang++","-o" + GetSoleOutput()->GetPath()};
   for (auto &flag: Env.GetConfig().Read<vector<string>>({"cmd","ld","flags"})) {
     cmd.push_back(move(flag));
   }

@@ -106,7 +106,7 @@ vector<string> TCompileCFamily::GetCmd() {
   // Build up the gcc call
   // add output, input filenames
   // Tell GCC we're only compiling to a .o
-  vector<string> cmd{IsCpp ? "g++" : "gcc", "-o" + GetSoleOutput()->GetPath(), GetInput()->GetPath(), "-c"};
+  vector<string> cmd{IsCpp ? "clang++" : "clang", "-o" + GetSoleOutput()->GetPath(), GetInput()->GetPath(), "-c"};
 
   /* Add standard arguments */ {
     //TODO: Really need an insertion move here...
@@ -123,8 +123,8 @@ vector<string> TCompileCFamily::GetCmd() {
 
 
 TTimestamp TCompileCFamily::GetCmdTimestamp() const {
-  static TTimestamp gcc_timestamp = GetTimestampSearchingPath("gcc");
-  static TTimestamp gpp_timestamp = GetTimestampSearchingPath("g++");
+  static TTimestamp gcc_timestamp = GetTimestampSearchingPath("clang");
+  static TTimestamp gpp_timestamp = GetTimestampSearchingPath("clang++");
 
   return IsCpp ? gpp_timestamp : gcc_timestamp;
 }

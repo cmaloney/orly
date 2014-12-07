@@ -13,8 +13,6 @@ Download third party packages / repositories
 
 Cross-project includes / dependencies
 
-Remove TStr / TStrList
-
 A good Single Producer Multiple Consumer queue
 
 OS X Support
@@ -24,3 +22,11 @@ buildit -- wrapper for other build systems (Need to ingest autoconf / makefiles,
 Unify on THROWER
 
 Simplify thrower interface
+
+Command line autocompletion
+
+-c release.jhm should build config named 'release', not one named 'release.jhm'
+
+A great many config options should be optional to specify (cmd.ld.libs, cmd.ld.flags, etc)
+
+Cleanup base/json API

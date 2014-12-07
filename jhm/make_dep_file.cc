@@ -48,7 +48,7 @@ vector<string> ToVecStr(int argc, const char *argv[], int skip) {
 
 vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string> &extra_args) {
 
-  vector<string> cmd {is_cpp ? "g++" : "gcc"};
+  vector<string> cmd {is_cpp ? "clang++" : "clang"};
   cmd.insert(cmd.end(), extra_args.begin(), extra_args.end());
   cmd.push_back("-M");
   cmd.push_back("-MG");
