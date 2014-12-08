@@ -59,27 +59,6 @@ FIXTURE(Pipe) {
   CheckClose(readable, writeable);
 }
 
-FIXTURE(SocketPair) {
-  TFd lhs, rhs;
-
-  EXPECT_FALSE(IsValidFd(lhs));
-  EXPECT_FALSE(IsValidFd(rhs));
-
-  TFd::SocketPair(lhs, rhs, AF_UNIX, SOCK_STREAM, 0);
-
-  EXPECT_TRUE(IsValidFd(lhs));
-  EXPECT_TRUE(IsValidFd(rhs));
-
-  Transact(lhs, rhs);
-  Transact(rhs, lhs);
-
-  // Non-system-fds shouldn't be system fds.
-  EXPECT_FALSE(lhs.IsSystemFd());
-  EXPECT_FALSE(rhs.IsSystemFd());
-
-  CheckClose(lhs, rhs);
-}
-
 // Handling of stdin, stdout, stderr
 FIXTURE(SystemFd) {
   {

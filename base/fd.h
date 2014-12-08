@@ -153,16 +153,6 @@ namespace Base {
       writeable = TFd(fds[1], NoThrow);
     }
 
-    /* Construct both ends of a socket. */
-    static void SocketPair(TFd &lhs, TFd &rhs, int domain, int type, int proto = 0) {
-      assert(&lhs);
-      assert(&rhs);
-      int fds[2];
-      Util::IfLt0(socketpair(domain, type, proto, fds));
-      lhs = TFd(fds[0], NoThrow);
-      rhs = TFd(fds[1], NoThrow);
-    }
-
     private:
 
     /* Use to disambiguate construction for Pipe() and SocketPair(). */
