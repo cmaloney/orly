@@ -37,6 +37,14 @@ TTimestamp Util::ToTimestamp(timespec time) {
   return ToTimestampClock<system_clock>(time);
 }
 
+static TTimestamp MtimeToTimestamp(struct stat st) {
+#ifdef __APPLE__
+  return ToTimestamp(st.st_mtimespec);
+#else
+  return ToTimestamp(st.st_mtim);
+#endif
+}
+
 /* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
 TOptTimestamp Util::TryGetTimestamp(const std::string &name) {
   struct stat st;
@@ -46,13 +54,13 @@ TOptTimestamp Util::TryGetTimestamp(const std::string &name) {
     }
     ThrowSystemError(errno);
   }
-  return ToTimestamp(st.st_mtim);
+  return MtimeToTimestamp(st);
 }
 
 TTimestamp Util::GetTimestamp(const std::string &name) {
   struct stat st;
   IfLt0(stat(name.c_str(), &st));
-  return ToTimestamp(st.st_mtim);
+  return MtimeToTimestamp(st);
 }
 
 TTimestamp Util::GetTimestampSearchingPath(const string &name) {
@@ -74,7 +82,7 @@ TTimestamp Util::GetTimestampSearchingPath(const string &name) {
         ThrowSystemError(errno);
       }
     } else {
-      return ToTimestamp(st.st_mtim);
+      return MtimeToTimestamp(st);
     }
   }
   ThrowSystemError(ENOENT);

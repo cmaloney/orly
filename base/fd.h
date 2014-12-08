@@ -144,11 +144,11 @@ namespace Base {
     }
 
     /* Construct the read- and write-only ends of a pipe. */
-    static void Pipe(TFd &readable, TFd &writeable, int flags = 0) {
+    static void Pipe(TFd &readable, TFd &writeable) {
       assert(&readable);
       assert(&writeable);
       int fds[2];
-      Util::IfLt0(pipe2(fds, flags) < 0);
+      Util::IfLt0(pipe(fds) < 0);
       readable = TFd(fds[0], NoThrow);
       writeable = TFd(fds[1], NoThrow);
     }

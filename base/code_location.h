@@ -113,9 +113,8 @@ namespace std {
 
     result_type operator()(const argument_type &that) const {
       assert(&that);
-      const char *const file = that.GetFile();
-      const size_t len = strlen(file);
-      return _Hash_impl::hash(file, len) ^ that.GetLineNumber();
+      // TODO(cmaloney): Better hash function.
+      return std::hash<std::string>()(string(that.GetFile())) ^ that.GetLineNumber();
     }
 
   };  // hash<Base::TCodeLocation>

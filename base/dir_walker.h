@@ -23,6 +23,7 @@
 #include <cstdint>
 
 #include <fts.h>
+#include <sys/types.h>
 
 namespace Base {
 
