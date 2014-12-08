@@ -19,8 +19,9 @@
 #pragma once
 
 
-#include <unistd.h>
+#include <fcntl.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <cassert>
@@ -149,6 +150,10 @@ namespace Base {
       assert(&writeable);
       int fds[2];
       Util::IfLt0(pipe(fds) < 0);
+#ifdef __APPLE__
+      Util::IfLt0(fcntl(fds[0], F_SETNOSIGPIPE, 1));
+      Util::IfLt0(fcntl(fds[1], F_SETNOSIGPIPE, 1));
+#endif
       readable = TFd(fds[0], NoThrow);
       writeable = TFd(fds[1], NoThrow);
     }
