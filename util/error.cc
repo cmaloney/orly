@@ -31,7 +31,7 @@ namespace Util {
 
     /* The man page for strerror_r explains all of this ugliness. */
 
-#if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE)
+#if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE) || __APPLE__
     /* This is the XSI-compliant version of strerror_r(). */
     int err = strerror_r(errno_value, buf, buf_size);
 
