@@ -38,8 +38,8 @@
     EXPECT_EQ(data[2], 't');
     EXPECT_EQ(data[3], 'a');
 
-
-  TODO: Migrate to http://dvdhrm.wordpress.com/2014/06/10/memfd_create2/ once that is around.
+  TODO:
+    PipeMutex is overly coarse and will become contentious with lots of adding/removing.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -62,15 +62,46 @@
 #include <memory>
 #include <mutex>
 #include <queue>
-#include <thread>
 #include <unordered_set>
 
 #include <base/class_traits.h>
-#include <base/event_semaphore.h>
+#ifdef __APPLE__ // TPumper implementations
+#include <base/pump_kqueue.h>
+#elif __LINUX__
+#include <base/pump_epoll.h>
+#else
+#error "Not Implemented"
+#endif
+#include <base/pump_util.h>
 #include <base/fd.h>
 #include <util/stl.h>
 
+/* Pumper abstract interface
+
+  // Pumps data abstracting out platform specific behavior.
+  class TPumper {
+
+    enum TEvent {
+      Read,
+      Write
+    };
+
+    // Add the given fd to the epoll with the given events and associate the given pipe with it.
+    void Join(int fd, TEvent event, TPipe *pipe);
+
+    // Remove the given fd from the epoll.
+    void Leave(int fd);
+
+    // Pumps data until told to shutdown. Launch this in a backtround
+    // thread. All other member functions re synchronized properly with this.
+    void Pump();
+
+  };
+*/
+
 namespace Base {
+
+namespace Pump {
 
   //TODO: this should be pulled out into a generic "pool of buffers" implementation
   //NOTE: We never reclaim any blocks currently.
@@ -107,16 +138,17 @@ namespace Base {
     std::vector<TPtr> Blocks;
   };
 
+  /* Max number of bytes which are forwarded at a time through a TPipe */
+  static constexpr uint64_t ReadBufSize = 4096;
+
+  class TPipe;
+
+} // Pump
+
   /* A pump for pipes. */
   class TPump final {
     NO_COPY(TPump);
     public:
-
-    /* Max number of bytes which are forwarded at a time through a TPipe */
-    static constexpr uint64_t ReadBufSize = 4096;
-
-    /* Max number of epoll events returned simultaneously */
-    static const size_t MaxEventCount = 64;
 
     /* Construct with no pipes. */
     TPump();
@@ -139,43 +171,27 @@ namespace Base {
     bool IsIdle() const;
 
     private:
+    bool ServicePipe(Pump::TPipe *pipe);
 
-    using TBlockPool = TGrowingPool<ReadBufSize>;
-
-    class TPipe;
-
-    /* The entry point of the background thread. */
-    void BackgroundMain();
-
-    /* Add the given fd to the epoll with the given events and associate the given pipe with it. */
-    void JoinEpoll(int fd, uint32_t events, TPipe *pipe);
-
-    /* Remove the given fd from the epoll. */
-    void PartEpoll(int fd);
+    using TBlockPool = Pump::TGrowingPool<Pump::ReadBufSize>;
 
     /* Signals when a pipe dies.  This wakes up the WaitForIdle() functions. */
     mutable std::mutex PipeMutex;
     mutable std::condition_variable PipeDied;
 
-    /* Pushed in the destructor.  It causes the background thread to exit. */
-    TEventSemaphore Shutdown;
-
-    /* Used when managing Pipes variable. */
-
     /* Collection of the owned pipes.
 
        NOTE: It would be really nice to use unique_ptr here, but we can't because we can't lookup a pipe given a raw
        pointer later... */
-    std::unordered_set<TPipe*> Pipes;
+    std::unordered_set<Pump::TPipe*> Pipes;
 
-    /* The epoll against which the background thread blocks. */
-    TFd Epoll;
+    Pump::TPumper Pumper;
 
     /* Pool of blocks for stashing I/O in temporarily. */
     TBlockPool BlockPool;
 
-    /* The background thread. */
-    std::thread Background;
+    friend class Pump::TPipe;
+    friend class Pump::TPumper;
   };  // TPump
 
 }  // Base

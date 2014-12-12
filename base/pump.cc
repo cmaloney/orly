@@ -16,17 +16,21 @@
 
 #include <base/pump.h>
 
-#include <sys/epoll.h>
-#include <fcntl.h>
+#if __APPLE__
+#include <base/pump_kqueue.h>
+#else
+#include <base/pump_epoll.h>
+#endif
 
 #include <util/error.h>
 #include <util/io.h>
 
 using namespace Base;
+using namespace Base::Pump;
 using namespace std;
 using namespace Util;
 
-class TPump::TPipe {
+class Pump::TPipe {
   NO_COPY(TPipe);
 
   public:
@@ -149,7 +153,7 @@ class TPump::TPipe {
   void StartWriting() {
     assert(this);
     if (!Writing) {
-      Pump->JoinEpoll(WriteFd, EPOLLOUT, this);
+      Pump->Pumper.Join(WriteFd, Pump::Write, this);
       Writing = true;
     }
   }
@@ -157,15 +161,15 @@ class TPump::TPipe {
   void StopWriting() {
     assert(this);
     if (Writing) {
-      Pump->PartEpoll(WriteFd);
       Writing = false;
+      Pump->Pumper.Leave(WriteFd);
     }
   }
 
   void StopReading() {
     assert(this);
     assert(ReadFd.IsOpen());
-    Pump->PartEpoll(ReadFd);
+    Pump->Pumper.Leave(ReadFd);
     ReadFd.Reset();
   }
 
@@ -186,16 +190,8 @@ class TPump::TPipe {
   uint64_t WriteOffset = 0;
   std::queue<uint8_t *> Blocks;
 
-  friend class TPump;
+  friend class Base::TPump;
 };
-
-TPump::TPump() : Epoll(epoll_create1(EPOLL_CLOEXEC)) {
-  // Add the shutting down fd to the epoll. It'll be the only one with a null pointer associated with it.
-  JoinEpoll(Shutdown.GetFd(), EPOLLIN, nullptr);
-
-  // Launch the background thread.
-  Background = thread(&TPump::BackgroundMain, this);
-}
 
 void TPump::NewPipe(TFd &read, TFd &write) {
   std::lock_guard<mutex> lock(PipeMutex);
@@ -203,14 +199,15 @@ void TPump::NewPipe(TFd &read, TFd &write) {
   Pipes.insert(pipe);
 
   // TODO: This API should really be
-  //   pump->Epoll.AddRead(pipe.get(), pipe->ReadFd, &TPipe::Service);
+  //   eventloop.AddRead(pipe.get(), pipe->ReadFd, &TPipe::Service);
   //   Where the first item is the pipe, and the second is the identifier, and the last is the service func.
-  JoinEpoll(pipe->ReadFd, EPOLLIN, pipe);
+  Pumper.Join(pipe->ReadFd, Read, pipe);
 }
 
+TPump::TPump() : Pumper(*this) {}
+
 TPump::~TPump() {
-  Shutdown.Push();
-  Background.join();
+  Pumper.Shutdown();
 
   std::lock_guard<mutex> lock(PipeMutex);
   for (TPipe *pipe : Pipes) {
@@ -226,60 +223,16 @@ bool TPump::IsIdle() const {
   return Pipes.empty();
 }
 
-void TPump::BackgroundMain() {
+bool TPump::ServicePipe(TPipe *pipe) {
   assert(this);
 
-  // TODO: Block all signals
-
-  epoll_event events[MaxEventCount];
-
-  bool Stopping = false;
-
-  /* Loop forever, servicing pipes until a stop is requested */
-  while (!Stopping) {
-    int event_count = epoll_wait(Epoll, events, MaxEventCount, -1);
-    if (event_count < 0) {
-      if (errno == EINTR) {
-        continue;
-      } else {
-        ThrowSystemError(errno);
-      }
-    }
-    unordered_set<TPipe *> dead_pipes;
-    for (int i = 0; i < event_count; ++i) {
-      TPipe *pipe = static_cast<TPipe *>(events[i].data.ptr);
-
-      // If pipe is null, this is the exit signal.
-      if (pipe) {
-        // If we've already been deleted, skip.
-        if (Contains(dead_pipes, pipe)) {
-          continue;
-        }
-
-        if (!pipe->Service()) {
-          // The pipe is dead. Remove it from our set of pipes, ping PipeDied.
-          dead_pipes.insert(pipe);
-          std::lock_guard<mutex> lock(PipeMutex);
-          Pipes.erase(pipe);
-          PipeDied.notify_all();
-          delete pipe;
-        }
-      } else {
-        Stopping = true;
-      }
-    }
+  if(!pipe->Service()) {
+    // The pipe is dead. Remove it from our set of pipes, ping PipeDied.
+    std::lock_guard<mutex> lock(PipeMutex);
+    Pipes.erase(pipe);
+    PipeDied.notify_all();
+    delete pipe;
+    return false;
   }
-}
-
-void TPump::JoinEpoll(int fd, uint32_t events, TPipe *pipe) {
-  assert(this);
-  epoll_event event;
-  event.events = events;
-  event.data.ptr = pipe;
-  IfLt0(epoll_ctl(Epoll, EPOLL_CTL_ADD, fd, &event));
-}
-
-void TPump::PartEpoll(int fd) {
-  assert(this);
-  IfLt0(epoll_ctl(Epoll, EPOLL_CTL_DEL, fd, nullptr));
+  return true;
 }

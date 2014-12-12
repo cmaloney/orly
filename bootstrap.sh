@@ -37,7 +37,7 @@ $CC -o tools/jhm                                                                
   base/thrower.cc base/demangle.cc util/io.cc base/cmd.cc jhm/job.cc base/backtrace.cc jhm/jobs/flex.cc \
   jhm/naming.cc base/unreachable.cc base/path.cc jhm/status_line.cc              \
   jhm/jobs/nycr.cc base/code_location.cc jhm/test.cc jhm/work_finder.cc util/error.cc base/pump.cc jhm/jobs/dep.cc     \
-  jhm/job_runner.cc base/subprocess.cc base/event_semaphore.cc                                                         \
+  jhm/job_runner.cc base/subprocess.cc base/pump_kqueue.cc                                                             \
   -I./ -DSRC_ROOT=\"`pwd`\"
 
 #Build make_dep_file
