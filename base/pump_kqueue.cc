@@ -21,28 +21,26 @@ TPumper::TPumper(TPump &pump) : Pump(pump), Kqueue(IfLt0(kqueue())) {
   Background = thread(&TPumper::BackgroundMain, this);
 }
 
+auto EventToFilter(TEvent event_type) {
+  return event_type == Read ? EVFILT_READ : EVFILT_WRITE;
+}
+
 void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
   assert(this);
   struct kevent event = {};
   event.ident = fd;
   event.flags = EV_ADD;
-  switch(event_type) {
-    case Read:
-      event.filter = EVFILT_READ;
-      break;
-    case Write:
-      event.filter = EVFILT_WRITE;
-      break;
-  }
+  event.filter = EventToFilter(event_type);
   event.udata = pipe;
 
   IfLt0(kevent(Kqueue, &event, 1, nullptr, 0, nullptr));
 }
 
-void TPumper::Leave(int fd) {
+void TPumper::Leave(int fd, TEvent event_type) {
   assert(this);
   struct kevent event = {};
   event.ident = fd;
+  event.filter = EventToFilter(event_type);
   event.flags = EV_DELETE;
 
   IfLt0(kevent(Kqueue, &event, 1, nullptr, 0, nullptr));

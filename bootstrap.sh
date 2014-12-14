@@ -45,7 +45,7 @@ $CC -o tools/make_dep_file                                                      
   "${common_flags[@]}"                                                                                                 \
   base/backtrace.cc base/unreachable.cc     \
   jhm/make_dep_file.cc base/fd.cc base/code_location.cc base/thrower.cc base/subprocess.cc        \
-  base/split.cc util/io.cc base/demangle.cc base/pump.cc util/error.cc base/event_semaphore.cc                         \
+  base/split.cc util/io.cc base/demangle.cc base/pump.cc util/error.cc base/pump_kqueue.cc                        \
   -I./ -DSRC_ROOT=\"`pwd`\"
 
 mkdir -p ../.jhm

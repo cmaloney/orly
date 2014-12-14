@@ -24,7 +24,7 @@ class TPumper {
 
   void Join(int fd, TEvent event_type, TPipe *pipe);
 
-  void Leave(int fd);
+  void Leave(int fd, TEvent event_type);
 
   // Returns after the background thread has shut down.
   void Shutdown();

@@ -162,14 +162,14 @@ class Pump::TPipe {
     assert(this);
     if (Writing) {
       Writing = false;
-      Pump->Pumper.Leave(WriteFd);
+      Pump->Pumper.Leave(WriteFd, Pump::Write);
     }
   }
 
   void StopReading() {
     assert(this);
     assert(ReadFd.IsOpen());
-    Pump->Pumper.Leave(ReadFd);
+    Pump->Pumper.Leave(ReadFd, Pump::Read);
     ReadFd.Reset();
   }
 
