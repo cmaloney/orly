@@ -41,6 +41,9 @@ size_t Util::ReadAtMost(int fd, void *buf, size_t max_size) {
 }
 
 size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
+  if (max_size == 0) {
+    return 0;
+  }
   return write(fd, buf, max_size);
 }
 
