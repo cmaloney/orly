@@ -41,17 +41,7 @@ size_t Util::ReadAtMost(int fd, void *buf, size_t max_size) {
 }
 
 size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
-  struct stat stat;
-  IfLt0(fstat(fd, &stat));
-  if (IfLt0(S_ISSOCK(stat.st_mode))) {
-#if __APPLE__
-    return send(fd, buf, max_size, 0);
-#else
-    return send(fd, buf, max_size, MSG_NOSIGNAL);
-#endif
-  } else {
-    return write(fd, buf, max_size);
-  }
+  return write(fd, buf, max_size);
 }
 
 bool Util::TryReadExactly(int fd, void *buf, size_t size) {
