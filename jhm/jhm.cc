@@ -23,16 +23,19 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
+
+
+
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <thread>
-
 #include <base/backtrace.h>
-#include <base/cmd.h>
 #include <base/not_implemented.h>
 #include <base/split.h>
 #include <base/thrower.h>
+#include <cmd/main.h>
+#include <jhm/options.h>
 #include <jhm/env.h>
 #include <jhm/status_line.h>
 #include <jhm/test.h>
@@ -86,209 +89,157 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
   return file;
 }
 
-class TJhm : public TCmd {
-  public:
-  TJhm(int argc, char *argv[]) : WorkerCount(thread::hardware_concurrency()) {
-    Parse(argc, argv, TMeta());
+// TODO(cmaloney): More of this seems like it should be library functionality rather than hardcoded
+// into main
+int Main(const int argc, const char *argv[]) {
+  TOptions options = Options::Parse(argc, argv);
+  auto cwd = GetCwd();
+
+  // Build up the environment. Find the root, grab the project, user, and system configuration
+  TTree cwd_tree(cwd);
+  TTree jhm_root = TTree::Find(cwd, ".jhm");
+  if (jhm_root.Root.size() == cwd_tree.Root.size()) {
+    // TODO(cmaloney): Needed features:
+    // - nested vs. not nested out directory
+    // - Automatic finding of root project 'src'? Or grabbing all
+    //   sub dependencies.
+    NOT_IMPLEMENTED_S("Running JHM at the same level as the .jhm")
+  }
+  TEnv env(jhm_root, cwd_tree.Root.at(jhm_root.Root.size()), Config, ConfigMixin);
+
+  // chdir to the src folder so we can always use relative paths. for commands
+  /* abs_root */ {
+
+    auto abs_root = AsStr(*env.GetSrc());
+    if (!ExistsPath(abs_root.c_str())) {
+      THROW_ERROR(runtime_error) << "Source directory " << quoted(abs_root) << " does not exist";
+    }
+    IfLt0(chdir(abs_root.c_str()));
   }
 
-  int Run() {
-    auto cwd = GetCwd();
+  // Get the files for the targets
+  TWorkFinder work_finder(WorkerCount,
+                          PrintCmd,
+                          //NOTE: Env is guaranteed to always have a timestamp, so derefrencing it here is safe.
+                          *env.GetConfig().GetTimestamp(),
+                          bind(&TEnv::GetJobsProducingFile, &env, _1),
+                          bind(&TEnv::GetFile, &env, _1),
+                          bind(&TEnv::TryGetFileFromPath, &env, _1));
 
-    // Build up the environment. Find the root, grab the project, user, and system configuration
-    // TODO: proj_name should be the folder immediately inside the root that executed inside, so long as it doesn't
-    // begin with "out".
-    TTree cwd_tree(cwd);
-    TTree jhm_root = TTree::Find(cwd, ".jhm");
-    if (jhm_root.Root.size() == cwd_tree.Root.size()) {
-      // TODO(cmaloney): Needed features:
-      // - nested vs. not nested out directory
-      // - Automatic finding of root project 'src'? Or grabbing all
-      //   sub dependencies.
-      NOT_IMPLEMENTED_S("Running JHM at the same level as the .jhm")
+  // Break the cyclic dependency by registering these back.
+  // TODO: Find a cleaner way to do this (Or remove it altogether)
+  env.SetFuncs(bind(&TWorkFinder::IsBuildable, &work_finder, _1), bind(&TWorkFinder::IsFileDone, &work_finder, _1));
+
+  // TODO: Gather exceptions here, rather than letting first one fly.
+  TSet<TFile *> target_files;
+
+  // Either build the explicitly specified targets, or the default targets
+  if (!Targets.empty()) {
+    for(const auto &target: Targets) {
+      InsertOrFail(target_files, FindFile(cwd, env, work_finder, target));
     }
-    TEnv env(jhm_root, cwd_tree.Root.at(jhm_root.Root.size()), Config, ConfigMixin);
-
-    // chdir to the src folder so we can always use relative paths. for commands
-    /* abs_root */ {
-
-      auto abs_root = AsStr(*env.GetSrc());
-      if (!ExistsPath(abs_root.c_str())) {
-        THROW_ERROR(runtime_error) << "Source directory " << quoted(abs_root) << " does not exist";
-      }
-      IfLt0(chdir(abs_root.c_str()));
+  } else {
+    // Add the default targets
+    for(const auto &target: env.GetConfig().Read<vector<string>>({"targets"})) {
+      InsertOrFail(target_files, FindFile(cwd, env, work_finder, '/' + target));
     }
 
-    // Get the files for the targets
-    TWorkFinder work_finder(WorkerCount,
-                            PrintCmd,
-                            //NOTE: Env is guaranteed to always have a timestamp, so derefrencing it here is safe.
-                            *env.GetConfig().GetTimestamp(),
-                            bind(&TEnv::GetJobsProducingFile, &env, _1),
-                            bind(&TEnv::GetFile, &env, _1),
-                            bind(&TEnv::TryGetFileFromPath, &env, _1));
+    // Add the tests if we're supposed to by default
+    bool build_tests = false;
+    env.GetConfig().TryRead({"test","build_with_default_targets"}, build_tests);
+    if (build_tests || !PrintTests.empty()) {
+      auto tests = FindTests(env);
 
-    // Break the cyclic dependency by registering these back.
-    // TODO: Find a cleaner way to do this (Or remove it altogether)
-    env.SetFuncs(bind(&TWorkFinder::IsBuildable, &work_finder, _1), bind(&TWorkFinder::IsFileDone, &work_finder, _1));
-
-    // TODO: Gather exceptions here, rather than letting first one fly.
-    TSet<TFile *> target_files;
-
-    // Either build the explicitly specified targets, or the default targets
-    if (!Targets.empty()) {
-      for(const auto &target: Targets) {
-        InsertOrFail(target_files, FindFile(cwd, env, work_finder, target));
-      }
-    } else {
-      // Add the default targets
-      for(const auto &target: env.GetConfig().Read<vector<string>>({"targets"})) {
-        InsertOrFail(target_files, FindFile(cwd, env, work_finder, '/' + target));
-      }
-
-      // Add the tests if we're supposed to by default
-      bool build_tests = false;
-      env.GetConfig().TryRead({"test","build_with_default_targets"}, build_tests);
-      if (build_tests || !PrintTests.empty()) {
-        auto tests = FindTests(env);
-
-        // If the file is not buildable, skip the test. This prevents us from trying to test things that are
-        // untestable.
-        // NOTE: If this excludes something that should be tested, we should be able to catch that in test reports.
-        //TODO: This should be a std::remove_if...
-        /* filter */ {
-          TSet<TFile *> filtered_tests;
-          for (TFile *test : tests) {
-            if (work_finder.IsBuildable(test)) {
-              InsertOrFail(filtered_tests, test);
-            }
+      // If the file is not buildable, skip the test. This prevents us from trying to test things that are
+      // untestable.
+      // NOTE: If this excludes something that should be tested, we should be able to catch that in test reports.
+      //TODO: This should be a std::remove_if...
+      /* filter */ {
+        TSet<TFile *> filtered_tests;
+        for (TFile *test : tests) {
+          if (work_finder.IsBuildable(test)) {
+            InsertOrFail(filtered_tests, test);
           }
-          tests = move(filtered_tests);
         }
-        if (!PrintTests.empty()) {
-          ofstream out(PrintTests);
-          if (!out.is_open()) {
-            THROW_ERROR(runtime_error) << "Unable to open file " << quoted(PrintTests) << "to write tests out to.";
-          }
-          TJson::TArray tmp;
-          tmp.reserve(tests.size());
-          std::for_each(tests.begin(), tests.end(), [&tmp] (const TFile *f) {
-            tmp.push_back(AsStr(f->GetPath()));
-          });
-          out << TJson(move(tmp));
-          out.close();
+        tests = move(filtered_tests);
+      }
+      if (!PrintTests.empty()) {
+        ofstream out(PrintTests);
+        if (!out.is_open()) {
+          THROW_ERROR(runtime_error) << "Unable to open file " << quoted(PrintTests) << "to write tests out to.";
         }
-
-        if (build_tests) {
-          target_files.insert(tests.begin(), tests.end());
-        }
-      }
-    }
-
-    // Add all target files as needed
-    for (TFile *f : target_files) {
-      work_finder.AddNeededFile(f);
-    }
-
-    // TODO: Add a single-line status message
-    if (!work_finder.FinishAll()) {
-      return 1;
-    }
-
-    // Run all the tests if requested
-    if (!RunTests) {
-      return 0;
-    }
-
-    // Run every test which should have been built
-    //TODO: We really should make it a job to produce a test report, and let the job runner run them in parallel. But
-    //      that requires teaching the job runner about resource needs of various kinds of jobs (Ex. Run only one, 512MB
-    //      of ram, etc).
-    TPump pump;
-    auto RunTest = [this,&pump](TFile *test) {
-      vector<string> cmd{test->GetPath()};
-      //NOTE: This is a seperate line because otherwise it breaks in release builds
-      if (VerboseTests) {
-        cmd.push_back("-v");
-        cout << "TEST: " << test;
-      } else {
-        TStatusLine() << "TEST: " << test;
-      }
-      auto subprocess = TSubprocess::New(pump, cmd);
-      auto status = subprocess->Wait();
-
-      if (VerboseTests || status) {
-        TStatusLine::Cleanup(); // Make sure the TEST: line stays at the top.
-        EchoOutput(subprocess->TakeStdOutFromChild());
-        EchoOutput(subprocess->TakeStdErrFromChild());
+        TJson::TArray tmp;
+        tmp.reserve(tests.size());
+        std::for_each(tests.begin(), tests.end(), [&tmp] (const TFile *f) {
+          tmp.push_back(AsStr(f->GetPath()));
+        });
+        out << TJson(move(tmp));
+        out.close();
       }
 
-      if (status) {
-        cout << "EXITCODE: " << status << '\n';
-        return false;
-      }
-      return true;
-    };
-
-    for (TFile *f: target_files) {
-      if (f->GetRelPath().Path.EndsWith({"test",""})) {
-        if(!RunTest(f)) {
-          return 2;
-        }
+      if (build_tests) {
+        target_files.insert(tests.begin(), tests.end());
       }
     }
-    TStatusLine::Cleanup();
+  }
+
+  // Add all target files as needed
+  for (TFile *f : target_files) {
+    work_finder.AddNeededFile(f);
+  }
+
+  // TODO: Add a single-line status message
+  if (!work_finder.FinishAll()) {
+    return 1;
+  }
+
+  // Run all the tests if requested
+  if (!RunTests) {
     return 0;
   }
 
-  private:
-  class TMeta : public TCmd::TMeta {
-    public:
-    TMeta() : TCmd::TMeta("JHM") {
-      Param(&TJhm::Config, "config", Optional, "config\0c\0", "Run JHM in a particular configuration");
-      Param(&TJhm::ConfigMixin,
-            "config_mixin",
-            Optional,
-            "mixin\0m\0",
-            "Add a configuration mixin to the base configuration");
-      Param(&TJhm::PrintCmd, "print_cmd", Optional, "print-cmd\0p\0", "Print out all commands run");
-      Param(
-          &TJhm::PrintTests, "print_tests", Optional, "print-test\0", "Write a list of tests to the given filename.");
-      Param(&TJhm::RunTests, "run_tests", Optional, "test\0", "Run the unit tests");
-      Param(&TJhm::VerboseTests, "verbose_tests", Optional, "verbose-test\0", "Run tests in verbose mode");
-      Param(&TJhm::WorkerCount,
-            "worker_count",
-            Optional,
-            "worker-count\0",
-            "Change the number of worker threads JHM uses to run jobs simultaneously");
-      Param(&TJhm::Targets, "targets", Optional, "Targets to try to build");
+  // Run every test which should have been built
+  //TODO: We really should make it a job to produce a test report, and let the job runner run them in parallel. But
+  //      that requires teaching the job runner about resource needs of various kinds of jobs (Ex. Run only one, 512MB
+  //      of ram, etc).
+  TPump pump;
+  auto RunTest = [this,&pump](TFile *test) {
+    vector<string> cmd{test->GetPath()};
+    //NOTE: This is a seperate line because otherwise it breaks in release builds
+    if (VerboseTests) {
+      cmd.push_back("-v");
+      cout << "TEST: " << test;
+    } else {
+      TStatusLine() << "TEST: " << test;
+    }
+    auto subprocess = TSubprocess::New(pump, cmd);
+    auto status = subprocess->Wait();
+
+    if (VerboseTests || status) {
+      TStatusLine::Cleanup(); // Make sure the TEST: line stays at the top.
+      EchoOutput(subprocess->TakeStdOutFromChild());
+      EchoOutput(subprocess->TakeStdErrFromChild());
     }
 
-    virtual void WriteAfterDesc(ostream &strm) const {
-      assert(this);
-      assert(&strm);
-      strm << "Copyright OrlyAtomics, Inc.\n"
-           << "Licensed under the Apache License, Version 2.0" << endl;
+    if (status) {
+      cout << "EXITCODE: " << status << '\n';
+      return false;
     }
+    return true;
   };
 
-  bool PrintCmd = false;
-  string Config = "debug";
-  string ConfigMixin;
-  string PrintTests;
-  bool RunTests = false;
-  bool VerboseTests = false;
-  uint32_t WorkerCount = 0;
-  vector<string> Targets;
-};
+  for (TFile *f: target_files) {
+    if (f->GetRelPath().Path.EndsWith({"test",""})) {
+      if(!RunTest(f)) {
+        return 2;
+      }
+    }
+  }
+  TStatusLine::Cleanup();
+  return 0;
+}
 
-int main(int argc, char *argv[]) {
-  try {
-    TBacktraceCatcher backtrace;
-    return TJhm(argc, argv).Run();
-  }
-  catch (const std::exception &ex) {
-    cout << "EXCEPTION: " << ex.what() << endl;
-    return -1;
-  }
+
+Cmd::TRunner GetRunner() {
+  return TArgRunner(Jhm::Options, Main)
 }

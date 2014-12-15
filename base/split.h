@@ -168,6 +168,7 @@ namespace Base {
     return WriteJoin(strm, that);
   }
 
+  /* split the src string every time tok apperas, up to count instances if count is specified */
   void Split(const char *tok, const std::string &src, std::vector<std::string> &pieces);
 
 }

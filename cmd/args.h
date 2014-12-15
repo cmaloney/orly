@@ -50,6 +50,7 @@ TODO:
 
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace Cmd {
@@ -71,6 +72,7 @@ TVal ParseArg(const std::string &val);
 struct TArgInfo {
   const std::vector<std::string> Names;
   const char *Description = nullptr;
+  // TODO(cmaloney): Optional should really be a range of valid counts? (0, 0-1, 1, 1+)
   const bool Optional = true;
   const bool HasValue = false;
 };
@@ -79,12 +81,6 @@ struct TArgInfo {
 
 template <typename TOptions>
 std::function<void(TOptions &options, const std::string &arg)> ParseAndStore;
-
-// Adds an optional argument to a collection
-template <typename TOptions, typename TVal>
-TArg<TOptions> Optional(std::string name, );
-
-//TODO (cmaloney): How to track if a required argument has been used?
 
 template <typename TOptions>
 class TArgCollection {
@@ -96,8 +92,12 @@ class TArgCollection {
     // TODO(cmaloney): Use inheritance/virtual functions instead of std::function/function pointers?
     // What is the tradeoff? Where does one beat the other?
 
-    TConsume ArgConsumer;
+    TConsume Apply;
   };
+
+  const TProcessor &arg_processor();
+
+  TOptions Parse(const int argc, const char *argv[]) const;
 
   // Quick argument lookup map.
   std::vector<const TProcessor> Info;
@@ -106,27 +106,73 @@ class TArgCollection {
 };
 
 
-
-template <typename TOptions>
-class TArgParser {
-  void HandleArg(TOptions &target) const {
-    const TArgInfo &info = Lookup.at(name);
-    if (info.HasValue)
-  }
-
-
-  TOptions result;
-};
-
-void Parse(const TArgCollection &arguments, TOptions &options, const int argc, const char *argv[]) {
-
-  // Parse argument through value
-  // NOTE: We explicitly don't do anything to values since they could contain who knows what.
-  bool has_value;
-  TArgInfo info;
-  std::tie(has_value, ) = arguments.Find(name)
+// Adds an optional argument to a collection
+template <typename TOptions, typename TMember>
+typename TArgCollection<TOptions>::TProcessor Optional(std::string name, &TOptions::foo ptr_to_member, const char *description) {
+  return TArgCollection<TOptions>::TProcessor
 }
 
+//TODO(cmaloney): This should probably use a parser object to make the code more
+// modular and testable.
+template <typename TOptions>
+TOptions TArgCollection<TOptions>::Parse(const int argc, const char *argv[]) const {
+
+  int i = 0;
+  auto has_more = [&i, argc] () -> bool {
+    return i < argc;
+  };
+
+  // TODO(cmaloney): Switch to something string_view like.
+  auto get_arg = [argc, argv] (int i) {
+    return std::string(argv[i]);
+  };
+
+  void try_match = [](const std::string &arg, const char c, const uint64_t index) -> bool {
+    if (arg.length() <= index) {
+      return false;
+    }
+    return arg[index] == c;
+  }
+
+  while (i < argc) {
+    // Look up argument
+    auto arg = get_arg(i);
+
+    // TODO(cmaloney): The '=' 1 or 2 optional split should happen via Base::Split
+    std::string key, value;
+    auto split_pos = arg.find_first_of('=')
+    const std::string key = split_pos == string::npos ? arg : arg.substr(0, split_pos);
+    const Opt<std::string> value_equals =
+        split_pos = string::npos ? TOpt<std::string>() : arg.substr(split_pos+1);
+
+    // Long options are '--' followed by a single word option. If the option
+    // requires a value that may be specified by writing '=' value
+    if (BeginsWith(arg, "--")) {
+      // TODO(cmaloney): Catch the not found index exception
+      const TProcessor &processor = *Named.at(arg.substr(2));
+      if (processor.HasValue) {
+
+      }
+    }
+
+    // Short options are '-' followed by one character options. If one of those
+    // options requires a value, then we must find a '=' or value after a space.
+    if (try_match(arg, '-')) {
+      NOT_IMPLEMENTED();
+    }
+
+
+    // If argument needs a value, eat that as well ('--foo=value' or
+    // --foo value)
+    if (try_match(arg, '--', 0)) {
+      // Short opt has one followed by a collection of short args.
+
+    }
+
+    else if
+  }
+
+}
 
 
 template<typename TOptions>

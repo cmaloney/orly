@@ -5,14 +5,11 @@ a program which will parse arguments.
 
 
 Expects one global function:
-TRunner GetRunner();
+unique_ptr<TRunner> GetRunner();
 
 TRunner bundles any argument processing along with the C++ entrypoint
 which takes configuration parameters as an object. */
 
+#include <memory>
 
-namespace Cmd {
-  template<typename TArgParser>
-  class TArgRunner {
-  };
-}
+int Main(int argc, char *argv[]);
