@@ -21,6 +21,7 @@
 #pragma once
 
 #include <cassert>
+#include <type_traits>
 
 namespace Base {
 
@@ -28,9 +29,9 @@ namespace Base {
      bool, equals true.  This means non-null pointers and non-zero numbers
      will pass through, but null pointers and zeros will not. */
   template <typename TVal>
-  const TVal &AssertTrue(const TVal &val) {
+  auto AssertTrue(TVal &&val) {
     assert(val);
-    return val;
+    return std::forward<TVal>(val);
   }
 
 }  // Base
