@@ -92,7 +92,7 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
 // TODO(cmaloney): More of this seems like it should be library functionality rather than hardcoded
 // into main
 int Main(const int argc, const char *argv[]) {
-  TOptions options = Options::Parse(argc, argv);
+  TOptions options = Cmd::Parse(GetOptions(), argc, argv);
   auto cwd = GetCwd();
 
   // Build up the environment. Find the root, grab the project, user, and system configuration
@@ -105,7 +105,7 @@ int Main(const int argc, const char *argv[]) {
     //   sub dependencies.
     NOT_IMPLEMENTED_S("Running JHM at the same level as the .jhm")
   }
-  TEnv env(jhm_root, cwd_tree.Root.at(jhm_root.Root.size()), Config, ConfigMixin);
+  TEnv env(jhm_root, cwd_tree.Root.at(jhm_root.Root.size()), options.Config, options.ConfigMixin);
 
   // chdir to the src folder so we can always use relative paths. for commands
   /* abs_root */ {
@@ -118,8 +118,8 @@ int Main(const int argc, const char *argv[]) {
   }
 
   // Get the files for the targets
-  TWorkFinder work_finder(WorkerCount,
-                          PrintCmd,
+  TWorkFinder work_finder(options.WorkerCount,
+                          options.PrintCmd,
                           //NOTE: Env is guaranteed to always have a timestamp, so derefrencing it here is safe.
                           *env.GetConfig().GetTimestamp(),
                           bind(&TEnv::GetJobsProducingFile, &env, _1),
@@ -134,8 +134,8 @@ int Main(const int argc, const char *argv[]) {
   TSet<TFile *> target_files;
 
   // Either build the explicitly specified targets, or the default targets
-  if (!Targets.empty()) {
-    for(const auto &target: Targets) {
+  if (!options.Targets.empty()) {
+    for(const auto &target: options.Targets) {
       InsertOrFail(target_files, FindFile(cwd, env, work_finder, target));
     }
   } else {
@@ -147,7 +147,7 @@ int Main(const int argc, const char *argv[]) {
     // Add the tests if we're supposed to by default
     bool build_tests = false;
     env.GetConfig().TryRead({"test","build_with_default_targets"}, build_tests);
-    if (build_tests || !PrintTests.empty()) {
+    if (build_tests || !options.PrintTests.empty()) {
       auto tests = FindTests(env);
 
       // If the file is not buildable, skip the test. This prevents us from trying to test things that are
@@ -163,10 +163,10 @@ int Main(const int argc, const char *argv[]) {
         }
         tests = move(filtered_tests);
       }
-      if (!PrintTests.empty()) {
-        ofstream out(PrintTests);
+      if (!options.PrintTests.empty()) {
+        ofstream out(options.PrintTests);
         if (!out.is_open()) {
-          THROW_ERROR(runtime_error) << "Unable to open file " << quoted(PrintTests) << "to write tests out to.";
+          THROW_ERROR(runtime_error) << "Unable to open file " << quoted(options.PrintTests) << "to write tests out to.";
         }
         TJson::TArray tmp;
         tmp.reserve(tests.size());
@@ -194,7 +194,7 @@ int Main(const int argc, const char *argv[]) {
   }
 
   // Run all the tests if requested
-  if (!RunTests) {
+  if (!options.RunTests) {
     return 0;
   }
 
@@ -203,10 +203,10 @@ int Main(const int argc, const char *argv[]) {
   //      that requires teaching the job runner about resource needs of various kinds of jobs (Ex. Run only one, 512MB
   //      of ram, etc).
   TPump pump;
-  auto RunTest = [this,&pump](TFile *test) {
+  auto RunTest = [&options,&pump](TFile *test) {
     vector<string> cmd{test->GetPath()};
     //NOTE: This is a seperate line because otherwise it breaks in release builds
-    if (VerboseTests) {
+    if (options.VerboseTests) {
       cmd.push_back("-v");
       cout << "TEST: " << test;
     } else {
@@ -215,7 +215,7 @@ int Main(const int argc, const char *argv[]) {
     auto subprocess = TSubprocess::New(pump, cmd);
     auto status = subprocess->Wait();
 
-    if (VerboseTests || status) {
+    if (options.VerboseTests || status) {
       TStatusLine::Cleanup(); // Make sure the TEST: line stays at the top.
       EchoOutput(subprocess->TakeStdOutFromChild());
       EchoOutput(subprocess->TakeStdErrFromChild());
@@ -237,9 +237,4 @@ int Main(const int argc, const char *argv[]) {
   }
   TStatusLine::Cleanup();
   return 0;
-}
-
-
-Cmd::TRunner GetRunner() {
-  return TArgRunner(Jhm::Options, Main)
 }

@@ -53,7 +53,11 @@ TODO:
 #include <unordered_map>
 #include <vector>
 
+#include <base/opt.h>
+
 namespace Cmd {
+DEFINE_ERROR(TArgError, std::runtime_error, "problem with an argument");
+DEFINE_ERROR(TMissingValue, TArgError, "missing argument");
 
 namespace Arg {
 
@@ -82,34 +86,65 @@ struct TArgInfo {
 template <typename TOptions>
 std::function<void(TOptions &options, const std::string &arg)> ParseAndStore;
 
+
+enum class TRepetition {
+  One, // Required, no default
+  ZeroOrOne, // Optional
+  OneOrMore // Collect
+};
+
 template <typename TOptions>
-class TArgCollection {
+struct TArgCollection {
   static_assert(std::is_default_constructible<TOptions>::value,
                 "Options object must be default constructible");
 
   struct TProcessor : public TArgInfo {
+    DEFAULT_COPY(TProcessor);
+    DEFAULT_MOVE(TProcessor);
     using TConsume = std::function<void(TOptions &options, const std::string &value)>;
     // TODO(cmaloney): Use inheritance/virtual functions instead of std::function/function pointers?
     // What is the tradeoff? Where does one beat the other?
 
+    // Named argument (--foo, -f).
+    TProcessor(const std::vector<std::string> &names, const char *description, TRepetition rep, TConsume &&value_func);
+
+    // Positional argument (a b c d)
+    TProcessor(TRepetition repitition, const char *identifier, const char *description, TConsume &&value_func);
+
     TConsume Apply;
   };
+
+  TArgCollection(std::initializer_list<TProcessor> &&args);
 
   const TProcessor &arg_processor();
 
   TOptions Parse(const int argc, const char *argv[]) const;
 
+  // TODO(cmaloney): These should live in an arg parser / parser aggregation class, not the arg collectors.
   // Quick argument lookup map.
   std::vector<const TProcessor> Info;
-  std::unordered_map<const std::string, const TProcessor*> Named;
+  std::unordered_map<std::string, const TProcessor*> Named;
   std::vector<const TProcessor *> Positional;
 };
 
+bool BeginsWith(const std::string &needle, const std::string &haystack) {
+  // TODO(cmaloney): I know there is a more canonical STL way to do this...
+  auto it_needle = needle.begin();
+  const auto needle_end = needle.end();
+  auto it_haystack = haystack.begin();
+  const auto haystack_end = haystack.end();
+  while (it_haystack != haystack_end) {
+    if (it_needle == needle_end) {
+      return true;
+    }
 
-// Adds an optional argument to a collection
-template <typename TOptions, typename TMember>
-typename TArgCollection<TOptions>::TProcessor Optional(std::string name, &TOptions::foo ptr_to_member, const char *description) {
-  return TArgCollection<TOptions>::TProcessor
+    if (*it_needle != *it_haystack) {
+      return false;
+    }
+    ++it_needle;
+    ++it_haystack;
+  }
+  return false;
 }
 
 //TODO(cmaloney): This should probably use a parser object to make the code more
@@ -117,65 +152,94 @@ typename TArgCollection<TOptions>::TProcessor Optional(std::string name, &TOptio
 template <typename TOptions>
 TOptions TArgCollection<TOptions>::Parse(const int argc, const char *argv[]) const {
 
+  TOptions result;
+
   int i = 0;
   auto has_more = [&i, argc] () -> bool {
     return i < argc;
   };
 
   // TODO(cmaloney): Switch to something string_view like.
-  auto get_arg = [argc, argv] (int i) {
+  auto get_arg = [argc, argv] (int i) -> std::string {
     return std::string(argv[i]);
   };
-
-  void try_match = [](const std::string &arg, const char c, const uint64_t index) -> bool {
-    if (arg.length() <= index) {
-      return false;
-    }
-    return arg[index] == c;
-  }
 
   while (i < argc) {
     // Look up argument
     auto arg = get_arg(i);
 
     // TODO(cmaloney): The '=' 1 or 2 optional split should happen via Base::Split
-    std::string key, value;
-    auto split_pos = arg.find_first_of('=')
-    const std::string key = split_pos == string::npos ? arg : arg.substr(0, split_pos);
-    const Opt<std::string> value_equals =
-        split_pos = string::npos ? TOpt<std::string>() : arg.substr(split_pos+1);
+    auto split_pos = arg.find_first_of('=');
+    const std::string key = split_pos == std::string::npos ? arg : arg.substr(0, split_pos);
+    const Base::TOpt<std::string> value_equals =
+        split_pos == std::string::npos ? Base::TOpt<std::string>() : arg.substr(split_pos+1);
+
+
+    auto get_value_str = [&value_equals, &has_more, &i, &get_arg, &arg]() {
+      if (value_equals) {
+        return *value_equals;
+      }
+      if (has_more()) {
+        ++i;
+        return get_arg(i);
+      }
+      THROW_ERROR(TMissingValue) << "Value required for " << std::quoted(arg) << ". Use '--" << arg << "=<value>' or --" << arg << " value";
+    };
 
     // Long options are '--' followed by a single word option. If the option
     // requires a value that may be specified by writing '=' value
-    if (BeginsWith(arg, "--")) {
+    if (BeginsWith("--", arg)) {
       // TODO(cmaloney): Catch the not found index exception
       const TProcessor &processor = *Named.at(arg.substr(2));
       if (processor.HasValue) {
-
+        processor.Apply(result, get_value_str());
       }
+      continue;
     }
 
     // Short options are '-' followed by one character options. If one of those
     // options requires a value, then we must find a '=' or value after a space.
-    if (try_match(arg, '-')) {
+    if (BeginsWith("-", arg)) {
       NOT_IMPLEMENTED();
     }
-
-
-    // If argument needs a value, eat that as well ('--foo=value' or
-    // --foo value)
-    if (try_match(arg, '--', 0)) {
-      // Short opt has one followed by a collection of short args.
-
-    }
-
-    else if
   }
+
+  return result;
 
 }
 
 
 template<typename TOptions>
 using TArgs = TArgCollection<TOptions>;
+
+
+// Optional named argument.
+template <typename TRet, typename TOptions>
+auto Optional(const std::vector<std::string> &names, TRet TOptions::*member, const char *description) {
+  return typename TArgCollection<TOptions>::TProcessor(names, description, TRepetition::ZeroOrOne, [member](TOptions &options, const std::string &value) {
+      options.*member = ParseArg<TRet>(value);
+    });
+}
+
+// Optional named argument.
+template <typename TRet, typename TOptions>
+auto Optional(const char name[], TRet TOptions::*member, const char *description) {
+  return typename TArgCollection<TOptions>::TProcessor({std::string(name)}, description, TRepetition::ZeroOrOne, [member](TOptions &options, const std::string &value) {
+      options.*member = ParseArg<TRet>(value);
+    });
+}
+
+// Positional argument
+template <typename TRet, typename TOptions>
+auto Required(TRet TOptions::*member, TRepetition repitition, const char *identifier, const char *description) {
+  return typename TArgCollection<TOptions>::TProcessor(repitition, identifier, description, [member](TOptions &options, const std::string &value) {
+      options.*member = ParseArg<TRet>(value);
+  });
+}
+
+template <typename TOptions>
+TOptions Parse(const TArgCollection<TOptions> &collection, const int argc, const char *argv[]) {
+  return collection.Parse(argc, argv);
+}
 
 }  // Cmd
