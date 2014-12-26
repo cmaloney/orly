@@ -36,6 +36,7 @@
 #include <base/thrower.h>
 #include <cmd/main.h>
 #include <jhm/options.h>
+#include <cmd/parse.h>
 #include <jhm/env.h>
 #include <jhm/status_line.h>
 #include <jhm/test.h>
@@ -91,8 +92,9 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
 
 // TODO(cmaloney): More of this seems like it should be library functionality rather than hardcoded
 // into main
-int Main(const int argc, const char *argv[]) {
-  TOptions options = Cmd::Parse(GetOptions(), argc, argv);
+
+int Main(int argc, char *argv[]) {
+  TOptions options = Cmd::Parse(GetArgs(), argc, argv);
   auto cwd = GetCwd();
 
   // Build up the environment. Find the root, grab the project, user, and system configuration
