@@ -1,8 +1,7 @@
 #include <cmd/parse.h>
 
+#include <algorithm>
 #include <iomanip>
-
-#include <base/not_implemented.h>
 
 using namespace Cmd;
 
@@ -24,10 +23,6 @@ bool BeginsWith(const std::string &needle, const std::string &haystack) {
     ++it_haystack;
   }
   return false;
-}
-
-void TParser::PrintHelp(const char *) {
-  NOT_IMPLEMENTED();
 }
 
 void TParser::Parse(const int argc, const char * const argv[]) const {

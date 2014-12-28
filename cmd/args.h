@@ -69,6 +69,7 @@ DEFINE_ERROR(TMissingValue, TArgError, "missing argument");
 enum class TRepetition {
   One, // Required, no default.
   ZeroOrOne, // Optional.
+  ZeroOrMore, // Optional.
   OneOrMore // Collect.
 };
 

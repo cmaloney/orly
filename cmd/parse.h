@@ -5,31 +5,33 @@
 
 #include <base/as_str.h>
 #include <cmd/args.h>
+#include <cmd/help.h>
 #include <cmd/standard_args.h>
 
 namespace Cmd {
 
-// Simple option parsing interface.
+// Parse the arguments, deal with --help for a simple argument collection.
 template <typename TOptions>
 TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char * const argv[]);
 
-// Use this if you want to compose option parsers by hand with precise control over behavior
-// and whether or not things like --help exist.
+// Compose together arbitrary argument collections for precise control.
 class TParser {
   NO_COPY(TParser);
   public:
 
   TParser() = default;
 
+  // TODO(cmaloney): Support nesting like 'git' or 'ip'.
+  // Attach arguments building up the overall argument collection this parser
+  // accepts.
+  //
   // NOTE: This doesn't take ownership of any of the options, just indexes
   // them all.
-  // NOTE: Order is important for attaching
+  // NOTE: Order is important for attaching named arguments.
   template <typename TOptions>
   void Attach(const TArgs<TOptions> *options, TOptions *out);
 
   void Parse(int argc, const char *const argv[]) const;
-
-  void PrintHelp(const char *program_name);
 
   // TODO(cmaloney): Seperate positional from non-positional consumers?
   struct TConsumer {
@@ -106,7 +108,8 @@ TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char * c
   }
 
   if (standard_options.Help) {
-    parser.PrintHelp(argv[0]);
+    assert(argc >= 1);
+    PrintHelp(argv[0], standard_args, collection);
   }
 
   if (standard_options.Help || has_error) {
