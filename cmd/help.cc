@@ -46,13 +46,13 @@ static void PrintIndented(uint32_t line_size, uint32_t pad_size, const char *tex
   std::cout << '\n';
 }
 
-static void PrintRepetition(const TRepetition repitition) {
+static void PrintRepetition(const TRepetition repitition, bool show_zero_or_one=true) {
   switch(repitition) {
     case TRepetition::One:
     std::cout << ' ';
     break;
     case TRepetition::ZeroOrOne:
-    std::cout << '?';
+    std::cout << (show_zero_or_one ? '?' : ' ');
     break;
     case TRepetition::ZeroOrMore:
     std::cout << '*';
@@ -90,6 +90,7 @@ void Cmd::PrintHelp(const char *program_name, const std::vector<const TArgInfo*>
       first_positional = false;
     }
 
+    // TODO(cmaloney): Specify the parse type which needs to be given
     // Positional args should have exactly one name.
     assert(arg->Names.size() == 1);
     std::cout << arg->Names[0];
@@ -135,9 +136,11 @@ void Cmd::PrintHelp(const char *program_name, const std::vector<const TArgInfo*>
       prepad_len += name.size();
       std::cout << name;
     }
-    PrintRepetition(arg->Repitition);
+    PrintRepetition(arg->Repitition, false);
     prepad_len += 1;
 
+    // TODO(cmaloney): Specify the parse type which needs to be given
+    // TODO(cmaloney): Print the default value if non-null.
     PrintIndented(line_size, pad_size, arg->Description, prepad_len);
   }
 }

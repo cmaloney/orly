@@ -19,8 +19,6 @@ namespace Cmd {
   template <typename... TOptions>
   void PrintHelp(const char *program_name, const TOptions &...args);
 
-
-
   // Base case for recursively collecting ArgInfo structs.
   inline std::vector<const TArgInfo*> ExtractArgVector() {
     return std::vector<const TArgInfo*>();

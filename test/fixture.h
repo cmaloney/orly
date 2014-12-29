@@ -1,20 +1,23 @@
-/* <test/fixture.h>
+/* A fixture in a unit test.
 
-   A fixture in a unit test program.
+Fixtures are small groups of test expectations which are executed as a group
+within the same context / with one setup/teardown.
 
-   Copyright 2010-2014 OrlyAtomics, Inc.
+Sample:
+FIXTURE(Name) {
+  // Test things
+}
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+Internal details:
+Fixtures are global statics.
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License. */
+There is a vector of fixtures which is built up on fixture construction.
+Fixtures are never removed from the vector. The ownership of fixture objects
+all have static lifetimes.
+
+The vector is only used during main() where the fixtures are all alive. The
+vector takes now ownership of any of the fixtures. */
 
 #pragma once
 
@@ -25,62 +28,32 @@
 
 #define FIXTURE(name) \
   static void name##_(); \
-  static const ::Test::TFixture name##Fixture(HERE, #name, name##_); \
+  static const ::Test::TFixture name##Fixture {HERE, #name, name##_); \
   static void name##_()
 
 namespace Test {
 
-  /* TODO */
-  class TFixture {
-    NO_COPY(TFixture);
-    public:
+  const std::vector<const TFixture*> &GetFixtures();
+  void AddFixture(const TFixture *fixture);
 
-    /* TODO */
+  /* A fixture is a group of unit tests which use the same execution
+     environment to exercise some particular aspect of a test.
+
+     */
+  struct TFixture {
+    NO_COPY(TFixture);
+
     typedef void (*TFunc)();
 
-    /* TODO */
-    TFixture(
-        const Base::TCodeLocation &code_location, const char *name, TFunc func);
-
-    /* TODO */
-    TFunc GetFunc() const {
-      assert(this);
-      return Func;
+    TFixture(Base::TCodeLocation code_location, const char *name, const TFunc func)
+          : CodeLocation(code_location), Name(name), Func(func) {
+      AddFixture(this);
     }
 
-    /* TODO */
-    const char *GetName() const {
-      assert(this);
-      return Name;
-    }
-
-    /* TODO */
-    const TFixture *GetNextFixture() const {
-      assert(this);
-      return NextFixture;
-    }
-
-    /* TODO */
-    static const TFixture *GetFirstFixture() {
-      return FirstFixture;
-    }
-
-    private:
-
-    /* TODO */
-    Base::TCodeLocation CodeLocation;
-
-    /* TODO */
+    const Base::TCodeLocation CodeLocation;
     const char *Name;
-
-    /* TODO */
-    TFunc Func;
-
-    /* TODO */
-    mutable const TFixture *NextFixture;
-
-    /* TODO */
-    static const TFixture *FirstFixture, *LastFixture;
+    const TFunc Func;
   };
+
 
 }

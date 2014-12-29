@@ -10,9 +10,17 @@
 
 namespace Cmd {
 
+// Forward declaration.
+class TParser;
+
 // Parse the arguments, deal with --help for a simple argument collection.
 template <typename TOptions>
 TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char * const argv[]);
+
+// Mid-level interface for parsing arguments.
+// Construct a base parser however you want. This will add the standard arguments
+// as wellas handle them, and parsre the given argc/argv.
+void ParseWithStandard(TParser &parser, std::vector<const TArgInfo*> &&args, const int argc, const char * const argv[]);
 
 // Compose together arbitrary argument collections for precise control.
 class TParser {
@@ -87,35 +95,13 @@ void TParser::Attach(const TArgs<TOptions> *options, TOptions *out) {
 // TODO(cmaloney): Add a parse overload which takes a vector of collections?
 // TODO(cmaloney): Need a way to add non-positional only argument bundles to
 //                 ensure full usage
-// Helper to simplify simple parsing
+// Helper to simplify simple parsing.
 template <typename TOptions>
 TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char * const argv[]) {
   TParser parser;
   TOptions ret;
-  TStandardOptions standard_options;
-  const auto &standard_args = GetStandardArgs();
-
-  parser.Attach(&standard_args, &standard_options);
   parser.Attach(&collection, &ret);
-
-  // TODO(cmaloney): Unbundle args, pretty print errors one by one
-  bool has_error = false;
-  try {
-    parser.Parse(argc, argv);
-  } catch (const TArgError &ex) {
-    has_error = true;
-    throw TErrorExit{-1, Base::AsStr("Errors while parsing arguments:\n", ex.what(), '\n',"Use --help to get a list of options")};
-  }
-
-  if (standard_options.Help) {
-    assert(argc >= 1);
-    PrintHelp(argv[0], standard_args, collection);
-  }
-
-  if (standard_options.Help || has_error) {
-    throw TCleanExit();
-  }
-
+  ParseWithStandard(parser, ExtractArgVector(collection), argc, argv);
   return ret;
 }
 

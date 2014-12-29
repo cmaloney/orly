@@ -1,11 +1,26 @@
 Rewrite <base/cmd>
-Rewrite / rework test harness (Move to gtest?)
+  - Testing: `jhm jhm/jhm --help` doesn't work right
+
+
+Rewrite/rework test harness notes:
+    TestContext (Singleton)
+      - gives the verbose flag, static function member w/ setter
+      - Results can be written to it
+
+
+    Fixtures auto-attach as before, now via a function (AttachFixture)
+      - Fixtures can attach qualifiers?
+
+      TODO: Standard test setup/breakdown things which are attached as named tags for
+      environment prep / config?
+
 
 Simpler <base/split.h> (With a better name)?
 
 Utilize CXX, CXXFLAGS, CC, CCFLAGS
   - Have a 'setup' step analogous to ./configure
-  - Captures a static set of environment variables
+  - Captures a static set of environment variables which are then used
+    for the build.
 
 Bootstrap script generator
 
@@ -16,6 +31,7 @@ Cross-project includes / dependencies
 A good Single Producer Multiple Consumer queue
 
 OS X Support
+  - Simultaneous Linux support, bootstrap script which handles both.
 
 buildit -- wrapper for other build systems (Need to ingest autoconf / makefiles, CMake)
 
@@ -30,3 +46,5 @@ Command line autocompletion
 A great many config options should be optional to specify (cmd.ld.libs, cmd.ld.flags, etc)
 
 Cleanup base/json API
+
+Allow simple plugging of tools (Loadable modules + Text API)

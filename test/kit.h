@@ -18,6 +18,6 @@
 
 #pragma once
 
-#include <test/app.h>
 #include <test/expect.h>
 #include <test/fixture.h>
+#include <test/main.h>

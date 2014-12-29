@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <iomanip>
 
+#include <base/not_implemented.h>
+
 using namespace Cmd;
 
 bool BeginsWith(const std::string &needle, const std::string &haystack) {
@@ -73,6 +75,10 @@ void TParser::Parse(const int argc, const char * const argv[]) const {
       continue;
     }
 
+    if (BeginsWith("@", key)) {
+      NOT_IMPLEMENTED_S("Argument file parsing.");
+    }
+
     // Short options are '-' followed by one character options. If one of those
     // options requires a value, then we must find a '=' or value after a space.
     if (BeginsWith("-", key)) {
@@ -112,4 +118,39 @@ void TParser::Parse(const int argc, const char * const argv[]) const {
       }
     }
   }
+}
+
+// Attaches and process the standard arguments to the given parser, processes them.
+void Cmd::ParseWithStandard(TParser &parser, std::vector<const TArgInfo*> &&args, const int argc, const char * const argv[]) {
+
+  // Attach the standard options.
+  TStandardOptions standard_options;
+  const auto &standard_args = GetStandardArgs();
+  parser.Attach(&standard_args, &standard_options);
+
+  // TODO(cmaloney): Make the arg vec just live in the parser, then help can
+  // just grab it from there.
+  const auto standard_arg_vec = ExtractArgVector(standard_args);
+  args.insert(args.end(), standard_arg_vec.begin(), standard_arg_vec.end());
+
+  // Parse the command line.
+  // TODO(cmaloney): pretty print errors one by one instead of bundled together.
+  bool has_error = false;
+  try {
+    parser.Parse(argc, argv);
+  } catch (const TArgError &ex) {
+    has_error = true;
+    throw TErrorExit{-1, Base::AsStr("Errors while parsing arguments:\n", ex.what(), '\n',"Use --help to get a list of options")};
+  }
+
+  // Process standard arguments.
+  if (standard_options.Help) {
+    assert(argc >= 1);
+    PrintHelp(argv[0], args);
+  }
+
+  if (standard_options.Help || has_error) {
+    throw TCleanExit();
+  }
+
 }

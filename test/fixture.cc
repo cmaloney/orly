@@ -18,19 +18,18 @@
 
 #include <test/fixture.h>
 
-#include <base/assert_true.h>
-
-using namespace Base;
 using namespace Test;
 
-TFixture::TFixture(
-    const TCodeLocation &code_location, const char *name, TFunc func)
-  : CodeLocation(code_location), Name(AssertTrue(name)),
-    Func(AssertTrue(func)), NextFixture(0) {
-  (LastFixture ? LastFixture->NextFixture : FirstFixture) = this;
-  LastFixture = this;
+static std::vector<const TFixture*> &Fixtures() {
+  static std::vector<const TFixture*> Fixtures;
+
+  return Fixtures;
 }
 
-const TFixture
-  *TFixture::FirstFixture = 0,
-  *TFixture::LastFixture = 0;
+const std::vector<const TFixture*> &Test::GetFixtures() {
+  return Fixtures();
+}
+
+void Test::AddFixture(const TFixture *fixture) {
+  Fixtures().push_back(fixture);
+}

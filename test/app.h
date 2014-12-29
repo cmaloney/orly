@@ -24,51 +24,36 @@
 
 #include <base/assert_true.h>
 #include <base/class_traits.h>
-#include <base/cmd.h>
-
+#include <cmd/args.h>
 namespace Test {
 
   /* TODO */
   class TFixture;
 
+  struct TOptions {
+    bool PrintTiming;
+    bool Verbose;
+  };
+
+  inline TArgs<TOptions> GetArgs() {
+    return {
+      Optional({"verbose", "v"}, &TOptions::Verbose, "Show the results of unit tests, regardless of whether they pass or fail"),
+      Optional({"timing","t"}, &TOptions::PrintTiming, "Print execution time for each fixture")
+    };
+  }
+
   class TApp final {
     NO_COPY(TApp);
     public:
 
-    class TCmd : public Base::TCmd {
-      NO_COPY(TCmd);
-      public:
-
-      TCmd(int argc, char **argv) : PrintTiming(false), VerboseMember(false) {
-        Parse(argc, argv, TApp::TCmd::TMeta());
-      }
-
-      private:
-      class TMeta : public Base::TCmd::TMeta {
-        public:
-        TMeta() : Base::TCmd::TMeta("Orly Unit Test") {
-          Param(&TCmd::VerboseMember, "verbose", Optional, "verbose\0v\0", "Show the results of unit tests, regardless of whether they pass or fail");
-          Param(&TCmd::PrintTiming, "print_timing", Optional, "timing\0t\0", "Print execution time for each fixture");
-        }
-      };
-
-      //TODO: These should be private with accessor functions, but this is faster to implement.
-      public:
-      bool PrintTiming;
-      bool VerboseMember;
-    };
-
-    /* TODO */
     class TLogger {
       NO_COPY(TLogger);
       public:
 
-      /* TODO */
       TLogger(bool is_critical = false) {
         Enabled = is_critical || TApp::IsVerbose();
       }
 
-      /* TODO */
       ~TLogger() {
         assert(this);
         if (Enabled) {
@@ -76,7 +61,6 @@ namespace Test {
         }
       }
 
-      /* TODO */
       template <typename TVal>
       const TLogger &Write(const TVal &val) const {
         assert(this);
@@ -87,38 +71,29 @@ namespace Test {
       }
 
       private:
-
-      /* TODO */
       bool Enabled;
     };
 
-    /* TODO */
     class TRunner {
       NO_COPY(TRunner);
       public:
 
-      /* TODO */
       virtual ~TRunner();
 
-      /* TODO */
       virtual operator bool() const = 0;
 
-      /* TODO */
       static void Run(TApp *app, const TFixture *fixture);
 
       protected:
-
-      /* TODO */
       TRunner(TApp *app) : App(app) {}
 
-      /* TODO */
       void PreDtor();
 
       TApp *App;
     };
 
-    TApp(const TCmd &cmd)
-        : Cmd(cmd), PassCount(0), FailCount(0) {
+    TApp(const TOptions &cmd)
+        : Options(options), PassCount(0), FailCount(0) {
       assert(!App);
       App = this;
     }
@@ -129,9 +104,9 @@ namespace Test {
       App = nullptr;
     }
 
-    const TCmd &GetCmd() const {
+    const TOptions &GetOptions() const {
       assert(this);
-      return Cmd;
+      return Options;
     }
 
     void OnRunnerDtor(const TRunner *runner);
@@ -143,16 +118,10 @@ namespace Test {
       return App;
     }
 
-    static bool IsVerbose() {
-      return Verbose;
-    }
-
     private:
 
 
-    //TODO: This should be one variable, not two, but adding that support to <base/cmd.h> is a bigger task than I have time for right now.
-    static bool Verbose;
-    const TCmd &Cmd;
+    const TOptions &Options;
 
     /* The number of fixtures which passed and failed. */
     size_t PassCount, FailCount;
