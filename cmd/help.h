@@ -1,6 +1,8 @@
 /* Print a nicely formatted help message. */
 #pragma once
 
+#include <numeric>
+
 #include <cmd/args.h>
 
 namespace Cmd {
@@ -19,6 +21,28 @@ namespace Cmd {
   template <typename... TOptions>
   void PrintHelp(const char *program_name, const TOptions &...args);
 
+  /* Collect the argument descriptions from a list of argument bundles */
+  template <typename... TOptions>
+  auto ExtractArgVector(const TArgs<TOptions> &... args) {
+    std::vector<const TArgInfo *> result;
+
+    // Calculate how big the final vector should be.
+    std::initializer_list<size_t> sizes = {args.Info.size()...};
+    result.reserve(std::accumulate(std::begin(sizes), std::end(sizes), 0));
+
+    // Gather the arguments into the result vector.
+    // The initializer_list has a guaranteed evaluation order when expanded into.
+    // This allows us to expand the grabs without recursion which is more
+    // efficient.
+    std::initializer_list<int>({[&result](const auto &args) {
+      std::for_each(
+          std::begin(args.Info),
+          std::end(args.Info),
+          [&result](const auto &arg_info) { result.push_back(&arg_info); });
+      return 0;
+    }(args)...});
+    return result;
+  }
   // Base case for recursively collecting ArgInfo structs.
   inline std::vector<const TArgInfo*> ExtractArgVector() {
     return std::vector<const TArgInfo*>();
