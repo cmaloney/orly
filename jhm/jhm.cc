@@ -138,12 +138,12 @@ int Main(int argc, char *argv[]) {
   // Either build the explicitly specified targets, or the default targets
   if (!options.Targets.empty()) {
     for(const auto &target: options.Targets) {
-      InsertOrFail(target_files, FindFile(cwd, env, work_finder, target));
+      target_files.emplace(FindFile(cwd, env, work_finder, target));
     }
   } else {
     // Add the default targets
     for(const auto &target: env.GetConfig().Read<vector<string>>({"targets"})) {
-      InsertOrFail(target_files, FindFile(cwd, env, work_finder, '/' + target));
+      target_files.emplace(FindFile(cwd, env, work_finder, '/' + target));
     }
 
     // Add the tests if we're supposed to by default
