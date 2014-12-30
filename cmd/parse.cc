@@ -106,7 +106,6 @@ void TParser::Parse(const int argc, const char * const argv[]) const {
     }
 
     // Positional argument
-    ++i;
     const TConsumer *consumer = Positional.at(current_positional);
     consumer->Consume(arg);
     if (consumer->Repitition == TRepetition::One) {
@@ -117,6 +116,7 @@ void TParser::Parse(const int argc, const char * const argv[]) const {
         THROW_ERROR(TArgError) << "Too many instances of positional argument " << std::quoted(consumer->Name);
       }
     }
+    continue;
   }
 }
 
