@@ -1,16 +1,3 @@
-Rewrite/rework test harness notes:
-    TestContext (Singleton)
-      - gives the verbose flag, static function member w/ setter
-      - Results can be written to it
-
-    Fixtures auto-attach as before, now via a function (AttachFixture)
-      - Fixtures can attach qualifiers?
-
-      TODO: Standard test setup/breakdown things which are attached as named tags for
-      environment prep / config?
-
-Rewrite make_dep_file to use <cmd/args.h>
-
 Configure for JHM (CXX, CC, CXXFLAGS, CCFLAGS, LD, LDFLAGS):
   - Ideally also allow adding platform/tool/etc. specific variables/flags to config.
   - Have a 'setup' step analogous to ./configure
@@ -22,6 +9,13 @@ Download third party packages / repositories
   - Either #include <github.com/foo/bar>
   - Dependency file which maps repo to some include prefix.
 
+Test / examples for several open source codebases?
+
+Command line autocompletion
+
+Rewrite make_dep_file to use <cmd/args.h>
+
+No folders outside of root folder mode
 
 Simpler <base/split.h> (With a better name)?
 
@@ -29,16 +23,13 @@ Bootstrap script generator
   - Bootstrapping test?
 
 
-Test / examples for several open source codebases?
+
 
 A good Single Producer Multiple Consumer queue to
 
 
-Unify on THROWER
+Unify on THROWER w/ reduced (Simplified) interface.
 
-Simplify thrower interface
-
-Command line autocompletion
 
 -c release.jhm should build config named 'release', not one named 'release.jhm'
 
@@ -47,5 +38,12 @@ A great many config options should be optional to specify (cmd.ld.libs, cmd.ld.f
 Cleanup base/json API
 
 Allow simple plugging of tools (Loadable modules + Text API)
+
+Extend / clean test harness:
+  - Isolators? (Network, etc)
+  - Preconditions (needs 5 GB ram, 10 cores, root, sole of type, etc.)
+  - Run fixtures in parallel?
+  - The test output code is hard to follow, result pages not always the cleanest
+  - XML output report for consumption via existing tools.
 
 buildit -- wrapper for other build systems (Need to ingest autoconf / makefiles, CMake)
