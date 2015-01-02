@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     return 0;
   } catch (const Cmd::TErrorExit &ex) {
     // Error code exit via exception stack unwinding.
-    std::cerr << "ERROR: " << ex.Message;
+    std::cerr << "ERROR: " << ex.Message << std::endl;
     return ex.ExitCode;
   } catch (const std::exception &ex) {
     std::cout << "EXCEPTION: " << ex.what() << std::endl;
