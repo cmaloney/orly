@@ -32,9 +32,9 @@ class TPumper {
   private:
   void BackgroundMain();
 
-  /* Pushed in the destructor.  It causes the background thread to exit. */
   // TODO(cmaloney): pump really shouldn't be needed.
   TPump &Pump;
+  /* Pushed in the destructor.  It causes the background thread to exit. */
   TNotifyFd ShutdownFd;
   TFd Kqueue;
   std::thread Background;

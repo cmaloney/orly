@@ -1,6 +1,7 @@
 /* Print a nicely formatted help message. */
 #pragma once
 
+#include <algorithm>
 #include <numeric>
 
 #include <cmd/args.h>

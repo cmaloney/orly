@@ -65,12 +65,12 @@
 #include <unordered_set>
 
 #include <base/class_traits.h>
-#ifdef __APPLE__ // TPumper implementations
+#if defined __APPLE__ // TPumper implementations
 #include <base/pump_kqueue.h>
-#elif __LINUX__
+#elif defined __linux__
 #include <base/pump_epoll.h>
 #else
-#error "Not Implemented"
+#error Not Implemented
 #endif
 #include <base/pump_util.h>
 #include <base/fd.h>

@@ -1,13 +1,16 @@
 #include <base/pump_epoll.h>
 
+#include <sys/epoll.h>
+
 #include <base/pump.h>
+#include <base/zero.h>
 
 using namespace std;
 using namespace Base;
 using namespace Base::Pump;
 using namespace Util;
 
-TPumper::TPumper() : Epoll(Util::IfLt0(epoll_create1(EPOLL_CLOEXEC))) {
+TPumper::TPumper(TPump &pump) : Pump(pump), Epoll(Util::IfLt0(epoll_create1(EPOLL_CLOEXEC))) {
   // Add the shutting down fd to the epoll. It'll be the only one with a null pointer associated with it.
   Join(ShutdownFd.GetFd(), Read, nullptr);
 
@@ -31,7 +34,7 @@ void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
   Util::IfLt0(epoll_ctl(Epoll, EPOLL_CTL_ADD, fd, &event));
 }
 
-void TPumper::Leave(int fd) {
+void TPumper::Leave(int fd, TEvent) {
   assert(this);
   Util::IfLt0(epoll_ctl(Epoll, EPOLL_CTL_DEL, fd, nullptr));
 }
@@ -72,13 +75,9 @@ void TPumper::BackgroundMain() {
           continue;
         }
 
-        if (!pipe->Service()) {
+        if (!Pump.ServicePipe(pipe)) {
           // The pipe is dead. Remove it from our set of pipes, ping PipeDied.
           dead_pipes.insert(pipe);
-          std::lock_guard<mutex> lock(PipeMutex);
-          Pipes.erase(pipe);
-          PipeDied.notify_all();
-          delete pipe;
         }
       } else {
         Stopping = true;
@@ -86,12 +85,3 @@ void TPumper::BackgroundMain() {
     }
   }
 }
-
-  /* Pushed in the destructor.  It causes the background thread to exit. */
-  TNotifyFd ShutdownFd;
-  TFd Epoll;
-  std::thread Background;
-};
-
-} // Pump
-} // Base

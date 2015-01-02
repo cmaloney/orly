@@ -17,7 +17,9 @@
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
     ],
     "ld": {
-      "flags": [],
+      "flags": [
+        "-pthread"
+      ],
       "libs": []
     }
   }
