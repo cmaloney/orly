@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 #include <cmd/main.h>
-#include <cmd/parser.h>
+#include <cmd/parse.h>
 #include <test/context.h>
 #include <test/options.h>
 #include <test/fixture.h>

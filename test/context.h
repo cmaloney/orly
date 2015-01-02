@@ -15,7 +15,8 @@ namespace Test {
   // Stack based logging aggregators. Top of the stack aggregates all
   // log results.
   class TContext {
-
+    NO_COPY(TContext);
+    NO_MOVE(TContext);
     public:
 
     static void LogResult(bool pass);
@@ -41,13 +42,17 @@ namespace Test {
       }
     }
 
+    //TODO(cmaloney): Make thread safe.
     void LogResult(bool pass) {
       if (pass) {
         ++PassCount;
       } else {
         ++FailCount
         WriteDirect = true;
-        GetWriteTarget() << BuffWriter.str();
+        // On the first failure
+        if (FailCount == 1) {
+          GetWriteTarget() << BuffWriter.str();
+        }
       }
     }
 

@@ -30,17 +30,6 @@ namespace Test {
   /* TODO */
   class TFixture;
 
-  struct TOptions {
-    bool PrintTiming;
-    bool Verbose;
-  };
-
-  inline TArgs<TOptions> GetArgs() {
-    return {
-      Optional({"verbose", "v"}, &TOptions::Verbose, "Show the results of unit tests, regardless of whether they pass or fail"),
-      Optional({"timing","t"}, &TOptions::PrintTiming, "Print execution time for each fixture")
-    };
-  }
 
   class TApp final {
     NO_COPY(TApp);
