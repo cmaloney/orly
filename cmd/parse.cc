@@ -66,7 +66,11 @@ void TParser::Parse(const int argc, const char * const argv[]) const {
     // requires a value that may be specified by writing '=' value
     if (BeginsWith("--", key)) {
       // TODO(cmaloney): Catch the not found index exception
-      const TConsumer &consumer = *Named.at(key.substr(2));
+      auto it = Named.find(key.substr(2));
+      if (it == Named.end()) {
+        THROW_ERROR(TArgError) << "No such long option " << std::quoted(key);
+      }
+      const TConsumer &consumer = *it->second;
       if (consumer.HasValue || value_equals) {
         consumer.Consume(get_value_str());
       } else {
