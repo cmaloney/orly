@@ -6,7 +6,6 @@
 namespace Test {
 
 struct TOptions {
-  bool PrintTiming;
   bool Verbose;
 };
 
@@ -20,14 +19,14 @@ inline const Cmd::TArgs<TOptions> &GetArgs() {
 
 // TODO(cmaloney): Move to .cc
 /* Used in the inital setting of options, the canonical store.*/
-TOptions &GetOptionsNonConst() {
+inline TOptions &GetOptionsNonConst() {
   static TOptions Options;
   return Options;
 }
 
 // TODO(cmaloney): Move to .cc
-const TOptions &GetOptions() {
+inline const TOptions &GetOptions() {
   return GetOptionsNonConst();
 }
 
-
+}

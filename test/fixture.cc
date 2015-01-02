@@ -20,6 +20,12 @@
 
 using namespace Test;
 
+
+TFixture::TFixture(Base::TCodeLocation code_location, const char *name, const TFunc func)
+      : CodeLocation(code_location), Name(name), Func(func) {
+  AddFixture(this);
+}
+
 static std::vector<const TFixture*> &Fixtures() {
   static std::vector<const TFixture*> Fixtures;
 

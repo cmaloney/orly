@@ -1,10 +1,25 @@
 /* Execution context for tests.
 
+A context captures failures that occur with in it. A single failure causes all
+previous log messages to be flushed out. And all future log messages at that
+context to be written straight to the output.
+
 Singleton context + helper functions to make the test harness simpler.
 
 Only a single unit test may be running at any given point in time. That test
 will have all fixtures and expectations logged into it's context through
-these mechanisms. */
+these mechanisms.
+
+TODO(cmaloney): Make contexts thread-safe. Probably best method is to make
+  context thread-local then gather up.
+
+TODO(cmaloney): Think about mapping all of this to "future" test results then
+all we are doing is just evaluating all independently and collecting the results.
+*/
+#pragma once
+
+#include <cassert>
+#include <iostream>
 
 #include <base/class_traits.h>
 #include <base/code_location.h>
@@ -12,70 +27,34 @@ these mechanisms. */
 
 namespace Test {
 
-  // Stack based logging aggregators. Top of the stack aggregates all
-  // log results.
-  class TContext {
-    NO_COPY(TContext);
-    NO_MOVE(TContext);
-    public:
+// Stack based logging aggregators. Top of the stack aggregates all
+// log results.
+class TContext {
+  NO_COPY(TContext);
+  NO_MOVE(TContext);
 
-    static void LogResult(bool pass);
+  public:
+  class TLog;
 
-    TContext() : Parent(GetCurrentContext()) {
-      PushContext(this);
-    }
-    ~TContext() {
-      TContext *ctx = PopContext();
-      assert(this == ctx);
-      assert(GetContext() == Parent);
-      if (FailCount) {
-        Parent->LogResult(false);
-      }
-    }
+  static inline TLog Log(const Base::TCodeLocation &loc, const char *text, bool passed) {
+    return TLog(loc, text, passed);
+  }
 
+  // Log an exception, something without a position / unevaluated expression.
+  static inline TLog Log(bool passed) {
+    return TLog(passed);
+  }
 
-    std::ostream &GetWriteTarget() {
-      if (WriteDirect) {
-        return std::cout;
-      } else {
-        return BuffWriter;
-      }
-    }
+  // Log a fixture to the parent context
+  static inline void Log(const char * /* name */, bool passed) {
+    Current()->LogResult(passed);
+  }
 
-    //TODO(cmaloney): Make thread safe.
-    void LogResult(bool pass) {
-      if (pass) {
-        ++PassCount;
-      } else {
-        ++FailCount
-        WriteDirect = true;
-        // On the first failure
-        if (FailCount == 1) {
-          GetWriteTarget() << BuffWriter.str();
-        }
-      }
-    }
+  TContext(const char *name);
+  ~TContext();
 
-    private:
-    bool WriteDirect = false;
-    std::ostringstream BuffWriter;
-    TContext *Parent=nullptr;
-    uint64_t FailCount=0, PassCount=0;
-
-    // Maintainging the current context stack
-    static void Push(TContext *ctx);
-    static TContext *Pop();
-    static TContext *Current();
-  };
-
-namespace Context {
-
-  //TODO(cmaloney): Printing results
-  //if (Print) {
-  //  MessageBuilder << "; " << (Passed ? "pass" : "fail") << std::endl;
-  //}
-  std::vector<TResult> SwapResults();
-  void ResetResults();
+  inline uint64_t GetFailureCount() const { return FailureCount; }
+  inline uint64_t GetPassCount() const { return FailureCount; }
 
   // TODO(cmaloney): Logging to XML type reports
   /* Builds a stack of ostringstream loggers. All TLog() statements
@@ -83,41 +62,43 @@ namespace Context {
      result reports a different mechanism will need to be made. */
   class TLog {
     public:
-
     // NOTE(cmaloney): Semantically we could support a copy, but in regular
     // usage I don't think it is necessary.
-    MOVE_ONLY(TLogger);
+    MOVE_ONLY(TLog);
 
-
-    // TODO(cmaloney): Move to cc.
-    TLogger(const Base::TCodeLocation &loc, const std::string &&Test, bool passed)
-          : Passed(passed), Print(!passed || GetOptions().Verbose) {
-
-      Context::AddResult(passed);
-    }
-
-    ~TLogger() {
-      AddResult(loc, text, expression, passed);
-      AddRseult(Location, Test, MessageBuilder.str(), passed);
-    }
+    ~TLog();
 
     template <typename TVal>
-    void Write(const TVal &val) {
-      MessageBuilder << val;
+    TLog &operator<<(const TVal &val) {
+      if(Print) {
+        Current()->GetWriteTarget() << val;
+      }
+      return *this;
     }
 
     private:
-    ostringstream MessageBuilder;
+    TLog(const Base::TCodeLocation &loc, const std::string &&Test, bool passed);
+
+    TLog(bool passed);
+
     bool Passed, Print;
+    friend class TContext;
   };
 
-  template <typename TVal>
-  operator<<(TLogger &&logger, const TVal &val) {
-    logger.Write(val);
-  }
+  // Maintainging the current context stack
+  static void Push(TContext *ctx);
+  static TContext *Pop();
+  static TContext *Current();
 
-  TLogger LogResult(const Base::TCodeLocation &loc, const char *text, bool passed) {
-    return TLogger(loc, text, passed);
-  }
-}
+  private:
+  std::ostream &GetWriteTarget();
+
+  void LogResult(bool pass);
+
+  const char *Name;
+  std::ostringstream BuffWriter;
+  bool WriteDirect = false;
+  TContext *Parent = nullptr;
+  uint64_t FailureCount = 0, PassCount = 0;
+};
 }

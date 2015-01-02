@@ -149,7 +149,7 @@ int Main(int argc, char *argv[]) {
     // Add the tests if we're supposed to by default
     bool build_tests = false;
     env.GetConfig().TryRead({"test","build_with_default_targets"}, build_tests);
-    if (build_tests || !options.PrintTests.empty()) {
+    if (build_tests) {
       auto tests = FindTests(env);
 
       // If the file is not buildable, skip the test. This prevents us from trying to test things that are
@@ -165,20 +165,6 @@ int Main(int argc, char *argv[]) {
         }
         tests = move(filtered_tests);
       }
-      if (!options.PrintTests.empty()) {
-        ofstream out(options.PrintTests);
-        if (!out.is_open()) {
-          THROW_ERROR(runtime_error) << "Unable to open file " << quoted(options.PrintTests) << "to write tests out to.";
-        }
-        TJson::TArray tmp;
-        tmp.reserve(tests.size());
-        std::for_each(tests.begin(), tests.end(), [&tmp] (const TFile *f) {
-          tmp.push_back(AsStr(f->GetPath()));
-        });
-        out << TJson(move(tmp));
-        out.close();
-      }
-
       if (build_tests) {
         target_files.insert(tests.begin(), tests.end());
       }

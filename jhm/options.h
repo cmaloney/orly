@@ -1,4 +1,5 @@
 /* JHM Command line options */
+#pragma once
 
 #include <string>
 #include <thread>
@@ -26,8 +27,7 @@ inline Cmd::TArgs<TOptions> GetArgs() {
     Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print commands when they are run"),
     Cmd::Optional({"config", "c"}, &TOptions::Config, "Build the software in the given configuration"),
     Cmd::Optional({"mixin", "m"}, &TOptions::ConfigMixin, "Configuration mixin"),
-    Cmd::Optional("print-test", &TOptions::PrintTests, "Write a list of tests to the given filename"),
-    Cmd::Optional("run-tests", &TOptions::RunTests, "Run the unit tests"),
+    Cmd::Optional({"run-tests","t"}, &TOptions::RunTests, "Run the unit tests"),
     Cmd::Optional("verbose-tests", &TOptions::VerboseTests, "Run the tests in verbose mode"),
     Cmd::Optional("worker-count", &TOptions::WorkerCount, "Max number of commands to run at once"),
     Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce")};
