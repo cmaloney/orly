@@ -1,12 +1,7 @@
-Rewrite <base/cmd>
-  - Testing: `jhm jhm/jhm --help` doesn't work right
-
-
 Rewrite/rework test harness notes:
     TestContext (Singleton)
       - gives the verbose flag, static function member w/ setter
       - Results can be written to it
-
 
     Fixtures auto-attach as before, now via a function (AttachFixture)
       - Fixtures can attach qualifiers?
@@ -14,26 +9,30 @@ Rewrite/rework test harness notes:
       TODO: Standard test setup/breakdown things which are attached as named tags for
       environment prep / config?
 
+Rewrite make_dep_file to use <cmd/args.h>
 
-Simpler <base/split.h> (With a better name)?
-
-Utilize CXX, CXXFLAGS, CC, CCFLAGS
+Configure for JHM (CXX, CC, CXXFLAGS, CCFLAGS, LD, LDFLAGS):
+  - Ideally also allow adding platform/tool/etc. specific variables/flags to config.
   - Have a 'setup' step analogous to ./configure
   - Captures a static set of environment variables which are then used
     for the build.
 
-Bootstrap script generator
-
-Download third party packages / repositories
-
 Cross-project includes / dependencies
+Download third party packages / repositories
+  - Either #include <github.com/foo/bar>
+  - Dependency file which maps repo to some include prefix.
 
-A good Single Producer Multiple Consumer queue
 
-OS X Support
-  - Simultaneous Linux support, bootstrap script which handles both.
+Simpler <base/split.h> (With a better name)?
 
-buildit -- wrapper for other build systems (Need to ingest autoconf / makefiles, CMake)
+Bootstrap script generator
+  - Bootstrapping test?
+
+
+Test / examples for several open source codebases?
+
+A good Single Producer Multiple Consumer queue to
+
 
 Unify on THROWER
 
@@ -48,3 +47,5 @@ A great many config options should be optional to specify (cmd.ld.libs, cmd.ld.f
 Cleanup base/json API
 
 Allow simple plugging of tools (Loadable modules + Text API)
+
+buildit -- wrapper for other build systems (Need to ingest autoconf / makefiles, CMake)

@@ -28,24 +28,37 @@ common_flags=(
   -pthread
   )
 
+OS=`uname -s`
+extra_files=
+if [ "$OS" == 'Linux' ]; then
+  extra_files=base/pump_epoll.cc
+elif [ "$OS" == 'Darwin']; then
+  extra_files=base/pump_kqueue.cc
+else
+  echo 'Unsupported platfrom.'
+  echo 'No known way to build a asynchronous IO pump'
+  echo 'See <base/pump.h>, <base/pump_kqueue.h> for what is needed.'
+  exit -1
+fi
 
 #Build JHM
-$CC -o tools/jhm                                                                                                       \
- "${common_flags[@]}"                                                                                                  \
-  jhm/jobs/util.cc jhm/jobs/link.cc jhm/jobs/compile_c_family.cc jhm/jobs/bison.cc     \
-  base/dir_walker.cc jhm/env.cc jhm/jhm.cc jhm/config.cc util/path.cc base/fd.cc base/split.cc util/time.cc \
-  base/thrower.cc base/demangle.cc util/io.cc base/cmd.cc jhm/job.cc base/backtrace.cc jhm/jobs/flex.cc \
-  jhm/naming.cc base/unreachable.cc base/path.cc jhm/status_line.cc              \
-  jhm/jobs/nycr.cc base/code_location.cc jhm/test.cc jhm/work_finder.cc util/error.cc base/pump.cc jhm/jobs/dep.cc     \
-  jhm/job_runner.cc base/subprocess.cc base/pump_kqueue.cc                                                             \
+$CC -o tools/jhm \
+ "${common_flags[@]}" \
+  jhm/jobs/util.cc jhm/jobs/flex.cc jhm/jobs/dep.cc jhm/jobs/bison.cc base/dir_walker.cc util/io.cc \
+  base/pump.cc base/subprocess.cc cmd/main.cc base/demangle.cc util/error.cc base/split.cc cmd/parse.cc cmd/help.cc \
+  base/code_location.cc jhm/jobs/nycr.cc base/thrower.cc jhm/job_runner.cc util/signal.cc util/path.cc jhm/job.cc \
+  base/backtrace.cc jhm/jhm.cc jhm/env.cc jhm/jobs/compile_c_family.cc jhm/config.cc util/time.cc jhm/status_line.cc \
+  jhm/work_finder.cc jhm/jobs/link.cc base/path.cc jhm/naming.cc base/fd.cc base/unreachable.cc jhm/test.cc \
+  "$extra_files" \
   -I./ -DSRC_ROOT=\"`pwd`\"
 
 #Build make_dep_file
-$CC -o tools/make_dep_file                                                                                             \
-  "${common_flags[@]}"                                                                                                 \
-  base/backtrace.cc base/unreachable.cc     \
-  jhm/make_dep_file.cc base/fd.cc base/code_location.cc base/thrower.cc base/subprocess.cc        \
-  base/split.cc util/io.cc base/demangle.cc base/pump.cc util/error.cc base/pump_kqueue.cc                        \
+$CC -o tools/make_dep_file \
+  "${common_flags[@]}" \
+  base/backtrace.cc base/unreachable.cc \
+  jhm/make_dep_file.cc base/fd.cc base/code_location.cc base/thrower.cc base/subprocess.cc \
+  base/split.cc util/io.cc base/demangle.cc base/pump.cc util/error.cc \
+  "$extra_files" \
   -I./ -DSRC_ROOT=\"`pwd`\"
 
 mkdir -p ../.jhm
