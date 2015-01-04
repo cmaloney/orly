@@ -64,7 +64,7 @@ const unordered_set<TFile*> TDep::GetNeeds() {
 vector<string> TDep::GetCmd() {
   assert(this);
 
-  vector<string> cmd{"make_dep_file", GetInput()->GetPath(), GetSoleOutput()->GetPath()};
+  vector<string> cmd{"make_dep_file", "--", GetInput()->GetPath(), GetSoleOutput()->GetPath()};
 
   // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the compiler
   const auto &extensions = GetInput()->GetRelPath().Path.Extension;
