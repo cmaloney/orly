@@ -39,6 +39,9 @@ void TParser::Parse(const int argc, const char * const argv[]) const {
     return std::string(argv[i]);
   };
 
+  // Everything after '--' should be taken as positional arguments.
+  bool no_more_interpreted = false;
+
   while (i < argc) {
     // Look up argument, advance argument position
     auto arg = get_arg(i);
@@ -62,51 +65,59 @@ void TParser::Parse(const int argc, const char * const argv[]) const {
       THROW_ERROR(TMissingValue) << "Value required for " << std::quoted(key) << ". Use '--" << key << "=<value>' or --" << key << " value";
     };
 
-    // Long options are '--' followed by a single word option. If the option
-    // requires a value that may be specified by writing '=' value
-    if (BeginsWith("--", key)) {
-      // TODO(cmaloney): Catch the not found index exception
-      auto it = Named.find(key.substr(2));
-      if (it == Named.end()) {
-        THROW_ERROR(TArgError) << "No such long option " << std::quoted(key);
-      }
-      const TConsumer &consumer = *it->second;
-      if (consumer.HasValue || value_equals) {
-        consumer.Consume(get_value_str());
-      } else {
-        consumer.Consume("");
-      }
-      continue;
-    }
+    if (!no_more_interpreted) {
 
-    if (BeginsWith("@", key)) {
-      NOT_IMPLEMENTED_S("Argument file parsing.");
-    }
+      if (arg == "--") {
+        no_more_interpreted = true;
+        continue;
+      }
 
-    // Short options are '-' followed by one character options. If one of those
-    // options requires a value, then we must find a '=' or value after a space.
-    if (BeginsWith("-", key)) {
-      auto key_size = key.size();
-      for(uint32_t short_pos = 1; short_pos < key_size; ++short_pos) {
-        const char c = key.at(short_pos);
-        const auto c_str = std::string(1, c);
-        auto it = Named.find(c_str);
+      // Long options are '--' followed by a single word option. If the option
+      // requires a value that may be specified by writing '=' value
+      if (BeginsWith("--", key)) {
+        // TODO(cmaloney): Catch the not found index exception
+        auto it = Named.find(key.substr(2));
         if (it == Named.end()) {
-          THROW_ERROR(TArgError) << "No such short option " << std::quoted(c_str);
+          THROW_ERROR(TArgError) << "No such long option " << std::quoted(key);
         }
-
         const TConsumer &consumer = *it->second;
-        // NOTE: If we have a value as a short option, we must be the last short option
-        if (consumer.HasValue || (value_equals && short_pos == key_size-1)) {
-          if (short_pos != key_size-1) {
-            THROW_ERROR(TArgError) << "Short argument with value " << std::quoted(std::string(c_str)) << "must may only appear at the end of a block of short arguments";
-          }
+        if (consumer.HasValue || value_equals) {
           consumer.Consume(get_value_str());
         } else {
           consumer.Consume("");
         }
+        continue;
       }
-      continue;
+
+      if (BeginsWith("@", key)) {
+        NOT_IMPLEMENTED_S("Argument file parsing.");
+      }
+
+      // Short options are '-' followed by one character options. If one of those
+      // options requires a value, then we must find a '=' or value after a space.
+      if (BeginsWith("-", key)) {
+        auto key_size = key.size();
+        for(uint32_t short_pos = 1; short_pos < key_size; ++short_pos) {
+          const char c = key.at(short_pos);
+          const auto c_str = std::string(1, c);
+          auto it = Named.find(c_str);
+          if (it == Named.end()) {
+            THROW_ERROR(TArgError) << "No such short option " << std::quoted(c_str);
+          }
+
+          const TConsumer &consumer = *it->second;
+          // NOTE: If we have a value as a short option, we must be the last short option
+          if (consumer.HasValue || (value_equals && short_pos == key_size-1)) {
+            if (short_pos != key_size-1) {
+              THROW_ERROR(TArgError) << "Short argument with value " << std::quoted(std::string(c_str)) << "must may only appear at the end of a block of short arguments";
+            }
+            consumer.Consume(get_value_str());
+          } else {
+            consumer.Consume("");
+          }
+        }
+        continue;
+      }
     }
 
     // Positional argument
