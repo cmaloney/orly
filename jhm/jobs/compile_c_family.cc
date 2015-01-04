@@ -133,8 +133,6 @@ bool TCompileCFamily::IsComplete() {
   assert(this);
 
   // Calculate the files which need to be linked against to make a binary with this file.
-  // TODO: capture the negative (Does not exist / unproducable) .o information which is inherent in the final list as
-  //       when those files come into existence, we need to recompute the list.
 
   // TODO: We needlessly jump to strings here. Really should be able to stash away TFile * within a TFile's config.
   TJson::TArray filtered_includes;
