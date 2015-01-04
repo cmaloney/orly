@@ -55,9 +55,9 @@ $CC -o tools/jhm \
 #Build make_dep_file
 $CC -o tools/make_dep_file \
   "${common_flags[@]}" \
-  base/backtrace.cc base/unreachable.cc \
-  jhm/make_dep_file.cc base/fd.cc base/code_location.cc base/thrower.cc base/subprocess.cc \
-  base/split.cc util/io.cc base/demangle.cc base/pump.cc util/error.cc \
+  jhm/make_dep_file.cc util/io.cc base/thrower.cc base/split.cc base/code_location.cc base/subprocess.cc base/pump.cc \
+  base/fd.cc util/error.cc base/demangle.cc cmd/parse.cc cmd/help.cc util/signal.cc base/unreachable.cc cmd/main.cc \
+  base/backtrace.cc \
   "$extra_files" \
   -I./ -DSRC_ROOT=\"`pwd`\"
 

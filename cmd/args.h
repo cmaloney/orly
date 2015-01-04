@@ -133,6 +133,22 @@ auto Optional(const char name[], TRet TOptions::*member, const char *description
     });
 }
 
+
+// Optional positional argument
+template <typename TElem, typename TOptions>
+auto Optional(std::vector<TElem> TOptions::*member, const char *identifier, const char *description) {
+  return typename TArgs<TOptions>::TProcessor(TRepetition::ZeroOrMore, identifier, description, true, [member](TOptions *options, const std::string &value) {
+      (options->*member).push_back(ParseArg<TElem>(value));
+  });
+}
+
+// Positional argument
+template <typename TElem, typename TOptions>
+auto Required(TElem TOptions::*member, const char *identifier, const char *description) {
+  return typename TArgs<TOptions>::TProcessor(TRepetition::One, identifier, description, true, [member](TOptions *options, const std::string &value) {
+      options->*member = ParseArg<TElem>(value);
+  });
+}
 // Positional argument
 template <typename TElem, typename TOptions>
 auto Required(std::vector<TElem> TOptions::*member, const char *identifier, const char *description) {

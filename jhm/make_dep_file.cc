@@ -17,34 +17,20 @@
    limitations under the License. */
 
 #include <fstream>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include <base/fd.h>
 #include <base/json.h>
-#include <base/not_implemented.h>
 #include <base/split.h>
 #include <base/subprocess.h>
 #include <base/thrower.h>
+#include <cmd/main.h>
+#include <cmd/parse.h>
 
 using namespace Base;
+using namespace Cmd;
 using namespace std;
-
-ostream &operator<<(ostream &strm, const vector<string> &that) {
-  return strm << Base::Join(that, ' ');
-}
-
-// TODO: mpark could probably do this cleaner.
-vector<string> ToVecStr(int argc, const char *argv[], int skip) {
-  assert(argc >= skip);
-  vector<string> ret(argc - skip);
-  for (int i = 0; skip + i < argc; ++i) {
-    ret.at(i) = string(argv[skip + i]);
-  }
-  return ret;
-}
 
 vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string> &extra_args) {
 
@@ -153,19 +139,19 @@ void MakeDepFile(const string &filename, const string &out_name, const vector<st
   out.close();
 }
 
-int main(int argc, const char *argv[]) {
-  if (argc < 3) {
-    //TODO: add '-o' to specify output filename.
-    cout << "USAGE: " << argv[0] << "input_name output_name [misc_flags]\n"
-         << " Produces a JSON dependency file (.dep) containing the headers/dependencies of a given source file";
-    return -1;
-  }
-  try {
-    MakeDepFile(argv[1], argv[2], ToVecStr(argc, argv, 3));
-  }
-  catch (const exception &ex) {
-    cerr << "EXCEPTION: " << ex.what();
-    return -1;
-  }
+struct TOptions {
+  std::string Input;
+  std::string Output;
+  std::vector<std::string> MiscFlags;
+};
+
+int Main(int argc, char *argv[]) {
+  TOptions options = Parse(TArgs<TOptions>{
+    Required(&TOptions::Input, "input", "Filename to get dependencies of"),
+    Required(&TOptions::Output, "output", "Filename to write dependencies to"),
+    Optional(&TOptions::MiscFlags, "misc_flags", "Additional flags to pass to the dependency generation tool.")
+  }, argc, argv);
+
+  MakeDepFile(options.Input, options.Output, options.MiscFlags);
   return 0;
 }
