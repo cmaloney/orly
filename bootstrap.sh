@@ -20,15 +20,13 @@ CC=clang++
 common_flags=(
   # Base compile
   -std=c++1y
-  -Wall -Werror -Wextra -Wold-style-cast 
-  #-Weverything -Wno-c++98-compat
-  #-Wno-c++98-compat-pedantic -Wno-extra-semi -Wno-newline-eof
-  #-Wno-padded
+  -Wall -Werror -Wextra -Wold-style-cast
 
   # Optimize
-  #-O3 -DNDEBUG
-  -g
+  -O3 -DNDEBUG
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
+
+  # Enable threads
   -pthread
   )
 
