@@ -32,10 +32,10 @@ OS=`uname -s`
 extra_files=
 if [ "$OS" == 'Linux' ]; then
   extra_files=base/pump_epoll.cc
-elif [ "$OS" == 'Darwin']; then
+elif [ "$OS" == 'Darwin' ]; then
   extra_files=base/pump_kqueue.cc
 else
-  echo 'Unsupported platfrom.'
+  echo "Unsupported platfrom '$OS'."
   echo 'No known way to build a asynchronous IO pump'
   echo 'See <base/pump.h>, <base/pump_kqueue.h> for what is needed.'
   exit -1
