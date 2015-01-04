@@ -112,7 +112,6 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
     }
   }
 
-  // Build a json object out of the dependency list
   return deps;
 }
 

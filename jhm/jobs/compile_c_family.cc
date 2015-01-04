@@ -133,7 +133,6 @@ bool TCompileCFamily::IsComplete() {
   assert(this);
 
   // Calculate the files which need to be linked against to make a binary with this file.
-
   // TODO: We needlessly jump to strings here. Really should be able to stash away TFile * within a TFile's config.
   TJson::TArray filtered_includes;
   for (const string &include : Need->GetConfig().Read<vector<string>>({"c++","include"})) {
