@@ -155,6 +155,8 @@ namespace Jhm {
     TFile *TryGetFileFromPath(const std::string &name);
 
     private:
+    // TODO(cmaloney): This should be bounded size.
+    std::unordered_map<std::string, TFile *> PathLookupCache;
     TFileCheckFunc Buildable;
     TFileCheckFunc Done;
 

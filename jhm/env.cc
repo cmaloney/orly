@@ -226,18 +226,29 @@ void TEnv::SetFuncs(TFileCheckFunc &&buildable, TFileCheckFunc &&done) {
 TFile *TEnv::TryGetFileFromPath(const std::string &name) {
   assert(&name);
   assert(name.size()); // Name must be non-empty.
+
+  auto it = PathLookupCache.find(name);
+  if (it != PathLookupCache.end()) {
+    return it->second;
+  }
+
+  TFile *result=nullptr;
+
   // If the name starts with a '/' it's an absolute filesystem path
   TPath path(name);
   if(name[0] == '/') {
     if (Src.Contains(path)) {
-      return GetFile(Src.GetRelPath(move(path)));
+      result = GetFile(Src.GetRelPath(move(path)));
     } else if (Out.Contains(path)) {
-      return GetFile(Out.GetRelPath(move(path)));
+      result = GetFile(Out.GetRelPath(move(path)));
     } else {
       // File isn't in a known tree, so we can't possibly get it.
-      return nullptr;
+      result = nullptr;
     }
   } else {
-    return GetFile(TRelPath(move(path)));
+    result = GetFile(TRelPath(move(path)));
   }
+
+  PathLookupCache.insert(it, make_pair(name, result));
+  return result;
 }
