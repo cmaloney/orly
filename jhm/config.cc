@@ -176,7 +176,9 @@ void TConfig::WriteComputed(ostream &out) const {
 void TConfig::LoadComputed(const string &filename) {
   assert(!ComputedLocked);
   Base::TJson computed = TJson::Read(filename.c_str());
-  assert(computed.GetKind() == TJson::Array);
+  if (computed.GetKind() != TJson::Array) {
+    throw TInvalidConfig("Invalid config file. Top level isn't a JSON Array.");
+  }
 
   // Read backwards building up stack
   uint32_t computed_size = computed.GetSize();
