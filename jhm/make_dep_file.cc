@@ -33,8 +33,7 @@ using namespace Cmd;
 using namespace std;
 
 vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string> &extra_args) {
-
-  vector<string> cmd {is_cpp ? "clang++" : "clang"};
+  vector<string> cmd{is_cpp ? "clang++" : "clang"};
   cmd.insert(cmd.end(), extra_args.begin(), extra_args.end());
   cmd.push_back("-M");
   cmd.push_back("-MG");
@@ -42,11 +41,12 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
   TPump pump;
   auto subproc = TSubprocess::New(pump, cmd);
   auto ret = subproc->Wait();
-  if (ret != 0) {
+  if(ret != 0) {
     EchoOutput(subproc->TakeStdOutFromChild());
     EchoOutput(subproc->TakeStdErrFromChild());
-    //TODO: Join the arguments some less-mistrewn way than ' '
-    THROW_ERROR(runtime_error) << "Non-zero (" << ret << ") exit from command " << quoted(AsStr(Join(cmd,' ')));
+    // TODO: Join the arguments some less-mistrewn way than ' '
+    THROW_ERROR(runtime_error) << "Non-zero (" << ret << ") exit from command "
+                               << quoted(AsStr(Join(cmd, ' ')));
   }
 
   // Read in the whole file / all the text from gcc
@@ -63,28 +63,28 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
   // Remove leading source file (Comes right after the ':')
   // Grab each token as a string.
   // If the string is '\' then it's a linebreak GCC added...
-  for(uint32_t i=0; i < gcc_deps.length(); ++i) {
+  for(uint32_t i = 0; i < gcc_deps.length(); ++i) {
     char &c = gcc_deps[i];
 
-    if (!eaten_start) {
-      if (c == ':') {
+    if(!eaten_start) {
+      if(c == ':') {
         eaten_start = true;
       }
       continue;
     }
 
-    if (tok_start) {
+    if(tok_start) {
       // Still in token?
-      if (isgraph(c)) {
+      if(isgraph(c)) {
         continue;
       }
 
       // Hit end of token. Grab token and submit.
       // NOTE: If token is '\', then discard (Indicates GCC's line continuation)
-      string dep(tok_start, size_t(&c-tok_start));
+      string dep(tok_start, size_t(&c - tok_start));
       tok_start = nullptr;
-      if (dep != "\\") {
-        if (is_first_item) {
+      if(dep != "\\") {
+        if(is_first_item) {
           is_first_item = false;
         } else {
           deps.emplace_back(move(dep));
@@ -92,7 +92,7 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
       }
     } else {
       // Hit start of token?
-      if (isgraph(c)) {
+      if(isgraph(c)) {
         tok_start = &gcc_deps[i];
       }
     }
@@ -103,7 +103,7 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
 
 // TODO: this should go in a helper somewhere...
 bool EndsWith(const string &target, const string &ending) {
-  if (ending.length() > target.length()) {
+  if(ending.length() > target.length()) {
     return false;
   }
 
@@ -112,7 +112,7 @@ bool EndsWith(const string &target, const string &ending) {
 
 TJson ToJson(vector<string> &&that) {
   vector<TJson> json_elems(that.size());
-  for(uint64_t i=0; i < that.size(); ++i) {
+  for(uint64_t i = 0; i < that.size(); ++i) {
     json_elems[i] = TJson(move(that[i]));
   }
 
@@ -122,17 +122,17 @@ TJson ToJson(vector<string> &&that) {
 void MakeDepFile(const string &filename, const string &out_name, const vector<string> &extra_args) {
   TJson deps;
   // Check for extension to determine how we need to scan for dependencies
-  if (EndsWith(filename, ".c")) {
+  if(EndsWith(filename, ".c")) {
     deps = ToJson(GetCDeps(filename, false, extra_args));
 
-  } else if (EndsWith(filename, ".cc")) {
+  } else if(EndsWith(filename, ".cc")) {
     deps = ToJson(GetCDeps(filename, true, extra_args));
   } else {
     THROW_ERROR(runtime_error) << "Unknown file extension: " << quoted(filename);
   }
 
   ofstream out(out_name, ios_base::out | ios_base::trunc);
-  if (!out.good()) {
+  if(!out.good()) {
     THROW_ERROR(runtime_error) << "Error creating/opening file for writing: " << filename + ".dep";
   }
   out << deps;
@@ -146,11 +146,14 @@ struct TOptions {
 };
 
 int Main(int argc, char *argv[]) {
-  TOptions options = Parse(TArgs<TOptions>{
-    Required(&TOptions::Input, "input", "Filename to get dependencies of"),
-    Required(&TOptions::Output, "output", "Filename to write dependencies to"),
-    Optional(&TOptions::MiscFlags, "misc_flags", "Additional flags to pass to the dependency generation tool.")
-  }, argc, argv);
+  TOptions options = Parse(
+      TArgs<TOptions>{Required(&TOptions::Input, "input", "Filename to get dependencies of"),
+                      Required(&TOptions::Output, "output", "Filename to write dependencies to"),
+                      Optional(&TOptions::MiscFlags,
+                               "misc_flags",
+                               "Additional flags to pass to the dependency generation tool.")},
+      argc,
+      argv);
 
   MakeDepFile(options.Input, options.Output, options.MiscFlags);
   return 0;
