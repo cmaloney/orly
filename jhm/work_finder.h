@@ -40,7 +40,7 @@ namespace Jhm {
     NO_MOVE(TWorkFinder);
 
     public:
-    TWorkFinder(uint32_t worker_count,
+    TWorkFinder(uint64_t worker_count,
                 bool print_cmd,
                 Util::TTimestamp config_timestamp,
                 std::function<std::unordered_set<TJob *>(TFile *)> &&get_jobs_producing_file,

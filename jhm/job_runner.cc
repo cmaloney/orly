@@ -28,7 +28,7 @@ using namespace Jhm;
 using namespace std;
 using namespace Util;
 
-TJobRunner::TJobRunner(uint32_t worker_count, bool print_cmd)
+TJobRunner::TJobRunner(uint64_t worker_count, bool print_cmd)
     : ExitWorker(false),
       MoreResults(false),
       MoreResultsOnceTaken(false),

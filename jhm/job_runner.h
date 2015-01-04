@@ -52,7 +52,7 @@ namespace Jhm {
     using TResults = std::vector<TResult>;
 
     public:
-    TJobRunner(uint32_t worker_count, bool print_cmd);
+    TJobRunner(uint64_t worker_count, bool print_cmd);
     ~TJobRunner();
 
     bool IsReady() const;
@@ -98,7 +98,7 @@ namespace Jhm {
 
     // General parameters for the runner
     const bool PrintCmd;
-    const uint32_t WorkerCount;
+    const uint64_t WorkerCount;
 
     // The thread which sits in the background and runs the queue.
     std::thread QueueRunner;

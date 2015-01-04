@@ -29,7 +29,10 @@ vector takes now ownership of any of the fixtures. */
 
 #define FIXTURE(name) \
   static void name##_(); \
+  _Pragma("clang diagnostic push") \
+  _Pragma("clang diagnostic ignored \"-Wglobal-constructors\"") \
   static const ::Test::TFixture name##Fixture (HERE, #name, name##_); \
+  _Pragma("clang diagnostic pop") \
   static void name##_()
 
 namespace Test {

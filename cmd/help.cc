@@ -12,17 +12,17 @@
 using namespace Base;
 using namespace Cmd;
 
-static void Indent(uint32_t pad_size) {
-  for (uint32_t i = 0; i < pad_size; ++i) {
+static void Indent(uint64_t pad_size) {
+  for (uint64_t i = 0; i < pad_size; ++i) {
     std::cout << ' ';
   }
 }
 
-static void PrintIndented(uint32_t line_size, uint32_t pad_size, const char *text, uint32_t pre_pad) {
+static void PrintIndented(uint64_t line_size, uint64_t pad_size, const char *text, uint64_t pre_pad) {
   assert(pad_size < line_size);
 
   // Calculate text chunk length per line.
-  const uint32_t text_per_line = line_size - pad_size;
+  const uint64_t text_per_line = line_size - pad_size;
 
   // We can write the help on the same line if the option isn't too long.
   bool pre_padded = false;
@@ -34,8 +34,8 @@ static void PrintIndented(uint32_t line_size, uint32_t pad_size, const char *tex
   }
 
   //TODO(cmaloney): strlen is not going to go over well with internationalization eventually.
-  const uint32_t text_len = strlen(text);
-  for (uint32_t offset=0; offset < text_len; offset += text_per_line) {
+  const uint64_t text_len = strlen(text);
+  for (uint64_t offset=0; offset < text_len; offset += text_per_line) {
     if (pre_padded) {
       pre_padded = false;
     } else {

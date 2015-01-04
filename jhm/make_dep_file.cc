@@ -81,7 +81,7 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
 
       // Hit end of token. Grab token and submit.
       // NOTE: If token is '\', then discard (Indicates GCC's line continuation)
-      string dep(tok_start, &c-tok_start);
+      string dep(tok_start, size_t(&c-tok_start));
       tok_start = nullptr;
       if (dep != "\\") {
         if (is_first_item) {

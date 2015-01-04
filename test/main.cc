@@ -37,8 +37,11 @@ void RunFixtures() {
 
 int Main(int argc, char *argv[]) {
   Cmd::TParser parser;
-  parser.Attach(&GetArgs(), &GetOptionsNonConst());
-  ParseWithStandard(parser, ExtractArgVector(GetArgs()), argc, argv);
+  Cmd::TArgs<TOptions> args {
+    Cmd::Optional({"verbose", "v"}, &TOptions::Verbose, "Show the results of unit tests, regardless of whether they pass or fail"),
+  };
+  parser.Attach(&args, &GetOptionsNonConst());
+  ParseWithStandard(parser, ExtractArgVector(args), argc, argv);
 
   // Context to aggregate all the test results.
   TContext global_ctx(nullptr);

@@ -35,12 +35,16 @@ using namespace std::literals;
 using namespace Util;
 
 static const char *ExpectedData = "Mofo the Psychic Gorilla";
-static const size_t ExpectedSize = strlen(ExpectedData);
+
+static const size_t ExpectedSize = 24;
 
 static const size_t MaxActualSize = 1024;
 static char ActualData[MaxActualSize];
 
 FIXTURE(ReadAtMost) {
+  // Validate above constants
+  assert(ExpectedSize == strlen(ExpectedData));
+
   TFd readable, writeable;
   TFd::Pipe(readable, writeable);
   WriteExactly(writeable, ExpectedData, ExpectedSize);

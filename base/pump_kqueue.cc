@@ -21,14 +21,14 @@ TPumper::TPumper(TPump &pump) : Pump(pump), Kqueue(IfLt0(kqueue())) {
   Background = thread(&TPumper::BackgroundMain, this);
 }
 
-auto EventToFilter(TEvent event_type) {
-  return event_type == Read ? EVFILT_READ : EVFILT_WRITE;
+int16_t EventToFilter(TEvent event_type) {
+  return int16_t(event_type == Read ? EVFILT_READ : EVFILT_WRITE);
 }
 
 void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
   assert(this);
   struct kevent event = {};
-  event.ident = fd;
+  event.ident = unsigned(fd);
   event.flags = EV_ADD;
   event.filter = EventToFilter(event_type);
   event.udata = pipe;
@@ -39,7 +39,7 @@ void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
 void TPumper::Leave(int fd, TEvent event_type) {
   assert(this);
   struct kevent event = {};
-  event.ident = fd;
+  event.ident = unsigned(fd);
   event.filter = EventToFilter(event_type);
   event.flags = EV_DELETE;
 

@@ -17,7 +17,10 @@
       "-Wno-padded",
       "-Wno-undef",
       "-Wno-missing-prototypes",
-      "-Wno-weak-vtables"
+      "-Wno-weak-vtables",
+      "-Wno-vla",
+      "-Wno-vla-extension",
+      "-Wno-missing-noreturn"
     ]
     }
   }

@@ -27,7 +27,6 @@
 using namespace Base;
 
 void Base::Unreachable(const TCodeLocation &loc) {
-  DEFINE_ERROR(unreachable_t, std::runtime_error, "Unreachable code");
 
   PrintBacktrace(100);
 
@@ -36,6 +35,7 @@ void Base::Unreachable(const TCodeLocation &loc) {
 // In release builds, don't abort
 // TODO: Move this ndebug into abort?
 #ifdef NDEBUG
+  DEFINE_ERROR(unreachable_t, std::runtime_error, "Unreachable code");
   TThrower<unreachable_t>{loc};
 #else
   Util::Abort(loc);

@@ -90,7 +90,7 @@ class Pump::TPipe {
       } else if (read_size == 0) {  // EOF
         StopReading();
       } else {  // Read data
-        ReadOffset += read_size;
+        ReadOffset += uint64_t(read_size);
         StartWriting();
 
         // NOTE: If we handle being at the end of the buffer / out of block space at the start of reading.
@@ -127,7 +127,7 @@ class Pump::TPipe {
             return false;
           }
         } else {
-          WriteOffset += write_size;
+          WriteOffset += uint64_t(write_size);
 
           assert(WriteOffset <= ReadBufSize);
 
