@@ -38,7 +38,6 @@ TFile *Jhm::GetOutputWithExtension(unordered_set<TFile *> output_set, const vect
   for (TFile *f : output_set) {
     if (f->GetRelPath().Path.EndsWith(ext)) {
       return primary_output = f;
-      break;
     }
   }
   assert(false);
