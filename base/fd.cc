@@ -34,8 +34,6 @@ bool TFd::IsReadable(int timeout) const {
   return result != 0;
 }
 
-const TFd Base::In(STDIN_FILENO), Base::Out(STDOUT_FILENO), Base::Err(STDERR_FILENO);
-
 // TODO: This is a utility that should live in base/
 /* Read all the data at fd into one giant buffer in string. Not super efficient, but should be good enough, and
    sufficiently dangerous if the data is coming from an untrustworthy source */

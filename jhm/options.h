@@ -18,7 +18,7 @@ struct TOptions {
   std::string PrintTests;
   bool RunTests = false;
   bool VerboseTests = false;  // TODO(cmaloney): generalize to flags for tests.
-  uint32_t WorkerCount;
+  uint64_t WorkerCount;
   std::vector<std::string> Targets;
 }; // TOptions
 

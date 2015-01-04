@@ -8,7 +8,16 @@
   "cmd": {
     "+g++" : [
       "-DDEBUG",
-      "-g"
+      "-g",
+      "-Weverything",
+      "-Wno-c++98-compat",
+      "-Wno-c++98-compat-pedantic",
+      "-Wno-extra-semi",
+      "-Wno-newline-eof",
+      "-Wno-padded",
+      "-Wno-undef",
+      "-Wno-missing-prototypes",
+      "-Wno-weak-vtables"
     ]
     }
   }

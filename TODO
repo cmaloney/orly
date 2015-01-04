@@ -22,6 +22,7 @@ Simpler <base/split.h> (With a better name)?
 Bootstrap script generator
   - Bootstrapping test?
 
+Compile with -Weverything on clang and specific disables.
 
 
 

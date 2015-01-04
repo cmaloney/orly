@@ -35,6 +35,7 @@
 
 #include <base/likely.h>
 #include <base/thrower.h>
+#include <base/unreachable.h>
 
 namespace Base {
 
@@ -55,24 +56,6 @@ namespace Base {
     using TObjectCb = std::function<bool (const std::string&, const TJson &)>;
     using TArrayCbNonConst  = std::function<bool (TJson &)>;
     using TObjectCbNonConst = std::function<bool (const std::string&, TJson &)>;
-
-    /* A visitor to our state. */
-    struct TVisitor {
-
-      /* For the convenience of our descendants. */
-      using TArray  = TJson::TArray;
-      using TObject = TJson::TObject;
-      using TString = TJson::TString;
-
-      /* Override to handle the state. */
-      virtual void operator()() const = 0;
-      virtual void operator()(bool) const = 0;
-      virtual void operator()(double) const = 0;
-      virtual void operator()(const TArray &) const = 0;
-      virtual void operator()(const TObject &) const = 0;
-      virtual void operator()(const TString &) const = 0;
-
-    };  // TJson::TVisitor
 
     /* The kinds of states we can be in. */
     enum TKind { Null, Bool, Number, Array, Object, String };
@@ -171,7 +154,7 @@ namespace Base {
             if (unlikely(c < 0)) {
               THROW_ERROR(TSyntaxError) << "missing closing quote";
             }
-            accum += c;
+            accum += char(c);
             strm.ignore();
           }
         }  // switch
@@ -302,19 +285,13 @@ namespace Base {
 
     /* Construct as the number */
     TJson(uint32_t that) noexcept
-        : Kind(Number), Number_(that) {}
+        : Kind(Number), Number_(int64_t(that)) {}
 
     /* Construct as the number */
     TJson(uint64_t that) noexcept
-        : Kind(Number), Number_(that) {}
-
-    /* Construct as the number */
-    TJson(float that) noexcept
-        : Kind(Number), Number_(that) {}
-
-    /* Construct as the number */
-    TJson(double that) noexcept
-        : Kind(Number), Number_(that) {}
+        : Kind(Number), Number_(int64_t(that)) {
+          assert(that < std::numeric_limits<uint32_t>::max());
+        }
 
     /* Construct as an array, leaving the donor empty. */
     TJson(TArray &&that) noexcept
@@ -449,20 +426,6 @@ namespace Base {
       return *elem;
     }
 
-    /* Accept the visitor. */
-    void Accept(const TVisitor &visitor) const {
-      assert(this);
-      assert(&visitor);
-      switch (Kind) {
-        case Null:   { visitor(       ); break; }
-        case Bool:   { visitor(Bool_  ); break; }
-        case Number: { visitor(Number_); break; }
-        case Array:  { visitor(Array_ ); break; }
-        case Object: { visitor(Object_); break; }
-        case String: { visitor(String_); break; }
-      }
-    }
-
     /* Returns true if the object contains the given key */
     bool Contains(const TString &that) const {
       assert(this);
@@ -539,9 +502,10 @@ namespace Base {
         case Array:  { return Array_ .size(); }
         case Object: { return Object_.size(); }
         case String: { return String_.size(); }
-        default: {
-          assert(false);
-          return 0;
+        case Null:
+        case Bool:
+        case Number: {
+          Unreachable(HERE);
         }
       }
     }
@@ -564,7 +528,7 @@ namespace Base {
       return Bool_;
     }
 
-    double GetNumber() const noexcept {
+    int64_t GetNumber() const noexcept {
       assert(this);
       assert(Kind == Number);
       return Number_;
@@ -626,7 +590,7 @@ namespace Base {
         }
         default: {
           if (c == '+' || c == '-' || isdigit(c)) {
-            double temp;
+            int64_t temp;
             strm >> temp;
             *this = TJson(std::move(temp));
             break;
@@ -666,138 +630,6 @@ namespace Base {
       new (this) TJson(std::move(that));
       new (&that) TJson(std::move(temp));
       return *this;
-    }
-
-    /* If we contain a bool, get it and return true;
-       otherwise, return false. */
-    bool TryAs(bool &out) const {
-      assert(this);
-      bool success = (Kind == Bool);
-      if (success) {
-        out = Bool_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(int8_t &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(int16_t &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(int32_t &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(int64_t &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(uint8_t &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(uint16_t &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(uint32_t &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(uint64_t &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(float &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a number, get it and return true;
-       otherwise, return false. */
-    bool TryAs(double &out) const {
-      assert(this);
-      bool success = (Kind == Number);
-      if (success) {
-        out = Number_;
-      }
-      return success;
-    }
-
-    /* If we contain a string, get it and return true;
-       otherwise, return false. */
-    bool TryAs(std::string &out) const {
-      assert(this);
-      bool success = (Kind == String);
-      if (success) {
-        out = String_;
-      }
-      return success;
     }
 
     /* A pointer to the named element in the object, or null if we have no
@@ -919,7 +751,7 @@ namespace Base {
        at a time.  'Kind', above, determines which, if any, is valid. */
     union {
       bool        Bool_;
-      double      Number_;
+      int64_t      Number_;
       TObject     Object_;
       TArray      Array_;
       std::string String_;

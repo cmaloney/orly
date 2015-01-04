@@ -36,7 +36,7 @@ namespace Util {
     strm.exceptions(std::ios_base::failbit);
     try {
       strm.open(path);
-    } catch (const std::ios_base::failure &ex) {
+    } catch (const std::ios_base::failure &) {
       char temp[256];
       temp[0] = '\0';
       Util::Strerror(errno, temp, sizeof(temp));

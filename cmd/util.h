@@ -18,9 +18,14 @@ struct TErrorExit {
   const std::string Message;
 };
 
+template<typename TVal>
+struct TArgDependentFalse : public std::false_type {};
+
 /* Helpers for parsing arguments of specific types. */
 template <typename TVal>
-TVal ParseArg(const std::string &val);
+TVal ParseArg(const std::string &) {
+  static_assert(TArgDependentFalse<TVal>::value, "Cmd::ParseArg must be specialized / taught how to parse this type of argument.");
+}
 
 
 // Whether or not a value is required.
@@ -35,9 +40,9 @@ inline std::string ParseArg<std::string>(const std::string &val) {
 
 // Specializations for different types
 template <>
-inline uint32_t ParseArg<uint32_t>(const std::string &val) {
+inline uint64_t ParseArg<uint64_t>(const std::string &val) {
   //TODO(cmaloney): This isn't a perfect parse...
-  return std::stoi(val);
+  return std::stoul(val);
 }
 
 template <>

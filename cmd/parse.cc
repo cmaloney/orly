@@ -35,8 +35,8 @@ void TParser::Parse(const int argc, const char * const argv[]) const {
   };
 
   // TODO(cmaloney): Switch to something string_view like.
-  auto get_arg = [argc, argv] (int i) -> std::string {
-    return std::string(argv[i]);
+  auto get_arg = [argc, argv] (int idx) -> std::string {
+    return std::string(argv[idx]);
   };
 
   // Everything after '--' should be taken as positional arguments.

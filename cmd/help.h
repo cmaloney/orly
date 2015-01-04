@@ -29,16 +29,16 @@ namespace Cmd {
 
     // Calculate how big the final vector should be.
     std::initializer_list<size_t> sizes = {args.Info.size()...};
-    result.reserve(std::accumulate(std::begin(sizes), std::end(sizes), 0));
+    result.reserve(std::accumulate(std::begin(sizes), std::end(sizes), 0u));
 
     // Gather the arguments into the result vector.
     // The initializer_list has a guaranteed evaluation order when expanded into.
     // This allows us to expand the grabs without recursion which is more
     // efficient.
-    std::initializer_list<int>({[&result](const auto &args) {
+    std::initializer_list<int>({[&result](const auto &arg_group) {
       std::for_each(
-          std::begin(args.Info),
-          std::end(args.Info),
+          std::begin(arg_group.Info),
+          std::end(arg_group.Info),
           [&result](const auto &arg_info) { result.push_back(&arg_info); });
       return 0;
     }(args)...});

@@ -77,7 +77,7 @@ bool AllKindsEq(TJson::TKind expected_kind) {
 
 FIXTURE(ConstructedKinds) {
   EXPECT_TRUE(TJson().GetKind() == TJson::Null);
-  EXPECT_TRUE((AllKindsEq<tuple<int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, float, double>>(TJson::Number)));
+  EXPECT_TRUE((AllKindsEq<tuple<int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t>>(TJson::Number)));
   EXPECT_TRUE((AllKindsEq<tuple<char, const char *, string>>(TJson::String)));
   EXPECT_TRUE((AllKindsEq<tuple<TJson::TObject>>(TJson::Object)));
   EXPECT_TRUE((AllKindsEq<tuple<TJson::TArray>>(TJson::Array)));
@@ -169,8 +169,6 @@ FIXTURE(Parse) {
   EXPECT_EQ(TJson::Parse("0"), 0);
   EXPECT_EQ(TJson::Parse("+101"), 101);
   EXPECT_EQ(TJson::Parse("-101"), -101);
-  EXPECT_EQ(TJson::Parse("98.6"), 98.6);
-  EXPECT_EQ(TJson::Parse("1e10"), 1e10);
   EXPECT_EQ(TJson::Parse("[]"), TJson::TArray());
   EXPECT_EQ(TJson::Parse("[ 1, 2, 3 ]"), Array);
   EXPECT_EQ(TJson::Parse("{}"), TJson::TObject());
@@ -206,7 +204,6 @@ FIXTURE(RoundTrip) {
   EXPECT_EQ(TJson::Parse(AsStr(TJson(0))), 0);
   EXPECT_EQ(TJson::Parse(AsStr(TJson(101))), 101);
   EXPECT_EQ(TJson::Parse(AsStr(TJson(-101))), -101);
-  EXPECT_EQ(TJson::Parse(AsStr(TJson(98.6))), 98.6);
   EXPECT_EQ(TJson::Parse(AsStr(TJson(Array))), Array);
   EXPECT_EQ(TJson::Parse(AsStr(TJson(Object))), Object);
 }

@@ -42,7 +42,7 @@ TStatusLine::TStatusLine() {
   }
 
   if (IsRealTty()) {
-    cout << "\e[2K";
+    cout << "\x1b[2K";
   }
 }
 TStatusLine::~TStatusLine() {

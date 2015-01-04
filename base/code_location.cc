@@ -23,9 +23,15 @@
 using namespace std;
 using namespace Base;
 
+// NOTE: Calculating this once and caching it is perf critical.
+static size_t GetSrcRootLen() {
+  static size_t len = strlen(TCodeLocation::SrcRoot);
+  return len;
+}
+
 const char *TCodeLocation::GetFile() const {
   assert(this);
-  return File + ((strncmp(File, SrcRoot, SrcRootLen) == 0) ? (SrcRootLen) : 0);
+  return File + ((strncmp(File, SrcRoot, GetSrcRootLen()) == 0) ? (GetSrcRootLen()) : 0);
 }
 
 void TCodeLocation::Write(ostream &strm) const {
@@ -35,5 +41,3 @@ void TCodeLocation::Write(ostream &strm) const {
 }
 
 const char *TCodeLocation::SrcRoot = SRC_ROOT;
-
-size_t TCodeLocation::SrcRootLen = strlen(SrcRoot);

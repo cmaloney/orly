@@ -80,9 +80,6 @@ namespace Base {
        This is injected by the build system as the macro SRC_ROOT. */
     static const char *SrcRoot;
 
-    /* The length of the SrcLen, above, in bytes. */
-    static size_t SrcRootLen;
-
     private:
 
     /* Never null. */

@@ -137,8 +137,8 @@ namespace Jhm {
   };
 
   template <>
-  struct TJsonReader<uint64_t> {
-    static uint64_t Read(const Base::TJson &entry) {
+  struct TJsonReader<int64_t> {
+    static int64_t Read(const Base::TJson &entry) {
       ThrowIfWrongKind(Base::TJson::Number, entry);
       return entry.GetNumber();
     }
