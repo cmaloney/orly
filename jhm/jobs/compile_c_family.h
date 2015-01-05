@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <ostream>
-
 #include <jhm/job.h>
 
 namespace Jhm {

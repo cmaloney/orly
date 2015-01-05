@@ -48,7 +48,6 @@ FIXTURE(Typical) {
 
   const vector<string> res4 = {"", "", ""};
   Split(":", "::", out);
-  cout << endl;
   EXPECT_TRUE(out == res4);
 }
 

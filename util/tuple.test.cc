@@ -18,6 +18,7 @@
 
 #include <util/tuple.h>
 
+#include <iostream>
 #include <string>
 #include <sstream>
 

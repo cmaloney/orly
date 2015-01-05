@@ -18,12 +18,10 @@ all we are doing is just evaluating all independently and collecting the results
 */
 #pragma once
 
-#include <cassert>
-#include <iostream>
+#include <sstream>
 
 #include <base/class_traits.h>
 #include <base/code_location.h>
-#include <test/options.h>
 
 namespace Test {
 

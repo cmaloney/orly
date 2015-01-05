@@ -12,6 +12,7 @@ TODO(cmaloney): Sample / usage. */
 #include <string>
 #include <typeinfo>
 
+#include <base/as_str.h>
 #include <base/class_traits.h>
 #include <base/code_location.h>
 #include <base/demangle.h>

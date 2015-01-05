@@ -1,6 +1,7 @@
 /* Runs one unit test. */
 
 #include <cstdlib>
+#include <iostream>
 
 #include <base/demangle.h>
 #include <cmd/main.h>

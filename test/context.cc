@@ -1,5 +1,9 @@
 #include <test/context.h>
 
+#include <test/options.h>
+
+#include <cassert>
+#include <iostream>
 #include <stack>
 
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
