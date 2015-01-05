@@ -20,7 +20,11 @@
       "-Wno-weak-vtables",
       "-Wno-vla",
       "-Wno-vla-extension",
-      "-Wno-missing-noreturn"
+      "-Wno-exit-time-destructors",
+      "-Wno-missing-noreturn",
+      "-Wno-disabled-macro-expansion",
+      "-Wno-sign-conversion",
+      "-Wno-float-equal"
     ]
     }
   }

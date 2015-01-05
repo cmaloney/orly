@@ -181,8 +181,8 @@ void TConfig::LoadComputed(const string &filename) {
   }
 
   // Read backwards building up stack
-  uint32_t computed_size = computed.GetSize();
-  for(uint32_t i=0; i < computed_size; ++i) {
+  uint64_t computed_size = computed.GetSize();
+  for(uint64_t i=0; i < computed_size; ++i) {
     AddComputed(move(computed[computed_size - (i+1)]));
   }
   ComputedLocked = true;

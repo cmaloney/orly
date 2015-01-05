@@ -1,4 +1,4 @@
-/* <base/dir_walker.cc>
+  /* <base/dir_walker.cc>
 
    Implements <base/dir_walker.h>.
 
@@ -118,7 +118,6 @@ bool TDirWalker::Walk(const char *root) {
             case S_IFLNK:
             case S_IFREG: {
               Util::Abort(HERE);
-              break;
             }
             /* We have no clue what this entry is, but report it anyway. */
             default: {

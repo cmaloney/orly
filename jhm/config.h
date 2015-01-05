@@ -116,7 +116,7 @@ namespace Jhm {
     void AddFile(const std::string &filename);
 
     Util::TOptTimestamp Timestamp;
-    Base::TOpt<uint32_t> ComputedStart;
+    Base::TOpt<uint64_t> ComputedStart;
     mutable bool ComputedLocked = false; // This is purely an internal safety check / correctness check
     std::deque<Base::TJson> Config;
   };

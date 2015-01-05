@@ -461,7 +461,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
 
       InsertOrFail(conf_cache, output, output_cache.GetComputed());
     }
-  } catch (const TConfig::TNotFound &ex) {
+  } catch (const TConfig::TNotFound &) {
     // If any of the config files don't contain the requested key(s), then exit / the config must be out of date.
     return;
   }

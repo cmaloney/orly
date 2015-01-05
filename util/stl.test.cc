@@ -52,14 +52,6 @@ FIXTURE(FindOrInsert) {
   EXPECT_EQ(FindOrInsert(container, key, expected + 1), expected);
 }
 
-FIXTURE(RotatedLeft) {
-  EXPECT_EQ(RotatedLeft<unsigned short>(0x1234, 4), 0x2341);
-}
-
-FIXTURE(RotatedRight) {
-  EXPECT_EQ(RotatedRight<unsigned short>(0x1234, 4), 0x4123);
-}
-
 FIXTURE(TryFind) {
   unordered_map<int, double> container;
   const int key = 101;

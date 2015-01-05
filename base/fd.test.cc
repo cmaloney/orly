@@ -32,7 +32,7 @@ using namespace Base;
 using namespace Util;
 
 static const char *ExpectedData = "hello";
-static const size_t ExpectedSize = strlen(ExpectedData);
+static const size_t ExpectedSize = 5;
 
 static const size_t MaxActualSize = 1024;
 static char ActualData[MaxActualSize];
@@ -41,7 +41,7 @@ static void Transact(const TFd &readable, const TFd &writeable) {
   WriteExactly(writeable, ExpectedData, ExpectedSize);
   Zero(ActualData);
   size_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
-  if (EXPECT_EQ(actual_size, ExpectedSize)) {
+  if(EXPECT_EQ(actual_size, ExpectedSize)) {
     EXPECT_FALSE(strcmp(ActualData, ExpectedData));
   }
 }
@@ -66,7 +66,7 @@ FIXTURE(SystemFd) {
     // We consider it a system fd
     EXPECT_TRUE(fd.IsSystemFd());
 
-    //We don't dup() system fds.
+    // We don't dup() system fds.
     TFd fd2(fd);
     EXPECT_EQ(int(fd2), STDIN_FILENO);
   }
@@ -90,5 +90,4 @@ FIXTURE(SystemFd) {
     EXPECT_EQ(int(fd2), STDERR_FILENO);
   }
   EXPECT_TRUE(IsValidFd(STDERR_FILENO));
-
 }

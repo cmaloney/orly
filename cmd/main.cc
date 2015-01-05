@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   try {
     TBacktraceCatcher backtrace;
     return Main(argc, argv);
-  } catch (const Cmd::TCleanExit &ex) {
+  } catch (const Cmd::TCleanExit &) {
     // Clean exit via exception stack unwinding.
     return 0;
   } catch (const Cmd::TErrorExit &ex) {

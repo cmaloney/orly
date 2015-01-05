@@ -84,22 +84,6 @@ namespace Util {
     }
   }
 
-  /* Returns an integer rotated to the left by n bits. */
-  template <typename TVal>
-  TVal RotatedLeft(TVal val, int n) {
-    const int digits = std::numeric_limits<TVal>::digits;
-    n %= digits;
-    return (val << n) | (val >> (digits - n));
-  }
-
-  /* Returns an integer rotated to the right by n bits. */
-  template <typename TVal>
-  TVal RotatedRight(TVal val, int n) {
-    const int digits = std::numeric_limits<TVal>::digits;
-    n %= digits;
-    return (val >> n) | (val << (digits - n));
-  }
-
   /* Returns a pointer to the value mapped to the given key.  If the value doesn't appear in the container, return a null pointer. */
   template <typename TContainer>
   const typename TContainer::mapped_type *TryFind(const TContainer &container, const typename TContainer::key_type &key) {

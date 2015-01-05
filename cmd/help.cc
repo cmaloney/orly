@@ -41,7 +41,7 @@ static void PrintIndented(uint64_t line_size, uint64_t pad_size, const char *tex
     } else {
       Indent(pad_size);
     }
-    std::cout.write(text+offset, std::min(text_per_line, text_len - offset));
+    std::cout.write(text+offset, int64_t(std::min(text_per_line, text_len - offset)));
   }
   std::cout << '\n';
 }

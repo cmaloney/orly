@@ -26,6 +26,11 @@
 using namespace std;
 using namespace Base;
 
+std::string &GetOps() {
+  static std::string Ops;
+  return Ops;
+}
+
 class TToken {
   public:
 
@@ -60,8 +65,8 @@ class TToken {
   }
 
   static string LatchOps() {
-    string temp = Ops;
-    Ops.clear();
+    string temp = GetOps();
+    GetOps().clear();
     return temp;
   }
 
@@ -70,14 +75,10 @@ class TToken {
   private:
 
   static void Push(char op) {
-    Ops.push_back(op);
+    GetOps().push_back(op);
   }
 
-  static string Ops;
-
 };
-
-string TToken::Ops;
 
 ostream &operator<<(ostream &strm, const TToken &that) {
   return strm << "TToken(" << that.Dummy << ')';
@@ -102,7 +103,7 @@ FIXTURE(KnownVsUnknown) {
 FIXTURE(TokenBasics) {
   /* extra */ {
     TToken a;
-    EXPECT_EQ(TToken::LatchOps(), string("D"));
+    EXPECT_EQ(TToken::LatchOps(), "D");
     TToken b = a;
     EXPECT_EQ(TToken::LatchOps(), string("C"));
     TToken c = move(b);

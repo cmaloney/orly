@@ -43,25 +43,22 @@ TJobRunner::~TJobRunner() {
   QueueRunner.join();
 }
 
-bool TJobRunner::IsReady() const {
-  return !ExitWorker;
-}
+bool TJobRunner::IsReady() const { return !ExitWorker; }
 
 void TJobRunner::Queue(TJob *job) {
   lock_guard<mutex> lock(ToRunMutex);
-  // Note: We call GetCmd() to make the string here because if we did it in the QueueRunner we'd cross threads.
+  // Note: We call GetCmd() to make the string here because if we did it in the QueueRunner we'd
+  // cross threads.
   ToRun.emplace(job, job->GetCmd());
   HasWork.notify_all();
 
-  if (!ExitWorker) {
+  if(!ExitWorker) {
     MoreResultsOnceTaken = true;
     MoreResults = true;
   }
 }
 
-bool TJobRunner::HasMoreResults() const {
-  return MoreResults;
-}
+bool TJobRunner::HasMoreResults() const { return MoreResults; }
 
 TJobRunner::TResults TJobRunner::WaitForResults() {
   assert(HasMoreResults());
@@ -79,7 +76,8 @@ TJobRunner::TResults TJobRunner::WaitForResults() {
   bool temp = MoreResultsOnceTaken;
   MoreResults = temp;
 
-  // Move out the reults set while under the lock (We do this as an explicit step to ensure it happens under the lock)
+  // Move out the reults set while under the lock (We do this as an explicit step to ensure it
+  // happens under the lock)
   TResults ret = move(Results);
 
   // Return the results via NRVO.
@@ -88,15 +86,15 @@ TJobRunner::TResults TJobRunner::WaitForResults() {
 
 void TJobRunner::ProcessQueue() {
   // Set of jobs currently being run
-  unordered_map<int, TJob*> PidMap;
-  unordered_map<TJob*, unique_ptr<TSubprocess>> Running;
+  unordered_map<int, TJob *> PidMap;
+  unordered_map<TJob *, unique_ptr<TSubprocess>> Running;
 
   while(!ExitWorker || Running.size() > 0) {
     // Only queue work if we aren't in the process of spinning down
-    if (!ExitWorker) {
+    if(!ExitWorker) {
       // If we're not fully booked, do more.
       auto to_start = WorkerCount - Running.size();
-      if (to_start) {
+      if(to_start) {
         /* queue work until ToRun is empty */ {
           lock_guard<std::mutex> lock(ToRunMutex);
           while(Running.size() < WorkerCount && !ToRun.empty()) {
@@ -105,10 +103,12 @@ void TJobRunner::ProcessQueue() {
             vector<string> cmd;
             tie(job, cmd) = Pop(ToRun);
 
-            if (PrintCmd) {
-              // NOTE: We use '+' to make a new string (effectively as a back buffer), then a single operation to write it out
-              // This makes it so that the line never gets broken / split / etc. because of threading.
-              //TODO: Join in a way that makes the difference between ' ' and passing the arguments
+            if(PrintCmd) {
+              // NOTE: We use '+' to make a new string (effectively as a back buffer), then a single
+              // operation to write it out
+              // This makes it so that the line never gets broken / split / etc. because of
+              // threading.
+              // TODO: Join in a way that makes the difference between ' ' and passing the arguments
               // as an array more obvious.
               cout << AsStr(Join(cmd, ' ')) + '\n';
             }
@@ -123,7 +123,6 @@ void TJobRunner::ProcessQueue() {
           }
         }
       }
-
     }
     // If there's nothing running, that means we're out of work. Wait for work to come our way
     // TODO: Could the Queue notify_all ever miss waking this up?
@@ -137,25 +136,27 @@ void TJobRunner::ProcessQueue() {
       TJob *job = PidMap.at(pid);
       EraseOrFail(PidMap, pid);
       auto &subproc = Running.at(job);
-      // NOTE: the Wait() here should return instantly since we know the process already terminated by way of WaitAll()
+      // NOTE: the Wait() here should return instantly since we know the process already terminated
+      // by way of WaitAll()
       auto returncode = subproc->Wait();
-      if (returncode != 0) {
+      if(returncode != 0) {
         ExitWorker = true;
       }
       /* lock for results set */ {
         lock_guard<mutex> lock(ResultsMutex);
         // If this is our last result, mark it so.
-        if (Running.size() == 1) {
-          if (ExitWorker) {
+        if(Running.size() == 1) {
+          if(ExitWorker) {
             MoreResultsOnceTaken = false;
           } else {
-            lock_guard<mutex> lock(ToRunMutex);
-            if (ToRun.empty()) {
+            lock_guard<mutex> to_run_lock(ToRunMutex);
+            if(ToRun.empty()) {
               MoreResultsOnceTaken = false;
             }
           }
         }
-        Results.emplace_back(job, returncode, subproc->TakeStdOutFromChild(), subproc->TakeStdErrFromChild());
+        Results.emplace_back(
+            job, returncode, subproc->TakeStdOutFromChild(), subproc->TakeStdErrFromChild());
         if(!ResultsReadySet) {
           ResultsReadySet = true;
           ResultsReady.set_value(true);

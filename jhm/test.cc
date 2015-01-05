@@ -30,7 +30,7 @@ using namespace Jhm;
 using namespace std;
 using namespace Util;
 
-//NOTE: We override const char * to prevent excess construction of vectors.
+// NOTE: We override const char * to prevent excess construction of vectors.
 bool Contains(const vector<string> &vec, const char *str) {
   return std::any_of(vec.begin(), vec.end(), [str](const string &s) { return s == str; });
 }
@@ -41,21 +41,21 @@ bool Contains(const vector<string> &vec, const string &str) {
 
 TSet<TFile *> Jhm::FindTests(TEnv &env) {
   TSet<TFile *> ret;
-  // Walk the environment source directory, find all files which could be tests (extension list contains 'test')
+  // Walk the environment source directory, find all files which could be tests (extension list
+  // contains 'test')
   // Build a set of all the tests which could possibly exist.
   class test_walker_t final : public TDirWalker {
     NO_COPY(test_walker_t);
     NO_MOVE(test_walker_t);
 
     public:
-    test_walker_t(TEnv &env, TSet<TFile *> &out)
-        : Env(env), Out(out) {
-          env.GetConfig().TryRead({"test","excluded"}, ExcludedDirs);
-        }
+    test_walker_t(TEnv &env_, TSet<TFile *> &out) : Env(env_), Out(out) {
+      env_.GetConfig().TryRead({"test", "excluded"}, ExcludedDirs);
+    }
 
     TAction OnDirBegin(const TEntry &entry) final {
       // If the directory is excluded, skip it.
-      if (Contains(ExcludedDirs, entry.Name)) {
+      if(Contains(ExcludedDirs, entry.Name)) {
         return TDirWalker::Skip;
       }
       return TDirWalker::Enter;
@@ -63,13 +63,13 @@ TSet<TFile *> Jhm::FindTests(TEnv &env) {
 
     bool OnFile(const TEntry &entry) final {
       TFile *f = Env.TryGetFileFromPath(entry.AccessPath);
-      assert(f); // We're walking in src. We must be able to get the file from the path.
+      assert(f);  // We're walking in src. We must be able to get the file from the path.
       const auto &ext_list = f->GetRelPath().Path.Extension;
       auto f_it = find(ext_list.begin(), ext_list.end(), "test");
-      if (f_it != ext_list.end()) {
+      if(f_it != ext_list.end()) {
         // We found a test! Get the executable variant / actual test file
-        Out.insert(Env.GetFile(
-            TRelPath(AddExtension(DropExtension(TPath(f->GetRelPath().Path), ext_list.end() - f_it), {"test",""}))));
+        Out.insert(Env.GetFile(TRelPath(AddExtension(
+            DropExtension(TPath(f->GetRelPath().Path), uint32_t(ext_list.end() - f_it)), {"test", ""}))));
       }
       return true;
     }

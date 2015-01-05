@@ -28,6 +28,8 @@
 using namespace std;
 using namespace Base;
 
+#pragma clang diagnostic ignored "-Wglobal-constructors"
+
 #if 0
 // Unicode isn't currently supported
 /* Convert a c-string to a JSON string. */
