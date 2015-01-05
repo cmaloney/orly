@@ -19,6 +19,7 @@
 #include <algorithm>
 
 #include <base/split.h>
+#include <base/thrower.h>
 
 using namespace std;
 using namespace Base;

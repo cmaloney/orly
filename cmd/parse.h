@@ -1,7 +1,7 @@
 /* Join argument collections together, parse them all at once from argc, argv */
 #pragma once
 
-#include <iostream> // TODO(cmaloney)
+#include <memory>
 
 #include <base/as_str.h>
 #include <cmd/args.h>
@@ -9,6 +9,8 @@
 #include <cmd/standard_args.h>
 
 namespace Cmd {
+
+DEFINE_ERROR(TMissingValue, TArgError, "missing argument");
 
 // Forward declaration.
 class TParser;

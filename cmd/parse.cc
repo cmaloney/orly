@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include <base/not_implemented.h>
+#include <base/thrower.h>
 
 using namespace Cmd;
 

@@ -6,14 +6,13 @@ Configure for JHM (CXX, CC, CXXFLAGS, CCFLAGS, LD, LDFLAGS):
 
 Cross-project includes / dependencies
 Download third party packages / repositories
+  http://golang.org/cmd/go/#hdr-Remote_import_paths
   - Either #include <github.com/foo/bar>
   - Dependency file which maps repo to some include prefix.
 
 Test / examples for several open source codebases?
 
 Command line autocompletion
-
-Rewrite make_dep_file to use <cmd/args.h>
 
 No folders outside of root folder mode
 
@@ -22,15 +21,9 @@ Simpler <base/split.h> (With a better name)?
 Bootstrap script generator
   - Bootstrapping test?
 
-Compile with -Weverything on clang and specific disables.
-
-
-
 A good Single Producer Multiple Consumer queue to
 
-
 Unify on THROWER w/ reduced (Simplified) interface.
-
 
 -c release.jhm should build config named 'release', not one named 'release.jhm'
 

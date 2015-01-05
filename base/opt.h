@@ -19,8 +19,6 @@
 #pragma once
 
 #include <cassert>
-#include <istream>
-#include <ostream>
 #include <utility>
 
 namespace Base {
@@ -251,29 +249,5 @@ namespace Base {
     TVal *Val;
 
   };  // TOpt
-
-  /* A std stream inserter for Base::TOpt<>.  If the TOpt<> is unknown, then this function inserts nothing. */
-  template <typename TVal>
-  std::ostream &operator<<(std::ostream &strm, const Base::TOpt<TVal> &that) {
-    assert(&strm);
-    assert(&that);
-    if (that) {
-      strm << *that;
-    }
-    return strm;
-  }
-
-  /* A std stream extractor for Base::TOpt<>. */
-  template <typename TVal>
-  std::istream &operator>>(std::istream &strm, Base::TOpt<TVal> &that) {
-    assert(&strm);
-    assert(&that);
-    if (!strm.eof()) {
-      strm >> that.MakeKnown();
-    } else {
-      that.Reset();
-    }
-    return strm;
-  }
 
 }  // Base

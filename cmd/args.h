@@ -58,11 +58,12 @@ TODO:
 #include <unordered_map>
 #include <vector>
 
+#include <base/class_traits.h>
+#include <base/exception.h>
 #include <base/opt.h>
 #include <cmd/util.h>
 
 namespace Cmd {
-DEFINE_ERROR(TMissingValue, TArgError, "missing argument");
 
 //TODO: Should allow more generic specifiers here, maybe tying to other variables?
 //      (Must match count of x?).

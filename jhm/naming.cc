@@ -17,8 +17,10 @@
 #include <jhm/naming.h>
 
 #include <iomanip>
+#include <stdexcept>
 
 #include <base/split.h>
+#include <base/thrower.h>
 #include <util/path.h>
 
 using namespace Base;

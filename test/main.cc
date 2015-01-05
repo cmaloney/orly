@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 
+#include <base/demangle.h>
 #include <cmd/main.h>
 #include <cmd/parse.h>
 #include <test/context.h>

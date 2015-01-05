@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <stdexcept>
 
+#include <base/exception.h>
 #include <base/thrower.h>
 #include <util/error.h>
 

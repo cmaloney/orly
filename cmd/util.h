@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <base/thrower.h>
+#include <base/exception.h>
 
 namespace Cmd {
 

@@ -27,7 +27,8 @@
 #include <string>
 #include <vector>
 
-#include <base/thrower.h>
+#include <base/class_traits.h>
+#include <base/exception.h>
 
 namespace Base {
 
