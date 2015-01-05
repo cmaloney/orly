@@ -38,6 +38,20 @@ using namespace Util;
 
 string GetCacheFilename(const TFile *file) { return AsStr(file->GetPath()) + ".jhm-cache"; }
 
+TWorkFinder::TWorkFinder(
+    uint64_t worker_count,
+    bool print_cmd,
+    Util::TTimestamp config_timestamp,
+    std::function<std::unordered_set<TJob *>(TFile *)> &&get_jobs_producing_file,
+    std::function<TFile *(TRelPath name)> &&get_file,
+    std::function<TFile *(const std::string &)> &&try_get_file_from_path)
+    : ConfigTimestamp(config_timestamp),
+      ConfigTimestampStr(Util::ToStr(config_timestamp)),
+      GetJobsProducingFile(std::move(get_jobs_producing_file)),
+      GetFile(move(get_file)),
+      TryGetFileFromPath(move(try_get_file_from_path)),
+      Runner(worker_count, print_cmd) {}
+
 bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
   // If the file both doesn't exist and isn't buildable, error.
   if(file->IsSrc()) {

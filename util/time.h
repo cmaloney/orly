@@ -25,7 +25,6 @@
 
 #include <chrono>
 #include <string>
-#include <thread>
 
 #include <base/opt.h>
 

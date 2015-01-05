@@ -21,6 +21,7 @@
 #include <execinfo.h>
 
 #include <base/as_str.h>
+#include <util/error.h>
 
 using namespace Base;
 using namespace std;

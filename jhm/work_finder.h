@@ -20,11 +20,9 @@
 
 #include <functional>
 #include <string>
-#include <time.h>
 #include <unordered_map>
 #include <unordered_set>
 
-#include <base/as_str.h>
 #include <jhm/job_runner.h>
 #include <jhm/naming.h>
 #include <util/time.h>
@@ -45,13 +43,7 @@ class TWorkFinder {
               Util::TTimestamp config_timestamp,
               std::function<std::unordered_set<TJob *>(TFile *)> &&get_jobs_producing_file,
               std::function<TFile *(TRelPath name)> &&get_file,
-              std::function<TFile *(const std::string &)> &&try_get_file_from_path)
-      : ConfigTimestamp(config_timestamp),
-        ConfigTimestampStr(Util::ToStr(config_timestamp)),
-        GetJobsProducingFile(std::move(get_jobs_producing_file)),
-        GetFile(move(get_file)),
-        TryGetFileFromPath(move(try_get_file_from_path)),
-        Runner(worker_count, print_cmd) {}
+              std::function<TFile *(const std::string &)> &&try_get_file_from_path);
 
   /* Adds the jobs needed to produce the file. Returns true if there is work to be done for the file
      to exist.

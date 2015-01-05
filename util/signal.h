@@ -14,13 +14,10 @@
 
 #pragma once
 
-#include <cassert>
-
 #include <signal.h>
 
 #include <base/class_traits.h>
-#include <base/zero.h>
-#include <util/error.h>
+
 
 namespace Util {
 
@@ -30,24 +27,13 @@ class TSignalHandlerInstaller {
 
   public:
   /* Set the mask to the given set. */
-  TSignalHandlerInstaller(int sig, void (*handler)(int) = DoNothing) : SignalNumber(sig) {
-    struct sigaction new_act;
-    Base::Zero(new_act);
-    new_act.sa_handler = handler;
-    Util::IfLt0(sigaction(sig, &new_act, &OldAct));
-  }
+  TSignalHandlerInstaller(int sig, void (*handler)(int) = DoNothing);
 
   /* Restore the old action. */
-  ~TSignalHandlerInstaller() {
-    assert(this);
-    sigaction(SignalNumber, &OldAct, nullptr);
-  }
+  ~TSignalHandlerInstaller();
 
   /* The signal we handle. */
-  int GetSignalNumber() const {
-    assert(this);
-    return SignalNumber;
-  }
+  int GetSignalNumber() const;
 
   private:
   /* The do-nothing handler. */

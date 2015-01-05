@@ -18,14 +18,15 @@
 
 #include <jhm/job_runner.h>
 
+#include <jhm/file.h>
 #include <jhm/job.h>
 
-#include <iostream>
-#include <unordered_map>
+#include <iostream>  // TODO(cmaloney): Less than ideal...
 
 using namespace Base;
 using namespace Jhm;
 using namespace std;
+using namespace std::chrono;
 using namespace Util;
 
 TJobRunner::TJobRunner(uint64_t worker_count, bool print_cmd)
@@ -41,6 +42,17 @@ TJobRunner::~TJobRunner() {
   ExitWorker = true;
   HasWork.notify_all();
   QueueRunner.join();
+
+  cout << "job, timing, input, output\n";
+
+  for(auto &timing : Timings) {
+    cout << timing.first->GetName() << ',' <<
+    duration_cast<milliseconds>(timing.second).count() << ','
+         << timing.first->GetInput()->GetRelPath() << ','
+         << Join(timing.first->GetOutput(), '|', [](ostream &strm, const TFile *f) {
+              strm << f->GetRelPath();
+            }) << '\n';
+  }
 }
 
 bool TJobRunner::IsReady() const { return !ExitWorker; }
@@ -88,6 +100,7 @@ void TJobRunner::ProcessQueue() {
   // Set of jobs currently being run
   unordered_map<int, TJob *> PidMap;
   unordered_map<TJob *, unique_ptr<TSubprocess>> Running;
+  unordered_map<TJob *, time_point<high_resolution_clock>> Start;
 
   while(!ExitWorker || Running.size() > 0) {
     // Only queue work if we aren't in the process of spinning down
@@ -112,6 +125,9 @@ void TJobRunner::ProcessQueue() {
               // as an array more obvious.
               cout << AsStr(Join(cmd, ' ')) + '\n';
             }
+
+            // Start the timing
+            Start.insert(make_pair(job, high_resolution_clock::now()));
 
             // Run the job
             auto subproc = TSubprocess::New(Pump, cmd);
@@ -142,6 +158,10 @@ void TJobRunner::ProcessQueue() {
       if(returncode != 0) {
         ExitWorker = true;
       }
+
+      // Store the timings
+      Timings[job] += high_resolution_clock::now() - Start.at(job);
+
       /* lock for results set */ {
         lock_guard<mutex> lock(ResultsMutex);
         // If this is our last result, mark it so.

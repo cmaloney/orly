@@ -22,7 +22,6 @@
 
 #include <string>
 
-#include <base/as_str.h>
 #include <base/path.h>
 #include <jhm/config.h>
 #include <jhm/naming.h>
@@ -41,44 +40,26 @@ namespace Jhm {
    TODO: make the config for file point to the config of the environment as fallback. */
 class TFile {
   public:
-  TFile(TRelPath &&path, const TTree *tree, bool is_src, const std::string &config_filename)
-      : IsSrc_(is_src),
-        Path(std::move(path)),
-        CmdPath(is_src ? Base::AsStr(Path) : Base::AsStr(tree->GetAbsPath(Path))),
-        Config(config_filename) {}
+  TFile(TRelPath &&path, const TTree *tree, bool is_src, const std::string &config_filename);
 
-  const TRelPath &GetRelPath() const { return Path; }
-  const std::string &GetPath() const { return CmdPath; }
+  const TRelPath &GetRelPath() const;
+  const std::string &GetPath() const;
 
   /* Computes (and doesn't cache!) the timestamp for the given file. Newest of either it's config or
    * file in the tree) */
-  Util::TOptTimestamp GetTimestamp() const {
-    return Util::Newest(Util::TryGetTimestamp(Base::AsStr(Path)), Config.GetTimestamp());
-  }
+  Util::TOptTimestamp GetTimestamp() const;
 
-  void PushComputedConfig(Base::TJson &&config) {
-    assert(this);
-    Config.AddComputed(std::move(config));
-  }
+  void PushComputedConfig(Base::TJson &&config);
 
-  void WriteConfig(std::ostream &out) {
-    assert(this);
-    Config.WriteComputed(out);
-  }
+  void WriteConfig(std::ostream &out);
 
-  void LoadConfig(const std::string &filename) {
-    assert(this);
-    Config.LoadComputed(filename);
-  }
+  void LoadConfig(const std::string &filename);
 
-  void SetComputed(std::vector<Base::TJson> &&config) {
-    assert(this);
-    Config.SetComputed(move(config));
-  }
+  void SetComputed(std::vector<Base::TJson> &&config);
 
-  const TConfig &GetConfig() const { return Config; }
+  const TConfig &GetConfig() const;
 
-  bool IsSrc() const { return IsSrc_; }
+  bool IsSrc() const;
 
   // TODO: GetGitHash for uniquely iding src files. Out files are id'd by job kind + input kind.
 
@@ -93,8 +74,6 @@ class TFile {
   TConfig Config;
 };
 
-inline std::ostream &operator<<(std::ostream &out, TFile *f) {
-  out << f->GetRelPath();
-  return out;
-}
+std::ostream &operator<<(std::ostream &out, TFile *f);
+
 }

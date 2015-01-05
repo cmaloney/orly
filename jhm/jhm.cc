@@ -25,17 +25,17 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <iomanip>
 #include <iostream>
 #include <string>
-#include <thread>
+
 #include <base/backtrace.h>
 #include <base/not_implemented.h>
 #include <base/split.h>
 #include <base/thrower.h>
+#include <cmd/args.h>
 #include <cmd/main.h>
-#include <jhm/options.h>
 #include <cmd/parse.h>
+#include <jhm/options.h>
 #include <jhm/env.h>
 #include <jhm/status_line.h>
 #include <jhm/test.h>
@@ -96,7 +96,17 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
 // into main
 
 int Main(int argc, char *argv[]) {
-  TOptions options = Cmd::Parse(GetArgs(), argc, argv);
+  Cmd::TArgs<TOptions> args{
+      Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print commands when they are run"),
+      Cmd::Optional(
+          {"config", "c"}, &TOptions::Config, "Build the software in the given configuration"),
+      Cmd::Optional({"mixin", "m"}, &TOptions::ConfigMixin, "Configuration mixin"),
+      Cmd::Optional({"run-tests", "t"}, &TOptions::RunTests, "Run the unit tests"),
+      Cmd::Optional("verbose-tests", &TOptions::VerboseTests, "Run the tests in verbose mode"),
+      Cmd::Optional(
+          "worker-count", &TOptions::WorkerCount, "Max number of commands to run at once"),
+      Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce")};
+  TOptions options = Cmd::Parse(args, argc, argv);
   auto cwd = GetCwd();
 
   // Build up the environment. Find the root, grab the project, user, and system configuration
