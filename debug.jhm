@@ -15,15 +15,14 @@
       "-Wno-extra-semi",
       "-Wno-newline-eof",
       "-Wno-padded",
-      "-Wno-undef",
       "-Wno-missing-prototypes",
       "-Wno-weak-vtables",
       "-Wno-vla",
       "-Wno-vla-extension",
       "-Wno-exit-time-destructors",
-      "-Wno-missing-noreturn",
       "-Wno-disabled-macro-expansion",
-      "-Wno-sign-conversion"
+      "-Wno-sign-conversion",
+      "-Wno-undef"
     ]
     }
   }

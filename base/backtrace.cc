@@ -64,7 +64,7 @@ void Base::SetBacktraceOnTerminate() {
   });
 }
 
-static void PrintSegfaultBacktrace(int) {
+[[noreturn]] static void PrintSegfaultBacktrace(int) {
   cout << "ERROR: SIGSEGV / Segfault\n"
        << "Backtrace: " << endl;
   PrintBacktrace(500);
@@ -72,7 +72,7 @@ static void PrintSegfaultBacktrace(int) {
   Util::Abort(HERE);
 }
 
-static void PrintSigPipe(int) {
+[[noreturn]] static void PrintSigPipe(int) {
   cout << "ERROR: SIGPIPE" << endl;
   PrintBacktrace(500);
   cerr << "SIGPIPE" << endl;
