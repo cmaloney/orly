@@ -26,6 +26,8 @@
 using namespace std;
 using namespace Base;
 
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+
 std::string &GetOps() {
   static std::string Ops;
   return Ops;
@@ -97,7 +99,6 @@ FIXTURE(KnownVsUnknown) {
   EXPECT_FALSE(opt);
   EXPECT_FALSE(opt.IsKnown());
   EXPECT_TRUE(opt.IsUnknown());
-  EXPECT_FALSE(opt.GetUnknown());
 }
 
 FIXTURE(TokenBasics) {
@@ -140,8 +141,4 @@ FIXTURE(MoveAndCopy) {
   c.MakeKnown();
   EXPECT_EQ(TToken::LatchOps(), string("D"));
   EXPECT_TRUE(c);
-}
-
-FIXTURE(UnknownGlobal) {
-  EXPECT_TRUE(TOpt<int>::GetUnknown().IsUnknown());
 }

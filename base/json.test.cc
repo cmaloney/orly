@@ -29,6 +29,7 @@ using namespace std;
 using namespace Base;
 
 #pragma clang diagnostic ignored "-Wglobal-constructors"
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
 
 #if 0
 // Unicode isn't currently supported

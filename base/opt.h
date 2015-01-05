@@ -241,11 +241,6 @@ namespace Base {
       return Val;
     }
 
-    static const TOpt<TVal> &GetUnknown() {
-      static TOpt<TVal> unknown;
-      return unknown;
-    }
-
     private:
 
     /* The storage space used to hold our known value, if any.  We use in-place new operators and explicit destruction to make values come and go

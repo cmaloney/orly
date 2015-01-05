@@ -50,7 +50,7 @@ TOptTimestamp Util::TryGetTimestamp(const std::string &name) {
   struct stat st;
   if (stat(name.c_str(), &st) != 0) {
     if (errno == ENOENT) {
-      return Base::TOpt<TTimestamp>::GetUnknown();
+      return TOptTimestamp();
     }
     ThrowSystemError(errno);
   }

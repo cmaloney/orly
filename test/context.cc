@@ -2,6 +2,8 @@
 
 #include <stack>
 
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+
 using namespace Test;
 
 TContext::TContext(const char *name) : Name(name), Parent(Current()) {

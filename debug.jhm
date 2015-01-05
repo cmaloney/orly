@@ -19,7 +19,6 @@
       "-Wno-weak-vtables",
       "-Wno-vla",
       "-Wno-vla-extension",
-      "-Wno-exit-time-destructors",
       "-Wno-disabled-macro-expansion",
       "-Wno-sign-conversion",
       "-Wno-undef"
