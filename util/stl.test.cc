@@ -36,29 +36,29 @@ FIXTURE(Contains) {
 }
 
 FIXTURE(FindOrDefault) {
-  unordered_map<int, double> container;
+  unordered_map<int, uint64_t> container;
   const int key = 101;
-  const double expected = 98.6;
+  const uint64_t expected = 98;
   container[key] = expected;
   EXPECT_EQ(FindOrDefault(container, key, expected + 1), expected);
   EXPECT_EQ(FindOrDefault(container, key + 1, expected + 1), expected + 1);
 }
 
 FIXTURE(FindOrInsert) {
-  unordered_map<int, double> container;
+  unordered_map<int, uint64_t> container;
   const int key = 101;
-  const double expected = 98.6;
+  const uint64_t expected = 98;
   EXPECT_EQ(FindOrInsert(container, key, expected), expected);
   EXPECT_EQ(FindOrInsert(container, key, expected + 1), expected);
 }
 
 FIXTURE(TryFind) {
-  unordered_map<int, double> container;
+  unordered_map<int, uint64_t> container;
   const int key = 101;
-  const double expected = 98.6;
+  const uint64_t expected = 98;
   container[key] = expected;
-  const double *result = TryFind(container, key);
-  if (EXPECT_TRUE(result)) {
+  const uint64_t *result = TryFind(container, key);
+  if(EXPECT_TRUE(result)) {
     EXPECT_EQ(*result, expected);
   }
   EXPECT_FALSE(TryFind(container, key + 1));
@@ -66,38 +66,38 @@ FIXTURE(TryFind) {
 
 FIXTURE(EqEq) {
   unordered_set<int> lhs, rhs;
-  EXPECT_TRUE(eqeq(lhs,rhs));
+  EXPECT_TRUE(eqeq(lhs, rhs));
   lhs.insert(101);
-  EXPECT_FALSE(eqeq(lhs,rhs));
-  EXPECT_FALSE(eqeq(rhs,lhs));
+  EXPECT_FALSE(eqeq(lhs, rhs));
+  EXPECT_FALSE(eqeq(rhs, lhs));
   rhs.insert(101);
-  EXPECT_TRUE(eqeq(lhs,rhs));
+  EXPECT_TRUE(eqeq(lhs, rhs));
   lhs.insert(202);
-  EXPECT_FALSE(eqeq(lhs,rhs));
+  EXPECT_FALSE(eqeq(lhs, rhs));
   rhs.insert(303);
-  EXPECT_FALSE(eqeq(lhs,rhs));
+  EXPECT_FALSE(eqeq(lhs, rhs));
   lhs.insert(303);
-  EXPECT_FALSE(eqeq(lhs,rhs));
+  EXPECT_FALSE(eqeq(lhs, rhs));
   rhs.insert(202);
-  EXPECT_TRUE(eqeq(lhs,rhs));
+  EXPECT_TRUE(eqeq(lhs, rhs));
 }
 
 FIXTURE(EqEqMap) {
-  unordered_map<int,double> lhs, rhs;
-  EXPECT_TRUE(eqeq_map(lhs,rhs));
-  lhs[101]=98.7;
-  EXPECT_FALSE(eqeq_map(lhs,rhs));
-  EXPECT_FALSE(eqeq_map(rhs,lhs));
-  rhs[101]=98.7;
-  EXPECT_TRUE(eqeq_map(lhs,rhs));
-  lhs[202]=1.23;
-  EXPECT_FALSE(eqeq_map(lhs,rhs));
-  rhs[303]=3.14;
-  EXPECT_FALSE(eqeq_map(lhs,rhs));
-  lhs[303]=3.14;
-  EXPECT_FALSE(eqeq_map(lhs,rhs));
-  rhs[202]=1.23;
-  EXPECT_TRUE(eqeq_map(lhs,rhs));
+  unordered_map<int, uint64_t> lhs, rhs;
+  EXPECT_TRUE(eqeq_map(lhs, rhs));
+  lhs[101] = 98;
+  EXPECT_FALSE(eqeq_map(lhs, rhs));
+  EXPECT_FALSE(eqeq_map(rhs, lhs));
+  rhs[101] = 98;
+  EXPECT_TRUE(eqeq_map(lhs, rhs));
+  lhs[202] = 1;
+  EXPECT_FALSE(eqeq_map(lhs, rhs));
+  rhs[303] = 3;
+  EXPECT_FALSE(eqeq_map(lhs, rhs));
+  lhs[303] = 3;
+  EXPECT_FALSE(eqeq_map(lhs, rhs));
+  rhs[202] = 1;
+  EXPECT_TRUE(eqeq_map(lhs, rhs));
 }
 
 FIXTURE(ForIter) {

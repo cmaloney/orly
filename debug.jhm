@@ -23,8 +23,7 @@
       "-Wno-exit-time-destructors",
       "-Wno-missing-noreturn",
       "-Wno-disabled-macro-expansion",
-      "-Wno-sign-conversion",
-      "-Wno-float-equal"
+      "-Wno-sign-conversion"
     ]
     }
   }
