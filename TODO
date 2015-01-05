@@ -1,3 +1,4 @@
+
 Configure for JHM (CXX, CC, CXXFLAGS, CCFLAGS, LD, LDFLAGS):
   - Ideally also allow adding platform/tool/etc. specific variables/flags to config.
   - Have a 'setup' step analogous to ./configure
@@ -15,6 +16,11 @@ Test / examples for several open source codebases?
 Command line autocompletion
 
 No folders outside of root folder mode
+
+Checks:
+  - Explicit approval if # tests is reduced
+  - Test for operation on {osx, linux} x {clang, gcc}
+  - clang-formatted all code
 
 Simpler <base/split.h> (With a better name)?
 
