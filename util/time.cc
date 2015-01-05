@@ -33,9 +33,7 @@ timespec Util::ToTimespec(nanoseconds ns) {
   return timespec{s.count(), ns.count()};
 }
 
-TTimestamp Util::ToTimestamp(timespec time) {
-  return ToTimestampClock<system_clock>(time);
-}
+TTimestamp Util::ToTimestamp(timespec time) { return ToTimestampClock<system_clock>(time); }
 
 static TTimestamp MtimeToTimestamp(struct stat st) {
 #ifdef __APPLE__
@@ -45,11 +43,12 @@ static TTimestamp MtimeToTimestamp(struct stat st) {
 #endif
 }
 
-/* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
+/* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat
+ * fails. */
 TOptTimestamp Util::TryGetTimestamp(const std::string &name) {
   struct stat st;
-  if (stat(name.c_str(), &st) != 0) {
-    if (errno == ENOENT) {
+  if(stat(name.c_str(), &st) != 0) {
+    if(errno == ENOENT) {
       return TOptTimestamp();
     }
     ThrowSystemError(errno);
@@ -71,12 +70,12 @@ TTimestamp Util::GetTimestampSearchingPath(const string &name) {
 
   struct stat st;
 
-  for (string &prefix : potential) {
-    if (!prefix.empty() && prefix.back() != '/') {
+  for(string &prefix : potential) {
+    if(!prefix.empty() && prefix.back() != '/') {
       prefix += '/';
     }
-    if (stat((prefix + name).c_str(), &st) != 0) {
-      if (errno == ENOENT) {
+    if(stat((prefix + name).c_str(), &st) != 0) {
+      if(errno == ENOENT) {
         continue;
       } else {
         ThrowSystemError(errno);
@@ -89,21 +88,21 @@ TTimestamp Util::GetTimestampSearchingPath(const string &name) {
 }
 
 bool Util::IsNewer(TTimestamp lhs, TOptTimestamp rhs) {
-  if (rhs) {
+  if(rhs) {
     return lhs > *rhs;
   }
   return true;
 }
 
 TTimestamp Util::Newest(TTimestamp lhs, TOptTimestamp rhs) {
-  if (rhs) {
+  if(rhs) {
     return std::max(lhs, *rhs);
   }
   return lhs;
 }
 
 TOptTimestamp Util::Newest(TOptTimestamp lhs, TOptTimestamp rhs) {
-  if (!lhs) {
+  if(!lhs) {
     return rhs;
   }
   if(!rhs) {
@@ -113,15 +112,13 @@ TOptTimestamp Util::Newest(TOptTimestamp lhs, TOptTimestamp rhs) {
 }
 
 TOptTimestamp Util::Oldest(TOptTimestamp lhs, TOptTimestamp rhs) {
-  if (!lhs) {
+  if(!lhs) {
     return rhs;
   }
-  if (!rhs) {
+  if(!rhs) {
     return lhs;
   }
   return std::min(*lhs, *rhs);
 }
 
-std::string Util::ToStr(const TTimestamp &ts) {
-  return AsStr(ts.time_since_epoch().count());
-}
+std::string Util::ToStr(const TTimestamp &ts) { return AsStr(ts.time_since_epoch().count()); }

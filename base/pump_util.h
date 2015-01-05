@@ -2,9 +2,6 @@
 
 namespace Base {
 namespace Pump {
-  enum TEvent {
-    Read,
-    Write
-  };
-} // Pump
-} // Base
+enum TEvent { Read, Write };
+}  // Pump
+}  // Base

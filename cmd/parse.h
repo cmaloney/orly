@@ -17,18 +17,21 @@ class TParser;
 
 // Parse the arguments, deal with --help for a simple argument collection.
 template <typename TOptions>
-TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char * const argv[]);
+TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char *const argv[]);
 
 // Mid-level interface for parsing arguments.
 // Construct a base parser however you want. This will add the standard arguments
 // as wellas handle them, and parsre the given argc/argv.
-void ParseWithStandard(TParser &parser, std::vector<const TArgInfo*> &&args, const int argc, const char * const argv[]);
+void ParseWithStandard(TParser &parser,
+                       std::vector<const TArgInfo *> &&args,
+                       const int argc,
+                       const char *const argv[]);
 
 // Compose together arbitrary argument collections for precise control.
 class TParser {
   NO_COPY(TParser);
-  public:
 
+  public:
   TParser() = default;
 
   // TODO(cmaloney): Support nesting like 'git' or 'ip'.
@@ -58,36 +61,37 @@ class TParser {
     std::function<void(const std::string &value)> Consume;
   };
 
-
   private:
   // NOTE: We use a unique_ptr so the consumer pointers don't move around on vector reallocation.
   std::vector<std::unique_ptr<TConsumer>> Consumers;
 
-  std::unordered_map<std::string, const TConsumer*> Named;
+  std::unordered_map<std::string, const TConsumer *> Named;
   std::vector<const TConsumer *> Positional;
-}; // TParser
+};  // TParser
 
 template <typename TOptions>
 void TParser::Attach(const TArgs<TOptions> *options, TOptions *out) {
   // Index the positional, named arguments for easy lookup while command line parsing.
   bool last_positional = false;
-  for (const auto &arg: options->Info) {
+  for(const auto &arg : options->Info) {
     Consumers.emplace_back(std::make_unique<TConsumer>(&arg, out));
     const TConsumer *consumer = Consumers.back().get();
-    if (arg.Positional) {
-      if (last_positional) {
+    if(arg.Positional) {
+      if(last_positional) {
         // TODO(cmaloney): Throw a more helpfulu error message with a more specific type.
-        throw std::logic_error("Error constructing argument parser: Ambiguous positional argument.");
+        throw std::logic_error(
+            "Error constructing argument parser: Ambiguous positional argument.");
       }
       Positional.push_back(consumer);
 
-      // If the positional can be specified an unknown number of times (ZeroOrOne, OneOrMore), then more positionals after it would be
+      // If the positional can be specified an unknown number of times (ZeroOrOne, OneOrMore), then
+      // more positionals after it would be
       // ambiguous to parse
-      if (arg.Repitition == TRepetition::ZeroOrOne || arg.Repitition == TRepetition::OneOrMore) {
+      if(arg.Repitition == TRepetition::ZeroOrOne || arg.Repitition == TRepetition::OneOrMore) {
         last_positional = true;
       }
     } else {
-      for (const std::string &name: arg.Names) {
+      for(const std::string &name : arg.Names) {
         Named.emplace(name, consumer);
       }
     }
@@ -99,7 +103,7 @@ void TParser::Attach(const TArgs<TOptions> *options, TOptions *out) {
 //                 ensure full usage
 // Helper to simplify simple parsing.
 template <typename TOptions>
-TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char * const argv[]) {
+TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char *const argv[]) {
   TParser parser;
   TOptions ret;
   parser.Attach(&collection, &ret);
@@ -107,4 +111,4 @@ TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char * c
   return ret;
 }
 
-} // namespce Cmd;
+}  // namespce Cmd;

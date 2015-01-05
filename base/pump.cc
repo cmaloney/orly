@@ -39,7 +39,8 @@ class Pump::TPipe {
     assert(&write);
     assert(&read);
 
-    // TODO: The kernel already can do most of this with temporary memory backed files... It just doesn't let us
+    // TODO: The kernel already can do most of this with temporary memory backed files... It just
+    // doesn't let us
     //      make a never-blocking stream :(
     // Pipe input from where the user will write to where we will read.
     TFd::Pipe(ReadFd, write);
@@ -56,72 +57,80 @@ class Pump::TPipe {
   }
 
   ~TPipe() {
-    if (ReadFd.IsOpen()) {
+    if(ReadFd.IsOpen()) {
       StopReading();
     }
-    if (Writing) {
+    if(Writing) {
       StopWriting();
     }
-    while (!Blocks.empty()) {
+    while(!Blocks.empty()) {
       ReleaseBlock();
     }
   }
 
-  /* Pipes data into the buffer file as needed. Returns true if there will be more processing down the line. */
+  /* Pipes data into the buffer file as needed. Returns true if there will be more processing down
+   * the line. */
   bool Service() {
     assert(this);
-    static_assert(ReadBufSize > 0, "Read buffer size must be greater than zero otherwise we infinite loop.");
+    static_assert(ReadBufSize > 0,
+                  "Read buffer size must be greater than zero otherwise we infinite loop.");
 
-    if (ReadFd.IsOpen()) {
-      // If there isn't a buffer to read into, or we are at the end of the current buffer, get a new one.
-      if (Blocks.empty() || ReadOffset == ReadBufSize) {
+    if(ReadFd.IsOpen()) {
+      // If there isn't a buffer to read into, or we are at the end of the current buffer, get a new
+      // one.
+      if(Blocks.empty() || ReadOffset == ReadBufSize) {
         AcquireBlock();
         ReadOffset = 0;
       }
 
       // Read up to the end of the current block
       auto read_size = read(ReadFd, Blocks.back() + ReadOffset, ReadBufSize - ReadOffset);
-      if (read_size == -1) {  // Error
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      if(read_size == -1) {  // Error
+        if(errno == EAGAIN || errno == EWOULDBLOCK) {
           // Do-nothing. We just didn't read data.
         } else {
           ThrowSystemError(errno);
         }
-      } else if (read_size == 0) {  // EOF
+      } else if(read_size == 0) {  // EOF
         StopReading();
       } else {  // Read data
         ReadOffset += uint64_t(read_size);
         StartWriting();
 
-        // NOTE: If we handle being at the end of the buffer / out of block space at the start of reading.
+        // NOTE: If we handle being at the end of the buffer / out of block space at the start of
+        // reading.
         assert(ReadOffset <= ReadBufSize);
       }
     }
 
     // Try writing whatever we have available in the current buffer.
-    if (Writing) {
-      // NOTE: We will write up unitl ReadOffset. It is critical we will read partial blocks or we may get odd
-      //      user-visible behavior of waiting until read closes (Which might be a long time after a partial buffer
+    if(Writing) {
+      // NOTE: We will write up unitl ReadOffset. It is critical we will read partial blocks or we
+      // may get odd
+      //      user-visible behavior of waiting until read closes (Which might be a long time after a
+      //      partial buffer
       //      write) before anything becomes visible to the end reader.
       uint64_t bytes_to_write = 0;
-      if (Blocks.empty()) {  // No blocks, nothing to write.
-      } else if (Blocks.front() == Blocks.back()) {  // We are in the block with the reader
+      if(Blocks.empty()) {  // No blocks, nothing to write.
+      } else if(Blocks.front() == Blocks.back()) {  // We are in the block with the reader
         bytes_to_write = ReadOffset - WriteOffset;
       } else {  // We're in our own block, write all of it.
         bytes_to_write = ReadBufSize - WriteOffset;
       }
 
-      if (bytes_to_write == 0) {  // There was nothing to write, stop writing.
+      if(bytes_to_write == 0) {  // There was nothing to write, stop writing.
         StopWriting();
       } else {  // Write what we wanted
         auto write_size = write(WriteFd, Blocks.front() + WriteOffset, bytes_to_write);
-        if (write_size == -1) {  // Error
-          if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+        if(write_size == -1) {  // Error
+          if(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
             // Do-nothing. We just didn't write data.
           } else {
-            // We are definitely done if we can't write any more (Writing returned an unknown error).
-              //TODO: This should purely close out the output pipe. Input pipe should be left unmolested.
-              // So that we avoid generating SIGPIPE
+            // We are definitely done if we can't write any more (Writing returned an unknown
+            // error).
+            // TODO: This should purely close out the output pipe. Input pipe should be left
+            // unmolested.
+            // So that we avoid generating SIGPIPE
             StopReading();
             StopWriting();
             return false;
@@ -131,12 +140,14 @@ class Pump::TPipe {
 
           assert(WriteOffset <= ReadBufSize);
 
-          // If we're at the same point in the buffer as the read head, release it to simplify things.
-          if (Blocks.front() == Blocks.back() && ReadOffset == WriteOffset) {
+          // If we're at the same point in the buffer as the read head, release it to simplify
+          // things.
+          if(Blocks.front() == Blocks.back() && ReadOffset == WriteOffset) {
             ReleaseBlock();
             ReadOffset = 0;
             WriteOffset = 0;
-          } else if (WriteOffset == ReadBufSize) { // We're at the end of our own buffer, release it.
+          } else if(WriteOffset ==
+                    ReadBufSize) {  // We're at the end of our own buffer, release it.
             ReleaseBlock();
             WriteOffset = 0;
           }
@@ -152,7 +163,7 @@ class Pump::TPipe {
 
   void StartWriting() {
     assert(this);
-    if (!Writing) {
+    if(!Writing) {
       Pump->Pumper.Join(WriteFd, Pump::Write, this);
       Writing = true;
     }
@@ -160,7 +171,7 @@ class Pump::TPipe {
 
   void StopWriting() {
     assert(this);
-    if (Writing) {
+    if(Writing) {
       Writing = false;
       Pump->Pumper.Leave(WriteFd, Pump::Write);
     }
@@ -200,7 +211,8 @@ void TPump::NewPipe(TFd &read, TFd &write) {
 
   // TODO: This API should really be
   //   eventloop.AddRead(pipe.get(), pipe->ReadFd, &TPipe::Service);
-  //   Where the first item is the pipe, and the second is the identifier, and the last is the service func.
+  //   Where the first item is the pipe, and the second is the identifier, and the last is the
+  //   service func.
   Pumper.Join(pipe->ReadFd, Read, pipe);
 }
 
@@ -210,7 +222,7 @@ TPump::~TPump() {
   Pumper.Shutdown();
 
   std::lock_guard<mutex> lock(PipeMutex);
-  for (TPipe *pipe : Pipes) {
+  for(TPipe *pipe : Pipes) {
     delete pipe;
   }
   PipeDied.notify_all();
@@ -219,7 +231,7 @@ TPump::~TPump() {
 bool TPump::IsIdle() const {
   assert(this);
 
-  //TODO: Make a better guaranteed atomic check for whether or not we are idle
+  // TODO: Make a better guaranteed atomic check for whether or not we are idle
   return Pipes.empty();
 }
 

@@ -23,231 +23,236 @@
 
 namespace Base {
 
-  /* An optional value; that is, a value which may or may not be known.  This is a value type, and TVal must also be a value type.  The domain of TVal
-     is augmented with the additional state of being unknown.
+/* An optional value; that is, a value which may or may not be known.  This is a value type, and
+   TVal must also be a value type.  The domain of TVal
+   is augmented with the additional state of being unknown.
 
-     The interface to TOpt<> looks like that of a smart-pointer.  The implicit cast to bool and deference operators are overloaded.  You can therefore
-     do things like this:
+   The interface to TOpt<> looks like that of a smart-pointer.  The implicit cast to bool and
+   deference operators are overloaded.  You can therefore
+   do things like this:
 
-        void OtherFunc(const TFoo &foo);
+      void OtherFunc(const TFoo &foo);
 
-        void ThisFunc(const TOpt<TFoo> &opt_foo) {
-          if (opt_foo) {
-            OtherFunc(*opt_foo);
-          }
-        }
-
-     Note that deferencing an unknown TOpt<> is illegal.  You can, however, call MakeKnown() to force an unknown TOpt<TVal> to construct a
-     TVal if it doesn't already have one.
-
-     The storage for the instance of TVal is allocated within the TOpt<TVal> instance, but remains uninitialized until the TVal is referred to.  This
-     allows you to pass instances of TOpt<> around without worrying about extra heap allocations.  If TVal has light-weight copying semantics (such
-     as a COW scheme), then it plausible to pass instances of TOpt<TVal> by value.
-
-     A constant of the type TOpt<TVal> and with the unknown value is defined for you as a convenience.  Refer to it as TOpt<TVal>::GetUnknown().
-
-     There is a std stream inserter for this type. */
-  template <typename TVal>
-  class TOpt {
-    public:
-
-    /* Default-construct as an unknown. */
-    TOpt()
-        : Val(nullptr) {}
-
-    /* Move contructor.  We get the donor's value (if any) and the donor becomes unknown. */
-    TOpt(TOpt &&that) {
-      assert(&that);
-      if (that.Val) {
-        Val = new (Storage) TVal(std::move(*that.Val));
-        that.Reset();
-      } else {
-        Val = nullptr;
-      }
-    }
-
-    /* Copy constructor. */
-    TOpt(const TOpt &that) {
-      assert(&that);
-      Val = that.Val ? new (Storage) TVal(*that.Val) : nullptr;
-    }
-
-    /* Construct by moving the given value into our internal storage.
-       What remains of the donor is up to TVal. */
-    TOpt(TVal &&that) {
-      assert(&that);
-      Val = new (Storage) TVal(std::move(that));
-    }
-
-    /* Construct with a copy of the given value. */
-    TOpt(const TVal &that) {
-      assert(&that);
-      Val = new (Storage) TVal(that);
-    }
-
-    /* If we're known, destroy our value as we go. */
-    ~TOpt() {
-      assert(this);
-      Reset();
-    }
-
-    /* Swaperator. */
-    TOpt &operator=(TOpt &&that) {
-      assert(this);
-      assert(&that);
-      if (this != &that) {
-        if (Val && that.Val) {
-          std::swap(*Val, *that.Val);
-        } else if (that.Val) {
-          Val = new (Storage) TVal(std::move(*that.Val));
-          that.Reset();
-        } else if (Val) {
-          that.Val = new (that.Storage) TVal(std::move(*Val));
-          Reset();
+      void ThisFunc(const TOpt<TFoo> &opt_foo) {
+        if (opt_foo) {
+          OtherFunc(*opt_foo);
         }
       }
-      return *this;
-    }
 
-    /* Assignment operator. */
-    TOpt &operator=(const TOpt &that) {
-      assert(this);
-      return (this != &that) ? *this = TOpt(that) : *this;
-    }
+   Note that deferencing an unknown TOpt<> is illegal.  You can, however, call MakeKnown() to force
+   an unknown TOpt<TVal> to construct a
+   TVal if it doesn't already have one.
 
-    /* If we're already known, swap our value with the given one;
-       otherwise, move-construct the value into our storage. */
-    TOpt &operator=(TVal &&that) {
-      assert(this);
-      assert(&that);
-      if (Val != &that) {
-        if (Val) {
-          std::swap(*Val, that);
-        } else {
-          Val = new (Storage) TVal(std::move(that));
-        }
-      }
-      return *this;
-    }
+   The storage for the instance of TVal is allocated within the TOpt<TVal> instance, but remains
+   uninitialized until the TVal is referred to.  This
+   allows you to pass instances of TOpt<> around without worrying about extra heap allocations.  If
+   TVal has light-weight copying semantics (such
+   as a COW scheme), then it plausible to pass instances of TOpt<TVal> by value.
 
-    /* Assume a copy of the given value.  If we weren't known before, we will be now. */
-    TOpt &operator=(const TVal &that) {
-      assert(this);
-      return (Val != &that) ? *this = TOpt(that) : *this;
-    }
+   A constant of the type TOpt<TVal> and with the unknown value is defined for you as a convenience.
+   Refer to it as TOpt<TVal>::GetUnknown().
 
-    /* True iff. we're known. */
-    operator bool() const {
-      assert(this);
-      return Val != nullptr;
-    }
+   There is a std stream inserter for this type. */
+template <typename TVal>
+class TOpt {
+  public:
+  /* Default-construct as an unknown. */
+  TOpt() : Val(nullptr) {}
 
-    /* Our value.  We must already be known. */
-    const TVal &operator*() const {
-      assert(this);
-      assert(Val);
-      return *Val;
-    }
-
-    /* Our value.  We must already be known. */
-    TVal &operator*() {
-      assert(this);
-      assert(Val);
-      return *Val;
-    }
-
-    /* Our value.  We must already be known. */
-    const TVal *operator->() const {
-      assert(this);
-      assert(Val);
-      return Val;
-    }
-
-    /* Our value.  We must already be known. */
-    TVal *operator->() {
-      assert(this);
-      assert(Val);
-      return Val;
-    }
-
-    /* A pointer to our value.  We must already be known. */
-    const TVal *Get() const {
-      assert(this);
-      assert(Val);
-      return Val;
-    }
-
-    /* A pointer to our value.  We must already be known. */
-    TVal *Get() {
-      assert(this);
-      assert(Val);
-      return Val;
-    }
-
-    /* True iff. we're known. */
-    bool IsKnown() const {
-      assert(this);
-      return Val != nullptr;
-    }
-
-    /* True iff. we're not known. */
-    bool IsUnknown() const {
-      assert(this);
-      return Val == nullptr;
-    }
-
-    /* If we're already known, do nothing; otherwise, construct a new value using the given args.
-       Return a refernce to our (possibly new) value. */
-    template <typename... TArgs>
-    TVal &MakeKnown(TArgs &&... args) {
-      assert(this);
-      if (!Val) {
-        Val = new (Storage) TVal(std::forward<TArgs>(args)...);
-      }
-      return *Val;
-    }
-
-    /* Forward our value to the out-parameter and resume the unknown state.
-       We must already be known. */
-    void Release(TVal &val) {
-      assert(this);
-      assert(&val);
-      assert(Val);
-      val = std::forward<TVal>(*Val);
+  /* Move contructor.  We get the donor's value (if any) and the donor becomes unknown. */
+  TOpt(TOpt &&that) {
+    assert(&that);
+    if(that.Val) {
+      Val = new (Storage) TVal(std::move(*that.Val));
+      that.Reset();
+    } else {
       Val = nullptr;
     }
+  }
 
-    /* Reset to the unknown state. */
-    TOpt &Reset() {
-      assert(this);
-      if (Val) {
-        Val->~TVal();
-        Val = 0;
+  /* Copy constructor. */
+  TOpt(const TOpt &that) {
+    assert(&that);
+    Val = that.Val ? new (Storage) TVal(*that.Val) : nullptr;
+  }
+
+  /* Construct by moving the given value into our internal storage.
+     What remains of the donor is up to TVal. */
+  TOpt(TVal &&that) {
+    assert(&that);
+    Val = new (Storage) TVal(std::move(that));
+  }
+
+  /* Construct with a copy of the given value. */
+  TOpt(const TVal &that) {
+    assert(&that);
+    Val = new (Storage) TVal(that);
+  }
+
+  /* If we're known, destroy our value as we go. */
+  ~TOpt() {
+    assert(this);
+    Reset();
+  }
+
+  /* Swaperator. */
+  TOpt &operator=(TOpt &&that) {
+    assert(this);
+    assert(&that);
+    if(this != &that) {
+      if(Val && that.Val) {
+        std::swap(*Val, *that.Val);
+      } else if(that.Val) {
+        Val = new (Storage) TVal(std::move(*that.Val));
+        that.Reset();
+      } else if(Val) {
+        that.Val = new (that.Storage) TVal(std::move(*Val));
+        Reset();
       }
-      return *this;
     }
+    return *this;
+  }
 
-    /* A pointer to our value.  If we're not known, return null. */
-    const TVal *TryGet() const {
-      assert(this);
-      return Val;
+  /* Assignment operator. */
+  TOpt &operator=(const TOpt &that) {
+    assert(this);
+    return (this != &that) ? *this = TOpt(that) : *this;
+  }
+
+  /* If we're already known, swap our value with the given one;
+     otherwise, move-construct the value into our storage. */
+  TOpt &operator=(TVal &&that) {
+    assert(this);
+    assert(&that);
+    if(Val != &that) {
+      if(Val) {
+        std::swap(*Val, that);
+      } else {
+        Val = new (Storage) TVal(std::move(that));
+      }
     }
+    return *this;
+  }
 
-    /* A pointer to our value.  If we're not known, return null. */
-    TVal *TryGet() {
-      assert(this);
-      return Val;
+  /* Assume a copy of the given value.  If we weren't known before, we will be now. */
+  TOpt &operator=(const TVal &that) {
+    assert(this);
+    return (Val != &that) ? *this = TOpt(that) : *this;
+  }
+
+  /* True iff. we're known. */
+  operator bool() const {
+    assert(this);
+    return Val != nullptr;
+  }
+
+  /* Our value.  We must already be known. */
+  const TVal &operator*() const {
+    assert(this);
+    assert(Val);
+    return *Val;
+  }
+
+  /* Our value.  We must already be known. */
+  TVal &operator*() {
+    assert(this);
+    assert(Val);
+    return *Val;
+  }
+
+  /* Our value.  We must already be known. */
+  const TVal *operator->() const {
+    assert(this);
+    assert(Val);
+    return Val;
+  }
+
+  /* Our value.  We must already be known. */
+  TVal *operator->() {
+    assert(this);
+    assert(Val);
+    return Val;
+  }
+
+  /* A pointer to our value.  We must already be known. */
+  const TVal *Get() const {
+    assert(this);
+    assert(Val);
+    return Val;
+  }
+
+  /* A pointer to our value.  We must already be known. */
+  TVal *Get() {
+    assert(this);
+    assert(Val);
+    return Val;
+  }
+
+  /* True iff. we're known. */
+  bool IsKnown() const {
+    assert(this);
+    return Val != nullptr;
+  }
+
+  /* True iff. we're not known. */
+  bool IsUnknown() const {
+    assert(this);
+    return Val == nullptr;
+  }
+
+  /* If we're already known, do nothing; otherwise, construct a new value using the given args.
+     Return a refernce to our (possibly new) value. */
+  template <typename... TArgs>
+  TVal &MakeKnown(TArgs &&... args) {
+    assert(this);
+    if(!Val) {
+      Val = new (Storage) TVal(std::forward<TArgs>(args)...);
     }
+    return *Val;
+  }
 
-    private:
+  /* Forward our value to the out-parameter and resume the unknown state.
+     We must already be known. */
+  void Release(TVal &val) {
+    assert(this);
+    assert(&val);
+    assert(Val);
+    val = std::forward<TVal>(*Val);
+    Val = nullptr;
+  }
 
-    /* The storage space used to hold our known value, if any.  We use in-place new operators and explicit destruction to make values come and go
-       from this storage space. */
-    alignas(TVal) char Storage[sizeof(TVal)];
+  /* Reset to the unknown state. */
+  TOpt &Reset() {
+    assert(this);
+    if(Val) {
+      Val->~TVal();
+      Val = 0;
+    }
+    return *this;
+  }
 
-    /* A pointer to our current value.  If this is null, then our value is unknown.  If it is non-null, then it points to Storage. */
-    TVal *Val;
+  /* A pointer to our value.  If we're not known, return null. */
+  const TVal *TryGet() const {
+    assert(this);
+    return Val;
+  }
 
-  };  // TOpt
+  /* A pointer to our value.  If we're not known, return null. */
+  TVal *TryGet() {
+    assert(this);
+    return Val;
+  }
+
+  private:
+  /* The storage space used to hold our known value, if any.  We use in-place new operators and
+     explicit destruction to make values come and go
+     from this storage space. */
+  alignas(TVal) char Storage[sizeof(TVal)];
+
+  /* A pointer to our current value.  If this is null, then our value is unknown.  If it is
+   * non-null, then it points to Storage. */
+  TVal *Val;
+
+};  // TOpt
 
 }  // Base

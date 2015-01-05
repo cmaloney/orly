@@ -61,7 +61,7 @@ TContext *TContext::Pop() {
 TContext *TContext::Current() {
   auto &st = GetContextVector();
   assert(&st);
-  if (st.empty()) {
+  if(st.empty()) {
     return nullptr;
   } else {
     return st.top();

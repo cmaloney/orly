@@ -59,7 +59,7 @@ FIXTURE(HexCode) {
 
 template <typename TTpl, size_t... Idx>
 vector<TJson::TKind> GetKindsImpl(const index_sequence<Idx...> &) {
-  return vector<TJson::TKind> { TJson(typename tuple_element<Idx, TTpl>::type()).GetKind()... };
+  return vector<TJson::TKind>{TJson(typename tuple_element<Idx, TTpl>::type()).GetKind()...};
 }
 
 template <typename TTpl>
@@ -72,7 +72,7 @@ bool AllKindsEq(TJson::TKind expected_kind) {
   static const size_t expected_size = tuple_size<TTpl>::value;
   auto kinds = GetKinds<TTpl>();
   bool success = (kinds.size(), expected_size);
-  for (size_t i = 0; success && i < expected_size; ++i) {
+  for(size_t i = 0; success && i < expected_size; ++i) {
     success = (kinds[i] == expected_kind);
   }
   return success;
@@ -80,14 +80,16 @@ bool AllKindsEq(TJson::TKind expected_kind) {
 
 FIXTURE(ConstructedKinds) {
   EXPECT_TRUE(TJson().GetKind() == TJson::Null);
-  EXPECT_TRUE((AllKindsEq<tuple<int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t>>(TJson::Number)));
+  EXPECT_TRUE(
+      (AllKindsEq<tuple<int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t>>(
+          TJson::Number)));
   EXPECT_TRUE((AllKindsEq<tuple<char, const char *, string>>(TJson::String)));
   EXPECT_TRUE((AllKindsEq<tuple<TJson::TObject>>(TJson::Object)));
   EXPECT_TRUE((AllKindsEq<tuple<TJson::TArray>>(TJson::Array)));
 }
 
-static const TJson::TArray  Array  = { 1, 2, 3 };
-static const TJson::TObject Object = { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+static const TJson::TArray Array = {1, 2, 3};
+static const TJson::TObject Object = {{"a", 1}, {"b", 2}, {"c", 3}};
 
 FIXTURE(Format) {
   EXPECT_EQ(AsStr(TJson()), "null");
@@ -180,7 +182,7 @@ FIXTURE(Parse) {
   EXPECT_EQ(TJson::Parse(R"("hello")"), "hello");
   EXPECT_EQ(TJson::Parse(R"(hello)"), "hello");
   EXPECT_EQ(TJson::Parse(R"([hello,world,null,no,truest,falser,nullary])"),
-            TJson::TArray({"hello", "world", TJson(), "no", "truest", "falser","nullary"}));
+            TJson::TArray({"hello", "world", TJson(), "no", "truest", "falser", "nullary"}));
 
   EXPECT_EQ(TJson::Parse(R"(["/usr/include/stdc-predef.h","/usr/include/c++/4.9.0/ostream"])"),
             TJson::TArray({"/usr/include/stdc-predef.h", "/usr/include/c++/4.9.0/ostream"}));

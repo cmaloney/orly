@@ -22,26 +22,23 @@
 
 namespace Jhm {
 
-  namespace Job {
+namespace Job {
 
-    class TDep final : public TJob {
-      public:
+class TDep final : public TJob {
+  public:
+  static TJobProducer GetProducer();
 
-      static TJobProducer GetProducer();
+  virtual const char *GetName() final;
+  virtual const TSet<TFile *> GetNeeds() final;
+  virtual std::vector<std::string> GetCmd() final;
+  virtual Util::TTimestamp GetCmdTimestamp() const final;
+  virtual bool IsComplete() final;
 
-      virtual const char *GetName() final;
-      virtual const TSet<TFile*> GetNeeds() final;
-      virtual std::vector<std::string> GetCmd() final;
-      virtual Util::TTimestamp GetCmdTimestamp() const final;
-      virtual bool IsComplete() final;
+  private:
+  TDep(TEnv &env, TFile *input);
 
-      private:
-      TDep(TEnv &env, TFile *input);
-
-      TEnv &Env;
-      TSet<TFile*> Needs;
-
-    };
-
-  }
+  TEnv &Env;
+  TSet<TFile *> Needs;
+};
+}
 }

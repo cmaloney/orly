@@ -35,25 +35,13 @@ std::string &GetOps() {
 
 class TToken {
   public:
+  TToken() : Dummy(0) { Push('D'); }
 
-  TToken()
-      : Dummy(0) {
-    Push('D');
-  }
+  TToken(TToken &&that) : Dummy(that.Dummy) { Push('M'); }
 
-  TToken(TToken &&that)
-      : Dummy(that.Dummy) {
-    Push('M');
-  }
+  TToken(const TToken &that) : Dummy(that.Dummy) { Push('C'); }
 
-  TToken(const TToken &that)
-      : Dummy(that.Dummy) {
-    Push('C');
-  }
-
-  ~TToken() {
-    Push('X');
-  }
+  ~TToken() { Push('X'); }
 
   TToken &operator=(TToken &&that) {
     Push('S');
@@ -75,11 +63,7 @@ class TToken {
   int Dummy;
 
   private:
-
-  static void Push(char op) {
-    GetOps().push_back(op);
-  }
-
+  static void Push(char op) { GetOps().push_back(op); }
 };
 
 ostream &operator<<(ostream &strm, const TToken &that) {

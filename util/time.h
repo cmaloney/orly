@@ -2,7 +2,8 @@
 
    Various time related helper functions (And timestamp related).
 
-   NOTE: We use nanosecond durations as file timestamps because we have no clue what clock they are tied to.
+   NOTE: We use nanosecond durations as file timestamps because we have no clue what clock they are
+   tied to.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -30,45 +31,48 @@
 
 namespace Util {
 
-  using TTimestamp = std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration>;
-  using TOptTimestamp = Base::TOpt<TTimestamp>;
+using TTimestamp =
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration>;
+using TOptTimestamp = Base::TOpt<TTimestamp>;
 
-  /* Convert a duration in nanoseconds into a timespec struct, useful for timerfd calls. */
-  timespec ToTimespec(std::chrono::nanoseconds time);
+/* Convert a duration in nanoseconds into a timespec struct, useful for timerfd calls. */
+timespec ToTimespec(std::chrono::nanoseconds time);
 
-  /* Convert a C timespec struct into a C++ chrono time_point */
-  TTimestamp ToTimestamp(timespec time);
+/* Convert a C timespec struct into a C++ chrono time_point */
+TTimestamp ToTimestamp(timespec time);
 
-  /* Convert a C timespec struct into a C++ chrono time_point for the specified chrono clock type. */
-  template <typename TClock>
-  std::chrono::time_point<TClock, typename TClock::duration> ToTimestampClock(timespec time) {
-    return std::chrono::time_point<TClock, typename TClock::duration>(
-        std::chrono::duration_cast<typename TClock::duration>(std::chrono::seconds(time.tv_sec) +
-                                                              std::chrono::nanoseconds(time.tv_nsec)));
-  }
+/* Convert a C timespec struct into a C++ chrono time_point for the specified chrono clock type. */
+template <typename TClock>
+std::chrono::time_point<TClock, typename TClock::duration> ToTimestampClock(timespec time) {
+  return std::chrono::time_point<TClock, typename TClock::duration>(
+      std::chrono::duration_cast<typename TClock::duration>(
+          std::chrono::seconds(time.tv_sec) + std::chrono::nanoseconds(time.tv_nsec)));
+}
 
-  template<typename TDuration>
-  double ToSecondsDouble(TDuration duration) {
-    return std::chrono::duration_cast<std::chrono::duration<double>>(duration).count();
-  }
+template <typename TDuration>
+double ToSecondsDouble(TDuration duration) {
+  return std::chrono::duration_cast<std::chrono::duration<double>>(duration).count();
+}
 
-  /* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat fails. */
-  TOptTimestamp TryGetTimestamp(const std::string &name);
+/* Tries to get the timestamp for the given file. Returns unknown if the file doesn't exist / stat
+ * fails. */
+TOptTimestamp TryGetTimestamp(const std::string &name);
 
-  /* Get the timestamp for the given filename or throw an exception */
-  TTimestamp GetTimestamp(const std::string &name);
+/* Get the timestamp for the given filename or throw an exception */
+TTimestamp GetTimestamp(const std::string &name);
 
-  /* Get the timestamp for the given filename searching PATH or throw an exception */
-  TTimestamp GetTimestampSearchingPath(const std::string &name);
+/* Get the timestamp for the given filename searching PATH or throw an exception */
+TTimestamp GetTimestampSearchingPath(const std::string &name);
 
-  /* It's either this or making operator overloads all work on Base::TOpt, for which we really don't know what the
-     "right" behavior is. */
-  bool IsNewer(TTimestamp lhs, TOptTimestamp rhs);
+/* It's either this or making operator overloads all work on Base::TOpt, for which we really don't
+   know what the
+   "right" behavior is. */
+bool IsNewer(TTimestamp lhs, TOptTimestamp rhs);
 
-  /* Helper functions for getting combining timestamps to get the newest / oldest. */
-  TTimestamp Newest(TTimestamp lhs, TOptTimestamp rhs);
-  TOptTimestamp Newest(TOptTimestamp lhs, TOptTimestamp rhs);
-  TOptTimestamp Oldest(TOptTimestamp lhs, TOptTimestamp rhs);
+/* Helper functions for getting combining timestamps to get the newest / oldest. */
+TTimestamp Newest(TTimestamp lhs, TOptTimestamp rhs);
+TOptTimestamp Newest(TOptTimestamp lhs, TOptTimestamp rhs);
+TOptTimestamp Oldest(TOptTimestamp lhs, TOptTimestamp rhs);
 
-  std::string ToStr(const TTimestamp &ts);
+std::string ToStr(const TTimestamp &ts);
 }

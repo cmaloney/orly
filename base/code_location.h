@@ -42,79 +42,73 @@
 
 namespace Base {
 
-  /* Represents a location (file and line) within the body of source
-     code.  This is a value type. */
-  class TCodeLocation {
-    public:
+/* Represents a location (file and line) within the body of source
+   code.  This is a value type. */
+class TCodeLocation {
+  public:
+  /* The default is a blank file at line 1. */
+  TCodeLocation() : File(""), LineNumber(1) {}
 
-    /* The default is a blank file at line 1. */
-    TCodeLocation()
-        : File(""), LineNumber(1) {}
-
-    /* Represents the given file and line.  'file' must not be null and
-       'line_number' must be > 0. */
-    TCodeLocation(const char *file, unsigned line_number)
-        : File(file), LineNumber(line_number) {
-      assert(file);
-      assert(line_number);
-    }
-
-    /* Return true if these code locations are equal */
-    bool operator==(const TCodeLocation &that) const {
-      return LineNumber == that.LineNumber && strcmp(File, that.File) == 0;
-    }
-
-    /* Returns the file.  Never returns null. */
-    const char *GetFile() const;
-
-    /* Returns the line number.  Always returns > 0. */
-    unsigned GetLineNumber() const {
-      assert(this);
-      return LineNumber;
-    }
-
-    /* Stream out a human-readable version of our state. */
-    void Write(std::ostream &strm) const;
-
-    /* The root of the source tree from which we are built.
-       This is injected by the build system as the macro SRC_ROOT. */
-    static const char *SrcRoot;
-
-    private:
-
-    /* Never null. */
-    const char *File;
-
-    /* Always > 0. */
-    unsigned LineNumber;
-
-  };  // TCodeLocation
-
-  /* Standard stream inserter for Base::TCodeLocation. */
-  inline std::ostream &operator<<(std::ostream &strm, const Base::TCodeLocation &that) {
-    assert(&that);
-    that.Write(strm);
-    return strm;
+  /* Represents the given file and line.  'file' must not be null and
+     'line_number' must be > 0. */
+  TCodeLocation(const char *file, unsigned line_number) : File(file), LineNumber(line_number) {
+    assert(file);
+    assert(line_number);
   }
+
+  /* Return true if these code locations are equal */
+  bool operator==(const TCodeLocation &that) const {
+    return LineNumber == that.LineNumber && strcmp(File, that.File) == 0;
+  }
+
+  /* Returns the file.  Never returns null. */
+  const char *GetFile() const;
+
+  /* Returns the line number.  Always returns > 0. */
+  unsigned GetLineNumber() const {
+    assert(this);
+    return LineNumber;
+  }
+
+  /* Stream out a human-readable version of our state. */
+  void Write(std::ostream &strm) const;
+
+  /* The root of the source tree from which we are built.
+     This is injected by the build system as the macro SRC_ROOT. */
+  static const char *SrcRoot;
+
+  private:
+  /* Never null. */
+  const char *File;
+
+  /* Always > 0. */
+  unsigned LineNumber;
+
+};  // TCodeLocation
+
+/* Standard stream inserter for Base::TCodeLocation. */
+inline std::ostream &operator<<(std::ostream &strm, const Base::TCodeLocation &that) {
+  assert(&that);
+  that.Write(strm);
+  return strm;
+}
 
 }  // Base
 
 namespace std {
 
-  template <>
-  struct hash<Base::TCodeLocation> {
+template <>
+struct hash<Base::TCodeLocation> {
+  typedef size_t result_type;
 
-    typedef size_t result_type;
+  typedef Base::TCodeLocation argument_type;
 
-    typedef Base::TCodeLocation argument_type;
+  result_type operator()(const argument_type &that) const {
+    assert(&that);
+    // TODO(cmaloney): Better hash function.
+    return std::hash<std::string>()(string(that.GetFile())) ^ that.GetLineNumber();
+  }
 
-    result_type operator()(const argument_type &that) const {
-      assert(&that);
-      // TODO(cmaloney): Better hash function.
-      return std::hash<std::string>()(string(that.GetFile())) ^ that.GetLineNumber();
-    }
-
-  };  // hash<Base::TCodeLocation>
+};  // hash<Base::TCodeLocation>
 
 }  // std
-

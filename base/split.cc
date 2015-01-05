@@ -33,18 +33,18 @@ void Base::Split(const char *tok, const string &src, vector<string> &pieces) {
     return;
   }
 
-  size_t curpos = 0, endpos=0;
+  size_t curpos = 0, endpos = 0;
   const size_t tok_len = strlen(tok);
   do {
     endpos = src.find(tok, curpos);
 
     if(endpos == string::npos) {
-      pieces.push_back(src.size() == curpos ? "" : src.substr(curpos, src.size()-curpos));
+      pieces.push_back(src.size() == curpos ? "" : src.substr(curpos, src.size() - curpos));
     } else {
-      //Pull out the substring
+      // Pull out the substring
       pieces.push_back(src.substr(curpos, endpos - curpos));
 
-      //NOTE: This should always be <= src.size().
+      // NOTE: This should always be <= src.size().
       curpos = endpos + tok_len;
     }
   } while(endpos != string::npos);

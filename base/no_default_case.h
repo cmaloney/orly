@@ -33,14 +33,20 @@
         return text;
       }
 
-   If control reaches the macro, it will abort the program.  It is therefore safe to use the switch to conditionally initialize an otherwise unitialized
+   If control reaches the macro, it will abort the program.  It is therefore safe to use the switch
+   to conditionally initialize an otherwise unitialized
    variable, as shown. */
 
-// In release, we should never abort. Unreachable nicely throws for us, and gives a fairly appropriate message.
-#define DEFAULT_UNREACHABLE default: ::Base::Unreachable(HERE)
+// In release, we should never abort. Unreachable nicely throws for us, and gives a fairly
+// appropriate message.
+#define DEFAULT_UNREACHABLE \
+  default:                  \
+    ::Base::Unreachable(HERE)
 
 #ifdef NDEBUG
-#define NO_DEFAULT_CASE default: ::Base::Unreachable(HERE)
+#define NO_DEFAULT_CASE \
+  default:              \
+    ::Base::Unreachable(HERE)
 #else
 // ALLOW compilers to warn us about
 #define NO_DEFAULT_CASE

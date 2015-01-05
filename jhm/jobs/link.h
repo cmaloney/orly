@@ -24,29 +24,27 @@
 
 namespace Jhm {
 
-  namespace Job {
+namespace Job {
 
-    class TLink final : public TJob {
-      public:
+class TLink final : public TJob {
+  public:
+  static TJobProducer GetProducer();
 
-      static TJobProducer GetProducer();
+  virtual const char *GetName() final;
+  virtual const TSet<TFile *> GetNeeds() final;
+  virtual TSet<TFile *> GetAntiNeeds() final;
+  virtual std::vector<std::string> GetCmd() final;
+  virtual Util::TTimestamp GetCmdTimestamp() const final;
+  virtual bool IsComplete() final;
 
-      virtual const char *GetName() final;
-      virtual const TSet<TFile*> GetNeeds() final;
-      virtual TSet<TFile*> GetAntiNeeds() final;
-      virtual std::vector<std::string> GetCmd() final;
-      virtual Util::TTimestamp GetCmdTimestamp() const final;
-      virtual bool IsComplete() final;
+  private:
+  TLink(TEnv &env, TFile *input);
 
-      private:
-      TLink(TEnv &env, TFile *input);
-
-      TEnv &Env;
-      std::unordered_map<TFile*, TFile*> NeededDepToObj;
-      TSet<TFile*> AntiNeeds;
-      TSet<TFile*> ObjToCheck;
-      TSet<TFile*> ObjFiles;
-    };
-
-  }
+  TEnv &Env;
+  std::unordered_map<TFile *, TFile *> NeededDepToObj;
+  TSet<TFile *> AntiNeeds;
+  TSet<TFile *> ObjToCheck;
+  TSet<TFile *> ObjFiles;
+};
+}
 }

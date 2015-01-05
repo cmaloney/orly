@@ -21,5 +21,5 @@
 #include <jhm/env.h>
 
 namespace Jhm {
-  TSet<TFile*> FindTests(TEnv &env);
+TSet<TFile *> FindTests(TEnv &env);
 }

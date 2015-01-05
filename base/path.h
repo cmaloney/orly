@@ -4,7 +4,8 @@
 
    Constructors of the class guarantee that if they succeed / don't throw
 
-   The utility functions provided which operate on a Path manipulating it __GUARANTEE__ that the resulting path is
+   The utility functions provided which operate on a Path manipulating it __GUARANTEE__ that the
+   resulting path is
    valid.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
@@ -32,81 +33,87 @@
 
 namespace Base {
 
-  /* Design notes:
-      - Value type, because otherwise we write a lot of crap to get and manipulate specific members
-      - Helper functions rather than members to make it easier to modify in place intelligently / composably.
-      - Seperate name and namespace so '/foo/.baz' is representable without the last namespace being empty being a
-        special condition
-      - Extensions can be empty. Just means there are dots next to eachother. If the last extension is empty, it isn't
-        prefixed with a '.' (The last extension being empty is used for executables)
-  */
+/* Design notes:
+    - Value type, because otherwise we write a lot of crap to get and manipulate specific members
+    - Helper functions rather than members to make it easier to modify in place intelligently /
+   composably.
+    - Seperate name and namespace so '/foo/.baz' is representable without the last namespace being
+   empty being a
+      special condition
+    - Extensions can be empty. Just means there are dots next to eachother. If the last extension is
+   empty, it isn't
+      prefixed with a '.' (The last extension being empty is used for executables)
+*/
 
-  using TNamespace = std::vector<std::string>;
+using TNamespace = std::vector<std::string>;
 
-  class TPath {
-    public:
-    using TStr = std::string;
+class TPath {
+  public:
+  using TStr = std::string;
 
-    DEFINE_ERROR(TInvalid, std::runtime_error, "Invalid path")
+  DEFINE_ERROR(TInvalid, std::runtime_error, "Invalid path")
 
-    // TODO: A vector<string> which is contiguous / one array rather than array of pointers would speed a lot of this
-    // class up.
-    using TStrList = std::vector<TStr>;
+  // TODO: A vector<string> which is contiguous / one array rather than array of pointers would
+  // speed a lot of this
+  // class up.
+  using TStrList = std::vector<TStr>;
 
-    /* Copy and move construction is legal. */
-    DEFAULT_COPY(TPath);
-    DEFAULT_MOVE(TPath);
+  /* Copy and move construction is legal. */
+  DEFAULT_COPY(TPath);
+  DEFAULT_MOVE(TPath);
 
-    /* Construct off a provided string, parsing it into applicable chunks. TPath always ends up valid. */
-    explicit TPath(const char *path);
-    explicit TPath(const char *path, uint32_t len);
-    explicit TPath(const TStr &name);
+  /* Construct off a provided string, parsing it into applicable chunks. TPath always ends up valid.
+   */
+  explicit TPath(const char *path);
+  explicit TPath(const char *path, uint32_t len);
+  explicit TPath(const TStr &name);
 
-    /* Construct from a specific pre-parsed list of chunks. */
-    TPath(TStrList ns, TStr name, TStrList extension);
-    TPath(TStrList ns_and_name, TStrList extension);
-    TPath(TStr name, TStrList extension);
-    TPath(const TStr &dir, TStr name, TStrList extension);
+  /* Construct from a specific pre-parsed list of chunks. */
+  TPath(TStrList ns, TStr name, TStrList extension);
+  TPath(TStrList ns_and_name, TStrList extension);
+  TPath(TStr name, TStrList extension);
+  TPath(const TStr &dir, TStr name, TStrList extension);
 
-    /* Check that the path is valid / legal. Returns false if it isn't */
-    explicit operator bool() const;
+  /* Check that the path is valid / legal. Returns false if it isn't */
+  explicit operator bool() const;
 
-    bool operator==(const TPath &that) const;
-    bool operator!=(const TPath &that) const;
+  bool operator==(const TPath &that) const;
+  bool operator!=(const TPath &that) const;
 
-    bool EndsWith(const std::vector<std::string> &extension) const;
+  bool EndsWith(const std::vector<std::string> &extension) const;
 
-    std::vector<std::string> ToNamespaceIncludingName() const;
+  std::vector<std::string> ToNamespaceIncludingName() const;
 
-    std::ostream &Write(std::ostream &out) const;
+  std::ostream &Write(std::ostream &out) const;
 
-    TStrList Namespace;
-    TStr Name;
-    TStrList Extension;
-  };
+  TStrList Namespace;
+  TStr Name;
+  TStrList Extension;
+};
 
-  bool IsValidName(const std::string &name);
-  bool IsValidNamespace(const TNamespace &ns);
-  bool IsValidExtension(const std::vector<std::string> &extension);
+bool IsValidName(const std::string &name);
+bool IsValidNamespace(const TNamespace &ns);
+bool IsValidExtension(const std::vector<std::string> &extension);
 
-  std::vector<std::string> SplitNamespace(const std::string &dir);
+std::vector<std::string> SplitNamespace(const std::string &dir);
 
-  std::ostream &WriteNamespace(std::ostream & out, const std::vector<std::string> &ns, bool leading_slash=true);
+std::ostream &WriteNamespace(std::ostream &out,
+                             const std::vector<std::string> &ns,
+                             bool leading_slash = true);
 
-  // NOTE: If last extension is empty, don't print a dot.
-  std::ostream &WriteExtension(std::ostream & out, const std::vector<std::string> &extension);
+// NOTE: If last extension is empty, don't print a dot.
+std::ostream &WriteExtension(std::ostream &out, const std::vector<std::string> &extension);
 
-  TPath AddExtension(TPath &&that, const std::vector<std::string> &new_extension);
-  TPath DropExtension(TPath &&that, uint32_t count);
-  TPath SwapExtension(TPath &&that, const std::vector<std::string> &new_extension);
+TPath AddExtension(TPath &&that, const std::vector<std::string> &new_extension);
+TPath DropExtension(TPath &&that, uint32_t count);
+TPath SwapExtension(TPath &&that, const std::vector<std::string> &new_extension);
 
-  std::ostream &operator<<(std::ostream &out, const TPath &path);
-} // Base
-
+std::ostream &operator<<(std::ostream &out, const TPath &path);
+}  // Base
 
 namespace std {
-  template<>
-  struct hash<Base::TPath> {
-    size_t operator()(const Base::TPath &that) const;
-  };
+template <>
+struct hash<Base::TPath> {
+  size_t operator()(const Base::TPath &that) const;
+};
 }

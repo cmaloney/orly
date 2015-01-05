@@ -40,784 +40,872 @@
 
 namespace Base {
 
-  /* A sum of the value types allowable in JSON. */
-  class TJson final {
-    public:
+/* A sum of the value types allowable in JSON. */
+class TJson final {
+  public:
+  /* Thrown when extracting from a malformed stream. */
+  DEFINE_ERROR(TSyntaxError, std::runtime_error, "json syntax error");
 
-    /* Thrown when extracting from a malformed stream. */
-    DEFINE_ERROR(TSyntaxError, std::runtime_error, "json syntax error");
+  /* Aliases for constructed types from which we may construct. */
+  using TArray = std::vector<TJson>;
+  using TObject = std::map<std::string, TJson>;
+  using TString = std::string;
 
-    /* Aliases for constructed types from which we may construct. */
-    using TArray  = std::vector<TJson>;
-    using TObject = std::map<std::string, TJson>;
-    using TString = std::string;
+  /* The types of callbacks used by ForEachElem(). */
+  using TArrayCb = std::function<bool(const TJson &)>;
+  using TObjectCb = std::function<bool(const std::string &, const TJson &)>;
+  using TArrayCbNonConst = std::function<bool(TJson &)>;
+  using TObjectCbNonConst = std::function<bool(const std::string &, TJson &)>;
 
-    /* The types of callbacks used by ForEachElem(). */
-    using TArrayCb  = std::function<bool (const TJson &)>;
-    using TObjectCb = std::function<bool (const std::string&, const TJson &)>;
-    using TArrayCbNonConst  = std::function<bool (TJson &)>;
-    using TObjectCbNonConst = std::function<bool (const std::string&, TJson &)>;
+  /* The kinds of states we can be in. */
+  enum TKind { Null, Bool, Number, Array, Object, String };
 
-    /* The kinds of states we can be in. */
-    enum TKind { Null, Bool, Number, Array, Object, String };
-
-    //TODO: We don't currently escape unicode sequences / wide characters
-    static void WriteString(std::ostream &strm, const std::string &text) {
-      strm << '"';
-      const auto end = text.end();
-      for(auto it = text.begin(); it != end; ++it) {
-        char c = *it;
-        switch(c) {
-          case '\\': {
-            strm << R"(\\)";
-            break;
-          }
-          case '\"': {
-            strm << R"(\")";
-            break;
-          }
-          case '\b': {
-            strm << R"(\b)";
-            break;
-          }
-          case '\f': {
-            strm << R"(\f)";
-            break;
-          }
-          case '\n': {
-            strm << R"(\n)";
-            break;
-          }
-          case '\r': {
-            strm << R"(\r)";
-            break;
-          }
-          case '\t': {
-            strm << R"(\t)";
-            break;
-          }
-          default: {
-            strm << c;
-          }
-        }
-      }
-      strm << '"';
-    }
-
-    /* Read from the given input string to find a JSON string which starts/ends with '"' and properly unescape escaped
-       characters. */
-    static std::string ReadQuotedString(std::istream &strm) {
-      assert(&strm);
-      /* Eat the opening quote. */
-      if (unlikely(strm.peek() != '"')) {
-        THROW_ERROR(TSyntaxError) << "missing opening quote";
-      }
-      strm.ignore();
-      /* Loop over the input until we find the closing quote, accumulating
-         characters as we go. */
-      std::string accum;
-      accum.reserve(200);
-      bool keep_going = true;
-      do {
-        auto c = strm.peek();
-        switch (c) {
-          /* Closing quote. */
-          case '"': {
-            strm.ignore();
-            keep_going = false;
-            break;
-          }
-          /* Escape sequence. */
-          case '\\': {
-            strm.ignore();
-            switch (strm.peek()) {
-              case '\\': { accum += '\\'; break; }
-              case '"':  { accum += '\"'; break; }
-              case '/':  { accum += '/';  break; }
-              case 'b':  { accum += '\b'; break; }
-              case 'f':  { accum += '\f'; break; }
-              case 'n':  { accum += '\n'; break; }
-              case 'r':  { accum += '\r'; break; }
-              case 't':  { accum += '\t'; break; }
-              case 'u': {
-                THROW_ERROR(TSyntaxError) << "Unicode escapes aren't implemented";
-                break;
-              }
-              default: {
-                THROW_ERROR(TSyntaxError) << "bad escape sequence";
-              }
-            }  // switch
-            strm.ignore();
-            break;
-          }
-          /* Normal character or EOF. */
-          default: {
-            if (unlikely(c < 0)) {
-              THROW_ERROR(TSyntaxError) << "missing closing quote";
-            }
-            accum += char(c);
-            strm.ignore();
-          }
-        }  // switch
-      } while (keep_going);
-      return accum;
-    }
-
-    /* Read our extension to JSON, a raw string. */
-    static std::string ReadRawString(std::istream &strm) {
-      // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
-      // NOTE: null, true, and false are all found by matching raw strings.
-      std::string text;
-      text.reserve(64);
-      for (;;) {
-        int c = strm.peek();
-        if (unlikely(!strm.good() || isspace(c) || c == '[' || c == '{' || c == '}' || c == ']' || c == ',' || c == ':' ||
-            c == '"')) {
+  // TODO: We don't currently escape unicode sequences / wide characters
+  static void WriteString(std::ostream &strm, const std::string &text) {
+    strm << '"';
+    const auto end = text.end();
+    for(auto it = text.begin(); it != end; ++it) {
+      char c = *it;
+      switch(c) {
+        case '\\': {
+          strm << R"(\\)";
           break;
         }
-        strm.ignore();
-        text += char(c);
-      }
-      return text;
-    }
-
-    static std::string ReadString(std::istream &strm) {
-      std::string text;
-      if (strm.peek() == '"') {
-        text = ReadQuotedString(strm);
-      } else {
-        text = ReadRawString(strm);
-      }
-      return text;
-    }
-
-    static TJson Read(const char *filename) {
-      std::ifstream in(filename);
-      if (!in.is_open()) {
-        THROW_ERROR(std::runtime_error) << "Unable to open file " << std::quoted(filename);
-      }
-      TJson ret;
-      try {
-        ret.Read(in);
-      } catch (const TSyntaxError &ex) {
-        THROW_ERROR(std::runtime_error) << "in " << std::quoted(filename) << ':' << ex.what();
-      }
-      return ret;
-    }
-
-    /* Construct as a default instance of the given kind. */
-    TJson(TKind kind = Null) noexcept {
-      switch (kind) {
-        /* Do nothing. */
-        case Null:   { break; }
-        /* Init the built-in. */
-        case Bool:   { Bool_   = false; break; }
-        case Number: { Number_ = 0;     break; }
-        /* Default-construct the object. */
-        case Array:  { new (&Array_ ) TArray (); break; }
-        case Object: { new (&Object_) TObject(); break; }
-        case String: { new (&String_) TString(); break; }
-      }
-      Kind = kind;
-    }
-
-    /* The donor is left null. */
-    TJson(TJson &&that) noexcept {
-      assert(&that);
-      switch (that.Kind) {
-        /* Do nothing. */
-        case Null:   { break; }
-        /* Init the built-in. */
-        case Bool:   { Bool_   = that.Bool_;   break; }
-        case Number: { Number_ = that.Number_; break; }
-        /* Move-construct the object. */
-        case Array:  { new (&Array_ ) TArray (std::move(that.Array_ )); that.Array_ .~TArray (); break; }
-        case Object: { new (&Object_) TObject(std::move(that.Object_)); that.Object_.~TObject(); break; }
-        case String: { new (&String_) TString(std::move(that.String_)); that.String_.~TString(); break; }
-      }
-      Kind = that.Kind;
-      that.Kind = Null;
-    }
-
-    /* Deep-copy. */
-    TJson(const TJson &that) {
-      assert(&that);
-      switch (that.Kind) {
-        /* Do nothing. */
-        case Null:   { break; }
-        /* Init the built-in. */
-        case Bool:   { Bool_   = that.Bool_;   break; }
-        case Number: { Number_ = that.Number_; break; }
-        /* Copy-construct the object. */
-        case Array:  { new (&Array_ ) TArray (that.Array_ ); break; }
-        case Object: { new (&Object_) TObject(that.Object_); break; }
-        case String: { new (&String_) TString(that.String_); break; }
-      }
-      Kind = that.Kind;
-    }
-
-    /* Construct as the bool. */
-    TJson(bool that) noexcept
-        : Kind(Bool), Bool_(that) {}
-
-    /* Construct as the number */
-    TJson(int8_t that) noexcept
-        : Kind(Number), Number_(that) {}
-
-    /* Construct as the number */
-    TJson(int16_t that) noexcept
-        : Kind(Number), Number_(that) {}
-
-    /* Construct as the number */
-    TJson(int32_t that) noexcept
-        : Kind(Number), Number_(that) {}
-
-    /* Construct as the number */
-    TJson(int64_t that) noexcept
-        : Kind(Number), Number_(that) {}
-
-    /* Construct as the number */
-    TJson(uint8_t that) noexcept
-        : Kind(Number), Number_(that) {}
-
-    /* Construct as the number */
-    TJson(uint16_t that) noexcept
-        : Kind(Number), Number_(that) {}
-
-    /* Construct as the number */
-    TJson(uint32_t that) noexcept
-        : Kind(Number), Number_(int64_t(that)) {}
-
-    /* Construct as the number */
-    TJson(uint64_t that) noexcept
-        : Kind(Number), Number_(int64_t(that)) {
-          assert(that < std::numeric_limits<uint32_t>::max());
-        }
-
-    /* Construct as an array, leaving the donor empty. */
-    TJson(TArray &&that) noexcept
-        : Kind(Array), Array_(std::move(that)) {}
-
-    /* Construct as a copy of the array. */
-    TJson(const TArray &that)
-        : Kind(Array), Array_(that) {}
-
-    /* Construct as an object, leaving the donor empty. */
-    TJson(TObject &&that) noexcept
-        : Kind(Object), Object_(std::move(that)) {}
-
-    /* Construct as a copy of the object. */
-    TJson(const TObject &that)
-        : Kind(Object), Object_(that) {}
-
-    /* Construct as a string of a single character. */
-    TJson(char that)
-        : Kind(String), String_(&that, 1) {}
-
-    /* Construct as a string of a single character. */
-    TJson(const char *that)
-        : Kind(String), String_(that ? that : "") {}
-
-    /* Construct as a string, leaving the donor empty. */
-    TJson(TString &&that) noexcept
-        : Kind(String), String_(std::move(that)) {}
-
-    /* Construct as a copy of the string. */
-    TJson(const TString &that)
-        : Kind(String), String_(that) {}
-
-    /* Construct an array of copies of the example. */
-    TJson(size_t size, const TJson &example)
-        : Kind(Array), Array_(size, example) {}
-
-    /* Contained elements, if any, are also destroyed. */
-    ~TJson() {
-      assert(this);
-      switch (Kind) {
-        /* Do nothing. */
-        case Null:   { break; }
-        case Bool:   { break; }
-        case Number: { break; }
-        /* Destroy the object. */
-        case Array:  { Array_ .~TArray (); break; }
-        case Object: { Object_.~TObject(); break; }
-        case String: { String_.~TString(); break; }
-      }
-    }
-
-    /* The donor is left null. */
-    TJson &operator=(TJson &&that) noexcept {
-      assert(this);
-      assert(&that);
-      this->~TJson();
-      new (this) TJson(std::move(that));
-      return *this;
-    }
-
-    /* Deep-copy. */
-    TJson &operator=(const TJson &that) {
-      assert(this);
-      assert(&that);
-      return *this = TJson(that);
-    }
-
-    /* True iff. this object and that one are in the same state. */
-    bool operator==(const TJson &that) const noexcept {
-      assert(this);
-      assert(&that);
-      bool success = (Kind == that.Kind);
-      if (success) {
-        switch (Kind) {
-          case Null:   { break; }
-          case Bool:   { success = (Bool_   == that.Bool_  ); break; }
-          case Number: { success = (Number_ == that.Number_); break; }
-          case Array:  { success = (Array_  == that.Array_ ); break; }
-          case Object: { success = (Object_ == that.Object_); break; }
-          case String: { success = (String_ == that.String_); break; }
-        }
-      }
-      return success;
-    }
-
-    /* True iff. this object and that one are not in the same state. */
-    bool operator!=(const TJson &that) const noexcept {
-      assert(this);
-      return !(*this == that);
-    }
-
-    /* Subscript to an element contained in an array. */
-    TJson &operator[](size_t that) {
-      assert(this);
-      assert(Kind == Array);
-      assert(that < Array_.size());
-      return Array_[that];
-    }
-
-    /* Subscript to an element contained in an array. */
-    const TJson &operator[](size_t that) const {
-      assert(this);
-      assert(Kind == Array);
-      assert(that < Array_.size());
-      return Array_[that];
-    }
-
-    /* Find or create an element contained in an object. */
-    TJson &operator[](TString &&that) {
-      assert(this);
-      assert(&that);
-      assert(Kind == Object);
-      return Object_[std::move(that)];
-    }
-
-    /* Find or create an element contained in an object. */
-    TJson &operator[](const TString &that) {
-      assert(this);
-      assert(&that);
-      assert(Kind == Object);
-      return Object_[that];
-    }
-
-    /* Find or create an element contained in an object. */
-    const TJson &operator[](const TString &that) const {
-      assert(this);
-      assert(&that);
-      assert(Kind == Object);
-      const TJson *elem = TryFind(that);
-      assert(elem);
-      return *elem;
-    }
-
-    /* Returns true if the object contains the given key */
-    bool Contains(const TString &that) const {
-      assert(this);
-      return TryFind(that);
-    }
-
-    /* Call back for each element contained in an array. */
-    bool ForEachElem(const TArrayCb &cb) const {
-      assert(this);
-      assert(&cb);
-      assert(cb);
-      assert(Kind == Array);
-      for (const auto &elem: Array_) {
-        if (!cb(elem)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    /* Call back for each element contained in an object. */
-    bool ForEachElem(const TObjectCb &cb) const {
-      assert(this);
-      assert(&cb);
-      assert(cb);
-      assert(Kind == Object);
-      for (const auto &elem: Object_) {
-        if (!cb(elem.first, elem.second)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    /* Call back for each element contained in an array. */
-    bool ForEachElem(const TArrayCbNonConst &cb) {
-      assert(this);
-      assert(&cb);
-      assert(cb);
-      assert(Kind == Array);
-      for (auto &elem: Array_) {
-        if (!cb(elem)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    /* Call back for each element contained in an object. */
-    bool ForEachElem(const TObjectCbNonConst &cb) {
-      assert(this);
-      assert(&cb);
-      assert(cb);
-      assert(Kind == Object);
-      for (auto &elem: Object_) {
-        if (!cb(elem.first, elem.second)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    /* The kind of state we're in. */
-    TKind GetKind() const noexcept {
-      assert(this);
-      return Kind;
-    }
-
-    /* The number of elements in an array or object or the number of
-       characters in a string. */
-    size_t GetSize() const noexcept {
-      assert(this);
-      switch (Kind) {
-        case Array:  { return Array_ .size(); }
-        case Object: { return Object_.size(); }
-        case String: { return String_.size(); }
-        case Null:
-        case Bool:
-        case Number: {
-          Unreachable(HERE);
-        }
-      }
-    }
-
-    const TArray &GetArray() const noexcept {
-      assert(this);
-      assert(Kind == Array);
-      return Array_;
-    }
-
-    TArray &GetArray() noexcept {
-      assert(this);
-      assert(Kind == Array);
-      return Array_;
-    }
-
-    bool GetBool() const noexcept {
-      assert(this);
-      assert(Kind == Bool);
-      return Bool_;
-    }
-
-    int64_t GetNumber() const noexcept {
-      assert(this);
-      assert(Kind == Number);
-      return Number_;
-    }
-
-    const TString &GetString() const noexcept {
-      assert(this);
-      assert(Kind == String);
-      return String_;
-    }
-
-    bool IsNull() const noexcept {
-      assert(this);
-      return Kind == Null;
-    }
-
-    /* Parse from the stream. */
-    void Read(std::istream &strm) {
-      assert(this);
-      assert(&strm);
-      int c = std::ws(strm).peek();
-      switch (c) {
-        case '[': {
-          strm.ignore();
-          TJson elem;
-          TArray temp;
-          for (;;) {
-            if (!ParseSep(strm, ']', temp.empty())) {
-              break;
-            }
-            elem.Read(strm);
-            temp.emplace_back(std::move(elem));
-          }
-          *this = TJson(std::move(temp));
+        case '\"': {
+          strm << R"(\")";
           break;
         }
-        case '{': {
-          strm.ignore();
-          std::string key;
-          TJson val;
-          TObject temp;
-          for (;;) {
-            if (!ParseSep(strm, '}', temp.empty())) {
-              break;
-            }
-            strm >> std::ws;
-            key = ReadString(strm);
-            strm >> std::ws;
-            Match(strm, ':');
-            val.Read(strm);
-            temp[std::move(key)] = std::move(val);
-          }
-          *this = TJson(std::move(temp));
+        case '\b': {
+          strm << R"(\b)";
           break;
         }
+        case '\f': {
+          strm << R"(\f)";
+          break;
+        }
+        case '\n': {
+          strm << R"(\n)";
+          break;
+        }
+        case '\r': {
+          strm << R"(\r)";
+          break;
+        }
+        case '\t': {
+          strm << R"(\t)";
+          break;
+        }
+        default: { strm << c; }
+      }
+    }
+    strm << '"';
+  }
+
+  /* Read from the given input string to find a JSON string which starts/ends with '"' and properly
+     unescape escaped
+     characters. */
+  static std::string ReadQuotedString(std::istream &strm) {
+    assert(&strm);
+    /* Eat the opening quote. */
+    if(unlikely(strm.peek() != '"')) {
+      THROW_ERROR(TSyntaxError) << "missing opening quote";
+    }
+    strm.ignore();
+    /* Loop over the input until we find the closing quote, accumulating
+       characters as we go. */
+    std::string accum;
+    accum.reserve(200);
+    bool keep_going = true;
+    do {
+      auto c = strm.peek();
+      switch(c) {
+        /* Closing quote. */
         case '"': {
-          *this = TJson(ReadQuotedString(strm));
+          strm.ignore();
+          keep_going = false;
           break;
         }
-        default: {
-          if (c == '+' || c == '-' || isdigit(c)) {
-            int64_t temp;
-            strm >> temp;
-            *this = TJson(std::move(temp));
-            break;
-          } else {
-            // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
-            // NOTE: null, true, and false are all found by matching raw strings.
-            std::string text = ReadRawString(strm);
-            if (text == "null") {
-              Reset();
-            } else if (text == "true") {
-              *this = true;
-            } else if (text == "false") {
-              *this = false;
-            } else {
-              *this = TJson(move(text));
+        /* Escape sequence. */
+        case '\\': {
+          strm.ignore();
+          switch(strm.peek()) {
+            case '\\': {
+              accum += '\\';
+              break;
             }
-            break;
+            case '"': {
+              accum += '\"';
+              break;
+            }
+            case '/': {
+              accum += '/';
+              break;
+            }
+            case 'b': {
+              accum += '\b';
+              break;
+            }
+            case 'f': {
+              accum += '\f';
+              break;
+            }
+            case 'n': {
+              accum += '\n';
+              break;
+            }
+            case 'r': {
+              accum += '\r';
+              break;
+            }
+            case 't': {
+              accum += '\t';
+              break;
+            }
+            case 'u': {
+              THROW_ERROR(TSyntaxError) << "Unicode escapes aren't implemented";
+              break;
+            }
+            default: { THROW_ERROR(TSyntaxError) << "bad escape sequence"; }
+          }  // switch
+          strm.ignore();
+          break;
+        }
+        /* Normal character or EOF. */
+        default: {
+          if(unlikely(c < 0)) {
+            THROW_ERROR(TSyntaxError) << "missing closing quote";
           }
-          THROW_ERROR(TSyntaxError) << "Unexpected '" << char(c) << "' at start of input";
+          accum += char(c);
+          strm.ignore();
         }
       }  // switch
-    }
+    } while(keep_going);
+    return accum;
+  }
 
-    /* Return to the default-constructed state (which is null). */
-    TJson &Reset() noexcept {
-      assert(this);
-      this->~TJson();
-      Kind = Null;
-      return *this;
+  /* Read our extension to JSON, a raw string. */
+  static std::string ReadRawString(std::istream &strm) {
+    // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
+    // NOTE: null, true, and false are all found by matching raw strings.
+    std::string text;
+    text.reserve(64);
+    for(;;) {
+      int c = strm.peek();
+      if(unlikely(!strm.good() || isspace(c) || c == '[' || c == '{' || c == '}' || c == ']' ||
+                  c == ',' || c == ':' || c == '"')) {
+        break;
+      }
+      strm.ignore();
+      text += char(c);
     }
+    return text;
+  }
 
-    /* Swap states. */
-    TJson &Swap(TJson &that) noexcept {
-      assert(this);
-      assert(&that);
-      TJson temp = std::move(*this);
-      new (this) TJson(std::move(that));
-      new (&that) TJson(std::move(temp));
-      return *this;
+  static std::string ReadString(std::istream &strm) {
+    std::string text;
+    if(strm.peek() == '"') {
+      text = ReadQuotedString(strm);
+    } else {
+      text = ReadRawString(strm);
     }
+    return text;
+  }
 
-    /* A pointer to the named element in the object, or null if we have no
-       such element. */
-    const TJson *TryFind(const std::string &key) const {
-      assert(this);
-      assert(Kind == Object);
-      auto iter = Object_.find(key);
-      return (iter != Object_.end()) ? &(iter->second) : nullptr;
+  static TJson Read(const char *filename) {
+    std::ifstream in(filename);
+    if(!in.is_open()) {
+      THROW_ERROR(std::runtime_error) << "Unable to open file " << std::quoted(filename);
     }
+    TJson ret;
+    try {
+      ret.Read(in);
+    } catch(const TSyntaxError &ex) {
+      THROW_ERROR(std::runtime_error) << "in " << std::quoted(filename) << ':' << ex.what();
+    }
+    return ret;
+  }
 
-    /* Format to the stream. */
-    void Write(std::ostream &strm) const {
-      assert(this);
-      assert(&strm);
-      switch (Kind) {
+  /* Construct as a default instance of the given kind. */
+  TJson(TKind kind = Null) noexcept {
+    switch(kind) {
+      /* Do nothing. */
+      case Null: {
+        break;
+      }
+      /* Init the built-in. */
+      case Bool: {
+        Bool_ = false;
+        break;
+      }
+      case Number: {
+        Number_ = 0;
+        break;
+      }
+      /* Default-construct the object. */
+      case Array: {
+        new (&Array_) TArray();
+        break;
+      }
+      case Object: {
+        new (&Object_) TObject();
+        break;
+      }
+      case String: {
+        new (&String_) TString();
+        break;
+      }
+    }
+    Kind = kind;
+  }
+
+  /* The donor is left null. */
+  TJson(TJson &&that) noexcept {
+    assert(&that);
+    switch(that.Kind) {
+      /* Do nothing. */
+      case Null: {
+        break;
+      }
+      /* Init the built-in. */
+      case Bool: {
+        Bool_ = that.Bool_;
+        break;
+      }
+      case Number: {
+        Number_ = that.Number_;
+        break;
+      }
+      /* Move-construct the object. */
+      case Array: {
+        new (&Array_) TArray(std::move(that.Array_));
+        that.Array_.~TArray();
+        break;
+      }
+      case Object: {
+        new (&Object_) TObject(std::move(that.Object_));
+        that.Object_.~TObject();
+        break;
+      }
+      case String: {
+        new (&String_) TString(std::move(that.String_));
+        that.String_.~TString();
+        break;
+      }
+    }
+    Kind = that.Kind;
+    that.Kind = Null;
+  }
+
+  /* Deep-copy. */
+  TJson(const TJson &that) {
+    assert(&that);
+    switch(that.Kind) {
+      /* Do nothing. */
+      case Null: {
+        break;
+      }
+      /* Init the built-in. */
+      case Bool: {
+        Bool_ = that.Bool_;
+        break;
+      }
+      case Number: {
+        Number_ = that.Number_;
+        break;
+      }
+      /* Copy-construct the object. */
+      case Array: {
+        new (&Array_) TArray(that.Array_);
+        break;
+      }
+      case Object: {
+        new (&Object_) TObject(that.Object_);
+        break;
+      }
+      case String: {
+        new (&String_) TString(that.String_);
+        break;
+      }
+    }
+    Kind = that.Kind;
+  }
+
+  /* Construct as the bool. */
+  TJson(bool that) noexcept : Kind(Bool), Bool_(that) {}
+
+  /* Construct as the number */
+  TJson(int8_t that) noexcept : Kind(Number), Number_(that) {}
+
+  /* Construct as the number */
+  TJson(int16_t that) noexcept : Kind(Number), Number_(that) {}
+
+  /* Construct as the number */
+  TJson(int32_t that) noexcept : Kind(Number), Number_(that) {}
+
+  /* Construct as the number */
+  TJson(int64_t that) noexcept : Kind(Number), Number_(that) {}
+
+  /* Construct as the number */
+  TJson(uint8_t that) noexcept : Kind(Number), Number_(that) {}
+
+  /* Construct as the number */
+  TJson(uint16_t that) noexcept : Kind(Number), Number_(that) {}
+
+  /* Construct as the number */
+  TJson(uint32_t that) noexcept : Kind(Number), Number_(int64_t(that)) {}
+
+  /* Construct as the number */
+  TJson(uint64_t that) noexcept : Kind(Number), Number_(int64_t(that)) {
+    assert(that < std::numeric_limits<uint32_t>::max());
+  }
+
+  /* Construct as an array, leaving the donor empty. */
+  TJson(TArray &&that) noexcept : Kind(Array), Array_(std::move(that)) {}
+
+  /* Construct as a copy of the array. */
+  TJson(const TArray &that) : Kind(Array), Array_(that) {}
+
+  /* Construct as an object, leaving the donor empty. */
+  TJson(TObject &&that) noexcept : Kind(Object), Object_(std::move(that)) {}
+
+  /* Construct as a copy of the object. */
+  TJson(const TObject &that) : Kind(Object), Object_(that) {}
+
+  /* Construct as a string of a single character. */
+  TJson(char that) : Kind(String), String_(&that, 1) {}
+
+  /* Construct as a string of a single character. */
+  TJson(const char *that) : Kind(String), String_(that ? that : "") {}
+
+  /* Construct as a string, leaving the donor empty. */
+  TJson(TString &&that) noexcept : Kind(String), String_(std::move(that)) {}
+
+  /* Construct as a copy of the string. */
+  TJson(const TString &that) : Kind(String), String_(that) {}
+
+  /* Construct an array of copies of the example. */
+  TJson(size_t size, const TJson &example) : Kind(Array), Array_(size, example) {}
+
+  /* Contained elements, if any, are also destroyed. */
+  ~TJson() {
+    assert(this);
+    switch(Kind) {
+      /* Do nothing. */
+      case Null: {
+        break;
+      }
+      case Bool: {
+        break;
+      }
+      case Number: {
+        break;
+      }
+      /* Destroy the object. */
+      case Array: {
+        Array_.~TArray();
+        break;
+      }
+      case Object: {
+        Object_.~TObject();
+        break;
+      }
+      case String: {
+        String_.~TString();
+        break;
+      }
+    }
+  }
+
+  /* The donor is left null. */
+  TJson &operator=(TJson &&that) noexcept {
+    assert(this);
+    assert(&that);
+    this->~TJson();
+    new (this) TJson(std::move(that));
+    return *this;
+  }
+
+  /* Deep-copy. */
+  TJson &operator=(const TJson &that) {
+    assert(this);
+    assert(&that);
+    return *this = TJson(that);
+  }
+
+  /* True iff. this object and that one are in the same state. */
+  bool operator==(const TJson &that) const noexcept {
+    assert(this);
+    assert(&that);
+    bool success = (Kind == that.Kind);
+    if(success) {
+      switch(Kind) {
         case Null: {
-          strm << "null";
           break;
         }
         case Bool: {
-          strm << (Bool_ ? "true" : "false");
+          success = (Bool_ == that.Bool_);
           break;
         }
         case Number: {
-          strm << std::fixed << Number_;
-          strm.unsetf(std::ios_base::floatfield);
+          success = (Number_ == that.Number_);
           break;
         }
         case Array: {
-          strm << '[';
-          bool sep = false;
-          for (const auto &elem: Array_) {
-            if (sep) {
-              strm << ',';
-            } else {
-              sep = true;
-            }
-            elem.Write(strm);
-          }
-          strm << ']';
+          success = (Array_ == that.Array_);
           break;
         }
         case Object: {
-          strm << '{';
-          bool sep = false;
-          for (const auto &elem: Object_) {
-            if (sep) {
-              strm << ',';
-            } else {
-              sep = true;
-            }
-            WriteString(strm, elem.first);
-            strm << ':';
-            elem.second.Write(strm);
-          }
-          strm << '}';
+          success = (Object_ == that.Object_);
           break;
         }
         case String: {
-          WriteString(strm, String_);
+          success = (String_ == that.String_);
           break;
         }
       }
     }
+    return success;
+  }
 
-    /* Parse a text. */
-    template <typename TArg>
-    static TJson Parse(TArg &&arg) {
-      std::istringstream strm(std::forward<TArg>(arg));
-      TJson result;
-      result.Read(strm);
-      return std::move(result);
-    }
+  /* True iff. this object and that one are not in the same state. */
+  bool operator!=(const TJson &that) const noexcept {
+    assert(this);
+    return !(*this == that);
+  }
 
-    private:
+  /* Subscript to an element contained in an array. */
+  TJson &operator[](size_t that) {
+    assert(this);
+    assert(Kind == Array);
+    assert(that < Array_.size());
+    return Array_[that];
+  }
 
-    /* Skip whitespace, then see if a comma-seprated list is going to
-       continue or not.  We're looking for a closing mark or, if we're not
-       at the start of the list, a comma. */
-    static bool ParseSep(
-        std::istream &strm, char close_mark, bool at_start) {
-      assert(&strm);
-      int c = std::ws(strm).peek();
-      if (c == close_mark) {
-        strm.ignore();
+  /* Subscript to an element contained in an array. */
+  const TJson &operator[](size_t that) const {
+    assert(this);
+    assert(Kind == Array);
+    assert(that < Array_.size());
+    return Array_[that];
+  }
+
+  /* Find or create an element contained in an object. */
+  TJson &operator[](TString &&that) {
+    assert(this);
+    assert(&that);
+    assert(Kind == Object);
+    return Object_[std::move(that)];
+  }
+
+  /* Find or create an element contained in an object. */
+  TJson &operator[](const TString &that) {
+    assert(this);
+    assert(&that);
+    assert(Kind == Object);
+    return Object_[that];
+  }
+
+  /* Find or create an element contained in an object. */
+  const TJson &operator[](const TString &that) const {
+    assert(this);
+    assert(&that);
+    assert(Kind == Object);
+    const TJson *elem = TryFind(that);
+    assert(elem);
+    return *elem;
+  }
+
+  /* Returns true if the object contains the given key */
+  bool Contains(const TString &that) const {
+    assert(this);
+    return TryFind(that);
+  }
+
+  /* Call back for each element contained in an array. */
+  bool ForEachElem(const TArrayCb &cb) const {
+    assert(this);
+    assert(&cb);
+    assert(cb);
+    assert(Kind == Array);
+    for(const auto &elem : Array_) {
+      if(!cb(elem)) {
         return false;
       }
-      if (!at_start) {
-        if (c != ',') {
-          THROW_ERROR(TSyntaxError) << "Expected a ',' but found a '" << char(c) << '\'';
+    }
+    return true;
+  }
+
+  /* Call back for each element contained in an object. */
+  bool ForEachElem(const TObjectCb &cb) const {
+    assert(this);
+    assert(&cb);
+    assert(cb);
+    assert(Kind == Object);
+    for(const auto &elem : Object_) {
+      if(!cb(elem.first, elem.second)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /* Call back for each element contained in an array. */
+  bool ForEachElem(const TArrayCbNonConst &cb) {
+    assert(this);
+    assert(&cb);
+    assert(cb);
+    assert(Kind == Array);
+    for(auto &elem : Array_) {
+      if(!cb(elem)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /* Call back for each element contained in an object. */
+  bool ForEachElem(const TObjectCbNonConst &cb) {
+    assert(this);
+    assert(&cb);
+    assert(cb);
+    assert(Kind == Object);
+    for(auto &elem : Object_) {
+      if(!cb(elem.first, elem.second)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /* The kind of state we're in. */
+  TKind GetKind() const noexcept {
+    assert(this);
+    return Kind;
+  }
+
+  /* The number of elements in an array or object or the number of
+     characters in a string. */
+  size_t GetSize() const noexcept {
+    assert(this);
+    switch(Kind) {
+      case Array: {
+        return Array_.size();
+      }
+      case Object: {
+        return Object_.size();
+      }
+      case String: {
+        return String_.size();
+      }
+      case Null:
+      case Bool:
+      case Number: {
+        Unreachable(HERE);
+      }
+    }
+  }
+
+  const TArray &GetArray() const noexcept {
+    assert(this);
+    assert(Kind == Array);
+    return Array_;
+  }
+
+  TArray &GetArray() noexcept {
+    assert(this);
+    assert(Kind == Array);
+    return Array_;
+  }
+
+  bool GetBool() const noexcept {
+    assert(this);
+    assert(Kind == Bool);
+    return Bool_;
+  }
+
+  int64_t GetNumber() const noexcept {
+    assert(this);
+    assert(Kind == Number);
+    return Number_;
+  }
+
+  const TString &GetString() const noexcept {
+    assert(this);
+    assert(Kind == String);
+    return String_;
+  }
+
+  bool IsNull() const noexcept {
+    assert(this);
+    return Kind == Null;
+  }
+
+  /* Parse from the stream. */
+  void Read(std::istream &strm) {
+    assert(this);
+    assert(&strm);
+    int c = std::ws(strm).peek();
+    switch(c) {
+      case '[': {
+        strm.ignore();
+        TJson elem;
+        TArray temp;
+        for(;;) {
+          if(!ParseSep(strm, ']', temp.empty())) {
+            break;
+          }
+          elem.Read(strm);
+          temp.emplace_back(std::move(elem));
         }
-        strm.ignore();
+        *this = TJson(std::move(temp));
+        break;
       }
+      case '{': {
+        strm.ignore();
+        std::string key;
+        TJson val;
+        TObject temp;
+        for(;;) {
+          if(!ParseSep(strm, '}', temp.empty())) {
+            break;
+          }
+          strm >> std::ws;
+          key = ReadString(strm);
+          strm >> std::ws;
+          Match(strm, ':');
+          val.Read(strm);
+          temp[std::move(key)] = std::move(val);
+        }
+        *this = TJson(std::move(temp));
+        break;
+      }
+      case '"': {
+        *this = TJson(ReadQuotedString(strm));
+        break;
+      }
+      default: {
+        if(c == '+' || c == '-' || isdigit(c)) {
+          int64_t temp;
+          strm >> temp;
+          *this = TJson(std::move(temp));
+          break;
+        } else {
+          // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
+          // NOTE: null, true, and false are all found by matching raw strings.
+          std::string text = ReadRawString(strm);
+          if(text == "null") {
+            Reset();
+          } else if(text == "true") {
+            *this = true;
+          } else if(text == "false") {
+            *this = false;
+          } else {
+            *this = TJson(move(text));
+          }
+          break;
+        }
+        THROW_ERROR(TSyntaxError) << "Unexpected '" << char(c) << "' at start of input";
+      }
+    }  // switch
+  }
 
-      // If we close right after the comma, we have a trailing comma and are actually done
-      c = std::ws(strm).peek();
-      if (c == close_mark) {
-        strm.ignore();
-        return false;
+  /* Return to the default-constructed state (which is null). */
+  TJson &Reset() noexcept {
+    assert(this);
+    this->~TJson();
+    Kind = Null;
+    return *this;
+  }
+
+  /* Swap states. */
+  TJson &Swap(TJson &that) noexcept {
+    assert(this);
+    assert(&that);
+    TJson temp = std::move(*this);
+    new (this) TJson(std::move(that));
+    new (&that) TJson(std::move(temp));
+    return *this;
+  }
+
+  /* A pointer to the named element in the object, or null if we have no
+     such element. */
+  const TJson *TryFind(const std::string &key) const {
+    assert(this);
+    assert(Kind == Object);
+    auto iter = Object_.find(key);
+    return (iter != Object_.end()) ? &(iter->second) : nullptr;
+  }
+
+  /* Format to the stream. */
+  void Write(std::ostream &strm) const {
+    assert(this);
+    assert(&strm);
+    switch(Kind) {
+      case Null: {
+        strm << "null";
+        break;
       }
-      return true;
+      case Bool: {
+        strm << (Bool_ ? "true" : "false");
+        break;
+      }
+      case Number: {
+        strm << std::fixed << Number_;
+        strm.unsetf(std::ios_base::floatfield);
+        break;
+      }
+      case Array: {
+        strm << '[';
+        bool sep = false;
+        for(const auto &elem : Array_) {
+          if(sep) {
+            strm << ',';
+          } else {
+            sep = true;
+          }
+          elem.Write(strm);
+        }
+        strm << ']';
+        break;
+      }
+      case Object: {
+        strm << '{';
+        bool sep = false;
+        for(const auto &elem : Object_) {
+          if(sep) {
+            strm << ',';
+          } else {
+            sep = true;
+          }
+          WriteString(strm, elem.first);
+          strm << ':';
+          elem.second.Write(strm);
+        }
+        strm << '}';
+        break;
+      }
+      case String: {
+        WriteString(strm, String_);
+        break;
+      }
     }
+  }
 
-    /* The stream must yield given char or throw a syntax error. */
-    static void Match(std::istream &strm, char expected) {
-      assert(&strm);
-      if (strm.peek() != expected) {
-        THROW_ERROR(TSyntaxError) << "Expected '" << expected << "' but didn't find it. Found '" << char(strm.peek())
-                                  << '\'';
+  /* Parse a text. */
+  template <typename TArg>
+  static TJson Parse(TArg &&arg) {
+    std::istringstream strm(std::forward<TArg>(arg));
+    TJson result;
+    result.Read(strm);
+    return std::move(result);
+  }
+
+  private:
+  /* Skip whitespace, then see if a comma-seprated list is going to
+     continue or not.  We're looking for a closing mark or, if we're not
+     at the start of the list, a comma. */
+  static bool ParseSep(std::istream &strm, char close_mark, bool at_start) {
+    assert(&strm);
+    int c = std::ws(strm).peek();
+    if(c == close_mark) {
+      strm.ignore();
+      return false;
+    }
+    if(!at_start) {
+      if(c != ',') {
+        THROW_ERROR(TSyntaxError) << "Expected a ',' but found a '" << char(c) << '\'';
       }
       strm.ignore();
     }
 
-    /* See accessor. */
-    TKind Kind;
-
-    /* The union of our potential states.  At most one of these is valid
-       at a time.  'Kind', above, determines which, if any, is valid. */
-    union {
-      bool        Bool_;
-      int64_t      Number_;
-      TObject     Object_;
-      TArray      Array_;
-      std::string String_;
-    };
-
-  };  // TJson
-
-  inline void swap(Base::TJson &lhs, Base::TJson &rhs) noexcept {
-    lhs.Swap(rhs);
+    // If we close right after the comma, we have a trailing comma and are actually done
+    c = std::ws(strm).peek();
+    if(c == close_mark) {
+      strm.ignore();
+      return false;
+    }
+    return true;
   }
 
-  /* Std stream extractor. */
-  inline std::istream &operator>>(std::istream &strm, TJson &that) {
-    assert(&that);
-    that.Read(strm);
-    return strm;
+  /* The stream must yield given char or throw a syntax error. */
+  static void Match(std::istream &strm, char expected) {
+    assert(&strm);
+    if(strm.peek() != expected) {
+      THROW_ERROR(TSyntaxError) << "Expected '" << expected << "' but didn't find it. Found '"
+                                << char(strm.peek()) << '\'';
+    }
+    strm.ignore();
   }
 
-  /* Std stream inserter. */
-  inline std::ostream &operator<<(std::ostream &strm, const TJson &that) {
-    assert(&that);
-    that.Write(strm);
-    return strm;
-  }
+  /* See accessor. */
+  TKind Kind;
 
-  inline std::ostream &operator<<(std::ostream &strm, const TJson::TKind &kind) {
-    assert(&kind);
-      switch (kind) {
-        case TJson::Null:   {
-          strm << "null";
-          break;
-        }
-        case TJson::Bool:   {
-          strm << "bool";
-          break;
-        }
-        case TJson::Number: {
-          strm << "number";
-          break;
-        }
-        case TJson::Array:  {
-          strm << "array";
-          break;
-        }
-        case TJson::Object: {
-          strm << "object";
-          break;
-        }
-        case TJson::String: {
-          strm << "string";
-          break;
-        }
-      }
-      return strm;
+  /* The union of our potential states.  At most one of these is valid
+     at a time.  'Kind', above, determines which, if any, is valid. */
+  union {
+    bool Bool_;
+    int64_t Number_;
+    TObject Object_;
+    TArray Array_;
+    std::string String_;
+  };
+
+};  // TJson
+
+inline void swap(Base::TJson &lhs, Base::TJson &rhs) noexcept { lhs.Swap(rhs); }
+
+/* Std stream extractor. */
+inline std::istream &operator>>(std::istream &strm, TJson &that) {
+  assert(&that);
+  that.Read(strm);
+  return strm;
+}
+
+/* Std stream inserter. */
+inline std::ostream &operator<<(std::ostream &strm, const TJson &that) {
+  assert(&that);
+  that.Write(strm);
+  return strm;
+}
+
+inline std::ostream &operator<<(std::ostream &strm, const TJson::TKind &kind) {
+  assert(&kind);
+  switch(kind) {
+    case TJson::Null: {
+      strm << "null";
+      break;
+    }
+    case TJson::Bool: {
+      strm << "bool";
+      break;
+    }
+    case TJson::Number: {
+      strm << "number";
+      break;
+    }
+    case TJson::Array: {
+      strm << "array";
+      break;
+    }
+    case TJson::Object: {
+      strm << "object";
+      break;
+    }
+    case TJson::String: {
+      strm << "string";
+      break;
+    }
   }
+  return strm;
+}
 
 }  // Base
 
-
 namespace std {
 
-  /* Standard swapper. */
-  template <>
-  inline void swap<Base::TJson>(Base::TJson &lhs, Base::TJson &rhs) noexcept {
-    lhs.Swap(rhs);
-  }
-
+/* Standard swapper. */
+template <>
+inline void swap<Base::TJson>(Base::TJson &lhs, Base::TJson &rhs) noexcept {
+  lhs.Swap(rhs);
+}
 }

@@ -33,9 +33,9 @@ void Base::GenBacktrace(int max_frame_count, const function<void(const string &)
   void *frames[max_frame_count + 1];
   int frame_count = backtrace(frames, max_frame_count + 1);
   char **symbols = backtrace_symbols(frames, frame_count);
-  for (int frame_idx = 1; frame_idx < frame_count; ++frame_idx) {
+  for(int frame_idx = 1; frame_idx < frame_count; ++frame_idx) {
     auto frame_print = AsStr('[', frame_idx, '/', frame_count - 1, "][");
-    if (symbols) {
+    if(symbols) {
       frame_print += symbols[frame_idx];
     } else {
       frame_print += AsStr(frames[frame_idx]);
@@ -50,12 +50,12 @@ void Base::SetBacktraceOnTerminate() {
     try {
       bool old_tried_throw = tried_throw;
       tried_throw |= true;
-      if (!old_tried_throw)
+      if(!old_tried_throw)
         throw;
       cerr << "TERMINATE (no exception)" << endl;
-    } catch (const std::exception &ex) {
+    } catch(const std::exception &ex) {
       cerr << "TERMINATE (standard exception): " << ex.what() << endl;
-    } catch (...) {
+    } catch(...) {
       cerr << "TERMINATE (unknown exception): " << endl;
     }
     cerr << "BACKTRACE" << endl;

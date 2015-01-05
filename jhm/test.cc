@@ -69,7 +69,8 @@ TSet<TFile *> Jhm::FindTests(TEnv &env) {
       if(f_it != ext_list.end()) {
         // We found a test! Get the executable variant / actual test file
         Out.insert(Env.GetFile(TRelPath(AddExtension(
-            DropExtension(TPath(f->GetRelPath().Path), uint32_t(ext_list.end() - f_it)), {"test", ""}))));
+            DropExtension(TPath(f->GetRelPath().Path), uint32_t(ext_list.end() - f_it)),
+            {"test", ""}))));
       }
       return true;
     }

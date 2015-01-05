@@ -25,33 +25,33 @@
 
 namespace Util {
 
-  const char *Strerror(int errno_value, char *buf, size_t buf_size) {
-    assert(buf);
-    assert(buf_size);
+const char *Strerror(int errno_value, char *buf, size_t buf_size) {
+  assert(buf);
+  assert(buf_size);
 
-    /* The man page for strerror_r explains all of this ugliness. */
+/* The man page for strerror_r explains all of this ugliness. */
 
-#if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE) || __APPLE__
-    /* This is the XSI-compliant version of strerror_r(). */
-    int err = strerror_r(errno_value, buf, buf_size);
+#if((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE) || __APPLE__
+  /* This is the XSI-compliant version of strerror_r(). */
+  int err = strerror_r(errno_value, buf, buf_size);
 
-    if (err) {
-      /* In the unlikely event that something went wrong, make the buffer
-         contain the empty string, in case it would otherwise be left with
-         arbitrary junk. */
-      buf[0] = '\0';
-    }
+  if(err) {
+    /* In the unlikely event that something went wrong, make the buffer
+       contain the empty string, in case it would otherwise be left with
+       arbitrary junk. */
+    buf[0] = '\0';
+  }
 
-    return buf;
+  return buf;
 #else
-    /* This is the GNU-specific version of strerror_r().  Its return type is
-       'char *'. */
-    return strerror_r(errno_value, buf, buf_size);
+  /* This is the GNU-specific version of strerror_r().  Its return type is
+     'char *'. */
+  return strerror_r(errno_value, buf, buf_size);
 #endif
-  }
+}
 
-  void Abort(const Base::TCodeLocation &code_location) {
-    std::cerr << "aborting at " << code_location << std::endl;
-    abort();
-  }
+void Abort(const Base::TCodeLocation &code_location) {
+  std::cerr << "aborting at " << code_location << std::endl;
+  abort();
+}
 }  // Util

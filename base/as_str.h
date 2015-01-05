@@ -1,9 +1,11 @@
 /* <base/as_str.h>
 
-   Convert an object to a string, either by using the operator<< overload which is defined for it, or calling the
+   Convert an object to a string, either by using the operator<< overload which is defined for it,
+   or calling the
    provided function which takes an ostream as it's first parameter.
 
-   This prevents us from having to write the exact same code to make an ostringstream and then get the string out all
+   This prevents us from having to write the exact same code to make an ostringstream and then get
+   the string out all
    over the place
 
    Copyright 2010-2014 OrlyAtomics, Inc.
@@ -31,18 +33,18 @@
 
 namespace Base {
 
-  template <typename... TArgs>
-  std::string AsStr(TArgs &&...args) {
-    std::ostringstream strm;
-    strm << Concat(std::forward_as_tuple(std::forward<TArgs>(args)...));
-    return strm.str();
-  }
+template <typename... TArgs>
+std::string AsStr(TArgs &&... args) {
+  std::ostringstream strm;
+  strm << Concat(std::forward_as_tuple(std::forward<TArgs>(args)...));
+  return strm.str();
+}
 
-  template <typename TFn, typename... TArgs>
-  std::string AsStrFunc(TFn &&fn, TArgs &&... args) {
-    std::ostringstream strm;
-    std::forward<TFn>(fn)(strm, std::forward<TArgs>(args)...);
-    return strm.str();
-  }
+template <typename TFn, typename... TArgs>
+std::string AsStrFunc(TFn &&fn, TArgs &&... args) {
+  std::ostringstream strm;
+  std::forward<TFn>(fn)(strm, std::forward<TArgs>(args)...);
+  return strm.str();
+}
 
-} // Base
+}  // Base

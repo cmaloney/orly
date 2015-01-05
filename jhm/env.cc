@@ -34,10 +34,10 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
 
   // Check the cache
   auto range = JobsByOutput.equal_range(out_file);
-  if (range.first != JobsByOutput.end()) {
-    for_each(range.first, range.second, [&ret](const pair<TFile*, TJob *> &pair) {
+  if(range.first != JobsByOutput.end()) {
+    for_each(range.first, range.second, [&ret](const pair<TFile *, TJob *> &pair) {
       // NOTE: job can be a nullptr, which is valid in the cache to indicate "no jobs exist".
-      if (pair.second) {
+      if(pair.second) {
         // TODO: InsertOrFail.
         ret.insert(pair.second);
       }
@@ -51,7 +51,7 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
         continue;
       }
       TFile *in = env.GetFile(*opt_path);
-      if (!in) {
+      if(!in) {
         continue;
       }
 
@@ -59,14 +59,14 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
       TJob *job = Jobs.TryGet(job_desc);
 
       // We've found this job before, which means we're an additional unstated output of the job.
-      if (job) {
-        if (!Contains(job->GetOutput(), out_file)) {
+      if(job) {
+        if(!Contains(job->GetOutput(), out_file)) {
           job->AddOutput(out_file);
         }
       } else {
         // Make the new job
         job = Jobs.Add(TJobDesc{in, producer.Name}, producer.MakeJob(env, in));
-        if (job->HasUnknownOutputs()) {
+        if(job->HasUnknownOutputs()) {
           job->AddOutput(out_file);
         }
       }
@@ -80,26 +80,25 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
     }
 
     // If no entries have been added to cache, then insert a nullptr to indicate we did try
-    if (JobsByOutput.find(out_file) == JobsByOutput.end()) {
+    if(JobsByOutput.find(out_file) == JobsByOutput.end()) {
       JobsByOutput.emplace(out_file, nullptr);
     }
   }
-
 
   return ret;
 }
 
 Jhm::TTree TEnv::GetOutDirName(const TTree &root,
-                                const string &proj_name,
-                                const string &config,
-                                const string &config_mixin) {
+                               const string &proj_name,
+                               const string &config,
+                               const string &config_mixin) {
   TTree out(root);
   out.Root.push_back("out");
-  if (proj_name != "src") {
+  if(proj_name != "src") {
     out.Root.back() += '_' + proj_name;
   }
   out.Root.push_back(config);
-  if (config_mixin.size()) {
+  if(config_mixin.size()) {
     out.Root.back() += '_' + config_mixin;
   }
   return out;
@@ -109,13 +108,14 @@ vector<string> GetConfigList(const TTree &root,
                              const string &proj_name,
                              const string &config,
                              const string &config_mixin) {
-  // root/project/config.jhm.mixin -> root/project/config.jhm -> root/config.jhm.mixin ->root/config.jhm
-  //NOTE: At least one mixin file must be present if a config mixin is specified.
+  // root/project/config.jhm.mixin -> root/project/config.jhm -> root/config.jhm.mixin
+  // ->root/config.jhm
+  // NOTE: At least one mixin file must be present if a config mixin is specified.
   vector<string> ret;
   string root_str = AsStr(root);
 
   auto add_conf = [&config_mixin, &ret, &root_str](bool mixin, string path) {
-    if (mixin && config_mixin.empty()) {
+    if(mixin && config_mixin.empty()) {
       return;
     }
     path = root_str + '/' + path + ".jhm";
@@ -138,22 +138,25 @@ vector<string> CopyAppendVector(const vector<string> &src, const string &val) {
   return ret;
 }
 
-TEnv::TEnv(const TTree &root, const string &proj_name, const string &config, const string &config_mixin)
+TEnv::TEnv(const TTree &root,
+           const string &proj_name,
+           const string &config,
+           const string &config_mixin)
     : Root(root),
       Src(CopyAppendVector(Root.Root, proj_name)),
       Out(GetOutDirName(root, proj_name, config, config_mixin)),
       Config(GetConfigList(root, proj_name, config, config_mixin)) {
-
-  if (config == "root") {
-    THROW_ERROR(runtime_error) << "the config 'root' is reserved / special. Use a different config.";
+  if(config == "root") {
+    THROW_ERROR(runtime_error)
+        << "the config 'root' is reserved / special. Use a different config.";
   }
 
   // NOTE: Technically not a hard error. But usually indicates something went wrong.
-  if (!Config.HasConfig()) {
+  if(!Config.HasConfig()) {
     THROW_ERROR(runtime_error) << "No config file found for config " << quoted(config)
                                << ". At least one config looked for must exist";
   }
-  //TODO: Assert the config stack contains at least one config
+  // TODO: Assert the config stack contains at least one config
   /*
   // Load the configuation
   // TODO: Gracefully degrade on removal of a config.
@@ -166,12 +169,10 @@ TEnv::TEnv(const TTree &root, const string &proj_name, const string &config, con
 }
 
 TFile *TEnv::GetFile(TRelPath name) {
-
   // If we've been found before, just return what was found.
-  if (TFile *f = Files.TryGet(name)) {
+  if(TFile *f = Files.TryGet(name)) {
     return f;
   }
-
 
   // If doesn't exist in src, must be in out / generated
   TPath src_path = Src.GetAbsPath(name);
@@ -182,7 +183,7 @@ TFile *TEnv::GetFile(TRelPath name) {
   // NOTE: It's a design decision that this can only come from src and can't be machine generated.
   string conf_path = src_path_str + ".jhm";
 
-  if (ExistsPath(src_path_str.c_str())) {
+  if(ExistsPath(src_path_str.c_str())) {
     auto file = make_unique<TFile>(TRelPath(name), &Src, true, conf_path);
     return Files.Add(move(name), move(file));
   } else {
@@ -218,21 +219,21 @@ void TEnv::SetFuncs(TFileCheckFunc &&buildable, TFileCheckFunc &&done) {
 
 TFile *TEnv::TryGetFileFromPath(const std::string &name) {
   assert(&name);
-  assert(name.size()); // Name must be non-empty.
+  assert(name.size());  // Name must be non-empty.
 
   auto it = PathLookupCache.find(name);
-  if (it != PathLookupCache.end()) {
+  if(it != PathLookupCache.end()) {
     return it->second;
   }
 
-  TFile *result=nullptr;
+  TFile *result = nullptr;
 
   // If the name starts with a '/' it's an absolute filesystem path
   TPath path(name);
   if(name[0] == '/') {
-    if (Src.Contains(path)) {
+    if(Src.Contains(path)) {
       result = GetFile(Src.GetRelPath(move(path)));
-    } else if (Out.Contains(path)) {
+    } else if(Out.Contains(path)) {
       result = GetFile(Out.GetRelPath(move(path)));
     } else {
       // File isn't in a known tree, so we can't possibly get it.

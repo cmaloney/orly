@@ -2,7 +2,8 @@
 
    A registry of job types.
 
-   Used for type checking between different job kinds / figuring out if an input is valid for a given job kind.
+   Used for type checking between different job kinds / figuring out if an input is valid for a
+   given job kind.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -31,16 +32,14 @@ using namespace Jhm;
 TJob::TJob(TFile *input, TSet<TFile *> output, bool unknown_outputs)
     : Input(input), Output(move(output)), UnknownOutputs(unknown_outputs) {
   assert(input);
-  for (TFile *f : Output) {
+  for(TFile *f : Output) {
     assert(f);
   }
 }
 
 std::ostream &Jhm::operator<<(std::ostream &out, TJob *job) {
-  out
-    << job->GetName() << '{' << job->GetInput() << " -> ["
-    << Join(job->GetOutput(), ", ")
-    << "]}";
+  out << job->GetName() << '{' << job->GetInput() << " -> [" << Join(job->GetOutput(), ", ")
+      << "]}";
 
   return out;
 }

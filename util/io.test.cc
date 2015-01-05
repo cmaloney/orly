@@ -50,7 +50,7 @@ FIXTURE(ReadAtMost) {
   WriteExactly(writeable, ExpectedData, ExpectedSize);
   Zero(ActualData);
   size_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
-  if (EXPECT_EQ(actual_size, ExpectedSize)) {
+  if(EXPECT_EQ(actual_size, ExpectedSize)) {
     EXPECT_FALSE(strcmp(ActualData, ExpectedData));
   }
 }
@@ -69,7 +69,7 @@ FIXTURE(WriteAtMost) {
   bool caught_broken_pipe = false;
   try {
     WriteAtMost(writeable, ExpectedData, ExpectedSize);
-  } catch (const system_error &error) {
+  } catch(const system_error &error) {
     /* TODO: change this to error.code() == errc::broken_pipe */
     caught_broken_pipe = (error.code().value() == EPIPE);
   }
@@ -100,7 +100,7 @@ FIXTURE(TryReadExactlySomething) {
   bool caught_unexpected_end = false;
   try {
     TryReadExactly(readable, ActualData, ExpectedSize);
-  } catch (const TUnexpectedEnd &) {
+  } catch(const TUnexpectedEnd &) {
     caught_unexpected_end = true;
   }
   EXPECT_TRUE(caught_unexpected_end);
@@ -113,7 +113,7 @@ FIXTURE(ReadExactlyNothing) {
   bool caught_could_not_start = false;
   try {
     ReadExactly(readable, ActualData, ExpectedSize);
-  } catch (const TCouldNotStart &) {
+  } catch(const TCouldNotStart &) {
     caught_could_not_start = true;
   }
   EXPECT_TRUE(caught_could_not_start);
@@ -136,7 +136,7 @@ FIXTURE(ReadExactlySomething) {
   bool caught_unexpected_end = false;
   try {
     ReadExactly(readable, ActualData, ExpectedSize);
-  } catch (const TUnexpectedEnd &) {
+  } catch(const TUnexpectedEnd &) {
     caught_unexpected_end = true;
   }
   EXPECT_TRUE(caught_unexpected_end);

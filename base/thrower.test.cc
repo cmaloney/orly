@@ -30,30 +30,27 @@ static void GetParts(const char *msg, vector<string> &parts) {
   assert(msg);
   assert(&parts);
   parts.clear();
-  const char
-      *start  = nullptr,
-      *end    = nullptr,
-      *cursor = msg;
-  for (;;) {
+  const char *start = nullptr, *end = nullptr, *cursor = msg;
+  for(;;) {
     char c = *cursor;
-    if (start) {
-      if (!c || c == ';') {
+    if(start) {
+      if(!c || c == ';') {
         parts.push_back(string(start, end + 1));
-        if (!c) {
+        if(!c) {
           break;
         }
         start = nullptr;
-        end   = nullptr;
-      } else if (!isspace(c)) {
+        end = nullptr;
+      } else if(!isspace(c)) {
         end = cursor;
       }
     } else {
-      if (!c) {
+      if(!c) {
         break;
       }
-      if (!isspace(c)) {
+      if(!isspace(c)) {
         start = cursor;
-        end   = cursor;
+        end = cursor;
       }
     }
     ++cursor;
@@ -61,11 +58,11 @@ static void GetParts(const char *msg, vector<string> &parts) {
 }
 
 FIXTURE(GetParts) {
-  const vector<string> expected = { "hello", "doctor", "name", "continue  yesterday" };
+  const vector<string> expected = {"hello", "doctor", "name", "continue  yesterday"};
   vector<string> actual;
   GetParts("   hello; doctor;name   ;  continue  yesterday", actual);
-  if (EXPECT_EQ(actual.size(), expected.size())) {
-    for (size_t i = 0; i < expected.size(); ++i) {
+  if(EXPECT_EQ(actual.size(), expected.size())) {
+    for(size_t i = 0; i < expected.size(); ++i) {
       EXPECT_EQ(actual[i], expected[i]);
     }
   }
@@ -73,19 +70,17 @@ FIXTURE(GetParts) {
 
 DEFINE_ERROR(TFoo, invalid_argument, "a fooness has occurred");
 
-static const char
-    *Extra1 = "some stuff",
-    *Extra2 = "some more stuff";
+static const char *Extra1 = "some stuff", *Extra2 = "some more stuff";
 
 template <typename TThrowAs, typename TCatchAs>
 static void ThrowIt() {
   vector<string> parts;
   try {
     THROW_ERROR(TThrowAs) << Extra1 << EndOfPart << Extra2;
-  } catch (const TCatchAs &ex) {
+  } catch(const TCatchAs &ex) {
     GetParts(ex.what(), parts);
   }
-  if (EXPECT_EQ(parts.size(), 4u)) {
+  if(EXPECT_EQ(parts.size(), 4u)) {
     EXPECT_EQ(parts[1], TFoo::GetDesc());
     EXPECT_EQ(parts[2], Extra1);
     EXPECT_EQ(parts[3], Extra2);
@@ -100,7 +95,5 @@ FIXTURE(Typical) {
 }
 
 FIXTURE(StdExcept) {
-  EXPECT_THROW(runtime_error, [](){
-    THROW_ERROR(runtime_error) << "foo bar baz";
-  });
+  EXPECT_THROW(runtime_error, []() { THROW_ERROR(runtime_error) << "foo bar baz"; });
 }

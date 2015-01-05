@@ -39,13 +39,13 @@ int TSubprocess::Wait() const {
   assert(this);
   int status;
   IfLt0(waitpid(ChildId, &status, 0));
-  /* The Linux macros used to work with waitpid() use C-style casts, so we'll have to
-     temporarily ignore their bad behavior. */
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wold-style-cast"
+/* The Linux macros used to work with waitpid() use C-style casts, so we'll have to
+   temporarily ignore their bad behavior. */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
   return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
-  /* We now return you to the world of modern programming style. */
-  #pragma GCC diagnostic pop
+/* We now return you to the world of modern programming style. */
+#pragma GCC diagnostic pop
 }
 
 void TSubprocess::ExecStr(const char *cmd) {
@@ -56,12 +56,13 @@ void TSubprocess::ExecStr(const char *cmd) {
 
 void TSubprocess::Exec(const vector<string> &cmd) {
   assert(&cmd);
-  // NOTE: This is lots of copies. We're going to get all overwritten / eaten by the child though, so no big worries.
+  // NOTE: This is lots of copies. We're going to get all overwritten / eaten by the child though,
+  // so no big worries.
   // Build an array
 
   const char *argv[cmd.size() + 1];
   argv[cmd.size()] = nullptr;
-  for (uint64_t i = 0; i < cmd.size(); ++i) {
+  for(uint64_t i = 0; i < cmd.size(); ++i) {
     argv[i] = cmd[i].c_str();
   }
   // NOTE: const_cast is unsafe. In this case though, we're going out of existence, so who cares.
@@ -77,9 +78,9 @@ TSubprocess::TSubprocess(TPump &pump) {
   pump.NewPipe(StdOutFromChild, stdout);
   pump.NewPipe(StdErrFromChild, stderr);
   IfLt0(ChildId = fork());
-  if (!ChildId) {
+  if(!ChildId) {
     /* We're the child.  Dupe the pipes into their normal positions. */
-    IfLt0(dup2(stdin,  0));
+    IfLt0(dup2(stdin, 0));
     IfLt0(dup2(stdout, 1));
     IfLt0(dup2(stderr, 2));
     /* Get rid of the extra fds. */

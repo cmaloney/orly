@@ -35,7 +35,6 @@ FIXTURE(ForEach) {
 }
 
 struct TPrint {
-
   explicit TPrint(std::ostream &strm) : Strm(strm) {}
 
   template <std::size_t Idx, typename TElem>
@@ -44,7 +43,6 @@ struct TPrint {
   }
 
   private:
-
   std::ostream &Strm;
 
 };  // TPrint
@@ -69,9 +67,7 @@ struct TAddOne {
   void operator()(TElem &elem) const {
     elem += 1;
   }
-  void operator()(std::string &elem) const {
-    elem = std::to_string(std::stoi(elem) + 1);
-  }
+  void operator()(std::string &elem) const { elem = std::to_string(std::stoi(elem) + 1); }
 };  // TAddOne
 
 FIXTURE(Modify) {

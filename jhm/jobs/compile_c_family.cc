@@ -28,11 +28,11 @@ using namespace std::placeholders;
 using namespace Util;
 
 vector<string> TCompileCFamily::GetStandardArgs(TFile *input, bool is_cpp, const TEnv &env) {
-
   // Add options from configuration. Per-file config overrides global config
   vector<string> options;
-  // TODO: Make file configuration automatically attach environment to the tail of it's list for lookups / fallback?
-  if (!input->GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options)) {
+  // TODO: Make file configuration automatically attach environment to the tail of it's list for
+  // lookups / fallback?
+  if(!input->GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options)) {
     env.GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options);
   }
 
@@ -53,7 +53,7 @@ static TRelPath GetOutputName(const TRelPath &input, bool is_cpp) {
 }
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output, bool is_cpp) {
-  if (output.Path.EndsWith({"o"})) {
+  if(output.Path.EndsWith({"o"})) {
     return TRelPath(SwapExtension(TPath(output.Path), {is_cpp ? "cc" : "c"}));
   } else {
     return TOpt<TRelPath>();
@@ -61,42 +61,39 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output, bool is_cpp) {
 }
 
 TJobProducer TCompileCFamily::GetCProducer() {
-  return TJobProducer{
-    "compile_c",
-    {{"o"}},
-    bind(GetInputName, _1, false),
-    //TODO: Should be able to eliminate the lambda wrapper here...
-    [] (TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
-      return unique_ptr<TJob>(new TCompileCFamily(env, in_file, false));
-    }
-  };
+  return TJobProducer{"compile_c",
+                      {{"o"}},
+                      bind(GetInputName, _1, false),
+                      // TODO: Should be able to eliminate the lambda wrapper here...
+                      [](TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
+    return unique_ptr<TJob>(new TCompileCFamily(env, in_file, false));
+  }};
 }
 
 TJobProducer TCompileCFamily::GetCppProducer() {
-  return TJobProducer{
-    "compile_cpp",
-    {{"o"}},
-    bind(GetInputName, _1, true),
-    //TODO: Should be able to eliminate the lambda wrapper here...
-    [] (TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
-      return unique_ptr<TJob>(new TCompileCFamily(env, in_file, true));
-    }
-  };
+  return TJobProducer{"compile_cpp",
+                      {{"o"}},
+                      bind(GetInputName, _1, true),
+                      // TODO: Should be able to eliminate the lambda wrapper here...
+                      [](TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
+    return unique_ptr<TJob>(new TCompileCFamily(env, in_file, true));
+  }};
 }
 
 const char *TCompileCFamily::GetName() {
-  if (IsCpp) {
+  if(IsCpp) {
     return "compile_cpp";
   } else {
     return "compile_c";
   }
 }
 
-const unordered_set<TFile*> TCompileCFamily::GetNeeds() {
+const unordered_set<TFile *> TCompileCFamily::GetNeeds() {
   assert(this);
 
   // Only thing needed is the dep file. The dep file by being done enusures
-  // all includes exist for C/C++. Set is constructed in ctor so that we don't construct it all the time.
+  // all includes exist for C/C++. Set is constructed in ctor so that we don't construct it all the
+  // time.
   return {Need};
 }
 
@@ -106,21 +103,20 @@ vector<string> TCompileCFamily::GetCmd() {
   // Build up the gcc call
   // add output, input filenames
   // Tell GCC we're only compiling to a .o
-  vector<string> cmd{IsCpp ? "clang++" : "clang", "-o" + GetSoleOutput()->GetPath(), GetInput()->GetPath(), "-c"};
+  vector<string> cmd{
+      IsCpp ? "clang++" : "clang", "-o" + GetSoleOutput()->GetPath(), GetInput()->GetPath(), "-c"};
 
   /* Add standard arguments */ {
-    //TODO: Really need an insertion move here...
-    //TODO: Trivial vector append (Can we add an operator+ for rvalue rhs?)
+    // TODO: Really need an insertion move here...
+    // TODO: Trivial vector append (Can we add an operator+ for rvalue rhs?)
     auto std_args = GetStandardArgs(GetInput(), IsCpp, Env);
-    for(auto &arg: std_args) {
+    for(auto &arg : std_args) {
       cmd.push_back(move(arg));
     }
-
   }
 
   return cmd;
 }
-
 
 TTimestamp TCompileCFamily::GetCmdTimestamp() const {
   static TTimestamp gcc_timestamp = GetTimestampSearchingPath("clang");
@@ -133,12 +129,13 @@ bool TCompileCFamily::IsComplete() {
   assert(this);
 
   // Calculate the files which need to be linked against to make a binary with this file.
-  // TODO: We needlessly jump to strings here. Really should be able to stash away TFile * within a TFile's config.
+  // TODO: We needlessly jump to strings here. Really should be able to stash away TFile * within a
+  // TFile's config.
   TJson::TArray filtered_includes;
-  for (const string &include : Need->GetConfig().Read<vector<string>>({"c++","include"})) {
+  for(const string &include : Need->GetConfig().Read<vector<string>>({"c++", "include"})) {
     // TODO: We really only need the TRelPaths here, not jumping all the way to the file objects.
     TFile *include_file = Env.TryGetFileFromPath(include);
-    if (include_file) {
+    if(include_file) {
       filtered_includes.push_back(AsStr(include_file->GetPath()));
     }
   }

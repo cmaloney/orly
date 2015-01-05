@@ -1,20 +1,20 @@
-  /* <base/dir_walker.cc>
+/* <base/dir_walker.cc>
 
-   Implements <base/dir_walker.h>.
+ Implements <base/dir_walker.h>.
 
-   Copyright 2010-2014 OrlyAtomics, Inc.
+ Copyright 2010-2014 OrlyAtomics, Inc.
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License. */
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License. */
 
 #include <base/dir_walker.h>
 
@@ -34,35 +34,34 @@ TDirWalker::~TDirWalker() {}
 
 bool TDirWalker::Walk(const char *root) {
   assert(this);
-  bool result = true;  // Captures the result of the walker's event handlers.  If it ever becomes false, we abort the walk.
-  TEntry
-      entry,        // Filled in and passed for all event handlers.
+  bool result = true;  // Captures the result of the walker's event handlers.  If it ever becomes
+                       // false, we abort the walk.
+  TEntry entry,  // Filled in and passed for all event handlers.
       cycle_entry;  // Filled in and passed only for OnDirCycle().
   /* The OS walk function allows multiple roots, but we really just want one. */
   char *roots[2];
   roots[0] = const_cast<char *>(root);
   roots[1] = 0;
   /* Start walking, sorting at equal depth entries by name. */
-  auto tree = fts_open(
-      roots, FTS_COMFOLLOW | FTS_PHYSICAL | FTS_NOCHDIR,
-      [](const FTSENT **lhs, const FTSENT **rhs) {
-        return strcmp((*lhs)->fts_name, (*rhs)->fts_name);
-      }
-  );
+  auto tree = fts_open(roots,
+                       FTS_COMFOLLOW | FTS_PHYSICAL | FTS_NOCHDIR,
+                       [](const FTSENT **lhs, const FTSENT **rhs) {
+    return strcmp((*lhs)->fts_name, (*rhs)->fts_name);
+  });
   try {
     /* Loop until we're done walking or until an event handler tells us to abort. */
     do {
       /* Read the next entry.  If there isn't one, we're done. */
       auto node = fts_read(tree);
-      if (!node) {
+      if(!node) {
         break;
       }
       /* What kind of entry is this? */
-      switch (node->fts_info) {
+      switch(node->fts_info) {
         /* A directory being entered. */
         case FTS_D: {
           InitEntry(entry, node);
-          switch (OnDirBegin(entry)) {
+          switch(OnDirBegin(entry)) {
             case Enter: {
               break;
             }
@@ -158,7 +157,7 @@ bool TDirWalker::Walk(const char *root) {
         /* A symlink. */
         case FTS_SL: {
           InitEntry(entry, node);
-          switch (OnSymLink(entry)) {
+          switch(OnSymLink(entry)) {
             case Enter: {
               IfLt0(fts_set(tree, node, FTS_FOLLOW));
               break;
@@ -173,10 +172,10 @@ bool TDirWalker::Walk(const char *root) {
           }
           break;
         }
-        NO_DEFAULT_CASE;
+          NO_DEFAULT_CASE;
       }  // switch
-    } while (result);
-  } catch (...) {
+    } while(result);
+  } catch(...) {
     fts_close(tree);
     throw;
   }
@@ -184,45 +183,27 @@ bool TDirWalker::Walk(const char *root) {
   return result;
 }
 
-bool TDirWalker::OnBlockDev(const TEntry &/*entry*/) {
+bool TDirWalker::OnBlockDev(const TEntry & /*entry*/) { return true; }
+
+bool TDirWalker::OnCharDev(const TEntry & /*entry*/) { return true; }
+
+TDirWalker::TAction TDirWalker::OnDirBegin(const TEntry & /*entry*/) { return Enter; }
+
+bool TDirWalker::OnDirCycle(const TEntry & /*entry*/, const TEntry & /*cycle_entry*/) {
   return true;
 }
 
-bool TDirWalker::OnCharDev(const TEntry &/*entry*/) {
-  return true;
-}
+bool TDirWalker::OnDirEnd(const TEntry & /*entry*/) { return true; }
 
-TDirWalker::TAction TDirWalker::OnDirBegin(const TEntry &/*entry*/) {
-  return Enter;
-}
+bool TDirWalker::OnFile(const TEntry & /*entry*/) { return true; }
 
-bool TDirWalker::OnDirCycle(const TEntry &/*entry*/, const TEntry &/*cycle_entry*/) {
-  return true;
-}
+bool TDirWalker::OnNamedPipe(const TEntry & /*entry*/) { return true; }
 
-bool TDirWalker::OnDirEnd(const TEntry &/*entry*/) {
-  return true;
-}
+bool TDirWalker::OnSocket(const TEntry & /*entry*/) { return true; }
 
-bool TDirWalker::OnFile(const TEntry &/*entry*/) {
-  return true;
-}
+bool TDirWalker::OnUnknown(const TEntry & /*entry*/) { return true; }
 
-bool TDirWalker::OnNamedPipe(const TEntry &/*entry*/) {
-  return true;
-}
-
-bool TDirWalker::OnSocket(const TEntry &/*entry*/) {
-  return true;
-}
-
-bool TDirWalker::OnUnknown(const TEntry &/*entry*/) {
-  return true;
-}
-
-TDirWalker::TAction TDirWalker::OnSymLink(const TEntry &/*entry*/) {
-  return Skip;
-}
+TDirWalker::TAction TDirWalker::OnSymLink(const TEntry & /*entry*/) { return Skip; }
 
 void TDirWalker::InitEntry(TEntry &out, const FTSENT *in) {
   assert(&out);

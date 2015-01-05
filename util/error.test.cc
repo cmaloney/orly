@@ -36,9 +36,10 @@ FIXTURE(LibraryGenerated) {
   bool caught = false;
   try {
     thread().detach();
-  } catch (const system_error &) {
+  } catch(const system_error &) {
     caught = true;
-  } catch (...) {}
+  } catch(...) {
+  }
   EXPECT_TRUE(caught);
 }
 
@@ -46,9 +47,10 @@ FIXTURE(UtilsGenerated) {
   bool caught = false;
   try {
     IfLt0(read(-1, 0, 0));
-  } catch (const system_error &) {
+  } catch(const system_error &) {
     caught = true;
-  } catch (...) {}
+  } catch(...) {
+  }
   EXPECT_TRUE(caught);
 }
 

@@ -38,8 +38,10 @@ void RunFixtures() {
 
 int Main(int argc, char *argv[]) {
   Cmd::TParser parser;
-  Cmd::TArgs<TOptions> args {
-    Cmd::Optional({"verbose", "v"}, &TOptions::Verbose, "Show the results of unit tests, regardless of whether they pass or fail"),
+  Cmd::TArgs<TOptions> args{
+      Cmd::Optional({"verbose", "v"},
+                    &TOptions::Verbose,
+                    "Show the results of unit tests, regardless of whether they pass or fail"),
   };
   parser.Attach(&args, &GetOptionsNonConst());
   ParseWithStandard(parser, ExtractArgVector(args), argc, argv);
@@ -51,7 +53,8 @@ int Main(int argc, char *argv[]) {
 
   bool success = global_ctx.GetFailureCount();
   if(!success || GetOptions().Verbose) {
-    std::cout << "passed " << global_ctx.GetPassCount() << ", failed " << global_ctx.GetFailureCount();
+    std::cout << "passed " << global_ctx.GetPassCount() << ", failed "
+              << global_ctx.GetFailureCount();
   }
 
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

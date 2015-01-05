@@ -73,37 +73,37 @@ TODO(cmaloney): Sample / usage. */
 #define EXPECT_FALSE_AT(here, arg) ::Test::Expect::Check(here, ::Test::Expect::IsFalse, #arg, arg)
 
 /* Exepects that the given exception class will be thrown during evaluation of the function. */
-#define EXPECT_THROW(exception, func)              \
+#define EXPECT_THROW(exception, func)                      \
   ::Test::Expect::Check(HERE, #exception, [](bool &pass) { \
-    try {                                          \
-      func();                                      \
-      pass = false;                                \
-    } catch(const exception &) {                   \
-      pass = true;                                 \
-    }                                              \
+    try {                                                  \
+      func();                                              \
+      pass = false;                                        \
+    } catch(const exception &) {                           \
+      pass = true;                                         \
+    }                                                      \
   })
 
 // TODO: This name is sort of ugh.
 /* Like EXPECT_THROW, but captures the callable function. */
-#define EXPECT_THROW_FUNC(exception, func)              \
+#define EXPECT_THROW_FUNC(exception, func)                      \
   ::Test::Expect::Check(HERE, #exception, [&func](bool &pass) { \
-    try {                                               \
-      func();                                           \
-      pass = false;                                     \
-    } catch(const exception &) {                        \
-      pass = true;                                      \
-    }                                                   \
+    try {                                                       \
+      func();                                                   \
+      pass = false;                                             \
+    } catch(const exception &) {                                \
+      pass = true;                                              \
+    }                                                           \
   })
 
 /* Exepects that the given exception class will be thrown during evaluation of the function. */
-#define EXPECT_THROW_AT(here, exception, func)     \
+#define EXPECT_THROW_AT(here, exception, func)             \
   ::Test::Expect::Check(here, #exception, [](bool &pass) { \
-    try {                                          \
-      func();                                      \
-      pass = false;                                \
-    } catch(const exception &) {                   \
-      pass = true;                                 \
-    }                                              \
+    try {                                                  \
+      func();                                              \
+      pass = false;                                        \
+    } catch(const exception &) {                           \
+      pass = true;                                         \
+    }                                                      \
   })
 
 namespace Test {

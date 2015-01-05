@@ -22,11 +22,10 @@
 
 namespace Base {
 
-  /* The given data structure is zeroed and returned. */
-  template <typename TVal>
-  TVal &Zero(TVal &val) {
-    memset(&val, 0, sizeof(val));
-    return val;
-  }
-
+/* The given data structure is zeroed and returned. */
+template <typename TVal>
+TVal &Zero(TVal &val) {
+  memset(&val, 0, sizeof(val));
+  return val;
+}
 }

@@ -27,31 +27,30 @@ vector takes now ownership of any of the fixtures. */
 #include <base/class_traits.h>
 #include <base/code_location.h>
 
-#define FIXTURE(name) \
-  static void name##_(); \
-  _Pragma("clang diagnostic push") \
-  _Pragma("clang diagnostic ignored \"-Wglobal-constructors\"") \
-  static const ::Test::TFixture name##Fixture (HERE, #name, name##_); \
-  _Pragma("clang diagnostic pop") \
-  static void name##_()
+#define FIXTURE(name)                                                                             \
+  static void name##_();                                                                          \
+  _Pragma("clang diagnostic push")                                                                \
+      _Pragma("clang diagnostic ignored \"-Wglobal-constructors\"") static const ::Test::TFixture \
+          name##Fixture(HERE, #name, name##_);                                                    \
+  _Pragma("clang diagnostic pop") static void name##_()
 
 namespace Test {
 
-  /* A fixture is a group of unit tests which use the same execution
-     environment to exercise some particular aspect of a test. */
-  struct TFixture {
-    NO_COPY(TFixture);
+/* A fixture is a group of unit tests which use the same execution
+   environment to exercise some particular aspect of a test. */
+struct TFixture {
+  NO_COPY(TFixture);
 
-    typedef void (*TFunc)();
+  typedef void (*TFunc)();
 
-    TFixture(Base::TCodeLocation code_location, const char *name, const TFunc func);
+  TFixture(Base::TCodeLocation code_location, const char *name, const TFunc func);
 
-    const Base::TCodeLocation CodeLocation;
-    const char *Name;
-    const TFunc Func;
-  };
+  const Base::TCodeLocation CodeLocation;
+  const char *Name;
+  const TFunc Func;
+};
 
-  const std::vector<const TFixture*> &GetFixtures();
-  void AddFixture(const TFixture *fixture);
+const std::vector<const TFixture *> &GetFixtures();
+void AddFixture(const TFixture *fixture);
 
-} // namespace Test
+}  // namespace Test

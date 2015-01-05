@@ -48,7 +48,8 @@ TODO:
   o docopt style short specification?
   o Boolean parameters should be able to be specified either by
     their flag existing, or by -flag={true,false,yes,no,y,n,t,f}
-  o Make missing overloads produce a sane error message (There are a lot of missing ones currently...)
+  o Make missing overloads produce a sane error message (There are a lot of missing ones
+currently...)
   o Make missing overloads of ParseArg produce a sane error message
 */
 #pragma once
@@ -65,13 +66,13 @@ TODO:
 
 namespace Cmd {
 
-//TODO: Should allow more generic specifiers here, maybe tying to other variables?
+// TODO: Should allow more generic specifiers here, maybe tying to other variables?
 //      (Must match count of x?).
 enum class TRepetition {
-  One, // Required, no default.
-  ZeroOrOne, // Optional.
-  ZeroOrMore, // Optional.
-  OneOrMore // Collect.
+  One,  // Required, no default.
+  ZeroOrOne,  // Optional.
+  ZeroOrMore,  // Optional.
+  OneOrMore  // Collect.
 };
 
 // Args have names and descriptions.
@@ -98,20 +99,31 @@ struct TArgs {
 
     // TODO(cmaloney): Disallow arguments that start with '-', '--'.
     // Named argument (--foo, -f).
-    TProcessor(const std::vector<std::string> &names, const char *description, TRepetition repitition, bool HasValue, TConsume &&value_func)
-       : TArgInfo{false, names, description, repitition, HasValue}, TypedConsume(std::move(value_func)) {}
+    TProcessor(const std::vector<std::string> &names,
+               const char *description,
+               TRepetition repitition,
+               bool HasValue,
+               TConsume &&value_func)
+        : TArgInfo{false, names, description, repitition, HasValue},
+          TypedConsume(std::move(value_func)) {}
 
     // TODO(cmaloney): Disallow arguments that start with '-', '--'.
     // Positional argument (a b c d).
-    TProcessor(TRepetition repitition, const char *identifier, const char *description, bool HasValue, TConsume &&value_func)
-       : TArgInfo{true, {identifier}, description, repitition, HasValue}, TypedConsume(std::move(value_func)) {}
+    TProcessor(TRepetition repitition,
+               const char *identifier,
+               const char *description,
+               bool HasValue,
+               TConsume &&value_func)
+        : TArgInfo{true, {identifier}, description, repitition, HasValue},
+          TypedConsume(std::move(value_func)) {}
 
     TConsume TypedConsume;
   };
 
   TArgs(std::initializer_list<TProcessor> &&args) : Info(std::move(args)) {}
 
-  // TODO(cmaloney): These should live in an arg parser / parser aggregation class, not the arg collectors.
+  // TODO(cmaloney): These should live in an arg parser / parser aggregation class, not the arg
+  // collectors.
   // Quick argument lookup map.
   const std::vector<TProcessor> Info;
 };
@@ -120,42 +132,67 @@ struct TArgs {
 
 // Optional named argument.
 template <typename TRet, typename TOptions>
-auto Optional(const std::vector<std::string> &names, TRet TOptions::*member, const char *description) {
-  return typename TArgs<TOptions>::TProcessor(names, description, TRepetition::ZeroOrOne, THasValue<TRet>::value, [member](TOptions *options, const std::string &value) {
-      options->*member = ParseArg<TRet>(value);
-    });
+auto Optional(const std::vector<std::string> &names,
+              TRet TOptions::*member,
+              const char *description) {
+  return typename TArgs<TOptions>::TProcessor(
+      names,
+      description,
+      TRepetition::ZeroOrOne,
+      THasValue<TRet>::value,
+      [member](TOptions *options,
+               const std::string &value) { options->*member = ParseArg<TRet>(value); });
 }
 
 // Optional named argument.
 template <typename TRet, typename TOptions>
 auto Optional(const char name[], TRet TOptions::*member, const char *description) {
-  return typename TArgs<TOptions>::TProcessor({std::string(name)}, description, TRepetition::ZeroOrOne, THasValue<TRet>::value, [member](TOptions *options, const std::string &value) {
-      options->*member = ParseArg<TRet>(value);
-    });
+  return typename TArgs<TOptions>::TProcessor(
+      {std::string(name)},
+      description,
+      TRepetition::ZeroOrOne,
+      THasValue<TRet>::value,
+      [member](TOptions *options,
+               const std::string &value) { options->*member = ParseArg<TRet>(value); });
 }
-
 
 // Optional positional argument
 template <typename TElem, typename TOptions>
-auto Optional(std::vector<TElem> TOptions::*member, const char *identifier, const char *description) {
-  return typename TArgs<TOptions>::TProcessor(TRepetition::ZeroOrMore, identifier, description, true, [member](TOptions *options, const std::string &value) {
-      (options->*member).push_back(ParseArg<TElem>(value));
-  });
+auto Optional(std::vector<TElem> TOptions::*member,
+              const char *identifier,
+              const char *description) {
+  return typename TArgs<TOptions>::TProcessor(
+      TRepetition::ZeroOrMore,
+      identifier,
+      description,
+      true,
+      [member](TOptions *options,
+               const std::string &value) { (options->*member).push_back(ParseArg<TElem>(value)); });
 }
 
 // Positional argument
 template <typename TElem, typename TOptions>
 auto Required(TElem TOptions::*member, const char *identifier, const char *description) {
-  return typename TArgs<TOptions>::TProcessor(TRepetition::One, identifier, description, true, [member](TOptions *options, const std::string &value) {
-      options->*member = ParseArg<TElem>(value);
-  });
+  return typename TArgs<TOptions>::TProcessor(
+      TRepetition::One,
+      identifier,
+      description,
+      true,
+      [member](TOptions *options,
+               const std::string &value) { options->*member = ParseArg<TElem>(value); });
 }
 // Positional argument
 template <typename TElem, typename TOptions>
-auto Required(std::vector<TElem> TOptions::*member, const char *identifier, const char *description) {
-  return typename TArgs<TOptions>::TProcessor(TRepetition::OneOrMore, identifier, description, true, [member](TOptions *options, const std::string &value) {
-      (options->*member).push_back(ParseArg<TElem>(value));
-  });
+auto Required(std::vector<TElem> TOptions::*member,
+              const char *identifier,
+              const char *description) {
+  return typename TArgs<TOptions>::TProcessor(
+      TRepetition::OneOrMore,
+      identifier,
+      description,
+      true,
+      [member](TOptions *options,
+               const std::string &value) { (options->*member).push_back(ParseArg<TElem>(value)); });
 }
 
 }  // Cmd

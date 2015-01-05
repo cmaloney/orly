@@ -31,91 +31,95 @@
 
 namespace Jhm {
 
-  class TEnv;
-  class TFile;
-  class TJob;
+class TEnv;
+class TFile;
+class TJob;
 
-  struct TJobProducer {
-    const char *Name;
-    // TODO: Should really be a set...
-    std::vector<std::vector<std::string>> OutExtensions;
-    std::function<Base::TOpt<TRelPath> (const TRelPath &name)> TryGetInput;
-    std::function<std::unique_ptr<TJob> (TEnv &env, TFile *in_file)> MakeJob;
-  };
+struct TJobProducer {
+  const char *Name;
+  // TODO: Should really be a set...
+  std::vector<std::vector<std::string>> OutExtensions;
+  std::function<Base::TOpt<TRelPath>(const TRelPath &name)> TryGetInput;
+  std::function<std::unique_ptr<TJob>(TEnv &env, TFile *in_file)> MakeJob;
+};
 
-  /* Generic job. Jobs are strongly typed using classical inheritance to expose common attributes.
+/* Generic job. Jobs are strongly typed using classical inheritance to expose common attributes.
 
-     Jobs provide some common bits like Config
+   Jobs provide some common bits like Config
 
 
-     TODO: May make a proxy like File is, where the actual job in question then doesn't have to implement the generic
-     behavoirs of the job class. */
-  class TJob {
-    public:
-    template<typename TVal>
-    using TSet = std::unordered_set<TVal>;
+   TODO: May make a proxy like File is, where the actual job in question then doesn't have to
+   implement the generic
+   behavoirs of the job class. */
+class TJob {
+  public:
+  template <typename TVal>
+  using TSet = std::unordered_set<TVal>;
 
-    virtual ~TJob() = default;
+  virtual ~TJob() = default;
 
-    virtual const char *GetName() = 0;
-    virtual const TSet<TFile*> GetNeeds() = 0;
+  virtual const char *GetName() = 0;
+  virtual const TSet<TFile *> GetNeeds() = 0;
 
-    /* This is used purely for cache completion. Return a set of things where, if any of them can exist, the job's
-       output must be invalidated. Calle only after the job has returned true from IsComplete. */
-    virtual TSet<TFile*> GetAntiNeeds() { return TSet<TFile*>(); }
+  /* This is used purely for cache completion. Return a set of things where, if any of them can
+     exist, the job's
+     output must be invalidated. Calle only after the job has returned true from IsComplete. */
+  virtual TSet<TFile *> GetAntiNeeds() { return TSet<TFile *>(); }
 
-    void AddOutput(TFile *file) {
-      assert(UnknownOutputs);
-      Util::InsertOrFail(Output, file);
+  void AddOutput(TFile *file) {
+    assert(UnknownOutputs);
+    Util::InsertOrFail(Output, file);
+  }
+
+  /* Allows a job to verify that it's complete. If it returns false here, the command __WILL__ get
+     run again when
+     all the files returned by GetNeeds() are all done. */
+  virtual bool IsComplete() = 0;
+
+  TFile *GetInput() {
+    assert(this);
+    return Input;
+  }
+
+  const TSet<TFile *> &GetOutput() const {
+    assert(this);
+    return Output;
+  }
+
+  TFile *GetSoleOutput() const {
+    assert(this);
+    assert(Output.size() == 1);
+    for(TFile *f : GetOutput()) {
+      return f;
     }
+    __builtin_unreachable();
+  }
 
-    /* Allows a job to verify that it's complete. If it returns false here, the command __WILL__ get run again when
-       all the files returned by GetNeeds() are all done. */
-    virtual bool IsComplete() = 0;
+  virtual std::vector<std::string> GetCmd() = 0;
 
-    TFile *GetInput() {
-      assert(this);
-      return Input;
-    }
+  virtual Util::TTimestamp GetCmdTimestamp() const = 0;
 
-    const TSet<TFile*> &GetOutput() const {
-      assert(this);
-      return Output;
-    }
+  bool HasUnknownOutputs() const {
+    assert(this);
+    return UnknownOutputs;
+  }
 
-    TFile *GetSoleOutput() const {
-      assert(this);
-      assert(Output.size() == 1);
-      for(TFile *f: GetOutput()) {
-        return f;
-      }
-      __builtin_unreachable();
-    }
+  void MarkAllOutputsKnown() {
+    assert(UnknownOutputs);
+    UnknownOutputs = false;
+  }
 
-    virtual std::vector<std::string> GetCmd() = 0;
+  protected:
+  // NOTE: In theory we can take multiple files in. In  Ppractice we have no instances of that.
+  TJob(TFile *input, TSet<TFile *> output, bool unknown_outputs = false);
 
-    virtual Util::TTimestamp GetCmdTimestamp() const = 0;
+  private:
+  TFile *Input;
+  TSet<TFile *> Output;
+  // True iff we have outputs we don't know about initially (Ex: nycr). This enables adding more
+  // outputs later.
+  bool UnknownOutputs;
+};
 
-    bool HasUnknownOutputs() const {
-      assert(this);
-      return UnknownOutputs;
-    }
-
-    void MarkAllOutputsKnown() {
-      assert(UnknownOutputs);
-      UnknownOutputs = false;
-    }
-
-    protected:
-    // NOTE: In theory we can take multiple files in. In  Ppractice we have no instances of that.
-    TJob(TFile *input, TSet<TFile*> output, bool unknown_outputs=false);
-
-    private:
-    TFile *Input;
-    TSet<TFile*> Output;
-    // True iff we have outputs we don't know about initially (Ex: nycr). This enables adding more outputs later.
-    bool UnknownOutputs;
-  };
-
-  std::ostream &operator<<(std::ostream &out, TJob *job);
+std::ostream &operator<<(std::ostream &out, TJob *job);
 }

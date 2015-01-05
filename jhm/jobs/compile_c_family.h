@@ -24,31 +24,29 @@
 
 namespace Jhm {
 
-  namespace Job {
+namespace Job {
 
-    class TCompileCFamily final : public TJob {
-      public:
+class TCompileCFamily final : public TJob {
+  public:
+  static std::vector<std::string> GetStandardArgs(TFile *input, bool is_cpp, const TEnv &env);
 
-      static std::vector<std::string> GetStandardArgs(TFile *input, bool is_cpp, const TEnv &env);
+  static TJobProducer GetCProducer();
+  static TJobProducer GetCppProducer();
 
-      static TJobProducer GetCProducer();
-      static TJobProducer GetCppProducer();
+  virtual const char *GetName() final;
+  virtual const TSet<TFile *> GetNeeds() final;
+  virtual std::vector<std::string> GetCmd() final;
+  virtual Util::TTimestamp GetCmdTimestamp() const final;
+  virtual bool IsComplete() final;
 
-      virtual const char *GetName() final;
-      virtual const TSet<TFile*> GetNeeds() final;
-      virtual std::vector<std::string> GetCmd() final;
-      virtual Util::TTimestamp GetCmdTimestamp() const final;
-      virtual bool IsComplete() final;
+  private:
+  TCompileCFamily(TEnv &env, TFile *input, bool is_cpp);
 
-      private:
-      TCompileCFamily(TEnv &env, TFile *input, bool is_cpp);
-
-      TEnv &Env;
-      // NOTE: We could make IsCpp be constant / CompileCFamily be templated on it
-      // But that results in more ug than the tiny perf benefit is worth.
-      bool IsCpp;
-      TFile *Need;
-    };
-
-  }
+  TEnv &Env;
+  // NOTE: We could make IsCpp be constant / CompileCFamily be templated on it
+  // But that results in more ug than the tiny perf benefit is worth.
+  bool IsCpp;
+  TFile *Need;
+};
+}
 }

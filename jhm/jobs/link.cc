@@ -34,9 +34,9 @@ static TRelPath GetOutputName(const TRelPath &input) {
 }
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
-  //TODO: Allow non-trivial prefixes before the empty extension.
+  // TODO: Allow non-trivial prefixes before the empty extension.
   const auto &ext = output.Path.Extension;
-  if (ext.size() > 0 && ext.at(ext.size()-1) == "") {
+  if(ext.size() > 0 && ext.at(ext.size() - 1) == "") {
     return TRelPath(SwapExtension(TPath(output.Path), {"o"}));
   }
 
@@ -44,63 +44,61 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
 }
 
 TJobProducer TLink::GetProducer() {
-  return TJobProducer{
-    "link",
-    {{""}},
-    GetInputName,
-    //TODO: Should be able to eliminate the lambda wrapper here...
-    [] (TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
-      return unique_ptr<TJob>(new TLink(env, in_file));
-    }
-  };
+  return TJobProducer{"link",
+                      {{""}},
+                      GetInputName,
+                      // TODO: Should be able to eliminate the lambda wrapper here...
+                      [](TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
+    return unique_ptr<TJob>(new TLink(env, in_file));
+  }};
 }
 
-const char *TLink::GetName() {
-  return "link";
-}
+const char *TLink::GetName() { return "link"; }
 
-const unordered_set<TFile*> TLink::GetNeeds() {
+const unordered_set<TFile *> TLink::GetNeeds() {
   assert(this);
 
   // Seed the link search with the core input file.
-  if (ObjFiles.empty()) {
+  if(ObjFiles.empty()) {
     TFile *input = GetInput();
     ObjToCheck.insert(input);
     ObjFiles.insert(input);
   }
 
-  // We build a queue so we can fill ObjToCheck as we go, and add more to be processed while we iterate.
+  // We build a queue so we can fill ObjToCheck as we go, and add more to be processed while we
+  // iterate.
   std::queue<TFile *> to_check;
-  for (TFile *obj: ObjToCheck) {
+  for(TFile *obj : ObjToCheck) {
     to_check.push(obj);
   }
   ObjToCheck.clear();
 
   // Get all the link objects of every link object until we have a complete set of link objects.
-  vector<string> filtered_includes; // Hoisted out of loop
-  while (!to_check.empty()) {
+  vector<string> filtered_includes;  // Hoisted out of loop
+  while(!to_check.empty()) {
     TFile *obj = Pop(to_check);
-    if (!Env.IsDone(obj)) {
+    if(!Env.IsDone(obj)) {
       ObjToCheck.insert(obj);
       continue;
     }
 
     // Read out the cached link args, add them to our link set.
-    if (!obj->GetConfig().TryRead({"c++","filtered_includes"}, filtered_includes)) {
+    if(!obj->GetConfig().TryRead({"c++", "filtered_includes"}, filtered_includes)) {
       continue;
     }
 
-    for(const auto &include: filtered_includes) {
+    for(const auto &include : filtered_includes) {
       TFile *include_file = Env.TryGetFileFromPath(include);
       assert(include_file);
-      if (!include_file) {
-        THROW_ERROR(std::logic_error)
-            << "Internal Error; We didn't find the C++ source file which should be in the src tre...";
+      if(!include_file) {
+        THROW_ERROR(std::logic_error) << "Internal Error; We didn't find the C++ source file which "
+                                         "should be in the src tre...";
       }
-      TFile *obj_file = Env.GetFile(TRelPath(SwapExtension(TPath(include_file->GetRelPath().Path), {"o"})));
-      if (Env.IsBuildable(obj_file)) {
+      TFile *obj_file =
+          Env.GetFile(TRelPath(SwapExtension(TPath(include_file->GetRelPath().Path), {"o"})));
+      if(Env.IsBuildable(obj_file)) {
         // Add the link. If it's new, queue it to be checked for new links that we need
-        if (ObjFiles.insert(obj_file).second) {
+        if(ObjFiles.insert(obj_file).second) {
           to_check.push(obj_file);
         }
       } else {
@@ -112,26 +110,24 @@ const unordered_set<TFile*> TLink::GetNeeds() {
   return ObjFiles;
 }
 
-unordered_set<TFile*> TLink::GetAntiNeeds() {
-  return AntiNeeds;
-}
+unordered_set<TFile *> TLink::GetAntiNeeds() { return AntiNeeds; }
 
 vector<string> TLink::GetCmd() {
   assert(this);
 
-  //TODO: If there are no C++ files, use 'gcc' to link instead of g++
-  vector<string> cmd{"clang++","-o" + GetSoleOutput()->GetPath()};
-  for (auto &flag: Env.GetConfig().Read<vector<string>>({"cmd","ld","flags"})) {
+  // TODO: If there are no C++ files, use 'gcc' to link instead of g++
+  vector<string> cmd{"clang++", "-o" + GetSoleOutput()->GetPath()};
+  for(auto &flag : Env.GetConfig().Read<vector<string>>({"cmd", "ld", "flags"})) {
     cmd.push_back(move(flag));
   }
 
   // Link against every needed object file
-  for(TFile *f: ObjFiles) {
+  for(TFile *f : ObjFiles) {
     cmd.push_back(f->GetPath());
   }
 
   // TODO: Be more intelligent / selective about link flags
-  for (auto &lib: Env.GetConfig().Read<vector<string>>({"cmd","ld","libs"})) {
+  for(auto &lib : Env.GetConfig().Read<vector<string>>({"cmd", "ld", "libs"})) {
     cmd.push_back(move(lib));
   }
 
@@ -148,7 +144,6 @@ bool TLink::IsComplete() {
 
   return true;
 }
-
 
 TLink::TLink(TEnv &env, TFile *in_file)
     : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath()))}), Env(env) {}

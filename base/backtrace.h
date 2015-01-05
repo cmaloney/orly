@@ -24,20 +24,19 @@
 
 namespace Base {
 
-  void PrintBacktrace(int max_frame_count);
+void PrintBacktrace(int max_frame_count);
 
-  /* Generate a backtrace one line at a time, calling the callback once for each backtrace frame. */
-  void GenBacktrace(int max_frame_count, const std::function<void (const std::string &)> &cb);
+/* Generate a backtrace one line at a time, calling the callback once for each backtrace frame. */
+void GenBacktrace(int max_frame_count, const std::function<void(const std::string &)> &cb);
 
-  void SetBacktraceOnTerminate();
+void SetBacktraceOnTerminate();
 
-  class TBacktraceCatcher {
+class TBacktraceCatcher {
+  public:
+  TBacktraceCatcher();
 
-    public:
-      TBacktraceCatcher();
+  private:
+  Util::TSignalHandlerInstaller Sigsegv, Sigpipe;
+};
 
-    private:
-    Util::TSignalHandlerInstaller Sigsegv, Sigpipe;
-  };
-
-} // Base
+}  // Base

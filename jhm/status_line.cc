@@ -29,24 +29,24 @@ bool Jhm::IsRealTty() {
 }
 
 void TStatusLine::Cleanup() {
-  if (IsRealTty()) {
+  if(IsRealTty()) {
     cout << "\n";
   }
 }
 
 TStatusLine::TStatusLine() {
   static bool first = true;
-  if (first) {
+  if(first) {
     first = false;
     return;
   }
 
-  if (IsRealTty()) {
+  if(IsRealTty()) {
     cout << "\x1b[2K";
   }
 }
 TStatusLine::~TStatusLine() {
-  if (IsRealTty()) {
+  if(IsRealTty()) {
     cout << '\r' << std::flush;
   } else {
     cout << '\n';

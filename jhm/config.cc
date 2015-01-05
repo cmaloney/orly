@@ -27,37 +27,37 @@ using namespace Util;
 
 TConfig::TConfig() {}
 
-TConfig::TConfig(const string &filename) {
-  AddFile(filename);
-}
+TConfig::TConfig(const string &filename) { AddFile(filename); }
 
 TConfig::TConfig(const vector<string> &files) {
-  for(const string &filename: files) {
+  for(const string &filename : files) {
     AddFile(filename);
   }
 }
 
 TJson TConfig::GetEntry(const initializer_list<string> &name) const {
   TJson ret;
-  if (!TryGetEntry(name, ret)) {
+  if(!TryGetEntry(name, ret)) {
     THROW_ERROR(TNotFound) << "Didn't find config entry for \"" << Join(name, '.') << '\"';
   }
   return ret;
 }
 
 /* Resolves a scope / sequence of names to a json blob. */
-static const TJson *ResolveName(const TJson *start, const initializer_list<string> &name, bool &is_delta) {
+static const TJson *ResolveName(const TJson *start,
+                                const initializer_list<string> &name,
+                                bool &is_delta) {
   // Walk through
   auto end = name.end();
   for(auto it = name.begin(); it != end; ++it) {
-    if (!start->Contains(*it)) {
+    if(!start->Contains(*it)) {
       // Check for deltas. NOTE: Deltas must be at the last layer of the config asked for only.
-      //NOTE: Currently only adding deltas are supported.
+      // NOTE: Currently only adding deltas are supported.
       string delta_name = '+' + *it;
-      if (start->Contains(delta_name)) {
-        if (it != end - 1) {
-          THROW_ERROR(TJson::TSyntaxError)
-              << "Explicit delta configuration can only be specified at the last part of a config option";
+      if(start->Contains(delta_name)) {
+        if(it != end - 1) {
+          THROW_ERROR(TJson::TSyntaxError) << "Explicit delta configuration can only be specified "
+                                              "at the last part of a config option";
         }
         is_delta = true;
         return &((*start)[delta_name]);
@@ -70,22 +70,23 @@ static const TJson *ResolveName(const TJson *start, const initializer_list<strin
   return start;
 }
 
-//NOTE: The delta is also the return
+// NOTE: The delta is also the return
 TJson ApplyDelta(const TJson &base, TJson &&delta) {
   TJson ret(base);
 
-  if (ret.GetKind() != delta.GetKind()) {
-    THROW_ERROR(TJson::TSyntaxError) << "Delta configuration must always be between same type. base type: " << ret.GetKind()
-                              << " delta type: " << delta.GetKind();
+  if(ret.GetKind() != delta.GetKind()) {
+    THROW_ERROR(TJson::TSyntaxError)
+        << "Delta configuration must always be between same type. base type: " << ret.GetKind()
+        << " delta type: " << delta.GetKind();
   }
 
-  if (ret.GetKind() == TJson::Object) {
+  if(ret.GetKind() == TJson::Object) {
     // Add / replace keys in base with the delta's values.
     delta.ForEachElem([&ret](const string &name, TJson &elem) {
       ret[name] = move(elem);
       return true;
     });
-  } else if (ret.GetKind() == TJson::Array) {
+  } else if(ret.GetKind() == TJson::Array) {
     // Append our array to their array
     TJson::TArray &that = ret.GetArray();
     delta.ForEachElem([&that](TJson &elem) {
@@ -93,26 +94,26 @@ TJson ApplyDelta(const TJson &base, TJson &&delta) {
       return true;
     });
   } else {
-    THROW_ERROR(TJson::TSyntaxError) << "Delta configuration is only supported on JSON arrays and objects. Got a "
-                              << ret.GetKind();
+    THROW_ERROR(TJson::TSyntaxError)
+        << "Delta configuration is only supported on JSON arrays and objects. Got a "
+        << ret.GetKind();
   }
 
   return ret;
-
 }
 
-//TODO: Switch to vector<string> for name always, rather than splitting apart?
+// TODO: Switch to vector<string> for name always, rather than splitting apart?
 bool TConfig::TryGetEntry(const initializer_list<string> &name, TJson &out) const {
   // For each config, starting at the top of the stack. If the config contains the entry, use it.
   // TODO: Add delta support
   TJson ret;
   bool has_delta = false;
-  for(auto &config: Config) {
+  for(auto &config : Config) {
     bool is_delta = false;
     const TJson *val = ResolveName(&config, name, is_delta);
-    if (val) {
-      if (has_delta || is_delta) {
-        if (!has_delta) {
+    if(val) {
+      if(has_delta || is_delta) {
+        if(!has_delta) {
           ret = *val;
           has_delta = true;
           continue;
@@ -127,7 +128,7 @@ bool TConfig::TryGetEntry(const initializer_list<string> &name, TJson &out) cons
       }
     }
   }
-  if (has_delta) {
+  if(has_delta) {
     out = move(ret);
   }
   return has_delta;
@@ -143,10 +144,10 @@ void TConfig::AddComputed(TJson &&config) {
   AddConfig(move(config));
 }
 
-bool TConfig::ForEachComputed(const function<bool (const TJson &conf)> &cb) const {
+bool TConfig::ForEachComputed(const function<bool(const TJson &conf)> &cb) const {
   auto last_it = Config.end() - *ComputedStart;
   for(auto it = Config.begin(); it != last_it; ++it) {
-    if (!cb(*it)) {
+    if(!cb(*it)) {
       return false;
     }
   }
@@ -156,13 +157,14 @@ bool TConfig::ForEachComputed(const function<bool (const TJson &conf)> &cb) cons
 void TConfig::WriteComputed(ostream &out) const {
   ComputedLocked = true;
   // Write all but the non-computed config
-  //NOTE: We hand-roll the outer json array, because that's considerably cheaper than building a TJson and having that
+  // NOTE: We hand-roll the outer json array, because that's considerably cheaper than building a
+  // TJson and having that
   // pretty-print for us.
-  //NOTE: WE hand do the join, because Join doesn't know iterators / ranges.
+  // NOTE: WE hand do the join, because Join doesn't know iterators / ranges.
   out << '[';
   bool first = true;
-  ForEachComputed([&first,&out] (const TJson &config) {
-    if (first) {
+  ForEachComputed([&first, &out](const TJson &config) {
+    if(first) {
       first = false;
     } else {
       out << ',';
@@ -176,21 +178,21 @@ void TConfig::WriteComputed(ostream &out) const {
 void TConfig::LoadComputed(const string &filename) {
   assert(!ComputedLocked);
   Base::TJson computed = TJson::Read(filename.c_str());
-  if (computed.GetKind() != TJson::Array) {
+  if(computed.GetKind() != TJson::Array) {
     throw TInvalidConfig("Invalid config file. Top level isn't a JSON Array.");
   }
 
   // Read backwards building up stack
   uint64_t computed_size = computed.GetSize();
-  for(uint64_t i=0; i < computed_size; ++i) {
-    AddComputed(move(computed[computed_size - (i+1)]));
+  for(uint64_t i = 0; i < computed_size; ++i) {
+    AddComputed(move(computed[computed_size - (i + 1)]));
   }
   ComputedLocked = true;
 }
 const std::vector<Base::TJson> TConfig::GetComputed() const {
   vector<Base::TJson> ret;
   assert(ComputedStart);
-  ret.reserve(Config.size()-ComputedStart);
+  ret.reserve(Config.size() - ComputedStart);
   ForEachComputed([&ret](const TJson &json) {
     ret.emplace_back(json);
     return true;
@@ -199,18 +201,18 @@ const std::vector<Base::TJson> TConfig::GetComputed() const {
 }
 void TConfig::SetComputed(std::vector<Base::TJson> &&conf_stack) {
   assert(!ComputedLocked);
-  for(auto &config: conf_stack) {
+  for(auto &config : conf_stack) {
     Config.emplace_back(move(config));
   }
   ComputedLocked = true;
 }
 
 void TConfig::AddConfig(TJson &&config, bool top) {
-  if (config.GetKind() != TJson::Object) {
+  if(config.GetKind() != TJson::Object) {
     throw TInvalidConfig("Invalid config file. Top level isn't a JSON object.");
   }
 
-  if (top) {
+  if(top) {
     Config.emplace_front(move(config));
   } else {
     assert(!ComputedStart);
@@ -221,7 +223,7 @@ void TConfig::AddConfig(TJson &&config, bool top) {
 
 void TConfig::AddFile(const string &filename) {
   auto timestamp = TryGetTimestamp(filename);
-  if (timestamp) {
+  if(timestamp) {
     Timestamp = Newest(Timestamp, timestamp);
     AddConfig(TJson::Read(filename.c_str()));
   }

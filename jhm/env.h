@@ -1,6 +1,7 @@
 /* <jhm/env.h>
 
-   Keeps track of where inputs can come from, outputs can go, what translations we know about, configuration, etc.
+   Keeps track of where inputs can come from, outputs can go, what translations we know about,
+   configuration, etc.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -30,142 +31,132 @@
 
 namespace Jhm {
 
-  template<typename TVal>
-  using TSet = std::unordered_set<TVal>;
+template <typename TVal>
+using TSet = std::unordered_set<TVal>;
 
-  // Simple memory management by making one object (The registry) own all the pointers/memory.
-  template <typename TKey, typename TValue, typename Hash = std::hash<TKey>>
-  class TInterner {
+// Simple memory management by making one object (The registry) own all the pointers/memory.
+template <typename TKey, typename TValue, typename Hash = std::hash<TKey>>
+class TInterner {
+  public:
+  TValue *Add(TKey &&key, std::unique_ptr<TValue> &&item) {
+    // TODO: Add a new InsertOrFail which can handle this
+    auto result = ManagedThings.emplace(std::move(key), std::move(item));
+    assert(result.second);
 
-    public:
-    TValue *Add(TKey &&key, std::unique_ptr<TValue> &&item) {
-      //TODO: Add a new InsertOrFail which can handle this
-      auto result = ManagedThings.emplace(std::move(key), std::move(item));
-      assert(result.second);
+    return result.first->second.get();
+  }
 
-      return result.first->second.get();
+  TValue *TryGet(const TKey &key) {
+    auto it = ManagedThings.find(key);
+    if(it != ManagedThings.end()) {
+      return it->second.get();
     }
+    return nullptr;
+  }
 
-    TValue *TryGet(const TKey &key) {
-      auto it = ManagedThings.find(key);
-      if (it != ManagedThings.end()) {
-        return it->second.get();
-      }
-      return nullptr;
+  private:
+  std::unordered_map<TKey, std::unique_ptr<TValue>, Hash> ManagedThings;
+};
+
+class TJobFactory {
+  public:
+  // NOTE: We don't just use a tuple because we want a specialized hash
+  struct TJobDesc {
+    TFile *f;
+    const char *job_name;
+
+    bool operator==(const TJobDesc &that) const noexcept {
+      return f == that.f && job_name == that.job_name;
     }
-
-    private:
-    std::unordered_map<TKey, std::unique_ptr<TValue>, Hash> ManagedThings;
   };
 
-  class TJobFactory {
-    public:
-
-    // NOTE: We don't just use a tuple because we want a specialized hash
-    struct TJobDesc {
-      TFile *f;
-      const char *job_name;
-
-      bool operator==(const TJobDesc &that) const noexcept {
-        return f == that.f && job_name == that.job_name;
-      }
-    };
-
-    struct TJobDescHash {
-      size_t operator()(const TJobDesc &that) const noexcept {
-        // TODO: Write a better hash...
-        return size_t(that.f) + size_t(that.job_name);
-      }
-
-    };
-
-    // A Job registration can verify if they can indeed make a given output file
-    // A job registration is used to do longest tail matches and see if the job's input can be produced
-    //NOTE: We generate a job object when it's input can be produced
-    void Register(TJobProducer &&producer) {
-      JobProducers.emplace_back(std::move(producer));
+  struct TJobDescHash {
+    size_t operator()(const TJobDesc &that) const noexcept {
+      // TODO: Write a better hash...
+      return size_t(that.f) + size_t(that.job_name);
     }
-
-    std::unordered_set<TJob *> GetPotentialJobs(TEnv &env, TFile *out_file);
-
-    private:
-    //TODO: Make a better hash function.
-    TInterner<TJobDesc, TJob, TJobDescHash> Jobs;
-
-    // NOTE: This is used purely for caching the reverse-lookups used by  GetPotentialJobs.
-    // Entry in this map simply means a job exists, not that it's possible to get it's input.
-    std::unordered_multimap<TFile *, TJob *> JobsByOutput;
-
-    // TODO: We iterate over this a lot. In practice we go over a lot more than needed
-    // Perf test using more concise data structures where we don't scan so much needlessly vs. this "one simple list" we
-    // always iterate over all of.
-    std::vector<TJobProducer> JobProducers;
   };
 
-  class TEnv {
-    public:
-    NO_COPY(TEnv);
-    NO_MOVE(TEnv);
+  // A Job registration can verify if they can indeed make a given output file
+  // A job registration is used to do longest tail matches and see if the job's input can be
+  // produced
+  // NOTE: We generate a job object when it's input can be produced
+  void Register(TJobProducer &&producer) { JobProducers.emplace_back(std::move(producer)); }
 
-    using TFileCheckFunc = std::function<bool (TFile*)>;
+  std::unordered_set<TJob *> GetPotentialJobs(TEnv &env, TFile *out_file);
 
-    static TTree GetOutDirName(const TTree &root,
-                                     const std::string &proj_name,
-                                     const std::string &config,
-                                     const std::string &config_mixin);
+  private:
+  // TODO: Make a better hash function.
+  TInterner<TJobDesc, TJob, TJobDescHash> Jobs;
 
-    // NOTE: if proj_name is src. Output directory is just out.
-    TEnv(const TTree &root,
-         const std::string &proj_name,
-         const std::string &config,
-         const std::string &config_mixin);
+  // NOTE: This is used purely for caching the reverse-lookups used by  GetPotentialJobs.
+  // Entry in this map simply means a job exists, not that it's possible to get it's input.
+  std::unordered_multimap<TFile *, TJob *> JobsByOutput;
 
-    // Add a job to the job
-    TJob *Add(std::unique_ptr<TJob> &&job);
-    TFile *Add(std::unique_ptr<TFile> &&file);
+  // TODO: We iterate over this a lot. In practice we go over a lot more than needed
+  // Perf test using more concise data structures where we don't scan so much needlessly vs. this
+  // "one simple list" we
+  // always iterate over all of.
+  std::vector<TJobProducer> JobProducers;
+};
 
-    const TConfig &GetConfig() const {
-      return Config;
-    }
-    const TTree *GetSrc() const {
-      return &Src;
-    }
-    const TTree *GetOut() const {
-      return &Out;
-    }
+class TEnv {
+  public:
+  NO_COPY(TEnv);
+  NO_MOVE(TEnv);
 
-    const TTree *GetRoot() const {
-      return &Root;
-    }
+  using TFileCheckFunc = std::function<bool(TFile *)>;
 
-    std::unordered_set<TJob*> GetJobsProducingFile(TFile *file) {
-      return Jobs.GetPotentialJobs(*this, file);
-    }
+  static TTree GetOutDirName(const TTree &root,
+                             const std::string &proj_name,
+                             const std::string &config,
+                             const std::string &config_mixin);
 
-    /* Finds the file / builds a correct TFile object for it.
-       NOTE: Does absolutely nothing for testing if file is producable, needs to be built, etc. */
-    TFile *GetFile(TRelPath name);
+  // NOTE: if proj_name is src. Output directory is just out.
+  TEnv(const TTree &root,
+       const std::string &proj_name,
+       const std::string &config,
+       const std::string &config_mixin);
 
-    bool IsBuildable(TFile *file) const;
-    bool IsDone(TFile *file) const;
-    void SetFuncs(TFileCheckFunc &&buildable, TFileCheckFunc &&done);
+  // Add a job to the job
+  TJob *Add(std::unique_ptr<TJob> &&job);
+  TFile *Add(std::unique_ptr<TFile> &&file);
 
-    /* Gets a file from the given path, which is either an absolute filesystem path (starts with '/') or relative within
-       the project (a TRelPath) */
-    TFile *TryGetFileFromPath(const std::string &name);
+  const TConfig &GetConfig() const { return Config; }
+  const TTree *GetSrc() const { return &Src; }
+  const TTree *GetOut() const { return &Out; }
 
-    private:
-    // TODO(cmaloney): This should be bounded size.
-    std::unordered_map<std::string, TFile *> PathLookupCache;
-    TFileCheckFunc Buildable;
-    TFileCheckFunc Done;
+  const TTree *GetRoot() const { return &Root; }
 
-    TInterner<TRelPath, TFile> Files;
+  std::unordered_set<TJob *> GetJobsProducingFile(TFile *file) {
+    return Jobs.GetPotentialJobs(*this, file);
+  }
 
-    TTree Root, Src, Out;
+  /* Finds the file / builds a correct TFile object for it.
+     NOTE: Does absolutely nothing for testing if file is producable, needs to be built, etc. */
+  TFile *GetFile(TRelPath name);
 
-    TConfig Config;
+  bool IsBuildable(TFile *file) const;
+  bool IsDone(TFile *file) const;
+  void SetFuncs(TFileCheckFunc &&buildable, TFileCheckFunc &&done);
 
-    TJobFactory Jobs;
-  };
+  /* Gets a file from the given path, which is either an absolute filesystem path (starts with '/')
+     or relative within
+     the project (a TRelPath) */
+  TFile *TryGetFileFromPath(const std::string &name);
+
+  private:
+  // TODO(cmaloney): This should be bounded size.
+  std::unordered_map<std::string, TFile *> PathLookupCache;
+  TFileCheckFunc Buildable;
+  TFileCheckFunc Done;
+
+  TInterner<TRelPath, TFile> Files;
+
+  TTree Root, Src, Out;
+
+  TConfig Config;
+
+  TJobFactory Jobs;
+};
 }

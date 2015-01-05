@@ -275,13 +275,13 @@ PointerBindsToType: false
 
 # Good:
 #
-#   if (flag) {
+#   if(flag) {
 #     flag = true;
 #   }  // if
 #
 # Bad:
 #
-#   if(flag) {
+#   if (flag) {
 #     flag = true;
 #   }  // if
 #

@@ -22,65 +22,67 @@
 
 namespace Jhm {
 
-  class TRelPath;
+class TRelPath;
 
-  // Trees contain files in relative paths.
-  class TTree {
-    public:
-    DEFAULT_MOVE(TTree);
-    DEFAULT_COPY(TTree);
+// Trees contain files in relative paths.
+class TTree {
+  public:
+  DEFAULT_MOVE(TTree);
+  DEFAULT_COPY(TTree);
 
-    /* Locate a tree by finding a designated marker name. If the marker isn't found in the first case we throw
-       an exception. In the second case, we use the current working directory. */
-    static TTree Find(std::string start_dir, const char *marker);
-    static TTree Find(std::string start_dir, const char *marker, bool &found_marker);
+  /* Locate a tree by finding a designated marker name. If the marker isn't found in the first case
+     we throw
+     an exception. In the second case, we use the current working directory. */
+  static TTree Find(std::string start_dir, const char *marker);
+  static TTree Find(std::string start_dir, const char *marker, bool &found_marker);
 
-    TTree() = default;
+  TTree() = default;
 
-    TTree(std::vector<std::string> &&root);
-    TTree(const std::string &path);
+  TTree(std::vector<std::string> &&root);
+  TTree(const std::string &path);
 
-    // Returns true iff the path is prefixed with our root.
-    bool Contains(const Base::TPath &path) const;
+  // Returns true iff the path is prefixed with our root.
+  bool Contains(const Base::TPath &path) const;
 
-    Base::TPath GetAbsPath(Base::TPath path) const;
-    Base::TPath GetAbsPath(TRelPath rel_path) const;
+  Base::TPath GetAbsPath(Base::TPath path) const;
+  Base::TPath GetAbsPath(TRelPath rel_path) const;
 
-    /* Get a relative path from a string which is an absolute path.
-       NOTE:
-          Assumes path is absolute (starts with '/')
-          Assumes tree contains path. */
-    TRelPath GetRelPath(Base::TPath &&path) const;
+  /* Get a relative path from a string which is an absolute path.
+     NOTE:
+        Assumes path is absolute (starts with '/')
+        Assumes tree contains path. */
+  TRelPath GetRelPath(Base::TPath &&path) const;
 
-    TTree AddDir(std::string &dir) const;
+  TTree AddDir(std::string &dir) const;
 
-    std::vector<std::string> Root;
-  };
+  std::vector<std::string> Root;
+};
 
-  //TODO: Cope with prefixes (lib) specially?
-  // Relative paths
-  class TRelPath {
-    public:
-    DEFAULT_MOVE(TRelPath);
-    DEFAULT_COPY(TRelPath);
+// TODO: Cope with prefixes (lib) specially?
+// Relative paths
+class TRelPath {
+  public:
+  DEFAULT_MOVE(TRelPath);
+  DEFAULT_COPY(TRelPath);
 
-    /* Construct off a path which isn't prefixed with a tree. Explicit because the programmer should really pay
-       attention when using this constructor. */
-    explicit TRelPath(Base::TPath &&path) : Path(path) {}
+  /* Construct off a path which isn't prefixed with a tree. Explicit because the programmer should
+     really pay
+     attention when using this constructor. */
+  explicit TRelPath(Base::TPath &&path) : Path(path) {}
 
-    bool operator==(const Jhm::TRelPath &that) const;
-    bool operator!=(const Jhm::TRelPath &that) const;
+  bool operator==(const Jhm::TRelPath &that) const;
+  bool operator!=(const Jhm::TRelPath &that) const;
 
-    Base::TPath Path;
-  };
+  Base::TPath Path;
+};
 
-  std::ostream &operator<<(std::ostream &out, const TRelPath &that);
-  std::ostream &operator<<(std::ostream &out, const TTree &that);
+std::ostream &operator<<(std::ostream &out, const TRelPath &that);
+std::ostream &operator<<(std::ostream &out, const TTree &that);
 }
 
 namespace std {
-  template<>
-  struct hash<Jhm::TRelPath> {
-    size_t operator()(const Jhm::TRelPath &that) const;
-  };
+template <>
+struct hash<Jhm::TRelPath> {
+  size_t operator()(const Jhm::TRelPath &that) const;
+};
 }

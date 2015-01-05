@@ -24,43 +24,41 @@
 
 namespace Util {
 
-  /* RAII for installing a signal handler. */
-  class TSignalHandlerInstaller {
-    NO_COPY(TSignalHandlerInstaller);
-    public:
+/* RAII for installing a signal handler. */
+class TSignalHandlerInstaller {
+  NO_COPY(TSignalHandlerInstaller);
 
-    /* Set the mask to the given set. */
-    TSignalHandlerInstaller(int sig, void (*handler)(int) = DoNothing)
-        : SignalNumber(sig) {
-      struct sigaction new_act;
-      Base::Zero(new_act);
-      new_act.sa_handler = handler;
-      Util::IfLt0(sigaction(sig, &new_act, &OldAct));
-    }
+  public:
+  /* Set the mask to the given set. */
+  TSignalHandlerInstaller(int sig, void (*handler)(int) = DoNothing) : SignalNumber(sig) {
+    struct sigaction new_act;
+    Base::Zero(new_act);
+    new_act.sa_handler = handler;
+    Util::IfLt0(sigaction(sig, &new_act, &OldAct));
+  }
 
-    /* Restore the old action. */
-    ~TSignalHandlerInstaller() {
-      assert(this);
-      sigaction(SignalNumber, &OldAct, nullptr);
-    }
+  /* Restore the old action. */
+  ~TSignalHandlerInstaller() {
+    assert(this);
+    sigaction(SignalNumber, &OldAct, nullptr);
+  }
 
-    /* The signal we handle. */
-    int GetSignalNumber() const {
-      assert(this);
-      return SignalNumber;
-    }
+  /* The signal we handle. */
+  int GetSignalNumber() const {
+    assert(this);
+    return SignalNumber;
+  }
 
-    private:
+  private:
+  /* The do-nothing handler. */
+  static void DoNothing(int sig);
 
-    /* The do-nothing handler. */
-    static void DoNothing(int sig);
+  /* See accessor. */
+  int SignalNumber;
 
-    /* See accessor. */
-    int SignalNumber;
+  /* The action which we will restore. */
+  struct sigaction OldAct;
 
-    /* The action which we will restore. */
-    struct sigaction OldAct;
-
-  };  // TSignalHandlerInstaller
+};  // TSignalHandlerInstaller
 
 }  // Signal

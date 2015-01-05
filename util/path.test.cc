@@ -49,6 +49,7 @@ static string WalkDir(const char *path) {
   class dir_walker_t final : public TDirWalker {
     public:
     dir_walker_t(ostream &strm) : Strm(strm) {}
+
     private:
     virtual bool OnBlockDev(const TEntry &entry) override {
       Strm << " block_dev [" << entry.Name << "];";
@@ -118,16 +119,18 @@ FIXTURE(TmpIterAndWalk) {
     CreateDummyFile("/tmp/path_utils.test/dummy1.txt");
     CreateDummyFile("/tmp/path_utils.test/dummy2.txt");
     IfLt0(symlink("/tmp/path_utils.test/dummy2.txt", "/tmp/path_utils.test/link_to_dummy2.txt"));
-    EXPECT_EQ(WalkDir(path), "dir 0 [path_utils.test] { file [dummy1.txt]; file [dummy2.txt]; symlink [link_to_dummy2.txt]; }");
+    EXPECT_EQ(WalkDir(path),
+              "dir 0 [path_utils.test] { file [dummy1.txt]; file [dummy2.txt]; symlink "
+              "[link_to_dummy2.txt]; }");
   }
   EXPECT_FALSE(ExistsPath(path));
 }
 
 FIXTURE(MakePath) {
-  EXPECT_EQ(MakePath(true, { "usr", "include" }, { "syslog", ".h" }), "/usr/include/syslog.h");
-  EXPECT_EQ(MakePath(true, { "///usr///", "/include/" }, { "syslog", ".h" }), "/usr/include/syslog.h");
-  EXPECT_EQ(MakePath(false, {}, { "just_this" }), "just_this");
-  EXPECT_EQ(MakePath(true, {}, { "abs_just_this" }), "/abs_just_this");
+  EXPECT_EQ(MakePath(true, {"usr", "include"}, {"syslog", ".h"}), "/usr/include/syslog.h");
+  EXPECT_EQ(MakePath(true, {"///usr///", "/include/"}, {"syslog", ".h"}), "/usr/include/syslog.h");
+  EXPECT_EQ(MakePath(false, {}, {"just_this"}), "just_this");
+  EXPECT_EQ(MakePath(true, {}, {"abs_just_this"}), "/abs_just_this");
 }
 
 FIXTURE(GetCwd) {

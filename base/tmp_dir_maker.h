@@ -29,35 +29,34 @@
 
 namespace Base {
 
-  /* Creates a directory path on construction and destroys it on destruction. */
-  class TTmpDirMaker final {
-    NO_COPY(TTmpDirMaker);
-    public:
+/* Creates a directory path on construction and destroys it on destruction. */
+class TTmpDirMaker final {
+  NO_COPY(TTmpDirMaker);
 
-    /* Ensures the dir exists. */
-    template <typename TPath>
-    explicit TTmpDirMaker(TPath &&path)
-        : Path(std::forward<TPath>(path)) {
-      Util::EnsureDirExists(Path.c_str());
-    }
+  public:
+  /* Ensures the dir exists. */
+  template <typename TPath>
+  explicit TTmpDirMaker(TPath &&path)
+      : Path(std::forward<TPath>(path)) {
+    Util::EnsureDirExists(Path.c_str());
+  }
 
-    /* Ensures the dir is gone. */
-    ~TTmpDirMaker() {
-      assert(this);
-      Util::EnsureDirIsGone(Path.c_str());
-    }
+  /* Ensures the dir is gone. */
+  ~TTmpDirMaker() {
+    assert(this);
+    Util::EnsureDirIsGone(Path.c_str());
+  }
 
-    /* The path to the dir we manage. */
-    const std::string &GetPath() const {
-      assert(this);
-      return Path;
-    }
+  /* The path to the dir we manage. */
+  const std::string &GetPath() const {
+    assert(this);
+    return Path;
+  }
 
-    private:
+  private:
+  /* See accessor. */
+  std::string Path;
 
-    /* See accessor. */
-    std::string Path;
-
-  };  // TTmpDirMaker
+};  // TTmpDirMaker
 
 }  // Base

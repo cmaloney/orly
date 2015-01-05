@@ -32,29 +32,26 @@
 using namespace Base;
 using namespace std;
 
-bool Util::IsValidFd(int fd) {
-  return fcntl(fd, F_GETFD) >= 0;
-}
+bool Util::IsValidFd(int fd) { return fcntl(fd, F_GETFD) >= 0; }
 
 size_t Util::ReadAtMost(int fd, void *buf, size_t max_size) {
   return IfLt0(read(fd, buf, max_size));
 }
 
 size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
-  if (max_size == 0) {
+  if(max_size == 0) {
     return 0;
   }
   return write(fd, buf, max_size);
 }
 
 bool Util::TryReadExactly(int fd, void *buf, size_t size) {
-  char
-      *csr = static_cast<char *>(buf),
-      *end = csr + size;;
-  while (csr < end) {
+  char *csr = static_cast<char *>(buf), *end = csr + size;
+  ;
+  while(csr < end) {
     size_t actual_size = ReadAtMost(fd, csr, end - csr);
-    if (!actual_size) {
-      if (csr > buf) {
+    if(!actual_size) {
+      if(csr > buf) {
         throw TUnexpectedEnd();
       }
       return false;
@@ -64,15 +61,13 @@ bool Util::TryReadExactly(int fd, void *buf, size_t size) {
   return true;
 }
 
-bool Util::TryWriteExactly(int fd, const void *buf,
-    size_t size) {
-  const char
-      *csr = static_cast<const char *>(buf),
-      *end = csr + size;;
-  while (csr < end) {
+bool Util::TryWriteExactly(int fd, const void *buf, size_t size) {
+  const char *csr = static_cast<const char *>(buf), *end = csr + size;
+  ;
+  while(csr < end) {
     size_t actual_size = WriteAtMost(fd, csr, end - csr);
-    if (!actual_size) {
-      if (csr > buf) {
+    if(!actual_size) {
+      if(csr > buf) {
         throw TUnexpectedEnd();
       }
       return false;

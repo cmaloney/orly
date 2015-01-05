@@ -65,7 +65,7 @@
 #include <unordered_set>
 
 #include <base/class_traits.h>
-#if defined __APPLE__ // TPumper implementations
+#if defined __APPLE__  // TPumper implementations
 #include <base/pump_kqueue.h>
 #elif defined __linux__
 #include <base/pump_epoll.h>
@@ -103,95 +103,97 @@ namespace Base {
 
 namespace Pump {
 
-  //TODO: this should be pulled out into a generic "pool of buffers" implementation
-  //NOTE: We never reclaim any blocks currently.
-  //TODO: Should really be an invasive containment type thing between pools and blocks so blocks can't get lost.
-  template<uint64_t BlockSize>
-  class TGrowingPool {
-    NO_COPY(TGrowingPool);
-    public:
+// TODO: this should be pulled out into a generic "pool of buffers" implementation
+// NOTE: We never reclaim any blocks currently.
+// TODO: Should really be an invasive containment type thing between pools and blocks so blocks
+// can't get lost.
+template <uint64_t BlockSize>
+class TGrowingPool {
+  NO_COPY(TGrowingPool);
 
-    using TPtr = std::unique_ptr<uint8_t[]>;
+  public:
+  using TPtr = std::unique_ptr<uint8_t[]>;
 
-    TGrowingPool() = default;
+  TGrowingPool() = default;
 
-    /* Get a new block (The block continues to be owned by the pool. */
-    uint8_t *Allocate() {
-      if(!AvailBlocks.empty()) {
-        return Util::Pop(AvailBlocks);
-      }
-
-      TPtr block(new uint8_t[BlockSize]);
-      auto ret = block.get();
-      Blocks.emplace_back(std::move(block));
-      return ret;
+  /* Get a new block (The block continues to be owned by the pool. */
+  uint8_t *Allocate() {
+    if(!AvailBlocks.empty()) {
+      return Util::Pop(AvailBlocks);
     }
 
-    /* Return a block to the pool */
-    void Recycle(uint8_t *block) {
-      assert(block);
-      AvailBlocks.push(block);
+    TPtr block(new uint8_t[BlockSize]);
+    auto ret = block.get();
+    Blocks.emplace_back(std::move(block));
+    return ret;
+  }
+
+  /* Return a block to the pool */
+  void Recycle(uint8_t *block) {
+    assert(block);
+    AvailBlocks.push(block);
+  }
+
+  private:
+  std::queue<uint8_t *> AvailBlocks;
+  std::vector<TPtr> Blocks;
+};
+
+/* Max number of bytes which are forwarded at a time through a TPipe */
+static constexpr uint64_t ReadBufSize = 4096;
+
+class TPipe;
+
+}  // Pump
+
+/* A pump for pipes. */
+class TPump final {
+  NO_COPY(TPump);
+
+  public:
+  /* Construct with no pipes. */
+  TPump();
+
+  /* Destroy all pipes and lose all unread data. */
+  ~TPump();
+
+  /* Create a new pipe and return both ends of it. */
+  void NewPipe(TFd &read, TFd &write);
+
+  /* Wait for the pump to become idle. */
+  void WaitForIdle() const {
+    assert(this);
+    std::unique_lock<std::mutex> lock(PipeMutex);
+    while(!IsIdle()) {
+      PipeDied.wait(lock);
     }
+  }
 
-    private:
-    std::queue<uint8_t*> AvailBlocks;
-    std::vector<TPtr> Blocks;
-  };
+  bool IsIdle() const;
 
-  /* Max number of bytes which are forwarded at a time through a TPipe */
-  static constexpr uint64_t ReadBufSize = 4096;
+  private:
+  bool ServicePipe(Pump::TPipe *pipe);
 
-  class TPipe;
+  using TBlockPool = Pump::TGrowingPool<Pump::ReadBufSize>;
 
-} // Pump
+  /* Signals when a pipe dies.  This wakes up the WaitForIdle() functions. */
+  mutable std::mutex PipeMutex;
+  mutable std::condition_variable PipeDied;
 
-  /* A pump for pipes. */
-  class TPump final {
-    NO_COPY(TPump);
-    public:
+  /* Collection of the owned pipes.
 
-    /* Construct with no pipes. */
-    TPump();
+     NOTE: It would be really nice to use unique_ptr here, but we can't because we can't lookup a
+     pipe given a raw
+     pointer later... */
+  std::unordered_set<Pump::TPipe *> Pipes;
 
-    /* Destroy all pipes and lose all unread data. */
-    ~TPump();
+  Pump::TPumper Pumper;
 
-    /* Create a new pipe and return both ends of it. */
-    void NewPipe(TFd &read, TFd &write);
+  /* Pool of blocks for stashing I/O in temporarily. */
+  TBlockPool BlockPool;
 
-    /* Wait for the pump to become idle. */
-    void WaitForIdle() const {
-      assert(this);
-      std::unique_lock<std::mutex> lock(PipeMutex);
-      while (!IsIdle()) {
-        PipeDied.wait(lock);
-      }
-    }
-
-    bool IsIdle() const;
-
-    private:
-    bool ServicePipe(Pump::TPipe *pipe);
-
-    using TBlockPool = Pump::TGrowingPool<Pump::ReadBufSize>;
-
-    /* Signals when a pipe dies.  This wakes up the WaitForIdle() functions. */
-    mutable std::mutex PipeMutex;
-    mutable std::condition_variable PipeDied;
-
-    /* Collection of the owned pipes.
-
-       NOTE: It would be really nice to use unique_ptr here, but we can't because we can't lookup a pipe given a raw
-       pointer later... */
-    std::unordered_set<Pump::TPipe*> Pipes;
-
-    Pump::TPumper Pumper;
-
-    /* Pool of blocks for stashing I/O in temporarily. */
-    TBlockPool BlockPool;
-
-    friend class Pump::TPipe;
-    friend class Pump::TPumper;
-  };  // TPump
+  friend class Pump::TPipe;
+  friend class Pump::TPumper;
+};  // TPump
 
 }  // Base

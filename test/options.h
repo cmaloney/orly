@@ -17,8 +17,5 @@ inline TOptions &GetOptionsNonConst() {
 }
 
 // TODO(cmaloney): Move to .cc
-inline const TOptions &GetOptions() {
-  return GetOptionsNonConst();
-}
-
+inline const TOptions &GetOptions() { return GetOptionsNonConst(); }
 }

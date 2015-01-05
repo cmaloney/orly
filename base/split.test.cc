@@ -26,48 +26,41 @@ using namespace Base;
 
 FIXTURE(Typical) {
   vector<string> out;
-  const vector<string> res1 = {"a","b","c","d"};
+  const vector<string> res1 = {"a", "b", "c", "d"};
   Split(",", "a,b,c,d", out);
-  EXPECT_TRUE(out==res1);
+  EXPECT_TRUE(out == res1);
   out.clear();
 
   const vector<string> res5 = {"a"};
-  Split(":","a", out);
-  EXPECT_TRUE(out==res5);
+  Split(":", "a", out);
+  EXPECT_TRUE(out == res5);
   out.clear();
 
-  const vector<string> res2 = {"1","2"," 3",""};
+  const vector<string> res2 = {"1", "2", " 3", ""};
   Split(":", "1:2: 3:", out);
-  EXPECT_TRUE(out==res2);
+  EXPECT_TRUE(out == res2);
   out.clear();
 
   const vector<string> res3;
-  Split(":","", out);
-  EXPECT_TRUE(out==res3);
+  Split(":", "", out);
+  EXPECT_TRUE(out == res3);
   out.clear();
 
-  const vector<string> res4 = {"","",""};
+  const vector<string> res4 = {"", "", ""};
   Split(":", "::", out);
-  cout<<endl;
-  EXPECT_TRUE(out==res4);
+  cout << endl;
+  EXPECT_TRUE(out == res4);
 }
 
 FIXTURE(Join) {
   std::vector<int> ints = {101, 202, 303};
   EXPECT_EQ(AsStr(Join(ints, ", ")), "101, 202, 303");
-  EXPECT_EQ(AsStr(Join(ints,
-                       ", ",
-                       [](ostream &strm, int elem) {
-                         strm << '(' << elem << ')';
-                       })),
+  EXPECT_EQ(AsStr(Join(ints, ", ", [](ostream &strm, int elem) { strm << '(' << elem << ')'; })),
             "(101), (202), (303)");
-  EXPECT_EQ(AsStr(Join(std::make_tuple(101, 1.1, "hello"), ", ")),
-            "101, 1.1, hello");
+  EXPECT_EQ(AsStr(Join(std::make_tuple(101, 1.1, "hello"), ", ")), "101, 1.1, hello");
   EXPECT_EQ(AsStr(Join(std::make_tuple(101, 1.1, "hello"),
                        ", ",
-                       [](ostream &strm, const auto &elem) {
-                         strm << '(' << elem << ')';
-                       })),
+                       [](ostream &strm, const auto &elem) { strm << '(' << elem << ')'; })),
             "(101), (1.1), (hello)");
   EXPECT_EQ(AsStr(Join(std::string("abc"), '/')), "a/b/c");
 }

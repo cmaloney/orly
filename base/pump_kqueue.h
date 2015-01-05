@@ -8,13 +8,13 @@
 #include <base/pump_util.h>
 
 namespace Base {
-  class TPump;
+class TPump;
 namespace Pump {
 
 class TPipe;
 
-//TODO(cmaloney): Make one pumper with two impls in different CCs?
-//TODO: This should use a more generic event wrapper / libevent
+// TODO(cmaloney): Make one pumper with two impls in different CCs?
+// TODO: This should use a more generic event wrapper / libevent
 class TPumper {
   public:
   /* Max number of epoll events returned simultaneously */
@@ -40,5 +40,5 @@ class TPumper {
   std::thread Background;
 };
 
-} // Pump
-} // Base
+}  // Pump
+}  // Base

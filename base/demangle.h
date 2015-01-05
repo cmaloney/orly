@@ -24,27 +24,30 @@
 
 namespace Base {
 
-  /* Wrap a unique_ptr pointing to the name. Note the name may or may not be allocated (The deleter may just noop).
-     Also: Don't edit the string under any circumstances (It might be in the RO section of the binary frome the typeinfo
-     struct.
+/* Wrap a unique_ptr pointing to the name. Note the name may or may not be allocated (The deleter
+   may just noop).
+   Also: Don't edit the string under any circumstances (It might be in the RO section of the binary
+   frome the typeinfo
+   struct.
 
-     NOTE: We make our own type because the internals are possibly inthe RO section of the binary so const casting this
-     string may in some cases SIGSEGV your application.
-     */
-  class TDemangleStr : public std::unique_ptr<const char, void (*)(const char*)> {
-    using TParent = std::unique_ptr<const char, void (*)(const char*)>;
-    using TParent::TParent;
-  };
+   NOTE: We make our own type because the internals are possibly inthe RO section of the binary so
+   const casting this
+   string may in some cases SIGSEGV your application.
+   */
+class TDemangleStr : public std::unique_ptr<const char, void (*)(const char *)> {
+  using TParent = std::unique_ptr<const char, void (*)(const char *)>;
+  using TParent::TParent;
+};
 
-  TDemangleStr Demangle(const std::type_info &t);
-  TDemangleStr Demangle(const char *name);
+TDemangleStr Demangle(const std::type_info &t);
+TDemangleStr Demangle(const char *name);
 
-  /* Return the type ot TVal demangled. Always returns a value. */
-  template<typename TVal>
-  TDemangleStr Demangle() {
-    return Demangle(typeid(TVal));
-  }
+/* Return the type ot TVal demangled. Always returns a value. */
+template <typename TVal>
+TDemangleStr Demangle() {
+  return Demangle(typeid(TVal));
+}
 
-  std::ostream &operator<<(std::ostream &out, const TDemangleStr &ptr);
+std::ostream &operator<<(std::ostream &out, const TDemangleStr &ptr);
 
-} // Base
+}  // Base

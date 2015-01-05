@@ -35,12 +35,13 @@ bool TFd::IsReadable(int timeout) const {
 }
 
 // TODO: This is a utility that should live in base/
-/* Read all the data at fd into one giant buffer in string. Not super efficient, but should be good enough, and
+/* Read all the data at fd into one giant buffer in string. Not super efficient, but should be good
+   enough, and
    sufficiently dangerous if the data is coming from an untrustworthy source */
 std::string Base::ReadAll(TFd &&fd) {
   std::string out;
   uint8_t buf[4096];
-  while (size_t read = Util::ReadAtMost(fd, buf, 4096)) {
+  while(size_t read = Util::ReadAtMost(fd, buf, 4096)) {
     out.append(reinterpret_cast<char *>(buf), read);
   }
 

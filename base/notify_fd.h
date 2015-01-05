@@ -8,14 +8,11 @@ namespace Base {
 
 class TNotifyFd {
   NO_COPY(TNotifyFd);
-  public:
-  TNotifyFd() {
-    TFd::Pipe(Read, Write);
-  }
 
-  const TFd &GetFd() const {
-    return Read;
-  }
+  public:
+  TNotifyFd() { TFd::Pipe(Read, Write); }
+
+  const TFd &GetFd() const { return Read; }
 
   void Notify() {
     char data[8] = {};
@@ -24,7 +21,5 @@ class TNotifyFd {
 
   private:
   TFd Read, Write;
-
 };
-
 }

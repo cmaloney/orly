@@ -31,7 +31,7 @@ using namespace Util;
 TTree TTree::Find(string start_dir, const char *marker) {
   bool found_marker = false;
   TTree res = TTree::Find(move(start_dir), marker, found_marker);
-  if (!found_marker) {
+  if(!found_marker) {
     THROW_ERROR(runtime_error) << "Unable to find " << quoted(marker) << " indicating root of tree";
   }
   return res;
@@ -40,12 +40,12 @@ TTree TTree::Find(string start_dir, const char *marker) {
 TTree TTree::Find(string working, const char *marker, bool &found_marker) {
   do {
     string test_dir = working + '/' + marker;
-    if (ExistsPath(test_dir.c_str())) {
+    if(ExistsPath(test_dir.c_str())) {
       found_marker = true;
       return TTree(working);
     }
     working.resize(working.rfind('/'));
-  } while (working.size());
+  } while(working.size());
   return TTree(GetCwd());
 }
 
@@ -56,14 +56,14 @@ TTree::TTree(vector<string> &&root) : Root(move(root)) {
 }
 
 TTree::TTree(const string &name) : Root(SplitNamespace(name)) {
-
-  if (!IsValidNamespace(Root)) {
+  if(!IsValidNamespace(Root)) {
     THROW_ERROR(runtime_error) << "Invalid tree / namespace " << quoted(name);
   }
 }
 
 bool TTree::Contains(const Base::TPath &path) const {
-  return Root.size() <= path.Namespace.size() && equal(Root.begin(), Root.end(), path.Namespace.begin());
+  return Root.size() <= path.Namespace.size() &&
+         equal(Root.begin(), Root.end(), path.Namespace.begin());
 }
 
 TPath TTree::GetAbsPath(TPath path) const {
@@ -71,9 +71,7 @@ TPath TTree::GetAbsPath(TPath path) const {
   return path;
 }
 
-TPath TTree::GetAbsPath(TRelPath rel_path) const {
-  return GetAbsPath(move(rel_path.Path));
-}
+TPath TTree::GetAbsPath(TRelPath rel_path) const { return GetAbsPath(move(rel_path.Path)); }
 
 TRelPath TTree::GetRelPath(TPath &&path) const {
   assert(Contains(path));
@@ -82,16 +80,12 @@ TRelPath TTree::GetRelPath(TPath &&path) const {
   return TRelPath(move(path));
 }
 
-bool TRelPath::operator==(const TRelPath &that) const {
-  return Path == that.Path;
-}
-bool TRelPath::operator!=(const TRelPath &that) const {
-  return Path != that.Path;
-}
-
+bool TRelPath::operator==(const TRelPath &that) const { return Path == that.Path; }
+bool TRelPath::operator!=(const TRelPath &that) const { return Path != that.Path; }
 
 ostream &Jhm::operator<<(ostream &out, const TRelPath &that) {
-  return WriteExtension(WriteNamespace(out, that.Path.Namespace, false) << that.Path.Name, that.Path.Extension);
+  return WriteExtension(WriteNamespace(out, that.Path.Namespace, false) << that.Path.Name,
+                        that.Path.Extension);
 }
 
 ostream &Jhm::operator<<(ostream &out, const TTree &that) {

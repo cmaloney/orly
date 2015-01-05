@@ -29,13 +29,13 @@ using namespace Base;
 using namespace std;
 
 namespace std {
-  template <typename TVal>
-  ostream &operator<<(ostream &strm, const vector<TVal> &vec) {
-    assert(&strm);
-    assert(&vec);
-    strm << '{' << Join(vec, ',') << '}';
-    return strm;
-  }
+template <typename TVal>
+ostream &operator<<(ostream &strm, const vector<TVal> &vec) {
+  assert(&strm);
+  assert(&vec);
+  strm << '{' << Join(vec, ',') << '}';
+  return strm;
+}
 }
 
 // TODO: Update for the simplification that happened moving to <base/path.h>
@@ -55,13 +55,13 @@ FIXTURE(EndsWith) {
 }
 
 FIXTURE(Name) {
-  //Check that general parsing and construction work.
+  // Check that general parsing and construction work.
   TName n1("a.txt");
   TName n1a("a", {"txt"});
   EXPECT_EQ(n1a.GetBase(), "a");
   EXPECT_EQ(n1a.GetExtensions(), TStrList({"txt"}));
   EXPECT_EQ(n1.GetBase(), "a");
-  EXPECT_EQ(n1.GetExtensions(),  TStrList({"txt"}));
+  EXPECT_EQ(n1.GetExtensions(), TStrList({"txt"}));
   EXPECT_EQ(n1, n1a);
 
   TName n2("a");
@@ -69,11 +69,11 @@ FIXTURE(Name) {
   EXPECT_EQ(n2, n2a);
 
   TName n3("a..b");
-  TName n3a("a", {"","b"});
+  TName n3a("a", {"", "b"});
   EXPECT_EQ(n3, n3a);
 
   TName n4("a...b");
-  TName n4a("a", {"","", "b"});
+  TName n4a("a", {"", "", "b"});
   EXPECT_EQ(n4, n4a);
 
   TName n5("a.b.c.d.e");
@@ -91,11 +91,11 @@ FIXTURE(Name) {
   EXPECT_EQ(TName(".a"), TName("", {"a"}));
   EXPECT_EQ(TName("."), TName("", {""}));
 
-  //Check non-equality
+  // Check non-equality
   EXPECT_NE(TName("a", {}), TName("b", {}));
   EXPECT_NE(TName("b.c"), TName("b.d"));
 
-  //Swaping extensions
+  // Swaping extensions
   TName n8("a.b");
   TName n8a("a.a");
   EXPECT_EQ(n8a.SwapLastExtension("b"), n8);
@@ -109,43 +109,42 @@ FIXTURE(Name) {
   EXPECT_EQ(n9.DropExtension(2), n2);
   EXPECT_EQ(n9a.DropExtension(1), n2);
 
-  //Check the const ref constructor works the same as the move constructor
+  // Check the const ref constructor works the same as the move constructor
   TStr base = "a";
   TStrList extensions({"b", "c", "d", "", "", ""});
   TName n6b(base, extensions);
   EXPECT_EQ(n6a, n6b);
 
-  //Check that copy and move construction work
+  // Check that copy and move construction work
   TName n1b(n1);
   EXPECT_EQ(n1a, n1b);
   TName n1c(move(n1a));
   EXPECT_EQ(n1b, n1c);
 
-  //Make sure something invalid is invalid with an exception.
-  EXPECT_THROW(TSyntaxError, [](){ TName n2("a/b.c"); });
-  EXPECT_THROW(TSyntaxError, [](){ TName n2("a.b/c.d"); });
+  // Make sure something invalid is invalid with an exception.
+  EXPECT_THROW(TSyntaxError, []() { TName n2("a/b.c"); });
+  EXPECT_THROW(TSyntaxError, []() { TName n2("a.b/c.d"); });
 }
 
 FIXTURE(Namespace) {
   TNamespace ns1("a/b/c/d");
   TNamespace ns1a({"a", "b", "c", "d"});
-  EXPECT_EQ(ns1.Get (), TStrList({"a", "b", "c", "d"}));
+  EXPECT_EQ(ns1.Get(), TStrList({"a", "b", "c", "d"}));
   EXPECT_EQ(ns1, ns1a);
 
-  EXPECT_THROW(TSyntaxError, [](){ TNamespace("/a"); });
-  EXPECT_THROW(TSyntaxError, [](){ TNamespace("a/"); });
-  EXPECT_THROW(TSyntaxError, [](){ TNamespace("/a/"); });
+  EXPECT_THROW(TSyntaxError, []() { TNamespace("/a"); });
+  EXPECT_THROW(TSyntaxError, []() { TNamespace("a/"); });
+  EXPECT_THROW(TSyntaxError, []() { TNamespace("/a/"); });
 
   TNamespace ns3("za");
   TNamespace ns3a(TStrList({"za"}));
   EXPECT_EQ(ns3, ns3a);
 
   TNamespace ns5("a.b/c.d/e");
-  TNamespace ns5a(TStrList({"a.b", "c.d", "e"})); //Use a TStrList to prevent a GCC ICE.
+  TNamespace ns5a(TStrList({"a.b", "c.d", "e"}));  // Use a TStrList to prevent a GCC ICE.
   EXPECT_EQ(ns5, ns5a);
 
-
-  //Check non-equality
+  // Check non-equality
   EXPECT_NE(TNamespace("a/b"), TNamespace("b"));
   EXPECT_NE(TNamespace("a/b"), TNamespace("a/c"));
   EXPECT_NE(TNamespace("a/b"), TNamespace("a/b/d"));
@@ -153,8 +152,8 @@ FIXTURE(Namespace) {
 
 FIXTURE(RelPath) {
   TRelPath rp1("a/b/c/d.bar.baz");
-  TNamespace ns1(TStrList({"a","b","c"}));
-  TName n1("d", {"bar","baz"});
+  TNamespace ns1(TStrList({"a", "b", "c"}));
+  TName n1("d", {"bar", "baz"});
   TRelPath rp1a(ns1, n1);
   EXPECT_EQ(rp1.GetNamespace(), ns1);
   EXPECT_EQ(rp1.GetName(), n1);
@@ -172,7 +171,6 @@ FIXTURE(RelPath) {
   EXPECT_THROW(TSyntaxError, []() { TRelPath("a/../../"); });
   EXPECT_THROW(TSyntaxError, []() { TRelPath("/../"); });
   EXPECT_THROW(TSyntaxError, []() { TRelPath("a/b/"); });
-
 }
 FIXTURE(AbsBase) {
   TAbsBase ab1("/a/b/c/");
@@ -184,7 +182,7 @@ FIXTURE(AbsBase) {
   EXPECT_EQ(ab2.Get(), TStr("b/d"));
 
   std::unique_ptr<char> cwd_cstr(get_current_dir_name());
-  string cwd(cwd_cstr.get()+1);
+  string cwd(cwd_cstr.get() + 1);
 
   EXPECT_EQ(ab3.Get(), cwd + "/e");
   EXPECT_EQ(ab4.Get(), cwd);

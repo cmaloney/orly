@@ -32,13 +32,9 @@ using namespace Base;
 using namespace std;
 using namespace Util;
 
-void Util::Delete(const char *path) {
-  IfLt0(unlink(path));
-}
+void Util::Delete(const char *path) { IfLt0(unlink(path)); }
 
-void Util::EnsureDirExists(const char *path, mode_t mode) {
-  EnsureDirExists(path, false, mode);
-}
+void Util::EnsureDirExists(const char *path, mode_t mode) { EnsureDirExists(path, false, mode); }
 
 void Util::EnsureDirExists(const char *path, bool skip_last, mode_t mode) {
   assert(path);
@@ -46,28 +42,27 @@ void Util::EnsureDirExists(const char *path, bool skip_last, mode_t mode) {
      Point at the start of the copy and to its first non-slash character, which might be
      the same. */
   string copyof_path(path);
-  char
-      *start = const_cast<char *>(copyof_path.c_str()),
-      *limit = (*start == '/') ? (start + 1) : start;
+  char *start = const_cast<char *>(copyof_path.c_str()),
+       *limit = (*start == '/') ? (start + 1) : start;
   /* Walk along the copy of the path, finding all the sub-paths.  For example, from
      "/usr/include/c++", we'll find "/usr", "/usr/include", and "/usr/include/c++",
      in that order. */
-  for (;; ++limit) {
+  for(;; ++limit) {
     /* If we're at c-string terminator or a slash, we're at the end of a sub-path.
        If it's a c-string terminator and we're skipping the last part, we're done. */
     char c = *limit;
-    if (!c && skip_last) {
+    if(!c && skip_last) {
       break;
     }
-    if (!c || c == '/') {
+    if(!c || c == '/') {
       /* Temporarily make this the end of a c-string, if it wasn't already. */
       *limit = '\0';
       /* Try to create the path up to this point.  If it already exists, that's fine. */
-      if (mkdir(start, mode) < 0 && errno != EEXIST) {
+      if(mkdir(start, mode) < 0 && errno != EEXIST) {
         ThrowSystemError(errno);
       }
       /* If this was the original end of the path, we're done. */
-      if (!c) {
+      if(!c) {
         break;
       }
       /* Restore the slash that we overwrote with the c-string terminator. */
@@ -87,9 +82,7 @@ void Util::EnsureDirIsGone(const char *path) {
       Unlink(entry);
       return true;
     }
-    virtual TAction OnDirBegin(const TEntry &) override {
-      return Enter;
-    }
+    virtual TAction OnDirBegin(const TEntry &) override { return Enter; }
     virtual bool OnDirCycle(const TEntry &entry, const TEntry &) override {
       RmDir(entry);
       return true;
@@ -118,12 +111,8 @@ void Util::EnsureDirIsGone(const char *path) {
       Unlink(entry);
       return true;
     }
-    void RmDir(const TEntry &entry) {
-      IfLt0(rmdir(entry.AccessPath));
-    }
-    void Unlink(const TEntry &entry) {
-      IfLt0(unlink(entry.AccessPath));
-    }
+    void RmDir(const TEntry &entry) { IfLt0(rmdir(entry.AccessPath)); }
+    void Unlink(const TEntry &entry) { IfLt0(unlink(entry.AccessPath)); }
   };
   dir_walker_t().Walk(path);
 }
@@ -132,8 +121,8 @@ bool Util::ExistsPath(const char *path) {
   assert(path);
   struct stat st;
   bool result;
-  if (stat(path, &st) < 0) {
-    if (errno != ENOENT) {
+  if(stat(path, &st) < 0) {
+    if(errno != ENOENT) {
       ThrowSystemError(errno);
     }
     result = false;
@@ -144,23 +133,25 @@ bool Util::ExistsPath(const char *path) {
 }
 
 string Util::GetCwd() {
-  unique_ptr<char, void (*)(void*)> cwd(getcwd(0, 0), &free);
+  unique_ptr<char, void (*)(void *)> cwd(getcwd(0, 0), &free);
   return string(cwd.get());
 }
 
-string Util::MakePath(bool is_absolute, initializer_list<const char *> dirs, initializer_list<const char *> parts) {
+string Util::MakePath(bool is_absolute,
+                      initializer_list<const char *> dirs,
+                      initializer_list<const char *> parts) {
   ostringstream strm;
-  for (const char *start: dirs) {
-    if (start) {
+  for(const char *start : dirs) {
+    if(start) {
       const char *limit = start + strlen(start) - 1;
-      while (start <= limit && *start == '/') {
+      while(start <= limit && *start == '/') {
         ++start;
       }
-      while (start <= limit && *limit == '/') {
+      while(start <= limit && *limit == '/') {
         --limit;
       }
-      if (start <= limit) {
-        if (is_absolute) {
+      if(start <= limit) {
+        if(is_absolute) {
           strm << '/';
         } else {
           is_absolute = true;
@@ -169,11 +160,11 @@ string Util::MakePath(bool is_absolute, initializer_list<const char *> dirs, ini
       }
     }
   }
-  if (is_absolute) {
+  if(is_absolute) {
     strm << '/';
   }
-  for (const char *c_str: parts) {
-    if (c_str) {
+  for(const char *c_str : parts) {
+    if(c_str) {
       strm << c_str;
     }
   }
@@ -182,7 +173,7 @@ string Util::MakePath(bool is_absolute, initializer_list<const char *> dirs, ini
 
 string Util::MakePath(initializer_list<const char *> dirs, initializer_list<const char *> parts) {
   bool is_absolute = false;
-  if (dirs.begin() != dirs.end()) {
+  if(dirs.begin() != dirs.end()) {
     const char *dir = *dirs.begin();
     is_absolute = (dir && *dir == '/');
   }

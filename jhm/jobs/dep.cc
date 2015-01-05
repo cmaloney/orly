@@ -31,7 +31,7 @@ static TRelPath GetOutputName(const TRelPath &input) {
 }
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
-  if (output.Path.EndsWith({"dep"})) {
+  if(output.Path.EndsWith({"dep"})) {
     return TRelPath(DropExtension(TPath(output.Path), 1));
   } else {
     return TOpt<TRelPath>();
@@ -39,23 +39,17 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
 }
 
 TJobProducer TDep::GetProducer() {
-
-  return TJobProducer{
-    "dep",
-    {{"dep"}},
-    GetInputName,
-    //TODO: Should be able to eliminate the lambda wrapper here...
-    [] (TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
-      return unique_ptr<TDep>(new TDep(env, in_file));
-    }
-  };
+  return TJobProducer{"dep",
+                      {{"dep"}},
+                      GetInputName,
+                      // TODO: Should be able to eliminate the lambda wrapper here...
+                      [](TEnv &env, TFile *in_file)
+                          -> unique_ptr<TJob> { return unique_ptr<TDep>(new TDep(env, in_file)); }};
 }
 
-const char *TDep::GetName() {
-  return "dependency_file";
-}
+const char *TDep::GetName() { return "dependency_file"; }
 
-const unordered_set<TFile*> TDep::GetNeeds() {
+const unordered_set<TFile *> TDep::GetNeeds() {
   assert(this);
 
   return Needs;
@@ -66,20 +60,20 @@ vector<string> TDep::GetCmd() {
 
   vector<string> cmd{"make_dep_file", "--", GetInput()->GetPath(), GetSoleOutput()->GetPath()};
 
-  // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the compiler
+  // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the
+  // compiler
   const auto &extensions = GetInput()->GetRelPath().Path.Extension;
-  if (extensions.size() >= 1) {
-    const string &ext = extensions.at(extensions.size()-1);
-    if (ext == "cc" || ext == "c") {
-      //TODO: move array append
-      for(auto &arg: TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
+  if(extensions.size() >= 1) {
+    const string &ext = extensions.at(extensions.size() - 1);
+    if(ext == "cc" || ext == "c") {
+      // TODO: move array append
+      for(auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
         cmd.push_back(move(arg));
       }
     }
   }
   return cmd;
 }
-
 
 TTimestamp TDep::GetCmdTimestamp() const {
   static TTimestamp timestamp = GetTimestampSearchingPath("clang++");
@@ -91,12 +85,13 @@ bool TDep::IsComplete() {
 
   bool needs_work = false;
 
-  // Load the json file and see if there are any new things in it which aren't yet done (We have work to do)
+  // Load the json file and see if there are any new things in it which aren't yet done (We have
+  // work to do)
   // TODO: This should be a call to Parse()... But that constructs an istringstream...
   TJson deps = TJson::Read(AsStr(GetSoleOutput()->GetPath()).c_str());
-  deps.ForEachElem([this,&needs_work](const TJson &elem)->bool {
+  deps.ForEachElem([this, &needs_work](const TJson &elem) -> bool {
     TFile *file = Env.TryGetFileFromPath(elem.GetString());
-    if (file) {
+    if(file) {
       // Add to needs. If it's new in the Needs array, we aren't done yet.
       needs_work |= Needs.insert(file).second;
     }
@@ -104,14 +99,15 @@ bool TDep::IsComplete() {
   });
 
   // If we found everything, stash the info on the input file as computed config
-  // TODO: In pushing this as strings, we effectively discard all the file lookups we've already done
-  if (!needs_work) {
-    GetSoleOutput()->PushComputedConfig(TJson::TObject{{"c++", TJson::TObject{{"include", move(deps)}}}});
+  // TODO: In pushing this as strings, we effectively discard all the file lookups we've already
+  // done
+  if(!needs_work) {
+    GetSoleOutput()->PushComputedConfig(
+        TJson::TObject{{"c++", TJson::TObject{{"include", move(deps)}}}});
   }
 
   return !needs_work;
 }
-
 
 TDep::TDep(TEnv &env, TFile *in_file)
     : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath()))}), Env(env) {}

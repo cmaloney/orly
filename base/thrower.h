@@ -28,100 +28,100 @@
 #include <base/demangle.h>
 #include <base/exception.h>
 
-/* Use this macro to throw an error, like this: THROW_ERROR(TSomethingBad) << "more info" << Base::EndOfPart << "yet more info"; */
-#define THROW_ERROR(error_t)  (::Base::TThrower<error_t>(HERE))
+/* Use this macro to throw an error, like this: THROW_ERROR(TSomethingBad) << "more info" <<
+ * Base::EndOfPart << "yet more info"; */
+#define THROW_ERROR(error_t) (::Base::TThrower<error_t>(HERE))
 
 /* Use this macro to throw a non-specific error, like this: THROW << "the details"; */
-#define THROW  (::Base::TThrower< ::Base::TNonSpecificRuntimeError>(HERE))
+#define THROW (::Base::TThrower<::Base::TNonSpecificRuntimeError>(HERE))
 
 namespace Base {
 
-  /* A do-nothing singleton.  Insert this object onto a thrower to mark the end of a single piece of information. */
-  extern const class TEndOfPart final {} EndOfPart;
+/* A do-nothing singleton.  Insert this object onto a thrower to mark the end of a single piece of
+ * information. */
+extern const class TEndOfPart final {
+} EndOfPart;
 
-  /* The text we insert between parts of an error message. */
-  extern const char *PartDelimiter;
+/* The text we insert between parts of an error message. */
+extern const char *PartDelimiter;
 
-  /* Construct a temporary instance of this object, passing in the current code location.
-     While the object exists, you may stream additional error information onto it.
-     When the object goes out of scope, it will throw the error. */
-  template <typename TError>
-  class TThrower final {
-    public:
-    MOVE_ONLY(TThrower);
+/* Construct a temporary instance of this object, passing in the current code location.
+   While the object exists, you may stream additional error information onto it.
+   When the object goes out of scope, it will throw the error. */
+template <typename TError>
+class TThrower final {
+  public:
+  MOVE_ONLY(TThrower);
 
-    /* Begin the error message with the code location and the description provided by TError (if any). */
-    TThrower(const TCodeLocation &code_location)
-        : AtEndOfPart(false) {
-      Write(code_location);
+  /* Begin the error message with the code location and the description provided by TError (if any).
+   */
+  TThrower(const TCodeLocation &code_location) : AtEndOfPart(false) {
+    Write(code_location);
+    Write(EndOfPart);
+    const char *desc = GetErrorDescHelper<TError>();
+    if(desc) {
+      Write(desc);
       Write(EndOfPart);
-      const char *desc = GetErrorDescHelper<TError>();
-      if (desc) {
-        Write(desc);
-        Write(EndOfPart);
-      } else if (!HasGetDesc<TError>()) {
-        // If the GetDesc() doesn't exist, provide the typename for the user (It's probably an STL exception).
-        Write(Demangle<TError>());
-        Write(EndOfPart);
-      }
+    } else if(!HasGetDesc<TError>()) {
+      // If the GetDesc() doesn't exist, provide the typename for the user (It's probably an STL
+      // exception).
+      Write(Demangle<TError>());
+      Write(EndOfPart);
     }
-
-    /* Boom goes the dynamite. */
-    [[noreturn]] ~TThrower() noexcept(false) {
-      assert(this);
-      throw TError(Strm.str().c_str());
-    }
-
-    /* Append the value to the error message we are building.
-       If we're currently positioned at the end of a message part, insert a delimiter before the value. */
-    template <typename TVal>
-    void Write(const TVal &val) {
-      assert(this);
-      if (AtEndOfPart) {
-        Strm << PartDelimiter;
-        AtEndOfPart = false;
-      }
-      Strm << val;
-    }
-
-    /* Append the end-of-part marker to the message.
-       This doesn't actually add anything to the message, it just marks the position as being the end of a part. */
-    void Write(const TEndOfPart &) {
-      assert(this);
-      AtEndOfPart = true;
-    }
-
-    private:
-
-    /* True when we have just written the end of a part. */
-    bool AtEndOfPart;
-
-    /* Collects the error message as we build it. */
-    std::ostringstream Strm;
-
-  };  // TThrower<TError>
-
-  /* The error thrown by THROW() macro. */
-  class TNonSpecificRuntimeError final
-      : public std::runtime_error {
-    public:
-
-    /* Do-little. */
-    TNonSpecificRuntimeError(const char *msg)
-        : std::runtime_error(msg) {}
-
-    /* No descriptive message. */
-    static const char *GetDesc() {
-      return nullptr;
-    }
-
-  };  // TNonSpecificRuntimeError
-
-  template <typename TError, typename TVal>
-  Base::TThrower<TError> &&operator<<(Base::TThrower<TError> &&thrower, const TVal &val) {
-    assert(&thrower);
-    thrower.Write(val);
-    return std::move(thrower);
   }
+
+  /* Boom goes the dynamite. */
+  [[noreturn]] ~TThrower() noexcept(false) {
+    assert(this);
+    throw TError(Strm.str().c_str());
+  }
+
+  /* Append the value to the error message we are building.
+     If we're currently positioned at the end of a message part, insert a delimiter before the
+     value. */
+  template <typename TVal>
+  void Write(const TVal &val) {
+    assert(this);
+    if(AtEndOfPart) {
+      Strm << PartDelimiter;
+      AtEndOfPart = false;
+    }
+    Strm << val;
+  }
+
+  /* Append the end-of-part marker to the message.
+     This doesn't actually add anything to the message, it just marks the position as being the end
+     of a part. */
+  void Write(const TEndOfPart &) {
+    assert(this);
+    AtEndOfPart = true;
+  }
+
+  private:
+  /* True when we have just written the end of a part. */
+  bool AtEndOfPart;
+
+  /* Collects the error message as we build it. */
+  std::ostringstream Strm;
+
+};  // TThrower<TError>
+
+/* The error thrown by THROW() macro. */
+class TNonSpecificRuntimeError final : public std::runtime_error {
+  public:
+  /* Do-little. */
+  TNonSpecificRuntimeError(const char *msg) : std::runtime_error(msg) {}
+
+  /* No descriptive message. */
+  static const char *GetDesc() { return nullptr; }
+
+};  // TNonSpecificRuntimeError
+
+template <typename TError, typename TVal>
+Base::TThrower<TError> &&operator<<(Base::TThrower<TError> &&thrower, const TVal &val) {
+  assert(&thrower);
+  thrower.Write(val);
+  return std::move(thrower);
+}
 
 }  // Base

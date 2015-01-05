@@ -13,12 +13,15 @@ using namespace Base;
 using namespace Cmd;
 
 static void Indent(uint64_t pad_size) {
-  for (uint64_t i = 0; i < pad_size; ++i) {
+  for(uint64_t i = 0; i < pad_size; ++i) {
     std::cout << ' ';
   }
 }
 
-static void PrintIndented(uint64_t line_size, uint64_t pad_size, const char *text, uint64_t pre_pad) {
+static void PrintIndented(uint64_t line_size,
+                          uint64_t pad_size,
+                          const char *text,
+                          uint64_t pre_pad) {
   assert(pad_size < line_size);
 
   // Calculate text chunk length per line.
@@ -26,45 +29,45 @@ static void PrintIndented(uint64_t line_size, uint64_t pad_size, const char *tex
 
   // We can write the help on the same line if the option isn't too long.
   bool pre_padded = false;
-  if (pre_pad + 2 > pad_size) {
+  if(pre_pad + 2 > pad_size) {
     std::cout << '\n';
   } else {
     Indent(pad_size - pre_pad);
     pre_padded = true;
   }
 
-  //TODO(cmaloney): strlen is not going to go over well with internationalization eventually.
+  // TODO(cmaloney): strlen is not going to go over well with internationalization eventually.
   const uint64_t text_len = strlen(text);
-  for (uint64_t offset=0; offset < text_len; offset += text_per_line) {
-    if (pre_padded) {
+  for(uint64_t offset = 0; offset < text_len; offset += text_per_line) {
+    if(pre_padded) {
       pre_padded = false;
     } else {
       Indent(pad_size);
     }
-    std::cout.write(text+offset, int64_t(std::min(text_per_line, text_len - offset)));
+    std::cout.write(text + offset, int64_t(std::min(text_per_line, text_len - offset)));
   }
   std::cout << '\n';
 }
 
-static void PrintRepetition(const TRepetition repitition, bool show_zero_or_one=true) {
+static void PrintRepetition(const TRepetition repitition, bool show_zero_or_one = true) {
   switch(repitition) {
     case TRepetition::One:
-    std::cout << ' ';
-    break;
+      std::cout << ' ';
+      break;
     case TRepetition::ZeroOrOne:
-    std::cout << (show_zero_or_one ? '?' : ' ');
-    break;
+      std::cout << (show_zero_or_one ? '?' : ' ');
+      break;
     case TRepetition::ZeroOrMore:
-    std::cout << '*';
-    break;
+      std::cout << '*';
+      break;
     case TRepetition::OneOrMore:
-    std::cout << '+';
-    break;
+      std::cout << '+';
+      break;
   }
 }
 
-void Cmd::PrintHelp(const char *program_name, const std::vector<const TArgInfo*> &args) {
-  //TODO(cmaloney): All this code needs to be heavily reworked.
+void Cmd::PrintHelp(const char *program_name, const std::vector<const TArgInfo *> &args) {
+  // TODO(cmaloney): All this code needs to be heavily reworked.
   struct winsize ws;
   ioctl(0, TIOCGWINSZ, &ws);
   auto line_size = std::max(ws.ws_col - 1, 80);
@@ -80,12 +83,12 @@ void Cmd::PrintHelp(const char *program_name, const std::vector<const TArgInfo*>
 
   // TODO(cmaloney): Alphabetize positional arguments
   bool first_positional = true;
-  for (const TArgInfo *arg: args) {
-    if (!arg->Positional) {
+  for(const TArgInfo *arg : args) {
+    if(!arg->Positional) {
       continue;
     }
 
-    if (first_positional) {
+    if(first_positional) {
       std::cout << "Positional arguments:\n";
       first_positional = false;
     }
@@ -98,34 +101,34 @@ void Cmd::PrintHelp(const char *program_name, const std::vector<const TArgInfo*>
     PrintIndented(line_size, pad_size, arg->Description, arg->Names[0].size() + 1);
   }
 
-  if (first_positional == false) {
+  if(first_positional == false) {
     std::cout << '\n';
   }
 
   // TODO(cmaloney): Alphabetize non-positional arguments
   bool first_named = true;
 
-  for (const TArgInfo *arg: args) {
-    if (arg->Positional) {
+  for(const TArgInfo *arg : args) {
+    if(arg->Positional) {
       continue;
     }
 
-    if (first_named) {
+    if(first_named) {
       std::cout << "Named arguments:\n";
       first_named = false;
     }
 
     auto prepad_len = 0;
     bool first_name = true;
-    for (const auto &name: arg->Names) {
-      if (first_name) {
+    for(const auto &name : arg->Names) {
+      if(first_name) {
         first_name = false;
       } else {
         prepad_len += 1;
         std::cout << ',';
         first_name = true;
       }
-      if (name.size() == 1) {
+      if(name.size() == 1) {
         prepad_len += 1;
         std::cout << '-';
       } else {

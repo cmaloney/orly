@@ -41,14 +41,10 @@ class TContext {
   }
 
   // Log an exception, something without a position / unevaluated expression.
-  static inline TLog Log(bool passed) {
-    return TLog(passed);
-  }
+  static inline TLog Log(bool passed) { return TLog(passed); }
 
   // Log a fixture to the parent context
-  static inline void Log(const char * /* name */, bool passed) {
-    Current()->LogResult(passed);
-  }
+  static inline void Log(const char * /* name */, bool passed) { Current()->LogResult(passed); }
 
   TContext(const char *name);
   ~TContext();

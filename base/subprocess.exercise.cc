@@ -26,13 +26,13 @@ using namespace Base;
 int main(int, char *[]) {
   TPump pump;
   auto subprocess = TSubprocess::New(pump);
-  if (!subprocess) {
+  if(!subprocess) {
     cout << "Hello, world!";
     exit(111);
   }
   char buf[1024];
   ssize_t size = read(subprocess->GetStdOutFromChild(), buf, sizeof(buf));
-  if (size >= 0) {
+  if(size >= 0) {
     buf[size] = '\0';
     cout << "I got: " << buf << endl;
   } else {

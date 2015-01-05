@@ -2,7 +2,8 @@
 
    Use this to indicate a position which is unreachable.
 
-   Gives us the advantage of a backtrace if reached, as well as telling GCC the location is indeed unreachable.
+   Gives us the advantage of a backtrace if reached, as well as telling GCC the location is indeed
+   unreachable.
 
    Copyright 2010-2014 OrlyAtomics, Inc.
 
@@ -22,6 +23,6 @@
 
 namespace Base {
 
-  [[noreturn]] void Unreachable(const TCodeLocation &loc);
+[[noreturn]] void Unreachable(const TCodeLocation &loc);
 
-} // Base
+}  // Base

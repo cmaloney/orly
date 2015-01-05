@@ -10,9 +10,8 @@ struct TStandardOptions {
 };
 
 inline TArgs<TStandardOptions> GetStandardArgs() {
-  return {
-    Optional({"help","h"}, &TStandardOptions::Help, "Print description of command and arguments message")
-  };
+  return {Optional({"help", "h"},
+                   &TStandardOptions::Help,
+                   "Print description of command and arguments message")};
 };
-
 }
