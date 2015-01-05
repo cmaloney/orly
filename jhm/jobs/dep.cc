@@ -89,14 +89,13 @@ bool TDep::IsComplete() {
   // work to do)
   // TODO: This should be a call to Parse()... But that constructs an istringstream...
   TJson deps = TJson::Read(AsStr(GetSoleOutput()->GetPath()).c_str());
-  deps.ForEachElem([this, &needs_work](const TJson &elem) -> bool {
+  for(const TJson &elem: deps.GetArray()) {
     TFile *file = Env.TryGetFileFromPath(elem.GetString());
     if(file) {
       // Add to needs. If it's new in the Needs array, we aren't done yet.
       needs_work |= Needs.insert(file).second;
     }
-    return true;
-  });
+  }
 
   // If we found everything, stash the info on the input file as computed config
   // TODO: In pushing this as strings, we effectively discard all the file lookups we've already

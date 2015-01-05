@@ -21,9 +21,11 @@
 #include <deque>
 
 #include <base/class_traits.h>
+#include <base/exception.h>
 #include <base/json.h>
 #include <base/opt.h>
 #include <base/split.h>
+#include <base/thrower.h>
 #include <util/time.h>
 
 namespace Jhm {
@@ -166,10 +168,9 @@ struct TJsonReader<std::vector<TVal>> {
     std::vector<TVal> ret;
     ret.reserve(entry.GetSize());
     try {
-      entry.ForEachElem([&ret](const Base::TJson &json) -> bool {
+      for (const Base::TJson &json: entry.GetArray()) {
         ret.push_back(TJsonReader<TVal>::Read(json));
-        return true;
-      });
+      }
     } catch(const TConfig::TInvalidValue &ex) {
       THROW_ERROR(TConfig::TInvalidValue) << "Element in list. " << ex.what();
     }
@@ -184,10 +185,9 @@ struct TJsonReader<std::map<std::string, TVal>> {
     // Walk the array, pulling out each element
     std::map<std::string, TVal> ret;
     try {
-      entry.ForEachElem([&ret](const std::string &key, const Base::TJson &json) -> bool {
-        ret.emplace(key, TJsonReader<TVal>::Read(json));
-        return true;
-      });
+      for (const auto &elem: entry.GetObject()) {
+        ret.emplace(elem.first, TJsonReader<TVal>::Read(elem.second));
+      }
     } catch(const TConfig::TInvalidValue &ex) {
       THROW_ERROR(TConfig::TInvalidValue) << "Element in object/map. " << ex.what();
     }

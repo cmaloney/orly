@@ -31,6 +31,16 @@ using namespace Base;
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
 
+
+/* Parse a text. */
+template <typename TArg>
+static TJson Parse(TArg &&arg) {
+  std::istringstream strm(std::forward<TArg>(arg));
+  TJson result;
+  result.Read(strm);
+  return std::move(result);
+}
+
 #if 0
 // Unicode isn't currently supported
 /* Convert a c-string to a JSON string. */
@@ -168,30 +178,30 @@ FIXTURE(ObjectSubscripting) {
 }
 
 FIXTURE(Parse) {
-  EXPECT_EQ(TJson::Parse("null"), TJson());
-  EXPECT_EQ(TJson::Parse("true"), true);
-  EXPECT_EQ(TJson::Parse("false"), false);
-  EXPECT_EQ(TJson::Parse("0"), 0);
-  EXPECT_EQ(TJson::Parse("+101"), 101);
-  EXPECT_EQ(TJson::Parse("-101"), -101);
-  EXPECT_EQ(TJson::Parse("[]"), TJson::TArray());
-  EXPECT_EQ(TJson::Parse("[ 1, 2, 3 ]"), Array);
-  EXPECT_EQ(TJson::Parse("{}"), TJson::TObject());
-  EXPECT_EQ(TJson::Parse(R"({ "a": 1, "b": 2, "c": 3} )"), Object);
-  EXPECT_EQ(TJson::Parse(R"("")"), "");
-  EXPECT_EQ(TJson::Parse(R"("hello")"), "hello");
-  EXPECT_EQ(TJson::Parse(R"(hello)"), "hello");
-  EXPECT_EQ(TJson::Parse(R"([hello,world,null,no,truest,falser,nullary])"),
+  EXPECT_EQ(Parse("null"), TJson());
+  EXPECT_EQ(Parse("true"), true);
+  EXPECT_EQ(Parse("false"), false);
+  EXPECT_EQ(Parse("0"), 0);
+  EXPECT_EQ(Parse("+101"), 101);
+  EXPECT_EQ(Parse("-101"), -101);
+  EXPECT_EQ(Parse("[]"), TJson::TArray());
+  EXPECT_EQ(Parse("[ 1, 2, 3 ]"), Array);
+  EXPECT_EQ(Parse("{}"), TJson::TObject());
+  EXPECT_EQ(Parse(R"({ "a": 1, "b": 2, "c": 3} )"), Object);
+  EXPECT_EQ(Parse(R"("")"), "");
+  EXPECT_EQ(Parse(R"("hello")"), "hello");
+  EXPECT_EQ(Parse(R"(hello)"), "hello");
+  EXPECT_EQ(Parse(R"([hello,world,null,no,truest,falser,nullary])"),
             TJson::TArray({"hello", "world", TJson(), "no", "truest", "falser", "nullary"}));
 
-  EXPECT_EQ(TJson::Parse(R"(["/usr/include/stdc-predef.h","/usr/include/c++/4.9.0/ostream"])"),
+  EXPECT_EQ(Parse(R"(["/usr/include/stdc-predef.h","/usr/include/c++/4.9.0/ostream"])"),
             TJson::TArray({"/usr/include/stdc-predef.h", "/usr/include/c++/4.9.0/ostream"}));
-  EXPECT_EQ(TJson::Parse("[1,]"), TJson::TArray{1});
-  EXPECT_EQ(TJson::Parse("{\"a\": 1,}"), TJson::TObject({{"a", 1}}));
+  EXPECT_EQ(Parse("[1,]"), TJson::TArray{1});
+  EXPECT_EQ(Parse("{\"a\": 1,}"), TJson::TObject({{"a", 1}}));
 }
 
 FIXTURE(EscapeSequences) {
-  EXPECT_EQ(TJson::Parse(R"foo("\"\\\/\b\f\n\r\t")foo").GetString(), "\"\\/\b\f\n\r\t");
+  EXPECT_EQ(Parse(R"foo("\"\\\/\b\f\n\r\t")foo").GetString(), "\"\\/\b\f\n\r\t");
   EXPECT_EQ(AsStr(TJson("\"\\/\b\f\n\r\t7")), R"foo("\"\\/\b\f\n\r\t7")foo");
 }
 
@@ -205,10 +215,10 @@ FIXTURE(KindToStr) {
 }
 
 FIXTURE(RoundTrip) {
-  EXPECT_EQ(TJson::Parse(AsStr(TJson(12345678))), 12345678);
-  EXPECT_EQ(TJson::Parse(AsStr(TJson(0))), 0);
-  EXPECT_EQ(TJson::Parse(AsStr(TJson(101))), 101);
-  EXPECT_EQ(TJson::Parse(AsStr(TJson(-101))), -101);
-  EXPECT_EQ(TJson::Parse(AsStr(TJson(Array))), Array);
-  EXPECT_EQ(TJson::Parse(AsStr(TJson(Object))), Object);
+  EXPECT_EQ(Parse(AsStr(TJson(12345678))), 12345678);
+  EXPECT_EQ(Parse(AsStr(TJson(0))), 0);
+  EXPECT_EQ(Parse(AsStr(TJson(101))), 101);
+  EXPECT_EQ(Parse(AsStr(TJson(-101))), -101);
+  EXPECT_EQ(Parse(AsStr(TJson(Array))), Array);
+  EXPECT_EQ(Parse(AsStr(TJson(Object))), Object);
 }

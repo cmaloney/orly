@@ -82,17 +82,15 @@ TJson ApplyDelta(const TJson &base, TJson &&delta) {
 
   if(ret.GetKind() == TJson::Object) {
     // Add / replace keys in base with the delta's values.
-    delta.ForEachElem([&ret](const string &name, TJson &elem) {
-      ret[name] = move(elem);
-      return true;
-    });
+    for (auto &elem: delta.GetObject()) {
+      ret[elem.first] = move(elem.second);
+    }
   } else if(ret.GetKind() == TJson::Array) {
     // Append our array to their array
     TJson::TArray &that = ret.GetArray();
-    delta.ForEachElem([&that](TJson &elem) {
+    for (TJson &elem: delta.GetArray()) {
       that.emplace_back(move(elem));
-      return true;
-    });
+    }
   } else {
     THROW_ERROR(TJson::TSyntaxError)
         << "Delta configuration is only supported on JSON arrays and objects. Got a "

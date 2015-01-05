@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iomanip>
 
 #include <jhm/jobs/compile_c_family.h>
 #include <jhm/jobs/dep.h>
