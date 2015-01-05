@@ -5,6 +5,7 @@
 
 #include <base/not_implemented.h>
 #include <base/thrower.h>
+#include <cmd/standard_args.h>
 
 using namespace Cmd;
 
