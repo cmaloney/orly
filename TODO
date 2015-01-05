@@ -47,3 +47,15 @@ Extend / clean test harness:
   - XML output report for consumption via existing tools.
 
 buildit -- wrapper for other build systems (Need to ingest autoconf / makefiles, CMake)
+
+
+Random thoughts:
+Need to be able to do "parameterized builds"
+  - Ala flake8 or Travis CI
+  - Have a collection of config files stating the build parameters
+    Env stuff: (clang, gcc, versions, etc.)
+    Project stuff: Config, mixins
+  - Runs jhm in the context to build everything.
+
+  Notes:
+    - Auto generate name?

@@ -18,7 +18,6 @@
 
 #include <util/tuple.h>
 
-#include <iostream>
 #include <string>
 #include <sstream>
 
@@ -50,8 +49,9 @@ struct TPrint {
 
 FIXTURE(WithoutCapture) {
   auto tup = std::make_tuple(4, 2, 5);
-  ForEach(tup, TPrint(std::cout));
-  std::cout << std::endl;
+  std::ostringstream strm;
+  ForEach(tup, TPrint(strm));
+  EXPECT_EQ(strm.str(), "4 2 5");
 }
 
 FIXTURE(WithCapture) {
