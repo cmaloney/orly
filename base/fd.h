@@ -18,16 +18,9 @@
 
 #pragma once
 
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
-#include <algorithm>
-#include <cassert>
 #include <string>
 
 #include <base/class_traits.h>
-#include <util/error.h>
 
 namespace Base {
 
@@ -55,73 +48,36 @@ namespace Base {
    file desciptor, but it will not attempt to close it. */
 class TFd {
   public:
+  NO_COPY(TFd);
+
   /* Default-construct as an illegal value (-1). */
-  TFd() : OsHandle(-1) {}
+  TFd();
 
   /* Move-construct, leaving the donor in the default-constructed state. */
-  TFd(TFd &&that) {
-    assert(&that);
-    OsHandle = that.OsHandle;
-    that.OsHandle = -1;
-  }
-
-  /* Copy-construct, duplicating the file descriptor with the OS call dup(), if necessary. */
-  TFd(const TFd &that) {
-    assert(&that);
-    OsHandle = that.IsSystemFd() ? that.OsHandle : Util::IfLt0(dup(that.OsHandle));
-  }
+  TFd(TFd &&that);
 
   /* Construct from a naked file descriptor, which the new instance will own.  Use this constructor
      to capture the result of an OS function, such as
      socket(), which returns a newly created file descriptor.  If the result is not a legal file
      descriptor, this function will throw the
      appropriate error.  */
-  TFd(int os_handle) { OsHandle = Util::IfLt0(os_handle); }
+  TFd(int os_handle);
 
   /* Close the file descriptor we own, if any.  If the descriptor is in the stdio range (0-2), then
    * don't close it. */
-  ~TFd() {
-    assert(this);
-    if(!IsSystemFd() && OsHandle != -1) {
-      close(OsHandle);
-    }
-  }
+  ~TFd();
 
   /* Swaperator. */
-  TFd &operator=(TFd &&that) {
-    assert(this);
-    assert(&that);
-    std::swap(OsHandle, that.OsHandle);
-    return *this;
-  }
-
-  /* Assignment.  This will duplicate the file descriptor, if any, using the OS function dup(). */
-  TFd &operator=(const TFd &that) {
-    assert(this);
-    return *this = TFd(that);
-  }
-
-  /* Assign from a naked file descriptor, which we will now own.  Use this constructor to capture
-     the result of an OS function, such as socket(),
-     which returns a newly created file descriptor.  If the result is not a legal file descriptor,
-     this function will throw the appropriate
-     error.  */
-  TFd &operator=(int os_handle) {
-    assert(this);
-    return *this = TFd(os_handle);
-  }
+  TFd &operator=(TFd &&that);
 
   /* Returns the naked file descriptor, which may be -1. */
-  operator int() const {
-    assert(this);
-    return OsHandle;
-  }
+  operator int() const;
+
+  /* Make a copy of this file descriptor with an independent lifetime. */
+  TFd Duplicate() const;
 
   /* True iff. this handle is open. */
-  bool IsOpen() const {
-    assert(this);
-    return OsHandle >= 0;
-  }
+  bool IsOpen() const;
 
   /* True iff. the file descriptor can be read from without blocking.
      Waits for at most the given number of milliseconds for the descriptor to become readable.
@@ -129,46 +85,24 @@ class TFd {
   bool IsReadable(int timeout = 0) const;
 
   /* True iff this is a system fd (stdin, stdout, stderr) */
-  bool IsSystemFd() const {
-    assert(this);
-    return OsHandle < 3 && OsHandle >= 0;
-  }
+  bool IsSystem() const;
 
   /* Returns the naked file desciptor, which may be -1, and returns to the default-constructed
      state.  This is how to get the naked file desciptor
      away from the object without the object attempting to close it. */
-  int Release() {
-    assert(this);
-    int result = OsHandle;
-    OsHandle = -1;
-    return result;
-  }
+  int Release();
 
   /* Return to the default-constructed state. */
-  TFd &Reset() {
-    assert(this);
-    return *this = TFd();
-  }
+  TFd &Reset();
+
 
   /* Construct the read- and write-only ends of a pipe. */
-  static void Pipe(TFd &readable, TFd &writeable) {
-    assert(&readable);
-    assert(&writeable);
-    int fds[2];
-    Util::IfLt0(pipe(fds) < 0);
-#ifdef __APPLE__
-    Util::IfLt0(fcntl(fds[0], F_SETNOSIGPIPE, 1));
-    Util::IfLt0(fcntl(fds[1], F_SETNOSIGPIPE, 1));
-#endif
-    readable = TFd(fds[0], NoThrow);
-    writeable = TFd(fds[1], NoThrow);
-  }
+  static void Pipe(TFd &readable, TFd &writeable);
 
   private:
-  /* Use to disambiguate construction for Pipe() and SocketPair(). */
+  /* Use to make it cheap to construct off of what we know is valid. */
   enum TNoThrow { NoThrow };
 
-  /* Constuctor used by Pipe() and SocketPair(). */
   TFd(int os_handle, TNoThrow) : OsHandle(os_handle) {}
 
   /* The naked file descriptor we wrap.  This can be -1. */

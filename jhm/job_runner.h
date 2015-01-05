@@ -44,7 +44,7 @@ class TJobRunner {
     public:
     MOVE_ONLY(TResult);
     TResult(TJob *job, int exit_code, Base::TFd &&stdout, Base::TFd &&stderr)
-        : ExitCode(exit_code), Job(job), Stdout(stdout), Stderr(stderr) {}
+        : ExitCode(exit_code), Job(job), Stdout(std::move(stdout)), Stderr(std::move(stderr)) {}
 
     int ExitCode;
     TJob *Job;

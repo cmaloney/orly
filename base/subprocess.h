@@ -61,13 +61,13 @@ class TSubprocess final {
   }
 
   /* An fd from which to read the child's stderr output. */
-  TFd TakeStdErrFromChild() const {
+  TFd TakeStdErrFromChild() {
     assert(this);
     return std::move(StdErrFromChild);
   }
 
   /* An fd from which to write the child's stdin input. */
-  TFd TakeStdInToChild() const {
+  TFd TakeStdInToChild() {
     assert(this);
     return std::move(StdInToChild);
   }

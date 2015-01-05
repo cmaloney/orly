@@ -18,11 +18,54 @@
 
 #include <base/fd.h>
 
+#include <fcntl.h>
 #include <poll.h>
+#include <unistd.h>
 
+#include <cassert>
+
+#include <util/error.h>
 #include <util/io.h>
 
 using namespace Base;
+
+TFd::TFd() : OsHandle(-1) {}
+
+TFd::TFd(TFd &&that) {
+  assert(&that);
+  OsHandle = that.OsHandle;
+  that.OsHandle = -1;
+}
+
+TFd::TFd(int os_handle) { OsHandle = Util::IfLt0(os_handle); }
+
+TFd::~TFd() {
+  assert(this);
+  if(!IsSystem() && OsHandle != -1) {
+    close(OsHandle);
+  }
+}
+
+TFd &TFd::operator=(TFd &&that) {
+  assert(this);
+  assert(&that);
+  std::swap(OsHandle, that.OsHandle);
+  return *this;
+}
+
+TFd::operator int() const {
+  assert(this);
+  return OsHandle;
+}
+
+TFd TFd::Duplicate() const {
+  return TFd(IsSystem() ? OsHandle : dup(OsHandle));
+}
+
+bool TFd::IsOpen() const {
+  assert(this);
+  return OsHandle >= 0;
+}
 
 bool TFd::IsReadable(int timeout) const {
   assert(this);
@@ -33,6 +76,38 @@ bool TFd::IsReadable(int timeout) const {
   Util::IfLt0(result = poll(&p, 1, timeout));
   return result != 0;
 }
+
+bool TFd::IsSystem() const {
+  assert(this);
+  return OsHandle < 3 && OsHandle >= 0;
+}
+
+int TFd::Release() {
+  assert(this);
+  int result = OsHandle;
+  OsHandle = -1;
+  return result;
+}
+
+TFd &TFd::Reset() {
+  assert(this);
+  return *this = TFd();
+}
+
+void TFd::Pipe(TFd &readable, TFd &writeable) {
+  assert(&readable);
+  assert(&writeable);
+  int fds[2];
+  Util::IfLt0(pipe(fds) < 0);
+#ifdef __APPLE__
+  Util::IfLt0(fcntl(fds[0], F_SETNOSIGPIPE, 1));
+  Util::IfLt0(fcntl(fds[1], F_SETNOSIGPIPE, 1));
+#endif
+  readable = TFd(fds[0], NoThrow);
+  writeable = TFd(fds[1], NoThrow);
+}
+
+
 
 // TODO: This is a utility that should live in base/
 /* Read all the data at fd into one giant buffer in string. Not super efficient, but should be good

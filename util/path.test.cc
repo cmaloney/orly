@@ -23,6 +23,7 @@
 #include <set>
 
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <base/dir_walker.h>
 #include <base/fd.h>

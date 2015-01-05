@@ -64,10 +64,10 @@ FIXTURE(SystemFd) {
   {
     TFd fd(STDIN_FILENO);
     // We consider it a system fd
-    EXPECT_TRUE(fd.IsSystemFd());
+    EXPECT_TRUE(fd.IsSystem());
 
     // We don't dup() system fds.
-    TFd fd2(fd);
+    TFd fd2 = fd.Duplicate();
     EXPECT_EQ(int(fd2), STDIN_FILENO);
   }
 
@@ -77,16 +77,16 @@ FIXTURE(SystemFd) {
   // Repeat the checks for STDOUT, STDERR
   {
     TFd fd(STDOUT_FILENO);
-    EXPECT_TRUE(fd.IsSystemFd());
-    TFd fd2(fd);
+    EXPECT_TRUE(fd.IsSystem());
+    TFd fd2 = fd.Duplicate();
     EXPECT_EQ(int(fd2), STDOUT_FILENO);
   }
   EXPECT_TRUE(IsValidFd(STDOUT_FILENO));
 
   {
     TFd fd(STDERR_FILENO);
-    EXPECT_TRUE(fd.IsSystemFd());
-    TFd fd2(fd);
+    EXPECT_TRUE(fd.IsSystem());
+    TFd fd2 = fd.Duplicate();
     EXPECT_EQ(int(fd2), STDERR_FILENO);
   }
   EXPECT_TRUE(IsValidFd(STDERR_FILENO));

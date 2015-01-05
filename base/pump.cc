@@ -16,6 +16,8 @@
 
 #include <base/pump.h>
 
+#include <unistd.h>
+
 #if __APPLE__
 #include <base/pump_kqueue.h>
 #else
