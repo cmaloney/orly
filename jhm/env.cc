@@ -154,7 +154,7 @@ TEnv::TEnv(const TTree &root,
 
   // NOTE: Technically not a hard error. But usually indicates something went wrong.
   if(!Config.HasConfig()) {
-    THROW_ERROR(runtime_error) << "No config file found for config " << quoted(config)
+    THROW_ERROR(runtime_error) << "No config file found for config " << quoted(config + ".jhm")
                                << ". At least one config looked for must exist";
   }
   // TODO: Assert the config stack contains at least one config
