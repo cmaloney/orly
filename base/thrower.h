@@ -61,9 +61,20 @@ class TThrower final {
   public:
   MOVE_ONLY(TThrower);
 
-  /* Begin the error message with the code location and the description provided by TError (if any).
-   */
+  // Begin the error message with the code location and the description provided by TError (if any).
   TThrower(const char *code_location) : AtEndOfPart(true) {
+    Strm << code_location;
+    const char *desc = GetErrorDescHelper<TError>();
+    if(desc) {
+      Strm << "; " << desc;
+    } else if(!HasGetDesc<TError>()) {
+      // If the GetDesc() doesn't exist, provide the typename for the user (It's probably an STL
+      // exception).
+      Strm << "; " << Demangle<TError>();
+    }
+  }
+
+  TThrower(const TCodeLocation &code_location) : AtEndOfPart(true) {
     Strm << code_location;
     const char *desc = GetErrorDescHelper<TError>();
     if(desc) {

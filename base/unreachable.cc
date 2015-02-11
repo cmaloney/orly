@@ -15,10 +15,10 @@
    limitations under the License. */
 
 #include <base/unreachable.h>
-
 #include <iostream>
 
 #include <base/backtrace.h>
+#include <base/exception.h>
 #include <base/thrower.h>
 #include <util/error.h>
 
