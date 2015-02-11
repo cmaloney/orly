@@ -18,12 +18,9 @@
 
 #pragma once
 
-#include <functional>
-#include <ostream>
+#include <iosfwd>
 #include <string>
 #include <vector>
-
-#include <util/tuple.h>
 
 namespace Base {
 
@@ -98,40 +95,6 @@ TStrm &WriteJoin(TStrm &strm, const TJoin<TContainer, TDelimit, TFormat> &that) 
     }  // if
     that.Format(strm, elem);
   }  // for
-  return strm;
-}
-
-template <typename TStrm, typename TDelimit, typename TFormat>
-struct TWriteTuple {
-  template <std::size_t Idx, typename TElem>
-  void operator()(const TElem &elem) const {
-    if(Idx) {
-      Delimit(Strm);
-    }  // if
-    Format(Strm, elem);
-  }
-
-  TStrm &Strm;
-
-  const TDelimit &Delimit;
-
-  const TFormat &Format;
-
-};  // TWriteTuple
-
-/* Specialization for std::pair. */
-template <typename TStrm, typename TLhs, typename TRhs, typename TDelimit, typename TFormat>
-TStrm &WriteJoin(TStrm &strm, const TJoin<std::pair<TLhs, TRhs>, TDelimit, TFormat> &that) {
-  Util::ForEach(that.Container,
-                TWriteTuple<TStrm, TDelimit, TFormat>{strm, that.Delimit, that.Format});
-  return strm;
-}
-
-/* Specialization for std::tuple. */
-template <typename TStrm, typename... TArgs, typename TDelimit, typename TFormat>
-TStrm &WriteJoin(TStrm &strm, const TJoin<std::tuple<TArgs...>, TDelimit, TFormat> &that) {
-  Util::ForEach(that.Container,
-                TWriteTuple<TStrm, TDelimit, TFormat>{strm, that.Delimit, that.Format});
   return strm;
 }
 

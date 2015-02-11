@@ -20,9 +20,8 @@
 
 #include <cstdint>
 #include <functional>
-#include <istream>
+#include <iosfwd>
 #include <map>
-#include <ostream>
 #include <stdexcept>
 #include <string>
 #include <vector>

@@ -10,4 +10,6 @@ unique_ptr<TRunner> GetRunner();
 TRunner bundles any argument processing along with the C++ entrypoint
 which takes configuration parameters as an object. */
 
+#pragma once
+
 int Main(int argc, char *argv[]);

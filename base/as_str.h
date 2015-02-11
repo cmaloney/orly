@@ -24,26 +24,26 @@
 
 #pragma once
 
+#include <initializer_list>
 #include <sstream>
-#include <string>
 #include <utility>
-#include <vector>
-
-#include <base/split.h>
 
 namespace Base {
+
+// Taken from https://twitter.com/SeanParent/status/559116729818030080
+template <typename TFunc, typename... TArgs>
+void ForEachArgument(TFunc f, TArgs&&... a) {
+ (void)std::initializer_list<int>{(f(std::forward<TArgs>(a)), 0)...};
+}
 
 template <typename... TArgs>
 std::string AsStr(TArgs &&... args) {
   std::ostringstream strm;
-  strm << Concat(std::forward_as_tuple(std::forward<TArgs>(args)...));
-  return strm.str();
-}
 
-template <typename TFn, typename... TArgs>
-std::string AsStrFunc(TFn &&fn, TArgs &&... args) {
-  std::ostringstream strm;
-  std::forward<TFn>(fn)(strm, std::forward<TArgs>(args)...);
+
+  ForEachArgument([&strm](auto x) {
+    strm << x;
+  }, args...);
   return strm.str();
 }
 

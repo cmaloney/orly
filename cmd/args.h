@@ -54,14 +54,12 @@ currently...)
 */
 #pragma once
 
+#include <functional>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
 #include <vector>
 
 #include <base/class_traits.h>
-#include <base/exception.h>
-#include <base/opt.h>
 #include <cmd/util.h>
 
 namespace Cmd {

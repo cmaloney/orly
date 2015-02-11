@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <stdexcept>
+
 #include <base/exception.h>
 
 namespace Cmd {

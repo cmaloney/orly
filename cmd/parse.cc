@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include <base/not_implemented.h>
+#include <base/opt.h>
 #include <base/thrower.h>
 #include <cmd/standard_args.h>
 

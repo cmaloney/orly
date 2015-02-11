@@ -2,6 +2,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 
 #include <cmd/args.h>
 #include <cmd/help.h>

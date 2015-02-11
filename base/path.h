@@ -24,7 +24,8 @@
 
 #pragma once
 
-#include <ostream>
+#include <iosfwd>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -44,8 +45,6 @@ namespace Base {
    empty, it isn't
       prefixed with a '.' (The last extension being empty is used for executables)
 */
-
-using TNamespace = std::vector<std::string>;
 
 class TPath {
   public:
@@ -92,7 +91,7 @@ class TPath {
 };
 
 bool IsValidName(const std::string &name);
-bool IsValidNamespace(const TNamespace &ns);
+bool IsValidNamespace(const std::vector<std::string> &ns);
 bool IsValidExtension(const std::vector<std::string> &extension);
 
 std::vector<std::string> SplitNamespace(const std::string &dir);
