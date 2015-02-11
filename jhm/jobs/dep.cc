@@ -18,6 +18,7 @@
 
 #include <jhm/env.h>
 #include <jhm/file.h>
+#include <jhm/make_dep_file.h>
 #include <jhm/jobs/compile_c_family.h>
 
 using namespace Base;
@@ -55,24 +56,27 @@ const unordered_set<TFile *> TDep::GetNeeds() {
   return Needs;
 }
 
-vector<string> TDep::GetCmd() {
+std::function<void(const TFd &stdout, const TFd &stderr)> TDep::GetCmd() {
   assert(this);
-
-  vector<string> cmd{"make_dep_file", "--", GetInput()->GetPath(), GetSoleOutput()->GetPath()};
 
   // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the
   // compiler
+  vector<string> extra_args;
   const auto &extensions = GetInput()->GetRelPath().Path.Extension;
   if(extensions.size() >= 1) {
     const string &ext = extensions.at(extensions.size() - 1);
     if(ext == "cc" || ext == "c") {
       // TODO: move array append
       for(auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
-        cmd.push_back(move(arg));
+        extra_args.push_back(move(arg));
       }
     }
   }
-  return cmd;
+
+  // TODO(cmaloney): The mutable here feels wrong...
+  return [ this, args = std::move(extra_args) ]() mutable {
+    MakeDepFile(GetInput(), GetSoleOutput(), std::move(args));
+  };
 }
 
 TTimestamp TDep::GetCmdTimestamp() const {
@@ -88,9 +92,8 @@ bool TDep::IsComplete() {
   // Load the json file and see if there are any new things in it which aren't yet done (We have
   // work to do)
   // TODO: This should be a call to Parse()... But that constructs an istringstream...
-  TJson deps = TJson::Read(AsStr(GetSoleOutput()->GetPath()).c_str());
-  for(const TJson &elem: deps.GetArray()) {
-    TFile *file = Env.TryGetFileFromPath(elem.GetString());
+  for(const string &need : NeedsToProcess) {
+    TFile *file = Env.TryGetFileFromPath(need);
     if(file) {
       // Add to needs. If it's new in the Needs array, we aren't done yet.
       needs_work |= Needs.insert(file).second;
@@ -100,9 +103,10 @@ bool TDep::IsComplete() {
   // If we found everything, stash the info on the input file as computed config
   // TODO: In pushing this as strings, we effectively discard all the file lookups we've already
   // done
+  // TODO(cmaloney): We are hardcoding this as C++ deps, which we shouldn't do.
   if(!needs_work) {
     GetSoleOutput()->PushComputedConfig(
-        TJson::TObject{{"c++", TJson::TObject{{"include", move(deps)}}}});
+        TJson::TObject{{"c++", TJson::TObject{{"include", ToJson(NeedsToProcess)}}}});
   }
 
   return !needs_work;

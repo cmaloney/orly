@@ -195,6 +195,9 @@ class TJson final {
 
 };  // TJson
 
+// TODO(cmaloney): Templatize, perfect forwarding as possible.
+TJson ToJson(const std::vector<std::string> &that);
+
 /* Std stream extractor. */
 std::istream &operator>>(std::istream &strm, TJson &that);
 

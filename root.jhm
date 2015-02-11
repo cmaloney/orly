@@ -1,7 +1,6 @@
 {
   "targets": [
       "jhm/jhm",
-      "jhm/make_dep_file",
     ],
   "cmd": {
     "g++" : [

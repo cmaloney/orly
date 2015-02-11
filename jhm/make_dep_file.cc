@@ -25,16 +25,15 @@
 #include <base/split.h>
 #include <base/subprocess.h>
 #include <base/thrower.h>
-#include <cmd/main.h>
-#include <cmd/parse.h>
+#include <jhm/file.h>
+#include <jhm/make_dep_file.h>
 
 using namespace Base;
-using namespace Cmd;
 using namespace std;
 
-vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string> &extra_args) {
-  vector<string> cmd{is_cpp ? "clang++" : "clang"};
-  cmd.insert(cmd.end(), extra_args.begin(), extra_args.end());
+vector<string> GetCDeps(const string &filename, bool is_cpp, vector<string> &&extra_args) {
+  vector<string> &cmd = extra_args;
+  cmd.insert(cmd.begin(), is_cpp ? "clang++" : "clang");
   cmd.push_back("-M");
   cmd.push_back("-MG");
   cmd.push_back(filename);
@@ -101,42 +100,42 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
   return deps;
 }
 
-// TODO: this should go in a helper somewhere...
-bool EndsWith(const string &target, const string &ending) {
-  if(ending.length() > target.length()) {
-    return false;
-  }
-
-  return target.compare(target.size() - ending.length(), ending.length(), ending) == 0;
-}
-
-TJson ToJson(vector<string> &&that) {
+TJson ToJson(const vector<string> &that) {
   vector<TJson> json_elems(that.size());
   for(uint64_t i = 0; i < that.size(); ++i) {
-    json_elems[i] = TJson(move(that[i]));
+    json_elems[i] = TJson(that[i]);
   }
 
   return TJson(move(json_elems));
 }
 
-void MakeDepFile(const string &filename, const string &out_name, const vector<string> &extra_args) {
-  TJson deps;
+vector<string> Jhm::MakeDepFile(const TFile *in_file,
+                                const TFile *out_file,
+                                vector<string> &&extra_args) {
+  vector<string> deps;
+
   // Check for extension to determine how we need to scan for dependencies
-  if(EndsWith(filename, ".c")) {
-    deps = ToJson(GetCDeps(filename, false, extra_args));
+  if(in_file->GetRelPath().Path.EndsWith({"c"})) {
+    deps = GetCDeps(in_file->GetPath(), false, move(extra_args));
 
-  } else if(EndsWith(filename, ".cc")) {
-    deps = ToJson(GetCDeps(filename, true, extra_args));
+  } else if(in_file->GetRelPath().Path.EndsWith({"cc"})) {
+    deps = GetCDeps(in_file->GetPath(), true, move(extra_args));
   } else {
-    THROW_ERROR(runtime_error) << "Unknown file extension: " << quoted(filename);
+    THROW_ERROR(runtime_error) << "Unknown file extension: " << quoted(in_file->GetPath());
   }
 
-  ofstream out(out_name, ios_base::out | ios_base::trunc);
+  ofstream out(out_file->GetPath(), ios_base::out | ios_base::trunc);
   if(!out.good()) {
-    THROW_ERROR(runtime_error) << "Error creating/opening file for writing: " << filename + ".dep";
+    THROW_ERROR(runtime_error) << "Error creating/opening file for writing: "
+                               << quoted(in_file->GetPath() + ".dep");
   }
-  out << deps;
+
+  // TODO(cmaloney): Make "JSON" a map, string, etc. not copy the whole thing
+  // into a <base/json> but just do stream printing instead.
+  out << ToJson(deps);
   out.close();
+
+  return deps;
 }
 
 struct TOptions {
@@ -145,6 +144,7 @@ struct TOptions {
   std::vector<std::string> MiscFlags;
 };
 
+#if 0
 int Main(int argc, char *argv[]) {
   TOptions options = Parse(
       TArgs<TOptions>{Required(&TOptions::Input, "input", "Filename to get dependencies of"),
@@ -158,3 +158,4 @@ int Main(int argc, char *argv[]) {
   MakeDepFile(options.Input, options.Output, options.MiscFlags);
   return 0;
 }
+#endif

@@ -12,8 +12,9 @@
 #include <base/unreachable.h>
 
 using namespace Base;
+using namespace std;
 
-static void WriteString(std::ostream &strm, const std::string &text) {
+static void WriteString(ostream &strm, const string &text) {
   strm << '"';
   const auto end = text.end();
   for(auto it = text.begin(); it != end; ++it) {
@@ -56,7 +57,7 @@ static void WriteString(std::ostream &strm, const std::string &text) {
 /* Read from the given input string to find a JSON string which starts/ends with '"' and properly
    unescape escaped
    characters. */
-static std::string ReadQuotedString(std::istream &strm) {
+static string ReadQuotedString(istream &strm) {
   assert(&strm);
   /* Eat the opening quote. */
   if(unlikely(strm.peek() != '"')) {
@@ -65,7 +66,7 @@ static std::string ReadQuotedString(std::istream &strm) {
   strm.ignore();
   /* Loop over the input until we find the closing quote, accumulating
      characters as we go. */
-  std::string accum;
+  string accum;
   accum.reserve(200);
   bool keep_going = true;
   do {
@@ -135,10 +136,10 @@ static std::string ReadQuotedString(std::istream &strm) {
 }
 
 /* Read our extension to JSON, a raw string. */
-static std::string ReadRawString(std::istream &strm) {
+static string ReadRawString(istream &strm) {
   // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
   // NOTE: null, true, and false are all found by matching raw strings.
-  std::string text;
+  string text;
   text.reserve(64);
   for(;;) {
     int c = strm.peek();
@@ -152,8 +153,8 @@ static std::string ReadRawString(std::istream &strm) {
   return text;
 }
 
-static std::string ReadString(std::istream &strm) {
-  std::string text;
+static string ReadString(istream &strm) {
+  string text;
   if(strm.peek() == '"') {
     text = ReadQuotedString(strm);
   } else {
@@ -165,9 +166,9 @@ static std::string ReadString(std::istream &strm) {
 /* Skip whitespace, then see if a comma-seprated list is going to
    continue or not.  We're looking for a closing mark or, if we're not
    at the start of the list, a comma. */
-static bool ParseSep(std::istream &strm, char close_mark, bool at_start) {
+static bool ParseSep(istream &strm, char close_mark, bool at_start) {
   assert(&strm);
-  int c = std::ws(strm).peek();
+  int c = ws(strm).peek();
   if(c == close_mark) {
     strm.ignore();
     return false;
@@ -180,7 +181,7 @@ static bool ParseSep(std::istream &strm, char close_mark, bool at_start) {
   }
 
   // If we close right after the comma, we have a trailing comma and are actually done
-  c = std::ws(strm).peek();
+  c = ws(strm).peek();
   if(c == close_mark) {
     strm.ignore();
     return false;
@@ -189,7 +190,7 @@ static bool ParseSep(std::istream &strm, char close_mark, bool at_start) {
 }
 
 /* The stream must yield given char or throw a syntax error. */
-static void Match(std::istream &strm, char expected) {
+static void Match(istream &strm, char expected) {
   assert(&strm);
   if(strm.peek() != expected) {
     THROW_ERROR(TJson::TSyntaxError) << "Expected '" << expected << "' but didn't find it. Found '"
@@ -199,15 +200,15 @@ static void Match(std::istream &strm, char expected) {
 }
 
 TJson TJson::Read(const char *filename) {
-  std::ifstream in(filename);
+  ifstream in(filename);
   if(!in.is_open()) {
-    THROW_ERROR(std::runtime_error) << "Unable to open file " << std::quoted(filename);
+    THROW_ERROR(runtime_error) << "Unable to open file " << quoted(filename);
   }
   TJson ret;
   try {
     ret.Read(in);
   } catch(const TSyntaxError &ex) {
-    THROW_ERROR(std::runtime_error) << "in " << std::quoted(filename) << ':' << ex.what();
+    THROW_ERROR(runtime_error) << "in " << quoted(filename) << ':' << ex.what();
   }
   return ret;
 }
@@ -262,17 +263,17 @@ TJson::TJson(TJson &&that) noexcept {
     }
     /* Move-construct the object. */
     case Array: {
-      new (&Array_) TArray(std::move(that.Array_));
+      new (&Array_) TArray(move(that.Array_));
       that.Array_.~TArray();
       break;
     }
     case Object: {
-      new (&Object_) TObject(std::move(that.Object_));
+      new (&Object_) TObject(move(that.Object_));
       that.Object_.~TObject();
       break;
     }
     case String: {
-      new (&String_) TString(std::move(that.String_));
+      new (&String_) TString(move(that.String_));
       that.String_.~TString();
       break;
     }
@@ -323,16 +324,16 @@ TJson::TJson(uint8_t that) noexcept : Kind(Number), Number_(that) {}
 TJson::TJson(uint16_t that) noexcept : Kind(Number), Number_(that) {}
 TJson::TJson(uint32_t that) noexcept : Kind(Number), Number_(int64_t(that)) {}
 TJson::TJson(uint64_t that) noexcept : Kind(Number), Number_(int64_t(that)) {
-  assert(that < std::numeric_limits<uint32_t>::max());
+  assert(that < numeric_limits<uint32_t>::max());
 }
 
-TJson::TJson(TArray &&that) noexcept : Kind(Array), Array_(std::move(that)) {}
+TJson::TJson(TArray &&that) noexcept : Kind(Array), Array_(move(that)) {}
 TJson::TJson(const TArray &that) : Kind(Array), Array_(that) {}
-TJson::TJson(TObject &&that) noexcept : Kind(Object), Object_(std::move(that)) {}
+TJson::TJson(TObject &&that) noexcept : Kind(Object), Object_(move(that)) {}
 TJson::TJson(const TObject &that) : Kind(Object), Object_(that) {}
 TJson::TJson(char that) : Kind(String), String_(&that, 1) {}
 TJson::TJson(const char *that) : Kind(String), String_(that ? that : "") {}
-TJson::TJson(TString &&that) noexcept : Kind(String), String_(std::move(that)) {}
+TJson::TJson(TString &&that) noexcept : Kind(String), String_(move(that)) {}
 TJson::TJson(const TString &that) : Kind(String), String_(that) {}
 TJson::TJson(size_t size, const TJson &example) : Kind(Array), Array_(size, example) {}
 
@@ -370,7 +371,7 @@ TJson &TJson::operator=(TJson &&that) noexcept {
   assert(this);
   assert(&that);
   this->~TJson();
-  new (this) TJson(std::move(that));
+  new (this) TJson(move(that));
   return *this;
 }
 
@@ -437,7 +438,7 @@ TJson &TJson::operator[](TString &&that) {
   assert(this);
   assert(&that);
   assert(Kind == Object);
-  return Object_[std::move(that)];
+  return Object_[move(that)];
 }
 
 TJson &TJson::operator[](const TString &that) {
@@ -531,10 +532,10 @@ const TJson::TString &TJson::GetString() const noexcept {
   return String_;
 }
 
-void TJson::Read(std::istream &strm) {
+void TJson::Read(istream &strm) {
   assert(this);
   assert(&strm);
-  int c = std::ws(strm).peek();
+  int c = ws(strm).peek();
   switch(c) {
     case '[': {
       strm.ignore();
@@ -545,28 +546,28 @@ void TJson::Read(std::istream &strm) {
           break;
         }
         elem.Read(strm);
-        temp.emplace_back(std::move(elem));
+        temp.emplace_back(move(elem));
       }
-      *this = TJson(std::move(temp));
+      *this = TJson(move(temp));
       break;
     }
     case '{': {
       strm.ignore();
-      std::string key;
+      string key;
       TJson val;
       TObject temp;
       for(;;) {
         if(!ParseSep(strm, '}', temp.empty())) {
           break;
         }
-        strm >> std::ws;
+        strm >> ws;
         key = ReadString(strm);
-        strm >> std::ws;
+        strm >> ws;
         Match(strm, ':');
         val.Read(strm);
-        temp[std::move(key)] = std::move(val);
+        temp[move(key)] = move(val);
       }
-      *this = TJson(std::move(temp));
+      *this = TJson(move(temp));
       break;
     }
     case '"': {
@@ -577,12 +578,12 @@ void TJson::Read(std::istream &strm) {
       if(c == '+' || c == '-' || isdigit(c)) {
         int64_t temp;
         strm >> temp;
-        *this = TJson(std::move(temp));
+        *this = TJson(move(temp));
         break;
       } else {
         // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
         // NOTE: null, true, and false are all found by matching raw strings.
-        std::string text = ReadRawString(strm);
+        string text = ReadRawString(strm);
         if(text == "null") {
           Reset();
         } else if(text == "true") {
@@ -608,13 +609,13 @@ TJson &TJson::Reset() noexcept {
 TJson &TJson::Swap(TJson &that) noexcept {
   assert(this);
   assert(&that);
-  TJson temp = std::move(*this);
-  new (this) TJson(std::move(that));
-  new (&that) TJson(std::move(temp));
+  TJson temp = move(*this);
+  new (this) TJson(move(that));
+  new (&that) TJson(move(temp));
   return *this;
 }
 
-const TJson *TJson::TryFind(const std::string &key) const {
+const TJson *TJson::TryFind(const string &key) const {
   assert(this);
   assert(Kind == Object);
   auto iter = Object_.find(key);
@@ -622,7 +623,7 @@ const TJson *TJson::TryFind(const std::string &key) const {
 }
 
 /* Format to the stream. */
-void TJson::Write(std::ostream &strm) const {
+void TJson::Write(ostream &strm) const {
   assert(this);
   assert(&strm);
   switch(Kind) {
@@ -635,8 +636,8 @@ void TJson::Write(std::ostream &strm) const {
       break;
     }
     case Number: {
-      strm << std::fixed << Number_;
-      strm.unsetf(std::ios_base::floatfield);
+      strm << fixed << Number_;
+      strm.unsetf(ios_base::floatfield);
       break;
     }
     case Array: {
@@ -676,19 +677,29 @@ void TJson::Write(std::ostream &strm) const {
   }
 }
 
-std::istream &Base::operator>>(std::istream &strm, TJson &that) {
+TJson Base::ToJson(const vector<string> &that) {
+  vector<TJson> json_elems(that.size());
+  for(uint64_t i = 0; i < that.size(); ++i) {
+    json_elems[i] = TJson(that[i]);
+  }
+
+  return TJson(move(json_elems));
+}
+
+
+istream &Base::operator>>(istream &strm, TJson &that) {
   assert(&that);
   that.Read(strm);
   return strm;
 }
 
-std::ostream &Base::operator<<(std::ostream &strm, const TJson &that) {
+ostream &Base::operator<<(ostream &strm, const TJson &that) {
   assert(&that);
   that.Write(strm);
   return strm;
 }
 
-std::ostream &Base::operator<<(std::ostream &strm, const TJson::TKind &kind) {
+ostream &Base::operator<<(ostream &strm, const TJson::TKind &kind) {
   assert(&kind);
   switch(kind) {
     case TJson::Null: {

@@ -39,6 +39,8 @@ class TDep final : public TJob {
 
   TEnv &Env;
   TSet<TFile *> Needs;
+
+  std::vector<std::string> NeedsToProcess;
 };
 }
 }
