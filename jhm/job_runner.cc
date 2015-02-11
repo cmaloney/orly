@@ -21,6 +21,8 @@
 #include <jhm/file.h>
 #include <jhm/job.h>
 
+#include <base/subprocess.h>
+
 #include <iostream>  // TODO(cmaloney): Less than ideal...
 
 using namespace Base;
@@ -29,160 +31,40 @@ using namespace std;
 using namespace std::chrono;
 using namespace Util;
 
-TJobRunner::TJobRunner(uint64_t worker_count, bool print_cmd)
-    : ExitWorker(false),
-      MoreResults(false),
-      MoreResultsOnceTaken(false),
-      ResultsReadySet(false),
-      PrintCmd(print_cmd),
-      WorkerCount(worker_count),
-      QueueRunner(bind(&TJobRunner::ProcessQueue, this)) {}
+TJobRunner::TResult::TResult(TJob *job,
+                             int exit_code,
+                             Base::TFd &&stdout,
+                             Base::TFd &&stderr,
+                             std::chrono::high_resolution_clock::duration run_time)
+    : ExitCode(exit_code),
+      Job(job),
+      Stdout(std::move(stdout)),
+      Stderr(std::move(stderr)),
+      RunTime(run_time) {}
 
-TJobRunner::~TJobRunner() {
-  ExitWorker = true;
-  HasWork.notify_all();
-  QueueRunner.join();
-
-  cout << "job, timing, input, output\n";
-
-  for(auto &timing : Timings) {
-    cout << timing.first->GetName() << ',' <<
-    duration_cast<milliseconds>(timing.second).count() << ','
-         << timing.first->GetInput()->GetRelPath() << ','
-         << Join(timing.first->GetOutput(), '|', [](ostream &strm, const TFile *f) {
-              strm << f->GetRelPath();
-            }) << '\n';
+TJobRunner::TResult TJobRunner::TTask::operator()() const {
+  if(PrintCmd) {
+    std::cout << Base::AsStr(Base::Join(Cmd, ' ')) + '\n';
   }
+  auto start = std::chrono::high_resolution_clock::now();
+  auto subproc = Base::TSubprocess::New(*Pump, Cmd);
+  int exit_code = subproc->Wait();
+  auto duration = std::chrono::high_resolution_clock::now() - start;
+  return TJobRunner::TResult(
+      Job, exit_code, subproc->TakeStdOutFromChild(), subproc->TakeStdErrFromChild(), duration);
 }
 
-bool TJobRunner::IsReady() const { return !ExitWorker; }
+TJobRunner::TJobRunner(uint64_t worker_count, bool print_cmd)
+    : WorkerPool(worker_count), PrintCmd(print_cmd) {}
+
+bool TJobRunner::IsReady() const { return WorkerPool.IsReady(); }
 
 void TJobRunner::Queue(TJob *job) {
-  lock_guard<mutex> lock(ToRunMutex);
   // Note: We call GetCmd() to make the string here because if we did it in the QueueRunner we'd
   // cross threads.
-  ToRun.emplace(job, job->GetCmd());
-  HasWork.notify_all();
-
-  if(!ExitWorker) {
-    MoreResultsOnceTaken = true;
-    MoreResults = true;
-  }
+  WorkerPool.Queue({&Pump, PrintCmd, job, job->GetCmd()});
 }
 
-bool TJobRunner::HasMoreResults() const { return MoreResults; }
+bool TJobRunner::HasMoreResults() const { return WorkerPool.HasMoreResults(); }
 
-TJobRunner::TResults TJobRunner::WaitForResults() {
-  assert(HasMoreResults());
-
-  // Wait for results to become available
-  auto future = ResultsReady.get_future();
-  future.wait();
-
-  lock_guard<mutex> lock(ResultsMutex);
-
-  // Reset the promise
-  ResultsReady = promise<bool>();
-  ResultsReadySet = false;
-
-  bool temp = MoreResultsOnceTaken;
-  MoreResults = temp;
-
-  // Move out the reults set while under the lock (We do this as an explicit step to ensure it
-  // happens under the lock)
-  TResults ret = move(Results);
-
-  // Return the results via NRVO.
-  return ret;
-}
-
-void TJobRunner::ProcessQueue() {
-  // Set of jobs currently being run
-  unordered_map<int, TJob *> PidMap;
-  unordered_map<TJob *, unique_ptr<TSubprocess>> Running;
-  unordered_map<TJob *, time_point<high_resolution_clock>> Start;
-
-  while(!ExitWorker || Running.size() > 0) {
-    // Only queue work if we aren't in the process of spinning down
-    if(!ExitWorker) {
-      // If we're not fully booked, do more.
-      auto to_start = WorkerCount - Running.size();
-      if(to_start) {
-        /* queue work until ToRun is empty */ {
-          lock_guard<std::mutex> lock(ToRunMutex);
-          while(Running.size() < WorkerCount && !ToRun.empty()) {
-            // Get the job at the front of the queue
-            TJob *job = nullptr;
-            vector<string> cmd;
-            tie(job, cmd) = Pop(ToRun);
-
-            if(PrintCmd) {
-              // NOTE: We use '+' to make a new string (effectively as a back buffer), then a single
-              // operation to write it out
-              // This makes it so that the line never gets broken / split / etc. because of
-              // threading.
-              // TODO: Join in a way that makes the difference between ' ' and passing the arguments
-              // as an array more obvious.
-              cout << AsStr(Join(cmd, ' ')) + '\n';
-            }
-
-            // Start the timing
-            Start.insert(make_pair(job, high_resolution_clock::now()));
-
-            // Run the job
-            auto subproc = TSubprocess::New(Pump, cmd);
-            PidMap[subproc->GetChildId()] = job;
-            auto res = Running.emplace(job, move(subproc));
-            assert(res.second);
-            MoreResultsOnceTaken = true;
-            MoreResults = true;
-          }
-        }
-      }
-    }
-    // If there's nothing running, that means we're out of work. Wait for work to come our way
-    // TODO: Could the Queue notify_all ever miss waking this up?
-    if(Running.size() == 0) {
-      assert(!MoreResultsOnceTaken);
-      unique_lock<mutex> lock(HasWorkMutex);
-      HasWork.wait(lock);
-    } else {
-      // Wait for results from the queued jobs.
-      auto pid = TSubprocess::WaitAll();
-      TJob *job = PidMap.at(pid);
-      EraseOrFail(PidMap, pid);
-      auto &subproc = Running.at(job);
-      // NOTE: the Wait() here should return instantly since we know the process already terminated
-      // by way of WaitAll()
-      auto returncode = subproc->Wait();
-      if(returncode != 0) {
-        ExitWorker = true;
-      }
-
-      // Store the timings
-      Timings[job] += high_resolution_clock::now() - Start.at(job);
-
-      /* lock for results set */ {
-        lock_guard<mutex> lock(ResultsMutex);
-        // If this is our last result, mark it so.
-        if(Running.size() == 1) {
-          if(ExitWorker) {
-            MoreResultsOnceTaken = false;
-          } else {
-            lock_guard<mutex> to_run_lock(ToRunMutex);
-            if(ToRun.empty()) {
-              MoreResultsOnceTaken = false;
-            }
-          }
-        }
-        Results.emplace_back(
-            job, returncode, subproc->TakeStdOutFromChild(), subproc->TakeStdErrFromChild());
-        if(!ResultsReadySet) {
-          ResultsReadySet = true;
-          ResultsReady.set_value(true);
-        }
-      }
-      EraseOrFail(Running, job);
-    }
-  }
-}
+std::vector<TJobRunner::TResult> TJobRunner::WaitForResults() { return WorkerPool.Pop(); }

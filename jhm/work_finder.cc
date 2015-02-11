@@ -118,6 +118,20 @@ TJson::TArray BuildJsonArray(const unordered_set<TFile *> &files) {
   return ret;
 }
 
+// TODO(cmaloney): As part of processing results extract the timing data
+#if 0
+
+
+  cout << "job, timing, input, output\n";
+
+  for(auto &timing : Timings) {
+    cout << timing.first->GetName() << ',' << duration_cast<milliseconds>(timing.second).count()
+         << ',' << timing.first->GetInput()->GetRelPath() << ','
+         << Join(timing.first->GetOutput(), '|', [](ostream &strm, const TFile *f) {
+              strm << f->GetRelPath();
+            }) << '\n';
+  }
+#endif
 bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
   // Job finished / no longer running
   EraseOrFail(Running, result.Job);

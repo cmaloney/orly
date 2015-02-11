@@ -16,20 +16,16 @@
    See the License for the specific language governing permissions and
    limitations under the License. */
 
-#include <atomic>
 #include <chrono>
-#include <condition_variable>
-#include <future>
-#include <mutex>
-#include <queue>
+#include <iostream>
 #include <string>
-#include <thread>
-#include <tuple>
-#include <unordered_map>
 
+#include <base/as_str.h>
 #include <base/class_traits.h>
 #include <base/fd.h>
+#include <base/split.h>
 #include <base/subprocess.h>
+#include <base/worker_pool.h>
 
 namespace Jhm {
 
@@ -40,24 +36,23 @@ class TJobRunner {
   NO_COPY(TJobRunner);
 
   public:
-  class TResult {
+  TJobRunner(uint64_t worker_count, bool print_cmd);
+  ~TJobRunner();
+
+  struct TResult {
     public:
     MOVE_ONLY(TResult);
-    TResult(TJob *job, int exit_code, Base::TFd &&stdout, Base::TFd &&stderr)
-        : ExitCode(exit_code), Job(job), Stdout(std::move(stdout)), Stderr(std::move(stderr)) {}
+    TResult(TJob *job,
+            int exit_code,
+            Base::TFd &&stdout,
+            Base::TFd &&stderr,
+            std::chrono::high_resolution_clock::duration run_time);
 
     int ExitCode;
     TJob *Job;
     Base::TFd Stdout, Stderr;
+    std::chrono::high_resolution_clock::duration RunTime;
   };
-
-  using TResults = std::vector<TResult>;
-
-  using TTimings = std::unordered_map<TJob *, std::chrono::high_resolution_clock::duration>;
-
-  public:
-  TJobRunner(uint64_t worker_count, bool print_cmd);
-  ~TJobRunner();
 
   bool IsReady() const;
 
@@ -69,47 +64,30 @@ class TJobRunner {
   bool HasMoreResults() const;
 
   /* Grabs a batch of results from the queue runner. */
-  TResults WaitForResults();
+  std::vector<TResult> WaitForResults();
 
   private:
-  void ProcessQueue();
+  // TODO(cmaloney): remove the need for a make_dep_file binary by changing this to be able to
+  // operate
+  // on a lambda.
+  // As well as say "When you get back to main thread, here is the result of this computation"
+  //   - Will save a __ton__ of I/O of writing a dep file to disk then reading it immediately.
+  struct TTask {
+    TResult operator()() const;
 
-  std::mutex ToRunMutex;
-  std::queue<std::tuple<TJob *, std::vector<std::string>>> ToRun;
-  // NOTE: ExitWorker only goes from false -> true on shutdown
-  std::atomic<bool> ExitWorker;
-  // NOTE: MoreResults is true so long as we're either processing, or going to process more jobs.
-  // Becomes false only when we're completely exhausted of jobs to process.
-  std::atomic<bool> MoreResults;
+    Base::TPump *Pump;
+    bool PrintCmd;
+    TJob *Job;
+    std::vector<std::string> Cmd;
+  };
 
-  // NOTE: We have two bools for the MoreResults, because we want to buffer the answer until
-  // WaitForResults() takes
-  // the last results.
-  std::atomic<bool> MoreResultsOnceTaken;
-
-  // Mutex protected results vector.
-  std::mutex ResultsMutex;
-  TResults Results;
-
-  std::promise<bool> ResultsReady;
-  std::atomic<bool> ResultsReadySet;
-
-  // Fires anytime the client should re-check it's main loop for work to do (ExitWorkers = true, or
-  // new work queued)
-  std::mutex HasWorkMutex;
-  std::condition_variable HasWork;
+  // Processes tasks in the background.
+  Base::TWorkerPool<TTask> WorkerPool;
 
   // Sits in the background and pumps io from subprocesses into this process.
   Base::TPump Pump;
 
   // General parameters for the runner
   const bool PrintCmd;
-  const uint64_t WorkerCount;
-
-  // Timings
-  TTimings Timings;
-
-  // The thread which sits in the background and runs the queue.
-  std::thread QueueRunner;
 };
 }

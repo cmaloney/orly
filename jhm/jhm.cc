@@ -27,10 +27,13 @@
 
 #include <unistd.h>
 
+#include <iomanip>
 #include <iostream>
 #include <string>
 
+#include <util/error.h>
 #include <base/not_implemented.h>
+#include <base/subprocess.h>
 #include <base/thrower.h>
 #include <cmd/args.h>
 #include <cmd/main.h>
