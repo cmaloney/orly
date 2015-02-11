@@ -18,14 +18,8 @@
 
 #include <util/io.h>
 
-#include <cassert>
-#include <cerrno>
-
-#include <poll.h>
 #include <unistd.h>
 #include <sys/fcntl.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
 
 #include <util/error.h>
 

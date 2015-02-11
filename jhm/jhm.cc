@@ -30,9 +30,7 @@
 #include <iostream>
 #include <string>
 
-#include <base/backtrace.h>
 #include <base/not_implemented.h>
-#include <base/split.h>
 #include <base/thrower.h>
 #include <cmd/args.h>
 #include <cmd/main.h>

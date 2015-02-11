@@ -16,6 +16,7 @@
 
 #include <jhm/naming.h>
 
+#include <cassert>
 #include <iomanip>
 #include <stdexcept>
 

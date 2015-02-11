@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 
+#include <base/exception.h>
+
 #include <test/kit.h>
 
 using namespace std;

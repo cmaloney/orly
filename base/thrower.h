@@ -18,15 +18,11 @@
 
 #pragma once
 
-#include <cassert>
 #include <sstream>
-#include <stdexcept>
-#include <utility>
 
 #include <base/class_traits.h>
 #include <base/code_location.h>
 #include <base/demangle.h>
-#include <base/exception.h>
 
 /* Use this macro to throw an error, like this: THROW_ERROR(TSomethingBad) << "more info" <<
  * Base::EndOfPart << "yet more info"; */
@@ -81,7 +77,6 @@ class TThrower final {
 
   /* Boom goes the dynamite. */
   [[noreturn]] ~TThrower() noexcept(false) {
-    assert(this);
     throw TError(Strm.str().c_str());
   }
 
@@ -90,7 +85,6 @@ class TThrower final {
      value. */
   template <typename TVal>
   void Write(const TVal &val) {
-    assert(this);
     if(AtEndOfPart) {
       Strm << "; ";
       AtEndOfPart = false;

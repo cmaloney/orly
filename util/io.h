@@ -33,7 +33,6 @@ template <typename TStrm>
 void OpenFile(TStrm &strm, const std::string &path) {
   // TODO: This should move out the stream, but we can't because libstdc++ 4.9 hasn't implemented
   // move for at least ifstream
-  assert(&path);
 
   strm.exceptions(std::ios_base::failbit);
   try {

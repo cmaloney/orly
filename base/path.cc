@@ -17,6 +17,7 @@
 #include <base/path.h>
 
 #include <algorithm>
+#include <cassert>
 
 #include <base/split.h>
 #include <base/thrower.h>
