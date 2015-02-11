@@ -18,7 +18,6 @@
 
 #include <queue>
 
-#include <base/split.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
 

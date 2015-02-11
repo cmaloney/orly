@@ -3,6 +3,8 @@
 #include <sys/ioctl.h>
 
 #include <algorithm>
+#include <cassert>
+#include <cstring>
 #include <iostream>
 
 #include <base/as_str.h>

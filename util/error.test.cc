@@ -53,38 +53,3 @@ FIXTURE(UtilsGenerated) {
   }
   EXPECT_TRUE(caught);
 }
-
-// Disable the interruption test as it is non-deterministic in running / sometimes never exits.
-// TODO: Re-enable / FIXME
-#if 0
-FIXTURE(Interruption) {
-  struct sigaction action;
-  Zero(action);
-  action.sa_handler = [](int) {};
-  sigaction(SIGUSR1, &action, 0);
-  mutex mx;
-  condition_variable cv;
-  bool running = false, was_interrupted = false;
-  thread t([&mx, &cv, &running, &was_interrupted] {
-    /* lock */ {
-      unique_lock<mutex> lock(mx);
-      running = true;
-      cv.notify_one();
-    }
-    try {
-      IfLt0(pause());
-    } catch (system_error &error) {
-      was_interrupted = WasInterrupted(error);
-    } catch (...) {}
-  });
-  /* lock */ {
-    unique_lock<mutex> lock(mx);
-    while (!running) {
-      cv.wait(lock);
-    }
-  }
-  IfNe0(pthread_kill(t.native_handle(), SIGUSR1));
-  t.join();
-  EXPECT_TRUE(was_interrupted);
-}
-#endif

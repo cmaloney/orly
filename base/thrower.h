@@ -30,20 +30,32 @@
 
 /* Use this macro to throw an error, like this: THROW_ERROR(TSomethingBad) << "more info" <<
  * Base::EndOfPart << "yet more info"; */
-#define THROW_ERROR(error_t) (::Base::TThrower<error_t>(HERE))
-
-/* Use this macro to throw a non-specific error, like this: THROW << "the details"; */
-#define THROW (::Base::TThrower<::Base::TNonSpecificRuntimeError>(HERE))
+#define THROW_ERROR(error_t) (::Base::TThrower<error_t>(HERE_STRING))
 
 namespace Base {
 
-/* A do-nothing singleton.  Insert this object onto a thrower to mark the end of a single piece of
- * information. */
-extern const class TEndOfPart final {
-} EndOfPart;
+template <typename TError>
+std::is_same<decltype(TError::GetDesc()), const char *> HasGetDescImpl(void *);
 
-/* The text we insert between parts of an error message. */
-extern const char *PartDelimiter;
+template <typename>
+std::false_type HasGetDescImpl(...);
+
+template <typename TError>
+static constexpr bool HasGetDesc() {
+  return decltype(HasGetDescImpl<TError>(nullptr))::value;
+}
+
+/* Helper template so that we can prefix methods with a GetDesc() function if the error has one. Not
+ * if it doesn't. */
+template <typename TError>
+std::enable_if_t<HasGetDesc<TError>(), const char *> GetErrorDescHelper() {
+  return TError::GetDesc();
+}
+
+template <typename TError>
+std::enable_if_t<!HasGetDesc<TError>(), const char *> GetErrorDescHelper() {
+  return nullptr;
+}
 
 /* Construct a temporary instance of this object, passing in the current code location.
    While the object exists, you may stream additional error information onto it.
@@ -55,18 +67,15 @@ class TThrower final {
 
   /* Begin the error message with the code location and the description provided by TError (if any).
    */
-  TThrower(const TCodeLocation &code_location) : AtEndOfPart(false) {
-    Write(code_location);
-    Write(EndOfPart);
+  TThrower(const char *code_location) : AtEndOfPart(true) {
+    Strm << code_location;
     const char *desc = GetErrorDescHelper<TError>();
     if(desc) {
-      Write(desc);
-      Write(EndOfPart);
+      Strm << "; " << desc;
     } else if(!HasGetDesc<TError>()) {
       // If the GetDesc() doesn't exist, provide the typename for the user (It's probably an STL
       // exception).
-      Write(Demangle<TError>());
-      Write(EndOfPart);
+      Strm << "; " << Demangle<TError>();
     }
   }
 
@@ -83,45 +92,24 @@ class TThrower final {
   void Write(const TVal &val) {
     assert(this);
     if(AtEndOfPart) {
-      Strm << PartDelimiter;
+      Strm << "; ";
       AtEndOfPart = false;
     }
     Strm << val;
   }
 
-  /* Append the end-of-part marker to the message.
-     This doesn't actually add anything to the message, it just marks the position as being the end
-     of a part. */
-  void Write(const TEndOfPart &) {
-    assert(this);
-    AtEndOfPart = true;
+  template<typename TVal>
+  TThrower<TError> &operator<<(const TVal &val) {
+    Write(val);
+    return *this;
   }
 
   private:
-  /* True when we have just written the end of a part. */
   bool AtEndOfPart;
 
   /* Collects the error message as we build it. */
   std::ostringstream Strm;
 
 };  // TThrower<TError>
-
-/* The error thrown by THROW() macro. */
-class TNonSpecificRuntimeError final : public std::runtime_error {
-  public:
-  /* Do-little. */
-  TNonSpecificRuntimeError(const char *msg) : std::runtime_error(msg) {}
-
-  /* No descriptive message. */
-  static const char *GetDesc() { return nullptr; }
-
-};  // TNonSpecificRuntimeError
-
-template <typename TError, typename TVal>
-Base::TThrower<TError> &&operator<<(Base::TThrower<TError> &&thrower, const TVal &val) {
-  assert(&thrower);
-  thrower.Write(val);
-  return std::move(thrower);
-}
 
 }  // Base

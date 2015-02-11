@@ -76,7 +76,7 @@ template <typename TThrowAs, typename TCatchAs>
 static void ThrowIt() {
   vector<string> parts;
   try {
-    THROW_ERROR(TThrowAs) << Extra1 << EndOfPart << Extra2;
+    THROW_ERROR(TThrowAs) << Extra1 << "; " << Extra2;
   } catch(const TCatchAs &ex) {
     GetParts(ex.what(), parts);
   }

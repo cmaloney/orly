@@ -20,10 +20,7 @@
 
 #pragma once
 
-#include <cassert>
-#include <cstddef>
-#include <cstring>
-#include <ostream>
+#include <iosfwd>
 
 /* Use this macro to represent the current location in the code.
    For example, if a function takes a code location, like this:
@@ -47,28 +44,20 @@ namespace Base {
 class TCodeLocation {
   public:
   /* The default is a blank file at line 1. */
-  TCodeLocation() : File(""), LineNumber(1) {}
+  TCodeLocation();
 
   /* Represents the given file and line.  'file' must not be null and
      'line_number' must be > 0. */
-  TCodeLocation(const char *file, unsigned line_number) : File(file), LineNumber(line_number) {
-    assert(file);
-    assert(line_number);
-  }
+  TCodeLocation(const char *file, unsigned line_number);
 
   /* Return true if these code locations are equal */
-  bool operator==(const TCodeLocation &that) const {
-    return LineNumber == that.LineNumber && strcmp(File, that.File) == 0;
-  }
+  bool operator==(const TCodeLocation &that) const;
 
   /* Returns the file.  Never returns null. */
   const char *GetFile() const;
 
   /* Returns the line number.  Always returns > 0. */
-  unsigned GetLineNumber() const {
-    assert(this);
-    return LineNumber;
-  }
+  unsigned GetLineNumber() const;
 
   /* Stream out a human-readable version of our state. */
   void Write(std::ostream &strm) const;
@@ -87,28 +76,6 @@ class TCodeLocation {
 };  // TCodeLocation
 
 /* Standard stream inserter for Base::TCodeLocation. */
-inline std::ostream &operator<<(std::ostream &strm, const Base::TCodeLocation &that) {
-  assert(&that);
-  that.Write(strm);
-  return strm;
-}
+std::ostream &operator<<(std::ostream &strm, const Base::TCodeLocation &that);
 
 }  // Base
-
-namespace std {
-
-template <>
-struct hash<Base::TCodeLocation> {
-  typedef size_t result_type;
-
-  typedef Base::TCodeLocation argument_type;
-
-  result_type operator()(const argument_type &that) const {
-    assert(&that);
-    // TODO(cmaloney): Better hash function.
-    return std::hash<std::string>()(string(that.GetFile())) ^ that.GetLineNumber();
-  }
-
-};  // hash<Base::TCodeLocation>
-
-}  // std

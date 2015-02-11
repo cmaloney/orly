@@ -20,6 +20,7 @@
 
 #include <functional>
 #include <string>
+
 #include <util/signal.h>
 
 namespace Base {

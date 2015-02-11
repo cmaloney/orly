@@ -21,7 +21,8 @@
 #include <iostream>
 
 namespace Jhm {
-/* Returns true if STDOUT is a tty. */
+
+// Returns true if STDOUT is a tty.
 bool IsRealTty();
 
 // On construction sets up line, on destruction terminates the line.
@@ -37,14 +38,9 @@ class TStatusLine {
   TStatusLine(const TStatusLine &) = delete;
 
   template <typename TVal>
-  void Write(const TVal &that) const {
+  const TStatusLine &operator<<(const TVal &that) const {
     std::cout << that;
+    return *this;
   }
 };
-
-template <typename TVal>
-const TStatusLine &operator<<(const TStatusLine &out, const TVal &that) {
-  out.Write(that);
-  return out;
-}
 }

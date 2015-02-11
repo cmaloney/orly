@@ -22,7 +22,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <base/split.h>
 #include <base/thrower.h>
 #include <jhm/file.h>
 #include <jhm/job.h>
@@ -91,7 +90,7 @@ void TWorkFinder::ProcessReady() {
         needed += AddNeededFile(file, job);
       } catch(const exception &ex) {
         // Add additional information of what needed the file which errored.
-        THROW_ERROR(std::runtime_error) << "Needed for job " << job << EndOfPart << ex.what();
+        THROW_ERROR(std::runtime_error) << "Needed for job " << job << "; " << ex.what();
       }
     }
     if(needed) {

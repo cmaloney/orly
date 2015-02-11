@@ -61,14 +61,6 @@ TRet IfWeird(TRet &&ret) {
   return ret;
 }
 
-/* Return true iff. the error was caused by a signal. */
-inline bool WasInterrupted(const std::system_error &error) {
-  /* TODO: change this to:
-        return error.code() == errc::interrupted;
-     As soon as gcc fixes the bug in cerr. */
-  return error.code().value() == EINTR;
-}
-
 /* This is a thread safe wrapper that hides ugly platform-specific issues
    associated with strerror_r().  It will either copy an error message
    corresponding to 'errno_value' into the caller-supplied 'buf' and return a

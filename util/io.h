@@ -42,7 +42,7 @@ void OpenFile(TStrm &strm, const std::string &path) {
     char temp[256];
     temp[0] = '\0';
     Util::Strerror(errno, temp, sizeof(temp));
-    THROW_ERROR(TOpenFileError) << std::quoted(path) << Base::EndOfPart << temp;
+    THROW_ERROR(TOpenFileError) << std::quoted(path) << "; " << temp;
   }
 }
 

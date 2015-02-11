@@ -35,23 +35,6 @@ FIXTURE(Contains) {
   EXPECT_FALSE(Contains(container, 202));
 }
 
-FIXTURE(FindOrDefault) {
-  unordered_map<int, uint64_t> container;
-  const int key = 101;
-  const uint64_t expected = 98;
-  container[key] = expected;
-  EXPECT_EQ(FindOrDefault(container, key, expected + 1), expected);
-  EXPECT_EQ(FindOrDefault(container, key + 1, expected + 1), expected + 1);
-}
-
-FIXTURE(FindOrInsert) {
-  unordered_map<int, uint64_t> container;
-  const int key = 101;
-  const uint64_t expected = 98;
-  EXPECT_EQ(FindOrInsert(container, key, expected), expected);
-  EXPECT_EQ(FindOrInsert(container, key, expected + 1), expected);
-}
-
 FIXTURE(TryFind) {
   unordered_map<int, uint64_t> container;
   const int key = 101;
@@ -62,50 +45,4 @@ FIXTURE(TryFind) {
     EXPECT_EQ(*result, expected);
   }
   EXPECT_FALSE(TryFind(container, key + 1));
-}
-
-FIXTURE(EqEq) {
-  unordered_set<int> lhs, rhs;
-  EXPECT_TRUE(eqeq(lhs, rhs));
-  lhs.insert(101);
-  EXPECT_FALSE(eqeq(lhs, rhs));
-  EXPECT_FALSE(eqeq(rhs, lhs));
-  rhs.insert(101);
-  EXPECT_TRUE(eqeq(lhs, rhs));
-  lhs.insert(202);
-  EXPECT_FALSE(eqeq(lhs, rhs));
-  rhs.insert(303);
-  EXPECT_FALSE(eqeq(lhs, rhs));
-  lhs.insert(303);
-  EXPECT_FALSE(eqeq(lhs, rhs));
-  rhs.insert(202);
-  EXPECT_TRUE(eqeq(lhs, rhs));
-}
-
-FIXTURE(EqEqMap) {
-  unordered_map<int, uint64_t> lhs, rhs;
-  EXPECT_TRUE(eqeq_map(lhs, rhs));
-  lhs[101] = 98;
-  EXPECT_FALSE(eqeq_map(lhs, rhs));
-  EXPECT_FALSE(eqeq_map(rhs, lhs));
-  rhs[101] = 98;
-  EXPECT_TRUE(eqeq_map(lhs, rhs));
-  lhs[202] = 1;
-  EXPECT_FALSE(eqeq_map(lhs, rhs));
-  rhs[303] = 3;
-  EXPECT_FALSE(eqeq_map(lhs, rhs));
-  lhs[303] = 3;
-  EXPECT_FALSE(eqeq_map(lhs, rhs));
-  rhs[202] = 1;
-  EXPECT_TRUE(eqeq_map(lhs, rhs));
-}
-
-FIXTURE(ForIter) {
-  EXPECT_TRUE((is_same<int, ForIter<vector<int>::iterator>::TVal>::value));
-  EXPECT_TRUE((is_same<int, ForIter<vector<int>::const_iterator>::TVal>::value));
-  EXPECT_TRUE((is_same<string, ForIter<vector<string>::iterator>::TVal>::value));
-  EXPECT_TRUE((is_same<string, ForIter<vector<string>::const_iterator>::TVal>::value));
-  EXPECT_FALSE((is_same<int, ForIter<vector<string>::iterator>::TVal>::value));
-  EXPECT_FALSE((is_same<string, ForIter<vector<int>::iterator>::TVal>::value));
-  EXPECT_TRUE((is_same<int, ForIter<int *>::TVal>::value));
 }

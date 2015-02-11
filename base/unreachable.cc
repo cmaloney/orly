@@ -16,8 +16,6 @@
 
 #include <base/unreachable.h>
 
-#include <syslog.h>
-
 #include <iostream>
 
 #include <base/backtrace.h>

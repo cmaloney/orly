@@ -18,7 +18,9 @@
 
 #include <base/code_location.h>
 
+#include <cassert>
 #include <cstring>
+#include <ostream>
 
 using namespace std;
 using namespace Base;
@@ -29,9 +31,26 @@ static size_t GetSrcRootLen() {
   return len;
 }
 
+TCodeLocation::TCodeLocation() : File(""), LineNumber(1) {}
+
+TCodeLocation::TCodeLocation(const char *file, unsigned line_number)
+    : File(file), LineNumber(line_number) {
+  assert(file);
+  assert(line_number);
+}
+
+bool TCodeLocation::operator==(const TCodeLocation &that) const {
+  return LineNumber == that.LineNumber && strcmp(File, that.File) == 0;
+}
+
 const char *TCodeLocation::GetFile() const {
   assert(this);
   return File + ((strncmp(File, SrcRoot, GetSrcRootLen()) == 0) ? (GetSrcRootLen()) : 0);
+}
+
+unsigned TCodeLocation::GetLineNumber() const {
+  assert(this);
+  return LineNumber;
 }
 
 void TCodeLocation::Write(ostream &strm) const {
@@ -41,3 +60,10 @@ void TCodeLocation::Write(ostream &strm) const {
 }
 
 const char *TCodeLocation::SrcRoot = SRC_ROOT;
+
+/* Standard stream inserter for Base::TCodeLocation. */
+std::ostream &Base::operator<<(std::ostream &strm, const Base::TCodeLocation &that) {
+  assert(&that);
+  that.Write(strm);
+  return strm;
+}
