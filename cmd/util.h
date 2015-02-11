@@ -16,6 +16,7 @@ DEFINE_ERROR(TArgError, std::runtime_error, "problem with an argument");
 struct TCleanExit {};
 
 struct TErrorExit {
+  TErrorExit(int exit_code, const std::string message) : ExitCode(exit_code), Message(message) {}
   int ExitCode = -1;
   const std::string Message;
 };

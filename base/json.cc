@@ -487,6 +487,7 @@ size_t TJson::GetSize() const noexcept {
       Unreachable(HERE);
     }
   }
+  Unreachable(HERE); // Placaet GCC
 }
 
 const TJson::TArray &TJson::GetArray() const noexcept {

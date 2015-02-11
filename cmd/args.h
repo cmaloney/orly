@@ -75,6 +75,16 @@ enum class TRepetition {
 
 // Args have names and descriptions.
 struct TArgInfo {
+  TArgInfo(bool positional,
+           std::vector<std::string> names,
+           const char *description,
+           TRepetition repitition,
+           bool has_value)
+      : Positional(positional),
+        Names(names),
+        Description(description),
+        Repitition(repitition),
+        HasValue(has_value) {}
   bool Positional = false;
   const std::vector<std::string> Names;
   const char *Description = nullptr;
