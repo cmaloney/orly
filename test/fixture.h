@@ -31,7 +31,7 @@ vector takes now ownership of any of the fixtures. */
   static void name##_();                                                                          \
   _Pragma("clang diagnostic push")                                                                \
       _Pragma("clang diagnostic ignored \"-Wglobal-constructors\"") static const ::Test::TFixture \
-          name##Fixture(HERE, #name, name##_);                                                    \
+          name##Fixture(HERE_STRING, #name, name##_);                                             \
   _Pragma("clang diagnostic pop") static void name##_()
 
 namespace Test {
@@ -43,9 +43,9 @@ struct TFixture {
 
   typedef void (*TFunc)();
 
-  TFixture(Base::TCodeLocation code_location, const char *name, const TFunc func);
+  TFixture(const char *code_location, const char *name, const TFunc func);
 
-  const Base::TCodeLocation CodeLocation;
+  const char *CodeLocation;
   const char *Name;
   const TFunc Func;
 };

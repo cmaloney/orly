@@ -70,14 +70,14 @@ void Base::SetBacktraceOnTerminate() {
        << "Backtrace: " << endl;
   PrintBacktrace(500);
   cerr << "SEGFAULT" << endl;
-  Util::Abort(HERE);
+  ABORT();
 }
 
 [[noreturn]] static void PrintSigPipe(int) {
   cout << "ERROR: SIGPIPE" << endl;
   PrintBacktrace(500);
   cerr << "SIGPIPE" << endl;
-  Util::Abort(HERE);
+  ABORT();
 }
 
 TBacktraceCatcher::TBacktraceCatcher()

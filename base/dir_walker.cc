@@ -116,7 +116,7 @@ bool TDirWalker::Walk(const char *root) {
             case S_IFDIR:
             case S_IFLNK:
             case S_IFREG: {
-              Util::Abort(HERE);
+              ABORT();
             }
             /* We have no clue what this entry is, but report it anyway. */
             default: {

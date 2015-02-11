@@ -22,7 +22,7 @@ using namespace Test;
 
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
 
-TFixture::TFixture(Base::TCodeLocation code_location, const char *name, const TFunc func)
+TFixture::TFixture(const char *code_location, const char *name, const TFunc func)
     : CodeLocation(code_location), Name(name), Func(func) {
   AddFixture(this);
 }

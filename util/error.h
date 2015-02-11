@@ -69,6 +69,8 @@ TRet IfWeird(TRet &&ret) {
    return value must be assumed to not exceed the lifetime of 'buf'. */
 const char *Strerror(int errno_value, char *buf, size_t buf_size);
 
+#define ABORT() ::Util::Abort(HERE)
+
 /* Aborts the program, sending an error message to stderr. */
 [[noreturn]] void Abort(const Base::TCodeLocation &code_location);
 
