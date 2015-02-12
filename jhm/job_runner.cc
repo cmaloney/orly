@@ -43,16 +43,6 @@ TJobRunner::~TJobRunner() {
   HasWork.notify_all();
   QueueRunner.join();
 
-  cout << "job, timing, input, output\n";
-
-  for(auto &timing : Timings) {
-    cout << timing.first->GetName() << ',' <<
-    duration_cast<milliseconds>(timing.second).count() << ','
-         << timing.first->GetInput()->GetRelPath() << ','
-         << Join(timing.first->GetOutput(), '|', [](ostream &strm, const TFile *f) {
-              strm << f->GetRelPath();
-            }) << '\n';
-  }
 }
 
 bool TJobRunner::IsReady() const { return !ExitWorker; }
@@ -126,9 +116,6 @@ void TJobRunner::ProcessQueue() {
               cout << AsStr(Join(cmd, ' ')) + '\n';
             }
 
-            // Start the timing
-            Start.insert(make_pair(job, high_resolution_clock::now()));
-
             // Run the job
             auto subproc = TSubprocess::New(Pump, cmd);
             PidMap[subproc->GetChildId()] = job;
@@ -158,9 +145,6 @@ void TJobRunner::ProcessQueue() {
       if(returncode != 0) {
         ExitWorker = true;
       }
-
-      // Store the timings
-      Timings[job] += high_resolution_clock::now() - Start.at(job);
 
       /* lock for results set */ {
         lock_guard<mutex> lock(ResultsMutex);

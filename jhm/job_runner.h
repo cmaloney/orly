@@ -17,7 +17,6 @@
    limitations under the License. */
 
 #include <atomic>
-#include <chrono>
 #include <condition_variable>
 #include <future>
 #include <mutex>
@@ -52,8 +51,6 @@ class TJobRunner {
   };
 
   using TResults = std::vector<TResult>;
-
-  using TTimings = std::unordered_map<TJob *, std::chrono::high_resolution_clock::duration>;
 
   public:
   TJobRunner(uint64_t worker_count, bool print_cmd);
@@ -105,9 +102,6 @@ class TJobRunner {
   // General parameters for the runner
   const bool PrintCmd;
   const uint64_t WorkerCount;
-
-  // Timings
-  TTimings Timings;
 
   // The thread which sits in the background and runs the queue.
   std::thread QueueRunner;
