@@ -12,8 +12,6 @@
       "-Wold-style-cast",
       "-Wglobal-constructors",
       "-pthread",
-      "-march=native",
-      "-mtune=native",,
       "-fcolor-diagnostics",
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
     ],
