@@ -77,10 +77,6 @@ auto Join(const TContainer &container, const TDelimiter &delimiter) {
   return Join(container, delimiter, TDefaultFormat());
 }
 
-template <typename TContainer>
-auto Concat(const TContainer &container) {
-  return MakeJoin(container, TNoDelimit(), TDefaultFormat());
-}
 
 /* A generic function to stream out TJoin<> to some streamer.
    The streamer type is templated to handle other streamers such as TCppPrinter. */
