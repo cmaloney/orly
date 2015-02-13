@@ -60,7 +60,12 @@ bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
   // Ensure the file has a producer
   TJob *producer = TryGetProducer(file);
   if(!producer) {
-    THROW_ERROR(runtime_error) << "No known way to produce file \"" << file << '"';
+    string job_str;
+    if(job) {
+      job_str = AsStr(" needed for job \"", job, '"');
+    }
+    THROW_ERROR(runtime_error) << "No known way to produce file \"" << file << '"' << job_str
+                               << '.';
   }
 
   // Queue the producer job as necessary to finish.
@@ -72,31 +77,37 @@ bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
   return res;
 }
 
+// Returns the number of needed items
+bool TWorkFinder::QueueNeeds(TJob *job) {
+  uint64_t needed = 0;
+
+  // Check input
+  needed += AddNeededFile(job->GetInput(), job);
+
+  for(TFile *file : job->GetNeeds()) {
+    // Add each file. If any need jobs to complete, the job isn't ready yet.
+    needed += AddNeededFile(file, job);
+  }
+
+  // Mark the job as waiting on the new needed set.
+  if(needed) {
+    // TODO(cmaloney): If this is speculative this is guaranteed to
+    // be an update, otherwise it is guaranteed to be a create. Update
+    // it to do so.
+    Waiting[job] = needed;
+  }
+
+  return needed > 0;
+}
+
 void TWorkFinder::ProcessReady() {
   while(!Ready.empty()) {
     // For each ReadyJob, see if there are any deps we now need.
-    uint64_t needed = 0;
 
     TJob *job = Pop(Ready);
 
-    /* check input */ {
-      TFile *file = job->GetInput();
-      needed += AddNeededFile(file, job);
-    }
-
-    for(TFile *file : job->GetNeeds()) {
-      try {
-        // Add each file. If any need jobs to complete, the job isn't ready yet.
-        needed += AddNeededFile(file, job);
-      } catch(const exception &ex) {
-        // Add additional information of what needed the file which errored.
-        THROW_ERROR(std::runtime_error) << "Needed for job " << job << "; " << ex.what();
-      }
-    }
-    if(needed) {
-      // TODO: Lots of copies (Although they're tiny)
-      InsertOrFail(Waiting, make_pair(job, needed));
-    } else {
+    // NOTE: QueueNeeds marks the job as waiting for all the additional needs.
+    if(!QueueNeeds(job)) {
       // If we're about to run the job, ensure the output directories for it exist
       // TODO: Move this to a more logical place.
       for(TFile *out : job->GetOutput()) {
@@ -175,6 +186,8 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
     out_file->WriteConfig(cache_out_name);
   }
 
+  bool queue_almost_empty = Runner.IsAlmostEmpty();
+
   // Update every job which was waiting on this job to be waiting on one less thing.
   // NOTE: If the job isn't waiting on anything, it gets pushed to the Ready queue.
   const auto range = ToFinish.equal_range(result.Job);
@@ -190,6 +203,13 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
         // Move the job to ready, as it has nothing left it's waiting on.
         EraseOrFail(Waiting, job);
         Ready.push(job);
+      }
+
+      // If we are almost out of jobs, pre-emptyively look for more jobs which need to be run, based
+      // on what
+      // is waiting on us.
+      if(queue_almost_empty) {
+        //QueueNeeds(job);
       }
     }
     // TODO: Assert this succeeds (It should be guaranteed to)
@@ -279,12 +299,20 @@ bool TWorkFinder::FinishAll() {
     // If we've failed 1+ job, then the number failed will be missing.
     if(!has_failed) {
       WriteStatusLine();
+      // DEBUG:
+      if(Running.size() + Waiting.size() + Finished.size() != All.size()) {
+        cout << "running(" << Running.size() << "): " << Base::Join(Running, ", ") << '\n'
+             << "waiting(" << Waiting.size() << "): ";
+        for(const auto &w : Waiting) {
+          cout << w.first;
+        }
+        // << "waiting:  " << Base::Join(", ", Waiting) << '\n'
+        cout << '\n'
+             << "finished(" << Finished.size() << "): " << Base::Join(Finished, ", ") << '\n'
+             << "all(" << All.size() << "): " << Base::Join(All, ", ") << '\n';
+      }
       assert(Running.size() + Waiting.size() + Finished.size() == All.size());
     }
-
-    // DEBUG: cout << Running.size() << " + " << Waiting.size() << " + " << Finished.size() << " ==
-    // " << All.size() << endl;
-    // DEBUG: Base::Join(", ", Running, cout); cout << '\n';
 
     // Wait for 1+ results from the job runner. Process every result returned.
     for(auto &result : Runner.WaitForResults()) {

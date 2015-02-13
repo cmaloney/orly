@@ -21,6 +21,7 @@
 #include <jhm/file.h>
 #include <jhm/job.h>
 
+#include <cmath>
 #include <iostream>  // TODO(cmaloney): Less than ideal...
 
 using namespace Base;
@@ -43,6 +44,11 @@ TJobRunner::~TJobRunner() {
   HasWork.notify_all();
   QueueRunner.join();
 
+}
+
+bool TJobRunner::IsAlmostEmpty() const {
+  // TODO(cmaloney): Experimentally derive what is the ideal number/metric here.
+  return ToRun.size() <= ceil(WorkerCount * .8);
 }
 
 bool TJobRunner::IsReady() const { return !ExitWorker; }

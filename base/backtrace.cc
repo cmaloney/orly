@@ -35,6 +35,7 @@ void Base::GenBacktrace(int max_frame_count, const function<void(const string &)
   int frame_count = backtrace(frames, max_frame_count + 1);
   char **symbols = backtrace_symbols(frames, frame_count);
   for(int frame_idx = 1; frame_idx < frame_count; ++frame_idx) {
+    // TODO(cmaloney): Align frame_idx + frame_count so that the symbol is always indented the same.
     auto frame_print = AsStr('[', frame_idx, '/', frame_count - 1, "] ");
     // TODO(cmaloney): Use debug information to print filename + line number.
     if(symbols) {

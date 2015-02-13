@@ -56,6 +56,10 @@ class TJobRunner {
   TJobRunner(uint64_t worker_count, bool print_cmd);
   ~TJobRunner();
 
+  // Returns true if the queue is almost empty, meaning whatever is
+  // filling the queue should.
+  bool IsAlmostEmpty() const;
+
   bool IsReady() const;
 
   /* Adds a job to the queue of jobs to run. */

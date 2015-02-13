@@ -62,6 +62,7 @@ class TWorkFinder {
 
   bool IsDone(TJob *job);
 
+  bool QueueNeeds(TJob *job);
   void ProcessReady();
 
   /* Process the given result. Returns true if the result of the job is failure / we're shutting
