@@ -129,35 +129,21 @@ class TConfig final {
 };
 
 // Helper function
-inline void ThrowIfWrongKind(const Base::TJson::TKind expected, const Base::TJson &json) {
-  if(json.GetKind() != expected) {
-    THROW_ERROR(TConfig::TInvalidValue) << "Expected a " << expected << " but found a "
-                                        << json.GetKind();
-  }
-}
+void ThrowIfWrongKind(const Base::TJson::TKind expected, const Base::TJson &json);
 
 template <>
 struct TJsonReader<bool> {
-  static bool Read(const Base::TJson &entry) {
-    ThrowIfWrongKind(Base::TJson::Bool, entry);
-    return entry.GetBool();
-  }
+  static bool Read(const Base::TJson &entry);
 };
 
 template <>
 struct TJsonReader<int64_t> {
-  static int64_t Read(const Base::TJson &entry) {
-    ThrowIfWrongKind(Base::TJson::Number, entry);
-    return entry.GetNumber();
-  }
+  static int64_t Read(const Base::TJson &entry);
 };
 
 template <>
 struct TJsonReader<std::string> {
-  static std::string Read(const Base::TJson &entry) {
-    ThrowIfWrongKind(Base::TJson::String, entry);
-    return entry.GetString();
-  }
+  static std::string Read(const Base::TJson &entry);
 };
 
 template <typename TVal>
