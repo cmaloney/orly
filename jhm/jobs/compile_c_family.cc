@@ -32,8 +32,8 @@ vector<string> TCompileCFamily::GetStandardArgs(TFile *input, bool is_cpp, const
   vector<string> options;
   // TODO: Make file configuration automatically attach environment to the tail of it's list for
   // lookups / fallback?
-  if(!input->GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options)) {
-    env.GetConfig().TryRead({"cmd", is_cpp ? "g++" : "gcc"}, options);
+  if(!input->GetConfig().TryRead({"cmd", is_cpp ? "c++" : "c"}, options)) {
+    env.GetConfig().TryRead({"cmd", is_cpp ? "c++" : "c"}, options);
   }
 
   const auto src_str = AsStr(*env.GetSrc());

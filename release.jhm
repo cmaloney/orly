@@ -6,7 +6,7 @@
     ]
   },
   "cmd": {
-    "+g++": [
+    "+c++": [
       "-O3",
       "-DNDEBUG",
       "-g1",
@@ -16,7 +16,7 @@
       "-Wno-unused-parameter",
       "-Wno-unused-result"
     ],
-    "ld": {
+    "link": {
       "+flags": [
         "-O3",
         "-flto",

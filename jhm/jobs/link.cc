@@ -116,7 +116,7 @@ vector<string> TLink::GetCmd() {
 
   // TODO: If there are no C++ files, use 'gcc' to link instead of g++
   vector<string> cmd{"clang++", "-o" + GetSoleOutput()->GetPath()};
-  for(auto &flag : Env.GetConfig().Read<vector<string>>({"cmd", "ld", "flags"})) {
+  for(auto &flag : Env.GetConfig().Read<vector<string>>({"cmd", "link", "flags"})) {
     cmd.push_back(move(flag));
   }
 
@@ -126,7 +126,7 @@ vector<string> TLink::GetCmd() {
   }
 
   // TODO: Be more intelligent / selective about link flags
-  for(auto &lib : Env.GetConfig().Read<vector<string>>({"cmd", "ld", "libs"})) {
+  for(auto &lib : Env.GetConfig().Read<vector<string>>({"cmd", "link", "libs"})) {
     cmd.push_back(move(lib));
   }
 

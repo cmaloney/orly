@@ -4,7 +4,7 @@
       "jhm/make_dep_file",
     ],
   "cmd": {
-    "g++" : [
+    "c++" : [
       "-std=c++1y",
       "-Wall",
       "-Werror",
@@ -15,7 +15,7 @@
       "-fcolor-diagnostics",
       "-DTEST_OUTPUT_DIR=\"/tmp/\"",
     ],
-    "ld": {
+    "link": {
       "flags": [
         "-pthread"
       ],

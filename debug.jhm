@@ -6,7 +6,7 @@
     ]
   },
   "cmd": {
-    "+g++" : [
+    "+c++" : [
       "-DDEBUG",
       "-g",
       "-Weverything",
