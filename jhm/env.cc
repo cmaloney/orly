@@ -127,7 +127,10 @@ vector<string> GetConfigList(const TTree &root,
   };
   add_conf(false, config);
   add_conf(true, config_mixin);
-  add_conf(false, proj_name + '/' + "root");
+  // TODO(cmaloney): This is probably the wrong ordering for the environment
+  // configuration.
+  add_conf(false, proj_name + "/environment");
+  add_conf(false, proj_name + "/root");
   add_conf(false, proj_name + '/' + config);
   add_conf(true, proj_name + '/' + config_mixin);
   return ret;
