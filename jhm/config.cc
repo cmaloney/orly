@@ -177,7 +177,7 @@ void TConfig::LoadComputed(const string &filename) {
   assert(!ComputedLocked);
   Base::TJson computed = TJson::Read(filename.c_str());
   if(computed.GetKind() != TJson::Array) {
-    throw TInvalidConfig("Invalid config file. Top level isn't a JSON Array.");
+    THROW_ERROR(TInvalidConfig) << "Invalid config file. Top level config is not a JSON Array. It is: " << computed.GetKind();
   }
 
   // Read backwards building up stack
@@ -206,8 +206,14 @@ void TConfig::SetComputed(std::vector<Base::TJson> &&conf_stack) {
 }
 
 void TConfig::AddConfig(TJson &&config, bool top) {
+  // If the config is empty / null, accept it, so that we are
+  // okay with empty config files.
+  if(config.GetKind() == TJson::Null) {
+    config = TJson(TJson::Object);
+  }
+
   if(config.GetKind() != TJson::Object) {
-    throw TInvalidConfig("Invalid config file. Top level isn't a JSON object.");
+    THROW_ERROR(TInvalidConfig) << "Invalid config file. Top level config is not a JSON Object. It is: " << config.GetKind();
   }
 
   if(top) {
