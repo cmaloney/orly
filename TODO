@@ -59,3 +59,6 @@ Need to be able to do "parameterized builds"
 
   Notes:
     - Auto generate name?
+
+DEFINE_ERROR -> EXCEPTION
+THROW_ERROR -> THROWER
