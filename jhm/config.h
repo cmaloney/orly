@@ -131,7 +131,7 @@ class TConfig final {
 // Helper function
 inline void ThrowIfWrongKind(const Base::TJson::TKind expected, const Base::TJson &json) {
   if(json.GetKind() != expected) {
-    THROW_ERROR(TConfig::TInvalidValue) << "Expected a " << expected << "but found a "
+    THROW_ERROR(TConfig::TInvalidValue) << "Expected a " << expected << " but found a "
                                         << json.GetKind();
   }
 }
