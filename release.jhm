@@ -6,12 +6,12 @@
     ]
   },
   "cmd": {
-    "+g++" : [
+    "+g++": [
       "-O3",
       "-DNDEBUG",
       "-g1",
       "-march=native",
-      "-mtune=native",,
+      "-mtune=native",
       "-Wno-unused",
       "-Wno-unused-parameter",
       "-Wno-unused-result"
