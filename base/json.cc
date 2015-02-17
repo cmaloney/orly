@@ -584,7 +584,9 @@ void TJson::Read(std::istream &strm) {
         // Raw string (String containing anything but whitespace and 'special' json chars [{}],:"
         // NOTE: null, true, and false are all found by matching raw strings.
         std::string text = ReadRawString(strm);
-        if(text == "null") {
+        if (text.empty()) {
+          Reset();
+        } else if(text == "null") {
           Reset();
         } else if(text == "true") {
           *this = true;
