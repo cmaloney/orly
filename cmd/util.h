@@ -9,7 +9,7 @@
 namespace Cmd {
 
 // Thrown when parsing args there is an error.
-DEFINE_ERROR(TArgError, std::runtime_error, "problem with an argument");
+EXCEPTION(TArgError, std::runtime_error, "problem with an argument");
 
 // Throw this to unwind the stack and exit without an error code.
 // Useful when you just need to get out (ex: --help is specified)

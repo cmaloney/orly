@@ -50,7 +50,7 @@ class TPath {
   public:
   using TStr = std::string;
 
-  DEFINE_ERROR(TInvalid, std::runtime_error, "Invalid path")
+  EXCEPTION(TInvalid, std::runtime_error, "Invalid path")
 
   // TODO: A vector<string> which is contiguous / one array rather than array of pointers would
   // speed a lot of this

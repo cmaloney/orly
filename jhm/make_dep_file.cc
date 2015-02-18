@@ -45,7 +45,7 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
     EchoOutput(subproc->TakeStdOutFromChild());
     EchoOutput(subproc->TakeStdErrFromChild());
     // TODO: Join the arguments some less-mistrewn way than ' '
-    THROW_ERROR(runtime_error) << "Non-zero (" << ret << ") exit from command "
+    THROWER(runtime_error) << "Non-zero (" << ret << ") exit from command "
                                << quoted(AsStr(Join(cmd, ' ')));
   }
 
@@ -128,12 +128,12 @@ void MakeDepFile(const string &filename, const string &out_name, const vector<st
   } else if(EndsWith(filename, ".cc")) {
     deps = ToJson(GetCDeps(filename, true, extra_args));
   } else {
-    THROW_ERROR(runtime_error) << "Unknown file extension: " << quoted(filename);
+    THROWER(runtime_error) << "Unknown file extension: " << quoted(filename);
   }
 
   ofstream out(out_name, ios_base::out | ios_base::trunc);
   if(!out.good()) {
-    THROW_ERROR(runtime_error) << "Error creating/opening file for writing: " << filename + ".dep";
+    THROWER(runtime_error) << "Error creating/opening file for writing: " << filename + ".dep";
   }
   out << deps;
   out.close();

@@ -64,7 +64,7 @@ bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
     if(job) {
       job_str = AsStr(" needed for job \"", job, '"');
     }
-    THROW_ERROR(runtime_error) << "No known way to produce file \"" << file << '"' << job_str
+    THROWER(runtime_error) << "No known way to produce file \"" << file << '"' << job_str
                                << '.';
   }
 
@@ -165,7 +165,7 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
   for(TFile *out_file : result.Job->GetOutput()) {
     // Sanity check that all output files now exist.
     if(!ExistsPath(AsStr(out_file->GetPath()).c_str())) {
-      THROW_ERROR(logic_error) << "Job " << result.Job << " Didn't produce the output file '"
+      THROWER(logic_error) << "Job " << result.Job << " Didn't produce the output file '"
                                << out_file
                                << " which it was supposed to yet returned successfully...";
     }
@@ -177,7 +177,7 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
     string cache_filename = GetCacheFilename(out_file);
     ofstream cache_out_name(cache_filename);
     if(!cache_out_name.is_open()) {
-      THROW_ERROR(runtime_error) << "Unable to open cache output file \"" << quoted(cache_filename)
+      THROWER(runtime_error) << "Unable to open cache output file \"" << quoted(cache_filename)
                                  << '"';
     }
     // NOTE: This locks the config stack, because once we've written the cache, if more things were
@@ -256,7 +256,7 @@ TJob *TWorkFinder::TryGetProducer(TFile *file) {
       for(TFile *f : job->GetOutput()) {
         if(!Producers.emplace(f, job).second) {
           if(Producers.at(f) != job) {
-            THROW_ERROR(runtime_error) << "Multiple producers for file " << f
+            THROWER(runtime_error) << "Multiple producers for file " << f
                                        << ". Producers: " << Producers.at(f) << ", " << job;
           }
         }

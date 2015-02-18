@@ -49,13 +49,13 @@ TPath::TPath(const TStr &name) : Namespace(SplitNamespace(name)) {
 
   // Validate
   if(!*this) {
-    THROW_ERROR(TPath::TInvalid) << name;
+    THROWER(TPath::TInvalid) << name;
   }
 }
 TPath::TPath(TStrList ns, TStr name, TStrList extension)
     : Namespace(move(ns)), Name(move(name)), Extension(move(extension)) {
   if(!*this) {
-    THROW_ERROR(TPath::TInvalid) << *this;
+    THROWER(TPath::TInvalid) << *this;
   }
 }
 TPath::TPath(TStrList ns_and_name, TStrList extension) : Extension(move(extension)) {
@@ -66,7 +66,7 @@ TPath::TPath(TStrList ns_and_name, TStrList extension) : Extension(move(extensio
   }
 
   if(!*this) {
-    THROW_ERROR(TPath::TInvalid);
+    THROWER(TPath::TInvalid);
   }
 }
 TPath::TPath(const TStr &dir, TStr name, TStrList extension)
@@ -74,7 +74,7 @@ TPath::TPath(const TStr &dir, TStr name, TStrList extension)
   if(!*this) {
     // TODO: Print extension lists here in such a way that doesn't possibly hide errors in
     // individaul extensions.
-    THROW_ERROR(TPath::TInvalid) << "dir: " << dir << " name: " << Name;
+    THROWER(TPath::TInvalid) << "dir: " << dir << " name: " << Name;
   }
 }
 

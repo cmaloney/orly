@@ -60,7 +60,7 @@ static std::string ReadQuotedString(std::istream &strm) {
   assert(&strm);
   /* Eat the opening quote. */
   if(unlikely(strm.peek() != '"')) {
-    THROW_ERROR(TJson::TSyntaxError) << "missing opening quote";
+    THROWER(TJson::TSyntaxError) << "missing opening quote";
   }
   strm.ignore();
   /* Loop over the input until we find the closing quote, accumulating
@@ -114,9 +114,9 @@ static std::string ReadQuotedString(std::istream &strm) {
             break;
           }
           case 'u': {
-            THROW_ERROR(TJson::TSyntaxError) << "Unicode escapes aren't implemented";
+            THROWER(TJson::TSyntaxError) << "Unicode escapes aren't implemented";
           }
-          default: { THROW_ERROR(TJson::TSyntaxError) << "bad escape sequence"; }
+          default: { THROWER(TJson::TSyntaxError) << "bad escape sequence"; }
         }  // switch
         strm.ignore();
         break;
@@ -124,7 +124,7 @@ static std::string ReadQuotedString(std::istream &strm) {
       /* Normal character or EOF. */
       default: {
         if(unlikely(c < 0)) {
-          THROW_ERROR(TJson::TSyntaxError) << "missing closing quote";
+          THROWER(TJson::TSyntaxError) << "missing closing quote";
         }
         accum += char(c);
         strm.ignore();
@@ -174,7 +174,7 @@ static bool ParseSep(std::istream &strm, char close_mark, bool at_start) {
   }
   if(!at_start) {
     if(c != ',') {
-      THROW_ERROR(TJson::TSyntaxError) << "Expected a ',' but found a '" << char(c) << '\'';
+      THROWER(TJson::TSyntaxError) << "Expected a ',' but found a '" << char(c) << '\'';
     }
     strm.ignore();
   }
@@ -192,7 +192,7 @@ static bool ParseSep(std::istream &strm, char close_mark, bool at_start) {
 static void Match(std::istream &strm, char expected) {
   assert(&strm);
   if(strm.peek() != expected) {
-    THROW_ERROR(TJson::TSyntaxError) << "Expected '" << expected << "' but didn't find it. Found '"
+    THROWER(TJson::TSyntaxError) << "Expected '" << expected << "' but didn't find it. Found '"
                               << char(strm.peek()) << '\'';
   }
   strm.ignore();
@@ -201,13 +201,13 @@ static void Match(std::istream &strm, char expected) {
 TJson TJson::Read(const char *filename) {
   std::ifstream in(filename);
   if(!in.is_open()) {
-    THROW_ERROR(std::runtime_error) << "Unable to open file " << std::quoted(filename);
+    THROWER(std::runtime_error) << "Unable to open file " << std::quoted(filename);
   }
   TJson ret;
   try {
     ret.Read(in);
   } catch(const TSyntaxError &ex) {
-    THROW_ERROR(std::runtime_error) << "in " << std::quoted(filename) << ':' << ex.what();
+    THROWER(std::runtime_error) << "in " << std::quoted(filename) << ':' << ex.what();
   }
   return ret;
 }

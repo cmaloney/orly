@@ -59,9 +59,9 @@ class TConfig final {
   NO_MOVE(TConfig);
 
   public:
-  DEFINE_ERROR(TInvalidValue, std::runtime_error, nullptr);
-  DEFINE_ERROR(TNotFound, std::runtime_error, nullptr);
-  DEFINE_ERROR(TInvalidConfig, std::runtime_error, nullptr);
+  EXCEPTION(TInvalidValue, std::runtime_error, nullptr);
+  EXCEPTION(TNotFound, std::runtime_error, nullptr);
+  EXCEPTION(TInvalidConfig, std::runtime_error, nullptr);
 
   explicit TConfig();
   TConfig(const std::string &filename);
@@ -76,7 +76,7 @@ class TConfig final {
     try {
       return TJsonReader<TVal>::Read(entry);
     } catch(const TInvalidValue &ex) {
-      THROW_ERROR(TInvalidValue) << "Invalid for \"" << Base::Join(name, '.') << "\". "
+      THROWER(TInvalidValue) << "Invalid for \"" << Base::Join(name, '.') << "\". "
                                  << ex.what();
     }
     // TODO: GCC BUG
@@ -158,7 +158,7 @@ struct TJsonReader<std::vector<TVal>> {
         ret.push_back(TJsonReader<TVal>::Read(json));
       }
     } catch(const TConfig::TInvalidValue &ex) {
-      THROW_ERROR(TConfig::TInvalidValue) << "Element in list. " << ex.what();
+      THROWER(TConfig::TInvalidValue) << "Element in list. " << ex.what();
     }
     return ret;
   }
@@ -175,7 +175,7 @@ struct TJsonReader<std::map<std::string, TVal>> {
         ret.emplace(elem.first, TJsonReader<TVal>::Read(elem.second));
       }
     } catch(const TConfig::TInvalidValue &ex) {
-      THROW_ERROR(TConfig::TInvalidValue) << "Element in object/map. " << ex.what();
+      THROWER(TConfig::TInvalidValue) << "Element in object/map. " << ex.what();
     }
     return ret;
   }

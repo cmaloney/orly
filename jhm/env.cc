@@ -151,13 +151,13 @@ TEnv::TEnv(const TTree &root,
       Out(GetOutDirName(root, proj_name, config, config_mixin)),
       Config(GetConfigList(root, proj_name, config, config_mixin)) {
   if(config == "root") {
-    THROW_ERROR(runtime_error)
+    THROWER(runtime_error)
         << "the config 'root' is reserved / special. Use a different config.";
   }
 
   // NOTE: Technically not a hard error. But usually indicates something went wrong.
   if(!Config.HasConfig()) {
-    THROW_ERROR(runtime_error) << "No config file found for config " << quoted(config + ".jhm")
+    THROWER(runtime_error) << "No config file found for config " << quoted(config + ".jhm")
                                << ". At least one config looked for must exist";
   }
   // TODO: Assert the config stack contains at least one config

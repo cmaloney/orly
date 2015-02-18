@@ -60,7 +60,7 @@ void TParser::Parse(const int argc, const char *const argv[]) const {
       if(has_more()) {
         return get_arg(i++);
       }
-      THROW_ERROR(TMissingValue) << "Value required for " << std::quoted(key) << ". Use '--" << key
+      THROWER(TMissingValue) << "Value required for " << std::quoted(key) << ". Use '--" << key
                                  << "=<value>' or --" << key << " value";
     };
 
@@ -76,7 +76,7 @@ void TParser::Parse(const int argc, const char *const argv[]) const {
         // TODO(cmaloney): Catch the not found index exception
         auto it = Named.find(key.substr(2));
         if(it == Named.end()) {
-          THROW_ERROR(TArgError) << "No such long option " << std::quoted(key);
+          THROWER(TArgError) << "No such long option " << std::quoted(key);
         }
         const TConsumer &consumer = *it->second;
         if(consumer.HasValue || value_equals) {
@@ -100,14 +100,14 @@ void TParser::Parse(const int argc, const char *const argv[]) const {
           const auto c_str = std::string(1, c);
           auto it = Named.find(c_str);
           if(it == Named.end()) {
-            THROW_ERROR(TArgError) << "No such short option " << std::quoted(c_str);
+            THROWER(TArgError) << "No such short option " << std::quoted(c_str);
           }
 
           const TConsumer &consumer = *it->second;
           // NOTE: If we have a value as a short option, we must be the last short option
           if(consumer.HasValue || (value_equals && short_pos == key_size - 1)) {
             if(short_pos != key_size - 1) {
-              THROW_ERROR(TArgError)
+              THROWER(TArgError)
                   << "Short argument with value " << std::quoted(std::string(c_str))
                   << "must may only appear at the end of a block of short arguments";
             }
@@ -128,7 +128,7 @@ void TParser::Parse(const int argc, const char *const argv[]) const {
     } else {
       ++current_positional_count;
       if(consumer->Repitition == TRepetition::ZeroOrOne && current_positional_count > 1) {
-        THROW_ERROR(TArgError) << "Too many instances of positional argument "
+        THROWER(TArgError) << "Too many instances of positional argument "
                                << std::quoted(consumer->Name);
       }
     }

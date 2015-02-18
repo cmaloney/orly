@@ -33,7 +33,7 @@ TTree TTree::Find(string start_dir, const char *marker) {
   bool found_marker = false;
   TTree res = TTree::Find(move(start_dir), marker, found_marker);
   if(!found_marker) {
-    THROW_ERROR(runtime_error) << "Unable to find " << quoted(marker) << " indicating root of tree";
+    THROWER(runtime_error) << "Unable to find " << quoted(marker) << " indicating root of tree";
   }
   return res;
 }
@@ -52,13 +52,13 @@ TTree TTree::Find(string working, const char *marker, bool &found_marker) {
 
 TTree::TTree(vector<string> &&root) : Root(move(root)) {
   if(!IsValidNamespace(Root)) {
-    THROW_ERROR(runtime_error) << "Invalid tree / namespace";
+    THROWER(runtime_error) << "Invalid tree / namespace";
   }
 }
 
 TTree::TTree(const string &name) : Root(SplitNamespace(name)) {
   if(!IsValidNamespace(Root)) {
-    THROW_ERROR(runtime_error) << "Invalid tree / namespace " << quoted(name);
+    THROWER(runtime_error) << "Invalid tree / namespace " << quoted(name);
   }
 }
 

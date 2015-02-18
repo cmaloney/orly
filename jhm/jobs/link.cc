@@ -90,7 +90,7 @@ const unordered_set<TFile *> TLink::GetNeeds() {
       TFile *include_file = Env.TryGetFileFromPath(include);
       assert(include_file);
       if(!include_file) {
-        THROW_ERROR(std::logic_error) << "Internal Error; We didn't find the C++ source file which "
+        THROWER(std::logic_error) << "Internal Error; We didn't find the C++ source file which "
                                          "should be in the src tre...";
       }
       TFile *obj_file =

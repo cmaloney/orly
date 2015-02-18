@@ -53,7 +53,7 @@ using namespace Util;
  * file object. */
 TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const string &name) {
   if(name.size() < 1) {
-    THROW_ERROR(runtime_error) << "Invalid target name " << quoted(name);
+    THROWER(runtime_error) << "Invalid target name " << quoted(name);
   }
 
   // If filename starts with '/' then it's an absolute path rooted at the base of the tree
@@ -71,7 +71,7 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
     } else if(env.GetOut()->Contains(abs_path)) {
       tree = env.GetOut();
     } else {
-      THROW_ERROR(runtime_error)
+      THROWER(runtime_error)
           << "Target " << quoted(name)
           << " not relative to 'jhm' execution in either `src` or `out` directory";
     }
@@ -80,7 +80,7 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
 
   if(!file) {
     // TODO: Do we want to report the relative path to the file here rather than the provided name?
-    THROW_ERROR(runtime_error) << "Error finding target" << quoted(name);
+    THROWER(runtime_error) << "Error finding target" << quoted(name);
   }
 
   // If the file isn't buildable as is, try making it an executable (Add an empty extension to the
@@ -125,7 +125,7 @@ int Main(int argc, char *argv[]) {
   /* abs_root */ {
     auto abs_root = AsStr(*env.GetSrc());
     if(!ExistsPath(abs_root.c_str())) {
-      THROW_ERROR(runtime_error) << "Source directory " << quoted(abs_root) << " does not exist";
+      THROWER(runtime_error) << "Source directory " << quoted(abs_root) << " does not exist";
     }
     IfLt0(chdir(abs_root.c_str()));
   }

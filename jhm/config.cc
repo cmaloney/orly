@@ -38,7 +38,7 @@ TConfig::TConfig(const vector<string> &files) {
 TJson TConfig::GetEntry(const initializer_list<string> &name) const {
   TJson ret;
   if(!TryGetEntry(name, ret)) {
-    THROW_ERROR(TNotFound) << "Didn't find config entry for \"" << Join(name, '.') << '\"';
+    THROWER(TNotFound) << "Didn't find config entry for \"" << Join(name, '.') << '\"';
   }
   return ret;
 }
@@ -56,7 +56,7 @@ static const TJson *ResolveName(const TJson *start,
       string delta_name = '+' + *it;
       if(start->Contains(delta_name)) {
         if(it != end - 1) {
-          THROW_ERROR(TJson::TSyntaxError) << "Explicit delta configuration can only be specified "
+          THROWER(TJson::TSyntaxError) << "Explicit delta configuration can only be specified "
                                               "at the last part of a config option";
         }
         is_delta = true;
@@ -75,7 +75,7 @@ TJson ApplyDelta(const TJson &base, TJson &&delta) {
   TJson ret(base);
 
   if(ret.GetKind() != delta.GetKind()) {
-    THROW_ERROR(TJson::TSyntaxError)
+    THROWER(TJson::TSyntaxError)
         << "Delta configuration must always be between same type. base type: " << ret.GetKind()
         << " delta type: " << delta.GetKind();
   }
@@ -92,7 +92,7 @@ TJson ApplyDelta(const TJson &base, TJson &&delta) {
       that.emplace_back(move(elem));
     }
   } else {
-    THROW_ERROR(TJson::TSyntaxError)
+    THROWER(TJson::TSyntaxError)
         << "Delta configuration is only supported on JSON arrays and objects. Got a "
         << ret.GetKind();
   }
@@ -177,7 +177,7 @@ void TConfig::LoadComputed(const string &filename) {
   assert(!ComputedLocked);
   Base::TJson computed = TJson::Read(filename.c_str());
   if(computed.GetKind() != TJson::Array) {
-    THROW_ERROR(TInvalidConfig) << "Invalid config file. Top level config is not a JSON Array. It is: " << computed.GetKind();
+    THROWER(TInvalidConfig) << "Invalid config file. Top level config is not a JSON Array. It is: " << computed.GetKind();
   }
 
   // Read backwards building up stack
@@ -213,7 +213,7 @@ void TConfig::AddConfig(TJson &&config, bool top) {
   }
 
   if(config.GetKind() != TJson::Object) {
-    THROW_ERROR(TInvalidConfig) << "Invalid config file. Top level config is not a JSON Object. It is: " << config.GetKind();
+    THROWER(TInvalidConfig) << "Invalid config file. Top level config is not a JSON Object. It is: " << config.GetKind();
   }
 
   if(top) {
@@ -236,7 +236,7 @@ void TConfig::AddFile(const string &filename) {
 
 void Jhm::ThrowIfWrongKind(const Base::TJson::TKind expected, const Base::TJson &json) {
   if(json.GetKind() != expected) {
-    THROW_ERROR(TConfig::TInvalidValue) << "Expected a " << expected << " but found a "
+    THROWER(TConfig::TInvalidValue) << "Expected a " << expected << " but found a "
                                         << json.GetKind();
   }
 }

@@ -24,9 +24,9 @@
 #include <base/code_location.h>
 #include <base/demangle.h>
 
-/* Use this macro to throw an error, like this: THROW_ERROR(TSomethingBad) << "more info" <<
+/* Use this macro to throw an error, like this: THROWER(TSomethingBad) << "more info" <<
  * Base::EndOfPart << "yet more info"; */
-#define THROW_ERROR(error_t) (::Base::TThrower<error_t>(HERE_STRING))
+#define THROWER(error_t) (::Base::TThrower<error_t>(HERE_STRING))
 
 namespace Base {
 

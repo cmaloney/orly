@@ -9,7 +9,7 @@
 
 namespace Cmd {
 
-DEFINE_ERROR(TMissingValue, TArgError, "missing argument");
+EXCEPTION(TMissingValue, TArgError, "missing argument");
 
 // Forward declaration.
 class TParser;

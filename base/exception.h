@@ -5,7 +5,7 @@
 
 /* Use this macro to define a new error class, like this:  DEFINE(TSomethingBad, std::runtime_error,
  * "something bad happened"); */
-#define DEFINE_ERROR(error_t, base_t, desc)                                                     \
+#define EXCEPTION(error_t, base_t, desc)                                                        \
   class error_t : public base_t {                                                               \
     public:                                                                                     \
     error_t(const char *msg) : base_t(msg) {}                                                   \

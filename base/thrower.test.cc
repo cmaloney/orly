@@ -70,7 +70,7 @@ FIXTURE(GetParts) {
   }
 }
 
-DEFINE_ERROR(TFoo, invalid_argument, "a fooness has occurred");
+EXCEPTION(TFoo, invalid_argument, "a fooness has occurred");
 
 static const char *Extra1 = "some stuff", *Extra2 = "some more stuff";
 
@@ -78,7 +78,7 @@ template <typename TThrowAs, typename TCatchAs>
 static void ThrowIt() {
   vector<string> parts;
   try {
-    THROW_ERROR(TThrowAs) << Extra1 << "; " << Extra2;
+    THROWER(TThrowAs) << Extra1 << "; " << Extra2;
   } catch(const TCatchAs &ex) {
     GetParts(ex.what(), parts);
   }
@@ -97,5 +97,5 @@ FIXTURE(Typical) {
 }
 
 FIXTURE(StdExcept) {
-  EXPECT_THROW(runtime_error, []() { THROW_ERROR(runtime_error) << "foo bar baz"; });
+  EXPECT_THROW(runtime_error, []() { THROWER(runtime_error) << "foo bar baz"; });
 }

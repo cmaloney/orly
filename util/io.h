@@ -27,7 +27,7 @@
 
 namespace Util {
 
-DEFINE_ERROR(TOpenFileError, std::runtime_error, "could not open file")
+EXCEPTION(TOpenFileError, std::runtime_error, "could not open file")
 
 template <typename TStrm>
 void OpenFile(TStrm &strm, const std::string &path) {
@@ -41,7 +41,7 @@ void OpenFile(TStrm &strm, const std::string &path) {
     char temp[256];
     temp[0] = '\0';
     Util::Strerror(errno, temp, sizeof(temp));
-    THROW_ERROR(TOpenFileError) << std::quoted(path) << "; " << temp;
+    THROWER(TOpenFileError) << std::quoted(path) << "; " << temp;
   }
 }
 
