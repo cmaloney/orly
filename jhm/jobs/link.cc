@@ -20,6 +20,7 @@
 
 #include <jhm/env.h>
 #include <jhm/file.h>
+#include <jhm/jobs/util.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -114,8 +115,7 @@ unordered_set<TFile *> TLink::GetAntiNeeds() { return AntiNeeds; }
 vector<string> TLink::GetCmd() {
   assert(this);
 
-  // TODO: If there are no C++ files, use 'gcc' to link instead of g++
-  vector<string> cmd{"clang++", "-o" + GetSoleOutput()->GetPath()};
+  vector<string> cmd{Jhm::GetCmd<Tools::Link>(Env.GetConfig()), "-o" + GetSoleOutput()->GetPath()};
   for(auto &flag : Env.GetConfig().Read<vector<string>>({"options", "link", "flags"})) {
     cmd.push_back(move(flag));
   }
@@ -134,8 +134,7 @@ vector<string> TLink::GetCmd() {
 }
 
 TTimestamp TLink::GetCmdTimestamp() const {
-  static TTimestamp timestamp = GetTimestampSearchingPath("g++");
-  return timestamp;
+  return Jhm::GetCmdTimestamp<Tools::Link>(Env.GetConfig());
 }
 
 bool TLink::IsComplete() {

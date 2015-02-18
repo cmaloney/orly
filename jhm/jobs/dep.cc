@@ -19,6 +19,7 @@
 #include <jhm/env.h>
 #include <jhm/file.h>
 #include <jhm/jobs/compile_c_family.h>
+#include <jhm/jobs/util.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -66,6 +67,12 @@ vector<string> TDep::GetCmd() {
   if(extensions.size() >= 1) {
     const string &ext = extensions.at(extensions.size() - 1);
     if(ext == "cc" || ext == "c") {
+      if(ext == "cc") {
+        // TODO(cmaloney): Make a helper utility in <jobs/compile_c_family.h> to get the command.
+        cmd.push_back(Jhm::GetCmd<Tools::Cc>(Env.GetConfig()));
+      } else {
+        cmd.push_back(Jhm::GetCmd<Tools::C>(Env.GetConfig()));
+      }
       // TODO: move array append
       for(auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
         cmd.push_back(move(arg));
@@ -76,8 +83,8 @@ vector<string> TDep::GetCmd() {
 }
 
 TTimestamp TDep::GetCmdTimestamp() const {
-  static TTimestamp timestamp = GetTimestampSearchingPath("clang++");
-  return timestamp;
+  // TODO(cmaloney): This is definitely the wrong timestamp...
+  return Jhm::GetCmdTimestamp<Tools::Cc>(Env.GetConfig());
 }
 
 bool TDep::IsComplete() {
@@ -89,7 +96,7 @@ bool TDep::IsComplete() {
   // work to do)
   // TODO: This should be a call to Parse()... But that constructs an istringstream...
   TJson deps = TJson::Read(AsStr(GetSoleOutput()->GetPath()).c_str());
-  for(const TJson &elem: deps.GetArray()) {
+  for(const TJson &elem : deps.GetArray()) {
     TFile *file = Env.TryGetFileFromPath(elem.GetString());
     if(file) {
       // Add to needs. If it's new in the Needs array, we aren't done yet.

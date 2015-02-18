@@ -32,9 +32,7 @@ using namespace Base;
 using namespace Cmd;
 using namespace std;
 
-vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string> &extra_args) {
-  vector<string> cmd{is_cpp ? "clang++" : "clang"};
-  cmd.insert(cmd.end(), extra_args.begin(), extra_args.end());
+vector<string> GetCDeps(const string &filename, vector<string> cmd) {
   cmd.push_back("-M");
   cmd.push_back("-MG");
   cmd.push_back(filename);
@@ -46,7 +44,7 @@ vector<string> GetCDeps(const string &filename, bool is_cpp, const vector<string
     EchoOutput(subproc->TakeStdErrFromChild());
     // TODO: Join the arguments some less-mistrewn way than ' '
     THROWER(runtime_error) << "Non-zero (" << ret << ") exit from command "
-                               << quoted(AsStr(Join(cmd, ' ')));
+                           << quoted(AsStr(Join(cmd, ' ')));
   }
 
   // Read in the whole file / all the text from gcc
@@ -122,11 +120,8 @@ TJson ToJson(vector<string> &&that) {
 void MakeDepFile(const string &filename, const string &out_name, const vector<string> &extra_args) {
   TJson deps;
   // Check for extension to determine how we need to scan for dependencies
-  if(EndsWith(filename, ".c")) {
-    deps = ToJson(GetCDeps(filename, false, extra_args));
-
-  } else if(EndsWith(filename, ".cc")) {
-    deps = ToJson(GetCDeps(filename, true, extra_args));
+  if(EndsWith(filename, ".c") || EndsWith(filename, ".cc")) {
+    deps = ToJson(GetCDeps(filename, extra_args));
   } else {
     THROWER(runtime_error) << "Unknown file extension: " << quoted(filename);
   }
@@ -142,6 +137,7 @@ void MakeDepFile(const string &filename, const string &out_name, const vector<st
 struct TOptions {
   std::string Input;
   std::string Output;
+  std::string Tool;
   std::vector<std::string> MiscFlags;
 };
 

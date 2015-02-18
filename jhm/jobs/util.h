@@ -20,12 +20,36 @@
 
 #include <unordered_set>
 
-#include <base/opt.h>
+#include <jhm/config.h>
 #include <jhm/naming.h>
+#include <util/time.h>
 
 namespace Jhm {
 class TFile;
 class TEnv;
+
+enum class Tools { C, Cc, Link };
+
+// Cached lookup of the cmd from the config
+template <Tools Tool>
+std::string GetCmd(const TConfig &config);
+
+template <>
+std::string GetCmd<Tools::C>(const TConfig &config);
+
+template <>
+std::string GetCmd<Tools::Cc>(const TConfig &config);
+
+template <>
+std::string GetCmd<Tools::Link>(const TConfig &config);
+
+// Caches the timestamp for the given command for all calls using
+// the given key.
+template <Tools Tool>
+Util::TTimestamp GetCmdTimestamp(const TConfig &config) {
+  static Util::TTimestamp timestamp = Util::GetTimestampSearchingPath(GetCmd<Tool>(config));
+  return timestamp;
+}
 
 std::unordered_set<TFile *> GetOutputSet(const std::vector<std::vector<std::string>> &out_exts,
                                          TEnv &env,

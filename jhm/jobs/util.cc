@@ -24,6 +24,32 @@ using namespace Jhm;
 using namespace std;
 using namespace Util;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+
+template <>
+std::string Jhm::GetCmd<Tools::C>(const TConfig &config) {
+  static const std::string cmd = config.Read<std::string>({"tools", "c"});
+  assert(cmd == config.Read<std::string>({"tools", "c"}));
+  return cmd;
+}
+
+template <>
+std::string Jhm::GetCmd<Tools::Cc>(const TConfig &config) {
+  static const std::string cmd = config.Read<std::string>({"tools", "c++"});
+  assert(cmd == config.Read<std::string>({"tools", "c++"}));
+  return cmd;
+}
+
+template <>
+std::string Jhm::GetCmd<Tools::Link>(const TConfig &config) {
+  static const std::string cmd = config.Read<std::string>({"tools", "link"});
+  assert(cmd == config.Read<std::string>({"tools", "link"}));
+  return cmd;
+}
+
+#pragma clang diagnostic pop
+
 unordered_set<TFile *> Jhm::GetOutputSet(const vector<vector<string>> &out_exts,
                                          TEnv &env,
                                          const TRelPath &input) {

@@ -19,6 +19,7 @@
 #include <base/split.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
+#include <jhm/jobs/util.h>
 
 using namespace Base;
 using namespace Jhm;
@@ -104,7 +105,10 @@ vector<string> TCompileCFamily::GetCmd() {
   // add output, input filenames
   // Tell GCC we're only compiling to a .o
   vector<string> cmd{
-      IsCpp ? "clang++" : "clang", "-o" + GetSoleOutput()->GetPath(), GetInput()->GetPath(), "-c"};
+      IsCpp ? Jhm::GetCmd<Tools::Cc>(Env.GetConfig()) : Jhm::GetCmd<Tools::C>(Env.GetConfig()),
+      "-o" + GetSoleOutput()->GetPath(),
+      GetInput()->GetPath(),
+      "-c"};
 
   /* Add standard arguments */ {
     // TODO: Really need an insertion move here...
@@ -119,10 +123,8 @@ vector<string> TCompileCFamily::GetCmd() {
 }
 
 TTimestamp TCompileCFamily::GetCmdTimestamp() const {
-  static TTimestamp gcc_timestamp = GetTimestampSearchingPath("clang");
-  static TTimestamp gpp_timestamp = GetTimestampSearchingPath("clang++");
-
-  return IsCpp ? gpp_timestamp : gcc_timestamp;
+  return IsCpp ? Jhm::GetCmdTimestamp<Tools::Cc>(Env.GetConfig())
+               : Jhm::GetCmdTimestamp<Tools::C>(Env.GetConfig());
 }
 
 bool TCompileCFamily::IsComplete() {

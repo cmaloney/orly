@@ -1,4 +1,9 @@
 {
+  "tools": {
+    "c": "clang",
+    "c++": "clang++",
+    "link": "clang++"
+  },
   "targets": [
       "jhm/jhm",
       "jhm/make_dep_file",
