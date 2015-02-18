@@ -9,18 +9,19 @@
     "+c++": [
       "-O3",
       "-DNDEBUG",
-      "-g1",
       "-march=native",
       "-mtune=native",
       "-Wno-unused",
       "-Wno-unused-parameter",
-      "-Wno-unused-result"
+      "-Wno-unused-result",
+      "-flto"
     ],
     "link": {
       "+flags": [
         "-O3",
         "-flto",
-        "-g1"
+        "-march=native",
+        "-mtune=native"
       ]
     }
   }
