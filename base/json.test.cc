@@ -41,32 +41,6 @@ static TJson Parse(TArg &&arg) {
   return std::move(result);
 }
 
-#if 0
-// Unicode isn't currently supported
-/* Convert a c-string to a JSON string. */
-static TJson ToString(const char *text) {
-  string temp;
-  /* extra */ {
-    ostringstream strm;
-    strm << '"' << text << '"';
-    temp = strm.str();
-  }
-  TJson json;
-  /* extra */ {
-    istringstream strm(temp);
-    strm >> json;
-  }
-  return move(json);
-}
-
-FIXTURE(HexCode) {
-  EXPECT_EQ(ToString("2 \\u002A 2 \\u003d 4"), "2 * 2 = 4");
-  EXPECT_EQ(ToString("$\\u0024$"), "$$$");
-  EXPECT_EQ(ToString("$\\u00a2$"), "$¢$");
-  EXPECT_EQ(ToString("$\\u20AC$"), "$€$");
-}
-#endif
-
 template <typename TTpl, size_t... Idx>
 vector<TJson::TKind> GetKindsImpl(const index_sequence<Idx...> &) {
   return vector<TJson::TKind>{TJson(typename tuple_element<Idx, TTpl>::type()).GetKind()...};

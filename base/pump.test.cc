@@ -36,29 +36,6 @@ static const char *Msg = "Mofo the Psychic Gorilla!";
 
 static constexpr size_t MsgSize = 25;
 
-// Disable because the test harness sees the uint8_t* and tries to print it as a c-string
-// which means calling strlen() which reads past the end of the buffer...
-#if 0
-FIXTURE(GrowingPool) {
-  TGrowingPool<1024> pool;
-  auto b1 = pool.Allocate();
-  auto b2 = pool.Allocate();
-  auto b3 = pool.Allocate();
-  EXPECT_NE(b1, b2);
-  EXPECT_NE(b2, b3);
-  EXPECT_NE(b1, b3);
-
-  pool.Recycle(b2);
-  auto b4 = pool.Allocate();
-  EXPECT_EQ(b2, b4);
-
-  pool.Recycle(b3);
-  pool.Recycle(b1);
-  EXPECT_EQ(pool.Allocate(), b3);
-  EXPECT_EQ(pool.Allocate(), b1);
-}
-#endif
-
 FIXTURE(OnePipeManyCycles) {
   assert(strlen(Msg) == MsgSize);
   const size_t cycle_repeat_count = 300;
