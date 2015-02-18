@@ -21,13 +21,17 @@ common_flags=(
   # Base compile
   -std=c++1y
   -Wall -Werror -Wextra -Wold-style-cast
-
   # Optimize
   -O3 -DNDEBUG
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
 
   # Enable threads
   -pthread
+
+  # Static resulting binary
+  -static
+  # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
+  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
   )
 
 OS=`uname -s`
