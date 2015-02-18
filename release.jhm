@@ -5,7 +5,7 @@
       ".git"
     ]
   },
-  "cmd": {
+  "options": {
     "+c++": [
       "-O3",
       "-DNDEBUG",

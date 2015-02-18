@@ -5,7 +5,7 @@
       ".git"
     ]
   },
-  "cmd": {
+  "options": {
     "+c++" : [
       "-DDEBUG",
       "-g",

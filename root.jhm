@@ -3,7 +3,7 @@
       "jhm/jhm",
       "jhm/make_dep_file",
     ],
-  "cmd": {
+  "options": {
     "c++" : [
       "-std=c++1y",
       "-Wall",
