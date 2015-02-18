@@ -17,8 +17,7 @@
       "-Wold-style-cast",
       "-Wglobal-constructors",
       "-pthread",
-      "-fcolor-diagnostics",
-      "-DTEST_OUTPUT_DIR=\"/tmp/\"",
+      "-fcolor-diagnostics"
     ],
     "link": {
       "flags": [
