@@ -59,7 +59,7 @@ std::enable_if_t<!HasGetDesc<TError>(), const char *> GetErrorDescHelper() {
 template <typename TError>
 class TThrower final {
   public:
-  MOVE_ONLY(TThrower);
+  MOVE_ONLY(TThrower)
 
   // Begin the error message with the code location and the description provided by TError (if any).
   TThrower(const char *code_location) : AtEndOfPart(true) {

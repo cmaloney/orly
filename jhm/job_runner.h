@@ -34,14 +34,8 @@ namespace Jhm {
 
 class TJob;
 
-class TJobRunner {
-  NO_MOVE(TJobRunner);
-  NO_COPY(TJobRunner);
-
-  public:
-  class TResult {
-    public:
-    MOVE_ONLY(TResult);
+struct TJobRunner {
+  struct TResult {
     TResult(TJob *job, int exit_code, Base::TFd &&stdout, Base::TFd &&stderr)
         : ExitCode(exit_code), Job(job), Stdout(std::move(stdout)), Stderr(std::move(stderr)) {}
 
@@ -52,7 +46,6 @@ class TJobRunner {
 
   using TResults = std::vector<TResult>;
 
-  public:
   TJobRunner(uint64_t worker_count, bool print_cmd);
   ~TJobRunner();
 

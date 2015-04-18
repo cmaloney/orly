@@ -7,7 +7,7 @@
 namespace Base {
 
 class TNotifyFd {
-  NO_COPY(TNotifyFd);
+  NO_COPY(TNotifyFd)
 
   public:
   TNotifyFd() { TFd::Pipe(Read, Write); }

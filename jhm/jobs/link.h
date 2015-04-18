@@ -46,5 +46,7 @@ class TLink final : public TJob {
   TSet<TFile *> ObjToCheck;
   TSet<TFile *> ObjFiles;
 };
-}
-}
+
+} // Job
+
+} // Jhm

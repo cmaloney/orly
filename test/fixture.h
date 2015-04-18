@@ -39,7 +39,7 @@ namespace Test {
 /* A fixture is a group of unit tests which use the same execution
    environment to exercise some particular aspect of a test. */
 struct TFixture {
-  NO_COPY(TFixture);
+  NO_COPY(TFixture)
 
   typedef void (*TFunc)();
 

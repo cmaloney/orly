@@ -30,7 +30,7 @@ const char *Strerror(int errno_value, char *buf, size_t buf_size) {
   assert(buf_size);
 
 /* The man page for strerror_r explains all of this ugliness. */
-
+#pragma clang diagnostic ignored "-Wundef"
 #if((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE) || __APPLE__
   /* This is the XSI-compliant version of strerror_r(). */
   int err = strerror_r(errno_value, buf, buf_size);

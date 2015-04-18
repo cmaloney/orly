@@ -45,8 +45,8 @@ TSet<TFile *> Jhm::FindTests(TEnv &env) {
   // contains 'test')
   // Build a set of all the tests which could possibly exist.
   class test_walker_t final : public TDirWalker {
-    NO_COPY(test_walker_t);
-    NO_MOVE(test_walker_t);
+    NO_COPY(test_walker_t)
+    NO_MOVE(test_walker_t)
 
     public:
     test_walker_t(TEnv &env_, TSet<TFile *> &out) : Env(env_), Out(out) {

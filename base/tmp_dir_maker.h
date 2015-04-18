@@ -31,7 +31,7 @@ namespace Base {
 
 /* Creates a directory path on construction and destroys it on destruction. */
 class TTmpDirMaker final {
-  NO_COPY(TTmpDirMaker);
+  NO_COPY(TTmpDirMaker)
 
   public:
   /* Ensures the dir exists. */

@@ -27,8 +27,8 @@ class TRelPath;
 // Trees contain files in relative paths.
 class TTree {
   public:
-  DEFAULT_MOVE(TTree);
-  DEFAULT_COPY(TTree);
+  DEFAULT_MOVE(TTree)
+  DEFAULT_COPY(TTree)
 
   /* Locate a tree by finding a designated marker name. If the marker isn't found in the first case
      we throw
@@ -62,8 +62,8 @@ class TTree {
 // Relative paths
 class TRelPath {
   public:
-  DEFAULT_MOVE(TRelPath);
-  DEFAULT_COPY(TRelPath);
+  DEFAULT_MOVE(TRelPath)
+  DEFAULT_COPY(TRelPath)
 
   /* Construct off a path which isn't prefixed with a tree. Explicit because the programmer should
      really pay
@@ -85,4 +85,5 @@ template <>
 struct hash<Jhm::TRelPath> {
   size_t operator()(const Jhm::TRelPath &that) const;
 };
-}
+
+} // Base

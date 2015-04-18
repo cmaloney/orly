@@ -102,8 +102,8 @@ class TJobFactory {
 
 class TEnv {
   public:
-  NO_COPY(TEnv);
-  NO_MOVE(TEnv);
+  NO_COPY(TEnv)
+  NO_MOVE(TEnv)
 
   using TFileCheckFunc = std::function<bool(TFile *)>;
 

@@ -48,7 +48,7 @@ namespace Base {
    file desciptor, but it will not attempt to close it. */
 class TFd {
   public:
-  NO_COPY(TFd);
+  NO_COPY(TFd)
 
   /* Default-construct as an illegal value (-1). */
   TFd();

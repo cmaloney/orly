@@ -42,13 +42,13 @@
 
 /* Use this macro to make a class copyable only / not movable */
 #define COPY_ONLY(cls) \
-  NO_MOVE(cls);        \
-  DEFAULT_COPY(cls);
+  NO_MOVE(cls)         \
+  DEFAULT_COPY(cls)
 
 /* Use this macro to make a class movable only / not copyable */
 #define MOVE_ONLY(cls) \
-  NO_COPY(cls);        \
-  DEFAULT_MOVE(cls);
+  NO_COPY(cls)         \
+  DEFAULT_MOVE(cls)
 
 /* Use this macro to disable construction of a class, struct, or union,
    essentially turning the type into a namespace with accessibility

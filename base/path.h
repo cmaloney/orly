@@ -58,8 +58,8 @@ class TPath {
   using TStrList = std::vector<TStr>;
 
   /* Copy and move construction is legal. */
-  DEFAULT_COPY(TPath);
-  DEFAULT_MOVE(TPath);
+  DEFAULT_COPY(TPath)
+  DEFAULT_MOVE(TPath)
 
   /* Construct off a provided string, parsing it into applicable chunks. TPath always ends up valid.
    */
@@ -115,4 +115,5 @@ template <>
 struct hash<Base::TPath> {
   size_t operator()(const Base::TPath &that) const;
 };
-}
+
+} // Base

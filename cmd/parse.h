@@ -28,7 +28,7 @@ void ParseWithStandard(TParser &parser,
 
 // Compose together arbitrary argument collections for precise control.
 class TParser {
-  NO_COPY(TParser);
+  NO_COPY(TParser)
 
   public:
   TParser() = default;
@@ -110,4 +110,4 @@ TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char *co
   return ret;
 }
 
-}  // namespce Cmd;
+}  // Cmd

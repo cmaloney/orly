@@ -40,5 +40,5 @@ class TDep final : public TJob {
   TEnv &Env;
   TSet<TFile *> Needs;
 };
-}
-}
+} // Job
+} // Jhm

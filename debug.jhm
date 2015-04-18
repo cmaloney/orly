@@ -12,14 +12,11 @@
       "-Weverything",
       "-Wno-c++98-compat",
       "-Wno-c++98-compat-pedantic",
-      "-Wno-extra-semi",
-      "-Wno-newline-eof",
       "-Wno-padded",
       "-Wno-missing-prototypes",
       "-Wno-weak-vtables",
       "-Wno-disabled-macro-expansion",
       "-Wno-sign-conversion",
-      "-Wno-undef"
     ]
     }
   }

@@ -99,8 +99,8 @@ struct TArgs {
                 "Options object must be default constructible");
 
   struct TProcessor : public TArgInfo {
-    DEFAULT_COPY(TProcessor);
-    DEFAULT_MOVE(TProcessor);
+    DEFAULT_COPY(TProcessor)
+    DEFAULT_MOVE(TProcessor)
     using TConsume = std::function<void(TOptions *options, const std::string &value)>;
     // TODO(cmaloney): Use inheritance/virtual functions instead of std::function/function pointers?
     // What is the tradeoff? Where does one beat the other?

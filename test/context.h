@@ -28,8 +28,8 @@ namespace Test {
 // Stack based logging aggregators. Top of the stack aggregates all
 // log results.
 class TContext {
-  NO_COPY(TContext);
-  NO_MOVE(TContext);
+  NO_COPY(TContext)
+  NO_MOVE(TContext)
 
   public:
   class TLog;
@@ -58,7 +58,7 @@ class TContext {
     public:
     // NOTE(cmaloney): Semantically we could support a copy, but in regular
     // usage I don't think it is necessary.
-    MOVE_ONLY(TLog);
+    MOVE_ONLY(TLog)
 
     ~TLog();
 
@@ -95,4 +95,5 @@ class TContext {
   TContext *Parent = nullptr;
   uint64_t FailureCount = 0, PassCount = 0;
 };
-}
+
+} // Test

@@ -46,5 +46,7 @@ class TCompileCFamily final : public TJob {
   bool IsCpp;
   TFile *Need;
 };
-}
-}
+
+}  // Job
+
+}  // Jhm

@@ -23,7 +23,7 @@ namespace Util {
 
 /* RAII for installing a signal handler. */
 class TSignalHandlerInstaller {
-  NO_COPY(TSignalHandlerInstaller);
+  NO_COPY(TSignalHandlerInstaller)
 
   public:
   /* Set the mask to the given set. */

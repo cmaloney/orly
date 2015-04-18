@@ -55,13 +55,13 @@ struct TJsonReader;
 // Combines multiple configs into one coherent config
 // Also resolves the config delta notation.
 class TConfig final {
-  NO_COPY(TConfig);
-  NO_MOVE(TConfig);
+  NO_COPY(TConfig)
+  NO_MOVE(TConfig)
 
   public:
-  EXCEPTION(TInvalidValue, std::runtime_error, nullptr);
-  EXCEPTION(TNotFound, std::runtime_error, nullptr);
-  EXCEPTION(TInvalidConfig, std::runtime_error, nullptr);
+  EXCEPTION(TInvalidValue, std::runtime_error, nullptr)
+  EXCEPTION(TNotFound, std::runtime_error, nullptr)
+  EXCEPTION(TInvalidConfig, std::runtime_error, nullptr)
 
   explicit TConfig();
   TConfig(const std::string &filename);

@@ -34,8 +34,8 @@ class TFile;
 
 /* Finds all the currently buildable leaves and queues them for the subproc_runner to fire off. */
 class TWorkFinder {
-  NO_COPY(TWorkFinder);
-  NO_MOVE(TWorkFinder);
+  NO_COPY(TWorkFinder)
+  NO_MOVE(TWorkFinder)
 
   public:
   TWorkFinder(uint64_t worker_count,

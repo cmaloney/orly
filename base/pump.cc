@@ -18,6 +18,7 @@
 
 #include <unistd.h>
 
+#pragma clang diagnostic ignored "-Wundef"
 #if __APPLE__
 #include <base/pump_kqueue.h>
 #else
@@ -33,7 +34,7 @@ using namespace std;
 using namespace Util;
 
 class Pump::TPipe {
-  NO_COPY(TPipe);
+  NO_COPY(TPipe)
 
   public:
   TPipe(TPump *pump, TFd &read, TFd &write) : Pump(pump) {

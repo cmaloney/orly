@@ -109,7 +109,7 @@ namespace Pump {
 // can't get lost.
 template <uint64_t BlockSize>
 class TGrowingPool {
-  NO_COPY(TGrowingPool);
+  NO_COPY(TGrowingPool)
 
   public:
   using TPtr = std::unique_ptr<uint8_t[]>;
@@ -148,7 +148,7 @@ class TPipe;
 
 /* A pump for pipes. */
 class TPump final {
-  NO_COPY(TPump);
+  NO_COPY(TPump)
 
   public:
   /* Construct with no pipes. */

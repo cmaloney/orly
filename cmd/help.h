@@ -60,4 +60,5 @@ template <typename... TOptions>
 void PrintHelp(const char *program_name, const TOptions &... args) {
   PrintHelp(program_name, ExtractArgVector(args...));
 }
-}
+
+} // Cmd

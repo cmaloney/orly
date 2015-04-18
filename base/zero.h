@@ -28,4 +28,5 @@ TVal &Zero(TVal &val) {
   memset(&val, 0, sizeof(val));
   return val;
 }
-}
+
+}  // Base
