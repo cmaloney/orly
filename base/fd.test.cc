@@ -32,15 +32,15 @@ using namespace Base;
 using namespace Util;
 
 static const char *ExpectedData = "hello";
-static const size_t ExpectedSize = 5;
+static const ssize_t ExpectedSize = 5;
 
-static const size_t MaxActualSize = 1024;
+static const ssize_t MaxActualSize = 1024;
 static char ActualData[MaxActualSize];
 
 static void Transact(const TFd &readable, const TFd &writeable) {
   WriteExactly(writeable, ExpectedData, ExpectedSize);
   Zero(ActualData);
-  size_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
+  ssize_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
   if(EXPECT_EQ(actual_size, ExpectedSize)) {
     EXPECT_FALSE(strcmp(ActualData, ExpectedData));
   }
@@ -48,7 +48,7 @@ static void Transact(const TFd &readable, const TFd &writeable) {
 
 static void CheckClose(const TFd &readable, TFd &writeable) {
   writeable.Reset();
-  size_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
+  ssize_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
   EXPECT_FALSE(actual_size);
 }
 

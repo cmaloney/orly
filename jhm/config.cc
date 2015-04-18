@@ -136,7 +136,7 @@ void TConfig::AddComputed(TJson &&config) {
   assert(!ComputedLocked);
 
   if(!ComputedStart) {
-    ComputedStart = Config.size();
+    ComputedStart = ssize_t(Config.size());
   }
 
   AddConfig(move(config));

@@ -116,8 +116,8 @@ void TFd::Pipe(TFd &readable, TFd &writeable) {
 std::string Base::ReadAll(TFd &&fd) {
   std::string out;
   uint8_t buf[4096];
-  while(size_t read = Util::ReadAtMost(fd, buf, 4096)) {
-    out.append(reinterpret_cast<char *>(buf), read);
+  while(ssize_t read = Util::ReadAtMost(fd, buf, 4096)) {
+    out.append(reinterpret_cast<char *>(buf), size_t(read));
   }
 
   return out;

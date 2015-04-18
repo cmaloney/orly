@@ -16,7 +16,6 @@
       "-Wno-missing-prototypes",
       "-Wno-weak-vtables",
       "-Wno-disabled-macro-expansion",
-      "-Wno-sign-conversion",
     ]
     }
   }

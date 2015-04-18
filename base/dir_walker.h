@@ -46,7 +46,7 @@ class TDirWalker {
 
     /* Our current depth in the walk.  The entry given as the root is at depth 0, its
        immediate children are at depth 1, etc. */
-    uint16_t Depth;
+    short Depth;
 
     /* The id of the group to which this entry belongs. */
     gid_t GroupId;

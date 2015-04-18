@@ -94,7 +94,7 @@ void Base::EchoOutput(TFd &&fd) {
   uint8_t buf[4096];
 
   // Copy everything to cout error message
-  while(size_t read = ReadAtMost(fd, buf, 4096)) {
-    WriteExactly(STDOUT_FILENO, buf, read);
+  while(ssize_t read = ReadAtMost(fd, buf, 4096)) {
+    WriteExactly(STDOUT_FILENO, buf, size_t(read));
   }
 }

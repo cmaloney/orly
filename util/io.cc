@@ -28,11 +28,11 @@ using namespace std;
 
 bool Util::IsValidFd(int fd) { return fcntl(fd, F_GETFD) >= 0; }
 
-size_t Util::ReadAtMost(int fd, void *buf, size_t max_size) {
+ssize_t Util::ReadAtMost(int fd, void *buf, size_t max_size) {
   return IfLt0(read(fd, buf, max_size));
 }
 
-size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
+ssize_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
   if(max_size == 0) {
     return 0;
   }
@@ -40,33 +40,33 @@ size_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
 }
 
 bool Util::TryReadExactly(int fd, void *buf, size_t size) {
-  char *csr = static_cast<char *>(buf), *end = csr + size;
+  char *cursor = static_cast<char *>(buf), *end = cursor + size;
   ;
-  while(csr < end) {
-    size_t actual_size = ReadAtMost(fd, csr, end - csr);
+  while(cursor < end) {
+    ssize_t actual_size = ReadAtMost(fd, cursor, size_t(end - cursor));
     if(!actual_size) {
-      if(csr > buf) {
+      if(cursor > buf) {
         throw TUnexpectedEnd();
       }
       return false;
     }
-    csr += actual_size;
+    cursor += actual_size;
   }
   return true;
 }
 
 bool Util::TryWriteExactly(int fd, const void *buf, size_t size) {
-  const char *csr = static_cast<const char *>(buf), *end = csr + size;
+  const char *cursor = static_cast<const char *>(buf), *end = cursor + size;
   ;
-  while(csr < end) {
-    size_t actual_size = WriteAtMost(fd, csr, end - csr);
+  while(cursor < end) {
+    ssize_t actual_size = WriteAtMost(fd, cursor, size_t(end - cursor));
     if(!actual_size) {
-      if(csr > buf) {
+      if(cursor > buf) {
         throw TUnexpectedEnd();
       }
       return false;
     }
-    csr += actual_size;
+    cursor += actual_size;
   }
   return true;
 }

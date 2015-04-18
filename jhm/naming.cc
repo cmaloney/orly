@@ -77,7 +77,7 @@ TPath TTree::GetAbsPath(TRelPath rel_path) const { return GetAbsPath(move(rel_pa
 TRelPath TTree::GetRelPath(TPath &&path) const {
   assert(Contains(path));
 
-  path.Namespace.erase(path.Namespace.begin(), path.Namespace.begin() + Root.size());
+  path.Namespace.erase(path.Namespace.begin(), path.Namespace.begin() + ssize_t(Root.size()));
   return TRelPath(move(path));
 }
 

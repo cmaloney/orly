@@ -42,7 +42,7 @@ FIXTURE(OnePipeManyCycles) {
   size_t i;
   for(i = 0; i < cycle_repeat_count; ++i) {
     const size_t msg_repeat_count = 300, expected_size = msg_repeat_count * MsgSize;
-    size_t actual_size = 0;
+    ssize_t actual_size = 0;
     TPump pump;
     TFd read, write;
     pump.NewPipe(read, write);
@@ -52,7 +52,7 @@ FIXTURE(OnePipeManyCycles) {
       char buf[MsgSize / 3];
       for(;;) {
         ssize_t size;
-        IfLt0(size = ReadAtMost(read, buf, sizeof(buf)));
+        size = IfLt0(ReadAtMost(read, buf, sizeof(buf)));
         if(!size) {
           break;
         }
@@ -82,7 +82,7 @@ FIXTURE(OneCycleManyPipes) {
   for(size_t i = 0; i < 300; ++i) {
     pipes.push_back(thread([&pump, &success_count, i] {
       const size_t msg_repeat_count = 300, expected_size = msg_repeat_count * MsgSize;
-      size_t actual_size = 0;
+      ssize_t actual_size = 0;
       TFd read, write;
       pump.NewPipe(read, write);
       thread reader([&actual_size, &read] {

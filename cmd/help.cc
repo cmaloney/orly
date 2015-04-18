@@ -20,14 +20,11 @@ static void Indent(uint64_t pad_size) {
   }
 }
 
-static void PrintIndented(uint64_t line_size,
-                          uint64_t pad_size,
-                          const char *text,
-                          uint64_t pre_pad) {
+static void PrintIndented(uint64_t line_size, uint64_t pad_size, const char *text, uint64_t pre_pad) {
   assert(pad_size < line_size);
 
   // Calculate text chunk length per line.
-  const uint64_t text_per_line = line_size - pad_size;
+  const size_t text_per_line = line_size - pad_size;
 
   // We can write the help on the same line if the option isn't too long.
   bool pre_padded = false;
@@ -39,8 +36,8 @@ static void PrintIndented(uint64_t line_size,
   }
 
   // TODO(cmaloney): strlen is not going to go over well with internationalization eventually.
-  const uint64_t text_len = strlen(text);
-  for(uint64_t offset = 0; offset < text_len; offset += text_per_line) {
+  const size_t text_len = strlen(text);
+  for(size_t offset = 0; offset < text_len; offset += text_per_line) {
     if(pre_padded) {
       pre_padded = false;
     } else {
@@ -72,11 +69,11 @@ void Cmd::PrintHelp(const char *program_name, const std::vector<const TArgInfo *
   // TODO(cmaloney): All this code needs to be heavily reworked.
   struct winsize ws;
   ioctl(0, TIOCGWINSZ, &ws);
-  auto line_size = std::max(ws.ws_col - 1, 80);
+  const uint64_t line_size = uint64_t(std::max(ws.ws_col - 1, 80));
 
   // TODO(cmaloney): Calculate this based on the max length of a
   // parameter name, bounded by a longest length.
-  auto pad_size = 20;
+  const size_t pad_size = 20u;
 
   // TODO(cmaloney): Overview of command text description
 
@@ -120,7 +117,7 @@ void Cmd::PrintHelp(const char *program_name, const std::vector<const TArgInfo *
       first_named = false;
     }
 
-    auto prepad_len = 0;
+    uint64_t prepad_len = 0u;
     bool first_name = true;
     for(const auto &name : arg->Names) {
       if(first_name) {

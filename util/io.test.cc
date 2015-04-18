@@ -36,7 +36,7 @@ using namespace Util;
 
 static const char *ExpectedData = "Mofo the Psychic Gorilla";
 
-static const size_t ExpectedSize = 24;
+static const ssize_t ExpectedSize = 24;
 
 static const size_t MaxActualSize = 1024;
 static char ActualData[MaxActualSize];
@@ -49,7 +49,7 @@ FIXTURE(ReadAtMost) {
   TFd::Pipe(readable, writeable);
   WriteExactly(writeable, ExpectedData, ExpectedSize);
   Zero(ActualData);
-  size_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
+  ssize_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
   if(EXPECT_EQ(actual_size, ExpectedSize)) {
     EXPECT_FALSE(strcmp(ActualData, ExpectedData));
   }
@@ -63,7 +63,7 @@ FIXTURE(WriteAtMost) {
   TFd readable, writeable;
   TFd::Pipe(readable, writeable);
   readable.Reset();
-  size_t actual_size = WriteAtMost(writeable, 0, 0);
+  ssize_t actual_size = WriteAtMost(writeable, 0, 0);
   EXPECT_FALSE(actual_size);
 #ifdef __linux__
   bool caught_broken_pipe = false;

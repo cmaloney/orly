@@ -54,12 +54,12 @@ bool IsValidFd(int fd);
    std::system_error if anything goes wrong or if they are interrupted. */
 
 /* Read at most 'max_size' bytes into 'buf', throwing appropriately. */
-size_t ReadAtMost(int fd, void *buf, size_t max_size);
+ssize_t ReadAtMost(int fd, void *buf, size_t max_size);
 
 /* Write at most 'max_size' bytes from 'buf', throwing appropriately.
    If the fd is a socket, we will do this operation with send() instead of write(),
    to suppress SIGPIPE. */
-size_t WriteAtMost(int fd, const void *buf, size_t max_size);
+ssize_t WriteAtMost(int fd, const void *buf, size_t max_size);
 
 /* The 'TryExactly' versions of read and write will call the OS functions
    repeatedly until the full number of bytes is transferred.  If the first OS call

@@ -82,7 +82,7 @@ bool TPath::EndsWith(const vector<string> &ext) const {
   if(Extension.size() < ext.size()) {
     return false;
   }
-  return equal(ext.begin(), ext.end(), Extension.end() - ext.size());
+  return equal(ext.begin(), ext.end(), Extension.end() - ssize_t(ext.size()));
 }
 
 vector<string> TPath::ToNamespaceIncludingName() const {
@@ -124,9 +124,9 @@ vector<string> Base::SplitNamespace(const string &dir) {
     return ret;
   }
 
-  auto start = dir.front() == '/' ? 1 : 0;
+  uint64_t start = dir.front() == '/' ? 1 : 0;
 
-  auto end = dir.size() - start;
+  uint64_t end = dir.size() - start;
   if(dir.size() > 1 && dir.back() == '/') {
     end -= 1;
   }
