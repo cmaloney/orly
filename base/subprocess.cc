@@ -60,13 +60,13 @@ void TSubprocess::Exec(const vector<string> &cmd) {
   // so no big worries.
   // Build an array
 
-  const char *argv[cmd.size() + 1];
+  unique_ptr<const char*[]> argv(new const char*[cmd.size() + 1]);
   argv[cmd.size()] = nullptr;
   for(uint64_t i = 0; i < cmd.size(); ++i) {
     argv[i] = cmd[i].c_str();
   }
   // NOTE: const_cast is unsafe. In this case though, we're going out of existence, so who cares.
-  IfLt0(execvp(cmd[0].c_str(), const_cast<char **>(argv)));
+  IfLt0(execvp(cmd[0].c_str(), const_cast<char **>(argv.get())));
   throw;
 }
 

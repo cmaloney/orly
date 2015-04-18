@@ -25,7 +25,7 @@
 using namespace Base;
 
 void Base::Unreachable(const TCodeLocation &loc) {
-  PrintBacktrace(100);
+  PrintBacktrace();
 
   std::cout << "Reached unreachable location: " << loc << std::endl;
 

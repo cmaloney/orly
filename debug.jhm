@@ -17,8 +17,6 @@
       "-Wno-padded",
       "-Wno-missing-prototypes",
       "-Wno-weak-vtables",
-      "-Wno-vla",
-      "-Wno-vla-extension",
       "-Wno-disabled-macro-expansion",
       "-Wno-sign-conversion",
       "-Wno-undef"

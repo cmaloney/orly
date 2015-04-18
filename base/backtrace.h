@@ -25,10 +25,7 @@
 
 namespace Base {
 
-void PrintBacktrace(int max_frame_count);
-
-/* Generate a backtrace one line at a time, calling the callback once for each backtrace frame. */
-void GenBacktrace(int max_frame_count, const std::function<void(const std::string &)> &cb);
+void PrintBacktrace();
 
 void SetBacktraceOnTerminate();
 

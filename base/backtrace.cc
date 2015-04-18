@@ -26,11 +26,9 @@
 using namespace Base;
 using namespace std;
 
-void Base::PrintBacktrace(int max_frame_count) {
-  GenBacktrace(max_frame_count, [](const string &msg) { cout << msg << endl; });
-}
-
-void Base::GenBacktrace(int max_frame_count, const function<void(const string &)> &cb) {
+/* Generate a backtrace one line at a time, calling the callback once for each backtrace frame. */
+template <int max_frame_count>
+void GenBacktrace(const std::function<void(const std::string &)> &cb) {
   void *frames[max_frame_count + 1];
   int frame_count = backtrace(frames, max_frame_count + 1);
   char **symbols = backtrace_symbols(frames, frame_count);
@@ -45,6 +43,11 @@ void Base::GenBacktrace(int max_frame_count, const function<void(const string &)
     }
     cb(frame_print);
   }
+}
+
+void Base::PrintBacktrace() {
+  // 200 is fairly arbitrary. Hopefully long enough.
+  GenBacktrace<200>([](const string &msg) { cout << msg << endl; });
 }
 
 void Base::SetBacktraceOnTerminate() {
@@ -62,7 +65,7 @@ void Base::SetBacktraceOnTerminate() {
       cerr << "TERMINATE (unknown exception): " << endl;
     }
     cerr << "BACKTRACE" << endl;
-    PrintBacktrace(100);
+    PrintBacktrace();
     cerr << "TERMINATED" << endl;
   });
 }
@@ -70,14 +73,14 @@ void Base::SetBacktraceOnTerminate() {
 [[noreturn]] static void PrintSegfaultBacktrace(int) {
   cout << "ERROR: SIGSEGV / Segfault\n"
        << "Backtrace: " << endl;
-  PrintBacktrace(500);
+  PrintBacktrace();
   cerr << "SEGFAULT" << endl;
   ABORT();
 }
 
 [[noreturn]] static void PrintSigPipe(int) {
   cout << "ERROR: SIGPIPE" << endl;
-  PrintBacktrace(500);
+  PrintBacktrace();
   cerr << "SIGPIPE" << endl;
   ABORT();
 }
