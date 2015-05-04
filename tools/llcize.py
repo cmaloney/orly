@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 #
-# Copyright 2010-2014 OrlyAtomics, Inc.
+# Copyright 2015 Theoretical Chaos.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ from __future__ import print_function
 import argparse, os, re, sys
 
 
-OLD_COPYRIGHT_PATTERN = re.compile(R'copyright[ \t]*\d+(\-\d*)?[ \t]*orly', re.I)
+OLD_COPYRIGHT_PATTERN = re.compile(R'copyright[ \t]*\d+(\-\d*)?.*', re.I)
 
-NEW_COPYRIGHT = 'Copyright 2010-2014 OrlyAtomics, Inc.'
+NEW_COPYRIGHT = 'Copyright 2015 Theoretical Chaos.'
 
 Root = ''
 IgnoredRelPaths = []
@@ -82,7 +82,7 @@ def main():
         # Replace the copyright notice
         text = '%s%s%s' % (text[:match.start()], NEW_COPYRIGHT, text[match.end():])
         # Strip trailing spaces
-        text = '\n'.join([line.rstrip() for line in text.splitlines()])
+        text = '\n'.join([line.rstrip() for line in text.splitlines()]) + '\n'
         # Replace the file with the transformed text.
         temp_abs_path = file_abs_path + '.safe'
         open(temp_abs_path, 'w').write(text)

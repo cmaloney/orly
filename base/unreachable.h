@@ -5,7 +5,7 @@
    Gives us the advantage of a backtrace if reached, as well as telling GCC the location is indeed
    unreachable.
 
-   Copyright 2010-2014 OrlyAtomics, Inc.
+   Copyright 2015 Theoretical Chaos.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

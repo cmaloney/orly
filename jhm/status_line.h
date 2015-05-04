@@ -4,7 +4,7 @@
 
    TODO: Switch to a library someone else has already written for this (linenoise?)
 
-   Copyright 2010-2014 OrlyAtomics, Inc.
+   Copyright 2015 Theoretical Chaos.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

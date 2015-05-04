@@ -11,7 +11,7 @@
     - Eliminate the Ready queue. It just slows us down a little / makes unnecessary extra looping
    happen...
 
-   Copyright 2010-2014 OrlyAtomics, Inc.
+   Copyright 2015 Theoretical Chaos.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

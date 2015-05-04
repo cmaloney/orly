@@ -4,7 +4,7 @@
    ctor-initializer lines and other places where you want to check a
    value while accessing it.
 
-   Copyright 2010-2014 OrlyAtomics, Inc.
+   Copyright 2015 Theoretical Chaos.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
