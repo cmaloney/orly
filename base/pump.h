@@ -161,9 +161,9 @@ class TPump final {
 
   private:
   class TPipe;
+  public:
 
-  bool ServicePipe(TPipe *pipe);
-
+  // TODO(cmaloney): Only public so a helper function is happy...
   // TODO(cmaloney): This should use a more generic event wrapper / libevent
   class TPumper {
     public:
@@ -190,6 +190,10 @@ class TPump final {
     TFd Fd;
     std::thread Background;
   };
+
+  private:
+  bool ServicePipe(TPipe *pipe);
+
 
   using TBlockPool = TGrowingPool<ReadBufSize>;
 

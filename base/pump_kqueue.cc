@@ -4,6 +4,7 @@
 
 #include <util/error.h>
 
+using namespace Base;
 using namespace std;
 using namespace Util;
 
@@ -16,8 +17,8 @@ TPump::TPumper::TPumper(TPump &pump) : Pump(pump), Fd(IfLt0(kqueue())) {
   Background = thread(&TPumper::BackgroundMain, this);
 }
 
-int16_t EventToFilter(TEvent event_type) {
-  return int16_t(event_type == Read ? EVFILT_READ : EVFILT_WRITE);
+int16_t EventToFilter(TPump::TPumper::TEvent event_type) {
+  return int16_t(event_type == TPump::TPumper::Read ? EVFILT_READ : EVFILT_WRITE);
 }
 
 void TPump::TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
