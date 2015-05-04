@@ -36,7 +36,7 @@ class TPumper {
   TPump &Pump;
   /* Pushed in the destructor.  It causes the background thread to exit. */
   TNotifyFd ShutdownFd;
-  TFd Epoll;
+  TFd Fd;
   std::thread Background;
 };
 

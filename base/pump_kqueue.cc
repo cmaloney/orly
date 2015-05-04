@@ -13,7 +13,7 @@ using namespace Base::Pump;
 using namespace std;
 using namespace Util;
 
-TPumper::TPumper(TPump &pump) : Pump(pump), Kqueue(IfLt0(kqueue())) {
+TPumper::TPumper(TPump &pump) : Pump(pump), Fd(IfLt0(kqueue())) {
   // Add the shutting down fd to the epoll. It'll be the only one with a null pointer associated
   // with it.
   Join(ShutdownFd.GetFd(), Read, nullptr);
@@ -34,7 +34,7 @@ void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
   event.filter = EventToFilter(event_type);
   event.udata = pipe;
 
-  IfLt0(kevent(Kqueue, &event, 1, nullptr, 0, nullptr));
+  IfLt0(kevent(Fd, &event, 1, nullptr, 0, nullptr));
 }
 
 void TPumper::Leave(int fd, TEvent event_type) {
@@ -44,7 +44,7 @@ void TPumper::Leave(int fd, TEvent event_type) {
   event.filter = EventToFilter(event_type);
   event.flags = EV_DELETE;
 
-  IfLt0(kevent(Kqueue, &event, 1, nullptr, 0, nullptr));
+  IfLt0(kevent(Fd, &event, 1, nullptr, 0, nullptr));
 }
 
 // Returns after the background thread has shut down.
@@ -64,7 +64,7 @@ void TPumper::BackgroundMain() {
 
   /* Loop forever, servicing pipes until a stop is requested */
   while(!Stopping) {
-    int event_count = kevent(Kqueue, nullptr, 0, events, MaxEventCount, nullptr);
+    int event_count = kevent(Fd, nullptr, 0, events, MaxEventCount, nullptr);
 
     if(event_count < 0) {
       if(errno == EINTR) {

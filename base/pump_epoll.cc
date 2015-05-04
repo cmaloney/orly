@@ -10,7 +10,7 @@ using namespace Base;
 using namespace Base::Pump;
 using namespace Util;
 
-TPumper::TPumper(TPump &pump) : Pump(pump), Epoll(Util::IfLt0(epoll_create1(EPOLL_CLOEXEC))) {
+TPumper::TPumper(TPump &pump) : Pump(pump), Fd(Util::IfLt0(epoll_create1(EPOLL_CLOEXEC))) {
   // Add the shutting down fd to the epoll. It'll be the only one with a null pointer associated
   // with it.
   Join(ShutdownFd.GetFd(), Read, nullptr);
@@ -32,12 +32,12 @@ void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
       break;
   }
   event.data.ptr = pipe;
-  Util::IfLt0(epoll_ctl(Epoll, EPOLL_CTL_ADD, fd, &event));
+  Util::IfLt0(epoll_ctl(Fd, EPOLL_CTL_ADD, fd, &event));
 }
 
 void TPumper::Leave(int fd, TEvent) {
   assert(this);
-  Util::IfLt0(epoll_ctl(Epoll, EPOLL_CTL_DEL, fd, nullptr));
+  Util::IfLt0(epoll_ctl(Fd, EPOLL_CTL_DEL, fd, nullptr));
 }
 
 // Returns after the background thread has shut down.
@@ -57,7 +57,7 @@ void TPumper::BackgroundMain() {
 
   /* Loop forever, servicing pipes until a stop is requested */
   while(!Stopping) {
-    int event_count = epoll_wait(Epoll, events, MaxEventCount, -1);
+    int event_count = epoll_wait(Fd, events, MaxEventCount, -1);
     if(event_count < 0) {
       if(errno == EINTR) {
         continue;
