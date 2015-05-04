@@ -19,3 +19,26 @@ Jobs may on
 z`    - Either pre-emptively or
 
 1) Queued
+
+DeepWait vs. ShallowWait?
+  - Deep is "While queued was processed"
+  - Shallow is "IF you have time worth looking at"
+  "In Progress" / running
+  "Finished"
+
+  Things which have a dep complete get bumped back to shallow (but end of queue)
+
+New job runner (Eliminate lambda vs. exec):
+
+Return Optional<std::function<void()>> from the in GetJob
+
+
+JobRunner has two signals it can give
+
+1) "Results Ready" flag (Quick check)
+2) condition variable to wait on for the next result
+
+JobRunner takes
+std::function<void ()> as a job
+Builds up a queue of said jobs which dispatch as fast as possible on n
+threads.
