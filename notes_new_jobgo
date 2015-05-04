@@ -1,0 +1,21 @@
+Jobs are tagged a couple ways
+
+ - Waiting (List of what jobs need what other jobs)
+ - Queued (Submitted to the job runner)
+ - Required (The old 'All')
+    - Something has a hard dep on it, if it comes out not done, things aren't right.
+ - Finished
+    The job has
+
+Requirements
+ - Jobs in finish are not in queued, or waiting
+ - Jobs only appear once in Queued
+
+Jobs may on
+
+1) InQueue
+
+
+z`    - Either pre-emptively or
+
+1) Queued
