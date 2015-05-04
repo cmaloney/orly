@@ -18,6 +18,7 @@
 
 #include <unistd.h>
 
+// Link against the platform-specific TPumper implementation.
 #pragma clang diagnostic ignored "-Wundef"
 #if __APPLE__
 #include <base/pump_kqueue.h>
@@ -29,11 +30,10 @@
 #include <util/io.h>
 
 using namespace Base;
-using namespace Base::Pump;
 using namespace std;
 using namespace Util;
 
-class Pump::TPipe {
+class TPump::TPipe {
   NO_COPY(TPipe)
 
   public:
@@ -167,7 +167,7 @@ class Pump::TPipe {
   void StartWriting() {
     assert(this);
     if(!Writing) {
-      Pump->Pumper.Join(WriteFd, Pump::Write, this);
+      Pump->Pumper.Join(WriteFd, TPumper::Write, this);
       Writing = true;
     }
   }
@@ -176,14 +176,14 @@ class Pump::TPipe {
     assert(this);
     if(Writing) {
       Writing = false;
-      Pump->Pumper.Leave(WriteFd, Pump::Write);
+      Pump->Pumper.Leave(WriteFd, TPumper::Write);
     }
   }
 
   void StopReading() {
     assert(this);
     assert(ReadFd.IsOpen());
-    Pump->Pumper.Leave(ReadFd, Pump::Read);
+    Pump->Pumper.Leave(ReadFd, TPumper::Read);
     ReadFd.Reset();
   }
 
@@ -216,7 +216,7 @@ void TPump::NewPipe(TFd &read, TFd &write) {
   //   eventloop.AddRead(pipe.get(), pipe->ReadFd, &TPipe::Service);
   //   Where the first item is the pipe, and the second is the identifier, and the last is the
   //   service func.
-  Pumper.Join(pipe->ReadFd, Read, pipe);
+  Pumper.Join(pipe->ReadFd, TPumper::Read, pipe);
 }
 
 TPump::TPump() : Pumper(*this) {}

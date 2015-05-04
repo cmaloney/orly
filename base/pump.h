@@ -62,17 +62,11 @@
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <thread>
 #include <unordered_set>
 
 #include <base/class_traits.h>
-#if defined __APPLE__  // TPumper implementations
-#include <base/pump_kqueue.h>
-#elif defined __linux__
-#include <base/pump_epoll.h>
-#else
-#error Not Implemented
-#endif
-#include <base/pump_util.h>
+#include <base/notify_fd.h>
 #include <base/fd.h>
 #include <util/stl.h>
 
@@ -100,8 +94,6 @@
 */
 
 namespace Base {
-
-namespace Pump {
 
 // TODO: this should be pulled out into a generic "pool of buffers" implementation
 // NOTE: We never reclaim any blocks currently.
@@ -142,10 +134,6 @@ class TGrowingPool {
 /* Max number of bytes which are forwarded at a time through a TPipe */
 static constexpr uint64_t ReadBufSize = 4096;
 
-class TPipe;
-
-}  // Pump
-
 /* A pump for pipes. */
 class TPump final {
   NO_COPY(TPump)
@@ -172,9 +160,38 @@ class TPump final {
   bool IsIdle() const;
 
   private:
-  bool ServicePipe(Pump::TPipe *pipe);
+  class TPipe;
 
-  using TBlockPool = Pump::TGrowingPool<Pump::ReadBufSize>;
+  bool ServicePipe(TPipe *pipe);
+
+  // TODO(cmaloney): This should use a more generic event wrapper / libevent
+  class TPumper {
+    public:
+
+    enum TEvent { Read, Write };
+
+    /* Max number of epoll events returned simultaneously */
+    static const size_t MaxEventCount = 64;
+
+    TPumper(TPump &pump);
+    void Join(int fd, TEvent event_type, TPipe *pipe);
+    void Leave(int fd, TEvent event_type);
+
+    // Returns after the background thread has shut down.
+    void Shutdown();
+
+    private:
+    void BackgroundMain();
+
+    // TODO(cmaloney): pump really shouldn't be needed.
+    TPump &Pump;
+    /* Pushed in the destructor.  It causes the background thread to exit. */
+    TNotifyFd ShutdownFd;
+    TFd Fd;
+    std::thread Background;
+  };
+
+  using TBlockPool = TGrowingPool<ReadBufSize>;
 
   /* Signals when a pipe dies.  This wakes up the WaitForIdle() functions. */
   mutable std::mutex PipeMutex;
@@ -185,15 +202,13 @@ class TPump final {
      NOTE: It would be really nice to use unique_ptr here, but we can't because we can't lookup a
      pipe given a raw
      pointer later... */
-  std::unordered_set<Pump::TPipe *> Pipes;
+  std::unordered_set<TPipe *> Pipes;
 
-  Pump::TPumper Pumper;
+  TPumper Pumper;
 
   /* Pool of blocks for stashing I/O in temporarily. */
   TBlockPool BlockPool;
 
-  friend class Pump::TPipe;
-  friend class Pump::TPumper;
 };  // TPump
 
 }  // Base

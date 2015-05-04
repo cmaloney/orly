@@ -1,19 +1,13 @@
-#include <base/pump_kqueue.h>
+#include <base/pump.h>
 
 #include <sys/event.h>
 
-#include <mutex>
-#include <thread>
-#include <unordered_set>
-
-#include <base/pump.h>
 #include <util/error.h>
 
-using namespace Base::Pump;
 using namespace std;
 using namespace Util;
 
-TPumper::TPumper(TPump &pump) : Pump(pump), Fd(IfLt0(kqueue())) {
+TPump::TPumper::TPumper(TPump &pump) : Pump(pump), Fd(IfLt0(kqueue())) {
   // Add the shutting down fd to the epoll. It'll be the only one with a null pointer associated
   // with it.
   Join(ShutdownFd.GetFd(), Read, nullptr);
@@ -26,7 +20,7 @@ int16_t EventToFilter(TEvent event_type) {
   return int16_t(event_type == Read ? EVFILT_READ : EVFILT_WRITE);
 }
 
-void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
+void TPump::TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
   assert(this);
   struct kevent event = {};
   event.ident = unsigned(fd);
@@ -37,7 +31,7 @@ void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
   IfLt0(kevent(Fd, &event, 1, nullptr, 0, nullptr));
 }
 
-void TPumper::Leave(int fd, TEvent event_type) {
+void TPump::TPumper::Leave(int fd, TEvent event_type) {
   assert(this);
   struct kevent event = {};
   event.ident = unsigned(fd);
@@ -48,12 +42,12 @@ void TPumper::Leave(int fd, TEvent event_type) {
 }
 
 // Returns after the background thread has shut down.
-void TPumper::Shutdown() {
+void TPump::TPumper::Shutdown() {
   ShutdownFd.Notify();
   Background.join();
 }
 
-void TPumper::BackgroundMain() {
+void TPump::TPumper::BackgroundMain() {
   assert(this);
 
   // TODO: Block all signals

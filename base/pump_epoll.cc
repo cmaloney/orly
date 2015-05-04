@@ -1,16 +1,14 @@
-#include <base/pump_epoll.h>
+#include <base/pump.h>
 
 #include <sys/epoll.h>
 
-#include <base/pump.h>
 #include <base/zero.h>
 
 using namespace std;
 using namespace Base;
-using namespace Base::Pump;
 using namespace Util;
 
-TPumper::TPumper(TPump &pump) : Pump(pump), Fd(Util::IfLt0(epoll_create1(EPOLL_CLOEXEC))) {
+TPump::TPumper::TPumper(TPump &pump) : Pump(pump), Fd(Util::IfLt0(epoll_create1(EPOLL_CLOEXEC))) {
   // Add the shutting down fd to the epoll. It'll be the only one with a null pointer associated
   // with it.
   Join(ShutdownFd.GetFd(), Read, nullptr);
@@ -19,7 +17,7 @@ TPumper::TPumper(TPump &pump) : Pump(pump), Fd(Util::IfLt0(epoll_create1(EPOLL_C
   Background = std::thread(&TPumper::BackgroundMain, this);
 }
 
-void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
+void TPump::TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
   assert(this);
   epoll_event event;
   Zero(event);
@@ -35,18 +33,18 @@ void TPumper::Join(int fd, TEvent event_type, TPipe *pipe) {
   Util::IfLt0(epoll_ctl(Fd, EPOLL_CTL_ADD, fd, &event));
 }
 
-void TPumper::Leave(int fd, TEvent) {
+void TPump::TPumper::Leave(int fd, TEvent) {
   assert(this);
   Util::IfLt0(epoll_ctl(Fd, EPOLL_CTL_DEL, fd, nullptr));
 }
 
 // Returns after the background thread has shut down.
-void TPumper::Shutdown() {
+void TPump::TPumper::Shutdown() {
   ShutdownFd.Notify();
   Background.join();
 }
 
-void TPumper::BackgroundMain() {
+void TPump::TPumper::BackgroundMain() {
   assert(this);
 
   // TODO: Block all signals
