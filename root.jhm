@@ -21,7 +21,8 @@
     ],
     "link": {
       "flags": [
-        "-pthread"
+        "-pthread",
+        "-fuse-ld=gold"
       ],
       "libs": []
     }
