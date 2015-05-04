@@ -47,6 +47,8 @@ else
   exit -1
 fi
 
+mkdir -p tools
+
 #Build JHM
 $CC -o tools/jhm \
  "${common_flags[@]}" \
