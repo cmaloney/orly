@@ -97,11 +97,13 @@ TFd &TFd::Reset() {
 void TFd::Pipe(TFd &readable, TFd &writeable) {
   assert(&readable);
   assert(&writeable);
-  int fds[2];
+  int fds[2] = {};
   Util::IfLt0(pipe(fds) < 0);
 #ifdef __APPLE__
   Util::IfLt0(fcntl(fds[0], F_SETNOSIGPIPE, 1));
   Util::IfLt0(fcntl(fds[1], F_SETNOSIGPIPE, 1));
+  assert(fds[0]);
+  assert(fds[1]);
 #endif
   readable = TFd(fds[0], NoThrow);
   writeable = TFd(fds[1], NoThrow);
