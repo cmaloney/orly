@@ -98,7 +98,7 @@ void TFd::Pipe(TFd &readable, TFd &writeable) {
   assert(&readable);
   assert(&writeable);
   int fds[2] = {};
-  Util::IfLt0(pipe(fds) < 0);
+  Util::IfLt0(pipe(fds));
 #ifdef __APPLE__
   Util::IfLt0(fcntl(fds[0], F_SETNOSIGPIPE, 1));
   Util::IfLt0(fcntl(fds[1], F_SETNOSIGPIPE, 1));
