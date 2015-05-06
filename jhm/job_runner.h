@@ -17,18 +17,15 @@
    limitations under the License. */
 
 #include <atomic>
-#include <condition_variable>
-#include <future>
-#include <mutex>
-#include <queue>
 #include <string>
 #include <thread>
 #include <tuple>
-#include <unordered_map>
 
 #include <base/class_traits.h>
 #include <base/fd.h>
 #include <base/subprocess.h>
+
+#include <moodycamel/blockingconcurrentqueue.h>
 
 namespace Jhm {
 
@@ -36,6 +33,7 @@ class TJob;
 
 struct TJobRunner {
   struct TResult {
+    MOVE_ONLY(TResult)
     TResult(TJob *job, int exit_code, Base::TFd &&stdout, Base::TFd &&stderr)
         : ExitCode(exit_code), Job(job), Stdout(std::move(stdout)), Stderr(std::move(stderr)) {}
 
@@ -44,14 +42,10 @@ struct TJobRunner {
     Base::TFd Stdout, Stderr;
   };
 
-  using TResults = std::vector<TResult>;
+  using TRunnable = std::tuple<TJob *, std::vector<std::string>>;
 
   TJobRunner(uint64_t worker_count, bool print_cmd);
   ~TJobRunner();
-
-  // Returns true if the queue is almost empty, meaning whatever is
-  // filling the queue should.
-  bool IsAlmostEmpty() const;
 
   bool IsReady() const;
 
@@ -62,45 +56,30 @@ struct TJobRunner {
    * call. */
   bool HasMoreResults() const;
 
-  /* Grabs a batch of results from the queue runner. */
-  TResults WaitForResults();
+  /* Grab a single result. */
+  TResult WaitForResult();
 
   private:
   void ProcessQueue();
+  void Shutdown();
 
-  std::mutex ToRunMutex;
-  std::queue<std::tuple<TJob *, std::vector<std::string>>> ToRun;
-  // NOTE: ExitWorker only goes from false -> true on shutdown
-  std::atomic<bool> ExitWorker;
-  // NOTE: MoreResults is true so long as we're either processing, or going to process more jobs.
-  // Becomes false only when we're completely exhausted of jobs to process.
-  std::atomic<bool> MoreResults;
+  // Jobs in, results out.
+  moodycamel::BlockingConcurrentQueue<TRunnable> ToRun;
 
-  // NOTE: We have two bools for the MoreResults, because we want to buffer the answer until
-  // WaitForResults() takes
-  // the last results.
-  std::atomic<bool> MoreResultsOnceTaken;
-
-  // Mutex protected results vector.
-  std::mutex ResultsMutex;
-  TResults Results;
-
-  std::promise<bool> ResultsReady;
-  std::atomic<bool> ResultsReadySet;
-
-  // Fires anytime the client should re-check it's main loop for work to do (ExitWorkers = true, or
-  // new work queued)
-  std::mutex HasWorkMutex;
-  std::condition_variable HasWork;
+  // TODO(cmaloney): The pointer indirection here is fugly.
+  moodycamel::BlockingConcurrentQueue<std::unique_ptr<TResult>> Results;
 
   // Sits in the background and pumps io from subprocesses into this process.
   Base::TPump Pump;
 
-  // General parameters for the runner
-  const bool PrintCmd;
-  const uint64_t WorkerCount;
+  uint64_t InQueue = 0;
+  std::atomic<uint64_t> BeingRun;
 
-  // The thread which sits in the background and runs the queue.
-  std::thread QueueRunner;
+  // General parameters for the runner
+  bool ExitWorker = false;
+  const bool PrintCmd;
+
+  // Background job runners
+  std::vector<std::unique_ptr<std::thread>> JobRunners;
 };
 }

@@ -186,8 +186,6 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
     out_file->WriteConfig(cache_out_name);
   }
 
-  bool queue_almost_empty = Runner.IsAlmostEmpty();
-
   // Update every job which was waiting on this job to be waiting on one less thing.
   // NOTE: If the job isn't waiting on anything, it gets pushed to the Ready queue.
   const auto range = ToFinish.equal_range(result.Job);
@@ -203,13 +201,6 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
         // Move the job to ready, as it has nothing left it's waiting on.
         EraseOrFail(Waiting, job);
         Ready.push(job);
-      }
-
-      // If we are almost out of jobs, pre-emptyively look for more jobs which need to be run, based
-      // on what
-      // is waiting on us.
-      if(queue_almost_empty) {
-        //QueueNeeds(job);
       }
     }
     // TODO: Assert this succeeds (It should be guaranteed to)
@@ -314,10 +305,10 @@ bool TWorkFinder::FinishAll() {
       assert(Running.size() + Waiting.size() + Finished.size() == All.size());
     }
 
-    // Wait for 1+ results from the job runner. Process every result returned.
-    for(auto &result : Runner.WaitForResults()) {
-      has_failed |= ProcessResult(result);
-    }
+    // TODO(cmaloney): Batch process results?
+    // Wait for a single result.
+    auto result = Runner.WaitForResult();
+    has_failed |= ProcessResult(result);
   }
 
   // Write the last update (Otherwise we sit at one less than complete on successful completion)

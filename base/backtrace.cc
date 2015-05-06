@@ -85,5 +85,19 @@ void Base::SetBacktraceOnTerminate() {
   ABORT();
 }
 
+
+static void PrintSigabrtBacktrace(int) {
+  static bool first_abrt = true;
+  if (!first_abrt) {
+    return;
+  }
+  first_abrt = false;
+  cout << "ERROR: SIGABRT" << endl;
+  PrintBacktrace();
+  cerr << "SIGABRT" << endl;
+  ABORT();
+}
 TBacktraceCatcher::TBacktraceCatcher()
-    : Sigsegv(SIGSEGV, &PrintSegfaultBacktrace), Sigpipe(SIGPIPE, &PrintSigPipe) {}
+    : Sigabrt(SIGABRT, &PrintSigabrtBacktrace),
+      Sigsegv(SIGSEGV, &PrintSegfaultBacktrace),
+      Sigpipe(SIGPIPE, &PrintSigPipe) {}

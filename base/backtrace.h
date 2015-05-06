@@ -34,7 +34,7 @@ class TBacktraceCatcher {
   TBacktraceCatcher();
 
   private:
-  Util::TSignalHandlerInstaller Sigsegv, Sigpipe;
+  Util::TSignalHandlerInstaller Sigabrt, Sigsegv, Sigpipe;
 };
 
 }  // Base
