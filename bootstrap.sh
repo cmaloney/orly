@@ -60,13 +60,4 @@ $CC -o tools/jhm \
   "$extra_files" \
   -I./ -DSRC_ROOT=\"`pwd`\"
 
-#Build make_dep_file
-$CC -o tools/make_dep_file \
-  "${common_flags[@]}" \
-  jhm/make_dep_file.cc util/io.cc base/split.cc base/code_location.cc base/subprocess.cc base/pump.cc \
-  base/fd.cc util/error.cc base/demangle.cc cmd/parse.cc cmd/help.cc util/signal.cc base/unreachable.cc cmd/main.cc \
-  base/backtrace.cc base/json.cc \
-  "$extra_files" \
-  -I./ -DSRC_ROOT=\"`pwd`\"
-
 mkdir -p ../.jhm

@@ -16,9 +16,14 @@
 
 #include <jhm/jobs/dep.h>
 
+#include <fstream>
+#include <ostream>
+
+#include <base/not_implemented.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
 #include <jhm/jobs/compile_c_family.h>
+#include <jhm/jobs/dep_c.h>
 #include <jhm/jobs/util.h>
 
 using namespace Base;
@@ -59,27 +64,53 @@ const unordered_set<TFile *> TDep::GetNeeds() {
 vector<string> TDep::GetCmd() {
   assert(this);
 
-  vector<string> cmd{"make_dep_file", "--", GetInput()->GetPath(), GetSoleOutput()->GetPath()};
-
   // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the
   // compiler
   const auto &extensions = GetInput()->GetRelPath().Path.Extension;
-  if(extensions.size() >= 1) {
-    const string &ext = extensions.at(extensions.size() - 1);
-    if(ext == "cc" || ext == "c") {
-      if(ext == "cc") {
-        // TODO(cmaloney): Make a helper utility in <jobs/compile_c_family.h> to get the command.
-        cmd.push_back(Jhm::GetCmd<Tools::Cc>(Env.GetConfig()));
-      } else {
-        cmd.push_back(Jhm::GetCmd<Tools::C>(Env.GetConfig()));
-      }
-      // TODO: move array append
-      for(auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
-        cmd.push_back(move(arg));
-      }
+  const string &ext = extensions.at(extensions.size() - 1);
+
+  vector<string> cmd;
+  // Only C, C++ are supported currently.
+  assert(extensions.size() >= 1);
+  assert(ext == "cc" || ext == "c");
+
+  if(ext == "cc") {
+    // TODO(cmaloney): Make a helper utility in <jobs/compile_c_family.h> to get the command.
+    cmd.push_back(Jhm::GetCmd<Tools::Cc>(Env.GetConfig()));
+  } else {
+    cmd.push_back(Jhm::GetCmd<Tools::C>(Env.GetConfig()));
+  }
+
+  // TODO: move array append
+  for(auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
+    cmd.push_back(move(arg));
+  }
+  cmd.push_back("-M");
+  cmd.push_back("-MG");
+  cmd.push_back(GetInput()->GetPath());
+  return cmd;
+}
+
+void TDep::ProcessOutput(TFd stdout, TFd) {
+  NeedsWork = false;
+  Deps = ParseDeps(ReadAll(move(stdout)));
+  for (const auto &dep: Deps) {
+    TFile *file = Env.TryGetFileFromPath(dep);
+    if(file) {
+      // Add to needs. If it's new in the Needs array, we aren't done yet.
+      NeedsWork |= Needs.insert(file).second;
     }
   }
-  return cmd;
+}
+
+
+TJson ToJson(vector<string> &&that) {
+  vector<TJson> json_elems(that.size());
+  for(uint64_t i = 0; i < that.size(); ++i) {
+    json_elems[i] = TJson(move(that[i]));
+  }
+
+  return TJson(move(json_elems));
 }
 
 TTimestamp TDep::GetCmdTimestamp() const {
@@ -90,29 +121,31 @@ TTimestamp TDep::GetCmdTimestamp() const {
 bool TDep::IsComplete() {
   assert(this);
 
-  bool needs_work = false;
-
-  // Load the json file and see if there are any new things in it which aren't yet done (We have
-  // work to do)
-  // TODO: This should be a call to Parse()... But that constructs an istringstream...
-  TJson deps = TJson::Read(AsStr(GetSoleOutput()->GetPath()).c_str());
-  for(const TJson &elem : deps.GetArray()) {
-    TFile *file = Env.TryGetFileFromPath(elem.GetString());
-    if(file) {
-      // Add to needs. If it's new in the Needs array, we aren't done yet.
-      needs_work |= Needs.insert(file).second;
-    }
+  if (NeedsWork) {
+    return false;
   }
 
-  // If we found everything, stash the info on the input file as computed config
-  // TODO: In pushing this as strings, we effectively discard all the file lookups we've already
+  // Everything has been found, save the information.
+  auto deps_json = ToJson(move(Deps));
+
+  // TODO(cmaloney): Writing the dep file doesn't actually provide us any
+  // benefit, but is required by the work finder since it is a file expected to
+  // exist.
+  // TODO(cmaloney): Stream from C++ struct -> json rather than doing this
+  // "copy into something that looks like JSON".
+  /* out_file */ {
+    ofstream out_file(GetSoleOutput()->GetPath());
+    deps_json.Write(out_file);
+  }
+
+  // Stash the info on the input file as computed config
+  // TODO: In pushing this as strings, we effectively discard all the file
+  // lookups we've already
   // done
-  if(!needs_work) {
-    GetSoleOutput()->PushComputedConfig(
-        TJson::TObject{{"c++", TJson::TObject{{"include", move(deps)}}}});
-  }
+  GetSoleOutput()->PushComputedConfig(
+      TJson::TObject{{"c++", TJson::TObject{{"include", move(deps_json)}}}});
 
-  return !needs_work;
+  return true;
 }
 
 TDep::TDep(TEnv &env, TFile *in_file)

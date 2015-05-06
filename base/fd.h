@@ -61,7 +61,7 @@ class TFd {
      socket(), which returns a newly created file descriptor.  If the result is not a legal file
      descriptor, this function will throw the
      appropriate error.  */
-  TFd(int os_handle);
+  explicit TFd(int os_handle);
 
   /* Close the file descriptor we own, if any.  If the descriptor is in the stdio range (0-2), then
    * don't close it. */

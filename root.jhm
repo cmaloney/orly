@@ -5,8 +5,7 @@
     "link": "clang++"
   },
   "targets": [
-      "jhm/jhm",
-      "jhm/make_dep_file",
+      "jhm/jhm"
     ],
   "options": {
     "c++" : [

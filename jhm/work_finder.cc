@@ -141,6 +141,10 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
     Base::EchoOutput(move(result.Stderr));
     return true;
   }
+
+  // Let the job proess output if it wants.
+  result.Job->ProcessOutput(move(result.Stdout), move(result.Stderr));
+
   // Check if the job is actually complete or not
   if(!result.Job->IsComplete()) {
     Ready.push(result.Job);

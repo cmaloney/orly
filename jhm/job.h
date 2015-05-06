@@ -25,6 +25,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include <base/fd.h>
 #include <base/opt.h>
 #include <jhm/naming.h>
 #include <util/stl.h>
@@ -97,6 +98,9 @@ class TJob {
   }
 
   virtual std::vector<std::string> GetCmd() = 0;
+
+  // TODO(cmaloney): Implement this per job rather than giving this default.
+  virtual void ProcessOutput(Base::TFd /*stdout*/, Base::TFd /*stderr*/) {}
 
   virtual Util::TTimestamp GetCmdTimestamp() const = 0;
 

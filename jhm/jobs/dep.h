@@ -31,6 +31,7 @@ class TDep final : public TJob {
   virtual const char *GetName() final;
   virtual const TSet<TFile *> GetNeeds() final;
   virtual std::vector<std::string> GetCmd() final;
+  virtual void ProcessOutput(Base::TFd stdout, Base::TFd stderr) final;
   virtual Util::TTimestamp GetCmdTimestamp() const final;
   virtual bool IsComplete() final;
 
@@ -39,6 +40,8 @@ class TDep final : public TJob {
 
   TEnv &Env;
   TSet<TFile *> Needs;
+  bool NeedsWork = true;
+  std::vector<std::string> Deps;
 };
 } // Job
 } // Jhm
