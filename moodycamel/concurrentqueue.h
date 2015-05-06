@@ -43,6 +43,14 @@
 #endif
 #endif
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wundef"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
 #ifdef MCDBGQ_USE_RELACY
 #include "relacy/relacy_std.hpp"
 #include "relacy_shims.h"
@@ -3519,6 +3527,6 @@ inline void swap(typename ConcurrentQueue<T, Traits>::ImplicitProducerKVP& a, ty
 
 }
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif

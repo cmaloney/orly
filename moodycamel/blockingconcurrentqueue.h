@@ -10,6 +10,12 @@
 #include <type_traits>
 #include <memory>
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundef"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
 #if defined(_WIN32)
 // Avoid including windows.h in a header; we only need a handful of
 // items, so we'll redeclare them here (this is relatively safe since
@@ -758,3 +764,7 @@ inline void swap(BlockingConcurrentQueue<T, Traits>& a, BlockingConcurrentQueue<
 }
 
 }	// end namespace moodycamel
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
