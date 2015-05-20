@@ -111,15 +111,8 @@ int Main(int argc, char *argv[]) {
 
   // Build up the environment. Find the root, grab the project, user, and system configuration
   TTree cwd_tree(cwd);
-  TTree jhm_root = TTree::Find(cwd, ".jhm");
-  if(jhm_root.Root.size() == cwd_tree.Root.size()) {
-    // TODO(cmaloney): Needed features:
-    // - nested vs. not nested out directory
-    // - Automatic finding of root project 'src'? Or grabbing all
-    //   sub dependencies.
-    NOT_IMPLEMENTED_S("Running JHM at the same level as the .jhm")
-  }
-  TEnv env(jhm_root, cwd_tree.Root.at(jhm_root.Root.size()), options.Config, options.ConfigMixin);
+  TTree src = TTree::Find(cwd, "core.jhm");
+  TEnv env(src, options.Config, options.ConfigMixin);
 
   // chdir to the src folder so we can always use relative paths. for commands
   /* abs_root */ {

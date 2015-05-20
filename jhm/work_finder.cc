@@ -485,7 +485,7 @@ void TWorkFinder::CacheCheck(TJob *job) {
     for(const string &output_filename : output_filename_list) {
       // TODO: If all the job's outputs are known, iterate over that set rather than trying to infer
       // the filenames from
-      // the string representations (Saves us a lot of hassle on execz`utables)
+      // the string representations (Saves us a lot of hassle on executables)
       TFile *output = TryGetOutputFileFromPath(output_filename);
       if(!output) {
         return;

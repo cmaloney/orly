@@ -107,14 +107,11 @@ class TEnv {
 
   using TFileCheckFunc = std::function<bool(TFile *)>;
 
-  static TTree GetOutDirName(const TTree &root,
-                             const std::string &proj_name,
+  static TTree GetOutDirName(const TTree &src,
                              const std::string &config,
                              const std::string &config_mixin);
 
-  // NOTE: if proj_name is src. Output directory is just out.
-  TEnv(const TTree &root,
-       const std::string &proj_name,
+  TEnv(const TTree &src,
        const std::string &config,
        const std::string &config_mixin);
 
@@ -125,8 +122,6 @@ class TEnv {
   const TConfig &GetConfig() const { return Config; }
   const TTree *GetSrc() const { return &Src; }
   const TTree *GetOut() const { return &Out; }
-
-  const TTree *GetRoot() const { return &Root; }
 
   std::unordered_set<TJob *> GetJobsProducingFile(TFile *file) {
     return Jobs.GetPotentialJobs(*this, file);
@@ -153,7 +148,7 @@ class TEnv {
 
   TInterner<TRelPath, TFile> Files;
 
-  TTree Root, Src, Out;
+  TTree Src, Out;
 
   TConfig Config;
 

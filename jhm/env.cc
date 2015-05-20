@@ -89,15 +89,12 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
   return ret;
 }
 
-Jhm::TTree TEnv::GetOutDirName(const TTree &root,
-                               const string &proj_name,
+Jhm::TTree TEnv::GetOutDirName(const TTree &src,
                                const string &config,
                                const string &config_mixin) {
-  TTree out(root);
+  TTree out(src);
+  out.Root.push_back(".jhm");
   out.Root.push_back("out");
-  if(proj_name != "src") {
-    out.Root.back() += '_' + proj_name;
-  }
   out.Root.push_back(config);
   if(config_mixin.size()) {
     out.Root.back() += '_' + config_mixin;
@@ -105,21 +102,19 @@ Jhm::TTree TEnv::GetOutDirName(const TTree &root,
   return out;
 }
 
-vector<string> GetConfigList(const TTree &root,
-                             const string &proj_name,
+vector<string> GetConfigList(const TTree &src,
                              const string &config,
                              const string &config_mixin) {
-  // root/project/config.jhm.mixin -> root/project/config.jhm -> root/config.jhm.mixin
-  // ->root/config.jhm
+  // project/config.jhm.mixin -> project/config.jhm -> project/core.jhm
   // NOTE: At least one mixin file must be present if a config mixin is specified.
   vector<string> ret;
-  string root_str = AsStr(root);
+  string src_str = AsStr(src);
 
-  auto add_conf = [&config_mixin, &ret, &root_str](bool mixin, string path) {
+  auto add_conf = [&config_mixin, &ret, &src_str](bool mixin, string path) {
     if(mixin && config_mixin.empty()) {
       return;
     }
-    path = root_str + '/' + path + ".jhm";
+    path = src_str + '/' + path + ".jhm";
     if(mixin) {
       path += "_mixin";
     }
@@ -129,10 +124,10 @@ vector<string> GetConfigList(const TTree &root,
   add_conf(true, config_mixin);
   // TODO(cmaloney): This is probably the wrong ordering for the environment
   // configuration.
-  add_conf(false, proj_name + "/root");
-  add_conf(false, proj_name + '/' + config);
-  add_conf(true, proj_name + '/' + config_mixin);
-  add_conf(false, proj_name + "/environment");
+  add_conf(false, "/core");
+  add_conf(false, '/' + config);
+  add_conf(true, '/' + config_mixin);
+  add_conf(false, "/environment");
   return ret;
 }
 
@@ -142,17 +137,15 @@ vector<string> CopyAppendVector(const vector<string> &src, const string &val) {
   return ret;
 }
 
-TEnv::TEnv(const TTree &root,
-           const string &proj_name,
+TEnv::TEnv(const TTree &src,
            const string &config,
            const string &config_mixin)
-    : Root(root),
-      Src(CopyAppendVector(Root.Root, proj_name)),
-      Out(GetOutDirName(root, proj_name, config, config_mixin)),
-      Config(GetConfigList(root, proj_name, config, config_mixin)) {
-  if(config == "root") {
+    : Src(src),
+      Out(GetOutDirName(src, config, config_mixin)),
+      Config(GetConfigList(src, config, config_mixin)) {
+  if(config == "core") {
     THROWER(runtime_error)
-        << "the config 'root' is reserved / special. Use a different config.";
+        << "the config 'core' is reserved / special. Use a different config.";
   }
 
   // NOTE: Technically not a hard error. But usually indicates something went wrong.
@@ -221,6 +214,7 @@ void TEnv::SetFuncs(TFileCheckFunc &&buildable, TFileCheckFunc &&done) {
   Done = move(done);
 }
 
+// TODO(cmaloney): Merge this function with GetFile.
 TFile *TEnv::TryGetFileFromPath(const std::string &name) {
   assert(&name);
   assert(name.size());  // Name must be non-empty.
@@ -235,10 +229,12 @@ TFile *TEnv::TryGetFileFromPath(const std::string &name) {
   // If the name starts with a '/' it's an absolute filesystem path
   TPath path(name);
   if(name[0] == '/') {
-    if(Src.Contains(path)) {
-      result = GetFile(Src.GetRelPath(move(path)));
-    } else if(Out.Contains(path)) {
+    // Out is a subdirectory of src so check it first.
+    if(Out.Contains(path)) {
       result = GetFile(Out.GetRelPath(move(path)));
+    } else if(Src.Contains(path)) {
+      // TODO(cmaloney): path shouldn't have a folder '.jhm' in it.
+      result = GetFile(Src.GetRelPath(move(path)));
     } else {
       // File isn't in a known tree, so we can't possibly get it.
       result = nullptr;
