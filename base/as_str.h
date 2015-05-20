@@ -41,7 +41,7 @@ std::string AsStr(TArgs &&... args) {
   std::ostringstream strm;
 
 
-  ForEachArgument([&strm](auto x) {
+  ForEachArgument([&strm](auto &&x) {
     strm << x;
   }, args...);
   return strm.str();
