@@ -24,6 +24,7 @@ common_flags=(
   # Optimize
   -O3 -DNDEBUG
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
+  -flto
 
   # Enable threads
   -pthread

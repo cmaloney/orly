@@ -20,7 +20,6 @@
       "+flags": [
         "-O3",
         "-flto",
-        "-fuse-ld=gold",
         "-march=native",
         "-mtune=native"
       ]

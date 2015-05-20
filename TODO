@@ -1,3 +1,6 @@
+`built` wrapper - run stuff in the most recent build config
+  -- maybe just an option at the end of a normal invocation?
+
 
 Configure for JHM (CXX, CC, CXXFLAGS, CCFLAGS, LD, LDFLAGS):
   - Ideally also allow adding platform/tool/etc. specific variables/flags to config.
