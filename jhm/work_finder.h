@@ -38,9 +38,7 @@ class TWorkFinder {
   NO_MOVE(TWorkFinder)
 
   public:
-  TWorkFinder(uint64_t worker_count,
-              bool print_cmd,
-              Util::TTimestamp config_timestamp,
+  TWorkFinder(Util::TTimestamp config_timestamp,
               std::function<std::unordered_set<TJob *>(TFile *)> &&get_jobs_producing_file,
               std::function<TFile *(TRelPath name)> &&get_file,
               std::function<TFile *(const std::string &)> &&try_get_file_from_path);
@@ -51,7 +49,7 @@ class TWorkFinder {
   bool AddNeededFile(TFile *file, TJob *job = nullptr);
 
   /* Runs jobs to make all the needed files, queuing more jobs as needed. Returns true on success*/
-  bool FinishAll();
+  bool FinishAll(TJobRunner &runner);
 
   bool IsBuildable(TFile *file);
   bool IsFileDone(TFile *file);
@@ -63,7 +61,7 @@ class TWorkFinder {
   bool IsDone(TJob *job);
 
   bool QueueNeeds(TJob *job);
-  void ProcessReady();
+  void ProcessReady(TJobRunner &runner);
 
   /* Process the given result. Returns true if the result of the job is failure / we're shutting
    * down now. */
@@ -120,14 +118,5 @@ class TWorkFinder {
   std::function<std::unordered_set<TJob *>(TFile *)> GetJobsProducingFile;
   std::function<TFile *(TRelPath name)> GetFile;
   std::function<TFile *(const std::string &)> TryGetFileFromPath;
-
-  // Runs the work queuPops things off work queue
-  // TODO: runs itself in a seperate process group (setpgid) so it can easily wait for all child
-  // processes
-  // TODO: Forcefully deletes all bad output
-  // Launch the IO pump, wait/manage all the subprocesses, and notify the work finder / env when
-  // things are completed.
-  // Calls a standardized callback on completion of each command.
-  TJobRunner Runner;
 };
 }

@@ -38,8 +38,6 @@ using namespace Util;
 string GetCacheFilename(const TFile *file) { return AsStr(file->GetPath()) + ".jhm-cache"; }
 
 TWorkFinder::TWorkFinder(
-    uint64_t worker_count,
-    bool print_cmd,
     Util::TTimestamp config_timestamp,
     std::function<std::unordered_set<TJob *>(TFile *)> &&get_jobs_producing_file,
     std::function<TFile *(TRelPath name)> &&get_file,
@@ -48,8 +46,7 @@ TWorkFinder::TWorkFinder(
       ConfigTimestampStr(Util::ToStr(config_timestamp)),
       GetJobsProducingFile(std::move(get_jobs_producing_file)),
       GetFile(move(get_file)),
-      TryGetFileFromPath(move(try_get_file_from_path)),
-      Runner(worker_count, print_cmd) {}
+      TryGetFileFromPath(move(try_get_file_from_path)) {}
 
 bool TWorkFinder::AddNeededFile(TFile *file, TJob *job) {
   // If the file both doesn't exist and isn't buildable, error.
@@ -100,7 +97,7 @@ bool TWorkFinder::QueueNeeds(TJob *job) {
   return needed > 0;
 }
 
-void TWorkFinder::ProcessReady() {
+void TWorkFinder::ProcessReady(TJobRunner &runner) {
   while(!Ready.empty()) {
     // For each ReadyJob, see if there are any deps we now need.
 
@@ -113,7 +110,7 @@ void TWorkFinder::ProcessReady() {
       for(TFile *out : job->GetOutput()) {
         EnsureDirExists(AsStr(out->GetPath()).c_str(), true);
       }
-      Runner.Queue(job);
+      runner.Queue(job);
       InsertOrFail(Running, job);
     }
   }
@@ -272,21 +269,21 @@ void TWorkFinder::WriteStatusLine() const {
   TStatusLine() << '[' << Finished.size() << '/' << All.size() << "] waiting: " << Running.size();
 }
 
-bool TWorkFinder::FinishAll() {
+bool TWorkFinder::FinishAll(TJobRunner &runner) {
   bool has_failed = false;
   // Continue as long as the runner is returning us more results still, or we have some jobs ready
   // to be processed.
-  while(Runner.HasMoreResults() || (!Ready.empty() && Runner.IsReady())) {
+  while(runner.HasMoreResults() || (!Ready.empty() && runner.IsReady())) {
     // Either queue the job to run or find what it's depending upon / waiting on, and queue those to
     // run.
-    ProcessReady();
+    ProcessReady(runner);
 
     // Everything should have been emptied from the ready queue
     assert(Ready.empty());
 
     // Something should be in the running queue at this point. Or we're just waiting for more
     // results from the runner.
-    assert(!Running.empty() || Runner.HasMoreResults());
+    assert(!Running.empty() || runner.HasMoreResults());
 
     // Sanity check
     // If we haven't failed, then the running, ready, and finished sets should make up the 'all'
@@ -311,7 +308,7 @@ bool TWorkFinder::FinishAll() {
 
     // TODO(cmaloney): Batch process results?
     // Wait for a single result.
-    auto result = Runner.WaitForResult();
+    auto result = runner.WaitForResult();
     has_failed |= ProcessResult(result);
   }
 

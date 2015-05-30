@@ -125,8 +125,6 @@ int Main(int argc, char *argv[]) {
 
   // Get the files for the targets
   TWorkFinder work_finder(
-      options.WorkerCount,
-      options.PrintCmd,
       // NOTE: Env is guaranteed to always have a timestamp, so derefrencing it here is safe.
       *env.GetConfig().GetTimestamp(),
       bind(&TEnv::GetJobsProducingFile, &env, _1),
@@ -184,8 +182,8 @@ int Main(int argc, char *argv[]) {
     work_finder.AddNeededFile(f);
   }
 
-  // TODO: Add a single-line status message
-  if(!work_finder.FinishAll()) {
+  TJobRunner runner(options.WorkerCount, options.PrintCmd);
+  if(!work_finder.FinishAll(runner)) {
     return 1;
   }
 
