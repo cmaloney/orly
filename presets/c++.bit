@@ -1,0 +1,14 @@
+{
+  "options": {
+  "c++" : [
+    "-std=c++1y",
+    "-Wall",
+    "-Werror",
+    "-Wextra",
+    "-Wold-style-cast",
+    "-Wglobal-constructors",
+    "-pthread",
+    "-fcolor-diagnostics"
+  ],
+
+}

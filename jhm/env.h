@@ -60,6 +60,13 @@ class TInterner {
 
 class TJobFactory {
   public:
+
+  // TODO(cmaloney): Make this take a list of names to activate, job modules
+  // to load (may have more than one name per module).
+  TJobFactory(bool enable_all) {
+
+  }
+  // TODO(cmaloney): This seems very suspect....
   // NOTE: We don't just use a tuple because we want a specialized hash
   struct TJobDesc {
     TFile *f;
@@ -98,6 +105,13 @@ class TJobFactory {
   // "one simple list" we
   // always iterate over all of.
   std::vector<TJobProducer> JobProducers;
+
+  std::unordered_map<std::string, TJobProducer(*)()> BuiltinJobs = {
+    {"dependency", &Job::TDep::GetProducer},
+    {"compile_c", &Job::TCompileCFamily::GetCProducer},
+    {"compile_cpp", &Job::TCompileCFamily::GetCppProducer},
+    {"link", &Job::TLink::GetProducer}
+  }
 };
 
 class TEnv {

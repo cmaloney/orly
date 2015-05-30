@@ -1,9 +1,11 @@
 builtin config mixins (-m debug,release,small-debug)
 Sane defaults for new code. (-Weverything, -std=c++1y)
 Loading new job kinds at runtime
-Tooling mixins (Valgrind, callgrind, etc)
-Tool insertion (Valgrind, Callgrind, Static Analysis)
-  - Native packaging?
+  - Default load all, allow projects to specify exactly what to load
+Bootstrap-generating tool
+Tooling mixins (-t valgrind, -t callgrind, -t clang-analyze, -t asan, ...)
+Dynamicaly loading / adding tooling options
+Native packaging creation?
 make install equivalent
 virtualenv building
 Dependency downloading / building / installing
@@ -19,19 +21,13 @@ Sublime editor integration
   - Build systems tab
 Command line autocompletion
 "Run built program" utility / helper
+  -- Also option to just say 'Build then do x'
 New job queue which knows scheduling things optimistically
 Make the JobRunner a proper thread pool
 
 
-
-
-
-
-
-
-`built` wrapper - run stuff in the most recent build config
-  -- maybe just an option at the end of a normal invocation?
-
+-----
+To review:
 
 Configure for JHM (CXX, CC, CXXFLAGS, CCFLAGS, LD, LDFLAGS):
   - Ideally also allow adding platform/tool/etc. specific variables/flags to config.

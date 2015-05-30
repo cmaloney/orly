@@ -41,7 +41,7 @@ struct TJobProducer {
   const char *Name;
   // TODO: Should really be a set...
   std::vector<std::vector<std::string>> OutExtensions;
-  std::function<Base::TOpt<TRelPath>(const TRelPath &name)> TryGetInput;
+  std::function<Base::TOpt<TRelPath>(const TRelPath &name)> TryGetInputName;
   std::function<std::unique_ptr<TJob>(TEnv &env, TFile *in_file)> MakeJob;
 };
 

@@ -47,7 +47,7 @@ unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) 
     // No cache found. Build it
     // Find and instantiate possibilities based on extension
     for(const auto &producer : JobProducers) {
-      TOpt<TRelPath> opt_path = producer.TryGetInput(out_file->GetRelPath());
+      TOpt<TRelPath> opt_path = producer.TryGetInputName(out_file->GetRelPath());
       if(!opt_path) {
         continue;
       }
@@ -131,12 +131,6 @@ vector<string> GetConfigList(const TTree &src,
   return ret;
 }
 
-vector<string> CopyAppendVector(const vector<string> &src, const string &val) {
-  vector<string> ret(src);
-  ret.push_back(val);
-  return ret;
-}
-
 TEnv::TEnv(const TTree &src,
            const string &config,
            const string &config_mixin)
@@ -153,11 +147,6 @@ TEnv::TEnv(const TTree &src,
     THROWER(runtime_error) << "No config file found for config " << quoted(config + ".jhm")
                                << ". At least one config looked for must exist";
   }
-  // TODO: Assert the config stack contains at least one config
-  /*
-  // Load the configuation
-  // TODO: Gracefully degrade on removal of a config.
-  */
 
   Jobs.Register(Job::TDep::GetProducer());
   Jobs.Register(Job::TCompileCFamily::GetCProducer());

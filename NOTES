@@ -1,0 +1,2 @@
+Options files may not overlap (Ex: C++, Java defaults)
+Config mixins, user/system config may (Ex: system removing -Werror, user changing compiler flags)
