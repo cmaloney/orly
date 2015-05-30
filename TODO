@@ -1,3 +1,5 @@
+Rewrite config system to load things from project, user, system
+
 builtin config mixins (-m debug,release,small-debug)
 Sane defaults for new code. (-Weverything, -std=c++1y)
 Loading new job kinds at runtime
@@ -5,6 +7,7 @@ Loading new job kinds at runtime
 Bootstrap-generating tool
 Tooling mixins (-t valgrind, -t callgrind, -t clang-analyze, -t asan, ...)
 Dynamicaly loading / adding tooling options
+  - Choose names to load
 Native packaging creation?
 make install equivalent
 virtualenv building

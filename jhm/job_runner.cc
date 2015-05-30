@@ -88,6 +88,7 @@ void TJobRunner::ProcessQueue() {
     ++BeingRun;
 
     // Run the job.
+    Run(runnable);
     const auto &cmd = get<1>(runnable);
     if(PrintCmd) {
       // NOTE: We use '+' to make a new string (effectively as a back buffer), then a single

@@ -148,10 +148,6 @@ TEnv::TEnv(const TTree &src,
                                << ". At least one config looked for must exist";
   }
 
-  Jobs.Register(Job::TDep::GetProducer());
-  Jobs.Register(Job::TCompileCFamily::GetCProducer());
-  Jobs.Register(Job::TCompileCFamily::GetCppProducer());
-  Jobs.Register(Job::TLink::GetProducer());
 }
 
 TFile *TEnv::GetFile(TRelPath name) {

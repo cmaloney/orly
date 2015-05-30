@@ -64,7 +64,11 @@ class TJobFactory {
   // TODO(cmaloney): Make this take a list of names to activate, job modules
   // to load (may have more than one name per module).
   TJobFactory(bool enable_all) {
-
+    if (enable_all) {
+      for(const auto &job: BuiltinJobs) {
+        job.second
+      }
+    }
   }
   // TODO(cmaloney): This seems very suspect....
   // NOTE: We don't just use a tuple because we want a specialized hash

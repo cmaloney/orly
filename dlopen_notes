@@ -1,0 +1,12 @@
+dlopen()
+
+Mode:
+  RTLD_LAZY in debug
+  RTLD_NOW in release
+
+RTLD_LOCAL
+
+On OS X
+RTLD_FIRST
+
+dlsym()
