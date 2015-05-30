@@ -14,6 +14,7 @@ struct TOptions {
   std::string Config = "debug";
   std::string ConfigMixin;
   std::string PrintTests;
+  bool DisableDefaultJobs = false;
   bool RunTests = false;
   bool VerboseTests = false;  // TODO(cmaloney): generalize to flags for tests.
   uint64_t WorkerCount;

@@ -45,6 +45,7 @@ Usage:
 
 
 TODO:
+  o enable/disable options
   o docopt style short specification?
   o Boolean parameters should be able to be specified either by
     their flag existing, or by -flag={true,false,yes,no,y,n,t,f}

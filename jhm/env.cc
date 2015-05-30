@@ -30,6 +30,21 @@ using namespace Jhm;
 using namespace std;
 using namespace Util;
 
+TJobFactory::TJobFactory(bool disable_default_jobs) {
+  static std::unordered_map<std::string, TJobProducer(*)()> builtin_jobs = {
+    {"dependency", &Job::TDep::GetProducer},
+    {"compile_c", &Job::TCompileCFamily::GetCProducer},
+    {"compile_cpp", &Job::TCompileCFamily::GetCppProducer},
+    {"link", &Job::TLink::GetProducer}
+  };
+
+  if (!disable_default_jobs) {
+    for (const auto &job: builtin_jobs) {
+      Register(job.second());
+    }
+  }
+}
+
 unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) {
   unordered_set<TJob *> ret;
 
@@ -133,10 +148,12 @@ vector<string> GetConfigList(const TTree &src,
 
 TEnv::TEnv(const TTree &src,
            const string &config,
-           const string &config_mixin)
+           const string &config_mixin,
+           bool disable_default_jobs)
     : Src(src),
       Out(GetOutDirName(src, config, config_mixin)),
-      Config(GetConfigList(src, config, config_mixin)) {
+      Config(GetConfigList(src, config, config_mixin)),
+      Jobs(disable_default_jobs) {
   if(config == "core") {
     THROWER(runtime_error)
         << "the config 'core' is reserved / special. Use a different config.";

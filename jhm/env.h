@@ -63,13 +63,8 @@ class TJobFactory {
 
   // TODO(cmaloney): Make this take a list of names to activate, job modules
   // to load (may have more than one name per module).
-  TJobFactory(bool enable_all) {
-    if (enable_all) {
-      for(const auto &job: BuiltinJobs) {
-        job.second
-      }
-    }
-  }
+  TJobFactory(bool disable_default);
+
   // TODO(cmaloney): This seems very suspect....
   // NOTE: We don't just use a tuple because we want a specialized hash
   struct TJobDesc {
@@ -109,13 +104,6 @@ class TJobFactory {
   // "one simple list" we
   // always iterate over all of.
   std::vector<TJobProducer> JobProducers;
-
-  std::unordered_map<std::string, TJobProducer(*)()> BuiltinJobs = {
-    {"dependency", &Job::TDep::GetProducer},
-    {"compile_c", &Job::TCompileCFamily::GetCProducer},
-    {"compile_cpp", &Job::TCompileCFamily::GetCppProducer},
-    {"link", &Job::TLink::GetProducer}
-  }
 };
 
 class TEnv {
@@ -131,7 +119,8 @@ class TEnv {
 
   TEnv(const TTree &src,
        const std::string &config,
-       const std::string &config_mixin);
+       const std::string &config_mixin,
+       bool disable_default_jobs);
 
   // Add a job to the job
   TJob *Add(std::unique_ptr<TJob> &&job);

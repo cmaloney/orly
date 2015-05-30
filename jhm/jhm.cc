@@ -101,6 +101,7 @@ int Main(int argc, char *argv[]) {
       Cmd::Optional({"mixin", "m"}, &TOptions::ConfigMixin, "Configuration mixin"),
       Cmd::Optional({"run-tests", "t"}, &TOptions::RunTests, "Run the unit tests"),
       Cmd::Optional("verbose-tests", &TOptions::VerboseTests, "Run the tests in verbose mode"),
+      Cmd::Optional("disable-default-jobs", &TOptions::DisableDefaultJobs, "Disable the default jobs"),
       Cmd::Optional(
           "worker-count", &TOptions::WorkerCount, "Max number of commands to run at once"),
       Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce")};
@@ -110,7 +111,7 @@ int Main(int argc, char *argv[]) {
   // Build up the environment. Find the root, grab the project, user, and system configuration
   TTree cwd_tree(cwd);
   TTree src = TTree::Find(cwd, "core.jhm");
-  TEnv env(src, options.Config, options.ConfigMixin);
+  TEnv env(src, options.Config, options.ConfigMixin, options.DisableDefaultJobs);
 
   // chdir to the src folder so we can always use relative paths. for commands
   /* abs_root */ {
