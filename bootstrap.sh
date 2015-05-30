@@ -25,6 +25,7 @@ common_flags=(
   -O3 -DNDEBUG
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
   -flto
+  -fuse-ld=gold
 
   # Enable threads
   -pthread
