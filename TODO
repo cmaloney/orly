@@ -1,3 +1,34 @@
+builtin config mixins (-m debug,release,small-debug)
+Sane defaults for new code. (-Weverything, -std=c++1y)
+Loading new job kinds at runtime
+Tooling mixins (Valgrind, callgrind, etc)
+Tool insertion (Valgrind, Callgrind, Static Analysis)
+  - Native packaging?
+make install equivalent
+virtualenv building
+Dependency downloading / building / installing
+DistCC
+Configuration layering
+  - .user.bit, XDG_CONFIG_DIR / ~/.config
+  - Packaging default options (Ala makepkg.conf)
+Multiple subprojects in one repository
+  - Subproject discovery? (Useful for closed vs. open)
+System header -> library mapping for link deps.
+Sublime editor integration
+  - Autocomplete
+  - Build systems tab
+Command line autocompletion
+"Run built program" utility / helper
+New job queue which knows scheduling things optimistically
+Make the JobRunner a proper thread pool
+
+
+
+
+
+
+
+
 `built` wrapper - run stuff in the most recent build config
   -- maybe just an option at the end of a normal invocation?
 
