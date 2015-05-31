@@ -1,4 +1,9 @@
 {
+  "mixins": [
+    "c++14",
+    "color_diagnostics",
+    "most_warnings"
+  ],
   "targets": [
       "jhm/jhm"
     ],

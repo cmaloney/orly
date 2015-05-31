@@ -98,7 +98,7 @@ int Main(int argc, char *argv[]) {
       Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print commands when they are run"),
       Cmd::Optional(
           {"config", "c"}, &TOptions::Config, "Build the software in the given configuration"),
-      Cmd::Optional({"mixin", "m"}, &TOptions::ConfigMixin, "Configuration mixin"),
+      Cmd::Optional({"mixin", "m"}, &TOptions::ConfigMixins, "Configuration mixin"),
       Cmd::Optional({"run-tests", "t"}, &TOptions::RunTests, "Run the unit tests"),
       Cmd::Optional("verbose-tests", &TOptions::VerboseTests, "Run the tests in verbose mode"),
       Cmd::Optional("disable-default-jobs", &TOptions::DisableDefaultJobs, "Disable the default jobs"),
@@ -108,10 +108,16 @@ int Main(int argc, char *argv[]) {
   TOptions options = Cmd::Parse(args, argc, argv);
   auto cwd = GetCwd();
 
+  // Split apart the mixin string.
+  // TODO(cmaloney): This should happen via the command line parser...
+  // -m should be specifiable multiple times, and be able to have ',' seperate options.
+  vector<string> mixins;
+  Split(",", options.ConfigMixins, mixins);
+
   // Build up the environment. Find the root, grab the project, user, and system configuration
   TTree cwd_tree(cwd);
   TTree src = TTree::Find(cwd, "core.jhm");
-  TEnv env(src, options.Config, options.ConfigMixin, options.DisableDefaultJobs);
+  TEnv env(src, options.Config, mixins.at(0), options.DisableDefaultJobs);
 
   // chdir to the src folder so we can always use relative paths. for commands
   /* abs_root */ {

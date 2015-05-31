@@ -12,7 +12,7 @@ struct TOptions {
   TOptions() : WorkerCount(std::thread::hardware_concurrency()) {}
   bool PrintCmd = false;
   std::string Config = "debug";
-  std::string ConfigMixin;
+  std::string ConfigMixins;
   std::string PrintTests;
   bool DisableDefaultJobs = false;
   bool RunTests = false;

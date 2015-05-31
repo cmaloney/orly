@@ -1,7 +1,18 @@
-Rewrite config system to load things from project, user, system
 
-builtin config mixins (-m debug,release,small-debug)
-Sane defaults for new code. (-Weverything, -std=c++1y)
+Rewrite config system
+  - use proper layers (project, user, system)
+  - Allow mixins (-m debug,release,small-debug)
+    - Adding/removing options in mixins, system config based on "one of x" system choice
+  - Allow "One of X" user choices
+    Ex: GCC, Clang, MSVC, ICC
+  - Sane defaults for new code. (-Weverything, -std=c++1y)
+
+
+
+On startup find system include directories and turn them into "Trees"
+`echo | g++ -x c++ -Wp,-v -E -`
+Convert system include -> library using config
+
 Loading new job kinds at runtime
   - Default load all, allow projects to specify exactly what to load
 Bootstrap-generating tool
