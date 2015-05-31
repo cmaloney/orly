@@ -116,7 +116,7 @@ vector<string> TLink::GetCmd() {
   assert(this);
 
   vector<string> cmd{Jhm::GetCmd<Tools::Link>(Env.GetConfig()), "-o" + GetSoleOutput()->GetPath()};
-  for(auto &flag : Env.GetConfig().Read<vector<string>>({"options", "link", "flags"})) {
+  for(auto &flag : Env.GetConfig().ReadOptional<vector<string>>({"options", "link", "flags"})) {
     cmd.push_back(move(flag));
   }
 
@@ -126,7 +126,7 @@ vector<string> TLink::GetCmd() {
   }
 
   // TODO: Be more intelligent / selective about link flags
-  for(auto &lib : Env.GetConfig().Read<vector<string>>({"options", "link", "libs"})) {
+  for(auto &lib : Env.GetConfig().ReadOptional<vector<string>>({"options", "link", "libs"})) {
     cmd.push_back(move(lib));
   }
 
