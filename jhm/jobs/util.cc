@@ -29,22 +29,19 @@ using namespace Util;
 
 template <>
 std::string Jhm::GetCmd<Tools::C>(const TConfig &config) {
-  static const std::string cmd = config.Read<std::string>({"tools", "c"});
-  assert(cmd == config.Read<std::string>({"tools", "c"}));
+  static const std::string cmd = config.ReadOptional<std::string>({"tools", "c"}, "clang");
   return cmd;
 }
 
 template <>
 std::string Jhm::GetCmd<Tools::Cc>(const TConfig &config) {
-  static const std::string cmd = config.Read<std::string>({"tools", "c++"});
-  assert(cmd == config.Read<std::string>({"tools", "c++"}));
+  static const std::string cmd = config.ReadOptional<std::string>({"tools", "c++"}, "clang++");
   return cmd;
 }
 
 template <>
 std::string Jhm::GetCmd<Tools::Link>(const TConfig &config) {
-  static const std::string cmd = config.Read<std::string>({"tools", "link"});
-  assert(cmd == config.Read<std::string>({"tools", "link"}));
+  static const std::string cmd = config.ReadOptional<std::string>({"tools", "link"}, "clang++");
   return cmd;
 }
 

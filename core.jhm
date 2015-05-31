@@ -1,9 +1,4 @@
 {
-  "tools": {
-    "c": "clang",
-    "c++": "clang++",
-    "link": "clang++"
-  },
   "targets": [
       "jhm/jhm"
     ],
@@ -18,5 +13,8 @@
       "-pthread",
       "-fcolor-diagnostics"
     ],
+    "link": {
+      "libs": ["-pthread"]
+    }
   }
 }
