@@ -28,13 +28,13 @@ using namespace std;
 using namespace std::placeholders;
 using namespace Util;
 
-vector<string> TCompileCFamily::GetStandardArgs(TFile *input, bool is_cpp, const TEnv &env) {
+vector<string> TCompileCFamily::GetStandardArgs(TFile *input, bool is_cc, const TEnv &env) {
   // Add options from configuration. Per-file config overrides global config
   vector<string> options;
   // TODO: Make file configuration automatically attach environment to the tail of it's list for
   // lookups / fallback?
-  if(!input->GetConfig().TryRead({"options", is_cpp ? "c++" : "c"}, options)) {
-    env.GetConfig().TryRead({"options", is_cpp ? "c++" : "c"}, options);
+  if(!input->GetConfig().TryRead({"options", is_cc ? "c++" : "c"}, options)) {
+    env.GetConfig().TryRead({"options", is_cc ? "c++" : "c"}, options);
   }
 
   const auto src_str = AsStr(*env.GetSrc());
@@ -48,14 +48,14 @@ vector<string> TCompileCFamily::GetStandardArgs(TFile *input, bool is_cpp, const
   return options;
 }
 
-static TRelPath GetOutputName(const TRelPath &input, bool is_cpp) {
-  assert(input.Path.EndsWith({is_cpp ? "cc" : "c"}));
+static TRelPath GetOutputName(const TRelPath &input, bool is_cc) {
+  assert(input.Path.EndsWith({is_cc ? "cc" : "c"}));
   return TRelPath(SwapExtension(TPath(input.Path), {"o"}));
 }
 
-static TOpt<TRelPath> GetInputName(const TRelPath &output, bool is_cpp) {
+static TOpt<TRelPath> GetInputName(const TRelPath &output, bool is_cc) {
   if(output.Path.EndsWith({"o"})) {
-    return TRelPath(SwapExtension(TPath(output.Path), {is_cpp ? "cc" : "c"}));
+    return TRelPath(SwapExtension(TPath(output.Path), {is_cc ? "cc" : "c"}));
   } else {
     return TOpt<TRelPath>();
   }
@@ -71,8 +71,8 @@ TJobProducer TCompileCFamily::GetCProducer() {
   }};
 }
 
-TJobProducer TCompileCFamily::GetCppProducer() {
-  return TJobProducer{"compile_cpp",
+TJobProducer TCompileCFamily::GetCcProducer() {
+  return TJobProducer{"compile_cc",
                       {{"o"}},
                       bind(GetInputName, _1, true),
                       // TODO: Should be able to eliminate the lambda wrapper here...
@@ -82,8 +82,8 @@ TJobProducer TCompileCFamily::GetCppProducer() {
 }
 
 const char *TCompileCFamily::GetName() {
-  if(IsCpp) {
-    return "compile_cpp";
+  if(IsCc) {
+    return "compile_cc";
   } else {
     return "compile_c";
   }
@@ -105,7 +105,7 @@ vector<string> TCompileCFamily::GetCmd() {
   // add output, input filenames
   // Tell GCC we're only compiling to a .o
   vector<string> cmd{
-      IsCpp ? Jhm::GetCmd<Tools::Cc>(Env.GetConfig()) : Jhm::GetCmd<Tools::C>(Env.GetConfig()),
+      IsCc ? Jhm::GetCmd<Tools::Cc>(Env.GetConfig()) : Jhm::GetCmd<Tools::C>(Env.GetConfig()),
       "-o" + GetSoleOutput()->GetPath(),
       GetInput()->GetPath(),
       "-c"};
@@ -113,7 +113,7 @@ vector<string> TCompileCFamily::GetCmd() {
   /* Add standard arguments */ {
     // TODO: Really need an insertion move here...
     // TODO: Trivial vector append (Can we add an operator+ for rvalue rhs?)
-    auto std_args = GetStandardArgs(GetInput(), IsCpp, Env);
+    auto std_args = GetStandardArgs(GetInput(), IsCc, Env);
     for(auto &arg : std_args) {
       cmd.push_back(move(arg));
     }
@@ -123,7 +123,7 @@ vector<string> TCompileCFamily::GetCmd() {
 }
 
 TTimestamp TCompileCFamily::GetCmdTimestamp() const {
-  return IsCpp ? Jhm::GetCmdTimestamp<Tools::Cc>(Env.GetConfig())
+  return IsCc ? Jhm::GetCmdTimestamp<Tools::Cc>(Env.GetConfig())
                : Jhm::GetCmdTimestamp<Tools::C>(Env.GetConfig());
 }
 
@@ -148,8 +148,8 @@ bool TCompileCFamily::IsComplete() {
   return true;
 }
 
-TCompileCFamily::TCompileCFamily(TEnv &env, TFile *in_file, bool is_cpp)
-    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath(), is_cpp))}),
+TCompileCFamily::TCompileCFamily(TEnv &env, TFile *in_file, bool is_cc)
+    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath(), is_cc))}),
       Env(env),
-      IsCpp(is_cpp),
+      IsCc(is_cc),
       Need(Env.GetFile(TRelPath(AddExtension(TPath(GetInput()->GetRelPath().Path), {"dep"})))) {}

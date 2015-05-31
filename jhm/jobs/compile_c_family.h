@@ -26,10 +26,10 @@ namespace Job {
 
 class TCompileCFamily final : public TJob {
   public:
-  static std::vector<std::string> GetStandardArgs(TFile *input, bool is_cpp, const TEnv &env);
+  static std::vector<std::string> GetStandardArgs(TFile *input, bool is_cc, const TEnv &env);
 
   static TJobProducer GetCProducer();
-  static TJobProducer GetCppProducer();
+  static TJobProducer GetCcProducer();
 
   virtual const char *GetName() final;
   virtual const TSet<TFile *> GetNeeds() final;
@@ -38,12 +38,12 @@ class TCompileCFamily final : public TJob {
   virtual bool IsComplete() final;
 
   private:
-  TCompileCFamily(TEnv &env, TFile *input, bool is_cpp);
+  TCompileCFamily(TEnv &env, TFile *input, bool is_cc);
 
   TEnv &Env;
-  // NOTE: We could make IsCpp be constant / CompileCFamily be templated on it
+  // NOTE: We could make IsCc be constant / CompileCFamily be templated on it
   // But that results in more ug than the tiny perf benefit is worth.
-  bool IsCpp;
+  bool IsCc;
   TFile *Need;
 };
 

@@ -78,8 +78,7 @@ auto Join(const TContainer &container, const TDelimiter &delimiter) {
 }
 
 
-/* A generic function to stream out TJoin<> to some streamer.
-   The streamer type is templated to handle other streamers such as TCppPrinter. */
+/* A generic function to stream out TJoin<> to an arbitrary some streamer. */
 template <typename TStrm, typename TContainer, typename TDelimit, typename TFormat>
 TStrm &WriteJoin(TStrm &strm, const TJoin<TContainer, TDelimit, TFormat> &that) {
   bool first = true;

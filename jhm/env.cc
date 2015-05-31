@@ -31,10 +31,10 @@ using namespace std;
 using namespace Util;
 
 TJobFactory::TJobFactory(bool disable_default_jobs) {
-  static std::unordered_map<std::string, TJobProducer(*)()> builtin_jobs = {
+  const std::unordered_map<std::string, TJobProducer(*)()> builtin_jobs = {
     {"dependency", &Job::TDep::GetProducer},
     {"compile_c", &Job::TCompileCFamily::GetCProducer},
-    {"compile_cpp", &Job::TCompileCFamily::GetCppProducer},
+    {"compile_cc", &Job::TCompileCFamily::GetCcProducer},
     {"link", &Job::TLink::GetProducer}
   };
 
