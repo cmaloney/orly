@@ -150,8 +150,7 @@ int Main(int argc, char *argv[]) {
     }
 
     // Add the tests if we're supposed to by default
-    bool build_tests = false;
-    env.GetConfig().TryRead({"test", "build_with_default_targets"}, build_tests);
+    bool build_tests = env.GetConfig().ReadOptional({"test", "build_with_default_targets"}, false);
     if(build_tests) {
       auto tests = FindTests(env);
 

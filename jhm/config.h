@@ -95,11 +95,11 @@ class TConfig final {
   }
 
   template <typename TVal>
-  TVal ReadOptional(const std::initializer_list<std::string> &name) const {
+  TVal ReadOptional(const std::initializer_list<std::string> &name, TVal not_found=TVal()) const {
     // Try reading a config value. If it exists, must be of the right type.
     Base::TJson entry;
     if(!TryGetEntry(name, entry)) {
-      return TVal();
+      return std::move(not_found);
     }
     return TJsonReader<TVal>::Read(entry);
   }
