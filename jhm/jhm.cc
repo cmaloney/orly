@@ -117,7 +117,7 @@ int Main(int argc, char *argv[]) {
   // Build up the environment. Find the root, grab the project, user, and system configuration
   TTree cwd_tree(cwd);
   TTree src = TTree::Find(cwd, "core.jhm");
-  TEnv env(src, options.Config, mixins.at(0), options.DisableDefaultJobs);
+  TEnv env(src, options.Config, mixins.size() > 0 ? mixins.at(0) : "", options.DisableDefaultJobs);
 
   // chdir to the src folder so we can always use relative paths. for commands
   /* abs_root */ {
