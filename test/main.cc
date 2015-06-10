@@ -52,7 +52,7 @@ int Main(int argc, char *argv[]) {
 
   RunFixtures();
 
-  bool success = global_ctx.GetFailureCount();
+  bool success = global_ctx.GetFailureCount() == 0;
   if(!success || GetOptions().Verbose) {
     std::cout << "passed " << global_ctx.GetPassCount() << ", failed "
               << global_ctx.GetFailureCount();

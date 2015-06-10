@@ -238,7 +238,7 @@ bool Check(const Base::TCodeLocation &loc, TPrefix op, const char *arg_str, cons
       break;
     }
   }
-  Log(loc, Base::AsStr(TType<TArg>(), op_str, arg_str).c_str(), result) << op_str << bool(arg);
+  Log(loc, Base::AsStr(TType<TArg>(), op_str, arg_str).c_str(), result) << op_str << std::boolalpha << bool(arg);
   return result;
 }
 

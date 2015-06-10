@@ -31,7 +31,7 @@ TContext::~TContext() {
 
   if(Parent) {
     // Write to the parent the fixture result
-    TContext::Log(Name, FailureCount > 0);
+    TContext::Log(Name, FailureCount <= 0);
   }
 }
 

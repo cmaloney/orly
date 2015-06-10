@@ -48,7 +48,7 @@ class TContext {
   ~TContext();
 
   inline uint64_t GetFailureCount() const { return FailureCount; }
-  inline uint64_t GetPassCount() const { return FailureCount; }
+  inline uint64_t GetPassCount() const { return PassCount; }
 
   // TODO(cmaloney): Logging to XML type reports
   /* Builds a stack of ostringstream loggers. All TLog() statements
