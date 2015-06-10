@@ -33,23 +33,9 @@ using namespace Base;
 using namespace Util;
 
 FIXTURE(LibraryGenerated) {
-  bool caught = false;
-  try {
-    thread().detach();
-  } catch(const system_error &) {
-    caught = true;
-  } catch(...) {
-  }
-  EXPECT_TRUE(caught);
+  EXPECT_THROW(system_error, [&](){ thread().detach(); });
 }
 
 FIXTURE(UtilsGenerated) {
-  bool caught = false;
-  try {
-    IfLt0(read(-1, 0, 0));
-  } catch(const system_error &) {
-    caught = true;
-  } catch(...) {
-  }
-  EXPECT_TRUE(caught);
+  EXPECT_THROW(system_error, [&](){ IfLt0(read(-1, 0, 0)); });
 }
