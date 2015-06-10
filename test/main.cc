@@ -55,7 +55,7 @@ int Main(int argc, char *argv[]) {
   bool success = global_ctx.GetFailureCount() == 0;
   if(!success || GetOptions().Verbose) {
     std::cout << "passed " << global_ctx.GetPassCount() << ", failed "
-              << global_ctx.GetFailureCount();
+              << global_ctx.GetFailureCount() << '\n';
   }
 
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
