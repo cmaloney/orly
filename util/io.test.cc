@@ -65,16 +65,7 @@ FIXTURE(WriteAtMost) {
   readable.Reset();
   ssize_t actual_size = WriteAtMost(writeable, 0, 0);
   EXPECT_FALSE(actual_size);
-#ifdef __linux__
-  bool caught_broken_pipe = false;
-  try {
-    WriteAtMost(writeable, ExpectedData, ExpectedSize);
-  } catch(const system_error &error) {
-    /* TODO: change this to error.code() == errc::broken_pipe */
-    caught_broken_pipe = (error.code().value() == EPIPE);
-  }
-  EXPECT_TRUE(caught_broken_pipe);
-#endif
+  // TODO(cmaloney): Test for EPIPE?
   writeable.Reset();
 }
 
