@@ -10,6 +10,11 @@
 #ifndef NLOHMANN_JSON_HPP
 #define NLOHMANN_JSON_HPP
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-declarations"
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wswitch-enum"
+
 #include <algorithm>
 #include <array>
 #include <ciso646>
@@ -4864,6 +4869,9 @@ basic_json_parser_59:
 // presets //
 /////////////
 
+// Make this only happen once.
+extern template basic_json<>;
+
 /// default JSON class
 using json = basic_json<>;
 }
@@ -4917,5 +4925,7 @@ inline nlohmann::json operator "" _json(const char* s, std::size_t)
     return nlohmann::json::parse(reinterpret_cast<nlohmann::json::string_t::value_type*>
                                  (const_cast<char*>(s)));
 }
+
+#pragma clang diagnostic pop
 
 #endif
