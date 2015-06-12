@@ -6,7 +6,18 @@ Rewrite config system
   - Allow "One of X" user choices
     Ex: GCC, Clang, MSVC, ICC
   - Sane defaults for new code. (-Weverything, -std=c++1y)
-
+{
+  "dependencies": {
+    "pkgpanda": {
+      "method": "url_extract",
+      "source": "gihtub.com/pkgpanda/pkgpanda",
+      "build": {
+        "type": "script"
+        "source": "dep/build_pkgpanda"
+      }
+    }
+  }
+}
 
 
 On startup find system include directories and turn them into "Trees"

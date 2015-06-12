@@ -22,10 +22,10 @@ common_flags=(
   -std=c++1y
   -Wall -Werror -Wextra -Wold-style-cast
   # Optimize
-  -O3 -DNDEBUG
+  # -O3 -DNDEBUG
+  -g
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
-  -flto
-  -fuse-ld=gold
+  # -flto
 
   # Enable threads
   -pthread

@@ -6,6 +6,7 @@ project, project files, mixnis
 project, project mixins only:
   - Enable / disable specific jobs (compile_cc, etc)
   - Targets to build
+  - Enable / disable various auto-task finding / enabling builds (Ex: Tests, perf tests, etc)
 
 user-only (UI Options)
   - Output file location
@@ -14,6 +15,14 @@ user, project, or system:
   - Define mixins
   - Define mixin sets
 
+
+Mixins cannot fight with eachother in delta config specification.
+
+Load all of them, their stuff. Apply all additions. Then apply all removals.
+  NOTES for removals:
+    - Removing from vector is individual elements, not sequences. No error if not set.
+    - Removing from map is key removal.
+    - To delete a key, do "key=" null?
 
 
 1) Load mixins. Start with project mixin file (bit.config.json), move to sytem
@@ -52,7 +61,17 @@ Eventual features
 
 #include <nlohmann/json.hpp>
 
-namespace bit {
+#include <base/exception.h>
+
+namespace Bit {
+
+struct TValidSections {
+  bool DefaultTargets = false;
+  bool DefineMixins = false;
+  bool DefaultMixins = false;
+  bool Jobs = false;
+  bool InterfaceSettings = false;
+};
 
 using TJobConfig = std::unordered_map<std::string, nlohmann::json>;
 
@@ -67,18 +86,20 @@ struct TConfig {
 
   // Loads config from user, system, and project, enforcing basic rules, expanding
   // and resolving mixins. Doesn't load per-file config.
-  static TConfig Load(std::string project_dir, std::string user_dir, std::string system_dir);
+  static TConfig Load(const std::string &project_dir, const std::string &user_dir, const std::string &system_dir);
 };
 
 struct TFileConfig {
   TJobConfig JobConfig;
 
   // Loads a per-file config and emits the resulting job config.
-  static TFileConfig Load(std::vector<std::string> &EnabledMixins, const std::string &filename);
+  static TFileConfig Load(const std::vector<std::string> EnabledMixins, const std::string filename);
 };
 
 
 namespace Config {
+
+EXCEPTION(TInvalidValue, std::runtime_error, nullptr)
 
 // Merge two json config files according to the merge rules.
 // 'name=' means replace
@@ -90,6 +111,6 @@ nlohmann::json DeltaMerge(nlohmann::json &&base, nlohmann::json &&delta_json);
 // Merge two json config files, updating the base
 nlohmann::json Append(nlohmann::json &&lhs, nlohmann::json &&to_add);
 
-}
+} // Config
 
-}
+} // Bit
