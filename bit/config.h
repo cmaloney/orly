@@ -59,7 +59,7 @@ Eventual features
 #include <vector>
 #include <unordered_map>
 
-#include <nlohmann/json.hpp>
+#include <base/json.h>
 
 #include <base/exception.h>
 
@@ -73,7 +73,7 @@ struct TValidSections {
   bool InterfaceSettings = false;
 };
 
-using TJobConfig = std::unordered_map<std::string, nlohmann::json>;
+using TJobConfig = std::unordered_map<std::string, Base::TJson>;
 
 // TODO(cmaloney): enabled_jobs, job_config shouldn't be in the interface,
 // rather just pass back the set of jobs.
@@ -106,10 +106,10 @@ EXCEPTION(TInvalidValue, std::runtime_error, nullptr)
 // 'name+' means append / add
 // 'name-' means remove
 // 'name' as a dict key just means add / merge subkeys.
-nlohmann::json DeltaMerge(nlohmann::json &&base, nlohmann::json &&delta_json);
+Base::TJson DeltaMerge(Base::TJson &&base, Base::TJson &&delta_json);
 
 // Merge two json config files, updating the base
-nlohmann::json Append(nlohmann::json &&lhs, nlohmann::json &&to_add);
+Base::TJson Append(Base::TJson &&lhs, Base::TJson &&to_add);
 
 } // Config
 

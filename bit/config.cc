@@ -6,9 +6,9 @@
 
 #include <base/thrower.h>
 
+using namespace Base;
 using namespace Bit;
 using namespace Bit::Config;
-using namespace nlohmann;
 using namespace std;
 
 void Append(vector<string> &lhs, vector<string> &&rhs) {
@@ -20,26 +20,14 @@ string get_mixin_dir(string dir) { return dir + "/mixins"; }
 
 TConfig LoadMixin(TConfig &&config, std::string MixinName);
 
-json LoadJson(const string &filename) {
-  ifstream in(filename);
-  if(!in.is_open()) {
-    THROWER(std::runtime_error) << "Unable to open file " << std::quoted(filename);
-  }
-
-  try {
-    return json::parse(in);
-  } catch(const invalid_argument &ex) {
-    THROWER(runtime_error) << "in " << std::quoted(filename) << ':' << ex.what();
-  }
-}
 
 TConfig LoadConfig(TConfig &&config, TValidSections allowed_sections, const std::string &filename) {
-  json json = LoadJson(filename);
+  TJson json = TJson::Read(filename.c_str());
   if(allowed_sections.DefaultTargets) {
-    Append(config.DefaultTargets, json.at("targets").get<vector<string>>());
+    Append(config.DefaultTargets, json.Extract<vector<string>>({"targets"});
   }
   if(allowed_sections.DefaultMixins) {
-    Append(config.EnabledMixins, json.at("mixins").get<vector<string>>());
+    Append(config.EnabledMixins, json.Extract<vector<string>>({"mixins"});
   }
 }
 
@@ -54,7 +42,7 @@ Projects can specify
 TConfig LoadProjectConfig(const string &project_dir) {
   TConfig config;
 
-  json file = LoadJson(project_dir + "bit.json");
+  TJson file = LoadJson(project_dir + "bit.json");
 
   if(file.is_ob)
 
@@ -73,8 +61,8 @@ TConfig Bit::TConfig::Load(const string &project_dir,
 
   TConfig config = LoadProjectConfig(project_dir);
 
-  json::parse(project_dir + "/bit.json");
-  json::parse(user_dir + "/bit.json");
-  json::parse(system_dir + "/bit.json");
+  TJson::Read(project_dir + "/bit.json");
+  TJson::Read(user_dir + "/bit.json");
+  TJson::Read(system_dir + "/bit.json");
   return TConfig();
 }

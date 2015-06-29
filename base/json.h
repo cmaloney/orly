@@ -144,6 +144,11 @@ struct TJson final {
   /* Find or create an element contained in an object. */
   const TJson &operator[](const TString &that) const;
 
+  /* Access through n dictionaries.
+
+     TODO(cmaloney): Make this work more like jq / use that exact interface. */
+  const TJson &Address(std::initializer_list<std::string> &name);
+
   /* Returns true if the object contains the given key */
   bool Contains(const TString &that) const;
 
