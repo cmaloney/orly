@@ -34,6 +34,7 @@ namespace Base {
 struct TJson final {
   /* Thrown when extracting from a malformed stream. */
   EXCEPTION(TSyntaxError, std::runtime_error, "json syntax error")
+  EXCEPTION(TNotFound, std::runtime_error, nullptr)
 
   /* Aliases for constructed types from which we may construct. */
   using TArray = std::vector<TJson>;
@@ -50,6 +51,7 @@ struct TJson final {
   enum TKind { Null, Bool, Number, Array, Object, String };
 
   static TJson Read(const char *filename);
+  static TJson Read(const std::string &filename);
 
   /* Construct as a default instance of the given kind. */
   TJson(TKind kind = Null) noexcept;
@@ -147,7 +149,8 @@ struct TJson final {
   /* Access through n dictionaries.
 
      TODO(cmaloney): Make this work more like jq / use that exact interface. */
-  const TJson &Address(std::initializer_list<std::string> &name);
+  const TJson &Address(const std::initializer_list<std::string> &name) const;
+  const TJson *TryAddress(const std::initializer_list<std::string> &name) const;
 
   /* Returns true if the object contains the given key */
   bool Contains(const TString &that) const;

@@ -212,6 +212,10 @@ TJson TJson::Read(const char *filename) {
   return ret;
 }
 
+TJson TJson::Read(const std::string &filename) {
+  return TJson::Read(filename.c_str());
+}
+
 TJson::TJson(TKind kind) noexcept {
   switch(kind) {
     /* Do nothing. */
