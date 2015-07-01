@@ -5,6 +5,7 @@
 #include <iterator>
 
 #include <base/json_util.h>
+#include <base/not_implemented.h>
 #include <base/thrower.h>
 
 using namespace Base;
@@ -34,6 +35,38 @@ TConfig LoadConfig(TConfig &&config, TValidSections allowed_sections, const std:
   if(allowed_sections.DefaultMixins) {
     Append(config.EnabledMixins, Extract<vector<string>>(json, {"mixins"}));
   }
+
+  if(allowed_sections.Jobs) {
+    Append(config.EnabledJobs, Extract<vector<string>>(json, {"jobs"}));
+  }
+
+  if(allowed_sections.InterfaceSettings) {
+    const TJson *output_location_json = json.Address('cache_directory');
+    if(output_location_json) {
+      ThrowIfWrongKind(TJson::String, *output_location_json)
+      switch(output_location_json->GetString()) {
+        case "cache":
+          config.CacheDirectory = '~/.cache/bit';
+          break;
+        case "in_project":
+          config.CacheDirectory = '.bit/cache';
+          break;
+        case "outside_project":
+          config.CacheDirectory = '../.bit/cache'
+        case "tmp":
+          config.CacheDirectory = '/tmp/bit_cache'
+        default:
+          NOT_IMPLEMENTED()
+      }
+    } else {
+      config.CacheDirectory = '.bit/cache';
+    }
+  }
+
+  if(allowed_sections.DefineMixins) {
+    // Extract all the MixinConfigs.
+  }
+}
 
   // TODO(cmaloney): lots
   return config;

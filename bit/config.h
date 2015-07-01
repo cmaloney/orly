@@ -75,6 +75,12 @@ struct TValidSections {
 
 using TJobConfig = std::unordered_map<std::string, Base::TJson>;
 
+struct TMixinConfig {
+  TJobConfig AddJobConfig;
+  TJobConfig RemoveJobConfig;
+  std::vector<std::string> AddMixins;
+};
+
 // TODO(cmaloney): enabled_jobs, job_config shouldn't be in the interface,
 // rather just pass back the set of jobs.
 struct TConfig {
@@ -83,6 +89,8 @@ struct TConfig {
   TJobConfig JobConfig;
   std::vector<std::string> EnabledJobs;
   std::string CacheDirectory;
+
+  std::unordered_map<std::string, TMixinConfig> Mixins;
 
   // Loads config from user, system, and project, enforcing basic rules, expanding
   // and resolving mixins. Doesn't load per-file config.
