@@ -149,8 +149,8 @@ struct TJson final {
   /* Access through n dictionaries.
 
      TODO(cmaloney): Make this work more like jq / use that exact interface. */
-  const TJson &Address(const std::initializer_list<std::string> &name) const;
-  const TJson *TryAddress(const std::initializer_list<std::string> &name) const;
+  const TJson &Address(const std::initializer_list<std::string> &address) const;
+  const TJson *TryAddress(const std::initializer_list<std::string> &address) const;
 
   /* Returns true if the object contains the given key */
   bool Contains(const TString &that) const;

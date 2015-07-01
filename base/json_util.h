@@ -1,6 +1,9 @@
+#pragma once
+
 #include <exception>
 
 #include <base/exception.h>
+#include <base/json.h>
 #include <base/split.h>
 #include <base/thrower.h>
 

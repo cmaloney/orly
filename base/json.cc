@@ -8,6 +8,7 @@
 #include <utility>
 
 #include <base/likely.h>
+#include <base/split.h>
 #include <base/thrower.h>
 #include <base/unreachable.h>
 
@@ -458,6 +459,26 @@ const TJson &TJson::operator[](const TString &that) const {
   const TJson *elem = TryFind(that);
   assert(elem);
   return *elem;
+}
+
+const TJson &TJson::Address(const std::initializer_list<std::string> &address) const {
+  const TJson *result = TryAddress(address);
+  if (!result) {
+    THROWER(TNotFound) << "No element at " << Join(address, '.');
+  }
+  return *result;
+}
+
+const TJson *TJson::TryAddress(const std::initializer_list<std::string> &address) const {
+  const TJson *result = this;
+  auto end = address.end();
+  for(auto it = address.begin(); it != end; ++it) {
+    result = result->TryFind(*it);
+    if (!result) {
+      return nullptr;
+    }
+  }
+  return result;
 }
 
 bool TJson::Contains(const TString &that) const {
