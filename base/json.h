@@ -53,6 +53,9 @@ struct TJson final {
   static TJson Read(const char *filename);
   static TJson Read(const std::string &filename);
 
+  // Try reading the given file, but if it does not exist return Null.
+  static TJson TryRead(const std::string &filename);
+
   /* Construct as a default instance of the given kind. */
   TJson(TKind kind = Null) noexcept;
 

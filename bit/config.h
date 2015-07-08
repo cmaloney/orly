@@ -58,6 +58,7 @@ Eventual features
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <base/json.h>
 
@@ -65,44 +66,44 @@ Eventual features
 
 namespace Bit {
 
-struct TValidSections {
-  bool DefaultTargets = false;
-  bool DefineMixins = false;
-  bool DefaultMixins = false;
-  bool Jobs = false;
-  bool InterfaceSettings = false;
-};
-
 using TJobConfig = std::unordered_map<std::string, Base::TJson>;
 
+struct TCoreDirs {
+  std::string Project;
+  std::string User;
+  std::string System;
+};
+
 struct TMixinConfig {
-  TJobConfig AddJobConfig;
-  TJobConfig RemoveJobConfig;
-  std::vector<std::string> AddMixins;
+  TJobConfig JobConfig;
+  std::unordered_set<std::string> Mixins;
+  std::unordered_set<std::string> Targets;
+
+  static TMixinConfig Load(const std::string &name, const TCoreDirs &core_dirs);
 };
 
 // TODO(cmaloney): enabled_jobs, job_config shouldn't be in the interface,
 // rather just pass back the set of jobs.
 struct TConfig {
-  std::vector<std::string> DefaultTargets;
-  std::vector<std::string> EnabledMixins;  // Needed for per-file config loading
+  std::unordered_set<std::string> Targets;
+  std::unordered_set<std::string> Mixins;  // Needed for per-file config loading
   TJobConfig JobConfig;
-  std::vector<std::string> EnabledJobs;
+  std::unordered_set<std::string> Jobs;
   std::string CacheDirectory;
-
-  std::unordered_map<std::string, TMixinConfig> Mixins;
 
   // Loads config from user, system, and project, enforcing basic rules, expanding
   // and resolving mixins. Doesn't load per-file config.
-  static TConfig Load(const std::string &project_dir, const std::string &user_dir, const std::string &system_dir);
+  static TConfig Load(const TCoreDirs &core_dirs);
 };
 
-struct TFileConfig {
+
+// TODO(cmaloney): Per file option changing
+/* struct TFileConfig {
   TJobConfig JobConfig;
 
   // Loads a per-file config and emits the resulting job config.
   static TFileConfig Load(const std::vector<std::string> EnabledMixins, const std::string filename);
-};
+}; */
 
 
 namespace Config {
@@ -118,6 +119,8 @@ Base::TJson DeltaMerge(Base::TJson &&base, Base::TJson &&delta_json);
 
 // Merge two json config files, updating the base
 Base::TJson Append(Base::TJson &&lhs, Base::TJson &&to_add);
+
+TJobConfig DeltaMergeJobs(TJobConfig &&lhs, TJobConfig &&rhs);
 
 } // Config
 

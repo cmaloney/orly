@@ -29,11 +29,11 @@ TVal Extract(const Base::TJson &json, std::initializer_list<std::string> name={}
 }
 
 template <typename TVal>
-TVal ExtractOptional(const Base::TJson &json, TVal not_found=TVal(), std::initializer_list<std::string> name={}) {
+TVal ExtractOptional(const Base::TJson &json, std::initializer_list<std::string> name={}) {
   // Try reading a config value. If it exists, must be of the right type.
   const Base::TJson *entry = json.TryAddress(name);
   if (!entry) {
-    return std::move(not_found);
+    return std::move(TVal());
   }
   try {
     return TJsonReader<TVal>::Read(*entry);
@@ -73,6 +73,24 @@ struct TJsonReader<std::vector<TVal>> {
     try {
       for (const Base::TJson &json: entry.GetArray()) {
         ret.push_back(TJsonReader<TVal>::Read(json));
+      }
+    } catch(const TInvalidValue &ex) {
+      THROWER(TInvalidValue) << "Element in list. " << ex.what();
+    }
+    return ret;
+  }
+};
+
+template <typename TVal>
+struct TJsonReader<std::unordered_set<TVal>> {
+  static std::unordered_set<TVal> Read(const Base::TJson &entry) {
+    ThrowIfWrongKind(Base::TJson::Array, entry);
+    // Walk the array, pulling out each element
+    std::unordered_set<TVal> ret;
+    ret.reserve(entry.GetSize());
+    try {
+      for (const Base::TJson &json: entry.GetArray()) {
+        ret.insert(TJsonReader<TVal>::Read(json));
       }
     } catch(const TInvalidValue &ex) {
       THROWER(TInvalidValue) << "Element in list. " << ex.what();
