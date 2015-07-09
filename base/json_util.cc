@@ -18,9 +18,12 @@ std::string TJsonReader<std::string>::Read(const Base::TJson &entry) {
   return entry.GetString();
 }
 
-void Base::ThrowIfWrongKind(const TJson::TKind expected, const TJson &json) {
+void Base::ThrowIfWrongKind(const TJson::TKind expected, const TJson &json, const char *extra_msg) {
+  if (extra_msg == nullptr) {
+    extra_msg = "";
+  }
   if(json.GetKind() != expected) {
     THROWER(TInvalidValue) << "Expected a " << expected << " but found a "
-                                        << json.GetKind();
+                                        << json.GetKind() << extra_msg;
   }
 }

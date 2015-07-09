@@ -11,6 +11,7 @@
 #include <base/split.h>
 #include <base/thrower.h>
 #include <base/unreachable.h>
+#include <util/path.h>
 
 using namespace Base;
 
@@ -215,6 +216,13 @@ TJson TJson::Read(const char *filename) {
 
 TJson TJson::Read(const std::string &filename) {
   return TJson::Read(filename.c_str());
+}
+
+TJson TJson::TryRead(const std::string &filename) {
+  if (Util::ExistsPath(filename.c_str())) {
+    return TJson::Read(filename.c_str());
+  }
+  return TJson(TKind::Null);
 }
 
 TJson::TJson(TKind kind) noexcept {

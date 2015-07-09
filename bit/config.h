@@ -66,7 +66,7 @@ Eventual features
 
 namespace Bit {
 
-using TJobConfig = std::unordered_map<std::string, Base::TJson>;
+using TJobConfig = std::map<std::string, Base::TJson>;
 
 struct TCoreDirs {
   std::string Project;
@@ -74,6 +74,10 @@ struct TCoreDirs {
   std::string System;
 };
 
+
+// TODO(cmaloney): Add an API so that when no mixins are specified by a user a
+// project (and only a project) can provide a "default" mixin / set of mixins to
+// use
 struct TMixinConfig {
   TJobConfig JobConfig;
   std::unordered_set<std::string> Mixins;
@@ -82,8 +86,6 @@ struct TMixinConfig {
   static TMixinConfig Load(const std::string &name, const TCoreDirs &core_dirs);
 };
 
-// TODO(cmaloney): enabled_jobs, job_config shouldn't be in the interface,
-// rather just pass back the set of jobs.
 struct TConfig {
   std::unordered_set<std::string> Targets;
   std::unordered_set<std::string> Mixins;  // Needed for per-file config loading
@@ -109,18 +111,6 @@ struct TConfig {
 namespace Config {
 
 EXCEPTION(TInvalidValue, std::runtime_error, nullptr)
-
-// Merge two json config files according to the merge rules.
-// 'name=' means replace
-// 'name+' means append / add
-// 'name-' means remove
-// 'name' as a dict key just means add / merge subkeys.
-Base::TJson DeltaMerge(Base::TJson &&base, Base::TJson &&delta_json);
-
-// Merge two json config files, updating the base
-Base::TJson Append(Base::TJson &&lhs, Base::TJson &&to_add);
-
-TJobConfig DeltaMergeJobs(TJobConfig &&lhs, TJobConfig &&rhs);
 
 } // Config
 

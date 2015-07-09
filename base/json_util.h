@@ -1,6 +1,7 @@
 #pragma once
 
 #include <exception>
+#include <unordered_set>
 
 #include <base/exception.h>
 #include <base/json.h>
@@ -33,7 +34,7 @@ TVal ExtractOptional(const Base::TJson &json, std::initializer_list<std::string>
   // Try reading a config value. If it exists, must be of the right type.
   const Base::TJson *entry = json.TryAddress(name);
   if (!entry) {
-    return std::move(TVal());
+    return TVal();
   }
   try {
     return TJsonReader<TVal>::Read(*entry);
@@ -46,7 +47,9 @@ TVal ExtractOptional(const Base::TJson &json, std::initializer_list<std::string>
 }
 
 // Helper function
-void ThrowIfWrongKind(const Base::TJson::TKind expected, const Base::TJson &json);
+void ThrowIfWrongKind(const Base::TJson::TKind expected,
+                      const Base::TJson &json,
+                      const char *extra_msg = nullptr);
 
 template <>
 struct TJsonReader<bool> {

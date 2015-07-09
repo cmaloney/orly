@@ -8,6 +8,7 @@
 #include <base/json_util.h>
 #include <base/not_implemented.h>
 #include <base/thrower.h>
+#include <util/path.h>
 #include <util/stl.h>
 
 using namespace Base;
@@ -16,12 +17,70 @@ using namespace Bit::Config;
 using namespace std;
 using namespace Util;
 
+void AppendMerge(TJson &target, TJson &&addin) {
+  // TODO(cmaloney): Use the stack to provide a good error message of what we were trying to merge.
+  if(target.GetKind() != addin.GetKind()) {
+    THROWER(Config::TInvalidValue)
+        << "Unable to merge addin into target. Can't merge non-identical types " << target.GetKind()
+        << " and " << addin.GetKind();
+  }
+
+  // Merge arrays, dictionaries. Ignore everything else.
+  switch(target.GetKind()) {
+    case TJson::Object: {
+        auto &t_o = target.GetObject();
+        auto &a_o = addin.GetObject();
+        for(auto &item: a_o) {
+          auto iter = t_o.find(item.first);
+
+          if (iter == t_o.end()) {
+            t_o.emplace(std::move(item.first), std::move(item.second));
+          } else {
+            AppendMerge(iter->second, move(item.second));
+          }
+        }
+        break;
+      }
+    case TJson::Array: {
+      auto &target_array = target.GetArray();
+      auto &addin_array = addin.GetArray();
+      target_array.reserve(target_array.size() + addin_array.size());
+      std::move(addin_array.begin(), addin_array.end(), back_inserter(target_array));
+      break;
+    }
+    case TJson::Null:
+    case TJson::Bool:
+    case TJson::Number:
+    case TJson::String:
+      THROWER(Config::TInvalidValue) << "Unable to merge addin into target. Can't merge into type "
+                                      << target.GetKind();
+  }
+}
+
+void DeltaMergeJobs(TJobConfig &target, TJobConfig &&addin) {
+  for(auto &item : addin) {
+    auto iter = target.find(item.first);
+
+    if(iter == target.end()) {
+      // Not in lhs yet, just copy across
+      target.emplace(std::move(item.first), std::move(item.second));
+    } else {
+      // Merge the lhs with the rhs.
+      AppendMerge(iter->second, move(item.second));
+    }
+  }
+}
+
+// TODO(cmaloney): Create a wrapper which can be used for these to introduce
+// a context of 'while reading this particular config file'.
+
 bool LastNotSlash(const string &s) { return s.back() != '/'; }
 
 std::string ReadCacheDir(const TJson &json, const TCoreDirs &core_dirs) {
   const TJson *output_location_json = json.TryAddress({"cache_directory"});
   if(output_location_json) {
-    ThrowIfWrongKind(TJson::String, *output_location_json);
+    ThrowIfWrongKind(TJson::String, *output_location_json,
+                     " trying to read cache_directory from user config");
     // TODO(cmaloney): string switch
     const std::string &str = output_location_json->GetString();
     if(str == "cache") {
@@ -42,19 +101,49 @@ std::string ReadCacheDir(const TJson &json, const TCoreDirs &core_dirs) {
   }
 }
 
+TJobConfig ReadJobConfig(const TJson &json, const std::string &path) {
+  TJobConfig result;
+  const TJson *job_config = json.TryAddress({"job_config"});
+
+  if(!job_config) {
+    return result;
+  }
+
+  ThrowIfWrongKind(TJson::Object, *job_config, (" trying to read job_config from " + path).c_str());
+
+  // TODO(cmaloney): This is very unnecessarily copy happy.
+  result = job_config->GetObject();
+
+  return result;
+}
+
 TMixinConfig TMixinConfig::Load(const std::string &name, const TCoreDirs &core_dirs) {
-  // TODO(cmaloney): Find the mixin in the core dirs.
-  NOT_IMPLEMENTED()
-  string mixin_filename = name + ".mixin.json";
+  TMixinConfig conf;
 
-  TJson json = TJson::Read(mixin_filename);
+  auto load_config = [&](const std::string &dir) {
+    auto path = dir + "/mixin.bit/" + name + ".json";
+    if(!ExistsPath(path.c_str())) {
+      return false;
+    }
 
-  TMixinConfig config;
-  config.Mixins = ExtractOptional<unordered_set>(json, {"mixins"});
-  config.Targets = ExtractOptional<unordered_set>(json, {"targets"});
-  config.JobConfig = ReadJobConfig(json);
+    TJson json = TJson::Read(path);
 
-  return config;
+    TMixinConfig config;
+    config.Mixins = ExtractOptional<unordered_set<string>>(json, {"mixins"});
+    config.Targets = ExtractOptional<unordered_set<string>>(json, {"targets"});
+    config.JobConfig = ReadJobConfig(json, path);
+
+    return true;
+  };
+
+  // Use short circuiting so as long as we load one (and we load them in
+  // priority order), we return success, otherwise we throw an exception.
+  if(load_config(core_dirs.Project) || load_config(core_dirs.User) ||
+     load_config(core_dirs.System)) {
+    return conf;
+  }
+
+  THROWER(Config::TInvalidValue) << "Unable to load mixin: " << name;
 }
 
 TConfig LoadMixins(TConfig &&config, const TCoreDirs &core_dirs) {
@@ -71,7 +160,7 @@ TConfig LoadMixins(TConfig &&config, const TCoreDirs &core_dirs) {
       }
 
       // Only the system can add 'bit.' reserved mixins.
-      if (mixin.compare(0, 4, "bit.")) {
+      if(mixin.compare(0, 4, "bit.")) {
         THROWER(Config::TInvalidValue) << "Only bit can add mixins starting with 'bit.'.";
       }
       known_mixins.insert(mixin);
@@ -95,7 +184,7 @@ TConfig LoadMixins(TConfig &&config, const TCoreDirs &core_dirs) {
 
     // Add the targets
     config.Targets.insert(mixin_conf.Targets.begin(), mixin_conf.Targets.end());
-    DeltaMergeJobs(std::move(config.JobConfig), std::move(mixin_conf.JobConfig));
+    DeltaMergeJobs(config.JobConfig, std::move(mixin_conf.JobConfig));
   }
 
   return config;
@@ -103,14 +192,15 @@ TConfig LoadMixins(TConfig &&config, const TCoreDirs &core_dirs) {
 
 TConfig LoadProjectConfig(const string &project_dir) {
   TConfig config;
+  const string config_filename = project_dir + "/bit.json";
 
-  TJson json = TJson::Read(project_dir + "bit.json");
+  TJson json = TJson::Read(config_filename);
 
   // Load the individual configuration options.
-  config.Mixins = ExtractOptional<unordered_set>(json, {"mixins"});
-  config.Targets = ExtractOptional<unordered_set>(json, {"targets"});
-  config.Jobs = ExtractOptional<unordered_set>(json, {"jobs"});
-  config.JobConfig = ReadJobConfig(json);
+  config.Mixins = ExtractOptional<unordered_set<string>>(json, {"mixins"});
+  config.Targets = ExtractOptional<unordered_set<string>>(json, {"targets"});
+  config.Jobs = ExtractOptional<unordered_set<string>>(json, {"jobs"});
+  config.JobConfig = ReadJobConfig(json, config_filename);
 
   return config;
 }
@@ -121,15 +211,15 @@ TConfig Bit::TConfig::Load(const TCoreDirs &core_dirs) {
   assert(LastNotSlash(core_dirs.System));
 
   // Load the project base config.
-  TConfig config = LoadProjectConfig(project_dir);
+  TConfig config = LoadProjectConfig(core_dirs.Project);
 
   // Add the user config.
   auto user_json = TJson::TryRead(core_dirs.User + "/.config/bit.json");
-  config.CacheDirectory = ReadCacheDir(user_json, project_dir, user_dir, system_dir);
+  config.CacheDirectory = ReadCacheDir(user_json, core_dirs);
 
   // TODO(cmaloney): Provide a way for platforms to add / edit / set default flags.
   // TODO(cmaloney): Add distro / OS specific mixins for projects (ex. OSX -> bit.distro.osx mixin)
 
   // Load all the mixins, apply their config. Return the final config.
-  return LoadMixins(config, project_dir, user_dir, system_dir)
+  return LoadMixins(move(config), core_dirs);
 }
