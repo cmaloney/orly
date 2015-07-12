@@ -31,6 +31,8 @@ template <typename TCode>
   throw std::system_error(code, std::system_category());
 }
 
+// TODO(cmaloney): Rework these to behave better for the unistd.h convention
+// 'if not 0 then use errno'
 /* If the given value is < 0, throw a system error based on errno.
    Use this function to test the results of system I/O calls. */
 template <typename TRet>

@@ -165,6 +165,19 @@ auto Optional(const char name[], TRet TOptions::*member, const char *description
                const std::string &value) { options->*member = ParseArg<TRet>(value); });
 }
 
+// Optional repeatable named argument.
+template <typename TElem, typename TOptions>
+auto Optional(const std::vector<std::string> &names,
+              std::vector<TElem> TOptions::*member,
+              const char *description) {
+  return typename TArgs<TOptions>::TProcessor(
+      names,
+      description,
+      TRepetition::ZeroOrMore,
+      THasValue<TElem>::value,
+      [member](TOptions *options,
+               const std::string &value) { (options->*member).push_back(ParseArg<TElem>(value)); });
+}
 // Optional positional argument
 template <typename TElem, typename TOptions>
 auto Optional(std::vector<TElem> TOptions::*member,

@@ -34,6 +34,9 @@
 
 namespace Base {
 
+// TODO(cmaloney): Rework to have this all just be introspecting paths of a verified format. Way the
+// faster, cleaner to use.
+
 /* Design notes:
     - Value type, because otherwise we write a lot of crap to get and manipulate specific members
     - Helper functions rather than members to make it easier to modify in place intelligently /

@@ -93,6 +93,12 @@ struct TConfig {
   std::unordered_set<std::string> Jobs;
   std::string CacheDirectory;
 
+  // If optional is true, then if no mixin with the given name exists, don't error.
+  // Fast-exits if the same mixin is added twice.
+  // If system is true, then the mixin being added comes from bit itself, and
+  // is allowed to / must start with `bit.`
+  void AddMixin(const std::string &name, const TCoreDirs &core_dirs, bool optional=false, bool system=false);
+
   // Loads config from user, system, and project, enforcing basic rules, expanding
   // and resolving mixins. Doesn't load per-file config.
   static TConfig Load(const TCoreDirs &core_dirs);
@@ -110,7 +116,7 @@ struct TConfig {
 
 namespace Config {
 
-EXCEPTION(TInvalidValue, std::runtime_error, nullptr)
+EXCEPTION(TNoSuchMixin, std::runtime_error, nullptr)
 
 } // Config
 

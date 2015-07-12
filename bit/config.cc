@@ -20,7 +20,7 @@ using namespace Util;
 void AppendMerge(TJson &target, TJson &&addin) {
   // TODO(cmaloney): Use the stack to provide a good error message of what we were trying to merge.
   if(target.GetKind() != addin.GetKind()) {
-    THROWER(Config::TInvalidValue)
+    THROWER(TInvalidValue)
         << "Unable to merge addin into target. Can't merge non-identical types " << target.GetKind()
         << " and " << addin.GetKind();
   }
@@ -52,7 +52,7 @@ void AppendMerge(TJson &target, TJson &&addin) {
     case TJson::Bool:
     case TJson::Number:
     case TJson::String:
-      THROWER(Config::TInvalidValue) << "Unable to merge addin into target. Can't merge into type "
+      THROWER(TInvalidValue) << "Unable to merge addin into target. Can't merge into type "
                                       << target.GetKind();
   }
 }
@@ -143,51 +143,45 @@ TMixinConfig TMixinConfig::Load(const std::string &name, const TCoreDirs &core_d
     return conf;
   }
 
-  THROWER(Config::TInvalidValue) << "Unable to load mixin: " << name;
+  THROWER(Config::TNoSuchMixin) << "Unable to load mixin: " << name;
 }
 
-TConfig LoadMixins(TConfig &&config, const TCoreDirs &core_dirs) {
-  // TODO(cmaloney): Replace std::unordered_set with a more sane datastructure.
-  unordered_set<string> known_mixins;
-
-  deque<string> work_list;
-
-  auto add_mixins = [&work_list, &known_mixins](const unordered_set<string> &mixins) {
-    // TODO(cmaloney): Should we discard mixin case? Probably...
-    for(const string &mixin : mixins) {
-      if(Contains(known_mixins, mixin)) {
-        continue;
-      }
-
-      // Only the system can add 'bit.' reserved mixins.
-      if(mixin.compare(0, 4, "bit.")) {
-        THROWER(Config::TInvalidValue) << "Only bit can add mixins starting with 'bit.'.";
-      }
-      known_mixins.insert(mixin);
-      work_list.push_back(mixin);
+// TODO(cmaloney): Mixins should be case insensitive (lower snake case).
+void TConfig::AddMixin(const std::string &name, const TCoreDirs &core_dirs, bool is_optional, bool is_system) {
+  // Only system can add `bit.` named mixins.
+  if (name.compare(0, 4, "bit.")) {
+    if (!is_system) {
+      THROWER(TInvalidValue) << "Only bit can add mixins starting with 'bit.'.";
     }
-  };
-
-  // Add base mixins
-  add_mixins(config.Mixins);
-
-  // TODO(cmaloney): Based on the platform add bit reserved mixins to be loaded
-  // EX: osx -> bit.os.osx
-
-  // TODO(cmaloney): Make recursive to generate better error messages?
-  // Load all mixins, don't re-load already loaded mixins.
-  while(!work_list.empty()) {
-    string mixin = work_list.front();
-    work_list.pop_front();
-    TMixinConfig mixin_conf = TMixinConfig::Load(mixin, core_dirs);
-    add_mixins(mixin_conf.Mixins);
-
-    // Add the targets
-    config.Targets.insert(mixin_conf.Targets.begin(), mixin_conf.Targets.end());
-    DeltaMergeJobs(config.JobConfig, std::move(mixin_conf.JobConfig));
+  } else if (is_system) {
+    THROWER(TInvalidValue) << "System-added mixins must begin with 'bit.'";
   }
 
-  return config;
+  // Fast exit if already loaded.
+  if (Contains(Mixins, name)) {
+    return;
+  }
+
+  // Add the mixin to the loaded set.
+  Mixins.insert(name);
+
+  // Load the mixin, recursively load any mixins it depends upon.
+  // NOTE: Mixins which are depended upon are always required because if it says
+  // it needs it, it needs it. Optional only applies to finding the first one.
+  try {
+    TMixinConfig config = TMixinConfig::Load(name, core_dirs);
+
+    // Merge the mixin into the config
+    Targets.insert(config.Targets.begin(), config.Targets.end());
+    DeltaMergeJobs(JobConfig, std::move(config.JobConfig));
+  } catch (const TNoSuchMixin &) {
+    // If it was optional, no need to worry that it wasn't found.
+    // TODO(cmaloney): Exceptions in regular code flows is bad practice.
+    if (is_optional) {
+      return;
+    }
+    throw;
+  }
 }
 
 TConfig LoadProjectConfig(const string &project_dir) {
@@ -221,5 +215,11 @@ TConfig Bit::TConfig::Load(const TCoreDirs &core_dirs) {
   // TODO(cmaloney): Add distro / OS specific mixins for projects (ex. OSX -> bit.distro.osx mixin)
 
   // Load all the mixins, apply their config. Return the final config.
-  return LoadMixins(move(config), core_dirs);
+  // Copy config.Mixins since AddMixin mutates it.
+  const unordered_set<string> base_mixins = config.Mixins;
+  for(const auto &mixin: base_mixins) {
+    config.AddMixin(mixin, core_dirs, false, false);
+  }
+
+  return config;
 }

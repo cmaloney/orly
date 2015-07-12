@@ -12,4 +12,6 @@ which takes configuration parameters as an object. */
 
 #pragma once
 
+// TODO(cmaloney): Translate argc, argv to a view class which makes access
+// safer.
 int Main(int argc, char *argv[]);
