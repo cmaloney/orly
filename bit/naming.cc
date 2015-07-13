@@ -22,7 +22,7 @@ static string Clean(string &&path) {
     THROWER(TInvalidPath) << "Invalid tree \"" << quoted(path) << "\". Must start with '/'";
   }
 
-  // TODO(cmaloney): Normalize the path. Remove '/../', '/./', '//'
+  path = Normalize(path);
 
   // Ensure path always ends with '/'.
   if (path.back() != '/') {
@@ -35,8 +35,11 @@ static string Clean(string &&path) {
 TTree::TTree(string path) : Path(Clean(move(path))) {}
 
 TTree TTree::Find(string start_dir, const std::string &marker) {
-  // TODO(cmaloney): Normalize the path into a valid tree before starting. Saves
-  // computation and makes it so that paths with relative paths in them work right.
+  start_dir = Normalize(start_dir);
+  if (start_dir.back() == '/') {
+    start_dir.resize(start_dir.size()-1);
+  }
+
   do {
     string test_dir = start_dir + '/' + marker;
     if(ExistsPath(test_dir.c_str())) {
@@ -52,4 +55,5 @@ TTree TTree::Find(string start_dir, const std::string &marker) {
 TAbsPath::TAbsPath(const TTree &tree, const std::string &rel_path) : Path(tree.Path + rel_path) {
   assert(!rel_path.empty());
   assert(rel_path.front() != '/');
+  assert(rel_path.back() != '/');
 }

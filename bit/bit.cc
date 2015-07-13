@@ -25,7 +25,7 @@ static const char *SystemBitDir = "/usr/lib/bit";
 // TODO(cmaloney): This should be a library function.
 TTree GetHomeDirectory() {
   char *home_dir = getenv("HOME");
-  if (home_dir) {
+  if(home_dir) {
     return TTree(home_dir);
   } else {
     // TODO(cmaloney): Implement a sane fallback if HOME isn't set.
@@ -61,8 +61,19 @@ int Main(int argc, char *argv[]) {
   // of base projects to allow a llvm type project structure.
   TTree src = TTree::Find(cwd, "bit.json");
 
+  TCoreDirs core_dirs{src.Path, GetHomeDirectory().Path, TTree(SystemBitDir).Path};
+
   // Load the config
-  TConfig::Load({src.Path, GetHomeDirectory().Path, TTree(SystemBitDir).Path });
+  auto config = TConfig::Load(core_dirs);
+
+  // Load user-given mixins. If none given, try loading `default` mixin.
+  if(!options.Mixins.empty()) {
+    for(const auto &mixin : options.Mixins) {
+      config.AddMixin(mixin, core_dirs);
+    }
+  } else {
+    config.AddMixin("default", core_dirs, true);
+  }
 
   NOT_IMPLEMENTED();
 }

@@ -149,9 +149,9 @@ TMixinConfig TMixinConfig::Load(const std::string &name, const TCoreDirs &core_d
 // TODO(cmaloney): Mixins should be case insensitive (lower snake case).
 void TConfig::AddMixin(const std::string &name, const TCoreDirs &core_dirs, bool is_optional, bool is_system) {
   // Only system can add `bit.` named mixins.
-  if (name.compare(0, 4, "bit.")) {
+  if (name.compare(0, 4, "bit.") == 0) {
     if (!is_system) {
-      THROWER(TInvalidValue) << "Only bit can add mixins starting with 'bit.'.";
+      THROWER(TInvalidValue) << "Only bit can add mixins starting with 'bit.'." << name;
     }
   } else if (is_system) {
     THROWER(TInvalidValue) << "System-added mixins must begin with 'bit.'";

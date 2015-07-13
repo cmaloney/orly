@@ -28,6 +28,7 @@ namespace Util {
 /* Deletes the given file (unlink it from the filesystem) */
 void Delete(const char *path);
 
+// TODO(cmaloney): bit modernize these, reduce unnecessary overloads, options.
 /* Ensure that the given directory exists.  If any part of it doesn't exist,
    create it with the given protection mask.  Parts that already exist we
    just leave alone. */
@@ -50,20 +51,8 @@ bool ExistsPath(const char *path);
 /* Gets the current working directory as a std::string. The cwd never ends in '/' */
 std::string GetCwd();
 
-/* Make a path string from the given directory names and file name parts.
-   Any null c-string pointers or empty strings are skipped.
-   The directory names may start or end in one or more slashes, but they will be ignored.
-   Slashes are inserted automatically as necessary.  The file name parts are concatenated as-is.
-   If you need dots for extensions, make sure you pass them.
-   If 'is_absolute' is true, the path will start with a slash; otherwise, it will not.
-   This function doesn't check the individual strings to make sure they are valid in a path. */
-std::string MakePath(bool is_absolute,
-                     std::initializer_list<const char *> dirs,
-                     std::initializer_list<const char *> parts);
-
-/* Like above, but is absolute iff. the first entry in 'dirs' is absolute.
-   If 'dirs' is empty, the path is relative. */
-std::string MakePath(std::initializer_list<const char *> dirs,
-                     std::initializer_list<const char *> parts);
+/* Normalize the path by removing '/../', '/./', '//'.
+   Does not consult the filesystem, so may change the meaning of the path. */
+std::string Normalize(const std::string path);
 
 }  // Util

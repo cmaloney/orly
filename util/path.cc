@@ -21,11 +21,13 @@
 #include <cassert>
 #include <cstring>
 #include <memory>
-#include <sstream>
+#include <vector>
 
 #include <unistd.h>
 
+#include <base/as_str.h>
 #include <base/dir_walker.h>
+#include <base/split.h>
 #include <util/error.h>
 
 using namespace Base;
@@ -137,45 +139,53 @@ string Util::GetCwd() {
   return string(cwd.get());
 }
 
-string Util::MakePath(bool is_absolute,
-                      initializer_list<const char *> dirs,
-                      initializer_list<const char *> parts) {
-  ostringstream strm;
-  for(const char *start : dirs) {
-    if(start) {
-      const char *limit = start + strlen(start) - 1;
-      while(start <= limit && *start == '/') {
-        ++start;
-      }
-      while(start <= limit && *limit == '/') {
-        --limit;
-      }
-      if(start <= limit) {
-        if(is_absolute) {
-          strm << '/';
-        } else {
-          is_absolute = true;
-        }
-        strm.write(start, limit - start + 1);
-      }
-    }
-  }
-  if(is_absolute) {
-    strm << '/';
-  }
-  for(const char *c_str : parts) {
-    if(c_str) {
-      strm << c_str;
-    }
-  }
-  return strm.str();
-}
+std::string Util::Normalize(std::string path) {
+  // TODO(cmaloney): Replace with a more efficient implementation.
 
-string Util::MakePath(initializer_list<const char *> dirs, initializer_list<const char *> parts) {
-  bool is_absolute = false;
-  if(dirs.begin() != dirs.end()) {
-    const char *dir = *dirs.begin();
-    is_absolute = (dir && *dir == '/');
+  // Replacements
+  // '//' -> '/'
+  // 'foo/bar/../' -> 'foo'
+  // '/./' -> '/'
+
+  // Split path by '/'. Scan from front to back, finding 'meaningful' patterns
+  // and interpreting their changes.
+  vector<string> pieces;
+  Split("/", path, pieces);
+
+  auto iter = pieces.begin();
+  while(iter != pieces.end()) {
+    // Handle './', '/./'
+    if(*iter == ".") {
+      iter = pieces.erase(iter);
+      continue;
+    }
+
+    // Handle '//'. Allow leading and trailing to stay.
+    if(iter != pieces.begin() && iter != pieces.end() - 1 && iter->empty()) {
+      iter = pieces.erase(iter);
+      continue;
+    }
+
+    // Handle '/../'
+    if(*iter == "..") {
+      if (iter == pieces.begin()) {
+        // Parent of top directory is top directory.
+        iter = pieces.erase(iter);
+        continue;
+      } else {
+        // Remove parent directory and the traversal to it.
+        iter = pieces.erase(iter-1, iter+1);
+        continue;
+      }
+    }
+
+    ++iter;
   }
-  return MakePath(is_absolute, dirs, parts);
+
+  // TODO(cmaloney): Verify that at beginning of string only
+  // `./////foo` -> `foo`
+  // `./foo` -> `foo`
+
+  // Join back together into result string.
+  return AsStr(Join(pieces, "/"));
 }

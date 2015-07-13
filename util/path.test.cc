@@ -127,14 +127,32 @@ FIXTURE(TmpIterAndWalk) {
   EXPECT_FALSE(ExistsPath(path));
 }
 
-FIXTURE(MakePath) {
-  EXPECT_EQ(MakePath(true, {"usr", "include"}, {"syslog", ".h"}), "/usr/include/syslog.h");
-  EXPECT_EQ(MakePath(true, {"///usr///", "/include/"}, {"syslog", ".h"}), "/usr/include/syslog.h");
-  EXPECT_EQ(MakePath(false, {}, {"just_this"}), "just_this");
-  EXPECT_EQ(MakePath(true, {}, {"abs_just_this"}), "/abs_just_this");
-}
-
 FIXTURE(GetCwd) {
   // Basic sanity check
   EXPECT_NE(GetCwd().back(), '/');
+}
+
+FIXTURE(Normalize) {
+  EXPECT_EQ(Normalize("/"), "/");
+  EXPECT_EQ(Normalize("/a"), "/a");
+  EXPECT_EQ(Normalize("/a/"), "/a/");
+  EXPECT_EQ(Normalize("a/"), "a/");
+  EXPECT_EQ(Normalize("a"), "a");
+
+  // Standard multi-part path
+  EXPECT_EQ(Normalize("/a/b/c"), "/a/b/c");
+
+  // Normalizations
+  EXPECT_EQ(Normalize("//"), "/");
+  EXPECT_EQ(Normalize("////////"), "/");
+
+  EXPECT_EQ(Normalize("/./"), "/");
+  EXPECT_EQ(Normalize("/././a/./"), "/a/");
+
+  EXPECT_EQ(Normalize("/..//a/./../b/c/../d"), "/b/d");
+
+  EXPECT_EQ(Normalize("./"), "");
+  EXPECT_EQ(Normalize("./a"), "a");
+  EXPECT_EQ(Normalize("/./a"), "/a");
+  EXPECT_EQ(Normalize("/./a/./"), "/a/");
 }

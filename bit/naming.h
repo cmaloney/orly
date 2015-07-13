@@ -23,8 +23,15 @@ struct TTree {
   const std::string Path;
 }; // TTree
 
+// AbsPath starts with '/'. Ends with a filename (not '/').
 struct TAbsPath {
   TAbsPath(const TTree &tree, const std::string &rel_path);
+  const std::string Path;
+}; // TPath
+
+// RelPath doesn't start with '/'. Ends with a filename (not '/').
+struct TRelPath {
+  TRelPath(const TTree &tree, const std::string &rel_path);
   const std::string Path;
 }; // TPath
 
