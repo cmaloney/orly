@@ -74,7 +74,7 @@ void DeltaMergeJobs(TJobConfig &target, TJobConfig &&addin) {
 // TODO(cmaloney): Create a wrapper which can be used for these to introduce
 // a context of 'while reading this particular config file'.
 
-bool LastNotSlash(const string &s) { return s.back() != '/'; }
+bool IsLastSlash(const string &s) { return s.back() == '/'; }
 
 std::string ReadCacheDir(const TJson &json, const TCoreDirs &core_dirs) {
   const TJson *output_location_json = json.TryAddress({"cache_directory"});
@@ -84,12 +84,12 @@ std::string ReadCacheDir(const TJson &json, const TCoreDirs &core_dirs) {
     // TODO(cmaloney): string switch
     const std::string &str = output_location_json->GetString();
     if(str == "cache") {
-      return core_dirs.User + "/.cache/bit";
+      return core_dirs.User + ".cache/bit";
     } else if(str == "in_project") {
-      return core_dirs.Project + "/.bit/cache";
+      return core_dirs.Project + ".bit/cache";
     } else if(str == "outside_project") {
       // TODO(cmaloney): Normalize the path
-      return core_dirs.Project + "/../.bit/cache";
+      return core_dirs.Project + "../.bit/cache";
     } else if(str == "tmp") {
       // TODO(cmaloney): obey TMP / TMPDIR / etc. See python's mkstemp()
       return "/tmp/bit_cache";
@@ -97,7 +97,7 @@ std::string ReadCacheDir(const TJson &json, const TCoreDirs &core_dirs) {
       NOT_IMPLEMENTED();
     }
   } else {
-    return core_dirs.Project + "/.bit/cache";
+    return core_dirs.Project + ".bit/cache";
   }
 }
 
@@ -121,7 +121,7 @@ TMixinConfig TMixinConfig::Load(const std::string &name, const TCoreDirs &core_d
   TMixinConfig conf;
 
   auto load_config = [&](const std::string &dir) {
-    auto path = dir + "/mixin.bit/" + name + ".json";
+    auto path = dir + "mixin.bit/" + name + ".json";
     if(!ExistsPath(path.c_str())) {
       return false;
     }
@@ -186,7 +186,7 @@ void TConfig::AddMixin(const std::string &name, const TCoreDirs &core_dirs, bool
 
 TConfig LoadProjectConfig(const string &project_dir) {
   TConfig config;
-  const string config_filename = project_dir + "/bit.json";
+  const string config_filename = project_dir + "bit.json";
 
   TJson json = TJson::Read(config_filename);
 
@@ -200,15 +200,15 @@ TConfig LoadProjectConfig(const string &project_dir) {
 }
 
 TConfig Bit::TConfig::Load(const TCoreDirs &core_dirs) {
-  assert(LastNotSlash(core_dirs.Project));
-  assert(LastNotSlash(core_dirs.User));
-  assert(LastNotSlash(core_dirs.System));
+  assert(IsLastSlash(core_dirs.Project));
+  assert(IsLastSlash(core_dirs.User));
+  assert(IsLastSlash(core_dirs.System));
 
   // Load the project base config.
   TConfig config = LoadProjectConfig(core_dirs.Project);
 
   // Add the user config.
-  auto user_json = TJson::TryRead(core_dirs.User + "/.config/bit.json");
+  auto user_json = TJson::TryRead(core_dirs.User + ".config/bit.json");
   config.CacheDirectory = ReadCacheDir(user_json, core_dirs);
 
   // TODO(cmaloney): Provide a way for platforms to add / edit / set default flags.

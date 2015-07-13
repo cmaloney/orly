@@ -23,10 +23,10 @@ using namespace Util;
 static const char *SystemBitDir = "/usr/lib/bit";
 
 // TODO(cmaloney): This should be a library function.
-std::string GetHomeDirectory() {
+TTree GetHomeDirectory() {
   char *home_dir = getenv("HOME");
   if (home_dir) {
-    return string(home_dir);
+    return TTree(home_dir);
   } else {
     // TODO(cmaloney): Implement a sane fallback if HOME isn't set.
     NOT_IMPLEMENTED();
@@ -61,11 +61,8 @@ int Main(int argc, char *argv[]) {
   // of base projects to allow a llvm type project structure.
   TTree src = TTree::Find(cwd, "bit.json");
 
-  // Get user home directory, system configuration directory
-
   // Load the config
-  TConfig::Load({TAbsPath(src, "bit.json").Path, GetHomeDirectory(), SystemBitDir});
-
+  TConfig::Load({src.Path, GetHomeDirectory().Path, TTree(SystemBitDir).Path });
 
   NOT_IMPLEMENTED();
 }

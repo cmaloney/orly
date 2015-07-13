@@ -481,6 +481,11 @@ const TJson *TJson::TryAddress(const std::initializer_list<std::string> &address
   const TJson *result = this;
   auto end = address.end();
   for(auto it = address.begin(); it != end; ++it) {
+
+    if(result->GetKind() != TJson::Object) {
+      return nullptr;
+    }
+
     result = result->TryFind(*it);
     if (!result) {
       return nullptr;
