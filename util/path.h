@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <initializer_list>
 #include <string>
 
 #include <sys/stat.h>
