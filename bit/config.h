@@ -1,5 +1,26 @@
 /* Loads config, stores aggregated config information
 
+TODO(cmaloney): Prune all this down to match reality
+
+~ == project root
+
+base, project "meta" sets (including default) loaded from ~/bit.json. Contains list of mixins, and optionally flags inside itself directly.
+
+Mixins are loaded from ~/*.mixin.bit.json or ~/mixin.bit/*.json
+
+Mixins may ask for additional mixins.
+
+Local config options are picked up from a "local.bit.json". If there is a "configure.bit" file will try to execute it (Will error if not executable).
+
+Mixins are purely additive.
+
+mixins.bit/*.json
+
+Purely additive. Mixins just add flags. Each individual mixin can have order, but no order is guaranteed between mixins. Things that need "link" order to be seperate from "flag" order should do that themselves
+
+exec(config.bit) -> local.mixins
+
+
 project, project files, mixnis
   - job_options/flags interpreted by jobs (JSON, lazily processed)
 

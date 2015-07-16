@@ -75,5 +75,14 @@ int Main(int argc, char *argv[]) {
     config.AddMixin("default", core_dirs, true);
   }
 
+  // Construct the build environment.
+  // Load all job factories with defaults loaded into them.
+  TEnvironment environment(config, src.Path);
+
+  // Create a work queue, populate it with the user-provided targets or the
+  // default targets if no user ones are given.
   NOT_IMPLEMENTED();
+
+  // Run the work queue to completion.
+
 }

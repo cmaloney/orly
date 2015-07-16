@@ -1,35 +1,17 @@
-/* <jhm/env.h>
+/* bit build environment.
 
-   Keeps track of where inputs can come from, outputs can go, what translations we know about,
-   configuration, etc.
+Keeps track of all the files which exist, could exist lazily.
 
-   Copyright 2015 Theoretical Chaos.
+Determines whether or not files could exist by lazily seeing if there is a path
+from a file which does exist which could be manipulated by known jobs to produce
+the needed file. */
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+#include <base/class_traits.h>
+#include <bit/file.h>
+#include <bit/job.h>
+#include <bit/naming.h>
 
-     http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License. */
-
-#pragma once
-
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-#include <jhm/config.h>
-#include <jhm/file.h>
-#include <jhm/job.h>
-
-namespace Jhm {
+namespace Bit {
 
 // Simple memory management by making one object (The registry) own all the pointers/memory.
 template <typename TKey, typename TValue, typename Hash = std::hash<TKey>>
@@ -60,7 +42,7 @@ class TJobFactory {
 
   // TODO(cmaloney): Make this take a list of names to activate, job modules
   // to load (may have more than one name per module).
-  TJobFactory(bool disable_default);
+  TJobFactory(const TJobConfig &JobConfig, const std::unordered_set<std::string> &Jobs);
 
   // TODO(cmaloney): This seems very suspect....
   // NOTE: We don't just use a tuple because we want a specialized hash
@@ -103,59 +85,20 @@ class TJobFactory {
   std::vector<TJobProducer> JobProducers;
 };
 
-class TEnv {
+class TEnvironment {
   public:
-  NO_COPY(TEnv)
-  NO_MOVE(TEnv)
+  NO_COPY(TEnvironment);
+  NO_MOVE(TEnvironment);
 
-  using TFileCheckFunc = std::function<bool(TFile *)>;
+  TEnvironment(const TConfig &config, const TTree &src);
 
-  static TTree GetOutDirName(const TTree &src,
-                             const std::string &config,
-                             const std::string &config_mixin);
-
-  TEnv(const TTree &src,
-       const std::string &config,
-       const std::string &config_mixin,
-       bool disable_default_jobs);
-
-  // Add a job to the job
-  TJob *Add(std::unique_ptr<TJob> &&job);
-  TFile *Add(std::unique_ptr<TFile> &&file);
-
-  const TConfig &GetConfig() const { return Config; }
-  const TTree *GetSrc() const { return &Src; }
-  const TTree *GetOut() const { return &Out; }
-
-  std::unordered_set<TJob *> GetJobsProducingFile(TFile *file) {
-    return Jobs.GetPotentialJobs(*this, file);
-  }
-
-  /* Finds the file / builds a correct TFile object for it.
-     NOTE: Does absolutely nothing for testing if file is producable, needs to be built, etc. */
   TFile *GetFile(TRelPath name);
 
-  bool IsBuildable(TFile *file) const;
-  bool IsDone(TFile *file) const;
-  void SetFuncs(TFileCheckFunc &&buildable, TFileCheckFunc &&done);
-
-  /* Gets a file from the given path, which is either an absolute filesystem path (starts with '/')
-     or relative within
-     the project (a TRelPath) */
-  TFile *TryGetFileFromPath(const std::string &name);
-
   private:
-  // TODO(cmaloney): This should be bounded size.
   std::unordered_map<std::string, TFile *> PathLookupCache;
-  TFileCheckFunc Buildable;
-  TFileCheckFunc Done;
-
   TInterner<TRelPath, TFile> Files;
+  TJobFactory Jobs;
 
   TTree Src, Out;
-
-  TConfig Config;
-
-  TJobFactory Jobs;
 };
-}
+}  // Bit
