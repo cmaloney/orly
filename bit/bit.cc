@@ -6,6 +6,7 @@
 #include <base/as_str.h>
 #include <base/not_implemented.h>
 #include <bit/config.h>
+#include <bit/environment.h>
 #include <bit/options.h>
 #include <cmd/args.h>
 #include <cmd/main.h>

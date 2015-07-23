@@ -6,7 +6,7 @@ TODO(cmaloney): Prune all this down to match reality
 
 base, project "meta" sets (including default) loaded from ~/bit.json. Contains list of mixins, and optionally flags inside itself directly.
 
-Mixins are loaded from ~/*.mixin.bit.json or ~/mixin.bit/*.json
+Mixins are loaded from ~/{name}.mixin.bit.json or ~/mixin.bit/{name}.json
 
 Mixins may ask for additional mixins.
 
@@ -14,7 +14,7 @@ Local config options are picked up from a "local.bit.json". If there is a "confi
 
 Mixins are purely additive.
 
-mixins.bit/*.json
+mixins.bit/{name}.json
 
 Purely additive. Mixins just add flags. Each individual mixin can have order, but no order is guaranteed between mixins. Things that need "link" order to be seperate from "flag" order should do that themselves
 
