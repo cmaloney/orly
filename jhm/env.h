@@ -31,6 +31,9 @@
 
 namespace Jhm {
 
+template <typename TVal>
+using TSet = std::unordered_set<TVal>;
+
 // Simple memory management by making one object (The registry) own all the pointers/memory.
 template <typename TKey, typename TValue, typename Hash = std::hash<TKey>>
 class TInterner {
