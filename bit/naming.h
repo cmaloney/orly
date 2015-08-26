@@ -36,3 +36,10 @@ struct TRelPath {
 }; // TPath
 
 }; // Bit
+
+namespace std {
+  template <> struct hash<Bit::TRelPath>
+  {
+    size_t operator()(const Bit::TRelPath &rel_path) const;
+  };
+}

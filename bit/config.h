@@ -75,6 +75,7 @@ Eventual features
   - Ability to reference external files, more than one config file.
   - Per-file override config files
 */
+#pragma once
 
 #include <string>
 #include <vector>

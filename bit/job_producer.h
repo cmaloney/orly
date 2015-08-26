@@ -1,10 +1,14 @@
+#pragma once
+
+#include <memory>
 #include <string>
 #include <vector>
 
 #include <base/opt.h>
-#include <util/timestamp.h>
+#include <bit/naming.h>
+#include <util/time.h>
 
-namespace Jhm {
+namespace Bit {
 
 class TEnv;
 class TFile;
@@ -19,4 +23,4 @@ struct TJobProducer {
   Util::TTimestamp CmdTimestamp;
 };
 
-} // namespace Jhm
+}  // namespace Bit

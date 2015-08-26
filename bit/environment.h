@@ -7,11 +7,14 @@ from a file which does exist which could be manipulated by known jobs to produce
 the needed file. */
 
 #include <base/class_traits.h>
-#include <bit/file.h>
+#include <bit/file_info.h>
 #include <bit/job.h>
+#include <bit/job_producer.h>
 #include <bit/naming.h>
 
 namespace Bit {
+
+class TEnvironment;
 
 // Simple memory management by making one object (The registry) own all the pointers/memory.
 template <typename TKey, typename TValue, typename Hash = std::hash<TKey>>
@@ -39,15 +42,14 @@ class TInterner {
 
 class TJobFactory {
   public:
-
   // TODO(cmaloney): Make this take a list of names to activate, job modules
   // to load (may have more than one name per module).
-  TJobFactory(const TJobConfig &JobConfig, const std::unordered_set<std::string> &Jobs);
+  TJobFactory(const TJobConfig &job_config, const std::unordered_set<std::string> &jobs);
 
   // TODO(cmaloney): This seems very suspect....
   // NOTE: We don't just use a tuple because we want a specialized hash
   struct TJobDesc {
-    TFile *f;
+    TFileInfo *f;
     const char *job_name;
 
     bool operator==(const TJobDesc &that) const noexcept {
@@ -68,7 +70,7 @@ class TJobFactory {
   // NOTE: We generate a job object when it's input can be produced
   void Register(TJobProducer &&producer) { JobProducers.emplace_back(std::move(producer)); }
 
-  std::unordered_set<TJob *> GetPotentialJobs(TEnv &env, TFile *out_file);
+  std::unordered_set<TJob *> GetPotentialJobs(TEnvironment &env, TFileInfo *out_file);
 
   private:
   // TODO: Make a better hash function.
@@ -76,7 +78,7 @@ class TJobFactory {
 
   // NOTE: This is used purely for caching the reverse-lookups used by  GetPotentialJobs.
   // Entry in this map simply means a job exists, not that it's possible to get it's input.
-  std::unordered_multimap<TFile *, TJob *> JobsByOutput;
+  std::unordered_multimap<TRelPath, TJob *> JobsByOutput;
 
   // TODO: We iterate over this a lot. In practice we go over a lot more than needed
   // Perf test using more concise data structures where we don't scan so much needlessly vs. this
@@ -87,16 +89,25 @@ class TJobFactory {
 
 class TEnvironment {
   public:
-  NO_COPY(TEnvironment);
-  NO_MOVE(TEnvironment);
+  NO_COPY(TEnvironment)
+  NO_MOVE(TEnvironment)
 
   TEnvironment(const TConfig &config, const TTree &src);
 
-  TFile *GetFile(TRelPath name);
+  /* Get the FileInfo which contains compilation state information for a given
+     relative path. Relative paths should first be resolved from by calling
+     GetRelPath */
+  TFileInfo *GetFileInfo(TRelPath name);
+
+  /* Attempts to find the tree for the given file and return the relative path.
+     If the path doesn't begin with `/` it is assumed to be a relative path.
+     If the path doesn't belong to any tree, the full path is given as the
+     relative path. */
+  TRelPath GetRelPath(const std::string &path);
 
   private:
-  std::unordered_map<std::string, TFile *> PathLookupCache;
-  TInterner<TRelPath, TFile> Files;
+  std::unordered_map<std::string, TFileInfo *> PathLookupCache;
+  TInterner<TRelPath, TFileInfo> Files;
   TJobFactory Jobs;
 
   TTree Src, Out;

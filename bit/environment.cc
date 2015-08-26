@@ -12,7 +12,7 @@ using namespace Base;
 using namespace Bit;
 using namespace std;
 
-TJobFactory::TJobFactory(const TJobConfig &JobConfig, const std::unordered_set<std::string> &Jobs) {
+TJobFactory::TJobFactory(const TJobConfig &job_config, const std::unordered_set<std::string> &jobs) {
   const std::unordered_map<std::string, TJobProducer(*)()> builtin_jobs = {
     {"dependency", &Job::TDep::GetProducer},
     {"compile_c", &Job::TCompileCFamily::GetCProducer},

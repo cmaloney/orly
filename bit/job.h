@@ -16,22 +16,15 @@
 
 #include <cassert>
 #include <memory>
-#include <set>
-#include <string>
 #include <unordered_set>
 #include <vector>
 
-#include <base/fd.h>
-#include <base/opt.h>
-#include <jhm/naming.h>
-#include <util/stl.h>
-#include <util/time.h>
+#include <bit/naming.h>
 
-namespace Jhm {
+namespace Bit {
 
-class TEnv;
-class TFile;
-class TJob;
+class TFileInfo;
+struct TJobProducer;
 
 // Max-size capped output buffer. Ideally a Twine class but lazy for now.
 class TOutputBuffer {
@@ -43,16 +36,11 @@ class TOutputBuffer {
 
 class TJob {
   public:
-
   template <typename TVal>
   using TSet = std::unordered_set<TVal>;
 
   struct TOutput {
-    enum TResult {
-      NewNeeds,
-      Error,
-      Complete
-    } Result;
+    enum TResult { NewNeeds, Error, Complete } Result;
 
     // Write adapters to do subprocess -> OutputBuffer via pump or just
     // using OutputBuffer as a streaming data target directly with no virtual
@@ -63,14 +51,14 @@ class TJob {
     TOutputBuffer Output;
   };
 
+  struct TNeeds {
+    TSet<TRelPath> Mandatory;
+    TSet<TRelPath> IfBuildable;
+  };
+
   virtual ~TJob() = default;
 
-  virtual const TSet<TFile *> GetNeeds() = 0;
-
-  /* This is used purely for cache completion. Return a set of things where, if any of them can
-     exist, the job's
-     output must be invalidated. Called only after the job has returned true from IsComplete. */
-  virtual TSet<TFile *> GetAntiNeeds() { return TSet<TFile *>(); }
+  virtual const TNeeds GetNeeds() = 0;
 
   /* Allows a job to verify that it's complete. If it returns false here, the command __WILL__ get
      run again when
@@ -79,35 +67,35 @@ class TJob {
 
   virtual TOutput Run() = 0;
 
-  TFile *GetInput() {
+  TFileInfo *GetInput() {
     assert(this);
     return Input;
   }
 
-  const TSet<TFile *> &GetOutput() const {
+  const TSet<TFileInfo *> &GetOutput() const {
     assert(this);
     return Output;
   }
 
-  TFile *GetSoleOutput() const {
+  TFileInfo *GetSoleOutput() const {
     assert(this);
     assert(Output.size() == 1);
-    for(TFile *f : GetOutput()) {
+    for(TFileInfo *f : GetOutput()) {
       return f;
     }
     __builtin_unreachable();
   }
 
-
   protected:
   // NOTE: In theory we can take multiple files in. In  Ppractice we have no instances of that.
-  TJob(TFile *input, TSet<TFile *> output);
+  TJob(TFileInfo *input, TFileInfo *output);
 
   private:
-  TFile *Input;
-  TSet<TFile *> Output;
+  TFileInfo *Input;
+  TSet<TFileInfo *> Output;
   const TJobProducer *JobInfo;
 };
 
 std::ostream &operator<<(std::ostream &out, TJob *job);
-}
+
+}  // namespace Bit
