@@ -60,7 +60,7 @@ Mixins are purely additive
     -- Specifies list of tools to enable / disable default tools
     -- Defines project-specific mixins
     -- Adds flags per tool / command
-    -- jhm mixin config dir (Default none, only specifiable in files)
+    -- bit mixin config dir (Default none, only specifiable in files)
     EVENTUALLY:
       -- Enable/disable features / config toggles / flags (And can do it in seperate file)
       -- Defines basic configuration toggles (enable/disable)
@@ -125,16 +125,6 @@ struct TConfig {
   // and resolving mixins. Doesn't load per-file config.
   static TConfig Load(const TCoreDirs &core_dirs);
 };
-
-
-// TODO(cmaloney): Per file option changing
-/* struct TFileConfig {
-  TJobConfig JobConfig;
-
-  // Loads a per-file config and emits the resulting job config.
-  static TFileConfig Load(const std::vector<std::string> EnabledMixins, const std::string filename);
-}; */
-
 
 namespace Config {
 

@@ -4,96 +4,102 @@
 #include <cassert>
 #include <iomanip>
 
-#include <jhm/jobs/compile_c_family.h>
-#include <jhm/jobs/dep.h>
-#include <jhm/jobs/link.h>
+#include <base/not_implemented.h>
+#include <util/stl.h>
+
+// #include <bit/jobs/compile_c_family.h>
+// #include <bit/jobs/dep.h>
+// #include <bit/jobs/link.h>
 
 using namespace Base;
 using namespace Bit;
 using namespace std;
+using namespace Util;
 
-TJobFactory::TJobFactory(const TJobConfig &job_config, const std::unordered_set<std::string> &jobs) {
-  const std::unordered_map<std::string, TJobProducer(*)()> builtin_jobs = {
-    {"dependency", &Job::TDep::GetProducer},
-    {"compile_c", &Job::TCompileCFamily::GetCProducer},
-    {"compile_cc", &Job::TCompileCFamily::GetCcProducer},
-    {"link", &Job::TLink::GetProducer}
+template <typename TVal>
+using TSet = unordered_set<TVal>;
+
+TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs) {
+  const unordered_map<string, TJobProducer (*)(const Base::TJson &job_config)> builtin_jobs = {
+      //    {"dependency", &Job::TDep::GetProducer},
+      //    {"compile_c", &Job::TCompileCFamily::GetCProducer},
+      //    {"compile_cc", &Job::TCompileCFamily::GetCcProducer},
+      //    {"link", &Job::TLink::GetProducer}
   };
 
-  if (Jobs.empty()) {
+  if(jobs.empty()) {
     // Enable all builtin jobs
-    for(const auto &job: builtin_jobs) {
-      Register(job.second());
+    for(const auto &job : builtin_jobs) {
+      // TODO(cmaloney): Shuold "get default" rather than force config section
+      // into existence.
+      JobProducers.emplace_back(job.second(move(job_config.at(job.first))));
     }
   } else {
-    // Enable all specified jobs. If a job is unknown, try to load it as a
-    // shared library.
+    // TODO(cmaloney): Enable all specified jobs. If a job is unknown, try to
+    // load it as a modular job. Modular jobs may be specified either in a text
+    // format or as .so files which provide the 'GetProducer' function.
+    NOT_IMPLEMENTED()
   }
 }
 
-TJobFactory::TJobFactory(bool disable_default_jobs) {
-
-  if (!disable_default_jobs) {
-    for (const auto &job: builtin_jobs) {
-      Register(job.second());
-    }
-  }
-}
-
-unordered_set<TJob *> TJobFactory::GetPotentialJobs(TEnv &env, TFile *out_file) {
-  unordered_set<TJob *> ret;
+TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment, TFileInfo *target_output) {
+  TSet<TJob *> ret;
 
   // Check the cache
-  auto range = JobsByOutput.equal_range(out_file);
+  // TODO(cmaloney): There should be a util that does this extraction shape (match -> set)
+  auto range = JobsByOutput.equal_range(target_output);
   if(range.first != JobsByOutput.end()) {
-    for_each(range.first, range.second, [&ret](const pair<TFile *, TJob *> &pair) {
+    for_each(range.first, range.second, [&ret](const pair<TFileInfo *, TJob *> &pair) {
       // NOTE: job can be a nullptr, which is valid in the cache to indicate "no jobs exist".
       if(pair.second) {
         // TODO: InsertOrFail.
         ret.insert(pair.second);
       }
     });
-  } else {
-    // No cache found. Build it
-    // Find and instantiate possibilities based on extension
-    for(const auto &producer : JobProducers) {
-      TOpt<TRelPath> opt_path = producer.TryGetInputName(out_file->GetRelPath());
-      if(!opt_path) {
-        continue;
-      }
-      TFile *in = env.GetFile(*opt_path);
-      if(!in) {
-        continue;
-      }
+    return ret;
+  }
 
-      TJobDesc job_desc{in, producer.Name};
-      TJob *job = Jobs.TryGet(job_desc);
-
-      // We've found this job before, which means we're an additional unstated output of the job.
-      if(job) {
-        if(!Contains(job->GetOutput(), out_file)) {
-          job->AddOutput(out_file);
-        }
-      } else {
-        // Make the new job
-        job = Jobs.Add(TJobDesc{in, producer.Name}, producer.MakeJob(env, in));
-        if(job->HasUnknownOutputs()) {
-          job->AddOutput(out_file);
-        }
-      }
-      // We better be produced by the job....
-      assert(Contains(job->GetOutput(), out_file));
-
-      // Add ourself to the cache map, as well as the set of jobs being returned.
-      // TODO: InsertOrFail.
-      ret.insert(job);
-      JobsByOutput.emplace(out_file, job);
+  // No cache found. Build it
+  // Find and instantiate possibilities based on extension.
+  // If no jobs are found, insert nullptr
+  bool found = false;
+  for(const auto &producer : JobProducers) {
+    TOpt<TRelPath> opt_path = producer.TryGetInputName(target_output->RelPath);
+    if(!opt_path) {
+      continue;
+    }
+    TFileInfo *input = environment.GetFileInfo(*opt_path);
+    if(!input) {
+      continue;
     }
 
-    // If no entries have been added to cache, then insert a nullptr to indicate we did try
-    if(JobsByOutput.find(out_file) == JobsByOutput.end()) {
-      JobsByOutput.emplace(out_file, nullptr);
+    found = true;
+
+    TJob::TId job_id{&producer, input};
+    TJob *job = Jobs.TryGet(job_id);
+
+    // If the job hasn't been created, make it. The job might already exist if
+    // another output found it first.
+    if(!job) {
+      // TODO(cmaloney): generalize this "copy across all things with lambda applied"
+      TSet<TFileInfo *> output;
+      for(const TRelPath &rel_path : producer.GetOutput(*opt_path)) {
+        output.insert(environment.GetFileInfo(rel_path));
+      }
+      job = Jobs.Add(move(job_id), producer.MakeJob(&producer, input, move(output)));
     }
+
+    // We better be produced by the job....
+    assert(Contains(job->GetOutput(), target_output));
+
+    // Add ourself to the cache map, as well as the set of jobs being returned.
+    InsertOrFail(ret, job);
+    JobsByOutput.emplace(target_output, job);
+  }
+
+  // If no entries have been added to cache, then insert a nullptr to indicate we did try
+  if(!found) {
+    JobsByOutput.emplace(target_output, nullptr);
   }
 
   return ret;

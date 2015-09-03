@@ -56,6 +56,34 @@ class TJob {
     TSet<TRelPath> IfBuildable;
   };
 
+  struct TId {
+    const TJobProducer *Producer;
+    TFileInfo *Input;
+
+    bool operator==(const TId &that) const noexcept {
+      return Producer == that.Producer && Input == that.Input;
+    }
+
+    struct THash {
+      size_t operator()(const TId &that) const noexcept {
+        // TODO: Write a better hash...
+        return HashHelper(that.Producer) + HashHelper(that.Input);
+      }
+    };
+
+    private:
+      template <typename TVal>
+      static size_t HashHelper(const TVal &val) {
+        return std::hash<TVal>()(val);
+      }
+  };
+
+  struct TMetadata {
+    const TJobProducer *Producer;
+    TFileInfo *Input;
+    TSet<TFileInfo *> Output;
+  };
+
   virtual ~TJob() = default;
 
   virtual const TNeeds GetNeeds() = 0;
@@ -69,31 +97,29 @@ class TJob {
 
   TFileInfo *GetInput() {
     assert(this);
-    return Input;
+    return Metadata.Input;
   }
 
   const TSet<TFileInfo *> &GetOutput() const {
     assert(this);
-    return Output;
+    return Metadata.Output;
   }
 
   TFileInfo *GetSoleOutput() const {
     assert(this);
-    assert(Output.size() == 1);
-    for(TFileInfo *f : GetOutput()) {
+    assert(Metadata.Output.size() == 1);
+    for(TFileInfo *f : Metadata.Output) {
       return f;
     }
     __builtin_unreachable();
   }
 
   protected:
-  // NOTE: In theory we can take multiple files in. In  Ppractice we have no instances of that.
-  TJob(TFileInfo *input, TFileInfo *output);
+  // NOTE: In theory we can take multiple files in. In  practice we have no instances of that.
+  TJob(TMetadata &&metadata);
 
   private:
-  TFileInfo *Input;
-  TSet<TFileInfo *> Output;
-  const TJobProducer *JobInfo;
+  const TMetadata Metadata;
 };
 
 std::ostream &operator<<(std::ostream &out, TJob *job);

@@ -16,4 +16,4 @@ struct TOptions {
   uint64_t WorkerCount;
 };  // TOptions
 
-}  // Jhm
+}  // Bit

@@ -15,13 +15,15 @@ class TFileInfo {
 
   bool IsComplete() const;
 
-  // Asserts the file exists.
+  // Asserts the file exists, sets ComputedConfig and marks Completed as true.
   void Complete(TFileConfig &&computed_config);
 
+  const TRelPath RelPath;
+
   private:
-  const TRelPath Path;
   bool Completed;
   bool IsSrc;
-  TFileConfig Config;
+  TFileConfig SrcConfig;
+  TFileConfig ComputedConfig;
 };
 }
