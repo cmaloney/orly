@@ -5,6 +5,7 @@
 
 #include <base/class_traits.h>
 #include <bit/job.h>
+#include <moodycamel/blockingconcurrentqueue.h>
 
 namespace Bit {
 
@@ -16,7 +17,7 @@ struct TJobRunner {
     TResult(TJob *job, TJob::TOutput &&output);
 
     TJob *Job;
-    const TOutput Output;
+    const TJob::TOutput Output;
   };
 
   TJobRunner(uint64_t worker_count);
@@ -39,20 +40,16 @@ struct TJobRunner {
   void Shutdown();
 
   // Jobs in, results out.
-  moodycamel::BlockingConcurrentQueue<TRunnable> ToRun;
+  moodycamel::BlockingConcurrentQueue<TJob*> ToRun;
 
   // TODO(cmaloney): The pointer indirection here is fugly.
   moodycamel::BlockingConcurrentQueue<std::unique_ptr<TResult>> Results;
 
-  // Sits in the background and pumps io from subprocesses into this process.
-  Base::TPump Pump;
-
-  std::atomic<uint64_t> InQueue = 0;
-  std::atomic<uint64_t> BeingRun = 0;
+  uint64_t InQueue = 0;
+  std::atomic<uint64_t> BeingRun;
 
   // General parameters for the runner
-  bool ExitWorker = false;
-  const bool PrintCmd;
+  std::atomic<bool> ExitWorker;
 
   // Background job runners
   std::vector<std::unique_ptr<std::thread>> JobRunners;

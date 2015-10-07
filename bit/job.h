@@ -30,6 +30,9 @@ struct TJobProducer;
 class TOutputBuffer {
   using TPtr = std::unique_ptr<uint8_t[]>;
 
+  MOVE_ONLY(TOutputBuffer)
+  TOutputBuffer() = default;
+
   private:
   std::vector<TPtr> Blocks;
 };

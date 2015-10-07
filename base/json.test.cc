@@ -38,7 +38,7 @@ static TJson Parse(TArg &&arg) {
   std::istringstream strm(std::forward<TArg>(arg));
   TJson result;
   result.Read(strm);
-  return std::move(result);
+  return result;
 }
 
 template <typename TTpl, size_t... Idx>

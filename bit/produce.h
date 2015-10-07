@@ -14,6 +14,6 @@ namespace Bit {
 
   // Figure out the jobs which need to be run to create the given set of targets
   // and run them to create the targets.
-  void Produce(TEnvironment &environment, std::vector<std::string> Targets);
+  void Produce(uint64_t worker_count, TEnvironment &environment, std::vector<std::string> Targets);
 
 } // Bit

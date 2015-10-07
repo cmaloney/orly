@@ -91,7 +91,7 @@ int Main(int argc, char *argv[]) {
   assert(targets);
 
   // Produce the requested targets.
-  Produce(environment, *targets);
+  Produce(options.WorkerCount, environment, *targets);
 
   return 0;
 }

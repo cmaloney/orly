@@ -19,5 +19,8 @@
       "-pthread",
       "-fcolor-diagnostics"
     ],
+    "link": {
+      "libs": ["-pthread"]
+    }
   }
 }
