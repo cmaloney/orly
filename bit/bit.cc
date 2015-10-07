@@ -8,6 +8,7 @@
 #include <bit/config.h>
 #include <bit/environment.h>
 #include <bit/options.h>
+#include <bit/produce.h>
 #include <cmd/args.h>
 #include <cmd/main.h>
 #include <cmd/parse.h>
@@ -80,10 +81,17 @@ int Main(int argc, char *argv[]) {
   // Load all job factories with defaults loaded into them.
   TEnvironment environment(config, src.Path);
 
-  // Create a work queue, populate it with the user-provided targets or the
-  // default targets if no user ones are given.
-  NOT_IMPLEMENTED();
+  // Use the default targets if no user-given ones were given.
+  vector<string> *targets = nullptr;
+  if (!options.Targets.empty()) {
+    targets = &options.Targets;
+  } else {
+    targets = &config.Targets;
+  }
+  assert(targets);
 
-  // Run the work queue to completion.
+  // Produce the requested targets.
+  Produce(environment, *targets);
 
+  return 0;
 }

@@ -14,6 +14,7 @@ end with a slash */
 EXCEPTION(TInvalidPath, std::runtime_error, nullptr);
 
 // TODO(cmaloney): operator+ for joining paths?
+// Starts with a '/'. Ends with a directory name followed by '/'.
 struct TTree {
 
   TTree(std::string path);
@@ -23,19 +24,26 @@ struct TTree {
   const std::string Path;
 }; // TTree
 
-// AbsPath starts with '/'. Ends with a filename (not '/').
-struct TAbsPath {
-  TAbsPath(const TTree &tree, const std::string &rel_path);
-  const std::string Path;
-}; // TPath
-
 // RelPath doesn't start with '/'. Ends with a filename (not '/').
 struct TRelPath {
-  TRelPath(const TTree &tree, const std::string &rel_path);
+  explicit TRelPath(const std::string &rel_path);
   const std::string Path;
+
+  bool operator==(const TRelPath &that) const;
 }; // TPath
 
-}; // Bit
+// AbsPath starts with '/'. Ends with a filename (not '/').
+struct TAbsPath {
+  explicit TAbsPath(const TTree &tree, const TRelPath &rel_path);
+  const std::string Path;
+
+  TAbsPath AddExtension(const char *extension);
+
+  private:
+  TAbsPath(std::string &&path);
+}; // TPath
+
+} // Bit
 
 namespace std {
   template <> struct hash<Bit::TRelPath>

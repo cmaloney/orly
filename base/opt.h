@@ -23,6 +23,8 @@
 
 namespace Base {
 
+  struct TNone {};
+
 /* An optional value; that is, a value which may or may not be known.  This is a value type, and
    TVal must also be a value type.  The domain of TVal
    is augmented with the additional state of being unknown.
@@ -69,6 +71,8 @@ class TOpt {
       Val = nullptr;
     }
   }
+
+  TOpt(TNone) {}
 
   /* Copy constructor. */
   TOpt(const TOpt &that) {
@@ -251,7 +255,7 @@ class TOpt {
 
   /* A pointer to our current value.  If this is null, then our value is unknown.  If it is
    * non-null, then it points to Storage. */
-  TVal *Val;
+  TVal *Val = nullptr;
 
 };  // TOpt
 

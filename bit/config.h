@@ -90,6 +90,8 @@ namespace Bit {
 
 using TJobConfig = std::map<std::string, Base::TJson>;
 
+TJobConfig ReadJobConfig(const Base::TJson &json, const std::string &path);
+
 struct TCoreDirs {
   std::string Project;
   std::string User;
@@ -109,7 +111,7 @@ struct TMixinConfig {
 };
 
 struct TConfig {
-  std::unordered_set<std::string> Targets;
+  std::vector<std::string> Targets;
   std::unordered_set<std::string> Mixins;  // Needed for per-file config loading
   TJobConfig JobConfig;
   std::unordered_set<std::string> Jobs;
@@ -124,6 +126,7 @@ struct TConfig {
   // Loads config from user, system, and project, enforcing basic rules, expanding
   // and resolving mixins. Doesn't load per-file config.
   static TConfig Load(const TCoreDirs &core_dirs);
+
 };
 
 namespace Config {

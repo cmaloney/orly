@@ -101,7 +101,7 @@ std::string ReadCacheDir(const TJson &json, const TCoreDirs &core_dirs) {
   }
 }
 
-TJobConfig ReadJobConfig(const TJson &json, const std::string &path) {
+TJobConfig Bit::ReadJobConfig(const TJson &json, const std::string &path) {
   TJobConfig result;
   const TJson *job_config = json.TryAddress({"job_config"});
 
@@ -172,7 +172,7 @@ void TConfig::AddMixin(const std::string &name, const TCoreDirs &core_dirs, bool
     TMixinConfig config = TMixinConfig::Load(name, core_dirs);
 
     // Merge the mixin into the config
-    Targets.insert(config.Targets.begin(), config.Targets.end());
+    Targets.insert(Targets.end(), config.Targets.begin(), config.Targets.end());
     DeltaMergeJobs(JobConfig, std::move(config.JobConfig));
   } catch (const TNoSuchMixin &) {
     // If it was optional, no need to worry that it wasn't found.
@@ -192,7 +192,7 @@ TConfig LoadProjectConfig(const string &project_dir) {
 
   // Load the individual configuration options.
   config.Mixins = ExtractOptional<unordered_set<string>>(json, {"mixins"});
-  config.Targets = ExtractOptional<unordered_set<string>>(json, {"targets"});
+  config.Targets = ExtractOptional<vector<string>>(json, {"targets"});
   config.Jobs = ExtractOptional<unordered_set<string>>(json, {"jobs"});
   config.JobConfig = ReadJobConfig(json, config_filename);
 

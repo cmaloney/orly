@@ -52,8 +52,29 @@ TTree TTree::Find(string start_dir, const std::string &marker) {
   THROWER(runtime_error) << "Unable to find " << quoted(marker) << " indicating root of tree";
 }
 
-TAbsPath::TAbsPath(const TTree &tree, const std::string &rel_path) : Path(tree.Path + rel_path) {
-  assert(!rel_path.empty());
-  assert(rel_path.front() != '/');
-  assert(rel_path.back() != '/');
+TAbsPath::TAbsPath(const TTree &tree, const TRelPath &rel_path) : TAbsPath(tree.Path + '/' + rel_path.Path) {}
+
+TAbsPath TAbsPath::AddExtension(const char *extension) {
+  return TAbsPath(Path + extension);
+}
+
+TAbsPath::TAbsPath(std::string &&path) : Path(path) {
+  assert(!path.empty());
+  assert(path.front() == '/');
+  assert(path.back() != '/');
+
+}
+
+TRelPath::TRelPath(const std::string &path) : Path(path) {
+  assert(!path.empty());
+  assert(path.front() != '/' );
+  assert(path.back() != '/');
+}
+
+bool TRelPath::operator==(const TRelPath &that) const {
+  return Path == that.Path;
+}
+
+size_t std::hash<TRelPath>::operator()(const TRelPath &rel_path) const {
+  return std::hash<std::string>()(rel_path.Path);
 }

@@ -7,6 +7,7 @@ from a file which does exist which could be manipulated by known jobs to produce
 the needed file. */
 
 #include <base/class_traits.h>
+#include <base/opt.h>
 #include <bit/file_info.h>
 #include <bit/job.h>
 #include <bit/job_producer.h>
@@ -70,12 +71,11 @@ class TEnvironment {
 
   /* Attempts to find the tree for the given file and return the relative path.
      If the path doesn't begin with `/` it is assumed to be a relative path.
-     If the path doesn't belong to any tree, the full path is given as the
-     relative path. */
-  TRelPath GetRelPath(const std::string &path);
+     If the path doesn't belong to any known tree, None is reeturned. */
+  Base::TOpt<TRelPath> TryGetRelPath(const std::string &path);
 
   private:
-  std::unordered_map<std::string, TFileInfo *> PathLookupCache;
+  std::unordered_map<std::string, TRelPath> PathLookupCache;
   TInterner<TRelPath, TFileInfo> Files;
   TJobFactory Jobs;
 
