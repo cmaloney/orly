@@ -90,6 +90,8 @@ int Main(int argc, char *argv[]) {
   }
   assert(targets);
 
+  // TODO(cmaloney): building, running tests
+
   // Produce the requested targets.
   Produce(options.WorkerCount, environment, *targets);
 

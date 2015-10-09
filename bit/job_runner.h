@@ -9,15 +9,14 @@
 
 namespace Bit {
 
-class TJob;
-
 struct TJobRunner {
   struct TResult {
     MOVE_ONLY(TResult)
-    TResult(TJob *job, TJob::TOutput &&output);
+    TResult() = default;
+    TResult(TJob *job, std::unique_ptr<TJob::TOutput> &&output);
 
-    TJob *Job;
-    const TJob::TOutput Output;
+    const TJob *Job = nullptr;
+    std::unique_ptr<TJob::TOutput> Output;
   };
 
   TJobRunner(uint64_t worker_count);
@@ -40,10 +39,10 @@ struct TJobRunner {
   void Shutdown();
 
   // Jobs in, results out.
-  moodycamel::BlockingConcurrentQueue<TJob*> ToRun;
+  moodycamel::BlockingConcurrentQueue<const TJob*> ToRun;
 
   // TODO(cmaloney): The pointer indirection here is fugly.
-  moodycamel::BlockingConcurrentQueue<std::unique_ptr<TResult>> Results;
+  moodycamel::BlockingConcurrentQueue<TResult> Results;
 
   uint64_t InQueue = 0;
   std::atomic<uint64_t> BeingRun;

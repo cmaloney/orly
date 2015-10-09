@@ -17,7 +17,8 @@
       "-Wold-style-cast",
       "-Wglobal-constructors",
       "-pthread",
-      "-fcolor-diagnostics"
+      "-fcolor-diagnostics",
+      "-Qunused-arguments"
     ],
     "link": {
       "libs": ["-pthread"]

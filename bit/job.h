@@ -28,6 +28,7 @@ struct TJobProducer;
 
 // Max-size capped output buffer. Ideally a Twine class but lazy for now.
 class TOutputBuffer {
+public:
   using TPtr = std::unique_ptr<uint8_t[]>;
 
   MOVE_ONLY(TOutputBuffer)
@@ -43,6 +44,7 @@ class TJob {
   using TSet = std::unordered_set<TVal>;
 
   struct TOutput {
+    MOVE_ONLY(TOutput)
     enum TResult { NewNeeds, Error, Complete } Result;
 
     // Write adapters to do subprocess -> OutputBuffer via pump or just

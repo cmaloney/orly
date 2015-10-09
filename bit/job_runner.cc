@@ -4,11 +4,16 @@ using namespace Base;
 using namespace Bit;
 using namespace std;
 
+TJobRunner::TResult::TResult(TJob *job, std::unique_ptr<TJob::TOutput> &&output)
+    : Job(job), Output(std::move(output)) {
+  assert(job);
+  assert(Output);
+}
+
 TJobRunner::TJobRunner(uint64_t worker_count) : BeingRun(0), ExitWorker(false) {
   JobRunners.reserve(worker_count);
   for(uint64_t i = 0; i < worker_count; ++i) {
-    JobRunners.push_back(
-        make_unique<thread>(bind(&TJobRunner::ProcessQueue, this)));
+    JobRunners.push_back(make_unique<thread>(bind(&TJobRunner::ProcessQueue, this)));
   }
 }
 
@@ -22,7 +27,7 @@ TJobRunner::~TJobRunner() {
 
 bool TJobRunner::IsReady() const { return !ExitWorker; }
 
-void TJobRunner::Queue(TJob *job) {
+void TJobRunner::Queue(const TJob *job) {
   // We use null jobs to indicate "end of queue" and terminate processing.
   // So passing in a null job is really bad.
   assert(job);
@@ -38,12 +43,10 @@ bool TJobRunner::HasMoreResults() const { return (!ExitWorker ? InQueue : uint64
 TJobRunner::TResult TJobRunner::WaitForResult() {
   assert(HasMoreResults());
 
-  std::unique_ptr<TResult> result_ptr;
-  Results.wait_dequeue(result_ptr);
+  TResult result;
+  Results.wait_dequeue(result);
   --BeingRun;
   --InQueue;
-
-  TResult result = std::move(*result_ptr.get());
 
   return result;
 }
@@ -51,7 +54,7 @@ TJobRunner::TResult TJobRunner::WaitForResult() {
 void TJobRunner::ProcessQueue() {
   // Pop a single job off the ToRun queue, run it, repeat ad-nauesum.
   // if
-  TJob *job = nullptr;
+  const TJob *job = nullptr;
   for(;;) {
     ToRun.wait_dequeue(job);
 
@@ -66,11 +69,11 @@ void TJobRunner::ProcessQueue() {
     // Run the job.
     // TODO(cmaloney): Capture exceptions and report back in results if one
     // occurs rather than letting it stop everything.
-    TJob::TOutput output = job->Run();
-    bool has_error = (output.Result == TJob::TOutput::Error);
-    Results.enqueue(std::make_unique<TResult>(job, std::move(output)));
+    TResult result(job, std::make_unique<TJob::TOutput>(job->Run()));
+    bool has_error = (result.Output->Result == TJob::TOutput::Error);
+    Results.enqueue(std::move(result));
 
-    if (has_error) {
+    if(has_error) {
       Shutdown();
     }
   }
