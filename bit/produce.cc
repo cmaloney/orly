@@ -14,6 +14,10 @@ class TStatusTracker {
 
   void AddNeeded(string target);
 
+  void Advance(TResult &result, TJobRunner &runner);
+
+  std::vector<TJob*> GetActiveJobs();
+
   TEnvironment &Environment;
 
   // TODO(cmaloney): on top of queued and done we need to be able to track things
@@ -38,6 +42,8 @@ void Bit::Produce(uint64_t worker_count, TEnvironment &environment, vector<strin
   for(const auto &target: Targets) {
     status_tracker.AddNeeded(target);
   }
+
+  // Manually add the jobs. Normally ProcessResult will
   for(const TJob *job: status_tracker.GetActiveJobs()) {
     runner.Queue(job);
   }
@@ -45,10 +51,6 @@ void Bit::Produce(uint64_t worker_count, TEnvironment &environment, vector<strin
   // Hand results of jobs to the status tracker, and have it figure out what
   // more to do.
   while(!status_tracker.Done() && runner.IsReady() && runner.HasMoreResults()) {
-    TResult result = runner.WaitForResult();
-    status_tracker->ProcessResult(result);
+    status_tracker->Advance(runner.WaitForResult(), re);
   }
-
-  status_tracker->AddNeededFile(Targets);
-
 }
