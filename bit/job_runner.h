@@ -39,7 +39,7 @@ struct TJobRunner {
   void Shutdown();
 
   // Jobs in, results out.
-  moodycamel::BlockingConcurrentQueue<const TJob*> ToRun;
+  moodycamel::BlockingConcurrentQueue<TJob*> ToRun;
 
   // TODO(cmaloney): The pointer indirection here is fugly.
   moodycamel::BlockingConcurrentQueue<TResult> Results;

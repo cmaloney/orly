@@ -27,7 +27,7 @@ TJobRunner::~TJobRunner() {
 
 bool TJobRunner::IsReady() const { return !ExitWorker; }
 
-void TJobRunner::Queue(const TJob *job) {
+void TJobRunner::Queue(TJob *job) {
   // We use null jobs to indicate "end of queue" and terminate processing.
   // So passing in a null job is really bad.
   assert(job);
@@ -54,7 +54,7 @@ TJobRunner::TResult TJobRunner::WaitForResult() {
 void TJobRunner::ProcessQueue() {
   // Pop a single job off the ToRun queue, run it, repeat ad-nauesum.
   // if
-  const TJob *job = nullptr;
+  TJob *job = nullptr;
   for(;;) {
     ToRun.wait_dequeue(job);
 
