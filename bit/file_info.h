@@ -13,7 +13,7 @@ struct TFileConfig {
 
 class TFileInfo {
   public:
-  TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_config);
+  TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_config, bool is_src);
 
   bool IsComplete() const;
 
