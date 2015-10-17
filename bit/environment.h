@@ -69,6 +69,11 @@ class TEnvironment {
      GetRelPath */
   TFileInfo *GetFileInfo(TRelPath name);
 
+  /* Get the potential jobs which could produce a given file. Just because a job
+     exists doesn't mean that it is producible (The input may not exist and may
+     not be producible) */
+  std::unordered_set<TJob *> GetPotentialJobsProducingFile(TFileInfo *file_info);
+
   /* Attempts to find the tree for the given file and return the relative path.
      If the path doesn't begin with `/` it is assumed to be a relative path.
      If the path doesn't belong to any known tree, None is reeturned. */

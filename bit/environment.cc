@@ -142,6 +142,11 @@ TFileInfo *TEnvironment::GetFileInfo(TRelPath name) {
   }
 }
 
+// TODO(cmaloney): Just implement GetPotentialJobs inline here...
+std::unordered_set<TJob *> TEnvironment::GetPotentialJobsProducingFile(TFileInfo *file_info) {
+  return Jobs.GetPotentialJobs(*this, file_info);
+}
+
 /* Attempts to find the tree for the given file and return the relative path.
    If the path doesn't begin with `/` it is assumed to be a relative path.
    If the path doesn't belong to any tree, the full path is given as the

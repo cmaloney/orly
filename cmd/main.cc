@@ -9,6 +9,7 @@
 using namespace Base;
 
 int main(int argc, char *argv[]) {
+  SetBacktraceOnTerminate();
   try {
     TBacktraceCatcher backtrace;
     return Main(argc, argv);

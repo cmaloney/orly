@@ -85,10 +85,9 @@ void Base::SetBacktraceOnTerminate() {
   ABORT();
 }
 
-
 static void PrintSigabrtBacktrace(int) {
   static bool first_abrt = true;
-  if (!first_abrt) {
+  if(!first_abrt) {
     return;
   }
   first_abrt = false;
@@ -97,7 +96,17 @@ static void PrintSigabrtBacktrace(int) {
   cerr << "SIGABRT" << endl;
   ABORT();
 }
+
 TBacktraceCatcher::TBacktraceCatcher()
     : Sigabrt(SIGABRT, &PrintSigabrtBacktrace),
       Sigsegv(SIGSEGV, &PrintSegfaultBacktrace),
       Sigpipe(SIGPIPE, &PrintSigPipe) {}
+
+// Make pure virtuals print a reasonable error message
+[[noreturn]] extern "C" void __cxa_pure_virtual() {
+  cerr << "PURE VIRTUAL CALLED\n"
+       << "BACKTRACE:" << endl;
+  PrintBacktrace();
+  cerr << "TERMINATED BECAUSE PURE VIRTUAL CALLED" << endl;
+  ABORT();
+}

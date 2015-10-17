@@ -30,6 +30,9 @@ class TStatusTracker {
 
   const std::vector<TJob *> &GetQueuedJobs() const { return Queued; }
 
+  private:
+  TJob *TryGetProducer(TFileInfo *file);
+
   TEnvironment &Environment;
 
   // TODO(cmaloney): on top of queued and done we need to be able to track things
@@ -38,15 +41,76 @@ class TStatusTracker {
   std::vector<TJob *> Holding;
   std::vector<TJob *> Done;
   std::vector<TJob *> All;
+  std::unordered_map<TFileInfo *, TJob *> Producers;
 };
 
+// TODO(cmaloney): Make this an always succeed + throw on not able to produce
 bool TStatusTracker::TryAddNeeded(TFileInfo *file) {
-  if (file->IsComplete()) {
+  if(file->IsComplete()) {
     return true;
   }
 
   // Try finding a producer of the file which is producable.
+  TJob *job = TryGetProducer(file);
+  if (!producer) {
+    // TODO(cmaloney): Capture this exception and wrap it with the job which needed this file
+    // to be produced.
+    THROWER(runtime_error) << "No known way to produce file " << quoted(file) << '.';
+  }
 
+  // TODO(cmaloney): Add the producer to either the appropriate queue or the waiting queue.
+  NOT_IMPLEMENTED();
+}
+
+TJob *TryGetProducer(TFileInfo *file) {
+  // Check the cache
+  auto elem = TryFind(Producers, file);
+  if(elem) {
+    return *elem;
+  }
+
+  // See if we can find a job from the set of all possible jobs which can produce
+  // the given file which has a producible input.
+  // Having more than one producible input is an unresolvable ambiguity.
+  std::vector<TJob *> ProducibleJobs;
+  for(TJob *job : Environment.GetPotentialJobs()) {
+    if(IsBuildable(job->GetInput())) {
+      ProducibleJobs.push_back(job);
+    }
+  }
+
+  // Ambiguous to produce. Cannot proceed.
+  if(ProducibleJobs.size() > 1) {
+    THROWER(runtime_error) << "Multiple producers for file " << quoted(file)
+                           << ". Producers: " << Base::Join(",", ProducibleJobs);
+  }
+
+  // No producer. Store result in cache and return.
+  if(ProducibleJobs.size() == 0) {
+    Producers[file] = nullptr;
+    return nullptr;
+  }
+
+  assert(ProducibleJobs == 1);
+  TJob *job = ProducibleJobs[0];
+
+  // Mark all outputs as producible by the job. As an extra safety throw if we
+  // already have a producer of the file. If jobs declare all their possible
+  // output types this should never fire because the previous ambiguous check
+  // should have caught it.
+  // Also perform a sanity check that the job actually output the requested file
+  // since it said it would.
+  bool found_self = false;
+  for(TFileInfo *output : job->GetOutput()) {
+    if(!Producers.emplace(output, job).second) {
+      THROWER(runtime_error) << "Multiple producers for file " << quoted(file)
+                             << ". Producers: " << Producers[job] << ", " << job;
+    }
+    found_self |= file == output;
+  }
+  assert(found_self);
+
+  return job;
 }
 
 bool Bit::Produce(uint64_t worker_count, TEnvironment &environment, vector<string> Targets) {
