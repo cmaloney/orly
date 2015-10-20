@@ -30,7 +30,9 @@ class TStatusTracker {
   bool IsDone() const { return All.size() == Done.size(); }
   bool IsBuildable(TFileInfo *file);
 
-  // TODO(cmaloney): The recursion this does with IsBuildable needs to be worked out...
+  // TODO(cmaloney): The recursion / relation between TryAddNeeded
+  // and IsBuildable isn't very nice. Would be nice if we could lay it out more
+  // cleanly esp. since every output is known in advance nowadays.
   bool TryAddNeeded(TFileInfo *file);
 
   void Advance(const TJobRunner::TResult &result, TJobRunner &runner);
