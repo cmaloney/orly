@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iosfwd>
+
 #include <bit/config.h>
 #include <bit/naming.h>
 
@@ -30,4 +32,7 @@ class TFileInfo {
   // If computerd config has been finalized (the file has been created and is completely done).
   bool Completed = false;
 };
+
+std::ostream &operator << (std::ostream &out, const TFileInfo *file_info);
+
 }

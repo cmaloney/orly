@@ -14,11 +14,11 @@
 
 #pragma once
 
-#include <cassert>
 #include <memory>
 #include <unordered_set>
 #include <vector>
 
+#include <base/class_traits.h>
 #include <bit/naming.h>
 
 namespace Bit {
@@ -28,7 +28,7 @@ struct TJobProducer;
 
 // Max-size capped output buffer. Ideally a Twine class but lazy for now.
 class TOutputBuffer {
-public:
+  public:
   using TPtr = std::unique_ptr<uint8_t[]>;
 
   MOVE_ONLY(TOutputBuffer)
@@ -40,8 +40,6 @@ public:
 
 class TJob {
   public:
-  template <typename TVal>
-  using TSet = std::unordered_set<TVal>;
 
   struct TOutput {
     MOVE_ONLY(TOutput)
@@ -57,36 +55,25 @@ class TJob {
   };
 
   struct TNeeds {
-    TSet<TRelPath> Mandatory;
-    TSet<TRelPath> IfBuildable;
+    std::unordered_set<TRelPath> Mandatory;
+    std::unordered_set<TRelPath> IfBuildable;
   };
 
   struct TId {
     const TJobProducer *Producer;
     TFileInfo *Input;
 
-    bool operator==(const TId &that) const noexcept {
-      return Producer == that.Producer && Input == that.Input;
-    }
+    bool operator==(const TId &that) const noexcept;
 
     struct THash {
-      size_t operator()(const TId &that) const noexcept {
-        // TODO: Write a better hash...
-        return HashHelper(that.Producer) + HashHelper(that.Input);
-      }
+      size_t operator()(const TId &that) const noexcept;
     };
-
-    private:
-      template <typename TVal>
-      static size_t HashHelper(const TVal &val) {
-        return std::hash<TVal>()(val);
-      }
   };
 
   struct TMetadata {
     const TJobProducer *Producer;
     TFileInfo *Input;
-    TSet<TFileInfo *> Output;
+    std::unordered_set<TFileInfo *> Output;
   };
 
   virtual ~TJob() = default;
@@ -100,24 +87,13 @@ class TJob {
 
   virtual TOutput Run() = 0;
 
-  TFileInfo *GetInput() {
-    assert(this);
-    return Metadata.Input;
-  }
+  TFileInfo *GetInput() const;
 
-  const TSet<TFileInfo *> &GetOutput() const {
-    assert(this);
-    return Metadata.Output;
-  }
+  const std::unordered_set<TFileInfo *> &GetOutput() const;
 
-  TFileInfo *GetSoleOutput() const {
-    assert(this);
-    assert(Metadata.Output.size() == 1);
-    for(TFileInfo *f : Metadata.Output) {
-      return f;
-    }
-    __builtin_unreachable();
-  }
+  TFileInfo *GetSoleOutput() const;
+
+  const TJobProducer *GetJobProducer() const;
 
   protected:
   // NOTE: In theory we can take multiple files in. In  practice we have no instances of that.

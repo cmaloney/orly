@@ -2,16 +2,21 @@
 
 #include <iomanip>
 #include <iostream>
+#include <stdexcept>
 
 #include <base/not_implemented.h>
+#include <base/split.h>
+#include <base/thrower.h>
 #include <bit/environment.h>
 #include <bit/job_runner.h>
 #include <bit/status_line.h>
 #include <cmd/util.h>
+#include <util/stl.h>
 
 using namespace Bit;
 using namespace Cmd;
 using namespace std;
+using namespace Util;
 
 // NOTE: When a job is in the run queue, it absolutely must never be manipulated
 // or have any methods called by the StatusTracker. Any/all calls are likely
@@ -23,14 +28,15 @@ class TStatusTracker {
 
   // Returns true IFF all needed files have been produced.
   bool IsDone() const { return All.size() == Done.size(); }
+  bool IsBuildable(TFileInfo *file);
 
+  // TODO(cmaloney): The recursion this does with IsBuildable needs to be worked out...
   bool TryAddNeeded(TFileInfo *file);
 
   void Advance(const TJobRunner::TResult &result, TJobRunner &runner);
 
   const std::vector<TJob *> &GetQueuedJobs() const { return Queued; }
 
-  private:
   TJob *TryGetProducer(TFileInfo *file);
 
   TEnvironment &Environment;
@@ -44,6 +50,10 @@ class TStatusTracker {
   std::unordered_map<TFileInfo *, TJob *> Producers;
 };
 
+bool TStatusTracker::IsBuildable(TFileInfo *file) {
+  return file->IsComplete() || TryGetProducer(file);
+}
+
 // TODO(cmaloney): Make this an always succeed + throw on not able to produce
 bool TStatusTracker::TryAddNeeded(TFileInfo *file) {
   if(file->IsComplete()) {
@@ -52,17 +62,17 @@ bool TStatusTracker::TryAddNeeded(TFileInfo *file) {
 
   // Try finding a producer of the file which is producable.
   TJob *job = TryGetProducer(file);
-  if (!producer) {
+  if(!job) {
     // TODO(cmaloney): Capture this exception and wrap it with the job which needed this file
     // to be produced.
-    THROWER(runtime_error) << "No known way to produce file " << quoted(file) << '.';
+    THROWER(runtime_error) << "No known way to produce file '" << file << "'.";
   }
 
   // TODO(cmaloney): Add the producer to either the appropriate queue or the waiting queue.
   NOT_IMPLEMENTED();
 }
 
-TJob *TryGetProducer(TFileInfo *file) {
+TJob *TStatusTracker::TryGetProducer(TFileInfo *file) {
   // Check the cache
   auto elem = TryFind(Producers, file);
   if(elem) {
@@ -73,7 +83,7 @@ TJob *TryGetProducer(TFileInfo *file) {
   // the given file which has a producible input.
   // Having more than one producible input is an unresolvable ambiguity.
   std::vector<TJob *> ProducibleJobs;
-  for(TJob *job : Environment.GetPotentialJobs()) {
+  for(TJob *job : Environment.GetPotentialJobsProducingFile(file)) {
     if(IsBuildable(job->GetInput())) {
       ProducibleJobs.push_back(job);
     }
@@ -81,8 +91,8 @@ TJob *TryGetProducer(TFileInfo *file) {
 
   // Ambiguous to produce. Cannot proceed.
   if(ProducibleJobs.size() > 1) {
-    THROWER(runtime_error) << "Multiple producers for file " << quoted(file)
-                           << ". Producers: " << Base::Join(",", ProducibleJobs);
+    THROWER(runtime_error) << "Multiple producers for file '" << file
+                           << "'. Producers: " << Base::Join(ProducibleJobs, ",");
   }
 
   // No producer. Store result in cache and return.
@@ -91,7 +101,7 @@ TJob *TryGetProducer(TFileInfo *file) {
     return nullptr;
   }
 
-  assert(ProducibleJobs == 1);
+  assert(ProducibleJobs.size() == 1);
   TJob *job = ProducibleJobs[0];
 
   // Mark all outputs as producible by the job. As an extra safety throw if we
@@ -103,8 +113,8 @@ TJob *TryGetProducer(TFileInfo *file) {
   bool found_self = false;
   for(TFileInfo *output : job->GetOutput()) {
     if(!Producers.emplace(output, job).second) {
-      THROWER(runtime_error) << "Multiple producers for file " << quoted(file)
-                             << ". Producers: " << Producers[job] << ", " << job;
+      THROWER(runtime_error) << "Multiple producers for file '" << output
+                             << "'. Producers: " << Producers[output] << ", " << job;
     }
     found_self |= file == output;
   }
