@@ -93,7 +93,7 @@ int Main(int argc, char *argv[]) {
   // TODO(cmaloney): building, running tests
 
   // Produce the requested targets.
-  Produce(options.WorkerCount, environment, *targets);
+  DoProduce(options.WorkerCount, environment, *targets);
 
   return 0;
 }

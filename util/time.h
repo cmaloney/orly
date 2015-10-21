@@ -73,5 +73,7 @@ TTimestamp Newest(TTimestamp lhs, TOptTimestamp rhs);
 TOptTimestamp Newest(TOptTimestamp lhs, TOptTimestamp rhs);
 TOptTimestamp Oldest(TOptTimestamp lhs, TOptTimestamp rhs);
 
+// TODO(cmaloney): this should be an operator<< probably...
+// TODO(cmaloney): Include units in printed value.
 std::string ToStr(const TTimestamp &ts);
 }

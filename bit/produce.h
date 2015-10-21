@@ -10,10 +10,10 @@ trying to get out of work / produce what the user requested. */
 
 namespace Bit {
 
-  class TEnvironment;
+class TEnvironment;
 
-  // Figure out the jobs which need to be run to create the given set of targets
-  // and run them to create the targets.
-  bool Produce(uint64_t worker_count, TEnvironment &environment, std::vector<std::string> Targets);
+// Figure out the jobs which need to be run to create the given set of targets
+// and run them to create the targets.
+void DoProduce(uint64_t worker_count, TEnvironment &environment, std::vector<std::string> Targets);
 
-} // Bit
+}  // Bit

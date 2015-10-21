@@ -9,13 +9,15 @@
 
 namespace Bit {
 
+// Runs jobs. Automatically shuts down running when a job has errored, and
+// cannot be resumed.
 struct TJobRunner {
   struct TResult {
     MOVE_ONLY(TResult)
     TResult() = default;
     TResult(TJob *job, std::unique_ptr<TJob::TOutput> &&output);
 
-    const TJob *Job = nullptr;
+    TJob *Job = nullptr;
     std::unique_ptr<TJob::TOutput> Output;
   };
 

@@ -34,6 +34,8 @@ class TOutputBuffer {
   MOVE_ONLY(TOutputBuffer)
   TOutputBuffer() = default;
 
+  // TODO(cmaloney): Make have a fixed max size, hard error if more than X MB of output.
+
   private:
   std::vector<TPtr> Blocks;
 };
@@ -80,12 +82,17 @@ class TJob {
 
   virtual const TNeeds GetNeeds() = 0;
 
-  /* Allows a job to verify that it's complete. If it returns false here, the command __WILL__ get
-     run again when
-     all the files returned by GetNeeds() are all done. */
-  virtual bool IsComplete() = 0;
-
   virtual TOutput Run() = 0;
+
+  // Returns a string which represents the full configuration of this job.
+  // Callable at any time after a job is created (both before and after the job
+  // is completed), must always return the same value. Used for cache completing
+  // files produced by this job (If input timestamps are newer than output
+  // timestamps and the ConfigId matches, then nothing has changed and the
+  // existing output can be used). Note ConfigId shouldn't contain the producer
+  // name, input file, set of output files, or the needs. Those are already
+  // accounted for in job cache completion.
+  virtual std::string GetConfigId() const = 0;
 
   TFileInfo *GetInput() const;
 
@@ -104,5 +111,7 @@ class TJob {
 };
 
 std::ostream &operator<<(std::ostream &out, TJob *job);
+
+std::ostream &operator<<(std::ostream &out, const TOutputBuffer &output);
 
 }  // namespace Bit

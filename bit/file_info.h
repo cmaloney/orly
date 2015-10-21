@@ -7,6 +7,8 @@
 
 namespace Bit {
 
+class TJob;
+
 struct TFileConfig {
   TFileConfig(const TAbsPath &src);
   explicit TFileConfig() = default;
@@ -20,7 +22,9 @@ class TFileInfo {
   bool IsComplete() const;
 
   // Asserts the file exists, sets ComputedConfig and marks Completed as true.
-  void Complete(TFileConfig &&computed_config);
+  // Attaches all critical bits from the job to the file so the file can
+  // potentially be cache completed if everything checks out.
+  void Complete(const TJob *producer);
 
   const std::string CmdPath;
   const TRelPath RelPath;

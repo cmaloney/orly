@@ -16,7 +16,8 @@ TFileInfo::TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_
 bool TFileInfo::IsComplete() const { return Completed; }
 
 std::ostream &Bit::operator<<(std::ostream &out, const TFileInfo *file_info) {
-  // TODO(cmaloney): Make a more interesting representation for
+  // TODO(cmaloney): Make a more interesting representation for file_info based
+  // on trees?
   out << file_info->CmdPath;
 
   return out;
