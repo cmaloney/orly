@@ -35,10 +35,11 @@ class TStatusTracker {
 
   bool IsBuildable(TFileInfo *file);
 
-  // TODO(cmaloney): The recursion / relation between TryAddNeeded
+  // TODO(cmaloney): The recursion / relation between AddNeeded
   // and IsBuildable isn't very nice. Would be nice if we could lay it out more
   // cleanly esp. since every output is known in advance nowadays.
-  void AddNeeded(TFileInfo *file);
+  // Returns true if the file isn't complete.
+  bool AddNeeded(TFileInfo *file);
 
   // Try to advance all tracked jobs / files to completion. Exits when either
   // there is a failure / error or all jobs have completed. Call
@@ -67,7 +68,8 @@ class TStatusTracker {
   std::unordered_set<TJob *> Running;
   std::unordered_set<TJob *> Done;
   std::unordered_set<TJob *> All;
-  std::unordered_map<TFileInfo *, std::unordered_set<TJob *>> WaitingForFile;
+
+  std::unordered_map<TJob *, std::unordered_set<TJob *>> WaitingForJob;
   std::unordered_map<TFileInfo *, TJob *> Producers;
   TJobRunner Runner;
 };
@@ -77,24 +79,25 @@ bool TStatusTracker::IsBuildable(TFileInfo *file) {
 }
 
 // TODO(cmaloney): Make this an always succeed + throw on not able to produce
-void TStatusTracker::AddNeeded(TFileInfo *file) {
-  if(file->IsComplete()) {
-    return;
+bool TStatusTracker::AddNeeded(TFileInfo *file) {
+  if (file->IsComplete()) {
+    return false;
   }
 
   // Try finding a producer of the file which is producable.
   TJob *job = TryGetProducer(file);
-  if(!job) {
+  if (!job) {
     // TODO(cmaloney): Capture this exception and wrap it with the job which needed this file
     // to be produced.
     THROWER(runtime_error) << "No known way to produce file '" << file << "'.";
   }
 
   QueueJob(job);
+  return true;
 }
 
 void TStatusTracker::DoAdvance() {
-  while((!HasFinishedAll()) || Runner.HasMoreResults()) {
+  while ((!HasFinishedAll()) || Runner.HasMoreResults()) {
     // Update current status
     TStatusLine() << '[' << Done.size() << '/' << All.size() << "] waiting: " << Running.size();
 
@@ -111,7 +114,7 @@ void TStatusTracker::DoAdvance() {
     const TJob::TOutput &output = *(result.Output);
 
     // Process the result
-    switch(output.Result) {
+    switch (output.Result) {
       case TJob::TOutput::Error: {
         // Print the error output. Runner will naturally coalesce and DoAdvance
         // will terminate the process with an error.
@@ -132,11 +135,10 @@ void TStatusTracker::DoAdvance() {
         // Sanity check that the output files actually all exist. If they don't
         // stop the runner, report an error on the job, and don't cache complete
         // any of the output since they may be corrupted.
-
         const auto &job_output = result.Job->GetOutput();
         bool has_error = false;
-        for(TFileInfo *file_info : job_output) {
-          if(!ExistsPath(file_info->CmdPath.c_str())) {
+        for (TFileInfo *file_info : job_output) {
+          if (!ExistsPath(file_info->CmdPath.c_str())) {
             cout << "ERROR: " << result.Job << " didn't produce the output file, " << file_info
                  << ", it said it would but exited successfully. The job has a bug.\n"
                  << "JOB OUTUPT:\n" << output.Output;
@@ -148,7 +150,7 @@ void TStatusTracker::DoAdvance() {
           }
         }
 
-        if(has_error) {
+        if (has_error) {
           break;  // Leave the switch
         }
 
@@ -158,29 +160,22 @@ void TStatusTracker::DoAdvance() {
         // TODO(cmaloney): Allow jobs to attach arbitrary computed config to
         // each output file.
         InsertOrFail(Done, result.Job);
-        for(TFileInfo *file_info : job_output) {
+        for (TFileInfo *file_info : job_output) {
           file_info->Complete(result.Job);
         }
 
         // If any jobs were waiting on the output files of this job, try queing
         // those jobs.
         // Gather all the jobs which got unblocked. Do this first / at once so
-        // that we also remove the "WaitingForFile" entries before we call
-        // QueueJob which will start waiting for files.
+        // that we also remove the "WaitingForJob" entries before we call
+        // QueueJob which will start waiting for job.
         std::unordered_set<TJob *> unblocked;
-        for(TFileInfo *file_info : job_output) {
-          auto it = WaitingForFile.find(file_info);
-
-          // Nothing waiting, try the next file
-          if(it == WaitingForFile.end()) {
-            continue;
-          }
-
-          unblocked.insert(it->second.begin(), it->second.end());
-          WaitingForFile.erase(it);
+        auto it = WaitingForJob.find(result.Job);
+        if (it != WaitingForJob.end()) {
+          unblocked = std::move(it->second);
+          WaitingForJob.erase(it);
         }
-
-        for(TJob *job : unblocked) {
+        for (TJob *job : unblocked) {
           QueueJob(job);
         }
 
@@ -194,18 +189,75 @@ void TStatusTracker::DoAdvance() {
     // needs calculated again. This is excess work, but otherwise the cpu would
     // be sitting idle and by re-scheduling jobs early we can likely find more
     // jobs which need to be run to get to the eventual target.
+    // NOTE: This requires that jobs write output files atomically (write them
+    // elsewhere then move them into place). Otherwise some jobs might consume
+    // partially constructed output.
   }
 
   // Runner exited with an error, exit the program.
-  if(!Runner.IsReady()) {
+  if (!Runner.IsReady()) {
     throw TErrorExit(1, "ERROR: One or more build jobs reported failure. Details above.");
+  }
+}
+
+// Queue the given job based on its state.
+// If the job is already being run, no-op (The jobs is running, will be checked based on its
+// output).
+// If all needs are complete, mark the job as running and queue it.
+// Since all needs aren't complete, queue the jobs needed to complete those
+// files.
+void TStatusTracker::QueueJob(TJob *job) {
+  assert(job);
+  if (Contains(Running, job)) {
+    return;
+  }
+
+  // Check the needs for completion, queueing all needed.
+  std::unordered_set<TJob *> blocking_jobs;
+
+  auto add_blocking_not_complete = [this, &blocking_jobs](TFileInfo *file_info) {
+      assert(file_info);
+
+    if(AddNeeded(file_info)) {
+      // TryGetProducer will always return true if AddNeeded returns true
+      // then the file is not complete / being produced by something.
+      TJob *producer = TryGetProducer(file_info);
+      assert(producer);
+      blocking_jobs.insert(producer);
+    }
+  };
+
+  TJob::TNeeds needs = job->GetNeeds();
+  for (TRelPath path : needs.Mandatory) {
+    add_blocking_not_complete(Environment.GetFileInfo(path));
+  }
+
+  for(TRelPath path: needs.IfBuildable) {
+    TFileInfo *file_info = Environment.GetFileInfo(path);
+    if(IsBuildable(file_info)) {
+      add_blocking_not_complete(file_info);
+    }
+  }
+
+  // If there are no blocking jobs, run the job.
+  if (blocking_jobs.empty()) {
+    InsertOrFail(Running, job);
+    Runner.Queue(job);
+    return;
+  }
+
+  // Mark this job as waiting for all the blocking jobs
+  for (TJob *blocker: blocking_jobs) {
+    // Default construct the waiting set if it isn't constructed and insert the
+    // new waiting.
+    WaitingForJob[blocker].insert(job);
   }
 }
 
 TJob *TStatusTracker::TryGetProducer(TFileInfo *file) {
   // Check the cache
   auto elem = TryFind(Producers, file);
-  if(elem) {
+  if (elem) {
     return *elem;
   }
 
@@ -213,20 +265,20 @@ TJob *TStatusTracker::TryGetProducer(TFileInfo *file) {
   // the given file which has a producible input.
   // Having more than one producible input is an unresolvable ambiguity.
   std::vector<TJob *> ProducibleJobs;
-  for(TJob *job : Environment.GetPotentialJobsProducingFile(file)) {
-    if(IsBuildable(job->GetInput())) {
+  for (TJob *job : Environment.GetPotentialJobsProducingFile(file)) {
+    if (IsBuildable(job->GetInput())) {
       ProducibleJobs.push_back(job);
     }
   }
 
   // Ambiguous to produce. Cannot proceed.
-  if(ProducibleJobs.size() > 1) {
+  if (ProducibleJobs.size() > 1) {
     THROWER(runtime_error) << "Multiple producers for file '" << file
                            << "'. Producers: " << Base::Join(ProducibleJobs, ",");
   }
 
   // No producer. Store result in cache and return.
-  if(ProducibleJobs.size() == 0) {
+  if (ProducibleJobs.size() == 0) {
     Producers[file] = nullptr;
     return nullptr;
   }
@@ -241,8 +293,8 @@ TJob *TStatusTracker::TryGetProducer(TFileInfo *file) {
   // Also perform a sanity check that the job actually output the requested file
   // since it said it would.
   bool found_self = false;
-  for(TFileInfo *output : job->GetOutput()) {
-    if(!Producers.emplace(output, job).second) {
+  for (TFileInfo *output : job->GetOutput()) {
+    if (!Producers.emplace(output, job).second) {
       THROWER(runtime_error) << "Multiple producers for file '" << output
                              << "'. Producers: " << Producers[output] << ", " << job;
     }
@@ -262,9 +314,9 @@ void Bit::DoProduce(uint64_t worker_count, TEnvironment &environment, vector<str
   // Add the targets as needed files. Queue the jobs which are implied by those
   // into the job runner to start the work queue.
   bool has_failure = false;
-  for(const auto &target : Targets) {
+  for (const auto &target : Targets) {
     auto rel_path = environment.TryGetRelPath(target);
-    if(!rel_path) {
+    if (!rel_path) {
       has_failure = true;
       THROWER(runtime_error) << "Unable to locate target " << quoted(target)
                              << ". File is not Not in src or out tree.\n";
@@ -272,7 +324,7 @@ void Bit::DoProduce(uint64_t worker_count, TEnvironment &environment, vector<str
     status_tracker.AddNeeded(environment.GetFileInfo(*rel_path));
   }
 
-  if(has_failure) {
+  if (has_failure) {
     throw TErrorExit(1, "Couldn't resolve all specified targets to real files");
   }
 

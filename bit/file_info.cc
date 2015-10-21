@@ -1,5 +1,7 @@
 #include <bit/file_info.h>
 
+#include <base/not_implemented.h>
+
 using namespace Base;
 using namespace Bit;
 using namespace std;

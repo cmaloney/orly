@@ -285,7 +285,7 @@ PointerBindsToType: false
 #     flag = true;
 #   }  // if
 #
-SpaceAfterControlStatementKeyword: false
+SpaceAfterControlStatementKeyword: true
 
 # Good:
 #

@@ -11,6 +11,9 @@ namespace Bit {
 
 // Runs jobs. Automatically shuts down running when a job has errored, and
 // cannot be resumed.
+// NOTE: Could be a template on the queue input + output, but that just forces
+// everything to be in the header and it isn't currently used generically, so
+// that is overhead not producing value.
 struct TJobRunner {
   struct TResult {
     MOVE_ONLY(TResult)

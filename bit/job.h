@@ -29,15 +29,20 @@ struct TJobProducer;
 // Max-size capped output buffer. Ideally a Twine class but lazy for now.
 class TOutputBuffer {
   public:
-  using TPtr = std::unique_ptr<uint8_t[]>;
+
+  struct TMemBlock {
+    int64_t Size; // TODO(cmaloney): Make this unsigned
+    std::unique_ptr<uint8_t[]> Data;
+  };
 
   MOVE_ONLY(TOutputBuffer)
   TOutputBuffer() = default;
 
   // TODO(cmaloney): Make have a fixed max size, hard error if more than X MB of output.
+  void Print(std::ostream &out) const;
 
   private:
-  std::vector<TPtr> Blocks;
+  std::vector<TMemBlock> Blocks;
 };
 
 class TJob {
@@ -80,7 +85,7 @@ class TJob {
 
   virtual ~TJob() = default;
 
-  virtual const TNeeds GetNeeds() = 0;
+  virtual TNeeds GetNeeds() = 0;
 
   virtual TOutput Run() = 0;
 
@@ -112,6 +117,6 @@ class TJob {
 
 std::ostream &operator<<(std::ostream &out, TJob *job);
 
-std::ostream &operator<<(std::ostream &out, const TOutputBuffer &output);
+std::ostream &operator<<(std::ostream &out, const TOutputBuffer &buffer);
 
 }  // namespace Bit
