@@ -10,7 +10,7 @@
 #include <util/stl.h>
 
 // #include <bit/jobs/compile_c_family.h>
-// #include <bit/jobs/dep.h>
+#include <bit/jobs/dep.h>
 // #include <bit/jobs/link.h>
 
 using namespace Base;
@@ -23,15 +23,15 @@ using TSet = unordered_set<TVal>;
 
 TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs) {
   const unordered_map<string, TJobProducer (*)(const Base::TJson &job_config)> builtin_jobs = {
-      //    {"dependency", &Job::TDep::GetProducer},
-      //    {"compile_c", &Job::TCompileCFamily::GetCProducer},
-      //    {"compile_cc", &Job::TCompileCFamily::GetCcProducer},
-      //    {"link", &Job::TLink::GetProducer}
+      {"dependency", &Job::TDep::GetProducer},
+      // {"compile_c", &Job::TCompileCFamily::GetCProducer},
+      // {"compile_cc", &Job::TCompileCFamily::GetCcProducer},
+      // {"link", &Job::TLink::GetProducer}
   };
 
-  if(jobs.empty()) {
+  if (jobs.empty()) {
     // Enable all builtin jobs
-    for(const auto &job : builtin_jobs) {
+    for (const auto &job : builtin_jobs) {
       // TODO(cmaloney): Shuold "get default" rather than force config section
       // into existence.
       JobProducers.emplace_back(job.second(move(job_config.at(job.first))));
@@ -50,10 +50,10 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment, TFileInfo 
   // Check the cache
   // TODO(cmaloney): There should be a util that does this extraction shape (match -> set)
   auto range = JobsByOutput.equal_range(target_output);
-  if(range.first != JobsByOutput.end()) {
+  if (range.first != JobsByOutput.end()) {
     for_each(range.first, range.second, [&ret](const pair<TFileInfo *, TJob *> &pair) {
       // NOTE: job can be a nullptr, which is valid in the cache to indicate "no jobs exist".
-      if(pair.second) {
+      if (pair.second) {
         // TODO: InsertOrFail.
         ret.insert(pair.second);
       }
@@ -65,13 +65,13 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment, TFileInfo 
   // Find and instantiate possibilities based on extension.
   // If no jobs are found, insert nullptr
   bool found = false;
-  for(const auto &producer : JobProducers) {
+  for (const auto &producer : JobProducers) {
     TOpt<TRelPath> opt_path = producer.TryGetInputName(target_output->RelPath);
-    if(!opt_path) {
+    if (!opt_path) {
       continue;
     }
     TFileInfo *input = environment.GetFileInfo(*opt_path);
-    if(!input) {
+    if (!input) {
       continue;
     }
 
@@ -82,10 +82,10 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment, TFileInfo 
 
     // If the job hasn't been created, make it. The job might already exist if
     // another output found it first.
-    if(!job) {
+    if (!job) {
       // TODO(cmaloney): generalize this "copy across all things with lambda applied"
       TSet<TFileInfo *> output;
-      for(const TRelPath &rel_path : producer.GetOutput(*opt_path)) {
+      for (const TRelPath &rel_path : producer.GetOutput(*opt_path)) {
         output.insert(environment.GetFileInfo(rel_path));
       }
       job = Jobs.Add(move(job_id), producer.MakeJob(&producer, input, move(output)));
@@ -100,7 +100,7 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment, TFileInfo 
   }
 
   // If no entries have been added to cache, then insert a nullptr to indicate we did try
-  if(!found) {
+  if (!found) {
     JobsByOutput.emplace(target_output, nullptr);
   }
 
@@ -112,7 +112,7 @@ TEnvironment::TEnvironment(const TConfig &config, const TTree &src)
 
 TFileInfo *TEnvironment::GetFileInfo(TRelPath name) {
   TFileInfo *result = Files.TryGet(name);
-  if(result) {
+  if (result) {
     return result;
   }
 
@@ -135,7 +135,7 @@ TFileInfo *TEnvironment::GetFileInfo(TRelPath name) {
     return Files.Add(TRelPath(name), std::move(file_info));
   };
 
-  if(ExistsPath(src_abs_path.Path.c_str())) {
+  if (ExistsPath(src_abs_path.Path.c_str())) {
     return add_file(name.Path, true);
   } else {
     return add_file(TAbsPath(Out, name).Path, false);
@@ -157,7 +157,7 @@ TOpt<TRelPath> TEnvironment::TryGetRelPath(const std::string &path) {
 
   // Try getting out of the cache as a performance optimization.
   auto it = PathLookupCache.find(path);
-  if(it != PathLookupCache.end()) {
+  if (it != PathLookupCache.end()) {
     return it->second;
   }
 
@@ -166,15 +166,15 @@ TOpt<TRelPath> TEnvironment::TryGetRelPath(const std::string &path) {
   };
 
   // If it's already a relative path, just return it.
-  if(path[0] != '/') {
+  if (path[0] != '/') {
     return TRelPath(path);
   }
 
   // Search for the tree which contains the path.
   // Out might be a subdirectory of src, so check it first.
-  if(path.compare(0, Out.Path.length(), Out.Path) == 0) {
+  if (path.compare(0, Out.Path.length(), Out.Path) == 0) {
     return make_rel_remove_prefix(Out);
-  } else if(path.compare(0, Src.Path.length(), Src.Path) == 0) {
+  } else if (path.compare(0, Src.Path.length(), Src.Path) == 0) {
     return make_rel_remove_prefix(Src);
   }
 
