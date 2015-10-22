@@ -160,7 +160,7 @@ void TStatusTracker::DoAdvance() {
         // TODO(cmaloney): Allow jobs to attach arbitrary computed config to
         // each output file.
         InsertOrFail(Done, result.Job);
-        for (TFileInfo *file_info : job_output) {
+        for (TFileInfo * file_info: job_output) {
           file_info->Complete(result.Job);
         }
 

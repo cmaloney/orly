@@ -7,7 +7,7 @@ using namespace Bit;
 using namespace std;
 
 TFileConfig::TFileConfig(const TAbsPath &src)
-    : JobConfig(ReadJobConfig(TJson::Read(src.Path), src.Path)) {}
+    : JobConfig(ReadJobConfig(TJson::TryRead(src.Path), src.Path)) {}
 
 TFileInfo::TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_config, bool is_src)
     : CmdPath(move(cmd_path)),
@@ -16,6 +16,10 @@ TFileInfo::TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_
       Completed(is_src) {}
 
 bool TFileInfo::IsComplete() const { return Completed; }
+
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
+
+void TFileInfo::Complete(const TJob *) { NOT_IMPLEMENTED(); }
 
 std::ostream &Bit::operator<<(std::ostream &out, const TFileInfo *file_info) {
   // TODO(cmaloney): Make a more interesting representation for file_info based

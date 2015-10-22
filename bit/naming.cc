@@ -52,7 +52,7 @@ TTree TTree::Find(string start_dir, const std::string &marker) {
   THROWER(runtime_error) << "Unable to find " << quoted(marker) << " indicating root of tree";
 }
 
-TAbsPath::TAbsPath(const TTree &tree, const TRelPath &rel_path) : TAbsPath(tree.Path + '/' + rel_path.Path) {}
+TAbsPath::TAbsPath(const TTree &tree, const TRelPath &rel_path) : TAbsPath(tree.Path + rel_path.Path) {}
 
 TAbsPath TAbsPath::AddExtension(const char *extension) {
   return TAbsPath(Path + extension);
