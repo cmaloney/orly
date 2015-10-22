@@ -23,7 +23,7 @@ using TSet = unordered_set<TVal>;
 
 TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs) {
   const unordered_map<string, TJobProducer (*)(const Base::TJson &job_config)> builtin_jobs = {
-      {"dependency", &Job::TDep::GetProducer},
+      {"dependency", &Job::TDep::GetProducer}
       // {"compile_c", &Job::TCompileCFamily::GetCProducer},
       // {"compile_cc", &Job::TCompileCFamily::GetCcProducer},
       // {"link", &Job::TLink::GetProducer}

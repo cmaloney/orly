@@ -54,7 +54,8 @@ TTree TTree::Find(string start_dir, const std::string &marker) {
 
 TAbsPath::TAbsPath(const TTree &tree, const TRelPath &rel_path) : TAbsPath(tree.Path + rel_path.Path) {}
 
-TAbsPath TAbsPath::AddExtension(const char *extension) {
+TAbsPath TAbsPath::AddExtension(const char *extension) const {
+  assert(extension[0] == '.');
   return TAbsPath(Path + extension);
 }
 
@@ -69,6 +70,11 @@ TRelPath::TRelPath(const std::string &path) : Path(path) {
   assert(!path.empty());
   assert(path.front() != '/' );
   assert(path.back() != '/');
+}
+
+TRelPath TRelPath::AddExtension(const char *extension) const {
+  assert(extension[0] == '.');
+  return TRelPath(Path + extension);
 }
 
 bool TRelPath::operator==(const TRelPath &that) const {

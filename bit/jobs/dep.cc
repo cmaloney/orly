@@ -1,27 +1,10 @@
-/* <jhm/jobs/dep.cc>
-
-   Copyright 2015 Theoretical Chaos.
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License. */
-
-#include <jhm/jobs/dep.h>
+#include <bit/jobs/dep.h>
 
 #include <fstream>
 #include <ostream>
 
 #include <bit/file_info.h>
 #include <bit/jobs/dep_c.h>
-#include <bit/jobs/util.h>
 
 using namespace Base;
 using namespace Bit;
@@ -30,12 +13,13 @@ using namespace std;
 using namespace Util;
 
 static TRelPath GetOutputName(const TRelPath &input) {
-  return TRelPath(AddExtension(TPath(input.Path), {"dep"}));
+  return TRelPath(input.AddExtension(".dep"));
 }
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
-  if(output.Path.EndsWith({"dep"})) {
-    return TRelPath(DropExtension(TPath(output.Path), 1));
+  auto result = output.TryRemoveExtension(".dep");
+  if (result) {
+    return *result;
   } else {
     return TOpt<TRelPath>();
   }
@@ -46,8 +30,9 @@ TJobProducer TDep::GetProducer() {
                       {{"dep"}},
                       GetInputName,
                       // TODO: Should be able to eliminate the lambda wrapper here...
-                      [](TEnv &env, TFile *in_file)
-                          -> unique_ptr<TJob> { return unique_ptr<TDep>(new TDep(env, in_file)); }};
+                      [](TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
+                        return unique_ptr<TDep>(new TDep(env, in_file));
+                      }};
 }
 
 const char *TDep::GetName() { return "dependency_file"; }
@@ -71,7 +56,7 @@ vector<string> TDep::GetCmd() {
   assert(extensions.size() >= 1);
   assert(ext == "cc" || ext == "c");
 
-  if(ext == "cc") {
+  if (ext == "cc") {
     // TODO(cmaloney): Make a helper utility in <jobs/compile_c_family.h> to get the command.
     cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
   } else {
@@ -79,7 +64,7 @@ vector<string> TDep::GetCmd() {
   }
 
   // TODO: move array append
-  for(auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
+  for (auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
     cmd.push_back(move(arg));
   }
   cmd.push_back("-M");
@@ -91,19 +76,18 @@ vector<string> TDep::GetCmd() {
 void TDep::ProcessOutput(TFd stdout, TFd) {
   NeedsWork = false;
   Deps = ParseDeps(ReadAll(move(stdout)));
-  for (const auto &dep: Deps) {
+  for (const auto &dep : Deps) {
     TFile *file = Env.TryGetFileFromPath(dep);
-    if(file) {
+    if (file) {
       // Add to needs. If it's new in the Needs array, we aren't done yet.
       NeedsWork |= Needs.insert(file).second;
     }
   }
 }
 
-
 TJson ToJson(vector<string> &&that) {
   vector<TJson> json_elems(that.size());
-  for(uint64_t i = 0; i < that.size(); ++i) {
+  for (uint64_t i = 0; i < that.size(); ++i) {
     json_elems[i] = TJson(move(that[i]));
   }
 

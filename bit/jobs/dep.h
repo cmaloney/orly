@@ -25,7 +25,7 @@ namespace Job {
 
 class TDep final : public TJob {
   public:
-  static TJobProducer GetProducer();
+  static TJobProducer GetProducer(const Base::TJson &job_config);
 
   virtual TNeeds GetNeeds() final;
   virtual TOutput Run() final;

@@ -3,6 +3,7 @@
 #include <string>
 
 #include <base/exception.h>
+#include <base/opt.h>
 
 namespace Bit {
 
@@ -29,6 +30,9 @@ struct TRelPath {
   explicit TRelPath(const std::string &rel_path);
   const std::string Path;
 
+  TRelPath AddExtension(const char *extension) const;
+  Base::TOpt<TRelPath> TryRemoveExtension(const char *extension) const;
+
   bool operator==(const TRelPath &that) const;
 }; // TPath
 
@@ -37,7 +41,7 @@ struct TAbsPath {
   explicit TAbsPath(const TTree &tree, const TRelPath &rel_path);
   const std::string Path;
 
-  TAbsPath AddExtension(const char *extension);
+  TAbsPath AddExtension(const char *extension) const;
 
   private:
   TAbsPath(std::string &&path);
