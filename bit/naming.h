@@ -32,6 +32,7 @@ struct TRelPath {
 
   TRelPath AddExtension(const char *extension) const;
   Base::TOpt<TRelPath> TryRemoveExtension(const char *extension) const;
+  bool EndsWith(const char *extension) const;
 
   bool operator==(const TRelPath &that) const;
 }; // TPath

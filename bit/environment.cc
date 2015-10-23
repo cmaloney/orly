@@ -22,7 +22,7 @@ template <typename TVal>
 using TSet = unordered_set<TVal>;
 
 TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs) {
-  const unordered_map<string, TJobProducer (*)(const Base::TJson &job_config)> builtin_jobs = {
+  const unordered_map<string, TJobProducer (*)(const TJobConfig &)> builtin_jobs = {
       {"dependency", &Job::TDep::GetProducer}
       // {"compile_c", &Job::TCompileCFamily::GetCProducer},
       // {"compile_cc", &Job::TCompileCFamily::GetCcProducer},
@@ -32,9 +32,9 @@ TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs)
   if (jobs.empty()) {
     // Enable all builtin jobs
     for (const auto &job : builtin_jobs) {
-      // TODO(cmaloney): Shuold "get default" rather than force config section
+      // TODO(cmaloney): Should "get default" rather than force config section
       // into existence.
-      JobProducers.emplace_back(job.second(move(job_config.at(job.first))));
+      JobProducers.emplace_back(job.second(job_config));
     }
   } else {
     // TODO(cmaloney): Enable all specified jobs. If a job is unknown, try to
@@ -85,10 +85,10 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment, TFileInfo 
     if (!job) {
       // TODO(cmaloney): generalize this "copy across all things with lambda applied"
       TSet<TFileInfo *> output;
-      for (const TRelPath &rel_path : producer.GetOutput(*opt_path)) {
+      for (const TRelPath &rel_path : producer.GetOutputName(*opt_path)) {
         output.insert(environment.GetFileInfo(rel_path));
       }
-      job = Jobs.Add(move(job_id), producer.MakeJob(&producer, input, move(output)));
+      job = Jobs.Add(move(job_id), producer.MakeJob(TJob::TMetadata{&producer, input, move(output)}));
     }
 
     // We better be produced by the job....

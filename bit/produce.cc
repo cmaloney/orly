@@ -160,8 +160,10 @@ void TStatusTracker::DoAdvance() {
         // TODO(cmaloney): Allow jobs to attach arbitrary computed config to
         // each output file.
         InsertOrFail(Done, result.Job);
+        auto extra_file_data = result.Job->GetOutputExtraData();
         for (TFileInfo * file_info: job_output) {
-          file_info->Complete(result.Job);
+          // NOTE: This implicitly constructs an empty TJobData if one isn't found.
+          file_info->Complete(result.Job, move(extra_file_data[file_info]));
         }
 
         // If any jobs were waiting on the output files of this job, try queing

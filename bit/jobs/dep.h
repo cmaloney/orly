@@ -25,16 +25,18 @@ namespace Job {
 
 class TDep final : public TJob {
   public:
-  static TJobProducer GetProducer(const Base::TJson &job_config);
+  static TJobProducer GetProducer(const TJobConfig &job_config);
 
   virtual TNeeds GetNeeds() final;
   virtual TOutput Run() final;
   virtual std::string GetConfigId() const final;
+  virtual std::unordered_map<TFileInfo*, TJobConfig> GetOutputExtraData() const final;
+
+  TDep(TMetadata &&metadata, const TJobConfig *job_config);
 
   private:
-  TDep(TFileInfo *input);
-
-  std::unordered_set<TFileInfo *> Needs;
+  const TJobConfig *JobConfig;
+  std::unordered_set<std::string> Needs;
   bool NeedsWork = true;
   std::vector<std::string> Deps;
 };

@@ -24,7 +24,7 @@ class TFileInfo {
   // Asserts the file exists, sets ComputedConfig and marks Completed as true.
   // Attaches all critical bits from the job to the file so the file can
   // potentially be cache completed if everything checks out.
-  void Complete(const TJob *producer);
+  void Complete(const TJob *producer, TJobConfig &&extra_data);
 
   const std::string CmdPath;
   const TRelPath RelPath;

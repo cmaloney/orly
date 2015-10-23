@@ -15,10 +15,12 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 #include <base/class_traits.h>
+#include <bit/job_config.h>
 #include <bit/naming.h>
 
 namespace Bit {
@@ -47,10 +49,16 @@ class TOutputBuffer {
 
 class TJob {
   public:
+  NO_COPY(TJob)
+  NO_MOVE(TJob)
 
-  struct TOutput {
+ struct TOutput {
     MOVE_ONLY(TOutput)
-    enum TResult { NewNeeds, Error, Complete } Result;
+    TOutput() = default;
+
+    // Default to error so jobs which don't set result don't succeed ever to
+    // make debugging easier.
+    enum TResult { NewNeeds, Error, Complete } Result = Error;
 
     // Write adapters to do subprocess -> OutputBuffer via pump or just
     // using OutputBuffer as a streaming data target directly with no virtual
@@ -64,6 +72,7 @@ class TJob {
   struct TNeeds {
     std::unordered_set<TRelPath> Mandatory;
     std::unordered_set<TRelPath> IfBuildable;
+    std::unordered_set<std::string> IfInTree;
   };
 
   struct TId {
@@ -88,6 +97,8 @@ class TJob {
   virtual TNeeds GetNeeds() = 0;
 
   virtual TOutput Run() = 0;
+
+  virtual std::unordered_map<TFileInfo*, TJobConfig> GetOutputExtraData() const = 0;
 
   // Returns a string which represents the full configuration of this job.
   // Callable at any time after a job is created (both before and after the job

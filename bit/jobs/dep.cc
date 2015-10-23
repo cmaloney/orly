@@ -10,13 +10,12 @@ using namespace Base;
 using namespace Bit;
 using namespace Bit::Job;
 using namespace std;
-using namespace Util;
 
-static TRelPath GetOutputName(const TRelPath &input) {
-  return TRelPath(input.AddExtension(".dep"));
+static std::unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
+  return {TRelPath(input.AddExtension(".dep"))};
 }
 
-static TOpt<TRelPath> GetInputName(const TRelPath &output) {
+static TOpt<TRelPath> TryGetInputName(const TRelPath &output) {
   auto result = output.TryRemoveExtension(".dep");
   if (result) {
     return *result;
@@ -25,38 +24,37 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output) {
   }
 }
 
-TJobProducer TDep::GetProducer() {
-  return TJobProducer{"dep",
-                      {{"dep"}},
-                      GetInputName,
+TJobProducer TDep::GetProducer(const TJobConfig &job_config) {
+  return TJobProducer{"dependency_file",
+                      {".dep"},
+                      TryGetInputName,
+                      GetOutputName,
                       // TODO: Should be able to eliminate the lambda wrapper here...
-                      [](TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
-                        return unique_ptr<TDep>(new TDep(env, in_file));
+                      [job_config](TJob::TMetadata &&metadata) -> unique_ptr<TJob> {
+                        return unique_ptr<TDep>(new TDep(std::move(metadata), &job_config));
                       }};
 }
 
-const char *TDep::GetName() { return "dependency_file"; }
-
-const unordered_set<TFile *> TDep::GetNeeds() {
+Bit::TJob::TNeeds TDep::GetNeeds() {
   assert(this);
 
-  return Needs;
+  return {{}, {}, Needs};
 }
 
-vector<string> TDep::GetCmd() {
-  assert(this);
+TJob::TOutput TDep::Run() {
+  TJob::TOutput result;
+
+  // Figure out which dep program to run, the right arguments for it
 
   // If the source is a C or C++ file, give extra arguments as the extra arguments we'd pass to the
   // compiler
-  const auto &extensions = GetInput()->GetRelPath().Path.Extension;
-  const string &ext = extensions.at(extensions.size() - 1);
+  const TRelPath &input_path = GetInput()->RelPath;
 
   vector<string> cmd;
   // Only C, C++ are supported currently.
-  assert(extensions.size() >= 1);
-  assert(ext == "cc" || ext == "c");
+  assert(input_path.EndsWith(".cc") || input_path.EndsWith(".c"));
 
-  if (ext == "cc") {
+  if (input_path.EndsWith(".cc")) {
     // TODO(cmaloney): Make a helper utility in <jobs/compile_c_family.h> to get the command.
     cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
   } else {
@@ -77,7 +75,7 @@ void TDep::ProcessOutput(TFd stdout, TFd) {
   NeedsWork = false;
   Deps = ParseDeps(ReadAll(move(stdout)));
   for (const auto &dep : Deps) {
-    TFile *file = Env.TryGetFileFromPath(dep);
+    TFileInfo *file = Env.TryGetFileFromPath(dep);
     if (file) {
       // Add to needs. If it's new in the Needs array, we aren't done yet.
       NeedsWork |= Needs.insert(file).second;
@@ -124,5 +122,5 @@ bool TDep::IsComplete() {
   return true;
 }
 
-TDep::TDep(TEnv &env, TFile *in_file)
+TDep::TDep(TEnv &env, TFileInfo *in_file)
     : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath()))}), Env(env) {}

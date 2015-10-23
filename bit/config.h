@@ -82,13 +82,11 @@ Eventual features
 #include <unordered_map>
 #include <unordered_set>
 
-#include <base/json.h>
-
 #include <base/exception.h>
+#include <base/json.h>
+#include <bit/job_config.h>
 
 namespace Bit {
-
-using TJobConfig = std::map<std::string, Base::TJson>;
 
 TJobConfig ReadJobConfig(const Base::TJson &json, const std::string &path);
 
