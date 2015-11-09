@@ -7,8 +7,8 @@
    can lead to deadlocks when the reader and writer are synchronizing with each other.
 
    This pump seeks to alleviate the problem by reading avidly from the pipe and storing
-   the results in. The pump runs a single background thread which can handle the traffic
-   of many separate pipes.
+   the results in memory. The pump runs a single background thread which can handle the
+   traffic of many separate pipes.
 
    The pump is backed by a infinitely growing collection of pages. This will consume ram
    infinitely until we run out of space. Care should be taken not to have this happen.
@@ -95,44 +95,50 @@
 
 namespace Base {
 
-// TODO: this should be pulled out into a generic "pool of buffers" implementation
-// NOTE: We never reclaim any blocks currently.
-// TODO: Should really be an invasive containment type thing between pools and blocks so blocks
-// can't get lost.
-template <uint64_t BlockSize>
-class TGrowingPool {
-  NO_COPY(TGrowingPool)
+using TBlockPtr = std::unique_ptr<uint8_t[]>;
 
-  public:
-  using TPtr = std::unique_ptr<uint8_t[]>;
+class TCyclicBuffer {
 
-  TGrowingPool() = default;
-
-  /* Get a new block (The block continues to be owned by the pool. */
-  uint8_t *Allocate() {
-    if(!AvailBlocks.empty()) {
-      return Util::Pop(AvailBlocks);
-    }
-
-    TPtr block(new uint8_t[BlockSize]);
-    auto ret = block.get();
-    Blocks.emplace_back(std::move(block));
-    return ret;
+  TCyclicBuffer() {
+    Blocks.reserve(MaxBlocks);
   }
 
-  /* Return a block to the pool */
-  void Recycle(uint8_t *block) {
-    assert(block);
-    AvailBlocks.push(block);
-  }
+  // Returns number of bytes actually read.
+  uint64_t Read(const uint8_t *bytes, uint64_t max_length);
+
+  // Always writes all bytes. May overflow.
+  void Write(const uint8_t *bytes, uint64_t length);
+
+  // After max_blocks runs out, starts reusing the start buffer.
+  static const uint64_t MaxBlocks = 1024;
+  static const uint64_t BlockSize = 4096;
+
+  // First point written to (or read from). If limit < start, then it has wrapped
+  // around.
+  uint64_t Start, Limit;
+
+  // Returns true iff start has ever been advanced by a write (There was data
+  // because the block cap was hit and we had more to write).
+  // NOTE: To simplify overflow logic, whole blocks are eaten at once.
+  bool HasOverflowed;
+
+  // The
+  std::vector<TBlockPtr> Blocks;
 
   private:
-  std::queue<uint8_t *> AvailBlocks;
-  std::vector<TPtr> Blocks;
-};
+  uint8_t *GetNextBlock() {
+    assert(Blocks.size() <= MaxBlocks);
 
-/* Max number of bytes which are forwarded at a time through a TPipe */
-static constexpr uint64_t ReadBufSize = 4096;
+    // Reuse buffers at start, advancing write if needed.
+    if (Blocks.size() == MaxBlocks) {
+      NOT_IMPLEMENTED();
+    }
+
+    // Add a new buffer
+    Blocks.push_back(TBlockPtr(new uint8_t[BlockSize]));
+    return Blocks.end();
+  }
+};
 
 /* A pump for pipes. */
 class TPump final {
@@ -145,7 +151,10 @@ class TPump final {
   /* Destroy all pipes and lose all unread data. */
   ~TPump();
 
-  /* Create a new pipe and return both ends of it. */
+  // Create an fd which can be read from backed by a given block of text,
+  // written to (giving )
+  TFd NewRead(TGr);
+  void NewWrite(TFd &write);
   void NewPipe(TFd &read, TFd &write);
 
   /* Wait for the pump to become idle. */
@@ -194,9 +203,6 @@ class TPump final {
   private:
   bool ServicePipe(TPipe *pipe);
 
-
-  using TBlockPool = TGrowingPool<ReadBufSize>;
-
   /* Signals when a pipe dies.  This wakes up the WaitForIdle() functions. */
   mutable std::mutex PipeMutex;
   mutable std::condition_variable PipeDied;
@@ -210,9 +216,9 @@ class TPump final {
 
   TPumper Pumper;
 
-  /* Pool of blocks for stashing I/O in temporarily. */
-  TBlockPool BlockPool;
-
+  // int -> fd number
+  // Only writes to WriteTarget if it still exists.
+  std::unordered_map<int, std::weak_ptr<TCyclicBuffer>> WriteTarget;
 };  // TPump
 
 }  // Base

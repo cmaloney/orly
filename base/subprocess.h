@@ -91,36 +91,17 @@ class TSubprocess final {
 
   /* Fork a new child process.  If we are the parent, return a pointer to a newly
      allocated TSubprocess instance.  If we are the child, return null. */
-  static std::unique_ptr<TSubprocess> New(TPump &pump) {
-    // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2070
-    auto result = std::unique_ptr<TSubprocess>(new TSubprocess(pump));
-    if(!result->ChildId) {
-      result.reset();
-    }
-    return result;
-  }
+  static std::unique_ptr<TSubprocess> New(TPump &pump);
 
   /* Fork a new child process.  If we are the parent, return a pointer to a newly
      allocated TSubprocess instance.  If we are the child, shell out to execute the
      command and don't return at all. */
-  static std::unique_ptr<TSubprocess> NewStr(TPump &pump, const char *cmd) {
-    auto subprocess = New(pump);
-    if(!subprocess) {
-      ExecStr(cmd);
-    }
-    return subprocess;
-  }
+  static std::unique_ptr<TSubprocess> NewStr(TPump &pump, const char *cmd);
 
   /* Fork a new child process.  If we are the parent, return a pointer to a newly
      allocated TSubprocess instance.  If we are the child, shell out to execute the
      command and don't return at all. */
-  static std::unique_ptr<TSubprocess> New(TPump &pump, const std::vector<std::string> &cmd) {
-    auto subprocess = New(pump);
-    if(!subprocess) {
-      Exec(cmd);
-    }
-    return subprocess;
-  }
+  static std::unique_ptr<TSubprocess> New(TPump &pump, const std::vector<std::string> &cmd);
 
   private:
   /* Construct the pipes and fork. */
@@ -133,6 +114,15 @@ class TSubprocess final {
   int ChildId;
 
 };  // TSubprocess
+
+  struct TResult {
+    int ExitCode;
+    TOutputBuffer StandardOut;
+    TOutputBuffer StandardError;
+  };
+
+  /* Run the subprocess and return it's exit state + a string of blocks which contain its output. */
+  static std::unique_ptr<TSubprocess> Run(const std::vector<std::string> &cmd);
 
 /* TODO: Move this to a better place */
 void EchoOutput(Base::TFd &&fd);

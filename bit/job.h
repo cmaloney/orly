@@ -28,37 +28,34 @@ namespace Bit {
 class TFileInfo;
 struct TJobProducer;
 
-// Max-size capped output buffer. Ideally a Twine class but lazy for now.
-class TOutputBuffer {
-  public:
-
-  struct TMemBlock {
-    int64_t Size; // TODO(cmaloney): Make this unsigned
-    std::unique_ptr<uint8_t[]> Data;
-  };
-
-  MOVE_ONLY(TOutputBuffer)
-  TOutputBuffer() = default;
-
-  // TODO(cmaloney): Make have a fixed max size, hard error if more than X MB of output.
-  void Print(std::ostream &out) const;
-
-  private:
-  std::vector<TMemBlock> Blocks;
-};
-
 class TJob {
   public:
   NO_COPY(TJob)
   NO_MOVE(TJob)
 
- struct TOutput {
+  struct TNeeds {
+    std::unordered_set<TRelPath> Mandatory;
+    std::unordered_set<TRelPath> IfBuildable;
+    std::unordered_set<std::string> IfInTree;
+  };
+
+  // TODO(cmaloney): Make it so only Output, Needs, and Complete along with
+  // their state are mutually exclusive.
+  struct TOutput {
     MOVE_ONLY(TOutput)
     TOutput() = default;
 
     // Default to error so jobs which don't set result don't succeed ever to
     // make debugging easier.
-    enum TResult { NewNeeds, Error, Complete } Result = Error;
+    // NewNeeds means new needs have been generated which should be evaulated
+    // and the job _must_ be run again.
+    // CompleteIfNeeds means the job is complete if all the items in the Needs
+    // set it returns are done (This is effectively preliminary output). The
+    // job may be called again if CompleteIfNeeds is returned as result without
+    // any needs changes.
+    // CompleteIfNeeds may also be pre-emptively re-run before Needs are
+    // complete.
+    enum TResult { Error, NewNeeds, CompleteIfNeeds, Complete } Result = Error;
 
     // Write adapters to do subprocess -> OutputBuffer via pump or just
     // using OutputBuffer as a streaming data target directly with no virtual
@@ -67,12 +64,7 @@ class TJob {
     // is just a conversion to string available in case of error, as well as
     // introspection available for checking things like "gather the test output"
     TOutputBuffer Output;
-  };
-
-  struct TNeeds {
-    std::unordered_set<TRelPath> Mandatory;
-    std::unordered_set<TRelPath> IfBuildable;
-    std::unordered_set<std::string> IfInTree;
+    TNeeds Needs;
   };
 
   struct TId {
@@ -93,8 +85,6 @@ class TJob {
   };
 
   virtual ~TJob() = default;
-
-  virtual TNeeds GetNeeds() = 0;
 
   virtual TOutput Run() = 0;
 

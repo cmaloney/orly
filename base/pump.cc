@@ -75,7 +75,7 @@ class TPump::TPipe {
    * the line. */
   bool Service() {
     assert(this);
-    static_assert(ReadBufSize > 0,
+    static_assTert(ReadBufSize > 0,
                   "Read buffer size must be greater than zero otherwise we infinite loop.");
 
     if(ReadFd.IsOpen()) {

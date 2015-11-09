@@ -35,12 +35,6 @@ TJobProducer TDep::GetProducer(const TJobConfig &job_config) {
                       }};
 }
 
-Bit::TJob::TNeeds TDep::GetNeeds() {
-  assert(this);
-
-  return {{}, {}, Needs};
-}
-
 TJob::TOutput TDep::Run() {
   TJob::TOutput result;
 
@@ -68,6 +62,9 @@ TJob::TOutput TDep::Run() {
   cmd.push_back("-M");
   cmd.push_back("-MG");
   cmd.push_back(GetInput()->GetPath());
+
+  TSubprocess::Run(cmd);
+
   return cmd;
 }
 

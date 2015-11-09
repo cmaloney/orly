@@ -70,6 +70,14 @@ void TSubprocess::Exec(const vector<string> &cmd) {
   throw;
 }
 
+static std::unique_ptr<TSubprocess> TSubprocess::New(TPump &pump, const std::vector<std::string> &cmd) {
+  auto subprocess = New(pump);
+  if(!subprocess) {
+    Exec(cmd);
+  }
+  return subprocess;
+}
+
 TSubprocess::TSubprocess(TPump &pump) {
   assert(&pump);
   /* Make the in/out/err pipes, then fork. */
@@ -88,6 +96,13 @@ TSubprocess::TSubprocess(TPump &pump) {
     stdout.Reset();
     stderr.Reset();
   }
+}
+
+/* Run the subprocess and return it's exit state + a string of blocks which contain its output. */
+std::unique_ptr<TSubprocess> Base::Run(const std::vector<std::string> &cmd) {
+  TPump pump;
+  TSubprocess::New
+  pump.NewOutput()
 }
 
 void Base::EchoOutput(TFd &&fd) {
