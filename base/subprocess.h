@@ -115,14 +115,13 @@ class TSubprocess final {
 
 };  // TSubprocess
 
-  struct TResult {
-    int ExitCode;
-    TOutputBuffer StandardOut;
-    TOutputBuffer StandardError;
-  };
+struct TResult {
+  int ExitCode;
+  TCyclicBuffer Output;
+};
 
-  /* Run the subprocess and return it's exit state + a string of blocks which contain its output. */
-  static std::unique_ptr<TSubprocess> Run(const std::vector<std::string> &cmd);
+/* Run the subprocess and return it's exit state + a string of blocks which contain its output. */
+TResult Run(const std::vector<std::string> &cmd);
 
 /* TODO: Move this to a better place */
 void EchoOutput(Base::TFd &&fd);

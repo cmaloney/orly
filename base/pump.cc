@@ -37,172 +37,143 @@ class TPump::TPipe {
   NO_COPY(TPipe)
 
   public:
-  TPipe(TPump *pump, TFd &read, TFd &write) : Pump(pump) {
-    assert(&pump);
-    assert(&write);
-    assert(&read);
+  enum class TDirection { ReadFromFd, WriteToFd };
 
-    // TODO: The kernel already can do most of this with temporary memory backed files... It just
-    // doesn't let us
-    //      make a never-blocking stream :(
-    // Pipe input from where the user will write to where we will read.
-    TFd::Pipe(ReadFd, write);
-    SetNonBlocking(ReadFd);
+  // Construct a pipe which connects a cyclic buffer to an fd, with data flowing
+  // in the direction specified by Direction.
+  TPipe(TPump *pump, TDirection direction, TFd &act_fd, std::shared_ptr<TCyclicBuffer> &buffer)
+      : Buffer(buffer), Pump(pump), Direction(direction) {
+    assert(pump);
+    assert(&act_fd);
+    assert(act_fd);
+    assert(&buffer);
+    assert(buffer);
 
-    // Pipe from where we write to where the user will read
-    TFd::Pipe(read, WriteFd);
-    SetNonBlocking(WriteFd);
+    switch (direction) {
+      case TDirection::ReadFromFd:
+        // Pipe output from an fd into a cyclic buffer where the caller will
+        // eventually read from.
+        TFd::Pipe(Fd, act_fd);
+        break;
+      case TDirection::WriteToFd:
+        // Pipe input from the buffer where the user data is to the fd which the
+        // caller will read from.
+        TFd::Pipe(act_fd, Fd);
+        break;
+    }
 
-    assert(write);
-    assert(read);
-    assert(ReadFd);
-    assert(WriteFd);
+    SetNonBlocking(Fd);
+
+    assert(Fd);
   }
 
   ~TPipe() {
-    if(ReadFd.IsOpen()) {
-      StopReading();
-    }
-    if(Writing) {
-      StopWriting();
-    }
-    while(!Blocks.empty()) {
-      ReleaseBlock();
+    if (Working) {
+      Stop();
     }
   }
 
-  /* Pipes data into the buffer file as needed. Returns true if there will be more processing down
-   * the line. */
+  // Pipes data to / from the buffer as needed.
+  // Returns true iff more processing will be needed. Returns false if no future
+  // work to be done.
   bool Service() {
     assert(this);
-    static_assTert(ReadBufSize > 0,
-                  "Read buffer size must be greater than zero otherwise we infinite loop.");
 
-    if(ReadFd.IsOpen()) {
-      // If there isn't a buffer to read into, or we are at the end of the current buffer, get a new
-      // one.
-      if(Blocks.empty() || ReadOffset == ReadBufSize) {
-        AcquireBlock();
-        ReadOffset = 0;
-      }
-
-      // Read up to the end of the current block
-      auto read_size = read(ReadFd, Blocks.back() + ReadOffset, ReadBufSize - ReadOffset);
-      if(read_size == -1) {  // Error
-        if(errno == EAGAIN || errno == EWOULDBLOCK) {
-          // Do-nothing. We just didn't read data.
+    switch (Direction) {
+      case TDirection::ReadFromFd: {
+        ssize_t read_size = Buffer->WriteTo(Fd);
+        if (read_size == -1) { // Error.
+          if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // Do-nothing. We just didn't read data.
+          } else {
+            ThrowSystemError(errno);
+          }
+        } else if (read_size == 0) { // EOF. Done reading.
+          Stop();
+          return false;
         } else {
-          ThrowSystemError(errno);
+          // Read data successfully, keep on reading.
         }
-      } else if(read_size == 0) {  // EOF
-        StopReading();
-      } else {  // Read data
-        ReadOffset += uint64_t(read_size);
-        StartWriting();
 
-        // NOTE: If we handle being at the end of the buffer / out of block space at the start of
-        // reading.
-        assert(ReadOffset <= ReadBufSize);
+        return true;
       }
-    }
-
-    // Try writing whatever we have available in the current buffer.
-    if(Writing) {
-      // NOTE: We will write up unitl ReadOffset. It is critical we will read partial blocks or we
-      // may get odd
-      //      user-visible behavior of waiting until read closes (Which might be a long time after a
-      //      partial buffer
-      //      write) before anything becomes visible to the end reader.
-      uint64_t bytes_to_write = 0;
-      if(Blocks.empty()) {  // No blocks, nothing to write.
-      } else if(Blocks.front() == Blocks.back()) {  // We are in the block with the reader
-        bytes_to_write = ReadOffset - WriteOffset;
-      } else {  // We're in our own block, write all of it.
-        bytes_to_write = ReadBufSize - WriteOffset;
-      }
-
-      if(bytes_to_write == 0) {  // There was nothing to write, stop writing.
-        StopWriting();
-      } else {  // Write what we wanted
-        auto write_size = write(WriteFd, Blocks.front() + WriteOffset, bytes_to_write);
-        if(write_size == -1) {  // Error
-          if(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+      case TDirection::WriteToFd: {
+        ssize_t write_size = Buffer->ReadFrom(Fd);
+        if (write_size == -1) { // Error.
+          if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
             // Do-nothing. We just didn't write data.
           } else {
-            // We are definitely done if we can't write any more (Writing returned an unknown
-            // error).
-            // TODO: This should purely close out the output pipe. Input pipe should be left
-            // unmolested.
-            // So that we avoid generating SIGPIPE
-            StopReading();
-            StopWriting();
-            return false;
+            // Done writing since hit an unknown error.
+            Stop();
+            ThrowSystemError(errno);
           }
+        }
+
+        // If all bits have been written from the buffer, then be done.
+        if (Buffer->IsEmpty()) {
+          Stop();
+          return false;
         } else {
-          WriteOffset += uint64_t(write_size);
-
-          assert(WriteOffset <= ReadBufSize);
-
-          // If we're at the same point in the buffer as the read head, release it to simplify
-          // things.
-          if(Blocks.front() == Blocks.back() && ReadOffset == WriteOffset) {
-            ReleaseBlock();
-            ReadOffset = 0;
-            WriteOffset = 0;
-          } else if(WriteOffset ==
-                    ReadBufSize) {  // We're at the end of our own buffer, release it.
-            ReleaseBlock();
-            WriteOffset = 0;
-          }
+          return true;
         }
       }
     }
-    return ReadFd.IsOpen() || Writing;
   }
 
   private:
-  void AcquireBlock() { Blocks.push(Pump->BlockPool.Allocate()); }
-  void ReleaseBlock() { Pump->BlockPool.Recycle(Pop(Blocks)); }
-
-  void StartWriting() {
+  void Start() {
     assert(this);
-    if(!Writing) {
-      Pump->Pumper.Join(WriteFd, TPumper::Write, this);
-      Writing = true;
+    assert(!Working);
+
+    switch (Direction) {
+      case TDirection::ReadFromFd:
+        Pump->Pumper.Join(Fd, TPumper::Read, this);
+        break;
+      case TDirection::WriteToFd:
+        Pump->Pumper.Join(Fd, TPumper::Write, this);
+        break;
+    }
+
+    Working = true;
+  }
+
+  void Stop() {
+    assert(this);
+    assert(Working);
+
+    Working = false;
+
+    switch (Direction) {
+      case TDirection::ReadFromFd:
+        // Read Fd can only be stopped once ever. Will be stopped on Pump
+        // destruction or lack of data.
+        assert(Fd.IsOpen());
+        Pump->Pumper.Leave(Fd, TPumper::Read);
+        Fd.Reset();
+        break;
+      case TDirection::WriteToFd:
+        // Write Fd can be stopped as much as needed as the buffer behind the
+        // writing fd fills.
+        Pump->Pumper.Leave(Fd, TPumper::Write);
+        break;
     }
   }
 
-  void StopWriting() {
-    assert(this);
-    if(Writing) {
-      Writing = false;
-      Pump->Pumper.Leave(WriteFd, TPumper::Write);
-    }
-  }
+  // Storage for the data.
+  std::shared_ptr<TCyclicBuffer> Buffer;
 
-  void StopReading() {
-    assert(this);
-    assert(ReadFd.IsOpen());
-    Pump->Pumper.Leave(ReadFd, TPumper::Read);
-    ReadFd.Reset();
-  }
-
-  /* Pointer to the pump so we can register / deregister as needed, as well as */
+  // Pointer to the pump to enable self registration / deregistration.
   TPump *Pump;
 
-  /* Fd pointing into buffer file. */
-  TFd ReadFd;
+  // Direction of the pump.
+  const TDirection Direction;
 
-  /* Fd which should be read from to forward data into buffer file. */
-  TFd WriteFd;
+  // End of the pipe for this program to pump to / from in order to move the
+  // data from the cyclic buffer to the target.
+  TFd Fd;
 
-  bool Writing = false;
-
-  // NOTE: We explicitly don't force a block to have been entirely written to before we read from it
-  // That makes for choppy output if something is spinning off and a block doesn't fill all the way.
-  uint64_t ReadOffset = 0;
-  uint64_t WriteOffset = 0;
-  std::queue<uint8_t *> Blocks;
+  // True when the pipe is in the event loop / can get events.
+  bool Working = false;
 
   friend class Base::TPump;
 };
@@ -211,12 +182,15 @@ void TPump::NewPipe(TFd &read, TFd &write) {
   std::lock_guard<mutex> lock(PipeMutex);
   TPipe *pipe = new TPipe(this, read, write);
   Pipes.insert(pipe);
+  pipe->Start();
+}
 
-  // TODO: This API should really be
-  //   eventloop.AddRead(pipe.get(), pipe->ReadFd, &TPipe::Service);
-  //   Where the first item is the pipe, and the second is the identifier, and the last is the
-  //   service func.
-  Pumper.Join(pipe->ReadFd, TPumper::Read, pipe);
+void TPump::WaitForIdle() const {
+  assert(this);
+  std::unique_lock<std::mutex> lock(PipeMutex);
+  while (!Pipes.empty()) {
+    PipeDied.wait(lock);
+  }
 }
 
 TPump::TPump() : Pumper(*this) {}
@@ -225,23 +199,16 @@ TPump::~TPump() {
   Pumper.Shutdown();
 
   std::lock_guard<mutex> lock(PipeMutex);
-  for(TPipe *pipe : Pipes) {
+  for (TPipe *pipe : Pipes) {
     delete pipe;
   }
   PipeDied.notify_all();
 }
 
-bool TPump::IsIdle() const {
-  assert(this);
-
-  // TODO: Make a better guaranteed atomic check for whether or not we are idle
-  return Pipes.empty();
-}
-
 bool TPump::ServicePipe(TPipe *pipe) {
   assert(this);
 
-  if(!pipe->Service()) {
+  if (!pipe->Service()) {
     // The pipe is dead. Remove it from our set of pipes, ping PipeDied.
     std::lock_guard<mutex> lock(PipeMutex);
     Pipes.erase(pipe);

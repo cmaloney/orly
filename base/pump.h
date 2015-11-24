@@ -63,9 +63,12 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <unordered_map>
 #include <unordered_set>
 
+
 #include <base/class_traits.h>
+#include <base/cyclic_buffer.h>
 #include <base/notify_fd.h>
 #include <base/fd.h>
 #include <util/stl.h>
@@ -95,51 +98,6 @@
 
 namespace Base {
 
-using TBlockPtr = std::unique_ptr<uint8_t[]>;
-
-class TCyclicBuffer {
-
-  TCyclicBuffer() {
-    Blocks.reserve(MaxBlocks);
-  }
-
-  // Returns number of bytes actually read.
-  uint64_t Read(const uint8_t *bytes, uint64_t max_length);
-
-  // Always writes all bytes. May overflow.
-  void Write(const uint8_t *bytes, uint64_t length);
-
-  // After max_blocks runs out, starts reusing the start buffer.
-  static const uint64_t MaxBlocks = 1024;
-  static const uint64_t BlockSize = 4096;
-
-  // First point written to (or read from). If limit < start, then it has wrapped
-  // around.
-  uint64_t Start, Limit;
-
-  // Returns true iff start has ever been advanced by a write (There was data
-  // because the block cap was hit and we had more to write).
-  // NOTE: To simplify overflow logic, whole blocks are eaten at once.
-  bool HasOverflowed;
-
-  // The
-  std::vector<TBlockPtr> Blocks;
-
-  private:
-  uint8_t *GetNextBlock() {
-    assert(Blocks.size() <= MaxBlocks);
-
-    // Reuse buffers at start, advancing write if needed.
-    if (Blocks.size() == MaxBlocks) {
-      NOT_IMPLEMENTED();
-    }
-
-    // Add a new buffer
-    Blocks.push_back(TBlockPtr(new uint8_t[BlockSize]));
-    return Blocks.end();
-  }
-};
-
 /* A pump for pipes. */
 class TPump final {
   NO_COPY(TPump)
@@ -151,22 +109,18 @@ class TPump final {
   /* Destroy all pipes and lose all unread data. */
   ~TPump();
 
-  // Create an fd which can be read from backed by a given block of text,
-  // written to (giving )
-  TFd NewRead(TGr);
-  void NewWrite(TFd &write);
+  // TODO(cmaloney): Delete this. NewRead, NewWrite are what should be used now.
+  // This is just used in the test.
   void NewPipe(TFd &read, TFd &write);
 
-  /* Wait for the pump to become idle. */
-  void WaitForIdle() const {
-    assert(this);
-    std::unique_lock<std::mutex> lock(PipeMutex);
-    while(!IsIdle()) {
-      PipeDied.wait(lock);
-    }
-  }
+  // Create an fd which when read pulls data from the given cyclic buffer.
+  TFd NewRead(const std::shared_ptr<TCyclicBuffer> &source);
 
-  bool IsIdle() const;
+  // Create an fd which when written puts data into the given cyclic buffer.
+  TFd NewWrite(const std::shared_ptr<TCyclicBuffer> &target);
+
+  /* Wait for the pump to become idle. */
+  void WaitForIdle() const;
 
   private:
   class TPipe;

@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <base/class_traits.h>
+#include <base/cyclic_buffer.h>
 #include <bit/job_config.h>
 #include <bit/naming.h>
 
@@ -63,7 +64,7 @@ class TJob {
     // TODO(cmaloney): Allow output of "structured" result objects where there
     // is just a conversion to string available in case of error, as well as
     // introspection available for checking things like "gather the test output"
-    TOutputBuffer Output;
+    Base::TCyclicBuffer Output;
     TNeeds Needs;
   };
 
@@ -118,6 +119,6 @@ class TJob {
 
 std::ostream &operator<<(std::ostream &out, TJob *job);
 
-std::ostream &operator<<(std::ostream &out, const TOutputBuffer &buffer);
+std::ostream &operator<<(std::ostream &out, const Base::TCyclicBuffer &buffer);
 
 }  // namespace Bit
