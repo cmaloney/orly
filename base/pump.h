@@ -109,15 +109,11 @@ class TPump final {
   /* Destroy all pipes and lose all unread data. */
   ~TPump();
 
-  // TODO(cmaloney): Delete this. NewRead, NewWrite are what should be used now.
-  // This is just used in the test.
-  void NewPipe(TFd &read, TFd &write);
-
   // Create an fd which when read pulls data from the given cyclic buffer.
-  TFd NewRead(const std::shared_ptr<TCyclicBuffer> &source);
+  TFd NewReadFromBuffer(std::shared_ptr<TCyclicBuffer> &source);
 
   // Create an fd which when written puts data into the given cyclic buffer.
-  TFd NewWrite(const std::shared_ptr<TCyclicBuffer> &target);
+  TFd NewWriteToBuffer(std::shared_ptr<TCyclicBuffer> &target);
 
   /* Wait for the pump to become idle. */
   void WaitForIdle() const;

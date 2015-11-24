@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include <base/not_implemented.h>
+#include <base/class_traits.h>
 
 namespace Base {
 
@@ -13,10 +13,10 @@ class TFd;
 using TBlockPtr = std::unique_ptr<uint8_t[]>;
 
 class TCyclicBuffer {
-public:
-  TCyclicBuffer() {
-    Blocks.reserve(MaxBlocks);
-  }
+  public:
+  MOVE_ONLY(TCyclicBuffer)
+
+  TCyclicBuffer();
 
   bool IsEmpty() const;
 
@@ -26,6 +26,9 @@ public:
   // Always writes all bytes. May overflow.
   // Returns the result of read system call on teh fd.
   ssize_t WriteTo(TFd &fd);
+  void Write(const char *msg, size_t length);
+
+  size_t GetBytesAvailable();
 
   // After max_blocks runs out, starts reusing the start buffer.
   static const uint64_t MaxBlocks = 1024;
@@ -45,18 +48,7 @@ public:
   // The storage for the buffer.
   std::vector<TBlockPtr> Blocks;
 
-  uint8_t *GetNextBlock() {
-    assert(Blocks.size() <= MaxBlocks);
-
-    // Reuse buffers at start, advancing write if needed.
-    if (Blocks.size() == MaxBlocks) {
-      NOT_IMPLEMENTED();
-    }
-
-    // Add a new buffer
-    Blocks.push_back(TBlockPtr(new uint8_t[BlockSize]));
-    return Blocks.back().get();
-  }
+  uint8_t *GetNextBlock();
 };
 
-} // Base
+}  // Base

@@ -37,7 +37,7 @@ class TPump::TPipe {
   NO_COPY(TPipe)
 
   public:
-  enum class TDirection { ReadFromFd, WriteToFd };
+  enum class TDirection { WriteToBuffer, ReadFromBuffer };
 
   // Construct a pipe which connects a cyclic buffer to an fd, with data flowing
   // in the direction specified by Direction.
@@ -50,12 +50,12 @@ class TPump::TPipe {
     assert(buffer);
 
     switch (direction) {
-      case TDirection::ReadFromFd:
+      case TDirection::WriteToBuffer:
         // Pipe output from an fd into a cyclic buffer where the caller will
         // eventually read from.
         TFd::Pipe(Fd, act_fd);
         break;
-      case TDirection::WriteToFd:
+      case TDirection::ReadFromBuffer:
         // Pipe input from the buffer where the user data is to the fd which the
         // caller will read from.
         TFd::Pipe(act_fd, Fd);
@@ -80,15 +80,15 @@ class TPump::TPipe {
     assert(this);
 
     switch (Direction) {
-      case TDirection::ReadFromFd: {
+      case TDirection::WriteToBuffer: {
         ssize_t read_size = Buffer->WriteTo(Fd);
-        if (read_size == -1) { // Error.
+        if (read_size == -1) {  // Error.
           if (errno == EAGAIN || errno == EWOULDBLOCK) {
             // Do-nothing. We just didn't read data.
           } else {
             ThrowSystemError(errno);
           }
-        } else if (read_size == 0) { // EOF. Done reading.
+        } else if (read_size == 0) {  // EOF. Done reading.
           Stop();
           return false;
         } else {
@@ -97,9 +97,9 @@ class TPump::TPipe {
 
         return true;
       }
-      case TDirection::WriteToFd: {
+      case TDirection::ReadFromBuffer: {
         ssize_t write_size = Buffer->ReadFrom(Fd);
-        if (write_size == -1) { // Error.
+        if (write_size == -1) {  // Error.
           if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
             // Do-nothing. We just didn't write data.
           } else {
@@ -126,10 +126,10 @@ class TPump::TPipe {
     assert(!Working);
 
     switch (Direction) {
-      case TDirection::ReadFromFd:
+      case TDirection::WriteToBuffer:
         Pump->Pumper.Join(Fd, TPumper::Read, this);
         break;
-      case TDirection::WriteToFd:
+      case TDirection::ReadFromBuffer:
         Pump->Pumper.Join(Fd, TPumper::Write, this);
         break;
     }
@@ -144,14 +144,14 @@ class TPump::TPipe {
     Working = false;
 
     switch (Direction) {
-      case TDirection::ReadFromFd:
+      case TDirection::WriteToBuffer:
         // Read Fd can only be stopped once ever. Will be stopped on Pump
         // destruction or lack of data.
         assert(Fd.IsOpen());
         Pump->Pumper.Leave(Fd, TPumper::Read);
         Fd.Reset();
         break;
-      case TDirection::WriteToFd:
+      case TDirection::ReadFromBuffer:
         // Write Fd can be stopped as much as needed as the buffer behind the
         // writing fd fills.
         Pump->Pumper.Leave(Fd, TPumper::Write);
@@ -163,6 +163,8 @@ class TPump::TPipe {
   std::shared_ptr<TCyclicBuffer> Buffer;
 
   // Pointer to the pump to enable self registration / deregistration.
+  // TODO(cmaloney): Make the pump own pipe registration with a callback
+  // for explicitly leaving.
   TPump *Pump;
 
   // Direction of the pump.
@@ -178,11 +180,24 @@ class TPump::TPipe {
   friend class Base::TPump;
 };
 
-void TPump::NewPipe(TFd &read, TFd &write) {
+TFd TPump::NewReadFromBuffer(std::shared_ptr<TCyclicBuffer> &source) {
+  TFd fd;
   std::lock_guard<mutex> lock(PipeMutex);
-  TPipe *pipe = new TPipe(this, read, write);
+  TPipe *pipe = new TPipe(this, TPipe::TDirection::ReadFromBuffer, fd, source);
   Pipes.insert(pipe);
   pipe->Start();
+
+  return fd;
+}
+
+TFd TPump::NewWriteToBuffer(std::shared_ptr<TCyclicBuffer> &source) {
+  TFd fd;
+  std::lock_guard<mutex> lock(PipeMutex);
+  TPipe *pipe = new TPipe(this, TPipe::TDirection::WriteToBuffer, fd, source);
+  Pipes.insert(pipe);
+  pipe->Start();
+
+  return fd;
 }
 
 void TPump::WaitForIdle() const {

@@ -36,45 +36,63 @@ static const char *Msg = "Mofo the Psychic Gorilla!";
 
 static constexpr size_t MsgSize = 25;
 
-FIXTURE(OnePipeManyCycles) {
+FIXTURE(SingleActorManyCycles) {
   assert(strlen(Msg) == MsgSize);
   const size_t cycle_repeat_count = 300;
   size_t i;
-  for(i = 0; i < cycle_repeat_count; ++i) {
+
+  for (i = 0; i < cycle_repeat_count; ++i) {
     const size_t msg_repeat_count = 300, expected_size = msg_repeat_count * MsgSize;
     ssize_t actual_size = 0;
     TPump pump;
-    TFd read, write;
-    pump.NewPipe(read, write);
-    assert(read);
-    assert(write);
-    thread reader([&actual_size, &read] {
+
+    // Write the data into the read buffer, construct pipes to pass the data.
+    auto read_buffer = make_shared<TCyclicBuffer>();
+    auto write_buffer = make_shared<TCyclicBuffer>();
+
+    for (i = 0; i < msg_repeat_count; ++i) {
+      read_buffer->Write(Msg, MsgSize);
+    }
+
+    TFd read_from = pump.NewReadFromBuffer(read_buffer);
+    TFd write_to = pump.NewWriteToBuffer(write_buffer);
+
+    assert(read_from);
+    assert(write_to);
+
+    thread actor([&actual_size, &read_from, &write_to] {
+      // Shorter than message to help tease out off by one bugs.
       char buf[MsgSize / 3];
-      for(;;) {
+      for (;;) {
+        // Read out from the buffer
         ssize_t size;
-        size = IfLt0(ReadAtMost(read, buf, sizeof(buf)));
-        if(!size) {
+        size = IfLt0(ReadAtMost(read_from, buf, sizeof(buf)));
+        assert(size > 0);
+        if (!size) {
           break;
         }
+
+        // Copy the message into the destination.
+        WriteExactly(write_to, buf, size_t(size));
+
         actual_size += size;
       }
-      read.Reset();
+      read_from.Reset();
+      write_to.Reset();
     });
-    thread writer([msg_repeat_count, &write] {
-      for(size_t msg_idx = 0; msg_idx < msg_repeat_count; ++msg_idx) {
-        WriteExactly(write, Msg, MsgSize);
-      }
-      write.Reset();
-    });
-    reader.join();
-    writer.join();
-    if(actual_size != expected_size) {
-      break;
-    }
+
+    // Join the thread / wait for completion.
+    actor.join();
+
+    // Make sure the right number of bits, right values were written.
+    EXPECT_EQ(actual_size, ssize_t(expected_size));
+    EXPECT_EQ(write_buffer->GetBytesAvailable(), expected_size);
+
+    // TODO(cmaloney): Assert write_buffer contains the message written msg_repeat_count times.
   }
   EXPECT_EQ(i, cycle_repeat_count);
 }
-
+/*
 FIXTURE(OneCycleManyPipes) {
   TPump pump;
   atomic_size_t success_count(0);
@@ -125,3 +143,4 @@ FIXTURE(WaitForIdle) {
   write.Reset();
   waiter.join();
 }
+*/
