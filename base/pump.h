@@ -57,13 +57,9 @@
 
 #pragma once
 
-#include <cassert>
 #include <condition_variable>
-#include <memory>
 #include <mutex>
-#include <queue>
 #include <thread>
-#include <unordered_map>
 #include <unordered_set>
 
 
@@ -71,7 +67,6 @@
 #include <base/cyclic_buffer.h>
 #include <base/notify_fd.h>
 #include <base/fd.h>
-#include <util/stl.h>
 
 /* Pumper abstract interface
 
@@ -165,10 +160,6 @@ class TPump final {
   std::unordered_set<TPipe *> Pipes;
 
   TPumper Pumper;
-
-  // int -> fd number
-  // Only writes to WriteTarget if it still exists.
-  std::unordered_map<int, std::weak_ptr<TCyclicBuffer>> WriteTarget;
 };  // TPump
 
 }  // Base

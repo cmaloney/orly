@@ -30,6 +30,8 @@ class TCyclicBuffer {
 
   size_t GetBytesAvailable();
 
+  bool GetHasOverflowed();
+
   // After max_blocks runs out, starts reusing the start buffer.
   static const uint64_t MaxBlocks = 1024;
   static const uint64_t BlockSize = 4096;
@@ -48,7 +50,9 @@ class TCyclicBuffer {
   // The storage for the buffer.
   std::vector<TBlockPtr> Blocks;
 
-  uint8_t *GetNextBlock();
+  static uint64_t WrappedAdvance(uint64_t offset);
+
+  void AdvanceLimit();
 };
 
 }  // Base

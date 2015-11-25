@@ -71,7 +71,7 @@ void Base::SetBacktraceOnTerminate() {
 }
 
 [[noreturn]] static void PrintSegfaultBacktrace(int) {
-  cout << "ERROR: SIGSEGV / Segfault\n"
+  cout << "ERROR: SIGSEGV (Segmenatation fault)\n"
        << "Backtrace: " << endl;
   PrintBacktrace();
   cerr << "SEGFAULT" << endl;

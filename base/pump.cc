@@ -29,6 +29,11 @@
 #include <util/error.h>
 #include <util/io.h>
 
+// TMP
+#include <iostream>
+#include <thread>
+
+
 using namespace Base;
 using namespace std;
 using namespace Util;
@@ -102,6 +107,7 @@ class TPump::TPipe {
         if (write_size == -1) {  // Error.
           if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
             // Do-nothing. We just didn't write data.
+            return true;
           } else {
             // Done writing since hit an unknown error.
             Stop();
@@ -125,6 +131,9 @@ class TPump::TPipe {
     assert(this);
     assert(!Working);
 
+    // Mark as working then make it so we can start working.
+    Working = true;
+
     switch (Direction) {
       case TDirection::WriteToBuffer:
         Pump->Pumper.Join(Fd, TPumper::Read, this);
@@ -133,15 +142,14 @@ class TPump::TPipe {
         Pump->Pumper.Join(Fd, TPumper::Write, this);
         break;
     }
-
-    Working = true;
   }
 
   void Stop() {
     assert(this);
     assert(Working);
 
-    Working = false;
+    // Leave the pump making it so the pipe can't possibly be serviced then
+    // mark as stopped
 
     switch (Direction) {
       case TDirection::WriteToBuffer:
@@ -157,6 +165,8 @@ class TPump::TPipe {
         Pump->Pumper.Leave(Fd, TPumper::Write);
         break;
     }
+
+    Working = false;
   }
 
   // Storage for the data.

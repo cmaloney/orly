@@ -18,6 +18,8 @@
 
 #include <base/pump.h>
 
+#include <unistd.h>
+
 #include <atomic>
 #include <cstring>
 #include <thread>
@@ -42,17 +44,23 @@ FIXTURE(SingleActorManyCycles) {
   size_t i;
 
   for (i = 0; i < cycle_repeat_count; ++i) {
-    const size_t msg_repeat_count = 300, expected_size = msg_repeat_count * MsgSize;
+    const size_t msg_repeat_count = 1000, expected_size = msg_repeat_count * MsgSize;
     ssize_t actual_size = 0;
     TPump pump;
+
+    // Make sure the test won't overflow the cyclic buffers.
+    static_assert(msg_repeat_count * MsgSize < TCyclicBuffer::MaxBlocks * TCyclicBuffer::BlockSize,
+                  "Messages need to fit in a cyclic buffer without overflowing");
 
     // Write the data into the read buffer, construct pipes to pass the data.
     auto read_buffer = make_shared<TCyclicBuffer>();
     auto write_buffer = make_shared<TCyclicBuffer>();
 
-    for (i = 0; i < msg_repeat_count; ++i) {
+    for (size_t j = 0; j < msg_repeat_count; ++j) {
       read_buffer->Write(Msg, MsgSize);
     }
+
+    EXPECT_EQ(read_buffer->GetBytesAvailable(), MsgSize * msg_repeat_count);
 
     TFd read_from = pump.NewReadFromBuffer(read_buffer);
     TFd write_to = pump.NewWriteToBuffer(write_buffer);
@@ -67,7 +75,7 @@ FIXTURE(SingleActorManyCycles) {
         // Read out from the buffer
         ssize_t size;
         size = IfLt0(ReadAtMost(read_from, buf, sizeof(buf)));
-        assert(size > 0);
+        assert(size >= 0);
         if (!size) {
           break;
         }
@@ -92,55 +100,90 @@ FIXTURE(SingleActorManyCycles) {
   }
   EXPECT_EQ(i, cycle_repeat_count);
 }
-/*
-FIXTURE(OneCycleManyPipes) {
+
+FIXTURE(ManyActorsOnceCycle) {
   TPump pump;
-  atomic_size_t success_count(0);
+  atomic_size_t read_source_success_count(0);
+  atomic_size_t read_destination_success_count(0);
+  atomic_size_t write_success_count(0);
   vector<thread> pipes;
-  for(size_t i = 0; i < 300; ++i) {
-    pipes.push_back(thread([&pump, &success_count, i] {
+  for (size_t i = 0; i < 300; ++i) {
+    pipes.push_back(thread([&pump, &read_source_success_count, &write_success_count,
+                            &read_destination_success_count, i] {
       const size_t msg_repeat_count = 300, expected_size = msg_repeat_count * MsgSize;
       ssize_t actual_size = 0;
-      TFd read, write;
-      pump.NewPipe(read, write);
-      thread reader([&actual_size, &read] {
+
+      auto read_buffer = make_shared<TCyclicBuffer>();
+      auto write_buffer = make_shared<TCyclicBuffer>();
+
+      for (size_t j = 0; j < msg_repeat_count; ++j) {
+        read_buffer->Write(Msg, MsgSize);
+      }
+
+      TFd read_from = pump.NewReadFromBuffer(read_buffer);
+      TFd write_to = pump.NewWriteToBuffer(write_buffer);
+      thread reader([&actual_size, &read_from] {
         char buf[MsgSize / 3];
-        for(;;) {
+        for (;;) {
+          // Read out from buffer
           ssize_t size;
-          IfLt0(size = ReadAtMost(read, buf, sizeof(buf)));
-          if(!size) {
+          IfLt0(size = ReadAtMost(read_from, buf, sizeof(buf)));
+          assert(size >= 0);
+          if (!size) {
             break;
           }
+
           actual_size += size;
         }
-        read.Reset();
+        read_from.Reset();
       });
-      thread writer([msg_repeat_count, &write] {
-        for(size_t msg_idx = 0; msg_idx < msg_repeat_count; ++msg_idx) {
-          WriteExactly(write, Msg, MsgSize);
+      thread writer([msg_repeat_count, &write_to] {
+        for (size_t msg_idx = 0; msg_idx < msg_repeat_count; ++msg_idx) {
+          WriteExactly(write_to, Msg, MsgSize);
         }
-        write.Reset();
+        write_to.Reset();
       });
       reader.join();
       writer.join();
-      if(actual_size == expected_size) {
-        ++success_count;
+
+      // TODO(cmaloney): Add a more precise mechanism to wait for just this write buffer to finish
+      // getting filled.
+      pump.WaitForIdle();
+
+      if (expected_size == write_buffer->GetBytesAvailable()) {
+        ++write_success_count;
+      } else {
+        // DEBUG: cout << AsStr(expected_size, " != ", write_buffer->GetBytesAvailable(), '\n');
+      }
+
+      if (0 == read_buffer->GetBytesAvailable()) {
+        ++read_source_success_count;
+      }
+
+      if (actual_size == expected_size) {
+        ++read_destination_success_count;
       }
     }));
   }
-  for(auto &pipe : pipes) {
+  for (auto &pipe : pipes) {
     pipe.join();
   }
-  EXPECT_EQ(success_count, pipes.size());
+  EXPECT_EQ(read_source_success_count, pipes.size());
+  // EXPECT_EQ(read_destination_success_count, pipes.size());
+  EXPECT_EQ(write_success_count, pipes.size());
 }
 
 FIXTURE(WaitForIdle) {
   TPump pump;
-  TFd read, write;
-  pump.NewPipe(read, write);
+
+  auto read_buffer = make_shared<TCyclicBuffer>();
+  auto write_buffer = make_shared<TCyclicBuffer>();
+  TFd read_from = pump.NewReadFromBuffer(read_buffer);
+  TFd write_to = pump.NewWriteToBuffer(write_buffer);
+
   thread waiter([&pump] { pump.WaitForIdle(); });
-  read.Reset();
-  write.Reset();
+
+  read_from.Reset();
+  write_to.Reset();
   waiter.join();
 }
-*/
