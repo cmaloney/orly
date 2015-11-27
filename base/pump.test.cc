@@ -62,8 +62,11 @@ FIXTURE(SingleActorManyCycles) {
 
     EXPECT_EQ(read_buffer->GetBytesAvailable(), MsgSize * msg_repeat_count);
 
+    TFd write_to;
+    std::future<void> write_to_finished;
+
     TFd read_from = pump.NewReadFromBuffer(read_buffer);
-    TFd write_to = pump.NewWriteToBuffer(write_buffer);
+    tie(write_to, write_to_finished) = pump.NewWriteToBuffer(write_buffer);
 
     assert(read_from);
     assert(write_to);
@@ -90,6 +93,7 @@ FIXTURE(SingleActorManyCycles) {
     });
 
     // Join the thread / wait for completion.
+    write_to_finished.wait();
     actor.join();
 
     // Make sure the right number of bits, right values were written.
@@ -120,8 +124,16 @@ FIXTURE(ManyActorsOnceCycle) {
         read_buffer->Write(Msg, MsgSize);
       }
 
+      TFd write_to;
+      std::future<void> write_to_finished;
+
       TFd read_from = pump.NewReadFromBuffer(read_buffer);
-      TFd write_to = pump.NewWriteToBuffer(write_buffer);
+      tie(write_to, write_to_finished) = pump.NewWriteToBuffer(write_buffer);
+
+      assert(write_to);
+      assert(write_to_finished.valid());
+      assert(read_from);
+
       thread reader([&actual_size, &read_from] {
         char buf[MsgSize / 3];
         for (;;) {
@@ -146,8 +158,7 @@ FIXTURE(ManyActorsOnceCycle) {
       reader.join();
       writer.join();
 
-      // TODO(cmaloney): Add a more precise mechanism to wait for just this write buffer to finish
-      // getting filled.
+      write_to_finished.wait();
       pump.WaitForIdle();
 
       if (expected_size == write_buffer->GetBytesAvailable()) {
@@ -179,7 +190,10 @@ FIXTURE(WaitForIdle) {
   auto read_buffer = make_shared<TCyclicBuffer>();
   auto write_buffer = make_shared<TCyclicBuffer>();
   TFd read_from = pump.NewReadFromBuffer(read_buffer);
-  TFd write_to = pump.NewWriteToBuffer(write_buffer);
+
+  TFd write_to;
+  std::future<void> write_to_finished;
+  tie(write_to, write_to_finished) = pump.NewWriteToBuffer(write_buffer);
 
   thread waiter([&pump] { pump.WaitForIdle(); });
 

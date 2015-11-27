@@ -58,6 +58,7 @@
 #pragma once
 
 #include <condition_variable>
+#include <future>
 #include <mutex>
 #include <thread>
 #include <unordered_set>
@@ -108,7 +109,7 @@ class TPump final {
   TFd NewReadFromBuffer(std::shared_ptr<TCyclicBuffer> &source);
 
   // Create an fd which when written puts data into the given cyclic buffer.
-  TFd NewWriteToBuffer(std::shared_ptr<TCyclicBuffer> &target);
+  std::tuple<TFd, std::future<void>> NewWriteToBuffer(std::shared_ptr<TCyclicBuffer> &target);
 
   /* Wait for the pump to become idle. */
   void WaitForIdle() const;

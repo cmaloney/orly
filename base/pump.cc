@@ -18,6 +18,8 @@
 
 #include <unistd.h>
 
+#include <future>
+
 // Link against the platform-specific TPumper implementation.
 #pragma clang diagnostic ignored "-Wundef"
 #if __APPLE__
@@ -28,10 +30,6 @@
 
 #include <util/error.h>
 #include <util/io.h>
-
-// TMP
-#include <iostream>
-#include <thread>
 
 
 using namespace Base;
@@ -76,6 +74,10 @@ class TPump::TPipe {
     if (Working) {
       Stop();
     }
+    if (!Stopped) {
+      Stopped = true;
+      Finished.set_value();
+    }
   }
 
   // Pipes data to / from the buffer as needed.
@@ -118,12 +120,19 @@ class TPump::TPipe {
         // If all bits have been written from the buffer, then be done.
         if (Buffer->IsEmpty()) {
           Stop();
+          assert(!Stopped);
+          Stopped = true;
+          Finished.set_value();
           return false;
         } else {
           return true;
         }
       }
     }
+  }
+
+  future<void> GetFinishedFuture() {
+    return Finished.get_future();
   }
 
   private:
@@ -158,6 +167,10 @@ class TPump::TPipe {
         assert(Fd.IsOpen());
         Pump->Pumper.Leave(Fd, TPumper::Read);
         Fd.Reset();
+
+        assert(!Stopped);
+        Stopped = true;
+        Finished.set_value();
         break;
       case TDirection::ReadFromBuffer:
         // Write Fd can be stopped as much as needed as the buffer behind the
@@ -185,14 +198,15 @@ class TPump::TPipe {
   TFd Fd;
 
   // True when the pipe is in the event loop / can get events.
-  bool Working = false;
+  bool Working = false, Stopped=false;
 
   friend class Base::TPump;
+  std::promise<void> Finished;
 };
 
 TFd TPump::NewReadFromBuffer(std::shared_ptr<TCyclicBuffer> &source) {
   TFd fd;
-  std::lock_guard<mutex> lock(PipeMutex);
+  lock_guard<mutex> lock(PipeMutex);
   TPipe *pipe = new TPipe(this, TPipe::TDirection::ReadFromBuffer, fd, source);
   Pipes.insert(pipe);
   pipe->Start();
@@ -200,14 +214,14 @@ TFd TPump::NewReadFromBuffer(std::shared_ptr<TCyclicBuffer> &source) {
   return fd;
 }
 
-TFd TPump::NewWriteToBuffer(std::shared_ptr<TCyclicBuffer> &source) {
+tuple<TFd, std::future<void>> TPump::NewWriteToBuffer(std::shared_ptr<TCyclicBuffer> &source) {
   TFd fd;
-  std::lock_guard<mutex> lock(PipeMutex);
+  lock_guard<mutex> lock(PipeMutex);
   TPipe *pipe = new TPipe(this, TPipe::TDirection::WriteToBuffer, fd, source);
   Pipes.insert(pipe);
   pipe->Start();
 
-  return fd;
+  return std::make_tuple(std::move(fd), pipe->GetFinishedFuture());
 }
 
 void TPump::WaitForIdle() const {
