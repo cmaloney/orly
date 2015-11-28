@@ -9,13 +9,6 @@ using namespace Base;
 using namespace Bit;
 using namespace std;
 
-void TOutputBuffer::Print(std::ostream &out) const {
-  for(const TMemBlock &block: Blocks) {
-    // TODO(cmaloney): Kill the reinterpret_cast
-    out.write(reinterpret_cast<char *>(block.Data.get()), block.Size);
-  }
-}
-
 template <typename TVal>
 static size_t HashHelper(const TVal &val) {
   return hash<TVal>()(val);
@@ -44,11 +37,5 @@ const TJobProducer *TJob::GetJobProducer() const { return Metadata.Producer; }
 std::ostream &Bit::operator<<(std::ostream &out, TJob *job) {
   out << job->GetJobProducer()->Name << '{' << job->GetInput() << " -> ["
       << Join(job->GetOutput(), ", ") << "]}";
-  return out;
-}
-
-std::ostream &Bit::operator<<(std::ostream &out, const TOutputBuffer &buffer) {
-  buffer.Print(out);
-
   return out;
 }

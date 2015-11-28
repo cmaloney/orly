@@ -1,14 +1,12 @@
 #include <bit/jobs/dep.h>
 
-#include <fstream>
-#include <ostream>
-
+#include <base/thrower.h>
 #include <bit/file_info.h>
 #include <bit/jobs/dep_c.h>
 
 using namespace Base;
 using namespace Bit;
-using namespace Bit::Job;
+using namespace Bit::Jobs;
 using namespace std;
 
 static std::unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
@@ -50,34 +48,44 @@ TJob::TOutput TDep::Run() {
 
   if (input_path.EndsWith(".cc")) {
     // TODO(cmaloney): Make a helper utility in <jobs/compile_c_family.h> to get the command.
-    cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
+    cmd.push_back("clang++");
+    // cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
   } else {
-    cmd.push_back(Bit::GetCmd<Tools::C>(Env.GetConfig()));
+    cmd.push_back("clang");
+    // cmd.push_back(Bit::GetCmd<Tools::C>(Env.GetConfig()));
   }
 
   // TODO: move array append
-  for (auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
-    cmd.push_back(move(arg));
-  }
+  // for (auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
+  //  cmd.push_back(move(arg));
+  //}
+  cmd.push_back("-std=c++14");
+  cmd.push_back("-Wall");
+  cmd.push_back("-Werror");
+  cmd.push_back("-Wextra");
+  cmd.push_back("-fcolor-diagnostics");
+
   cmd.push_back("-M");
   cmd.push_back("-MG");
-  cmd.push_back(GetInput()->GetPath());
+  cmd.push_back(GetInput()->CmdPath);
 
-  TSubprocess::Run(cmd);
+  TOutput output;
 
-  return cmd;
-}
+  output.Subprocess = Base::Subprocess::Run(cmd);
 
-void TDep::ProcessOutput(TFd stdout, TFd) {
-  NeedsWork = false;
-  Deps = ParseDeps(ReadAll(move(stdout)));
-  for (const auto &dep : Deps) {
-    TFileInfo *file = Env.TryGetFileFromPath(dep);
-    if (file) {
-      // Add to needs. If it's new in the Needs array, we aren't done yet.
-      NeedsWork |= Needs.insert(file).second;
-    }
+  // Process the output
+  if (output.Subprocess.ExitCode != 0) {
+    output.Result = TJob::TOutput::Error;
+    return output;
   }
+
+  if (output.Subprocess.Output->HasOverflowed()) {
+    THROWER(std::overflow_error)
+        << "Dependency list exceeded stdout exceeded the max length of the cyclic buffer.";
+  }
+
+  output.Needs.IfInTree = ParseDeps(output.Subprocess.Output->ToString());
+  return output;
 }
 
 TJson ToJson(vector<string> &&that) {
@@ -89,12 +97,10 @@ TJson ToJson(vector<string> &&that) {
   return TJson(move(json_elems));
 }
 
+// Old code for temporary archival purposes.
+#if 0
 bool TDep::IsComplete() {
   assert(this);
-
-  if (NeedsWork) {
-    return false;
-  }
 
   // Everything has been found, save the information.
   auto deps_json = ToJson(move(Deps));
@@ -118,6 +124,7 @@ bool TDep::IsComplete() {
 
   return true;
 }
+#endif
 
-TDep::TDep(TEnv &env, TFileInfo *in_file)
-    : TJob(in_file, {env.GetFile(GetOutputName(in_file->GetRelPath()))}), Env(env) {}
+// TODO(cmaloney): Use the job config to get real arguments.
+TDep::TDep(TMetadata &&metadata, const TJobConfig *) : TJob(move(metadata)) {}

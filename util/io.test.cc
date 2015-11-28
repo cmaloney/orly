@@ -46,7 +46,7 @@ FIXTURE(ReadAtMost) {
   assert(ExpectedSize == strlen(ExpectedData));
 
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   WriteExactly(writeable, ExpectedData, ExpectedSize);
   Zero(ActualData);
   ssize_t actual_size = ReadAtMost(readable, ActualData, MaxActualSize);
@@ -61,7 +61,7 @@ FIXTURE(WriteAtMost) {
   action.sa_handler = [](int) {};
   sigaction(SIGPIPE, &action, 0);
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   readable.Reset();
   ssize_t actual_size = WriteAtMost(writeable, 0, 0);
   EXPECT_FALSE(actual_size);
@@ -71,21 +71,21 @@ FIXTURE(WriteAtMost) {
 
 FIXTURE(TryReadExactlyNothing) {
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   writeable.Reset();
   EXPECT_FALSE(TryReadExactly(readable, ActualData, ExpectedSize));
 }
 
 FIXTURE(TryReadExactlyEverything) {
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   WriteExactly(writeable, ExpectedData, ExpectedSize);
   EXPECT_TRUE(TryReadExactly(readable, ActualData, ExpectedSize));
 }
 
 FIXTURE(TryReadExactlySomething) {
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   WriteExactly(writeable, ExpectedData, ExpectedSize / 2);
   writeable.Reset();
   bool caught_unexpected_end = false;
@@ -99,7 +99,7 @@ FIXTURE(TryReadExactlySomething) {
 
 FIXTURE(ReadExactlyNothing) {
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   writeable.Reset();
   bool caught_could_not_start = false;
   try {
@@ -112,7 +112,7 @@ FIXTURE(ReadExactlyNothing) {
 
 FIXTURE(ReadExactlyEverything) {
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   WriteExactly(writeable, ExpectedData, ExpectedSize);
   Zero(ActualData);
   ReadExactly(readable, ActualData, ExpectedSize);
@@ -121,7 +121,7 @@ FIXTURE(ReadExactlyEverything) {
 
 FIXTURE(ReadExactlySomething) {
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   WriteExactly(writeable, ExpectedData, ExpectedSize / 2);
   writeable.Reset();
   bool caught_unexpected_end = false;

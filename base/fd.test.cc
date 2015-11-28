@@ -54,7 +54,7 @@ static void CheckClose(const TFd &readable, TFd &writeable) {
 
 FIXTURE(Pipe) {
   TFd readable, writeable;
-  TFd::Pipe(readable, writeable);
+  tie(readable, writeable) = TFd::Pipe();
   Transact(readable, writeable);
   CheckClose(readable, writeable);
 }

@@ -28,6 +28,7 @@
 #include <util/io.h>
 
 using namespace Base;
+using namespace std;
 
 TFd::TFd() : OsHandle(-1) {}
 
@@ -54,7 +55,7 @@ TFd::~TFd() {
 TFd &TFd::operator=(TFd &&that) {
   assert(this);
   assert(&that);
-  std::swap(OsHandle, that.OsHandle);
+  swap(OsHandle, that.OsHandle);
   return *this;
 }
 
@@ -99,7 +100,8 @@ TFd &TFd::Reset() {
   return *this = TFd();
 }
 
-void TFd::Pipe(TFd &readable, TFd &writeable) {
+tuple<TFd, TFd> TFd::Pipe() {
+  TFd readable, writeable;
   assert(&readable);
   assert(&writeable);
   int fds[2] = {};
@@ -112,6 +114,7 @@ void TFd::Pipe(TFd &readable, TFd &writeable) {
 #endif
   readable = TFd(fds[0], NoThrow);
   writeable = TFd(fds[1], NoThrow);
+  return make_tuple(move(readable), move(writeable));
 }
 
 
@@ -120,8 +123,8 @@ void TFd::Pipe(TFd &readable, TFd &writeable) {
 /* Read all the data at fd into one giant buffer in string. Not super efficient, but should be good
    enough, and
    sufficiently dangerous if the data is coming from an untrustworthy source */
-std::string Base::ReadAll(TFd &&fd) {
-  std::string out;
+string Base::ReadAll(TFd &&fd) {
+  string out;
   uint8_t buf[4096];
   while(ssize_t read = Util::ReadAtMost(fd, buf, 4096)) {
     out.append(reinterpret_cast<char *>(buf), size_t(read));

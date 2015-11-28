@@ -36,12 +36,13 @@ struct TJobRunner {
    * call. */
   bool HasMoreResults() const;
 
+  void Shutdown();
+
   /* Grab a single result. */
   TResult WaitForResult();
 
   private:
   void ProcessQueue();
-  void Shutdown();
 
   // Jobs in, results out.
   moodycamel::BlockingConcurrentQueue<TJob*> ToRun;

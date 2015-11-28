@@ -21,7 +21,7 @@
 
 namespace Bit {
 
-namespace Job {
+namespace Jobs {
 
 class TDep final : public TJob {
   public:
@@ -37,8 +37,6 @@ class TDep final : public TJob {
   private:
   const TJobConfig *JobConfig;
   std::unordered_set<std::string> Needs;
-  bool NeedsWork = true;
-  std::vector<std::string> Deps;
 };
 } // Job
 } // Jhm

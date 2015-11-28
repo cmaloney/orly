@@ -37,12 +37,6 @@ class TSubprocess final {
   // Destroying this object won't stop the child process, we'll just stop talking to it.
   ~TSubprocess() = default;
 
-  // The id of the child process.
-  int GetChildId() const {
-    assert(this);
-    return ChildId;
-  }
-
   // A CyclicBuffer which gets the child's stderr streamed to it while the
   // child is running.
   std::shared_ptr<TCyclicBuffer> GetStdError() {

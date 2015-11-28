@@ -10,7 +10,7 @@ class TNotifyFd {
   NO_COPY(TNotifyFd)
 
   public:
-  TNotifyFd() { TFd::Pipe(Read, Write); }
+  TNotifyFd() { std::tie(Read, Write) = TFd::Pipe(); }
 
   const TFd &GetFd() const { return Read; }
 

@@ -9,8 +9,8 @@ using namespace Bit;
 using namespace Bit::Jobs;
 using namespace std;
 
-vector<string> Bit::Job::ParseDeps(const string &gcc_deps) {
-  vector<string> deps;
+unordered_set<string> Bit::Jobs::ParseDeps(const string &gcc_deps) {
+  unordered_set<string> deps;
 
   const char *tok_start = nullptr;
   bool eaten_start = false;
@@ -45,7 +45,7 @@ vector<string> Bit::Job::ParseDeps(const string &gcc_deps) {
         if(is_first_item) {
           is_first_item = false;
         } else {
-          deps.emplace_back(move(dep));
+          deps.insert(move(dep));
         }
       }
     } else {

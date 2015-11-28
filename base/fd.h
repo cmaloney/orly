@@ -99,8 +99,9 @@ class TFd {
   /* Return to the default-constructed state. */
   TFd &Reset();
 
-  /* Construct the read- and write-only ends of a pipe. */
-  static void Pipe(TFd &readable, TFd &writeable);
+  // construct a pipe. The first fd is the one to read from, the second is the
+  // one to write to.
+  static std::tuple<TFd, TFd> Pipe();
 
   private:
 

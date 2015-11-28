@@ -1,10 +1,10 @@
 #include <string>
-#include <vector>
+#include <unordered_set>
 
 namespace Bit {
-namespace Job {
+namespace Jobs {
 
-std::vector<std::string> ParseDeps(const std::string &deps_str);
+std::unordered_set<std::string> ParseDeps(const std::string &deps_str);
 
 } // Jobs
 } // Jhm

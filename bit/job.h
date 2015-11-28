@@ -21,6 +21,7 @@
 
 #include <base/class_traits.h>
 #include <base/cyclic_buffer.h>
+#include <base/subprocess.h>
 #include <bit/job_config.h>
 #include <bit/naming.h>
 
@@ -58,13 +59,7 @@ class TJob {
     // complete.
     enum TResult { Error, NewNeeds, CompleteIfNeeds, Complete } Result = Error;
 
-    // Write adapters to do subprocess -> OutputBuffer via pump or just
-    // using OutputBuffer as a streaming data target directly with no virtual
-    // calls.
-    // TODO(cmaloney): Allow output of "structured" result objects where there
-    // is just a conversion to string available in case of error, as well as
-    // introspection available for checking things like "gather the test output"
-    Base::TCyclicBuffer Output;
+    Base::Subprocess::TResult Subprocess;
     TNeeds Needs;
   };
 
@@ -118,7 +113,5 @@ class TJob {
 };
 
 std::ostream &operator<<(std::ostream &out, TJob *job);
-
-std::ostream &operator<<(std::ostream &out, const Base::TCyclicBuffer &buffer);
 
 }  // namespace Bit

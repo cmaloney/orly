@@ -1,5 +1,7 @@
 #include <bit/produce.h>
 
+#include <unistd.h>
+
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -113,75 +115,128 @@ void TStatusTracker::DoAdvance() {
 
     const TJob::TOutput &output = *(result.Output);
 
+    auto block_if_needs = [this, &result](const TJob::TNeeds &needs) {
+      std::unordered_set<TJob *> blocking_jobs;
+
+      auto add_blocking_not_complete = [this, &blocking_jobs](TFileInfo *file_info) {
+        assert(file_info);
+
+        if (AddNeeded(file_info)) {
+          // TryGetProducer will always return true if AddNeeded returns true
+          // then the file is not complete / being produced by something.
+          TJob *producer = TryGetProducer(file_info);
+          assert(producer);
+          blocking_jobs.insert(producer);
+        }
+      };
+
+      for (TRelPath path : needs.Mandatory) {
+        add_blocking_not_complete(Environment.GetFileInfo(path));
+      }
+
+      for (TRelPath path : needs.IfBuildable) {
+        TFileInfo *file_info = Environment.GetFileInfo(path);
+        if (IsBuildable(file_info)) {
+          add_blocking_not_complete(file_info);
+        }
+      }
+
+      for (string path : needs.IfInTree) {
+        TOpt<TRelPath> rel_path = Environment.TryGetRelPath(path);
+        if (rel_path) {
+          add_blocking_not_complete(Environment.GetFileInfo(*rel_path.Get()));
+        }
+      }
+
+      // Mark this job as waiting for all the blocking jobs
+      for (TJob *blocker : blocking_jobs) {
+        // Default construct the waiting set if it isn't constructed and insert the
+        // new waiting.
+        WaitingForJob[blocker].insert(result.Job);
+      }
+
+      return !blocking_jobs.empty();
+    };
+
+    auto mark_complete = [this, &result, &output]() {
+      // NOTE: this uses multiple loops over the same set to enusre each
+      // operation completes fully / for each file before the next is started.
+
+      // Sanity check that the output files actually all exist. If they don't
+      // stop the runner, report an error on the job, and don't cache complete
+      // any of the output since they may be corrupted.
+      const auto &job_output = result.Job->GetOutput();
+      for (TFileInfo *file_info : job_output) {
+        if (!ExistsPath(file_info->CmdPath.c_str())) {
+          cout << "ERROR: " << result.Job << " didn't produce the output file, " << file_info
+               << ", it said it would but exited successfully. The job has a bug.\n"
+               << "STDOUT:\n";
+          output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
+          cout << "STDERR:\n";
+          output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
+
+          // Mark runner as failed which will cause outer loop to exit.
+          Runner.Shutdown();
+          return;
+        }
+      }
+
+      // Mark all the job and all output files of the job as complete, storing
+      //  all the information needed to later cache complete the file if
+      // nothing has changed.
+      // TODO(cmaloney): Allow jobs to attach arbitrary computed config to
+      // each output file.
+      InsertOrFail(Done, result.Job);
+      auto extra_file_data = result.Job->GetOutputExtraData();
+      for (TFileInfo *file_info : job_output) {
+        // NOTE: This implicitly constructs an empty TJobData if one isn't found.
+        file_info->Complete(result.Job, move(extra_file_data[file_info]));
+      }
+
+      // If any jobs were waiting on the output files of this job, try queing
+      // those jobs.
+      // Gather all the jobs which got unblocked. Do this first / at once so
+      // that we also remove the "WaitingForJob" entries before we call
+      // QueueJob which will start waiting for job.
+      std::unordered_set<TJob *> unblocked;
+      auto it = WaitingForJob.find(result.Job);
+      if (it != WaitingForJob.end()) {
+        unblocked = std::move(it->second);
+        WaitingForJob.erase(it);
+      }
+      for (TJob *job : unblocked) {
+        QueueJob(job);
+      }
+    };
+
     // Process the result
     switch (output.Result) {
       case TJob::TOutput::Error: {
         // Print the error output. Runner will naturally coalesce and DoAdvance
         // will terminate the process with an error.
         cout << "ERROR: " << result.Job << " exited with an error.\n"
-             << "JOB OUTPUT:\n" << output.Output;
+             << "STDOUT:\n";
+        output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
+        cout << "STDERR:\n";
+        output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
         break;
       }
       case TJob::TOutput::NewNeeds: {
         // Re-queue the job to be run once all its needs are completed. If all
-        // the needs are already done, put it into the runner immediate.y
-        QueueJob(result.Job);
+        // the needs are already done, put it into the runner immediately
+        if (!block_if_needs(output.Needs)) {
+          QueueJob(result.Job);
+        }
+        break;
+      }
+      case TJob::TOutput::CompleteIfNeeds: {
+        if (block_if_needs(output.Needs)) {
+          mark_complete();
+        }
         break;
       }
       case TJob::TOutput::Complete: {
-        // NOTE: this uses multiple loops over the same set to enusre each
-        // operation completes fully / for each file before the next is started.
-
-        // Sanity check that the output files actually all exist. If they don't
-        // stop the runner, report an error on the job, and don't cache complete
-        // any of the output since they may be corrupted.
-        const auto &job_output = result.Job->GetOutput();
-        bool has_error = false;
-        for (TFileInfo *file_info : job_output) {
-          if (!ExistsPath(file_info->CmdPath.c_str())) {
-            cout << "ERROR: " << result.Job << " didn't produce the output file, " << file_info
-                 << ", it said it would but exited successfully. The job has a bug.\n"
-                 << "JOB OUTUPT:\n" << output.Output;
-
-            // Leave the loop, and set a flag to leave the switch since we can't
-            // directly say "leave the switch"
-            has_error = true;
-            break;
-          }
-        }
-
-        if (has_error) {
-          break;  // Leave the switch
-        }
-
-        // Mark all the job and all output files of the job as complete, storing
-        //  all the information needed to later cache complete the file if
-        // nothing has changed.
-        // TODO(cmaloney): Allow jobs to attach arbitrary computed config to
-        // each output file.
-        InsertOrFail(Done, result.Job);
-        auto extra_file_data = result.Job->GetOutputExtraData();
-        for (TFileInfo * file_info: job_output) {
-          // NOTE: This implicitly constructs an empty TJobData if one isn't found.
-          file_info->Complete(result.Job, move(extra_file_data[file_info]));
-        }
-
-        // If any jobs were waiting on the output files of this job, try queing
-        // those jobs.
-        // Gather all the jobs which got unblocked. Do this first / at once so
-        // that we also remove the "WaitingForJob" entries before we call
-        // QueueJob which will start waiting for job.
-        std::unordered_set<TJob *> unblocked;
-        auto it = WaitingForJob.find(result.Job);
-        if (it != WaitingForJob.end()) {
-          unblocked = std::move(it->second);
-          WaitingForJob.erase(it);
-        }
-        for (TJob *job : unblocked) {
-          QueueJob(job);
-        }
-
-        // Leave the switch
+        mark_complete();
         break;
       }
     }
@@ -214,46 +269,8 @@ void TStatusTracker::QueueJob(TJob *job) {
     return;
   }
 
-  // Check the needs for completion, queueing all needed.
-  std::unordered_set<TJob *> blocking_jobs;
-
-  auto add_blocking_not_complete = [this, &blocking_jobs](TFileInfo *file_info) {
-      assert(file_info);
-
-    if(AddNeeded(file_info)) {
-      // TryGetProducer will always return true if AddNeeded returns true
-      // then the file is not complete / being produced by something.
-      TJob *producer = TryGetProducer(file_info);
-      assert(producer);
-      blocking_jobs.insert(producer);
-    }
-  };
-
-  TJob::TNeeds needs = job->GetNeeds();
-  for (TRelPath path : needs.Mandatory) {
-    add_blocking_not_complete(Environment.GetFileInfo(path));
-  }
-
-  for(TRelPath path: needs.IfBuildable) {
-    TFileInfo *file_info = Environment.GetFileInfo(path);
-    if(IsBuildable(file_info)) {
-      add_blocking_not_complete(file_info);
-    }
-  }
-
-  // If there are no blocking jobs, run the job.
-  if (blocking_jobs.empty()) {
-    InsertOrFail(Running, job);
-    Runner.Queue(job);
-    return;
-  }
-
-  // Mark this job as waiting for all the blocking jobs
-  for (TJob *blocker: blocking_jobs) {
-    // Default construct the waiting set if it isn't constructed and insert the
-    // new waiting.
-    WaitingForJob[blocker].insert(job);
-  }
+  InsertOrFail(Running, job);
+  Runner.Queue(job);
 }
 
 TJob *TStatusTracker::TryGetProducer(TFileInfo *file) {

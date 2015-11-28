@@ -199,7 +199,7 @@ TFd TPump::NewReadFromBuffer(shared_ptr<TCyclicBuffer> &source) {
   // Make a pipe so the user can operate on one end then the pump will pump data
   // out of the buffer and into the write end.
   TFd caller_fd, pump_fd;
-  TFd::Pipe(caller_fd, pump_fd);
+  tie(caller_fd, pump_fd) = TFd::Pipe();
   AddPipe(TPipeDirection::ReadFromBuffer, move(pump_fd), source);
   return caller_fd;
 }
@@ -208,7 +208,7 @@ tuple<TFd, future<void>> TPump::NewWriteToBuffer(shared_ptr<TCyclicBuffer> &targ
   // Make a pipe so the user can operate on one end then the pump will read data
   // from the other end and pump it into the bufer.
   TFd caller_fd, pump_fd;
-  TFd::Pipe(pump_fd, caller_fd);
+  tie(pump_fd, caller_fd) = TFd::Pipe();
   auto future = AddPipe(TPipeDirection::WriteToBuffer, move(pump_fd), target);
   return make_tuple(move(caller_fd), move(future));
 }
