@@ -1,5 +1,7 @@
 #include <bit/jobs/dep.h>
 
+#include <chrono>
+
 #include <base/thrower.h>
 #include <bit/file_info.h>
 #include <bit/jobs/dep_c.h>
@@ -32,6 +34,10 @@ TJobProducer TDep::GetProducer(const TJobConfig &job_config) {
                         return unique_ptr<TDep>(new TDep(std::move(metadata), &job_config));
                       }};
 }
+
+
+#include <base/split.h>
+#include <iostream>
 
 TJob::TOutput TDep::Run() {
   TJob::TOutput result;
@@ -71,6 +77,8 @@ TJob::TOutput TDep::Run() {
 
   TOutput output;
 
+  cout << Join(cmd, " ") << "\n";
+
   output.Subprocess = Base::Subprocess::Run(cmd);
 
   // Process the output
@@ -80,8 +88,9 @@ TJob::TOutput TDep::Run() {
   }
 
   if (output.Subprocess.Output->HasOverflowed()) {
-    THROWER(std::overflow_error)
-        << "Dependency list exceeded stdout exceeded the max length of the cyclic buffer.";
+    THROWER(std::overflow_error) << "Dependency list exceeded stdout exceeded the max length of "
+                                    "the cyclic buffer used for streaming out of subprocesses and "
+                                    "guaranteeing they can't use infinite length buffers.";
   }
 
   output.Needs.IfInTree = ParseDeps(output.Subprocess.Output->ToString());
@@ -97,7 +106,16 @@ TJson ToJson(vector<string> &&that) {
   return TJson(move(json_elems));
 }
 
-// Old code for temporary archival purposes.
+string TDep::GetConfigId() const {
+  // TODO(cmaloney): Make stable.
+  static const auto now = std::chrono::system_clock::to_time_t(chrono::system_clock::now());
+  return AsStr(ctime(&now));
+}
+
+// TODO(cmaloney): Return the json which IsComplete used to do below
+std::unordered_map<TFileInfo*, TJobConfig> TDep::GetOutputExtraData() const {
+  return {};
+}
 #if 0
 bool TDep::IsComplete() {
   assert(this);

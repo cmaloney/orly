@@ -173,7 +173,7 @@ void TStatusTracker::DoAdvance() {
                << "STDOUT:\n";
           output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
           cout << "STDERR:\n";
-          output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
+          output.Subprocess.Error->ReadAllFromWarnOverflow(STDOUT_FILENO);
 
           // Mark runner as failed which will cause outer loop to exit.
           Runner.Shutdown();
@@ -218,7 +218,7 @@ void TStatusTracker::DoAdvance() {
              << "STDOUT:\n";
         output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
         cout << "STDERR:\n";
-        output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
+        output.Subprocess.Error->ReadAllFromWarnOverflow(STDOUT_FILENO);
         break;
       }
       case TJob::TOutput::NewNeeds: {

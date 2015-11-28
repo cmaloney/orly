@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include <base/split.h>
+#include <bit/file_info.h>
 #include <bit/job_producer.h>
 
 using namespace Base;
@@ -39,3 +40,5 @@ std::ostream &Bit::operator<<(std::ostream &out, TJob *job) {
       << Join(job->GetOutput(), ", ") << "]}";
   return out;
 }
+
+TJob::TJob(TMetadata &&metadata) : Metadata(move(metadata)) {}

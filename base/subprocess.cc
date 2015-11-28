@@ -155,6 +155,11 @@ TResult Base::Subprocess::Run(TPump &pump, const std::vector<std::string> &cmd) 
   return TResult{exit_code, subprocess->GetStdOutput(), subprocess->GetStdError()};
 }
 
+TResult Base::Subprocess::Run(const std::vector<std::string> &cmd) {
+  TPump pump;
+  return Run(pump, cmd);
+}
+
 int Base::Subprocess::WaitAll() {
   siginfo_t status;
   IfNe0(waitid(P_ALL, 0, &status, WEXITED | WNOWAIT));

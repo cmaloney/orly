@@ -27,7 +27,6 @@ class TDep final : public TJob {
   public:
   static TJobProducer GetProducer(const TJobConfig &job_config);
 
-  virtual TNeeds GetNeeds() final;
   virtual TOutput Run() final;
   virtual std::string GetConfigId() const final;
   virtual std::unordered_map<TFileInfo*, TJobConfig> GetOutputExtraData() const final;
@@ -35,7 +34,7 @@ class TDep final : public TJob {
   TDep(TMetadata &&metadata, const TJobConfig *job_config);
 
   private:
-  const TJobConfig *JobConfig;
+  // TODO(cmaloney): Use this: const TJobConfig *JobConfig;
   std::unordered_set<std::string> Needs;
 };
 } // Job
