@@ -31,7 +31,6 @@
 #include <util/error.h>
 #include <util/io.h>
 
-
 using namespace Base;
 using namespace std;
 using namespace Util;
@@ -40,30 +39,13 @@ class TPump::TPipe {
   NO_COPY(TPipe)
 
   public:
-  enum class TDirection { WriteToBuffer, ReadFromBuffer };
-
   // Construct a pipe which connects a cyclic buffer to an fd, with data flowing
   // in the direction specified by Direction.
-  TPipe(TPump *pump, TDirection direction, TFd &act_fd, std::shared_ptr<TCyclicBuffer> &buffer)
-      : Buffer(buffer), Pump(pump), Direction(direction) {
+  TPipe(TPump *pump, TPipeDirection direction, TFd &&act_fd, shared_ptr<TCyclicBuffer> &buffer)
+      : Buffer(buffer), Direction(direction), Fd(move(act_fd)), Pump(pump) {
     assert(pump);
-    assert(&act_fd);
-    assert(act_fd);
     assert(&buffer);
     assert(buffer);
-
-    switch (direction) {
-      case TDirection::WriteToBuffer:
-        // Pipe output from an fd into a cyclic buffer where the caller will
-        // eventually read from.
-        TFd::Pipe(Fd, act_fd);
-        break;
-      case TDirection::ReadFromBuffer:
-        // Pipe input from the buffer where the user data is to the fd which the
-        // caller will read from.
-        TFd::Pipe(act_fd, Fd);
-        break;
-    }
 
     SetNonBlocking(Fd);
 
@@ -87,7 +69,7 @@ class TPump::TPipe {
     assert(this);
 
     switch (Direction) {
-      case TDirection::WriteToBuffer: {
+      case TPipeDirection::WriteToBuffer: {
         ssize_t read_size = Buffer->WriteTo(Fd);
         if (read_size == -1) {  // Error.
           if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -104,7 +86,7 @@ class TPump::TPipe {
 
         return true;
       }
-      case TDirection::ReadFromBuffer: {
+      case TPipeDirection::ReadFromBuffer: {
         ssize_t write_size = Buffer->ReadFrom(Fd);
         if (write_size == -1) {  // Error.
           if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
@@ -131,9 +113,7 @@ class TPump::TPipe {
     }
   }
 
-  future<void> GetFinishedFuture() {
-    return Finished.get_future();
-  }
+  future<void> GetFinishedFuture() { return Finished.get_future(); }
 
   private:
   void Start() {
@@ -144,10 +124,10 @@ class TPump::TPipe {
     Working = true;
 
     switch (Direction) {
-      case TDirection::WriteToBuffer:
+      case TPipeDirection::WriteToBuffer:
         Pump->Pumper.Join(Fd, TPumper::Read, this);
         break;
-      case TDirection::ReadFromBuffer:
+      case TPipeDirection::ReadFromBuffer:
         Pump->Pumper.Join(Fd, TPumper::Write, this);
         break;
     }
@@ -161,7 +141,7 @@ class TPump::TPipe {
     // mark as stopped
 
     switch (Direction) {
-      case TDirection::WriteToBuffer:
+      case TPipeDirection::WriteToBuffer:
         // Read Fd can only be stopped once ever. Will be stopped on Pump
         // destruction or lack of data.
         assert(Fd.IsOpen());
@@ -172,7 +152,7 @@ class TPump::TPipe {
         Stopped = true;
         Finished.set_value();
         break;
-      case TDirection::ReadFromBuffer:
+      case TPipeDirection::ReadFromBuffer:
         // Write Fd can be stopped as much as needed as the buffer behind the
         // writing fd fills.
         Pump->Pumper.Leave(Fd, TPumper::Write);
@@ -183,50 +163,59 @@ class TPump::TPipe {
   }
 
   // Storage for the data.
-  std::shared_ptr<TCyclicBuffer> Buffer;
+  shared_ptr<TCyclicBuffer> Buffer;
+
+  // Direction of the pump.
+  const TPipeDirection Direction;
+
+  // End of the pipe for this program to pump to / from in order to move the
+  // data from the cyclic buffer to the target.
+  TFd Fd;
 
   // Pointer to the pump to enable self registration / deregistration.
   // TODO(cmaloney): Make the pump own pipe registration with a callback
   // for explicitly leaving.
   TPump *Pump;
 
-  // Direction of the pump.
-  const TDirection Direction;
-
-  // End of the pipe for this program to pump to / from in order to move the
-  // data from the cyclic buffer to the target.
-  TFd Fd;
-
   // True when the pipe is in the event loop / can get events.
-  bool Working = false, Stopped=false;
+  bool Working = false, Stopped = false;
 
   friend class Base::TPump;
-  std::promise<void> Finished;
+  promise<void> Finished;
 };
 
-TFd TPump::NewReadFromBuffer(std::shared_ptr<TCyclicBuffer> &source) {
-  TFd fd;
+future<void> TPump::AddPipe(TPipeDirection direction,
+                            TFd &&fd,
+                            shared_ptr<TCyclicBuffer> &buffer) {
   lock_guard<mutex> lock(PipeMutex);
-  TPipe *pipe = new TPipe(this, TPipe::TDirection::ReadFromBuffer, fd, source);
+  TPipe *pipe = new TPipe(this, direction, move(fd), buffer);
+  auto future = pipe->GetFinishedFuture();
   Pipes.insert(pipe);
   pipe->Start();
-
-  return fd;
+  return future;
 }
 
-tuple<TFd, std::future<void>> TPump::NewWriteToBuffer(std::shared_ptr<TCyclicBuffer> &source) {
-  TFd fd;
-  lock_guard<mutex> lock(PipeMutex);
-  TPipe *pipe = new TPipe(this, TPipe::TDirection::WriteToBuffer, fd, source);
-  Pipes.insert(pipe);
-  pipe->Start();
+TFd TPump::NewReadFromBuffer(shared_ptr<TCyclicBuffer> &source) {
+  // Make a pipe so the user can operate on one end then the pump will pump data
+  // out of the buffer and into the write end.
+  TFd caller_fd, pump_fd;
+  TFd::Pipe(caller_fd, pump_fd);
+  AddPipe(TPipeDirection::ReadFromBuffer, move(pump_fd), source);
+  return caller_fd;
+}
 
-  return std::make_tuple(std::move(fd), pipe->GetFinishedFuture());
+tuple<TFd, future<void>> TPump::NewWriteToBuffer(shared_ptr<TCyclicBuffer> &target) {
+  // Make a pipe so the user can operate on one end then the pump will read data
+  // from the other end and pump it into the bufer.
+  TFd caller_fd, pump_fd;
+  TFd::Pipe(pump_fd, caller_fd);
+  auto future = AddPipe(TPipeDirection::WriteToBuffer, move(pump_fd), target);
+  return make_tuple(move(caller_fd), move(future));
 }
 
 void TPump::WaitForIdle() const {
   assert(this);
-  std::unique_lock<std::mutex> lock(PipeMutex);
+  unique_lock<mutex> lock(PipeMutex);
   while (!Pipes.empty()) {
     PipeDied.wait(lock);
   }
@@ -237,7 +226,7 @@ TPump::TPump() : Pumper(*this) {}
 TPump::~TPump() {
   Pumper.Shutdown();
 
-  std::lock_guard<mutex> lock(PipeMutex);
+  lock_guard<mutex> lock(PipeMutex);
   for (TPipe *pipe : Pipes) {
     delete pipe;
   }
@@ -249,7 +238,7 @@ bool TPump::ServicePipe(TPipe *pipe) {
 
   if (!pipe->Service()) {
     // The pipe is dead. Remove it from our set of pipes, ping PipeDied.
-    std::lock_guard<mutex> lock(PipeMutex);
+    lock_guard<mutex> lock(PipeMutex);
     Pipes.erase(pipe);
     PipeDied.notify_all();
     delete pipe;

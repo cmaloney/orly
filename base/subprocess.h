@@ -18,112 +18,52 @@
 
 #pragma once
 
-#include <cassert>
-#include <memory>
 #include <string>
 #include <vector>
 
-#include <base/pump.h>
+#include <base/cyclic_buffer.h>
 
 namespace Base {
 
-/* Run a subprocess and communicate with it. */
-class TSubprocess final {
-  public:
-  static int WaitAll();
-  // Returns the pid of the process which exited / work us up.
+// A simple event loop, see <base/pump.h>.
+class TPump;
 
-  /* Destroying this object won't stop the child process, we'll just stop talking to it. */
-  ~TSubprocess() = default;
+namespace Subprocess {
 
-  /* The id of the child process. */
-  int GetChildId() const {
-    assert(this);
-    return ChildId;
-  }
+//  Execute the given command in a shell.  This will replace the calling process
+//  entirely with the shell process (and hence never return).
+[[noreturn]] void Exec(const std::vector<std::string> &cmd);
+[[noreturn]] void ExecStr(const char *cmd);
 
-  /* An fd from which to read the child's stderr output. */
-  const TFd &GetStdErrFromChild() const {
-    assert(this);
-    return StdErrFromChild;
-  }
-
-  /* An fd from which to write the child's stdin input. */
-  const TFd &GetStdInToChild() const {
-    assert(this);
-    return StdInToChild;
-  }
-
-  /* An fd from which to read the child's stdout output. */
-  const TFd &GetStdOutFromChild() const {
-    assert(this);
-    return StdOutFromChild;
-  }
-
-  /* An fd from which to read the child's stderr output. */
-  TFd TakeStdErrFromChild() {
-    assert(this);
-    return std::move(StdErrFromChild);
-  }
-
-  /* An fd from which to write the child's stdin input. */
-  TFd TakeStdInToChild() {
-    assert(this);
-    return std::move(StdInToChild);
-  }
-
-  /* An fd from which to read the child's stdout output. */
-  TFd TakeStdOutFromChild() {
-    assert(this);
-    return std::move(StdOutFromChild);
-  }
-
-  /* Wait for the child to complete and return its exit code. */
-  int Wait() const;
-
-  /* Execute the given command in a shell.  This will replace the calling process
-     entirely with the shell process, so don't expect this function to return. */
-  [[noreturn]] static void ExecStr(const char *cmd);
-
-  /* Execute the given command in a shell.  This will replace the calling process
-     entirely with the target command, so don't expect this function to return. */
-  [[noreturn]] static void Exec(const std::vector<std::string> &cmd);
-
-  /* Fork a new child process.  If we are the parent, return a pointer to a newly
-     allocated TSubprocess instance.  If we are the child, return null. */
-  static std::unique_ptr<TSubprocess> New(TPump &pump);
-
-  /* Fork a new child process.  If we are the parent, return a pointer to a newly
-     allocated TSubprocess instance.  If we are the child, shell out to execute the
-     command and don't return at all. */
-  static std::unique_ptr<TSubprocess> NewStr(TPump &pump, const char *cmd);
-
-  /* Fork a new child process.  If we are the parent, return a pointer to a newly
-     allocated TSubprocess instance.  If we are the child, shell out to execute the
-     command and don't return at all. */
-  static std::unique_ptr<TSubprocess> New(TPump &pump, const std::vector<std::string> &cmd);
-
-  private:
-  /* Construct the pipes and fork. */
-  TSubprocess(TPump &pump);
-
-  /* See accessors. */
-  TFd StdInToChild, StdOutFromChild, StdErrFromChild;
-
-  /* See accessor. */
-  int ChildId;
-
-};  // TSubprocess
+struct TResultSimple {
+  int ExitCode;
+  std::shared_ptr<TCyclicBuffer> Output;
+};
 
 struct TResult {
   int ExitCode;
-  TCyclicBuffer Output;
+  std::shared_ptr<TCyclicBuffer> Output, Error;
 };
 
-/* Run the subprocess and return it's exit state + a string of blocks which contain its output. */
-TResult Run(const std::vector<std::string> &cmd);
+// TODO(cmaloney): Add a variant which doesn't block until completion but
+// instead returns immediately and adds all bits of the subprocess to just run
+// inside of the given event loop, as well as returning stdout, stderr which can
+// be used well / effectively for piping into other things that read off of
+// write events.
 
-/* TODO: Move this to a better place */
-void EchoOutput(Base::TFd &&fd);
+// Run the subprocess and return it's exit state + buffers which contain its
+// output.
+TResult Run(const std::vector<std::string> &cmd);
+TResultSimple RunSimple(const std::vector<std::string> &cmd);
+
+// Run the subprocess and return it's exit state + buffers which contain its
+// output. Use an existing event loop to pump through the input / output.
+TResult Run(TPump &pump, const std::vector<std::string> &cmd);
+TResultSimple RunSimple(TPump &pump, const std::vector<std::string> &cmd);
+
+// Returns the pid of the process which exited / work us up.
+int WaitAll();
+
+};  // namespace Subprocess
 
 }  // Base

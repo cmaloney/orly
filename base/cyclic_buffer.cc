@@ -7,9 +7,11 @@
 
 #include <base/fd.h>
 #include <base/not_implemented.h>
+#include <util/io.h>
 
 using namespace Base;
 using namespace std;
+using namespace Util;
 
 TCyclicBuffer::TCyclicBuffer() {
   Blocks.reserve(MaxBlocks);
@@ -21,7 +23,7 @@ TCyclicBuffer::TCyclicBuffer() {
 
 bool TCyclicBuffer::IsEmpty() const { return Start == Limit && StartOffset == LimitOffset; }
 
-ssize_t TCyclicBuffer::ReadFrom(TFd &fd) {
+ssize_t TCyclicBuffer::ReadFrom(int fd) {
   size_t write_size = 0;
 
   // No content left to write to fd.
@@ -60,6 +62,16 @@ ssize_t TCyclicBuffer::ReadFrom(TFd &fd) {
   }
 
   return write_result;
+}
+
+void TCyclicBuffer::ReadAllFromWarnOverflow(int fd) {
+  if (HasOverflowed()) {
+    const char *msg = "NOTICE: Output has been truncated.\n";
+    WriteExactly(fd, msg, strlen(msg));
+  }
+  while (GetBytesAvailable() > 0) {
+    ReadFrom(fd);
+  }
 }
 
 ssize_t TCyclicBuffer::WriteTo(TFd &fd) {
@@ -108,7 +120,39 @@ void TCyclicBuffer::Write(const char *msg, size_t length) {
   assert(offset == length);
 }
 
-size_t TCyclicBuffer::GetBytesAvailable() {
+string TCyclicBuffer::ToString() const {
+  string result;
+  size_t length = GetBytesAvailable();
+  result.reserve(length);
+
+  auto get_char_ptr = [this](uint64_t block) {
+    return reinterpret_cast<const char *>(Blocks[block].get());
+  };
+
+  // Copy across first block.
+  {
+    // Between start and limit of first block, then exit early.
+    if (Start == Limit) {
+      result.append(get_char_ptr(Start) + StartOffset, LimitOffset - StartOffset);
+      return result;
+    }
+
+    // Start to end of start block.
+    result.append(get_char_ptr(Start) + StartOffset, BlockSize - StartOffset);
+  }
+
+  // Write full blocks
+  for (uint64_t cur_block = Start + 1; cur_block < Limit; ++cur_block) {
+    result.append(get_char_ptr(cur_block), BlockSize);
+  }
+
+  // Write last partial block
+  result.append(get_char_ptr(Limit), LimitOffset);
+
+  return result;
+}
+
+size_t TCyclicBuffer::GetBytesAvailable() const {
   size_t available = 0;
 
   // No extra blocks
@@ -131,9 +175,7 @@ size_t TCyclicBuffer::GetBytesAvailable() {
   return available;
 }
 
-bool TCyclicBuffer::GetHasOverflowed() {
-  return HasOverflowed;
-}
+bool TCyclicBuffer::HasOverflowed() const { return Overflowed; }
 
 uint64_t TCyclicBuffer::WrappedAdvance(uint64_t offset) {
   ++offset;
@@ -165,7 +207,7 @@ void TCyclicBuffer::AdvanceLimit() {
   if (Limit == Start) {
     Start = WrappedAdvance(Start);
     StartOffset = 0;
-    HasOverflowed = true;
+    Overflowed = true;
   }
 
   // Add a new buffer

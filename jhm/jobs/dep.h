@@ -31,7 +31,7 @@ class TDep final : public TJob {
   virtual const char *GetName() final;
   virtual const TSet<TFile *> GetNeeds() final;
   virtual std::vector<std::string> GetCmd() final;
-  virtual void ProcessOutput(Base::TFd stdout, Base::TFd stderr) final;
+  virtual void ProcessOutput(Base::TCyclicBuffer &&stdout, Base::TCyclicBuffer &&);
   virtual Util::TTimestamp GetCmdTimestamp() const final;
   virtual bool IsComplete() final;
 

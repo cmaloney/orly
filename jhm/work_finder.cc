@@ -18,6 +18,8 @@
 
 #include <jhm/work_finder.h>
 
+#include <unistd.h>
+
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -130,17 +132,18 @@ bool TWorkFinder::ProcessResult(TJobRunner::TResult &result) {
   // Job finished / no longer running
   EraseOrFail(Running, result.Job);
 
-  if(result.ExitCode != 0) {
+  if(result.Result.ExitCode != 0) {
     // TODO: Test if stdout, stderr have text before pritning label and text for each.
-    cout << "ERROR: " << result.Job << " returned " << result.ExitCode << '\n' << "STDOUT: \n";
-    Base::EchoOutput(move(result.Stdout));
+    cout << "ERROR: " << result.Job << " returned " << result.Result.ExitCode << '\n' << "STDOUT: \n";
+    result.Result.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
     cout << "STDERR: \n";
-    Base::EchoOutput(move(result.Stderr));
+    result.Result.Error->ReadAllFromWarnOverflow(STDOUT_FILENO);
     return true;
   }
 
   // Let the job proess output if it wants.
-  result.Job->ProcessOutput(move(result.Stdout), move(result.Stderr));
+  // TODO(cmaloney): Should catch exceptions here and report them with the build job that caused them.
+  result.Job->ProcessOutput(move(*result.Result.Output.get()), move(*result.Result.Error.get()));
 
   // Check if the job is actually complete or not
   if(!result.Job->IsComplete()) {

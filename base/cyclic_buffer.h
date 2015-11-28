@@ -21,16 +21,22 @@ class TCyclicBuffer {
   bool IsEmpty() const;
 
   // Returns result of write sytem call on the fd.
-  ssize_t ReadFrom(TFd &fd);
+  ssize_t ReadFrom(int fd);
+
+  // Reads all bytes from the cyclic buffer and puts them into the fd.
+  void ReadAllFromWarnOverflow(int fd);
 
   // Always writes all bytes. May overflow.
   // Returns the result of read system call on teh fd.
   ssize_t WriteTo(TFd &fd);
   void Write(const char *msg, size_t length);
 
-  size_t GetBytesAvailable();
+  // Copy the entire cyclic buffer into a string.
+  std::string ToString() const;
 
-  bool GetHasOverflowed();
+  size_t GetBytesAvailable() const;
+
+  bool HasOverflowed() const;
 
   // After max_blocks runs out, starts reusing the start buffer.
   static const uint64_t MaxBlocks = 1024;
@@ -45,7 +51,7 @@ class TCyclicBuffer {
   // Returns true iff start has ever been advanced by a write (There was data
   // because the block cap was hit and we had more to write).
   // NOTE: To simplify overflow logic, whole blocks are eaten at once.
-  bool HasOverflowed = false;
+  bool Overflowed = false;
 
   // The storage for the buffer.
   std::vector<TBlockPtr> Blocks;

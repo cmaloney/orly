@@ -99,6 +99,8 @@ class TPump final {
   NO_COPY(TPump)
 
   public:
+  enum class TPipeDirection { WriteToBuffer, ReadFromBuffer };
+
   /* Construct with no pipes. */
   TPump();
 
@@ -110,6 +112,8 @@ class TPump final {
 
   // Create an fd which when written puts data into the given cyclic buffer.
   std::tuple<TFd, std::future<void>> NewWriteToBuffer(std::shared_ptr<TCyclicBuffer> &target);
+
+  std::future<void> AddPipe(TPipeDirection, TFd &&fd, std::shared_ptr<TCyclicBuffer> &buffer);
 
   /* Wait for the pump to become idle. */
   void WaitForIdle() const;

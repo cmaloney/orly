@@ -22,10 +22,10 @@ common_flags=(
   -std=c++1y
   -Wall -Werror -Wextra -Wold-style-cast
   # Optimize
-  # -O3 -DNDEBUG
-  -g
+  -O3 -DNDEBUG
+  #-g
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
-  # -flto
+  #-flto
 
   # Enable threads
   -pthread
@@ -56,7 +56,7 @@ $CC -o tools/jhm \
  "${common_flags[@]}" \
   jhm/jobs/util.cc jhm/jobs/dep.cc jhm/jobs/dep_c.cc base/dir_walker.cc util/io.cc jhm/file.cc base/json.cc \
   base/pump.cc base/subprocess.cc cmd/main.cc base/demangle.cc util/error.cc base/split.cc cmd/parse.cc cmd/help.cc \
-  base/code_location.cc jhm/job_runner.cc util/signal.cc util/path.cc jhm/job.cc \
+  base/code_location.cc base/cyclic_buffer.cc jhm/job_runner.cc util/signal.cc util/path.cc jhm/job.cc \
   base/backtrace.cc jhm/jhm.cc jhm/env.cc jhm/jobs/compile_c_family.cc jhm/config.cc util/time.cc jhm/status_line.cc \
   jhm/work_finder.cc jhm/jobs/link.cc base/path.cc jhm/naming.cc base/fd.cc base/unreachable.cc jhm/test.cc \
   "$extra_files" \

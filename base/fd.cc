@@ -39,6 +39,11 @@ TFd::TFd(TFd &&that) {
 
 TFd::TFd(int os_handle) { OsHandle = Util::IfLt0(os_handle); }
 
+TFd TFd::NewDuplicateOf(int os_handle) {
+  assert(os_handle > 0);
+  return TFd(dup(os_handle));
+}
+
 TFd::~TFd() {
   assert(this);
   if(!IsSystem() && OsHandle != -1) {

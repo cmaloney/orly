@@ -19,7 +19,7 @@
 #include <fstream>
 #include <ostream>
 
-#include <base/not_implemented.h>
+#include <base/thrower.h>
 #include <jhm/env.h>
 #include <jhm/file.h>
 #include <jhm/jobs/compile_c_family.h>
@@ -37,7 +37,7 @@ static TRelPath GetOutputName(const TRelPath &input) {
 }
 
 static TOpt<TRelPath> GetInputName(const TRelPath &output) {
-  if(output.Path.EndsWith({"dep"})) {
+  if (output.Path.EndsWith({"dep"})) {
     return TRelPath(DropExtension(TPath(output.Path), 1));
   } else {
     return TOpt<TRelPath>();
@@ -49,8 +49,9 @@ TJobProducer TDep::GetProducer() {
                       {{"dep"}},
                       GetInputName,
                       // TODO: Should be able to eliminate the lambda wrapper here...
-                      [](TEnv &env, TFile *in_file)
-                          -> unique_ptr<TJob> { return unique_ptr<TDep>(new TDep(env, in_file)); }};
+                      [](TEnv &env, TFile *in_file) -> unique_ptr<TJob> {
+                        return unique_ptr<TDep>(new TDep(env, in_file));
+                      }};
 }
 
 const char *TDep::GetName() { return "dependency_file"; }
@@ -74,7 +75,7 @@ vector<string> TDep::GetCmd() {
   assert(extensions.size() >= 1);
   assert(ext == "cc" || ext == "c");
 
-  if(ext == "cc") {
+  if (ext == "cc") {
     // TODO(cmaloney): Make a helper utility in <jobs/compile_c_family.h> to get the command.
     cmd.push_back(Jhm::GetCmd<Tools::Cc>(Env.GetConfig()));
   } else {
@@ -82,7 +83,7 @@ vector<string> TDep::GetCmd() {
   }
 
   // TODO: move array append
-  for(auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
+  for (auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
     cmd.push_back(move(arg));
   }
   cmd.push_back("-M");
@@ -91,22 +92,25 @@ vector<string> TDep::GetCmd() {
   return cmd;
 }
 
-void TDep::ProcessOutput(TFd stdout, TFd) {
+void TDep::ProcessOutput(Base::TCyclicBuffer &&stdout, Base::TCyclicBuffer &&) {
   NeedsWork = false;
-  Deps = ParseDeps(ReadAll(move(stdout)));
-  for (const auto &dep: Deps) {
+  if (stdout.HasOverflowed()) {
+    THROWER(std::overflow_error)
+        << "Dependency list exceeded stdout exceeded the max length of the cyclic buffer.";
+  }
+  Deps = ParseDeps(stdout.ToString());
+  for (const auto &dep : Deps) {
     TFile *file = Env.TryGetFileFromPath(dep);
-    if(file) {
+    if (file) {
       // Add to needs. If it's new in the Needs array, we aren't done yet.
       NeedsWork |= Needs.insert(file).second;
     }
   }
 }
 
-
 TJson ToJson(vector<string> &&that) {
   vector<TJson> json_elems(that.size());
-  for(uint64_t i = 0; i < that.size(); ++i) {
+  for (uint64_t i = 0; i < that.size(); ++i) {
     json_elems[i] = TJson(move(that[i]));
   }
 

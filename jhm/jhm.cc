@@ -30,6 +30,7 @@
 #include <iostream>
 #include <string>
 
+#include <base/subprocess.h>
 #include <base/thrower.h>
 #include <cmd/args.h>
 #include <cmd/main.h>
@@ -50,23 +51,23 @@ using namespace Util;
 /* Converts relative file to absolute path if needed, then has the environment find/make the actual
  * file object. */
 TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const string &name) {
-  if(name.size() < 1) {
+  if (name.size() < 1) {
     THROWER(runtime_error) << "Invalid target name " << quoted(name);
   }
 
   // If filename starts with '/' then it's an absolute path rooted at the base of the tree
   // Otherwise it's relative to the position where jhm was invoked.
   TFile *file = nullptr;
-  if(name[0] == '/') {
+  if (name[0] == '/') {
     // Starts with a '/', so relative to src / an absolute pathname
     file = env.GetFile(TRelPath(TPath(name)));
   } else {
     // Doesn't start with a '/' so relative to execution location name.
     TPath abs_path(cwd + '/' + name);
     const TTree *tree;
-    if(env.GetSrc()->Contains(abs_path)) {
+    if (env.GetSrc()->Contains(abs_path)) {
       tree = env.GetSrc();
-    } else if(env.GetOut()->Contains(abs_path)) {
+    } else if (env.GetOut()->Contains(abs_path)) {
       tree = env.GetOut();
     } else {
       THROWER(runtime_error)
@@ -76,14 +77,14 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
     file = env.GetFile(tree->GetRelPath(move(abs_path)));
   }
 
-  if(!file) {
+  if (!file) {
     // TODO: Do we want to report the relative path to the file here rather than the provided name?
     THROWER(runtime_error) << "Error finding target" << quoted(name);
   }
 
   // If the file isn't buildable as is, try making it an executable (Add an empty extension to the
   // end)
-  if(!work_finder.IsBuildable(file)) {
+  if (!work_finder.IsBuildable(file)) {
     file = env.GetFile(TRelPath(AddExtension(TPath(file->GetRelPath().Path), {""})));
   }
 
@@ -96,14 +97,15 @@ TFile *FindFile(const string &cwd, TEnv &env, TWorkFinder &work_finder, const st
 int Main(int argc, char *argv[]) {
   Cmd::TArgs<TOptions> args{
       Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print commands when they are run"),
-      Cmd::Optional(
-          {"config", "c"}, &TOptions::Config, "Build the software in the given configuration"),
+      Cmd::Optional({"config", "c"}, &TOptions::Config,
+                    "Build the software in the given configuration"),
       Cmd::Optional({"mixin", "m"}, &TOptions::ConfigMixins, "Configuration mixin"),
       Cmd::Optional({"run-tests", "t"}, &TOptions::RunTests, "Run the unit tests"),
       Cmd::Optional("verbose-tests", &TOptions::VerboseTests, "Run the tests in verbose mode"),
-      Cmd::Optional("disable-default-jobs", &TOptions::DisableDefaultJobs, "Disable the default jobs"),
-      Cmd::Optional(
-          "worker-count", &TOptions::WorkerCount, "Max number of commands to run at once"),
+      Cmd::Optional("disable-default-jobs", &TOptions::DisableDefaultJobs,
+                    "Disable the default jobs"),
+      Cmd::Optional("worker-count", &TOptions::WorkerCount,
+                    "Max number of commands to run at once"),
       Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce")};
   TOptions options = Cmd::Parse(args, argc, argv);
   auto cwd = GetCwd();
@@ -122,7 +124,7 @@ int Main(int argc, char *argv[]) {
   // chdir to the src folder so we can always use relative paths. for commands
   /* abs_root */ {
     auto abs_root = AsStr(*env.GetSrc());
-    if(!ExistsPath(abs_root.c_str())) {
+    if (!ExistsPath(abs_root.c_str())) {
       THROWER(runtime_error) << "Source directory " << quoted(abs_root) << " does not exist";
     }
     IfLt0(chdir(abs_root.c_str()));
@@ -131,10 +133,8 @@ int Main(int argc, char *argv[]) {
   // Get the files for the targets
   TWorkFinder work_finder(
       // NOTE: Env is guaranteed to always have a timestamp, so derefrencing it here is safe.
-      *env.GetConfig().GetTimestamp(),
-      bind(&TEnv::GetJobsProducingFile, &env, _1),
-      bind(&TEnv::GetFile, &env, _1),
-      bind(&TEnv::TryGetFileFromPath, &env, _1));
+      *env.GetConfig().GetTimestamp(), bind(&TEnv::GetJobsProducingFile, &env, _1),
+      bind(&TEnv::GetFile, &env, _1), bind(&TEnv::TryGetFileFromPath, &env, _1));
 
   // Break the cyclic dependency by registering these back.
   // TODO: Find a cleaner way to do this (Or remove it altogether)
@@ -145,19 +145,19 @@ int Main(int argc, char *argv[]) {
   TSet<TFile *> target_files;
 
   // Either build the explicitly specified targets, or the default targets
-  if(!options.Targets.empty()) {
-    for(const auto &target : options.Targets) {
+  if (!options.Targets.empty()) {
+    for (const auto &target : options.Targets) {
       target_files.emplace(FindFile(cwd, env, work_finder, target));
     }
   } else {
     // Add the default targets
-    for(const auto &target : env.GetConfig().Read<vector<string>>({"targets"})) {
+    for (const auto &target : env.GetConfig().Read<vector<string>>({"targets"})) {
       target_files.emplace(FindFile(cwd, env, work_finder, '/' + target));
     }
 
     // Add the tests if we're supposed to by default
     bool build_tests = env.GetConfig().ReadOptional({"test", "build_with_default_targets"}, false);
-    if(build_tests) {
+    if (build_tests) {
       auto tests = FindTests(env);
 
       // If the file is not buildable, skip the test. This prevents us from trying to test things
@@ -168,31 +168,31 @@ int Main(int argc, char *argv[]) {
       // TODO: This should be a std::remove_if...
       /* filter */ {
         TSet<TFile *> filtered_tests;
-        for(TFile *test : tests) {
-          if(work_finder.IsBuildable(test)) {
+        for (TFile *test : tests) {
+          if (work_finder.IsBuildable(test)) {
             InsertOrFail(filtered_tests, test);
           }
         }
         tests = move(filtered_tests);
       }
-      if(build_tests) {
+      if (build_tests) {
         target_files.insert(tests.begin(), tests.end());
       }
     }
   }
 
   // Add all target files as needed
-  for(TFile *f : target_files) {
+  for (TFile *f : target_files) {
     work_finder.AddNeededFile(f);
   }
 
   TJobRunner runner(options.WorkerCount, options.PrintCmd);
-  if(!work_finder.FinishAll(runner)) {
+  if (!work_finder.FinishAll(runner)) {
     return 1;
   }
 
   // Run all the tests if requested
-  if(!options.RunTests) {
+  if (!options.RunTests) {
     return 0;
   }
 
@@ -206,31 +206,33 @@ int Main(int argc, char *argv[]) {
   auto RunTest = [&options, &pump](TFile *test) {
     vector<string> cmd{test->GetPath()};
     // NOTE: This is a seperate line because otherwise it breaks in release builds
-    if(options.VerboseTests) {
+    if (options.VerboseTests) {
       cmd.push_back("-v");
       cout << "TEST: " << test;
     } else {
       TStatusLine() << "TEST: " << test;
     }
-    auto subprocess = TSubprocess::New(pump, cmd);
-    auto status = subprocess->Wait();
 
-    if(options.VerboseTests || status) {
+    auto result = Subprocess::Run(pump, cmd);
+
+    if (options.VerboseTests || result.ExitCode) {
       TStatusLine::Cleanup();  // Make sure the TEST: line stays at the top.
-      EchoOutput(subprocess->TakeStdOutFromChild());
-      EchoOutput(subprocess->TakeStdErrFromChild());
+      cout << "STDOUT:\n";
+      result.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
+      cout << "STDERR:\n";
+      result.Error->ReadAllFromWarnOverflow(STDOUT_FILENO);
     }
 
-    if(status) {
-      cout << "EXITCODE: " << status << '\n';
+    if (result.ExitCode) {
+      cout << "EXITCODE: " << result.ExitCode << '\n';
       return false;
     }
     return true;
   };
 
-  for(TFile *f : target_files) {
-    if(f->GetRelPath().Path.EndsWith({"test", ""})) {
-      if(!RunTest(f)) {
+  for (TFile *f : target_files) {
+    if (f->GetRelPath().Path.EndsWith({"test", ""})) {
+      if (!RunTest(f)) {
         return 2;
       }
     }

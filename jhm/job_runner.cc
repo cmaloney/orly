@@ -18,6 +18,7 @@
 
 #include <jhm/job_runner.h>
 
+#include <base/subprocess.h>
 #include <jhm/file.h>
 #include <jhm/job.h>
 
@@ -99,10 +100,9 @@ void TJobRunner::ProcessQueue() {
       cout << AsStr(Join(cmd, ' ')) + '\n';
     }
 
-    auto subprocess = TSubprocess::New(Pump, cmd);
-    int returncode = subprocess->Wait();
-    Results.enqueue(std::make_unique<TResult>(get<0>(runnable), returncode, subprocess->TakeStdOutFromChild(),
-                            subprocess->TakeStdErrFromChild()));
+    auto result = Subprocess::Run(Pump, cmd);
+    int returncode = result.ExitCode;
+    Results.enqueue(std::make_unique<TResult>(get<0>(runnable), move(result)));
     // If the return code is non-zero exit all the workers
     if(returncode != 0) {
       Shutdown();

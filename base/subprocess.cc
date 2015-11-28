@@ -22,47 +22,125 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
+#include <base/pump.h>
 #include <util/io.h>
 #include <util/error.h>
 
 using namespace std;
 using namespace Base;
+using namespace Base::Subprocess;
 using namespace Util;
 
-int TSubprocess::WaitAll() {
-  siginfo_t status;
-  IfNe0(waitid(P_ALL, 0, &status, WEXITED | WNOWAIT));
-  return status.si_pid;
-}
+/* Run a subprocess and communicate with it. */
+class TSubprocess final {
+  public:
+  // Destroying this object won't stop the child process, we'll just stop talking to it.
+  ~TSubprocess() = default;
 
-int TSubprocess::Wait() const {
-  assert(this);
-  int status;
-  IfLt0(waitpid(ChildId, &status, 0));
+  // The id of the child process.
+  int GetChildId() const {
+    assert(this);
+    return ChildId;
+  }
+
+  // A CyclicBuffer which gets the child's stderr streamed to it while the
+  // child is running.
+  std::shared_ptr<TCyclicBuffer> GetStdError() {
+    assert(this);
+    return Error;
+  }
+
+  // A CyclicBuffer which gets the child's stdout streamed to it while the
+  // child is running.
+  std::shared_ptr<TCyclicBuffer> GetStdOutput() {
+    assert(this);
+    return Output;
+  }
+
+  // Wait for the child to complete and return its exit code. When this call
+  // returns StdOutput and StdError will contain all data. (There is some
+  // internal logic on top of just waiting for the pid).
+  int Wait() const {
+    assert(this);
+    int status;
+
+    // Wait for the child process.
+    IfLt0(waitpid(ChildId, &status, 0));
+
+    // Wait for stdout / stderr fds to be finished reading from.
+    OutputWait.wait();
+    ErrorWait.wait();
+
 /* The Linux macros used to work with waitpid() use C-style casts, so we'll have to
-   temporarily ignore their bad behavior. */
+   temporarily ignore their behavior. */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
-  return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
+    return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
 /* We now return you to the world of modern programming style. */
 #pragma GCC diagnostic pop
-}
+  }
 
-void TSubprocess::ExecStr(const char *cmd) {
-  static const char *sh = "/bin/sh";
-  IfLt0(execl(sh, sh, "-c", cmd, nullptr));
-  throw;
-}
+  // Run the command as a subprocess. Returns a TSubprocess for communicating to
+  //  the child process.
+  static std::unique_ptr<TSubprocess> New(TPump &pump, const std::vector<std::string> &cmd) {
+    auto subprocess = New(pump);
+    if (!subprocess) {
+      Exec(cmd);
+    }
+    return subprocess;
+  }
 
-void TSubprocess::Exec(const vector<string> &cmd) {
+  private:
+  static std::unique_ptr<TSubprocess> New(TPump &pump) {
+    // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2070
+    auto result = std::unique_ptr<TSubprocess>(new TSubprocess(pump));
+    if (!result->ChildId) {
+      result.reset();
+    }
+    return result;
+  }
+
+  /* Construct the pipes and fork. */
+  TSubprocess(TPump &pump)
+      : Output(make_shared<TCyclicBuffer>()), Error(make_shared<TCyclicBuffer>()) {
+    assert(&pump);
+
+    /* Make the in/out/err pipes, then fork. */
+    // TODO(cmaloney): Make the input buffer passable by callers.
+    auto stdin_buffer = make_shared<TCyclicBuffer>();
+    TFd stdin = pump.NewReadFromBuffer(stdin_buffer);
+
+    TFd stdout, stderr;
+    tie(stdout, OutputWait) = pump.NewWriteToBuffer(Output);
+    tie(stderr, ErrorWait) = pump.NewWriteToBuffer(Error);
+    IfLt0(ChildId = fork());
+    if (!ChildId) {
+      // child. duplicate the pipes into their normal fd numbers.
+      IfLt0(dup2(stdin, 0));
+      IfLt0(dup2(stdout, 1));
+      IfLt0(dup2(stderr, 2));
+
+      // Close the extra / duplicate fds.
+      stdin.Reset();
+      stdout.Reset();
+      stderr.Reset();
+    }
+  }
+
+  int ChildId;
+
+  std::shared_ptr<TCyclicBuffer> Output, Error;
+  std::future<void> OutputWait, ErrorWait;
+};  // TSubprocess
+
+void Base::Subprocess::Exec(const vector<string> &cmd) {
   assert(&cmd);
-  // NOTE: This is lots of copies. We're going to get all overwritten / eaten by the child though,
-  // so no big worries.
-  // Build an array
 
-  unique_ptr<const char*[]> argv(new const char*[cmd.size() + 1]);
+  // NOTE: This is definitely less efficient than strictly necessary, but we
+  // don't actually copy the strings, just pointers, so not too bad.
+  unique_ptr<const char *[]> argv(new const char *[cmd.size() + 1]);
   argv[cmd.size()] = nullptr;
-  for(uint64_t i = 0; i < cmd.size(); ++i) {
+  for (uint64_t i = 0; i < cmd.size(); ++i) {
     argv[i] = cmd[i].c_str();
   }
   // NOTE: const_cast is unsafe. In this case though, we're going out of existence, so who cares.
@@ -70,46 +148,21 @@ void TSubprocess::Exec(const vector<string> &cmd) {
   throw;
 }
 
-static std::unique_ptr<TSubprocess> TSubprocess::New(TPump &pump, const std::vector<std::string> &cmd) {
-  auto subprocess = New(pump);
-  if(!subprocess) {
-    Exec(cmd);
-  }
-  return subprocess;
+void Base::Subprocess::ExecStr(const char *cmd) {
+  static const char *sh = "/bin/sh";
+  IfLt0(execl(sh, sh, "-c", cmd, nullptr));
+  throw;
 }
 
-TSubprocess::TSubprocess(TPump &pump) {
-  assert(&pump);
-  /* Make the in/out/err pipes, then fork. */
-  TFd stdin, stdout, stderr;
-  pump.NewPipe(stdin, StdInToChild);
-  pump.NewPipe(StdOutFromChild, stdout);
-  pump.NewPipe(StdErrFromChild, stderr);
-  IfLt0(ChildId = fork());
-  if(!ChildId) {
-    /* We're the child.  Dupe the pipes into their normal positions. */
-    IfLt0(dup2(stdin, 0));
-    IfLt0(dup2(stdout, 1));
-    IfLt0(dup2(stderr, 2));
-    /* Get rid of the extra fds. */
-    stdin.Reset();
-    stdout.Reset();
-    stderr.Reset();
-  }
+TResult Base::Subprocess::Run(TPump &pump, const std::vector<std::string> &cmd) {
+  auto subprocess = TSubprocess::New(pump, cmd);
+  int exit_code = subprocess->Wait();
+
+  return TResult{exit_code, subprocess->GetStdOutput(), subprocess->GetStdError()};
 }
 
-/* Run the subprocess and return it's exit state + a string of blocks which contain its output. */
-std::unique_ptr<TSubprocess> Base::Run(const std::vector<std::string> &cmd) {
-  TPump pump;
-  TSubprocess::New
-  pump.NewOutput()
-}
-
-void Base::EchoOutput(TFd &&fd) {
-  uint8_t buf[4096];
-
-  // Copy everything to cout error message
-  while(ssize_t read = ReadAtMost(fd, buf, 4096)) {
-    WriteExactly(STDOUT_FILENO, buf, size_t(read));
-  }
+int Base::Subprocess::WaitAll() {
+  siginfo_t status;
+  IfNe0(waitid(P_ALL, 0, &status, WEXITED | WNOWAIT));
+  return status.si_pid;
 }

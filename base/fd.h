@@ -63,6 +63,10 @@ class TFd {
      appropriate error.  */
   explicit TFd(int os_handle);
 
+  // Create a new duplicate of the given fd owned by an fd object. Always calls
+  // dup, even if this is a system fd.
+  static TFd NewDuplicateOf(int os_handle);
+
   /* Close the file descriptor we own, if any.  If the descriptor is in the stdio range (0-2), then
    * don't close it. */
   ~TFd();
@@ -95,11 +99,11 @@ class TFd {
   /* Return to the default-constructed state. */
   TFd &Reset();
 
-
   /* Construct the read- and write-only ends of a pipe. */
   static void Pipe(TFd &readable, TFd &writeable);
 
   private:
+
   /* Use to make it cheap to construct off of what we know is valid. */
   enum TNoThrow { NoThrow };
 

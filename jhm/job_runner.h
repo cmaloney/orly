@@ -23,6 +23,7 @@
 
 #include <base/class_traits.h>
 #include <base/fd.h>
+#include <base/pump.h>
 #include <base/subprocess.h>
 
 #include <moodycamel/blockingconcurrentqueue.h>
@@ -34,12 +35,10 @@ class TJob;
 struct TJobRunner {
   struct TResult {
     MOVE_ONLY(TResult)
-    TResult(TJob *job, int exit_code, Base::TFd &&stdout, Base::TFd &&stderr)
-        : ExitCode(exit_code), Job(job), Stdout(std::move(stdout)), Stderr(std::move(stderr)) {}
+    TResult(TJob *job, Base::Subprocess::TResult &&result) : Job(job), Result(std::move(result)) {}
 
-    int ExitCode;
     TJob *Job;
-    Base::TFd Stdout, Stderr;
+    Base::Subprocess::TResult Result;
   };
 
   using TRunnable = std::tuple<TJob *, std::vector<std::string>>;
