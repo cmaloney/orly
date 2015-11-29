@@ -107,7 +107,7 @@ void TCyclicBuffer::Write(const char *msg, size_t length) {
       AdvanceLimit();
     }
 
-    size_t write_len = min(BlockSize - LimitOffset, length - offset);
+    size_t write_len = min(BlockSize - LimitOffset, uint64_t(length - offset));
 
     assert(Limit < Blocks.size());
 

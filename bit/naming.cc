@@ -94,10 +94,10 @@ bool TRelPath::EndsWith(const char *extension) const {
   return Path.compare(Path.length() - extesion_length, extesion_length, extension) == 0;
 }
 
-TRelPath TRelPath::SwapExtension(const char *new_extension) const {
+//TRelPath TRelPath::SwapExtension(const char *new_extension) const {
   // Find the last '.'. If there is no '.' before the first '/' then there are
   // no extensions and an exception is thrown.
-}
+//}
 
 bool TRelPath::operator==(const TRelPath &that) const { return Path == that.Path; }
 
