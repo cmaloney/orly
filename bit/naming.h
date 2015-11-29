@@ -17,13 +17,12 @@ EXCEPTION(TInvalidPath, std::runtime_error, nullptr);
 // TODO(cmaloney): operator+ for joining paths?
 // Starts with a '/'. Ends with a directory name followed by '/'.
 struct TTree {
-
   TTree(std::string path);
 
   static TTree Find(std::string start_dir, const std::string &marker);
 
   const std::string Path;
-}; // TTree
+};  // TTree
 
 // RelPath doesn't start with '/'. Ends with a filename (not '/').
 struct TRelPath {
@@ -33,9 +32,11 @@ struct TRelPath {
   TRelPath AddExtension(const char *extension) const;
   Base::TOpt<TRelPath> TryRemoveExtension(const char *extension) const;
   bool EndsWith(const char *extension) const;
+  TRelPath SwapExtension(const char *old_extension, const char *new_extension) const;
+  Base::TOpt<TRelPath> TrySwapExtension(const char *old_extension, const char *new_extension) const;
 
   bool operator==(const TRelPath &that) const;
-}; // TPath
+};  // TPath
 
 // AbsPath starts with '/'. Ends with a filename (not '/').
 struct TAbsPath {
@@ -46,13 +47,13 @@ struct TAbsPath {
 
   private:
   TAbsPath(std::string &&path);
-}; // TPath
+};  // TPath
 
-} // Bit
+}  // Bit
 
 namespace std {
-  template <> struct hash<Bit::TRelPath>
-  {
-    size_t operator()(const Bit::TRelPath &rel_path) const;
-  };
+template <>
+struct hash<Bit::TRelPath> {
+  size_t operator()(const Bit::TRelPath &rel_path) const;
+};
 }

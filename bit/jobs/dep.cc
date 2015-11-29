@@ -11,7 +11,7 @@ using namespace Bit;
 using namespace Bit::Jobs;
 using namespace std;
 
-static std::unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
+static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
   return {TRelPath(input.AddExtension(".dep"))};
 }
 
@@ -34,10 +34,6 @@ TJobProducer TDep::GetProducer(const TJobConfig &job_config) {
                         return unique_ptr<TDep>(new TDep(std::move(metadata), &job_config));
                       }};
 }
-
-
-#include <base/split.h>
-#include <iostream>
 
 TJob::TOutput TDep::Run() {
   TJob::TOutput result;
@@ -65,19 +61,22 @@ TJob::TOutput TDep::Run() {
   // for (auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
   //  cmd.push_back(move(arg));
   //}
+  cmd.push_back("-M");
+  cmd.push_back("-MG");
+
   cmd.push_back("-std=c++14");
   cmd.push_back("-Wall");
   cmd.push_back("-Werror");
   cmd.push_back("-Wextra");
+  cmd.push_back("-Wno-unused");
+  cmd.push_back("-Wno-unused-result");
+  cmd.push_back("-Wno-unused-parameter");
   cmd.push_back("-fcolor-diagnostics");
+  cmd.push_back("-Qunused-arguments");
 
-  cmd.push_back("-M");
-  cmd.push_back("-MG");
   cmd.push_back(GetInput()->CmdPath);
 
   TOutput output;
-
-  cout << Join(cmd, " ") << "\n";
 
   output.Subprocess = Base::Subprocess::Run(cmd);
 
@@ -87,6 +86,7 @@ TJob::TOutput TDep::Run() {
     return output;
   }
 
+  output.Result = TJob::TOutput::CompleteIfNeeds;
   if (output.Subprocess.Output->HasOverflowed()) {
     THROWER(std::overflow_error) << "Dependency list exceeded stdout exceeded the max length of "
                                     "the cyclic buffer used for streaming out of subprocesses and "
@@ -113,9 +113,7 @@ string TDep::GetConfigId() const {
 }
 
 // TODO(cmaloney): Return the json which IsComplete used to do below
-std::unordered_map<TFileInfo*, TJobConfig> TDep::GetOutputExtraData() const {
-  return {};
-}
+std::unordered_map<TFileInfo *, TJobConfig> TDep::GetOutputExtraData() const { return {}; }
 #if 0
 bool TDep::IsComplete() {
   assert(this);

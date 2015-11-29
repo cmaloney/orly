@@ -1,4 +1,6 @@
-/* Job which calculates / generates a C dependency file
+/* <bit/jobs/compile_c_family.h>
+
+   Compiles {.c,.cc} -> .o
 
    Copyright 2015 Theoretical Chaos.
 
@@ -17,25 +19,29 @@
 #pragma once
 
 #include <bit/job.h>
-#include <bit/job_producer.h>
 
 namespace Bit {
 
 namespace Jobs {
 
-class TDep final : public TJob {
+class TCompileCFamily final : public TJob {
   public:
-  static TJobProducer GetProducer(const TJobConfig &job_config);
+  static TJobProducer GetCProducer(const TJobConfig &job_config);
+  static TJobProducer GetCcProducer(const TJobConfig &job_config);
 
   virtual TOutput Run() final;
   virtual std::string GetConfigId() const final;
-  virtual std::unordered_map<TFileInfo*, TJobConfig> GetOutputExtraData() const final;
+  virtual std::unordered_map<TFileInfo *, TJobConfig> GetOutputExtraData() const final;
 
   private:
-  TDep(TMetadata &&metadata, const TJobConfig *job_config);
+  TCompileCFamily(TMetadata &&metadata, const TJobConfig *job_config, bool is_cc);
 
-  // TODO(cmaloney): Use this: const TJobConfig *JobConfig;
-  std::unordered_set<std::string> Needs;
+  // NOTE: We could make IsCc be constant / CompileCFamily be templated on it
+  // But that results in more ug than the tiny perf benefit is worth.
+  bool IsCc;
+  TFileInfo *Needs = nullptr;
 };
-} // Job
-} // Jhm
+
+}  // Job
+
+}  // Jhm
