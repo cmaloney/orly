@@ -38,7 +38,8 @@ TJobProducer TDep::GetProducer(const TJobConfig &job_config) {
 }
 
 TJson ToJson(const unordered_set<TFileInfo *> &that) {
-  vector<TJson> json_elems(that.size());
+  vector<TJson> json_elems;
+  json_elems.reserve(that.size());
   for(const auto &item: that) {
     json_elems.push_back(TJson(item->CmdPath));
   }

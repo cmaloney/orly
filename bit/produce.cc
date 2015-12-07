@@ -101,6 +101,7 @@ bool TStatusTracker::AddNeeded(TFileInfo *file) {
 void TStatusTracker::DoAdvance() {
   while ((!HasFinishedAll()) || Runner.HasMoreResults()) {
     // Update current status
+    cout << '[' << Done.size() << '/' << All.size() << "] waiting: " << Running.size() << "\n";
     TStatusLine() << '[' << Done.size() << '/' << All.size() << "] waiting: " << Running.size();
 
     // Get result out of runner
@@ -265,6 +266,9 @@ void TStatusTracker::DoAdvance() {
 // files.
 void TStatusTracker::QueueJob(TJob *job) {
   assert(job);
+  // Make sure it's always in All.
+  All.insert(job);
+
   if (Contains(Running, job)) {
     return;
   }
