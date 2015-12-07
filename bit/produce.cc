@@ -31,7 +31,7 @@ using namespace Util;
 class TStatusTracker {
   public:
   TStatusTracker(TEnvironment &environment, uint64_t worker_count)
-      : Environment(environment), Runner(worker_count) {}
+      : Environment(environment), Runner(worker_count, &environment.Files) {}
 
   bool HasFinishedAll() const { return All.size() == Done.size(); }
 
@@ -130,21 +130,13 @@ void TStatusTracker::DoAdvance() {
         }
       };
 
-      for (TRelPath path : needs.Mandatory) {
-        add_blocking_not_complete(Environment.GetFileInfo(path));
+      for (TFileInfo *file_info : needs.Mandatory) {
+        add_blocking_not_complete(file_info);
       }
 
-      for (TRelPath path : needs.IfBuildable) {
-        TFileInfo *file_info = Environment.GetFileInfo(path);
+      for (TFileInfo *file_info: needs.IfBuildable) {
         if (IsBuildable(file_info)) {
           add_blocking_not_complete(file_info);
-        }
-      }
-
-      for (string path : needs.IfInTree) {
-        TOpt<TRelPath> rel_path = Environment.TryGetRelPath(path);
-        if (rel_path) {
-          add_blocking_not_complete(Environment.GetFileInfo(*rel_path.Get()));
         }
       }
 
@@ -159,6 +151,7 @@ void TStatusTracker::DoAdvance() {
     };
 
     auto mark_complete = [this, &result, &output]() {
+      cout << "mark complete" << endl;
       // NOTE: this uses multiple loops over the same set to enusre each
       // operation completes fully / for each file before the next is started.
 
@@ -193,6 +186,8 @@ void TStatusTracker::DoAdvance() {
         file_info->Complete(result.Job, move(extra_file_data[file_info]));
       }
 
+      cout << "Completed files [" << result.Job << ": " << Join(job_output, " ") << "\n";
+
       // If any jobs were waiting on the output files of this job, try queing
       // those jobs.
       // Gather all the jobs which got unblocked. Do this first / at once so
@@ -201,6 +196,7 @@ void TStatusTracker::DoAdvance() {
       std::unordered_set<TJob *> unblocked;
       auto it = WaitingForJob.find(result.Job);
       if (it != WaitingForJob.end()) {
+        std::cout << "Waiting, now unblocked: " << Join(it->second, " ") << "\n";
         unblocked = std::move(it->second);
         WaitingForJob.erase(it);
       }
@@ -225,12 +221,16 @@ void TStatusTracker::DoAdvance() {
         // Re-queue the job to be run once all its needs are completed. If all
         // the needs are already done, put it into the runner immediately
         if (!block_if_needs(output.Needs)) {
+          std::cout << "Should immediately re-queue" << result.Job << "\n";
           QueueJob(result.Job);
+        } else {
+          std::cout << ":/ " << Join(output.Needs.Mandatory, " ") << "\n";
+
         }
         break;
       }
       case TJob::TOutput::CompleteIfNeeds: {
-        if (block_if_needs(output.Needs)) {
+        if (!block_if_needs(output.Needs)) {
           mark_complete();
         }
         break;

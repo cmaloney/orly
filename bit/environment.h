@@ -5,9 +5,12 @@ Keeps track of all the files which exist, could exist lazily.
 Determines whether or not files could exist by lazily seeing if there is a path
 from a file which does exist which could be manipulated by known jobs to produce
 the needed file. */
+#pragma once
 
 #include <base/class_traits.h>
+#include <base/interner.h>
 #include <base/opt.h>
+#include <bit/file_environment.h>
 #include <bit/file_info.h>
 #include <bit/job.h>
 #include <bit/job_producer.h>
@@ -17,30 +20,6 @@ namespace Bit {
 
 class TEnvironment;
 
-// Simple memory management by making one object (The registry) own all the pointers/memory.
-template <typename TKey, typename TValue, typename Hash = std::hash<TKey>>
-class TInterner {
-  public:
-  TValue *Add(TKey &&key, std::unique_ptr<TValue> &&item) {
-    // TODO: Add a new InsertOrFail which can handle this
-    auto result = ManagedThings.emplace(std::move(key), std::move(item));
-    assert(result.second);
-
-    return result.first->second.get();
-  }
-
-  TValue *TryGet(const TKey &key) {
-    auto it = ManagedThings.find(key);
-    if(it != ManagedThings.end()) {
-      return it->second.get();
-    }
-    return nullptr;
-  }
-
-  private:
-  std::unordered_map<TKey, std::unique_ptr<TValue>, Hash> ManagedThings;
-};
-
 class TJobFactory {
   public:
   TJobFactory(const TJobConfig &job_config, const std::unordered_set<std::string> &jobs);
@@ -48,7 +27,7 @@ class TJobFactory {
   std::unordered_set<TJob *> GetPotentialJobs(TEnvironment &env, TFileInfo *out_file);
 
   private:
-  TInterner<TJob::TId, TJob, TJob::TId::THash> Jobs;
+  Base::TInterner<TJob::TId, TJob, TJob::TId::THash> Jobs;
 
   // NOTE: This is used purely for caching the reverse-lookups used by  GetPotentialJobs.
   // Entry in this map simply means a job exists, not that it's possible to get it's input.
@@ -64,24 +43,27 @@ class TEnvironment {
 
   TEnvironment(const TConfig &config, const TTree &src);
 
+  // The file environment is thread-safe on all its methods. Always owned by
+  // TEnvironment.
+  TFileEnvironment Files;
+
   /* Get the FileInfo which contains compilation state information for a given
      relative path. Relative paths should first be resolved from by calling
      GetRelPath */
   TFileInfo *GetFileInfo(TRelPath name);
-
-  /* Get the potential jobs which could produce a given file. Just because a job
-     exists doesn't mean that it is producible (The input may not exist and may
-     not be producible) */
-  std::unordered_set<TJob *> GetPotentialJobsProducingFile(TFileInfo *file_info);
 
   /* Attempts to find the tree for the given file and return the relative path.
      If the path doesn't begin with `/` it is assumed to be a relative path.
      If the path doesn't belong to any known tree, None is reeturned. */
   Base::TOpt<TRelPath> TryGetRelPath(const std::string &path);
 
+  /* Get the potential jobs which could produce a given file. Just because a job
+     exists doesn't mean that it is producible (The input may not exist and may
+     not be producible) */
+  std::unordered_set<TJob *> GetPotentialJobsProducingFile(TFileInfo *file_info);
+
+
   private:
-  std::unordered_map<std::string, TRelPath> PathLookupCache;
-  TInterner<TRelPath, TFileInfo> Files;
   TJobFactory Jobs;
 
   TTree Src, Out;

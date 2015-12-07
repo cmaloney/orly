@@ -5,4 +5,5 @@ environment.jhm
 *.*~
 .jhm/
 tools/jhm
-
+tools/
+.bit/

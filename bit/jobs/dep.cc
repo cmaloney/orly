@@ -1,8 +1,10 @@
 #include <bit/jobs/dep.h>
 
 #include <chrono>
+#include <fstream>
 
 #include <base/thrower.h>
+#include <bit/file_environment.h>
 #include <bit/file_info.h>
 #include <bit/jobs/dep_c.h>
 
@@ -35,7 +37,18 @@ TJobProducer TDep::GetProducer(const TJobConfig &job_config) {
                       }};
 }
 
-TJob::TOutput TDep::Run() {
+TJson ToJson(const unordered_set<TFileInfo *> &that) {
+  vector<TJson> json_elems(that.size());
+  for(const auto &item: that) {
+    json_elems.push_back(TJson(item->CmdPath));
+  }
+
+  return TJson(move(json_elems));
+}
+
+#include <iostream>
+
+TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
   TJob::TOutput result;
 
   // Figure out which dep program to run, the right arguments for it
@@ -93,17 +106,30 @@ TJob::TOutput TDep::Run() {
                                     "guaranteeing they can't use infinite length buffers.";
   }
 
-  output.Needs.IfInTree = ParseDeps(output.Subprocess.Output->ToString());
-  return output;
-}
-
-TJson ToJson(vector<string> &&that) {
-  vector<TJson> json_elems(that.size());
-  for (uint64_t i = 0; i < that.size(); ++i) {
-    json_elems[i] = TJson(move(that[i]));
+  auto deps = ParseDeps(output.Subprocess.Output->ToString());
+  for(const auto &dep: deps) {
+    auto rel_path = file_env->TryGetRelPath(dep);
+    if (rel_path) {
+      Needs.insert(file_env->GetFileInfo(*rel_path));
+    }
   }
 
-  return TJson(move(json_elems));
+  // TODO(cmaloney): Only generate and write out when the job is complete.
+  // TODO(cmaloney): Writing the dep file doesn't actually provide us any
+  // benefit, but is required by the work finder since it is a file expected to
+  // exist.
+  // TODO(cmaloney): Stream from C++ struct -> json rather than doing this
+  // "copy into something that looks like JSON".
+  /* out_file */ {
+    cout << AsStr("Writing deps file: ", GetSoleOutput()->CmdPath, "\n");
+    auto deps_json = ToJson(Needs);
+    ofstream out_file(GetSoleOutput()->CmdPath);
+    out_file.exceptions(std::ifstream::failbit);
+    deps_json.Write(out_file);
+  }
+
+  output.Needs.Mandatory = Needs;
+  return output;
 }
 
 string TDep::GetConfigId() const {

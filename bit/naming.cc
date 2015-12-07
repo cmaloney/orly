@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstring>
 #include <iomanip>
+#include <stdexcept>
 
 #include <base/thrower.h>
 #include <util/path.h>
@@ -94,10 +95,17 @@ bool TRelPath::EndsWith(const char *extension) const {
   return Path.compare(Path.length() - extesion_length, extesion_length, extension) == 0;
 }
 
-//TRelPath TRelPath::SwapExtension(const char *new_extension) const {
-  // Find the last '.'. If there is no '.' before the first '/' then there are
-  // no extensions and an exception is thrown.
-//}
+TRelPath TRelPath::SwapExtension(const char *old_extension, const char *new_extension) const {
+  auto old_path_length = strlen(old_extension);
+  auto old_extension_start = Path.size() - old_path_length;
+  if (Path.compare(old_extension_start, old_path_length, old_extension) != 0) {
+    THROWER(runtime_error) << "Internal Error: Old path doesn't end with expected extension " << quoted(old_extension);
+  }
+  string new_path = Path;
+  new_path.resize(old_extension_start);
+  new_path.append(new_extension);
+  return TRelPath(new_path);
+}
 
 bool TRelPath::operator==(const TRelPath &that) const { return Path == that.Path; }
 

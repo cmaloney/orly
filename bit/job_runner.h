@@ -24,7 +24,7 @@ struct TJobRunner {
     std::unique_ptr<TJob::TOutput> Output;
   };
 
-  TJobRunner(uint64_t worker_count);
+  TJobRunner(uint64_t worker_count, TFileEnvironment *file_environment);
   ~TJobRunner();
 
   bool IsReady() const;
@@ -43,6 +43,8 @@ struct TJobRunner {
 
   private:
   void ProcessQueue();
+
+  TFileEnvironment *const FileEnvironment;
 
   // Jobs in, results out.
   moodycamel::BlockingConcurrentQueue<TJob*> ToRun;

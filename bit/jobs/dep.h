@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <bit/file_info.h>
 #include <bit/job.h>
 #include <bit/job_producer.h>
 
@@ -27,7 +28,7 @@ class TDep final : public TJob {
   public:
   static TJobProducer GetProducer(const TJobConfig &job_config);
 
-  virtual TOutput Run() final;
+  virtual TOutput Run(TFileEnvironment *file_env) final;
   virtual std::string GetConfigId() const final;
   virtual std::unordered_map<TFileInfo*, TJobConfig> GetOutputExtraData() const final;
 
@@ -35,7 +36,7 @@ class TDep final : public TJob {
   TDep(TMetadata &&metadata, const TJobConfig *job_config);
 
   // TODO(cmaloney): Use this: const TJobConfig *JobConfig;
-  std::unordered_set<std::string> Needs;
+  std::unordered_set<TFileInfo *> Needs;
 };
 } // Job
 } // Jhm

@@ -37,7 +37,8 @@ TTree GetHomeDirectory() {
 
 int Main(int argc, char *argv[]) {
   Cmd::TArgs<TOptions> args{
-      Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print commands when they are run"),
+      // TODO(cmaloney): print-cmd is really handy but children can run arbitrary code...
+      // Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print commands when they are run"),
       Cmd::Optional({"mixin", "m"}, &TOptions::Mixins,
                     "Configuration snippets to add on top of the base project configuration"),
 

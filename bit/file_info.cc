@@ -19,7 +19,10 @@ bool TFileInfo::IsComplete() const { return Completed; }
 
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 
-void TFileInfo::Complete(const TJob *, TJobConfig &&) { NOT_IMPLEMENTED(); }
+void TFileInfo::Complete(const TJob *, TJobConfig &&) {
+  // TODO(cmaloney): FinalConfig = OverlayConfig(SrcConfig, result_config)
+  Completed = true;
+}
 
 std::ostream &Bit::operator<<(std::ostream &out, const TFileInfo *file_info) {
   // TODO(cmaloney): Make a more interesting representation for file_info based

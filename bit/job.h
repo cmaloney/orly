@@ -27,6 +27,7 @@
 
 namespace Bit {
 
+class TFileEnvironment;
 class TFileInfo;
 struct TJobProducer;
 
@@ -36,9 +37,8 @@ class TJob {
   NO_MOVE(TJob)
 
   struct TNeeds {
-    std::unordered_set<TRelPath> Mandatory;
-    std::unordered_set<TRelPath> IfBuildable;
-    std::unordered_set<std::string> IfInTree;
+    std::unordered_set<TFileInfo*> Mandatory;
+    std::unordered_set<TFileInfo*> IfBuildable;
   };
 
   // TODO(cmaloney): Make it so only Output, Needs, and Complete along with
@@ -51,6 +51,8 @@ class TJob {
     // make debugging easier.
     // NewNeeds means new needs have been generated which should be evaulated
     // and the job _must_ be run again.
+    // TODO(cmaloney): Assert jobs never include files which are "done" before
+    // the job starts inside of NewNeeds to help catch job programming errors.
     // CompleteIfNeeds means the job is complete if all the items in the Needs
     // set it returns are done (This is effectively preliminary output). The
     // job may be called again if CompleteIfNeeds is returned as result without
@@ -82,7 +84,7 @@ class TJob {
 
   virtual ~TJob() = default;
 
-  virtual TOutput Run() = 0;
+  virtual TOutput Run(TFileEnvironment *) = 0;
 
   virtual std::unordered_map<TFileInfo*, TJobConfig> GetOutputExtraData() const = 0;
 

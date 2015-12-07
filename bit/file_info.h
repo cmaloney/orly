@@ -1,9 +1,12 @@
 #pragma once
 
+#include <atomic>
 #include <iosfwd>
 
 #include <bit/config.h>
 #include <bit/naming.h>
+
+class TStatusTracker;
 
 namespace Bit {
 
@@ -19,22 +22,29 @@ class TFileInfo {
   public:
   TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_config, bool is_src);
 
-  bool IsComplete() const;
+  // Returns the complete config if IsComplete is true, otherwise returns nullptr.
+  TFileConfig *GetCompleteConfig();
 
-  // Asserts the file exists, sets ComputedConfig and marks Completed as true.
-  // Attaches all critical bits from the job to the file so the file can
-  // potentially be cache completed if everything checks out.
-  void Complete(const TJob *producer, TJobConfig &&extra_data);
+  bool IsComplete() const;
 
   const std::string CmdPath;
   const TRelPath RelPath;
 
   private:
+  // Asserts the file exists, sets ComputedConfig and marks Completed as true.
+  // Attaches all critical bits from the job to the file so the file can
+  // potentially be cache completed if everything checks out.
+  void Complete(const TJob *producer, TJobConfig &&extra_data);
+
   const TFileConfig SrcConfig;
-  TFileConfig ComputedConfig;
+  TFileConfig FinalConfig;
 
   // If computerd config has been finalized (the file has been created and is completely done).
-  bool Completed = false;
+  // This is only set once and can never be unset.
+  std::atomic<bool> Completed;
+
+  // So TStatusTracker can complete files.
+  friend class ::TStatusTracker;
 };
 
 std::ostream &operator << (std::ostream &out, const TFileInfo *file_info);

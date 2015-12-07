@@ -2,6 +2,7 @@
 
 #include <chrono>
 
+#include <bit/file_environment.h>
 #include <bit/job_producer.h>
 
 using namespace Base;
@@ -48,8 +49,9 @@ static TOpt<TRelPath> GetInputName(const TRelPath &output, bool is_cc) {
 
 template <bool IsCc>
 static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
-  assert(input.EndsWith(".o"));
-  return {TRelPath(input.SwapExtension(IsCc ? ".cc" : ".c", ".o"))};
+  constexpr static const char *ext = IsCc ? ".cc" : ".c";
+  assert(input.EndsWith(ext));
+  return {TRelPath(input.SwapExtension(ext, ".o"))};
 }
 
 template <bool IsCc>
@@ -85,9 +87,60 @@ TJobProducer TCompileCFamily::GetCcProducer(const TJobConfig &job_config) {
                       }};
 }
 
-#include <base/not_implemented.h>
-TJob::TOutput TCompileCFamily::Run() {
+#include <base/split.h>
+#include <iostream>
 
+TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
+  TJob::TOutput output;
+  output.Result = TJob::TOutput::NewNeeds;
+
+  // TODO(cmaloney): The dep file is very much a "second mandatory input".
+  if (!Needs) {
+    Needs = file_environment->GetFileInfo(GetInput()->RelPath.AddExtension(".dep"));
+    output.Needs.Mandatory = unordered_set<TFileInfo*>{Needs};
+    return output;
+  }
+
+  // Since the dep file requires all the .h files in order to complete, if it is
+  // complete everything this file touches / includes is complete. Compile!
+  vector<string> cmd;
+  if (IsCc) {
+    cmd.push_back("clang++");
+  } else {
+    cmd.push_back("clang");
+  }
+
+  cmd.push_back("-c");
+
+  // TODO(cmaloney): cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
+  cmd.push_back("-std=c++14");
+  cmd.push_back("-Wall");
+  cmd.push_back("-Werror");
+  cmd.push_back("-Wextra");
+  cmd.push_back("-Wno-unused");
+  cmd.push_back("-Wno-unused-result");
+  cmd.push_back("-Wno-unused-parameter");
+  cmd.push_back("-fcolor-diagnostics");
+  cmd.push_back("-Qunused-arguments");
+  cmd.push_back("-I/home/firebird347/projects/jhm");
+  cmd.push_back("-o");
+  cmd.push_back(GetSoleOutput()->CmdPath);
+
+  cmd.push_back(GetInput()->CmdPath);
+
+  std::cout << Base::Join(cmd, " ") << std::endl;
+
+  output.Subprocess = Base::Subprocess::Run(cmd);
+  // Process the output
+  if (output.Subprocess.ExitCode != 0) {
+    output.Result = TJob::TOutput::Error;
+    return output;
+  }
+
+
+  // Compilation successful!
+  output.Result = TJob::TOutput::Complete;
+  return output;
 }
 
 string TCompileCFamily::GetConfigId() const {

@@ -29,7 +29,7 @@ class TCompileCFamily final : public TJob {
   static TJobProducer GetCProducer(const TJobConfig &job_config);
   static TJobProducer GetCcProducer(const TJobConfig &job_config);
 
-  virtual TOutput Run() final;
+  virtual TOutput Run(TFileEnvironment *file_environment) final;
   virtual std::string GetConfigId() const final;
   virtual std::unordered_map<TFileInfo *, TJobConfig> GetOutputExtraData() const final;
 
