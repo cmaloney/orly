@@ -16,24 +16,27 @@
 
 set -e
 
-CC=clang++
+CC=g++
 common_flags=(
   # Base compile
   -std=c++1y
-  -Wall -Werror -Wextra -Wold-style-cast
+  -Wall -Werror -Wextra
   # Optimize
   -O3 -DNDEBUG
   #-g
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
-  #-flto
+  -Wno-unknown-pragmas
+  -Wno-old-style-cast
+  -Wno-return-type
+  -flto
 
   # Enable threads
   -pthread
 
   # Static resulting binary
-  # -static
+  -static
   # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
-  # -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
   )
 
 OS=`uname -s`

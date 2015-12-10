@@ -103,7 +103,7 @@ TBacktraceCatcher::TBacktraceCatcher()
       Sigpipe(SIGPIPE, &PrintSigPipe) {}
 
 // Make pure virtuals print a reasonable error message
-[[noreturn]] extern "C" void __cxa_pure_virtual() {
+extern "C" [[noreturn]] void __cxa_pure_virtual() {
   cerr << "PURE VIRTUAL CALLED\n"
        << "BACKTRACE:" << endl;
   PrintBacktrace();
