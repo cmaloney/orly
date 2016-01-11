@@ -87,9 +87,6 @@ TJobProducer TCompileCFamily::GetCcProducer(const TJobConfig &job_config) {
                       }};
 }
 
-#include <base/split.h>
-#include <iostream>
-
 TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
   TJob::TOutput output;
   output.Result = TJob::TOutput::NewNeeds;
@@ -127,8 +124,6 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
   cmd.push_back(GetSoleOutput()->CmdPath);
 
   cmd.push_back(GetInput()->CmdPath);
-
-  std::cout << Base::Join(cmd, " ") << std::endl;
 
   output.Subprocess = Base::Subprocess::Run(cmd);
   // Process the output

@@ -41,7 +41,6 @@ class TLink final : public TJob {
   TLink(TEnv &env, TFile *input);
 
   TEnv &Env;
-  std::unordered_map<TFile *, TFile *> NeededDepToObj;
   TSet<TFile *> AntiNeeds;
   TSet<TFile *> ObjToCheck;
   TSet<TFile *> ObjFiles;

@@ -6,13 +6,11 @@
 
 #include <base/not_implemented.h>
 #include <bit/jobs/compile_c_family.h>
+#include <bit/jobs/dep.h>
+#include <bit/jobs/link.h>
 #include <bit/naming.h>
 #include <util/path.h>
 #include <util/stl.h>
-
-// #include <bit/jobs/compile_c_family.h>
-#include <bit/jobs/dep.h>
-// #include <bit/jobs/link.h>
 
 using namespace Base;
 using namespace Bit;
@@ -26,8 +24,8 @@ TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs)
   const unordered_map<string, TJobProducer (*)(const TJobConfig &)> builtin_jobs = {
       {"dependency", &Jobs::TDep::GetProducer},
       {"compile_c", &Jobs::TCompileCFamily::GetCProducer},
-      {"compile_cc", &Jobs::TCompileCFamily::GetCcProducer}
-      // {"link", &Job::TLink::GetProducer}
+      {"compile_cc", &Jobs::TCompileCFamily::GetCcProducer},
+      {"link", &Jobs::TLink::GetProducer}
   };
 
   if (jobs.empty()) {

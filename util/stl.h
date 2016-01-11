@@ -40,7 +40,8 @@ template <typename TContainer>
 void EraseOrFail(TContainer &container, const typename TContainer::key_type &key) {
   auto result = container.erase(key);
   if (result != 1) {
-    // TODO(cmaloney): Shuold be able to capture the condition which failed in the unreachable / attach a message.
+    // TODO(cmaloney): Shuold be able to capture the condition which failed in the unreachable /
+    // attach a message.
     Base::Unreachable(HERE);
   }
 }
@@ -49,7 +50,7 @@ void EraseOrFail(TContainer &container, const typename TContainer::key_type &key
  * assertion. */
 template <typename TContainer, typename... TArgs>
 void InsertOrFail(TContainer &container, TArgs &&... args) {
-  if(!container.emplace(std::forward<TArgs>(args)...).second) {
+  if (!container.emplace(std::forward<TArgs>(args)...).second) {
     Base::Unreachable(HERE);
   }
 }

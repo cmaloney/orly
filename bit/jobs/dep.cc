@@ -47,8 +47,6 @@ TJson ToJson(const unordered_set<TFileInfo *> &that) {
   return TJson(move(json_elems));
 }
 
-#include <iostream>
-
 TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
   TJob::TOutput result;
 
@@ -122,7 +120,6 @@ TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
   // TODO(cmaloney): Stream from C++ struct -> json rather than doing this
   // "copy into something that looks like JSON".
   /* out_file */ {
-    cout << AsStr("Writing deps file: ", GetSoleOutput()->CmdPath, "\n");
     auto deps_json = ToJson(Needs);
     ofstream out_file(GetSoleOutput()->CmdPath);
     out_file.exceptions(std::ifstream::failbit);

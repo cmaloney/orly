@@ -31,6 +31,7 @@ class TFileEnvironment {
 
   const TTree Src, Out;
 
+  private:
   // TODO(cmaloney): Switch to lock free datastructures fo both of these. They
   // both are perfectly fine having things constructed lots of times. The
   // TFileInfo one has a requirement that everyone agree on one copy, but that
