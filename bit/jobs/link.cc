@@ -23,7 +23,8 @@ static Base::TOpt<TRelPath> TryGetInputName(const TRelPath &output) {
 
 TJobProducer TLink::GetProducer(const TJobConfig &job_config) {
   return TJobProducer{"link",
-                      {""},
+                      TFileType::Object,
+                      {TFileType::Executable},
                       TryGetInputName,
                       GetOutputName,
                       // TODO: Should be able to eliminate the lambda wrapper here...

@@ -25,8 +25,7 @@ TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs)
       {"dependency", &Jobs::TDep::GetProducer},
       {"compile_c", &Jobs::TCompileCFamily::GetCProducer},
       {"compile_cc", &Jobs::TCompileCFamily::GetCcProducer},
-      {"link", &Jobs::TLink::GetProducer}
-  };
+      {"link", &Jobs::TLink::GetProducer}};
 
   if (jobs.empty()) {
     // Enable all builtin jobs
@@ -43,9 +42,13 @@ TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs)
   }
 }
 
-TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment, TFileInfo *target_output) {
+TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment,
+                                           TFileInfo *target_output,
+                                           TFileType file_type) {
   TSet<TJob *> ret;
 
+  // TODO(cmaloney): Reject things in the cache with the wrong file_type. GetPotentialJobs should
+  // return the right jobs for the given TFileType
   // Check the cache
   // TODO(cmaloney): There should be a util that does this extraction shape (match -> set)
   auto range = JobsByOutput.equal_range(target_output);
@@ -65,6 +68,12 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment, TFileInfo 
   // If no jobs are found, insert nullptr
   bool found = false;
   for (const auto &producer : JobProducers) {
+    // If there is a file_type set, use it to filter possible jobs.
+    if (file_type != TFileType::Unset) {
+      if (!Contains(producer.OutTypes, file_type)) {
+        continue;
+      }
+    }
     TOpt<TRelPath> opt_path = producer.TryGetInputName(target_output->RelPath);
     if (!opt_path) {
       continue;
@@ -116,8 +125,9 @@ TEnvironment::TEnvironment(const TConfig &config, const TTree &src)
 TFileInfo *TEnvironment::GetFileInfo(TRelPath name) { return Files.GetFileInfo(name); }
 
 // TODO(cmaloney): Just implement GetPotentialJobs inline here...
-std::unordered_set<TJob *> TEnvironment::GetPotentialJobsProducingFile(TFileInfo *file_info) {
-  return Jobs.GetPotentialJobs(*this, file_info);
+std::unordered_set<TJob *> TEnvironment::GetPotentialJobsProducingFile(TFileInfo *file_info,
+                                                                       TFileType file_type) {
+  return Jobs.GetPotentialJobs(*this, file_info, file_type);
 }
 
 /* Attempts to find the tree for the given file and return the relative path.

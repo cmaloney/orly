@@ -12,6 +12,7 @@
 #include <base/split.h>
 #include <base/thrower.h>
 #include <bit/environment.h>
+#include <bit/file_type.h>
 #include <bit/job_runner.h>
 #include <bit/status_line.h>
 #include <cmd/util.h>
@@ -35,7 +36,7 @@ class TStatusTracker {
 
   bool HasFinishedAll() const { return All.size() == Done.size(); }
 
-  bool IsBuildable(TFileInfo *file);
+  bool IsBuildable(TFileInfo *file, TFileType file_type);
 
   // TODO(cmaloney): The recursion / relation between AddNeeded
   // and IsBuildable isn't very nice. Would be nice if we could lay it out more
@@ -61,7 +62,7 @@ class TStatusTracker {
 
   // Try getting the job which produces the given file. Retunrs nullptr if it
   // can't get the job.
-  TJob *TryGetProducer(TFileInfo *file);
+  TJob *TryGetProducer(TFileInfo *file, TFileType file_type);
 
   TEnvironment &Environment;
 
@@ -76,8 +77,8 @@ class TStatusTracker {
   TJobRunner Runner;
 };
 
-bool TStatusTracker::IsBuildable(TFileInfo *file) {
-  return file->IsComplete() || TryGetProducer(file);
+bool TStatusTracker::IsBuildable(TFileInfo *file, TFileType file_type) {
+  return file->IsComplete() || TryGetProducer(file, file_type);
 }
 
 // TODO(cmaloney): Make this an always succeed + throw on not able to produce
@@ -87,7 +88,7 @@ bool TStatusTracker::AddNeeded(TFileInfo *file) {
   }
 
   // Try finding a producer of the file which is producable.
-  TJob *job = TryGetProducer(file);
+  TJob *job = TryGetProducer(file, TFileType::Unset);
   if (!job) {
     // TODO(cmaloney): Capture this exception and wrap it with the job which needed this file
     // to be produced.
@@ -125,7 +126,7 @@ void TStatusTracker::DoAdvance() {
         if (AddNeeded(file_info)) {
           // TryGetProducer will always return true if AddNeeded returns true
           // then the file is not complete / being produced by something.
-          TJob *producer = TryGetProducer(file_info);
+          TJob *producer = TryGetProducer(file_info, TFileType::Unset);
           assert(producer);
           blocking_jobs.insert(producer);
         }
@@ -136,7 +137,7 @@ void TStatusTracker::DoAdvance() {
       }
 
       for (TFileInfo *file_info: needs.IfBuildable) {
-        if (IsBuildable(file_info)) {
+        if (IsBuildable(file_info, TFileType::Unset)) {
           add_blocking_not_complete(file_info);
         }
       }
@@ -277,7 +278,7 @@ void TStatusTracker::QueueJob(TJob *job) {
   Runner.Queue(job);
 }
 
-TJob *TStatusTracker::TryGetProducer(TFileInfo *file) {
+TJob *TStatusTracker::TryGetProducer(TFileInfo *file, TFileType file_type) {
   // Check the cache
   auto elem = TryFind(Producers, file);
   if (elem) {
@@ -288,8 +289,8 @@ TJob *TStatusTracker::TryGetProducer(TFileInfo *file) {
   // the given file which has a producible input.
   // Having more than one producible input is an unresolvable ambiguity.
   std::vector<TJob *> ProducibleJobs;
-  for (TJob *job : Environment.GetPotentialJobsProducingFile(file)) {
-    if (IsBuildable(job->GetInput())) {
+  for (TJob *job : Environment.GetPotentialJobsProducingFile(file, file_type)) {
+    if (IsBuildable(job->GetInput(), job->GetJobProducer()->InType)) {
       ProducibleJobs.push_back(job);
     }
   }

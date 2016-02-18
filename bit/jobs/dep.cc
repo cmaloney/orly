@@ -28,7 +28,8 @@ static TOpt<TRelPath> TryGetInputName(const TRelPath &output) {
 
 TJobProducer TDep::GetProducer(const TJobConfig &job_config) {
   return TJobProducer{"dependency_file",
-                      {".dep"},
+                      TFileType::Unset,
+                      {TFileType::DependencyFile},
                       TryGetInputName,
                       GetOutputName,
                       // TODO: Should be able to eliminate the lambda wrapper here...

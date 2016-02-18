@@ -10,7 +10,9 @@
     ],
   "options": {
     "c++" : [
-      "-std=c++14",
+      "-stdlib=libc++",
+      "-lc++abi",
+      "-std=c++1z",
       "-Wall",
       "-Werror",
       "-Wextra",
@@ -21,7 +23,10 @@
       "-Qunused-arguments"
     ],
     "link": {
-      "libs": ["-pthread"]
+      "libs": [
+        "-stdlib=libc++",
+        "-pthread",
+        "-lc++abi"]
     }
   }
 }

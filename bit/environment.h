@@ -24,7 +24,7 @@ class TJobFactory {
   public:
   TJobFactory(const TJobConfig &job_config, const std::unordered_set<std::string> &jobs);
 
-  std::unordered_set<TJob *> GetPotentialJobs(TEnvironment &env, TFileInfo *out_file);
+  std::unordered_set<TJob *> GetPotentialJobs(TEnvironment &env, TFileInfo *out_file, TFileType file_type);
 
   private:
   Base::TInterner<TJob::TId, TJob, TJob::TId::THash> Jobs;
@@ -60,7 +60,7 @@ class TEnvironment {
   /* Get the potential jobs which could produce a given file. Just because a job
      exists doesn't mean that it is producible (The input may not exist and may
      not be producible) */
-  std::unordered_set<TJob *> GetPotentialJobsProducingFile(TFileInfo *file_info);
+  std::unordered_set<TJob *> GetPotentialJobsProducingFile(TFileInfo *file_info, TFileType file_type);
 
 
   private:

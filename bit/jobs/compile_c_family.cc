@@ -65,7 +65,8 @@ static TOpt<TRelPath> TryGetInputName(const TRelPath &output) {
 
 TJobProducer TCompileCFamily::GetCProducer(const TJobConfig &job_config) {
   return TJobProducer{"compile_c",
-                      {".c"},
+                      TFileType::CSource,
+                      {TFileType::Object},
                       TryGetInputName<false>,
                       GetOutputName<false>,
                       // TODO: Should be able to eliminate the lambda wrapper here...
@@ -77,7 +78,8 @@ TJobProducer TCompileCFamily::GetCProducer(const TJobConfig &job_config) {
 
 TJobProducer TCompileCFamily::GetCcProducer(const TJobConfig &job_config) {
   return TJobProducer{"compile_cc",
-                      {".cc"},
+                      TFileType::CppSource,
+                      {TFileType::Object},
                       TryGetInputName<true>,
                       GetOutputName<true>,
                       // TODO: Should be able to eliminate the lambda wrapper here...
