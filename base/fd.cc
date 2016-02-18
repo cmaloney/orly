@@ -116,19 +116,3 @@ tuple<TFd, TFd> TFd::Pipe() {
   writeable = TFd(fds[1], NoThrow);
   return make_tuple(move(readable), move(writeable));
 }
-
-
-
-// TODO: This is a utility that should live in base/
-/* Read all the data at fd into one giant buffer in string. Not super efficient, but should be good
-   enough, and
-   sufficiently dangerous if the data is coming from an untrustworthy source */
-string Base::ReadAll(TFd &&fd) {
-  string out;
-  uint8_t buf[4096];
-  while(ssize_t read = Util::ReadAtMost(fd, buf, 4096)) {
-    out.append(reinterpret_cast<char *>(buf), size_t(read));
-  }
-
-  return out;
-}
