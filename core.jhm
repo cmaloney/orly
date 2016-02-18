@@ -26,7 +26,8 @@
       "libs": [
         "-stdlib=libc++",
         "-pthread",
-        "-lc++abi"]
+        "-lc++abi",
+        "-ldl"]
     }
   }
 }

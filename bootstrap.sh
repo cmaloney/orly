@@ -33,6 +33,9 @@ common_flags=(
   # Enable threads
   -pthread
 
+  # Better backtraces
+  -rdynamic
+
   # Static resulting binary
   -static
   # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
@@ -63,6 +66,7 @@ $CC -o tools/jhm \
   base/backtrace.cc jhm/jhm.cc jhm/env.cc jhm/jobs/compile_c_family.cc jhm/config.cc util/time.cc jhm/status_line.cc \
   jhm/work_finder.cc jhm/jobs/link.cc base/path.cc jhm/naming.cc base/fd.cc base/unreachable.cc jhm/test.cc \
   "$extra_files" \
-  -I./ -DSRC_ROOT=\"`pwd`\"
+  -I./ -DSRC_ROOT=\"`pwd`\" \
+  -ldl
 
 mkdir -p ../.jhm

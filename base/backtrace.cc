@@ -16,16 +16,20 @@
 
 #include <base/backtrace.h>
 
-#include <iostream>
-
+#include <dlfcn.h>
 #include <execinfo.h>
 
+#include <iostream>
+
 #include <base/as_str.h>
+#include <base/demangle.h>
 #include <util/error.h>
 
 using namespace Base;
 using namespace std;
 
+// TODO(cmaloney): Add support for finding backtraces from debug information line tables
+// (best source), with fallback to inspecting and indexing ELF symbol table.
 /* Generate a backtrace one line at a time, calling the callback once for each backtrace frame. */
 template <int max_frame_count>
 void GenBacktrace(const std::function<void(const std::string &)> &cb) {
@@ -37,7 +41,16 @@ void GenBacktrace(const std::function<void(const std::string &)> &cb) {
     auto frame_print = AsStr('[', frame_idx, '/', frame_count - 1, "] ");
     // TODO(cmaloney): Use debug information to print filename + line number.
     if(symbols) {
-      frame_print += symbols[frame_idx];
+      Dl_info info;
+      if (dladdr(frames[frame_idx], &info) && info.dli_sname) {
+        if (info.dli_sname[0] == '_' && info.dli_sname[1] == 'Z') {
+          frame_print += AsStr(Demangle(info.dli_sname));
+        } else {
+          frame_print += info.dli_sname;
+        }
+      } else {
+        frame_print += symbols[frame_idx];
+      }
     } else {
       frame_print += AsStr(frames[frame_idx]);
     }
@@ -49,6 +62,8 @@ void Base::PrintBacktrace() {
   // 200 is fairly arbitrary. Hopefully long enough.
   GenBacktrace<200>([](const string &msg) { cout << msg << endl; });
 }
+
+static bool caused_abort = false;
 
 void Base::SetBacktraceOnTerminate() {
   std::set_terminate([]() {
@@ -67,6 +82,8 @@ void Base::SetBacktraceOnTerminate() {
     cerr << "BACKTRACE" << endl;
     PrintBacktrace();
     cerr << "TERMINATED" << endl;
+    caused_abort = true;
+    ABORT();
   });
 }
 
@@ -75,6 +92,7 @@ void Base::SetBacktraceOnTerminate() {
        << "Backtrace: " << endl;
   PrintBacktrace();
   cerr << "SEGFAULT" << endl;
+  caused_abort = true;
   ABORT();
 }
 
@@ -82,11 +100,15 @@ void Base::SetBacktraceOnTerminate() {
   cout << "ERROR: SIGPIPE" << endl;
   PrintBacktrace();
   cerr << "SIGPIPE" << endl;
+  caused_abort = true;
   ABORT();
 }
 
 static void PrintSigabrtBacktrace(int) {
   static bool first_abrt = true;
+  if(caused_abort) {
+    return;
+  }
   if(!first_abrt) {
     return;
   }
@@ -94,7 +116,6 @@ static void PrintSigabrtBacktrace(int) {
   cout << "ERROR: SIGABRT" << endl;
   PrintBacktrace();
   cerr << "SIGABRT" << endl;
-  ABORT();
 }
 
 TBacktraceCatcher::TBacktraceCatcher()
@@ -108,5 +129,6 @@ extern "C" [[noreturn]] void __cxa_pure_virtual() {
        << "BACKTRACE:" << endl;
   PrintBacktrace();
   cerr << "TERMINATED BECAUSE PURE VIRTUAL CALLED" << endl;
+  caused_abort = true;
   ABORT();
 }
