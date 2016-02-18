@@ -32,7 +32,7 @@ TJobProducer TLink::GetProducer(const TJobConfig &job_config) {
                       }};
 }
 
-TJob::TOutput TLink::Run(TFileEnvironment *file_env) {
+TJob::TOutput TLink::Run(TFileEnvironment *) {
   // Seed the link search with the core input file.
   if (ObjFiles.empty()) {
     TFileInfo *input = GetInput();
