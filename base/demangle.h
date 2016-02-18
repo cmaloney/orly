@@ -18,8 +18,8 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <memory>
-#include <ostream>
 #include <typeinfo>
 
 namespace Base {

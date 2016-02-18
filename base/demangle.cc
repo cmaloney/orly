@@ -18,6 +18,8 @@
 
 #include <base/demangle.h>
 
+#include <ostream>
+
 #include <cxxabi.h>
 
 using namespace Base;
