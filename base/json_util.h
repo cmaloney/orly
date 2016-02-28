@@ -15,6 +15,19 @@ struct TJsonReader;
 
 EXCEPTION(TInvalidValue, std::runtime_error, nullptr)
 
+template <typename TVal>
+TJson ToJson(const std::unordered_set<TVal> &val) {
+  TJson response(TJson::Array);
+  auto &array = response.GetArray();
+  response.GetArray().reserve(val.size());
+
+  for(const auto &member: val) {
+    array.push_back(ToJson(val));
+  }
+
+  return response;
+}
+
 // TODO(cmaloney): Extract from r-value reference
 // NOTE: name may contain '.' which specifies entry into sub key.
 template <typename TVal>

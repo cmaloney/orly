@@ -12,15 +12,23 @@ TFileConfig::TFileConfig(const TAbsPath &src)
 TFileInfo::TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_config, bool is_src)
     : CmdPath(move(cmd_path)),
       RelPath(move(path)),
-      SrcConfig(move(src_config)),
-      Completed(is_src) {}
+      SrcConfig(),
+      // SrcConfig(move(src_config)),
+      Completed(is_src) {
+  assert(src_config.JobConfig.empty());  // No src config is currently supported
+}
 
 bool TFileInfo::IsComplete() const { return Completed; }
 
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
+// TODO(cmaloney): Switch to opt
+TFileConfig *TFileInfo::GetCompleteConfig() {
+  assert(Completed);
 
-void TFileInfo::Complete(const TJob *, TJobConfig &&) {
-  // TODO(cmaloney): FinalConfig = OverlayConfig(SrcConfig, result_config)
+  return &FinalConfig;
+}
+
+void TFileInfo::Complete(const TJob *, TJobConfig &&file_config) {
+  FinalConfig.JobConfig = move(file_config);
   Completed = true;
 }
 

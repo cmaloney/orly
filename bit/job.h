@@ -86,6 +86,9 @@ class TJob {
 
   virtual TOutput Run(TFileEnvironment *) = 0;
 
+  // TODO(cmaloney): Make it possible to attach structured data, which we just happen to know how to
+  // serialize to json when needed to cache on disk using a json writer model rather than converting
+  // to a JSON object and back every time we try to access it.
   virtual std::unordered_map<TFileInfo*, TJobConfig> GetOutputExtraData() const = 0;
 
   // Returns a string which represents the full configuration of this job.

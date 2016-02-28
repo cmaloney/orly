@@ -16,10 +16,12 @@
       "-Wno-missing-prototypes",
       "-Wno-weak-vtables",
       "-Wno-disabled-macro-expansion",
+      "-fsanitize=address"
     ],
     "link": {
       "flags": [
-        "-rdynamic"
+        "-rdynamic",
+        "-fsanitize=address"
       ]
     }
     }

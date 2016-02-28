@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <base/opt.h>
 #include <bit/job.h>
 
 namespace Bit {
@@ -40,6 +41,7 @@ class TCompileCFamily final : public TJob {
   // But that results in more ug than the tiny perf benefit is worth.
   bool IsCc;
   TFileInfo *Needs = nullptr;
+  Base::TJson::TArray LinkNeeds;
 };
 
 }  // Job

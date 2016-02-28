@@ -3,6 +3,7 @@
 #include <chrono>
 #include <fstream>
 
+#include <base/json_util.h>
 #include <base/thrower.h>
 #include <bit/file_environment.h>
 #include <bit/file_info.h>
@@ -138,34 +139,9 @@ string TDep::GetConfigId() const {
 }
 
 // TODO(cmaloney): Return the json which IsComplete used to do below
-std::unordered_map<TFileInfo *, TJobConfig> TDep::GetOutputExtraData() const { return {}; }
-#if 0
-bool TDep::IsComplete() {
-  assert(this);
-
-  // Everything has been found, save the information.
-  auto deps_json = ToJson(move(Deps));
-
-  // TODO(cmaloney): Writing the dep file doesn't actually provide us any
-  // benefit, but is required by the work finder since it is a file expected to
-  // exist.
-  // TODO(cmaloney): Stream from C++ struct -> json rather than doing this
-  // "copy into something that looks like JSON".
-  /* out_file */ {
-    ofstream out_file(GetSoleOutput()->GetPath());
-    deps_json.Write(out_file);
-  }
-
-  // Stash the info on the input file as computed config
-  // TODO: In pushing this as strings, we effectively discard all the file
-  // lookups we've already
-  // done
-  GetSoleOutput()->PushComputedConfig(
-      TJson::TObject{{"c++", TJson::TObject{{"include", move(deps_json)}}}});
-
-  return true;
+std::unordered_map<TFileInfo *, TJobConfig> TDep::GetOutputExtraData() const {
+  return {{GetSoleOutput(), TJobConfig{{"dependencies", ToJson(Needs)}}}};
 }
-#endif
 
 // TODO(cmaloney): Use the job config to get real arguments.
 TDep::TDep(TMetadata &&metadata, const TJobConfig *) : TJob(move(metadata)) {}

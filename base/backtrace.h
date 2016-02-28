@@ -25,7 +25,7 @@
 
 namespace Base {
 
-void PrintBacktrace();
+void PrintBacktrace(int skip_frames=0);
 
 void SetBacktraceOnTerminate();
 

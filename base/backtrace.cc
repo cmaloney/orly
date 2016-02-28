@@ -32,13 +32,16 @@ using namespace std;
 // (best source), with fallback to inspecting and indexing ELF symbol table.
 /* Generate a backtrace one line at a time, calling the callback once for each backtrace frame. */
 template <int max_frame_count>
-void GenBacktrace(const std::function<void(const std::string &)> &cb) {
+void GenBacktrace(const std::function<void(const std::string &)> &cb, int skip_frames) {
+  // Skip this frame, along with however many more frames were requested
+  int frame_offset = skip_frames + 2;
   void *frames[max_frame_count + 1];
   int frame_count = backtrace(frames, max_frame_count + 1);
   char **symbols = backtrace_symbols(frames, frame_count);
-  for(int frame_idx = 1; frame_idx < frame_count; ++frame_idx) {
+  //frame_idx skips this frame, and however many extra were requested
+  for(int frame_idx = frame_offset; frame_idx < frame_count; ++frame_idx) {
     // TODO(cmaloney): Align frame_idx + frame_count so that the symbol is always indented the same.
-    auto frame_print = AsStr('[', frame_idx, '/', frame_count - 1, "] ");
+    auto frame_print = AsStr('[', frame_idx - frame_offset + 1, '/', frame_count - frame_offset, "] ");
     // TODO(cmaloney): Use debug information to print filename + line number.
     if(symbols) {
       Dl_info info;
@@ -58,9 +61,9 @@ void GenBacktrace(const std::function<void(const std::string &)> &cb) {
   }
 }
 
-void Base::PrintBacktrace() {
+void Base::PrintBacktrace(int skip_frames) {
   // 200 is fairly arbitrary. Hopefully long enough.
-  GenBacktrace<200>([](const string &msg) { cout << msg << endl; });
+  GenBacktrace<200>([](const string &msg) { cout << msg << endl; }, skip_frames + 1);
 }
 
 static bool caused_abort = false;
@@ -80,7 +83,7 @@ void Base::SetBacktraceOnTerminate() {
       cerr << "TERMINATE (unknown exception): " << endl;
     }
     cerr << "BACKTRACE" << endl;
-    PrintBacktrace();
+    PrintBacktrace(2);
     cerr << "TERMINATED" << endl;
     caused_abort = true;
     ABORT();

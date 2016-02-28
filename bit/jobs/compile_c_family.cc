@@ -2,6 +2,7 @@
 
 #include <chrono>
 
+#include <base/not_implemented.h>
 #include <bit/file_environment.h>
 #include <bit/job_producer.h>
 
@@ -113,6 +114,9 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
 
   // TODO(cmaloney): cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
   cmd.push_back("-std=c++14");
+  cmd.push_back("-stdlib=libc++");
+  cmd.push_back("-lc++abi");
+  cmd.push_back("-std=c++1z");
   cmd.push_back("-Wall");
   cmd.push_back("-Werror");
   cmd.push_back("-Wextra");
@@ -121,17 +125,28 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
   cmd.push_back("-Wno-unused-parameter");
   cmd.push_back("-fcolor-diagnostics");
   cmd.push_back("-Qunused-arguments");
-  cmd.push_back("-I/home/firebird347/projects/jhm");
+  cmd.push_back("-I/home/firebird347/projects/bit");
   cmd.push_back("-o");
   cmd.push_back(GetSoleOutput()->CmdPath);
 
   cmd.push_back(GetInput()->CmdPath);
 
-  output.Subprocess = Base::Subprocess::Run(cmd);
+  output.Subprocess = Subprocess::Run(cmd);
   // Process the output
   if (output.Subprocess.ExitCode != 0) {
     output.Result = TJob::TOutput::Error;
     return output;
+  }
+
+  // TODO(cmaloney): This is doing a ton of excess computation converting back into fileinfo objects.
+  for (const auto &dep: Needs->GetCompleteConfig()->JobConfig["dependencies"].GetArray()) {
+    TOpt<TRelPath> dep_rel_path = file_environment->TryGetRelPath(dep.GetString());
+    if (dep_rel_path && dep_rel_path->EndsWith(".h")) {
+      TFileInfo *link_file = file_environment->GetFileInfo(dep_rel_path->SwapExtension(".h", ".o"));
+      LinkNeeds.push_back(link_file);
+    } else {
+      NOT_IMPLEMENTED_S("C/C++ deps which don't end in .h");
+    }
   }
 
 
@@ -145,8 +160,12 @@ string TCompileCFamily::GetConfigId() const {
   static const auto now = std::chrono::system_clock::to_time_t(chrono::system_clock::now());
   return AsStr(ctime(&now));
 }
+
 std::unordered_map<TFileInfo *, TJobConfig> TCompileCFamily::GetOutputExtraData() const {
-  return {};
+
+  // Add Link needs of the .o
+  return {{GetSoleOutput(), TJobConfig{{"try_link", move(LinkNeeds)}}}};
 }
+
 TCompileCFamily::TCompileCFamily(TMetadata &&metadata, const TJobConfig *, bool is_cc)
     : TJob(move(metadata)), IsCc(is_cc) {}

@@ -100,7 +100,7 @@ bool TStatusTracker::AddNeeded(TFileInfo *file) {
 }
 
 void TStatusTracker::DoAdvance() {
-  while ((!HasFinishedAll()) || Runner.HasMoreResults()) {
+  while (Runner.HasMoreResults() && !HasFinishedAll()) {
     // Update current status
     cout << '[' << Done.size() << '/' << All.size() << "] waiting: " << Running.size() << "\n";
     TStatusLine() << '[' << Done.size() << '/' << All.size() << "] waiting: " << Running.size();
@@ -255,7 +255,7 @@ void TStatusTracker::DoAdvance() {
 
   // Runner exited with an error, exit the program.
   if (!Runner.IsReady()) {
-    throw TErrorExit(1, "ERROR: One or more build jobs reported failure. Details above.");
+    throw TErrorExit(1, "One or more build jobs reported failure. Details above.");
   }
 }
 
