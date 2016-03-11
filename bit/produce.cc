@@ -78,7 +78,9 @@ class TStatusTracker {
 };
 
 bool TStatusTracker::IsBuildable(TFileInfo *file, TFileType file_type) {
-  return file->IsComplete() || TryGetProducer(file, file_type);
+  bool is_buildable = file->IsComplete() || TryGetProducer(file, file_type);
+  file->SetIsBuildable(is_buildable);
+  return is_buildable;
 }
 
 // TODO(cmaloney): Make this an always succeed + throw on not able to produce
@@ -137,6 +139,9 @@ void TStatusTracker::DoAdvance() {
       }
 
       for (TFileInfo *file_info: needs.IfBuildable) {
+        // IfBuildable should only be used for things which the job does not know if they are
+        // buildable and therefore cannot determine if they are mandatory or not.
+        assert(file_info->IsBuildable().IsUnknown());
         if (IsBuildable(file_info, TFileType::Unset)) {
           add_blocking_not_complete(file_info);
         }

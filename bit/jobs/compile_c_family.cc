@@ -126,6 +126,7 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
   cmd.push_back("-fcolor-diagnostics");
   cmd.push_back("-Qunused-arguments");
   cmd.push_back("-I/home/firebird347/projects/bit");
+  cmd.push_back("-DSRC_ROOT=\"/home/firebird347/projects/bit\"");
   cmd.push_back("-o");
   cmd.push_back(GetSoleOutput()->CmdPath);
 
@@ -143,7 +144,7 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
     TOpt<TRelPath> dep_rel_path = file_environment->TryGetRelPath(dep.GetString());
     if (dep_rel_path && dep_rel_path->EndsWith(".h")) {
       TFileInfo *link_file = file_environment->GetFileInfo(dep_rel_path->SwapExtension(".h", ".o"));
-      LinkNeeds.push_back(link_file);
+      LinkNeeds.push_back(link_file->CmdPath);
     } else {
       NOT_IMPLEMENTED_S("C/C++ deps which don't end in .h");
     }

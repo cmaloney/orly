@@ -25,6 +25,8 @@ class TFileInfo {
   // Returns the complete config if IsComplete is true, otherwise returns nullptr.
   TFileConfig *GetCompleteConfig();
 
+  Base::TOpt<bool> IsBuildable() const;
+
   bool IsComplete() const;
 
   const std::string CmdPath;
@@ -35,6 +37,7 @@ class TFileInfo {
   // Attaches all critical bits from the job to the file so the file can
   // potentially be cache completed if everything checks out.
   void Complete(const TJob *producer, TJobConfig &&extra_data);
+  void SetIsBuildable(bool is_buildable);
 
   const TFileConfig SrcConfig;
   TFileConfig FinalConfig;
@@ -42,6 +45,10 @@ class TFileInfo {
   // If computerd config has been finalized (the file has been created and is completely done).
   // This is only set once and can never be unset.
   std::atomic<bool> Completed;
+
+  // Two atomic bools is far more efficient than one atomic TOpt<> most likely.
+  std::atomic<bool> Buildable;
+  std::atomic<bool> BuildableSet;
 
   // So TStatusTracker can complete files.
   friend class ::TStatusTracker;

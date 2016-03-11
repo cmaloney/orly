@@ -11,6 +11,9 @@
 #include <bit/job_producer.h>
 #include <util/stl.h>
 
+// TODO(cmaloney)
+#include <iostream>
+
 using namespace Base;
 using namespace Bit;
 using namespace Bit::Jobs;
@@ -20,9 +23,7 @@ static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
   return {input.SwapExtension(".o", "")};
 }
 
-static TOpt<TRelPath> TryGetInputName(const TRelPath &output) {
-  return output.AddExtension(".o");
-}
+static TOpt<TRelPath> TryGetInputName(const TRelPath &output) { return output.AddExtension(".o"); }
 
 TJobProducer TLink::GetProducer(const TJobConfig &job_config) {
   return TJobProducer{"link",
@@ -35,9 +36,6 @@ TJobProducer TLink::GetProducer(const TJobConfig &job_config) {
                         return unique_ptr<TLink>(new TLink(std::move(metadata), &job_config));
                       }};
 }
-
-// TODO(cmaloney):
-#include <iostream>
 
 TJob::TOutput TLink::Run(TFileEnvironment *file_environment) {
   TJob::TOutput output;
@@ -62,37 +60,48 @@ TJob::TOutput TLink::Run(TFileEnvironment *file_environment) {
   vector<string> filtered_includes;  // Hoisted out of loop
   while (!to_check.empty()) {
     TFileInfo *obj = Util::Pop(to_check);
-    cout << "Checking: " << obj << " IsComplete: " << obj->IsComplete() << "\n";
-    if (!obj->IsComplete()) {
+
+    if (obj->IsBuildable().IsUnknown()) {
       output.Needs.IfBuildable.insert(obj);
       ObjToCheck.insert(obj);
       continue;
     }
 
-    for (const auto &dep: obj->GetCompleteConfig()->JobConfig["try_link"].GetArray()) {
-      TFileInfo *link_file = file_environment->GetFileInfo(*file_environment->TryGetRelPath(dep.GetString()));
-
-      // Add to Needs
-      if(ObjFiles.insert(link_file).second) {
-        output.Needs.IfBuildable.insert(link_file);
-        ObjToCheck.insert(link_file);
-      }
+    // TODO(cmaloney): The source .o is mandatory to be buildable, but that is accounted for because
+    // the job depends on that and can't be instantiated without it.
+    // If the possible link dep isn't buildable, then skip it.
+    if (!*obj->IsBuildable()) {
+      continue;
     }
 
-    continue;
+    if (!obj->IsComplete()) {
+      output.Needs.Mandatory.insert(obj);
+      ObjToCheck.insert(obj);
+      continue;
+    }
+
+    for (const auto &dep : obj->GetCompleteConfig()->JobConfig["try_link"].GetArray()) {
+      TFileInfo *link_file =
+          file_environment->GetFileInfo(*file_environment->TryGetRelPath(dep.GetString()));
+
+      // If we haven't scheduled a check for this file, do so.
+      if (ObjFiles.insert(link_file).second) {
+        to_check.push(link_file);
+      }
+    }
   }
 
   if (!ObjToCheck.empty()) {
-    cout << Join(ObjToCheck, ", ") << "\n";
     return output;
   }
 
   // Sort based on completion into "AntiNeeds"
   // Build the link command line. All files which don't exist become "anti needs" (if they could
   // later be produced, we need to re-build the output).
-  vector<string> cmd = {"clang++", "-o", GetSoleOutput()->CmdPath};
+  vector<string> cmd = {"clang++",  "-o",  GetSoleOutput()->CmdPath, "-stdlib=libc++", "-pthread",
+                        "-lc++abi", "-ldl"};
   cmd.reserve(cmd.size() + ObjFiles.size());
-  for (TFileInfo *file: ObjFiles) {
+  for (TFileInfo *file : ObjFiles) {
     if (file->IsComplete()) {
       cmd.push_back(file->CmdPath);
     } else {
@@ -116,7 +125,6 @@ string TLink::GetConfigId() const {
   static const auto now = std::chrono::system_clock::to_time_t(chrono::system_clock::now());
   return AsStr(ctime(&now));
 }
-
 
 // TODO(Cmaloney): AntiNeeds
 std::unordered_map<TFileInfo *, TJobConfig> TLink::GetOutputExtraData() const { return {}; }

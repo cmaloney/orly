@@ -87,6 +87,7 @@ TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
   cmd.push_back("-Wno-unused-parameter");
   cmd.push_back("-fcolor-diagnostics");
   cmd.push_back("-Qunused-arguments");
+  cmd.push_back("-I/home/firebird347/projects/bit");
 
   cmd.push_back(GetInput()->CmdPath);
 

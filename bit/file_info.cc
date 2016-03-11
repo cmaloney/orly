@@ -18,6 +18,13 @@ TFileInfo::TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_
   assert(src_config.JobConfig.empty());  // No src config is currently supported
 }
 
+TOpt<bool> TFileInfo::IsBuildable() const {
+  if (BuildableSet) {
+    return TOpt<bool>(Buildable);
+  }
+  return TOpt<bool>(TNone());
+}
+
 bool TFileInfo::IsComplete() const { return Completed; }
 
 // TODO(cmaloney): Switch to opt
@@ -30,6 +37,11 @@ TFileConfig *TFileInfo::GetCompleteConfig() {
 void TFileInfo::Complete(const TJob *, TJobConfig &&file_config) {
   FinalConfig.JobConfig = move(file_config);
   Completed = true;
+}
+
+void TFileInfo::SetIsBuildable(bool is_buildable) {
+  Buildable = is_buildable;
+  BuildableSet = true;
 }
 
 std::ostream &Bit::operator<<(std::ostream &out, const TFileInfo *file_info) {
