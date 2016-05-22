@@ -73,8 +73,6 @@ void TJobRunner::ProcessQueue() {
     // The job is now being run and will definitely produce a result.
     ++BeingRun;
 
-    std::cout << AsStr("RUNNING: ", job, "\n");
-
     // Make sure the output directory exists.
     // TODO(cmaloney): This does a lot of stat calls and string manipulation...
     // Make sure we only call it once per RelPath directory.

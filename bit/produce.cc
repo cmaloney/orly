@@ -104,7 +104,6 @@ bool TStatusTracker::AddNeeded(TFileInfo *file) {
 void TStatusTracker::DoAdvance() {
   while (Runner.HasMoreResults() && !HasFinishedAll()) {
     // Update current status
-    cout << '[' << Done.size() << '/' << All.size() << "] waiting: " << Running.size() << "\n";
     TStatusLine() << '[' << Done.size() << '/' << All.size() << "] waiting: " << Running.size();
 
     // Get result out of runner
@@ -158,7 +157,6 @@ void TStatusTracker::DoAdvance() {
     };
 
     auto mark_complete = [this, &result, &output]() {
-      cout << "mark complete" << endl;
       // NOTE: this uses multiple loops over the same set to enusre each
       // operation completes fully / for each file before the next is started.
 
@@ -193,7 +191,7 @@ void TStatusTracker::DoAdvance() {
         file_info->Complete(result.Job, move(extra_file_data[file_info]));
       }
 
-      cout << "Completed files [" << result.Job << ": " << Join(job_output, " ") << "\n";
+      // DEBUG: cout << "Completed files [" << result.Job << ": " << Join(job_output, " ") << "\n";
 
       // If any jobs were waiting on the output files of this job, try queing
       // those jobs.
@@ -203,7 +201,7 @@ void TStatusTracker::DoAdvance() {
       std::unordered_set<TJob *> unblocked;
       auto it = WaitingForJob.find(result.Job);
       if (it != WaitingForJob.end()) {
-        std::cout << "Waiting, now unblocked: " << Join(it->second, " ") << "\n";
+        // DEBUG: std::cout << "Waiting, now unblocked: " << Join(it->second, " ") << "\n";
         unblocked = std::move(it->second);
         WaitingForJob.erase(it);
       }
@@ -228,10 +226,10 @@ void TStatusTracker::DoAdvance() {
         // Re-queue the job to be run once all its needs are completed. If all
         // the needs are already done, put it into the runner immediately
         if (!block_if_needs(output.Needs)) {
-          std::cout << "Should immediately re-queue" << result.Job << "\n";
+          // DEBUG: std::cout << "Should immediately re-queue" << result.Job << "\n";
           QueueJob(result.Job);
         } else {
-          std::cout << ":/ " << Join(output.Needs.Mandatory, " ") << "\n";
+          // DEBUG: std::cout << ":/ " << Join(output.Needs.Mandatory, " ") << "\n";
 
         }
         break;
