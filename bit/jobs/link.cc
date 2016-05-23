@@ -98,8 +98,7 @@ TJob::TOutput TLink::Run(TFileEnvironment *file_environment) {
   // Sort based on completion into "AntiNeeds"
   // Build the link command line. All files which don't exist become "anti needs" (if they could
   // later be produced, we need to re-build the output).
-  vector<string> cmd = {"clang++",  "-o",  GetSoleOutput()->CmdPath, "-stdlib=libc++", "-pthread",
-                        "-lc++abi", "-ldl"};
+  vector<string> cmd = {"clang++",  "-o",  GetSoleOutput()->CmdPath, "-pthread", "-ldl"};
   cmd.reserve(cmd.size() + ObjFiles.size());
   for (TFileInfo *file : ObjFiles) {
     if (file->IsComplete()) {

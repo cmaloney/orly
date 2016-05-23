@@ -16,7 +16,7 @@
 
 set -e
 
-CC=g++
+CC=clang++
 common_flags=(
   # Base compile
   -std=c++1y
@@ -37,9 +37,9 @@ common_flags=(
   -rdynamic
 
   # Static resulting binary
-  -static
+  # -static
   # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
-  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+  # -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
   )
 
 OS=`uname -s`

@@ -114,8 +114,8 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
 
   // TODO(cmaloney): cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
   cmd.push_back("-std=c++14");
-  cmd.push_back("-stdlib=libc++");
-  cmd.push_back("-lc++abi");
+  // cmd.push_back("-stdlib=libc++");
+  // cmd.push_back("-lc++abi");
   cmd.push_back("-std=c++1z");
   cmd.push_back("-Wall");
   cmd.push_back("-Werror");

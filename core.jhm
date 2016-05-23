@@ -10,8 +10,6 @@
     ],
   "options": {
     "c++" : [
-      "-stdlib=libc++",
-      "-lc++abi",
       "-std=c++1z",
       "-Wall",
       "-Werror",
@@ -24,9 +22,7 @@
     ],
     "link": {
       "libs": [
-        "-stdlib=libc++",
         "-pthread",
-        "-lc++abi",
         "-ldl"]
     }
   }

@@ -7,22 +7,19 @@
   },
   "options": {
     "+c++": [
+      "-g",
       "-O3",
       "-DNDEBUG",
-      "-march=native",
-      "-mtune=native",
       "-Wno-unused",
       "-Wno-unused-parameter",
       "-Wno-unused-result",
-      "-flto"
+      "-fsanitize=undefined"
     ],
     "link": {
       "+flags": [
+        "-g",
         "-O3",
-        "-flto",
-        "-fuse-ld=gold",
-        "-march=native",
-        "-mtune=native"
+        "-fsanitize=undefined"
       ]
     }
   }
