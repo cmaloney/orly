@@ -73,10 +73,9 @@ auto Pop(TContainer &container) {
 }
 
 template <typename TVal>
-auto Append(std::vector<TVal> &base, std::vector<TVal> &&additional) {
+auto Append(std::vector<TVal> &base, const std::vector<TVal> &additional) {
   base.reserve(base.size() + additional.size());
-  base.insert(base.end(), std::make_move_iterator(begin(additional)),
-              std::make_move_iterator(end(additional)));
+  base.insert(base.end(), begin(additional), end(additional));
   return base;
 }
 

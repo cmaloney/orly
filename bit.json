@@ -15,6 +15,9 @@
         "-I/home/firebird347/projects/bit",
         "-DSRC_ROOT=\"/home/firebird347/projects/bit\""
       ]
-    }
+    },
+  "link": {
+    "libs": ["-pthread", "-ldl"]
+  }
   }
 }

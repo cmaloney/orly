@@ -9,15 +9,14 @@
 #include <bit/file_environment.h>
 #include <bit/file_info.h>
 #include <bit/job_producer.h>
+#include <base/json_util.h>
 #include <util/stl.h>
-
-// TODO(cmaloney)
-#include <iostream>
 
 using namespace Base;
 using namespace Bit;
 using namespace Bit::Jobs;
 using namespace std;
+using namespace Util;
 
 static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
   return {input.SwapExtension(".o", "")};
@@ -25,7 +24,27 @@ static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
 
 static TOpt<TRelPath> TryGetInputName(const TRelPath &output) { return output.AddExtension(".o"); }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+vector<string> ExtractLinkLibs(const TJobConfig *job_config) {
+  static TOpt<vector<string>> Args;
+
+  if (job_config) {
+    assert(!Args);
+    const auto *elem = TryFind(*job_config, "link");
+    if (elem) {
+      Args = ExtractOptional<vector<string>>(*elem, {"libs"});
+    } else {
+      Args.MakeKnown();
+    }
+  }
+
+  return *Args;
+}
+#pragma clang diagnostic pop
+
 TJobProducer TLink::GetProducer(const TJobConfig &job_config) {
+  ExtractLinkLibs(&job_config);
   return TJobProducer{"link",
                       TFileType::Object,
                       {TFileType::Executable},
@@ -98,7 +117,8 @@ TJob::TOutput TLink::Run(TFileEnvironment *file_environment) {
   // Sort based on completion into "AntiNeeds"
   // Build the link command line. All files which don't exist become "anti needs" (if they could
   // later be produced, we need to re-build the output).
-  vector<string> cmd = {"clang++",  "-o",  GetSoleOutput()->CmdPath, "-pthread", "-ldl"};
+  vector<string> cmd = {"clang++", "-o", GetSoleOutput()->CmdPath};
+  Append(cmd, ExtractLinkLibs(nullptr));
   cmd.reserve(cmd.size() + ObjFiles.size());
   for (TFileInfo *file : ObjFiles) {
     if (file->IsComplete()) {

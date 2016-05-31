@@ -1,7 +1,7 @@
 Steps to publishing
-  - Configurable flags
   - Finding / building tests
-  - Library of common mix chunks (sanitizers)
+  - Library of common mix chunks (sanitizers, libc++)
+  - CI w/ perf numbers up and running
 
 Pretty
   - Eliminate ParseDeps. It's most of our time:

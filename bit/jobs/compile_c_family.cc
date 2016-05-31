@@ -75,14 +75,11 @@ vector<string> ExtractBaseArgs(const TJobConfig *job_config) {
 
   if (job_config) {
     assert(!Args);
-    std::string section_name = IsCc ? "compile_cc" : "compile_c";
     Args = vector<string>{IsCc ? "clang++" : "clang"};
 
-    auto it = job_config->find(section_name);
-    if (it != job_config->end()) {
-      Append(*Args, ExtractOptional<vector<string>>(it->second, {"flags"}));
-    } else {
-      Args.MakeKnown();
+    const auto *elem = TryFind(*job_config, IsCc ? "compile_cc" : "compile_c");
+    if (elem) {
+      Append(*Args, ExtractOptional<vector<string>>(*elem, {"flags"}));
     }
   }
 
