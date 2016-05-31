@@ -7,6 +7,7 @@
 #include <base/thrower.h>
 #include <bit/file_environment.h>
 #include <bit/file_info.h>
+#include <bit/jobs/compile_c_family.h>
 #include <bit/jobs/dep_c.h>
 
 using namespace Base;
@@ -58,37 +59,14 @@ TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
   // compiler
   const TRelPath &input_path = GetInput()->RelPath;
 
-  vector<string> cmd;
   // Only C, C++ are supported currently.
   assert(input_path.EndsWith(".cc") || input_path.EndsWith(".c"));
 
-  if (input_path.EndsWith(".cc")) {
-    // TODO(cmaloney): Make a helper utility in <jobs/compile_c_family.h> to get the command.
-    cmd.push_back("clang++");
-    // cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
-  } else {
-    cmd.push_back("clang");
-    // cmd.push_back(Bit::GetCmd<Tools::C>(Env.GetConfig()));
-  }
+  vector<string> cmd = input_path.EndsWith(".cc") ? TCompileCFamily::GetBaseCppArgs()
+                                                  : TCompileCFamily::GetBaseCArgs();
 
-  // TODO: move array append
-  // for (auto &arg : TCompileCFamily::GetStandardArgs(GetInput(), ext == "cc", Env)) {
-  //  cmd.push_back(move(arg));
-  //}
   cmd.push_back("-M");
   cmd.push_back("-MG");
-
-  cmd.push_back("-std=c++14");
-  cmd.push_back("-Wall");
-  cmd.push_back("-Werror");
-  cmd.push_back("-Wextra");
-  cmd.push_back("-Wno-unused");
-  cmd.push_back("-Wno-unused-result");
-  cmd.push_back("-Wno-unused-parameter");
-  cmd.push_back("-fcolor-diagnostics");
-  cmd.push_back("-Qunused-arguments");
-  cmd.push_back("-I/home/firebird347/projects/bit");
-
   cmd.push_back(GetInput()->CmdPath);
 
   TOutput output;

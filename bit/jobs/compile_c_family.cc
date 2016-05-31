@@ -2,14 +2,17 @@
 
 #include <chrono>
 
+#include <base/json_util.h>
 #include <base/not_implemented.h>
 #include <bit/file_environment.h>
 #include <bit/job_producer.h>
+#include <util/stl.h>
 
 using namespace Base;
 using namespace Bit;
 using namespace Jobs;
 using namespace std;
+using namespace Util;
 
 // TODO(cmaloney): Get out args from config
 #if 0
@@ -64,29 +67,62 @@ static TOpt<TRelPath> TryGetInputName(const TRelPath &output) {
   return TOpt<TRelPath>();
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+template<bool IsCc>
+vector<string> ExtractBaseArgs(const TJobConfig *job_config) {
+  static TOpt<vector<string>> Args;
+
+  if (job_config) {
+    assert(!Args);
+    std::string section_name = IsCc ? "compile_cc" : "compile_c";
+    Args = vector<string>{IsCc ? "clang++" : "clang"};
+
+    auto it = job_config->find(section_name);
+    if (it != job_config->end()) {
+      Append(*Args, ExtractOptional<vector<string>>(it->second, {"flags"}));
+    } else {
+      Args.MakeKnown();
+    }
+  }
+
+  return *Args;
+}
+#pragma clang diagnostic pop
+
+vector<string> TCompileCFamily::GetBaseCArgs() {
+  return ExtractBaseArgs<false>(nullptr);
+}
+
+vector<string> TCompileCFamily::GetBaseCppArgs() {
+  return ExtractBaseArgs<true>(nullptr);
+}
+
 TJobProducer TCompileCFamily::GetCProducer(const TJobConfig &job_config) {
+  ExtractBaseArgs<false>(&job_config);
   return TJobProducer{"compile_c",
                       TFileType::CSource,
                       {TFileType::Object},
                       TryGetInputName<false>,
                       GetOutputName<false>,
                       // TODO: Should be able to eliminate the lambda wrapper here...
-                      [job_config](TJob::TMetadata &&metadata) -> unique_ptr<TJob> {
+                      [](TJob::TMetadata &&metadata) -> unique_ptr<TJob> {
                         return unique_ptr<TCompileCFamily>(
-                            new TCompileCFamily(std::move(metadata), &job_config, false));
+                            new TCompileCFamily(std::move(metadata), false));
                       }};
 }
 
 TJobProducer TCompileCFamily::GetCcProducer(const TJobConfig &job_config) {
+  ExtractBaseArgs<true>(&job_config);
   return TJobProducer{"compile_cc",
                       TFileType::CppSource,
                       {TFileType::Object},
                       TryGetInputName<true>,
                       GetOutputName<true>,
                       // TODO: Should be able to eliminate the lambda wrapper here...
-                      [job_config](TJob::TMetadata &&metadata) -> unique_ptr<TJob> {
+                      [](TJob::TMetadata &&metadata) -> unique_ptr<TJob> {
                         return unique_ptr<TCompileCFamily>(
-                            new TCompileCFamily(std::move(metadata), &job_config, true));
+                            new TCompileCFamily(std::move(metadata), true));
                       }};
 }
 
@@ -103,30 +139,9 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
 
   // Since the dep file requires all the .h files in order to complete, if it is
   // complete everything this file touches / includes is complete. Compile!
-  vector<string> cmd;
-  if (IsCc) {
-    cmd.push_back("clang++");
-  } else {
-    cmd.push_back("clang");
-  }
+  vector<string> cmd = IsCc ? GetBaseCppArgs() : GetBaseCArgs();
 
   cmd.push_back("-c");
-
-  // TODO(cmaloney): cmd.push_back(Bit::GetCmd<Tools::Cc>(Env.GetConfig()));
-  cmd.push_back("-std=c++14");
-  // cmd.push_back("-stdlib=libc++");
-  // cmd.push_back("-lc++abi");
-  cmd.push_back("-std=c++1z");
-  cmd.push_back("-Wall");
-  cmd.push_back("-Werror");
-  cmd.push_back("-Wextra");
-  cmd.push_back("-Wno-unused");
-  cmd.push_back("-Wno-unused-result");
-  cmd.push_back("-Wno-unused-parameter");
-  cmd.push_back("-fcolor-diagnostics");
-  cmd.push_back("-Qunused-arguments");
-  cmd.push_back("-I/home/firebird347/projects/bit");
-  cmd.push_back("-DSRC_ROOT=\"/home/firebird347/projects/bit\"");
   cmd.push_back("-o");
   cmd.push_back(GetSoleOutput()->CmdPath);
 
@@ -168,5 +183,5 @@ std::unordered_map<TFileInfo *, TJobConfig> TCompileCFamily::GetOutputExtraData(
   return {{GetSoleOutput(), TJobConfig{{"try_link", move(LinkNeeds)}}}};
 }
 
-TCompileCFamily::TCompileCFamily(TMetadata &&metadata, const TJobConfig *, bool is_cc)
+TCompileCFamily::TCompileCFamily(TMetadata &&metadata, bool is_cc)
     : TJob(move(metadata)), IsCc(is_cc) {}

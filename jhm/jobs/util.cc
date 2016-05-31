@@ -52,7 +52,7 @@ unordered_set<TFile *> Jhm::GetOutputSet(const vector<vector<string>> &out_exts,
                                          const TRelPath &input) {
   unordered_set<TFile *> out_set;
   for(const auto &ext : out_exts) {
-    InsertOrFail(out_set, env.GetFile(TRelPath(SwapExtension(Base::TPath(input.Path), {ext}))));
+    InsertOrFail(out_set, env.GetFile(TRelPath(SwapExtension(Base::TPath(input.Path), vector<string>{ext}))));
   }
   return out_set;
 }

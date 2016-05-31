@@ -27,6 +27,10 @@ namespace Jobs {
 
 class TCompileCFamily final : public TJob {
   public:
+
+  static std::vector<std::string> GetBaseCArgs();
+  static std::vector<std::string> GetBaseCppArgs();
+
   static TJobProducer GetCProducer(const TJobConfig &job_config);
   static TJobProducer GetCcProducer(const TJobConfig &job_config);
 
@@ -35,7 +39,7 @@ class TCompileCFamily final : public TJob {
   virtual std::unordered_map<TFileInfo *, TJobConfig> GetOutputExtraData() const final;
 
   private:
-  TCompileCFamily(TMetadata &&metadata, const TJobConfig *job_config, bool is_cc);
+  TCompileCFamily(TMetadata &&metadata, bool is_cc);
 
   // NOTE: We could make IsCc be constant / CompileCFamily be templated on it
   // But that results in more ug than the tiny perf benefit is worth.

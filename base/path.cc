@@ -21,6 +21,7 @@
 
 #include <base/split.h>
 #include <base/thrower.h>
+#include <util/stl.h>
 
 using namespace std;
 using namespace Base;
@@ -160,9 +161,9 @@ ostream &Base::WriteExtension(ostream &out, const vector<string> &extension) {
   return out;
 }
 
-TPath Base::AddExtension(TPath &&that, const vector<string> &new_extension) {
+TPath Base::AddExtension(TPath &&that, vector<string> &&new_extension) {
   assert(that);
-  that.Extension.insert(that.Extension.end(), new_extension.begin(), new_extension.end());
+  Util::Append(that.Extension, move(new_extension));
   return that;
 }
 
@@ -173,11 +174,11 @@ TPath Base::DropExtension(TPath &&that, uint32_t count) {
   return that;
 }
 
-TPath Base::SwapExtension(TPath &&that, const vector<string> &new_extension) {
+TPath Base::SwapExtension(TPath &&that, vector<string> &&new_extension) {
   assert(that);
   assert(that.Extension.size());
   that.Extension.pop_back();
-  that.Extension.insert(that.Extension.end(), new_extension.begin(), new_extension.end());
+  Util::Append(that.Extension, move(new_extension));
   return that;
 }
 

@@ -1,3 +1,20 @@
 {
-  "targets": ["bit/bit"]
+  "targets": ["bit/bit"],
+  "job_config": {
+    "compile_cc": {
+      "flags": [
+        "-std=c++1z",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-unused",
+        "-Wno-unused-result",
+        "-Wno-unused-parameter",
+        "-fcolor-diagnostics",
+        "-Qunused-arguments",
+        "-I/home/firebird347/projects/bit",
+        "-DSRC_ROOT=\"/home/firebird347/projects/bit\""
+      ]
+    }
+  }
 }

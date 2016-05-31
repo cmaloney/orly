@@ -106,9 +106,9 @@ std::ostream &WriteNamespace(std::ostream &out,
 // NOTE: If last extension is empty, don't print a dot.
 std::ostream &WriteExtension(std::ostream &out, const std::vector<std::string> &extension);
 
-TPath AddExtension(TPath &&that, const std::vector<std::string> &new_extension);
+TPath AddExtension(TPath &&that, std::vector<std::string> &&new_extension);
 TPath DropExtension(TPath &&that, uint32_t count);
-TPath SwapExtension(TPath &&that, const std::vector<std::string> &new_extension);
+TPath SwapExtension(TPath &&that, std::vector<std::string> &&new_extension);
 
 std::ostream &operator<<(std::ostream &out, const TPath &path);
 }  // Base

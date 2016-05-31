@@ -6,8 +6,9 @@ Steps to publishing
 Pretty
   - Eliminate ParseDeps. It's most of our time:
     https://gist.github.com/codebrainz/faabd73930c5346f7b50
-  - ccache
+  - ccache. We know all the things being touched. Hash and store to a DFS.
   - Shortcut critical chain / forward finding work rather than waiting (a.c -> a.o -> found all the deps, build everything -> a).
+  - Some way of sharing code / downloading code / package managementy.
 
 Rewrite config system
   - use proper layers (project, user, system)

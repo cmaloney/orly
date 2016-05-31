@@ -21,6 +21,7 @@
 #include <cassert>
 #include <limits>
 #include <type_traits>
+#include <vector>
 #include <utility>
 
 #include <base/class_traits.h>
@@ -70,4 +71,13 @@ auto Pop(TContainer &container) {
   container.pop();
   return res;
 }
+
+template <typename TVal>
+auto Append(std::vector<TVal> &base, std::vector<TVal> &&additional) {
+  base.reserve(base.size() + additional.size());
+  base.insert(base.end(), std::make_move_iterator(begin(additional)),
+              std::make_move_iterator(end(additional)));
+  return base;
+}
+
 }
