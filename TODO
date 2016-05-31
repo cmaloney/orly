@@ -1,3 +1,13 @@
+Steps to publishing
+  - Configurable flags
+  - Finding / building tests
+  - Library of common mix chunks (sanitizers)
+
+Pretty
+  - Eliminate ParseDeps. It's most of our time:
+    https://gist.github.com/codebrainz/faabd73930c5346f7b50
+  - ccache
+  - Shortcut critical chain / forward finding work rather than waiting (a.c -> a.o -> found all the deps, build everything -> a).
 
 Rewrite config system
   - use proper layers (project, user, system)

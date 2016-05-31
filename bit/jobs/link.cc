@@ -108,7 +108,6 @@ TJob::TOutput TLink::Run(TFileEnvironment *file_environment) {
     }
   }
 
-  cout << Join(cmd, ", ") << "\n";
   output.Subprocess = Subprocess::Run(cmd);
   // Process the output
   if (output.Subprocess.ExitCode != 0) {
