@@ -23,7 +23,7 @@ class TFileInfo {
   TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_config, bool is_src);
 
   // Returns the complete config if IsComplete is true, otherwise returns nullptr.
-  TFileConfig *GetCompleteConfig();
+  const TFileConfig *GetCompleteConfig() const;
 
   Base::TOpt<bool> IsBuildable() const;
 

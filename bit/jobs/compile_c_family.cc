@@ -140,7 +140,7 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
   }
 
   // TODO(cmaloney): This is doing a ton of excess computation converting back into fileinfo objects.
-  for (const auto &dep: Needs->GetCompleteConfig()->JobConfig["dependencies"].GetArray()) {
+  for (const auto &dep: Needs->GetCompleteConfig()->JobConfig.at("dependencies").GetArray()) {
     TOpt<TRelPath> dep_rel_path = file_environment->TryGetRelPath(dep.GetString());
     if (dep_rel_path && dep_rel_path->EndsWith(".h")) {
       TFileInfo *link_file = file_environment->GetFileInfo(dep_rel_path->SwapExtension(".h", ".o"));

@@ -80,7 +80,7 @@ TJob::TOutput TLink::Run(TFileEnvironment *file_environment) {
       continue;
     }
 
-    for (const auto &dep : obj->GetCompleteConfig()->JobConfig["try_link"].GetArray()) {
+    for (const auto &dep : obj->GetCompleteConfig()->JobConfig.at("try_link").GetArray()) {
       TFileInfo *link_file =
           file_environment->GetFileInfo(*file_environment->TryGetRelPath(dep.GetString()));
 
