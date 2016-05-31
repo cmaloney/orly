@@ -49,6 +49,8 @@ TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
    If the path doesn't belong to any tree, the full path is given as the
    relative path. */
 TOpt<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
+  assert(&path);
+
   // TODO(cmaloney): This locking scheme is going to be a major bottleneck...
   lock_guard<mutex> lock(Mutex);
 
