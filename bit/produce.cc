@@ -94,7 +94,7 @@ bool TStatusTracker::AddNeeded(TFileInfo *file) {
   if (!job) {
     // TODO(cmaloney): Capture this exception and wrap it with the job which needed this file
     // to be produced.
-    THROWER(runtime_error) << "No known way to produce file '" << file << "'.";
+    THROWER(runtime_error) << "No known way to produce file '" << file->RelPath.Path << "'.";
   }
 
   QueueJob(job);
