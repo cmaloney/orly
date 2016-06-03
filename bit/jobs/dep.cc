@@ -81,9 +81,9 @@ TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
 
   output.Result = TJob::TOutput::CompleteIfNeeds;
   if (output.Subprocess.Output->HasOverflowed()) {
-    THROWER(std::overflow_error) << "Dependency list exceeded stdout exceeded the max length of "
-                                    "the cyclic buffer used for streaming out of subprocesses and "
-                                    "guaranteeing they can't use infinite length buffers.";
+    THROWER(std::overflow_error) << "Dependency list exceeded the max supported length of the stdout"
+                                    " cyclic buffer used for streaming out of subprocesses and "
+                                    "guaranteeing they don't eat all memory.";
   }
 
   auto deps = ParseDeps(output.Subprocess.Output->ToString());
