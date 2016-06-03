@@ -138,9 +138,6 @@ void TStatusTracker::DoAdvance() {
       }
 
       for (TFileInfo *file_info: needs.IfBuildable) {
-        // IfBuildable should only be used for things which the job does not know if they are
-        // buildable and therefore cannot determine if they are mandatory or not.
-        assert(file_info->IsBuildable().IsUnknown());
         if (IsBuildable(file_info, TFileType::Unset)) {
           add_blocking_not_complete(file_info);
         }
