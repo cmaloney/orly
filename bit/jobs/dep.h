@@ -30,7 +30,7 @@ class TDep final : public TJob {
 
   virtual TOutput Run(TFileEnvironment *file_env) final;
   virtual std::string GetConfigId() const final;
-  virtual std::unordered_map<TFileInfo*, TJobConfig> GetOutputExtraData() const final;
+  virtual std::unordered_map<TFileInfo *, TJobConfig> GetOutputExtraData() const final;
 
   private:
   TDep(TMetadata &&metadata, const TJobConfig *job_config);
@@ -38,5 +38,5 @@ class TDep final : public TJob {
   // TODO(cmaloney): Use this: const TJobConfig *JobConfig;
   std::unordered_set<TFileInfo *> Needs;
 };
-} // Job
-} // Jhm
+}  // Job
+}  // Bit

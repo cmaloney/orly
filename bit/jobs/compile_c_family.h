@@ -50,4 +50,4 @@ class TCompileCFamily final : public TJob {
 
 }  // Job
 
-}  // Jhm
+}  // Bit

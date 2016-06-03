@@ -67,7 +67,7 @@ Make the JobRunner a proper thread pool
 -----
 To review:
 
-Configure for JHM (CXX, CC, CXXFLAGS, CCFLAGS, LD, LDFLAGS):
+Configure for bit (CXX, CC, CXXFLAGS, CCFLAGS, LD, LDFLAGS):
   - Ideally also allow adding platform/tool/etc. specific variables/flags to config.
   - Have a 'setup' step analogous to ./configure
   - Captures a static set of environment variables which are then used
