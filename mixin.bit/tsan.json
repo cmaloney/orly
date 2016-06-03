@@ -1,0 +1,14 @@
+{
+  "job_config": {
+    "compile_cc": {
+      "flags": [
+        "-fsanitize=thread"
+      ]
+    },
+    "link": {
+      "flags": [
+        "-fsanitize=thread"
+      ]
+    }
+  }
+}

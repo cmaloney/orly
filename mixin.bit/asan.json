@@ -1,0 +1,14 @@
+{
+  "job_config": {
+    "compile_cc": {
+      "flags": [
+        "-fsanitize=address"
+      ]
+    },
+    "link": {
+      "flags": [
+        "-fsanitize=address"
+      ]
+    }
+  }
+}

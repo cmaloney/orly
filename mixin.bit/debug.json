@@ -1,0 +1,17 @@
+{
+  "job_config": {
+    "compile_cc": {
+        "flags": [
+        "-DDEBUG",
+        "-g",
+        "-Weverything",
+        "-Wno-c++98-compat",
+        "-Wno-c++98-compat-pedantic",
+        "-Wno-padded",
+        "-Wno-missing-prototypes",
+        "-Wno-weak-vtables",
+        "-Wno-disabled-macro-expansion",
+     ]
+    }
+  }
+}

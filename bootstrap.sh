@@ -58,15 +58,30 @@ fi
 mkdir -p tools
 
 #Build JHM
-$CC -o tools/jhm \
- "${common_flags[@]}" \
-  jhm/jobs/util.cc jhm/jobs/dep.cc jhm/jobs/dep_c.cc base/dir_walker.cc util/io.cc jhm/file.cc base/json.cc \
-  base/pump.cc base/subprocess.cc cmd/main.cc base/demangle.cc util/error.cc base/split.cc cmd/parse.cc cmd/help.cc \
-  base/code_location.cc base/cyclic_buffer.cc jhm/job_runner.cc util/signal.cc util/path.cc jhm/job.cc \
-  base/backtrace.cc jhm/jhm.cc jhm/env.cc jhm/jobs/compile_c_family.cc jhm/config.cc util/time.cc jhm/status_line.cc \
-  jhm/work_finder.cc jhm/jobs/link.cc base/path.cc jhm/naming.cc base/fd.cc base/unreachable.cc jhm/test.cc \
+#$CC -o tools/jhm \
+# "${common_flags[@]}" \
+#  jhm/jobs/util.cc jhm/jobs/dep.cc jhm/jobs/dep_c.cc base/dir_walker.cc util/io.cc jhm/file.cc base/json.cc \
+#  base/pump.cc base/subprocess.cc cmd/main.cc base/demangle.cc util/error.cc base/split.cc cmd/parse.cc cmd/help.cc \
+#  base/code_location.cc base/cyclic_buffer.cc jhm/job_runner.cc util/signal.cc util/path.cc jhm/job.cc \
+#  base/backtrace.cc jhm/jhm.cc jhm/env.cc jhm/jobs/compile_c_family.cc jhm/config.cc util/time.cc jhm/status_line.cc \
+#  jhm/work_finder.cc jhm/jobs/link.cc base/path.cc jhm/naming.cc base/fd.cc base/unreachable.cc jhm/test.cc \
+#  "$extra_files" \
+#  -I./ -DSRC_ROOT=\"`pwd`\" \
+#  -ldl
+
+# Build BIT
+$CC -o tools/bit                \
+  "${common_flags[@]}"          \
+  bit/status_line.cc bit/job_runner.cc base/pump.cc base/json.cc                                    \
+  bit/file_info.cc util/error.cc bit/jobs/dep.cc cmd/help.cc base/json_util.cc cmd/main.cc          \
+  bit/config.cc base/split.cc util/path.cc bit/naming.cc bit/job.cc bit/environment.cc util/io.cc   \
+  util/signal.cc cmd/parse.cc bit/file_environment.cc base/code_location.cc base/cyclic_buffer.cc   \
+  bit/bit.cc bit/jobs/dep_c.cc base/unreachable.cc base/subprocess.cc bit/produce.cc                \
+  base/demangle.cc base/fd.cc base/backtrace.cc base/dir_walker.cc bit/jobs/link.cc                 \
+  bit/jobs/compile_c_family.cc                                                                      \
   "$extra_files" \
   -I./ -DSRC_ROOT=\"`pwd`\" \
   -ldl
+
 
 mkdir -p ../.jhm

@@ -1,0 +1,15 @@
+{
+  "job_config": {
+    "compile_cc": {
+      "flags": [
+        "-fsanitize=undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    },
+    "link": {
+      "flags": [
+        "-fsanitize=undefined"
+      ]
+    }
+  }
+}

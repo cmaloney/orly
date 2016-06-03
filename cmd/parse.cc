@@ -36,7 +36,10 @@ void TParser::Parse(const int argc, const char *const argv[]) const {
   auto has_more = [&i, argc]() -> bool { return i < argc; };
 
   // TODO(cmaloney): Switch to something string_view like.
-  auto get_arg = [argc, argv](int idx) -> std::string { return std::string(argv[idx]); };
+  auto get_arg = [argc, argv](int idx) -> std::string {
+    assert(idx < argc);
+    return std::string(argv[idx]);
+  };
 
   // Everything after '--' should be taken as positional arguments.
   bool no_more_interpreted = false;
