@@ -18,13 +18,17 @@
 
 #include <base/subprocess.h>
 
-#include <unistd.h>
-#include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
+#include <iostream>
+
+#include <base/opt.h>
 #include <base/pump.h>
-#include <util/io.h>
+#include <base/split.h>
 #include <util/error.h>
+#include <util/io.h>
 
 using namespace std;
 using namespace Base;
@@ -77,21 +81,13 @@ class TSubprocess final {
   // Run the command as a subprocess. Returns a TSubprocess for communicating to
   //  the child process.
   static std::unique_ptr<TSubprocess> New(TPump &pump, const std::vector<std::string> &cmd) {
-    auto subprocess = New(pump);
-    if (!subprocess) {
+    // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2070
+    auto subprocess = std::unique_ptr<TSubprocess>(new TSubprocess(pump));
+    if (!subprocess->ChildId) {
+      subprocess.reset();
       Exec(cmd);
     }
     return subprocess;
-  }
-
-  private:
-  static std::unique_ptr<TSubprocess> New(TPump &pump) {
-    // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2070
-    auto result = std::unique_ptr<TSubprocess>(new TSubprocess(pump));
-    if (!result->ChildId) {
-      result.reset();
-    }
-    return result;
   }
 
   /* Construct the pipes and fork. */
@@ -127,6 +123,16 @@ class TSubprocess final {
   std::future<void> OutputWait, ErrorWait;
 };  // TSubprocess
 
+static bool InternalEchoCommands(TOpt<bool> enable) {
+  static bool Enable = false;
+
+  if (enable.IsKnown()) {
+    Enable = *enable;
+  }
+
+  return Enable;
+}
+
 void Base::Subprocess::Exec(const vector<string> &cmd) {
   assert(&cmd);
 
@@ -143,6 +149,11 @@ void Base::Subprocess::Exec(const vector<string> &cmd) {
 }
 
 TResult Base::Subprocess::Run(TPump &pump, const std::vector<std::string> &cmd) {
+  if (InternalEchoCommands(TNone())) {
+    // TODO(cmaloney): Make it so copy / paste will get exact set of arguments from bash.
+    cout << AsStr("Base::Subprocess::Exec([", Join(cmd, " "), "])\n");
+  }
+
   auto subprocess = TSubprocess::New(pump, cmd);
   int exit_code = subprocess->Wait();
 
@@ -159,3 +170,5 @@ int Base::Subprocess::WaitAll() {
   IfNe0(waitid(P_ALL, 0, &status, WEXITED | WNOWAIT));
   return status.si_pid;
 }
+
+void Base::Subprocess::SetEchoCommands(bool enable) { InternalEchoCommands(enable); }

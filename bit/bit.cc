@@ -46,9 +46,15 @@ int Main(int argc, char *argv[]) {
       // Ninja's pool options are more what is wanted / needed here.
       Cmd::Optional("max-parallel", &TOptions::WorkerCount,
                     "Max number of commands/jobs to run at once"),
-      Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce")};
+      Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce"),
+      Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print the command line of all Exec calls")};
+
 
   TOptions options = Cmd::Parse(args, argc, argv);
+
+  if (options.PrintCmd) {
+    Subprocess::SetEchoCommands(true);
+  }
 
   // Stash the current directory since we change our working directory to always
   // be the root of the project, but we need to still resolve relative paths

@@ -1,0 +1,16 @@
+{
+  "job_onfig": {
+    "compile_cc": {
+      "flags": [
+        "-O3",
+        "-flto"
+      ]
+    },
+    "link": {
+      "flags": [
+        "-O3",
+        "-flto"
+      ]
+    }
+  }
+}

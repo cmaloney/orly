@@ -34,11 +34,6 @@ namespace Subprocess {
 //  entirely with the shell process (and hence never return).
 [[noreturn]] void Exec(const std::vector<std::string> &cmd);
 
-struct TResultSimple {
-  int ExitCode;
-  std::shared_ptr<TCyclicBuffer> Output;
-};
-
 struct TResult {
   int ExitCode;
   std::shared_ptr<TCyclicBuffer> Output, Error;
@@ -53,15 +48,15 @@ struct TResult {
 // Run the subprocess and return it's exit state + buffers which contain its
 // output.
 TResult Run(const std::vector<std::string> &cmd);
-TResultSimple RunSimple(const std::vector<std::string> &cmd);
 
 // Run the subprocess and return it's exit state + buffers which contain its
 // output. Use an existing event loop to pump through the input / output.
 TResult Run(TPump &pump, const std::vector<std::string> &cmd);
-TResultSimple RunSimple(TPump &pump, const std::vector<std::string> &cmd);
 
 // Returns the pid of the process which exited / work us up.
 int WaitAll();
+
+void SetEchoCommands(bool enable);
 
 };  // namespace Subprocess
 
