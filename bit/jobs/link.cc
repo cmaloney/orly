@@ -33,7 +33,8 @@ vector<string> ExtractLinkLibs(const TJobConfig *job_config) {
     assert(!Args);
     const auto *elem = TryFind(*job_config, "link");
     if (elem) {
-      Args = ExtractOptional<vector<string>>(*elem, {"libs"});
+      Args = ExtractOptional<vector<string>>(*elem, {"flags"});
+      Append(*Args, ExtractOptional<vector<string>>(*elem, {"libs"}));
     } else {
       Args.MakeKnown();
     }

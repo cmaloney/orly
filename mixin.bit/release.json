@@ -1,15 +1,25 @@
 {
-  "job_onfig": {
+  "job_config": {
     "compile_cc": {
       "flags": [
-        "-O3",
-        "-flto"
+        "-Ofast",
+        "-flto",
+        "-march=native",
+        "-mtune=native",
+        "-DNDEBUG",
+        "-Wno-unused",
+        "-Wno-unused-parameter",
+        "-Wno-unused-result"
       ]
     },
     "link": {
       "flags": [
-        "-O3",
-        "-flto"
+        "-Ofast",
+        "-flto",
+        "-fuse-ld=gold",
+        "-fwhole-program",
+        "-march=native",
+        "-mtune=native"
       ]
     }
   }
