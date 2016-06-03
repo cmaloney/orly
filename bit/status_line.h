@@ -1,6 +1,4 @@
-/* <bit/status_line.h>
-
-   Maintains a line of text which states the status
+/* Maintains a line of text which states the status
 
    TODO: Switch to a library someone else has already written for this (linenoise?)
 

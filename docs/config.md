@@ -3,7 +3,7 @@ Configuration
 
 All options can come from the command line, user, system, or project. Command line always wins out.
 
-Projects contain a base config `core.jhm` which lists what to build, the general shape of the project, and any special generally-needed project config.
+Projects contain a base config `bit.json` which lists what to build, the general shape of the project, and any special generally-needed project config.
 
 Config files may never be generated then loaded by the build system. If such behavior seems like it is necessary, probably the tool should be augmenting the files it writes with data which tools down the line will process.
 
@@ -22,9 +22,9 @@ TODO: `@filename.json` followed by name?
 
 # Layers
 
-1. Tools listed in core.jhm (add)
-1. Mixins listed in core.jhm (add)
-1. core.jhm options (add, modify)
+1. Tools listed in bit.json (add)
+1. Mixins listed in bit.json (add)
+1. bit.json options (add, modify)
 1. Per-file options (add, modify)
 1. Command-line mixins (add)
 1. Command-line tools (add)

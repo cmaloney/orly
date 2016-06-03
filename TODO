@@ -3,6 +3,7 @@ Steps to publishing
   - CI w/ perf numbers up and running
   - Get `bit -m msan -m debug` passing
   - Running tests (And in verbose mode?)
+  - Remove ToString from dep.cc
 
 Pretty
   - Eliminate ParseDeps. It's most of our time:
@@ -98,8 +99,6 @@ A good Single Producer Multiple Consumer queue to
 
 Unify on THROWER w/ reduced (Simplified) interface.
 
--c release.jhm should build config named 'release', not one named 'release.jhm'
-
 A great many config options should be optional to specify (cmd.ld.libs, cmd.ld.flags, etc)
 
 Cleanup base/json API
@@ -122,7 +121,7 @@ Need to be able to do "parameterized builds"
   - Have a collection of config files stating the build parameters
     Env stuff: (clang, gcc, versions, etc.)
     Project stuff: Config, mixins
-  - Runs jhm in the context to build everything.
+  - Runs bit in the context to build everything.
 
   Notes:
     - Auto generate name?

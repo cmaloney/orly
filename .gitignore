@@ -1,9 +1,6 @@
-environment.jhm
 *.pyc
 *.swp
 *~
 *.*~
-.jhm/
-tools/jhm
 tools/
 .bit/

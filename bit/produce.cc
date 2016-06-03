@@ -344,7 +344,7 @@ void AddTests(TFileEnvironment &file_environment, TStatusTracker &status_tracker
 
     TAction OnDirBegin(const TEntry &entry) final {
       // If the directory is excluded, skip it.
-      if (Contains(unordered_set<string>{".git", ".bit", ".jhm"}, entry.Name)) {
+      if (Contains(unordered_set<string>{".git", ".bit"}, entry.Name)) {
         return TDirWalker::Skip;
       }
       return TDirWalker::Enter;

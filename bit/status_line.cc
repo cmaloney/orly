@@ -1,8 +1,4 @@
-/* <jhm/status_line.cc>
-
-   Implements <jhm/status_line.h>
-
-   Copyright 2015 Theoretical Chaos.
+/* Copyright 2016 Theoretical Chaos.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

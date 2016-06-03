@@ -1,5 +1,5 @@
 {
-  "targets": ["bit/bit", "jhm/jhm"],
+  "targets": ["bit/bit"],
   "job_config": {
     "compile_cc": {
       "flags": [
