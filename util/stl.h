@@ -29,6 +29,8 @@
 
 namespace Util {
 
+bool Contains(const std::vector<std::string> &vec, const char *str);
+
 /* Return true iff. a given value is in a container. */
 template <typename TContainer>
 bool Contains(const TContainer &container, const typename TContainer::value_type &val) {

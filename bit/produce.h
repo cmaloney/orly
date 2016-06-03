@@ -14,6 +14,6 @@ class TEnvironment;
 
 // Figure out the jobs which need to be run to create the given set of targets
 // and run them to create the targets.
-void DoProduce(uint64_t worker_count, TEnvironment &environment, std::vector<std::string> Targets);
+void DoProduce(uint64_t worker_count, TEnvironment &environment, std::vector<std::string> Targets, bool include_tests);
 
 }  // Bit

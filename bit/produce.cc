@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <base/not_implemented.h>
+#include <base/dir_walker.h>
 #include <base/split.h>
 #include <base/thrower.h>
 #include <bit/environment.h>
@@ -68,12 +68,12 @@ class TStatusTracker {
 
   // TODO(cmaloney): on top of queued and done we need to be able to track things
   // that could be "optimistically checked"
-  std::unordered_set<TJob *> Running;
-  std::unordered_set<TJob *> Done;
-  std::unordered_set<TJob *> All;
+  unordered_set<TJob *> Running;
+  unordered_set<TJob *> Done;
+  unordered_set<TJob *> All;
 
-  std::unordered_map<TJob *, std::unordered_set<TJob *>> WaitingForJob;
-  std::unordered_map<TFileInfo *, TJob *> Producers;
+  unordered_map<TJob *, unordered_set<TJob *>> WaitingForJob;
+  unordered_map<TFileInfo *, TJob *> Producers;
   TJobRunner Runner;
 };
 
@@ -119,7 +119,7 @@ void TStatusTracker::DoAdvance() {
     const TJob::TOutput &output = *(result.Output);
 
     auto block_if_needs = [this, &result](const TJob::TNeeds &needs) {
-      std::unordered_set<TJob *> blocking_jobs;
+      unordered_set<TJob *> blocking_jobs;
 
       auto add_blocking_not_complete = [this, &blocking_jobs](TFileInfo *file_info) {
         assert(file_info);
@@ -137,7 +137,7 @@ void TStatusTracker::DoAdvance() {
         add_blocking_not_complete(file_info);
       }
 
-      for (TFileInfo *file_info: needs.IfBuildable) {
+      for (TFileInfo *file_info : needs.IfBuildable) {
         if (IsBuildable(file_info, TFileType::Unset)) {
           add_blocking_not_complete(file_info);
         }
@@ -195,11 +195,11 @@ void TStatusTracker::DoAdvance() {
       // Gather all the jobs which got unblocked. Do this first / at once so
       // that we also remove the "WaitingForJob" entries before we call
       // QueueJob which will start waiting for job.
-      std::unordered_set<TJob *> unblocked;
+      unordered_set<TJob *> unblocked;
       auto it = WaitingForJob.find(result.Job);
       if (it != WaitingForJob.end()) {
-        // DEBUG: std::cout << "Waiting, now unblocked: " << Join(it->second, " ") << "\n";
-        unblocked = std::move(it->second);
+        // DEBUG: cout << "Waiting, now unblocked: " << Join(it->second, " ") << "\n";
+        unblocked = move(it->second);
         WaitingForJob.erase(it);
       }
       for (TJob *job : unblocked) {
@@ -223,11 +223,10 @@ void TStatusTracker::DoAdvance() {
         // Re-queue the job to be run once all its needs are completed. If all
         // the needs are already done, put it into the runner immediately
         if (!block_if_needs(output.Needs)) {
-          // DEBUG: std::cout << "Should immediately re-queue" << result.Job << "\n";
+          // DEBUG: cout << "Should immediately re-queue" << result.Job << "\n";
           QueueJob(result.Job);
         } else {
-          // DEBUG: std::cout << ":/ " << Join(output.Needs.Mandatory, " ") << "\n";
-
+          // DEBUG: cout << ":/ " << Join(output.Needs.Mandatory, " ") << "\n";
         }
         break;
       }
@@ -288,7 +287,7 @@ TJob *TStatusTracker::TryGetProducer(TFileInfo *file, TFileType file_type) {
   // See if we can find a job from the set of all possible jobs which can produce
   // the given file which has a producible input.
   // Having more than one producible input is an unresolvable ambiguity.
-  std::vector<TJob *> ProducibleJobs;
+  vector<TJob *> ProducibleJobs;
   for (TJob *job : Environment.GetPotentialJobsProducingFile(file, file_type)) {
     if (IsBuildable(job->GetInput(), job->GetJobProducer()->InType)) {
       ProducibleJobs.push_back(job);
@@ -329,7 +328,70 @@ TJob *TStatusTracker::TryGetProducer(TFileInfo *file, TFileType file_type) {
   return job;
 }
 
-void Bit::DoProduce(uint64_t worker_count, TEnvironment &environment, vector<string> Targets) {
+
+void AddTests(TFileEnvironment &file_environment, TStatusTracker &status_tracker) {
+  // Walk the environment source directory, find all files which could be tests (extension list
+  // contains 'test')
+  // Build a set of all the tests which could possibly exist.
+  class test_walker_t final : public TDirWalker {
+    NO_COPY(test_walker_t)
+    NO_MOVE(test_walker_t)
+
+    public:
+    test_walker_t(TFileEnvironment &file_environment_, TStatusTracker &status_tracker_)
+        : FileEnvironment(file_environment_), StatusTracker(status_tracker_) {
+    }
+
+    TAction OnDirBegin(const TEntry &entry) final {
+      // If the directory is excluded, skip it.
+      if (Contains(unordered_set<string>{".git", ".bit", ".jhm"}, entry.Name)) {
+        return TDirWalker::Skip;
+      }
+      return TDirWalker::Enter;
+    }
+
+    bool OnFile(const TEntry &entry) final {
+      // rel_path, the FileInfo should always be findable, we started at Src...
+      string path(entry.AccessPath);
+      auto test_pos = path.rfind(".test");
+      if (test_pos == string::npos) {
+        return true;
+      }
+      // See if test is after the last '/'
+      auto last_slash = path.rfind("/");
+      assert(last_slash != string::npos);
+      if (last_slash >= test_pos) {
+        return true;
+      }
+
+      // Split down to the '.test', use that as the filename of the potential
+      // executable
+      path.resize(test_pos + 5);
+      auto rel_path = FileEnvironment.TryGetRelPath(path);
+      assert(rel_path);
+      TFileInfo *f = FileEnvironment.GetFileInfo(*rel_path);
+      assert(f);  // We're walking in src. We must be able to get the file from the path.
+
+      // If it's buildable, add it to the set to build
+      if (StatusTracker.IsBuildable(f, TFileType::Executable)) {
+        StatusTracker.AddNeeded(f);
+      }
+
+      return true;
+    }
+
+    private:
+    TFileEnvironment &FileEnvironment;
+    TStatusTracker &StatusTracker;
+  };
+
+  test_walker_t(file_environment, status_tracker).Walk(file_environment.Src.Path.c_str());
+}
+
+void Bit::DoProduce(uint64_t worker_count,
+                    TEnvironment &environment,
+                    vector<string> Targets,
+                    bool include_tests) {
   // Find jobs to produce the given files, process the results of those jobs
   // until there is either an error running a job or all the files have been
   // produced.
@@ -346,6 +408,11 @@ void Bit::DoProduce(uint64_t worker_count, TEnvironment &environment, vector<str
                              << ". File is not Not in src or out tree.\n";
     }
     status_tracker.AddNeeded(environment.GetFileInfo(*rel_path));
+  }
+
+  // Add in all tests as additional builds if requested.
+  if (include_tests) {
+    AddTests(environment.Files, status_tracker);
   }
 
   if (has_failure) {

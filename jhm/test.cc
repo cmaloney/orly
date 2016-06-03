@@ -30,15 +30,6 @@ using namespace Jhm;
 using namespace std;
 using namespace Util;
 
-// NOTE: We override const char * to prevent excess construction of vectors.
-bool Contains(const vector<string> &vec, const char *str) {
-  return std::any_of(vec.begin(), vec.end(), [str](const string &s) { return s == str; });
-}
-
-bool Contains(const vector<string> &vec, const string &str) {
-  return std::any_of(vec.begin(), vec.end(), [&str](const string &s) { return s == str; });
-}
-
 TSet<TFile *> Jhm::FindTests(TEnv &env) {
   TSet<TFile *> ret;
   // Walk the environment source directory, find all files which could be tests (extension list

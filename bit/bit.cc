@@ -7,12 +7,12 @@
 #include <base/not_implemented.h>
 #include <bit/config.h>
 #include <bit/environment.h>
+#include <bit/naming.h>
 #include <bit/options.h>
 #include <bit/produce.h>
 #include <cmd/args.h>
 #include <cmd/main.h>
 #include <cmd/parse.h>
-#include <bit/naming.h>
 #include <util/error.h>
 #include <util/path.h>
 
@@ -27,7 +27,7 @@ static const char *SystemBitDir = "/usr/lib/bit";
 // TODO(cmaloney): This should be a library function.
 TTree GetHomeDirectory() {
   char *home_dir = getenv("HOME");
-  if(home_dir) {
+  if (home_dir) {
     return TTree(home_dir);
   } else {
     // TODO(cmaloney): Implement a sane fallback if HOME isn't set.
@@ -48,7 +48,6 @@ int Main(int argc, char *argv[]) {
                     "Max number of commands/jobs to run at once"),
       Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce"),
       Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print the command line of all Exec calls")};
-
 
   TOptions options = Cmd::Parse(args, argc, argv);
 
@@ -76,8 +75,8 @@ int Main(int argc, char *argv[]) {
   auto config = TConfig::Load(core_dirs);
 
   // Load user-given mixins. If none given, try loading `default` mixin.
-  if(!options.Mixins.empty()) {
-    for(const auto &mixin : options.Mixins) {
+  if (!options.Mixins.empty()) {
+    for (const auto &mixin : options.Mixins) {
       config.AddMixin(mixin, core_dirs);
     }
   } else {
@@ -100,7 +99,7 @@ int Main(int argc, char *argv[]) {
   // TODO(cmaloney): building, running tests
 
   // Produce the requested targets.
-  DoProduce(options.WorkerCount, environment, *targets);
+  DoProduce(options.WorkerCount, environment, *targets, options.Targets.empty());
 
   return 0;
 }
