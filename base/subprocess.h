@@ -33,7 +33,6 @@ namespace Subprocess {
 //  Execute the given command in a shell.  This will replace the calling process
 //  entirely with the shell process (and hence never return).
 [[noreturn]] void Exec(const std::vector<std::string> &cmd);
-[[noreturn]] void ExecStr(const char *cmd);
 
 struct TResultSimple {
   int ExitCode;

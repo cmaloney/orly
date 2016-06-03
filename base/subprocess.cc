@@ -142,12 +142,6 @@ void Base::Subprocess::Exec(const vector<string> &cmd) {
   throw;
 }
 
-void Base::Subprocess::ExecStr(const char *cmd) {
-  static const char *sh = "/bin/sh";
-  IfLt0(execl(sh, sh, "-c", cmd, nullptr));
-  throw;
-}
-
 TResult Base::Subprocess::Run(TPump &pump, const std::vector<std::string> &cmd) {
   auto subprocess = TSubprocess::New(pump, cmd);
   int exit_code = subprocess->Wait();
