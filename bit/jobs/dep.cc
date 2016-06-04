@@ -14,21 +14,29 @@ using namespace Bit;
 using namespace Bit::Jobs;
 using namespace std;
 
-unordered_set<string> ParseDeps(const string &gcc_deps) {
+// TOOD(cmaloney): Technically this should all be utf-8...
+static inline bool local_isgraph(uint8_t character) {
+  return character > 32 && character < 127;
+}
+
+unordered_set<string> ParseDeps(const TCyclicBuffer &gcc_deps) {
   unordered_set<string> deps;
 
-  const char *tok_start = nullptr;
+  bool in_tok = false;
   bool eaten_start = false;
   bool is_first_item = true;
+
+  std::string buffer;
+  buffer.reserve(1024);
 
   // Convert it to a happy format
   // Remove leading .o:
   // Remove leading source file (Comes right after the ':')
   // Grab each token as a string.
   // If the string is '\' then it's a linebreak GCC added...
-  for(uint32_t i = 0; i < gcc_deps.length(); ++i) {
-    const char &c = gcc_deps[i];
-
+  auto bytes_available = gcc_deps.GetBytesAvailable();
+  for(uint32_t i = 0; i < bytes_available; ++i) {
+    const uint8_t c = gcc_deps.GetByte(i);
     if(!eaten_start) {
       if(c == ':') {
         eaten_start = true;
@@ -36,27 +44,29 @@ unordered_set<string> ParseDeps(const string &gcc_deps) {
       continue;
     }
 
-    if(tok_start) {
+    if(in_tok) {
       // Still in token?
-      if(isgraph(c)) {
+      if(local_isgraph(c)) {
+        buffer.push_back(c);
         continue;
       }
 
       // Hit end of token. Grab token and submit.
       // NOTE: If token is '\', then discard (Indicates GCC's line continuation)
-      string dep(tok_start, size_t(&c - tok_start));
-      tok_start = nullptr;
-      if(dep != "\\") {
+      if (buffer != "\\") {
         if(is_first_item) {
           is_first_item = false;
         } else {
-          deps.insert(move(dep));
+          deps.emplace(buffer);
         }
       }
+      buffer.clear();
+      in_tok = false;
     } else {
       // Hit start of token?
-      if(isgraph(c)) {
-        tok_start = &gcc_deps[i];
+      if(local_isgraph(c)) {
+        buffer.push_back(c);
+        in_tok = true;
       }
     }
   }
@@ -135,7 +145,7 @@ TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
                                     "guaranteeing they don't eat all memory.";
   }
 
-  auto deps = ParseDeps(output.Subprocess.Output->ToString());
+  auto deps = ParseDeps(*output.Subprocess.Output);
   for(const auto &dep: deps) {
     auto rel_path = file_env->TryGetRelPath(dep);
     if (rel_path) {

@@ -9,7 +9,8 @@
         "-DNDEBUG",
         "-Wno-unused",
         "-Wno-unused-parameter",
-        "-Wno-unused-result"
+        "-Wno-unused-result",
+        "-g"
       ]
     },
     "link": {

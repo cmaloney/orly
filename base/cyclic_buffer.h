@@ -33,10 +33,9 @@ class TCyclicBuffer {
   ssize_t WriteTo(TFd &fd);
   void Write(const char *msg, size_t length);
 
-  // Copy the entire cyclic buffer into a string.
-  std::string ToString() const;
-
   size_t GetBytesAvailable() const;
+
+  uint8_t GetByte(size_t idx) const;
 
   bool HasOverflowed() const;
 

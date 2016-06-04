@@ -120,38 +120,6 @@ void TCyclicBuffer::Write(const char *msg, size_t length) {
   assert(offset == length);
 }
 
-string TCyclicBuffer::ToString() const {
-  string result;
-  size_t length = GetBytesAvailable();
-  result.reserve(length);
-
-  auto get_char_ptr = [this](uint64_t block) {
-    return reinterpret_cast<const char *>(Blocks[block].get());
-  };
-
-  // Copy across first block.
-  {
-    // Between start and limit of first block, then exit early.
-    if (Start == Limit) {
-      result.append(get_char_ptr(Start) + StartOffset, LimitOffset - StartOffset);
-      return result;
-    }
-
-    // Start to end of start block.
-    result.append(get_char_ptr(Start) + StartOffset, BlockSize - StartOffset);
-  }
-
-  // Write full blocks
-  for (uint64_t cur_block = Start + 1; cur_block < Limit; ++cur_block) {
-    result.append(get_char_ptr(cur_block), BlockSize);
-  }
-
-  // Write last partial block
-  result.append(get_char_ptr(Limit), LimitOffset);
-
-  return result;
-}
-
 size_t TCyclicBuffer::GetBytesAvailable() const {
   size_t available = 0;
 
@@ -173,6 +141,13 @@ size_t TCyclicBuffer::GetBytesAvailable() const {
   available += LimitOffset;
 
   return available;
+}
+
+uint8_t TCyclicBuffer::GetByte(size_t idx) const {
+  assert(idx < GetBytesAvailable());
+  size_t block_offset = idx / BlockSize;
+  size_t cur_block = (Start + block_offset) % MaxBlocks;
+  return *(Blocks[cur_block].get() + (idx % BlockSize));
 }
 
 bool TCyclicBuffer::HasOverflowed() const { return Overflowed; }
