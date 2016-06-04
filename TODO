@@ -3,7 +3,7 @@ Steps to publishing
   - CI w/ perf numbers up and running
   - Get `bit -m msan -m debug` passing
   - Running tests (And in verbose mode?)
-  - Remove ToString from dep.cc
+  - error on json unknown
 
 Pretty
   - Eliminate ParseDeps. It's most of our time:
