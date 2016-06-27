@@ -64,7 +64,7 @@ $CC -o tools/bit                \
   bit/file_info.cc util/error.cc bit/jobs/dep.cc cmd/help.cc base/json_util.cc cmd/main.cc          \
   bit/config.cc base/split.cc util/path.cc bit/naming.cc bit/job.cc bit/environment.cc util/io.cc   \
   util/signal.cc cmd/parse.cc bit/file_environment.cc base/code_location.cc base/cyclic_buffer.cc   \
-  bit/bit.cc bit/jobs/dep_c.cc base/unreachable.cc base/subprocess.cc bit/produce.cc                \
+  bit/bit.cc base/unreachable.cc base/subprocess.cc bit/produce.cc                                  \
   base/demangle.cc base/fd.cc base/backtrace.cc base/dir_walker.cc bit/jobs/link.cc                 \
   bit/jobs/compile_c_family.cc                                                                      \
   "$extra_files" \

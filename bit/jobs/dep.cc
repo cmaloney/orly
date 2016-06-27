@@ -47,7 +47,7 @@ unordered_set<string> ParseDeps(const TCyclicBuffer &gcc_deps) {
     if(in_tok) {
       // Still in token?
       if(local_isgraph(c)) {
-        buffer.push_back(c);
+        buffer.push_back(char(c));
         continue;
       }
 
@@ -65,7 +65,7 @@ unordered_set<string> ParseDeps(const TCyclicBuffer &gcc_deps) {
     } else {
       // Hit start of token?
       if(local_isgraph(c)) {
-        buffer.push_back(c);
+        buffer.push_back(char(c));
         in_tok = true;
       }
     }
