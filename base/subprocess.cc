@@ -136,6 +136,7 @@ static bool InternalEchoCommands(TOpt<bool> enable) {
 void Base::Subprocess::Exec(const vector<string> &cmd) {
   assert(&cmd);
 
+  // TODO(cmaloney): de-dup this between here and dep_clang.cc::GetDepsUsingClang.
   // NOTE: This is definitely less efficient than strictly necessary, but we
   // don't actually copy the strings, just pointers, so not too bad.
   unique_ptr<const char *[]> argv(new const char *[cmd.size() + 1]);

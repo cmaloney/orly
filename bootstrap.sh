@@ -16,7 +16,7 @@
 
 set -e
 
-CC=clang++
+CC=g++
 common_flags=(
   # Base compile
   -std=c++1y

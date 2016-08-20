@@ -17,7 +17,7 @@
       ]
     },
   "link": {
-    "libs": ["-pthread", "-ldl"]
+    "libs": ["-lclang", "-ldl", "-pthread"]
   }
   }
 }

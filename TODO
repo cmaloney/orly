@@ -4,11 +4,14 @@ Steps to publishing
   - Get `bit -m msan -m debug` passing
   - Running tests (And in verbose mode?)
   - error on json unknown
+  - Make caching work
 
 Pretty
   - Eliminate ParseDeps. It's most of our time:
     https://gist.github.com/codebrainz/faabd73930c5346f7b50
   - ccache. We know all the things being touched. Hash and store to a DFS.
+    - Actually setup as idempotent build system. Basically we swap out subprocess runs with remote subprocess runs when it's
+      profitable.
   - Shortcut critical chain / forward finding work rather than waiting (a.c -> a.o -> found all the deps, build everything -> a).
   - Some way of sharing code / downloading code / package managementy.
 
