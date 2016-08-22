@@ -212,11 +212,15 @@ void TStatusTracker::DoAdvance() {
       case TJob::TOutput::Error: {
         // Print the error output. Runner will naturally coalesce and DoAdvance
         // will terminate the process with an error.
-        cout << "ERROR: " << result.Job << " exited with an error.\n"
-             << "STDOUT:\n";
-        output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
-        cout << "STDERR:\n";
-        output.Subprocess.Error->ReadAllFromWarnOverflow(STDOUT_FILENO);
+        cout << AsStr("ERROR: ", result.Job, " exited with an error.\n");
+        if(output.Subprocess.Output) {
+          cout << "STDOUT:\n";
+          output.Subprocess.Output->ReadAllFromWarnOverflow(STDOUT_FILENO);
+        }
+        if (output.Subprocess.Error) {
+          cout << "STDERR:\n";
+          output.Subprocess.Error->ReadAllFromWarnOverflow(STDOUT_FILENO);
+        }
         break;
       }
       case TJob::TOutput::NewNeeds: {

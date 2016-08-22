@@ -51,6 +51,7 @@ TJson ToJson(const unordered_set<TFileInfo *> &that) {
 
 TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
   TOutput output;
+  // auto deps = GetDepsUsingClang(this, output);
   auto deps = GetDepsWrappingCompiler(this, output);
 
   if (output.Result == TJob::TOutput::Error) {
