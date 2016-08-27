@@ -32,7 +32,8 @@ using namespace Util;
 
 TDirWalker::~TDirWalker() {}
 
-bool TDirWalker::Walk(const char *root) {
+bool TDirWalker::Walk(const std::string &root) {
+  assert(root.size() > 0);
   assert(this);
   bool result = true;  // Captures the result of the walker's event handlers.  If it ever becomes
                        // false, we abort the walk.
@@ -40,7 +41,13 @@ bool TDirWalker::Walk(const char *root) {
       cycle_entry;  // Filled in and passed only for OnDirCycle().
   /* The OS walk function allows multiple roots, but we really just want one. */
   char *roots[2];
-  roots[0] = const_cast<char *>(root);
+
+  string root_no_slash = root;
+  if (root_no_slash.back() == '/') {
+    root_no_slash.pop_back();
+  }
+
+  roots[0] = const_cast<char *>(root_no_slash.c_str());
   roots[1] = 0;
   /* Start walking, sorting at equal depth entries by name. */
   auto tree = fts_open(roots,

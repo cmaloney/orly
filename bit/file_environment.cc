@@ -25,8 +25,6 @@ TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
   // tree file.
   TAbsPath src_abs_path = TAbsPath(Src, name);
 
-  cout << "name: " << name.Path << "src: " << Src.Path << " src_abs_path: " << src_abs_path.Path << "\n";
-
   auto add_file = [&](std::string cmd_path, bool is_src) {
     // NOTE: It is an intentional design decision that the file configuration must
     // always be in src / never be calculated. If it could have been calculated,
@@ -36,7 +34,6 @@ TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
 
     // NOTE: This is explicitly separate from the make_unique becausewe need to
     // guarantee the TRelPath copying happens before
-    cout << " cmd: " << cmd_path << "\n";
 
     auto file_info =
         make_unique<TFileInfo>(TRelPath(name), std::move(cmd_path),

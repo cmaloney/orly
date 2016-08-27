@@ -21,8 +21,7 @@
 #include <future>
 
 // Link against the platform-specific TPumper implementation.
-#pragma clang diagnostic ignored "-Wundef"
-#if __APPLE__
+#ifdef __APPLE__
 #include <base/pump_kqueue.h>
 #else
 #include <base/pump_epoll.h>

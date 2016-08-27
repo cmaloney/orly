@@ -25,6 +25,8 @@
 #include <fts.h>
 #include <sys/types.h>
 
+#include <string>
+
 namespace Base {
 
 /* Walks a dir in the file system. */
@@ -36,7 +38,7 @@ class TDirWalker {
   /* Walk the given dir, sending events to the given walker.  If the root is a symlink,
      we'll follow it immediately, but any other symlinks we encounter we will call back for.
      We do not call back for "." or ".." entries, except when that's our starting point. */
-  bool Walk(const char *root);
+  bool Walk(const std::string &root);
 
   protected:
   /* An entry in the file system. */

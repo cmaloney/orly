@@ -357,6 +357,7 @@ void AddTests(TFileEnvironment &file_environment, TStatusTracker &status_tracker
     bool OnFile(const TEntry &entry) final {
       // rel_path, the FileInfo should always be findable, we started at Src...
       string path(entry.AccessPath);
+      // TODO(cmaloney): add an endswith utility
       auto test_pos = path.rfind(".test");
       if (test_pos == string::npos) {
         return true;
@@ -389,7 +390,7 @@ void AddTests(TFileEnvironment &file_environment, TStatusTracker &status_tracker
     TStatusTracker &StatusTracker;
   };
 
-  test_walker_t(file_environment, status_tracker).Walk(file_environment.Src.Path.c_str());
+  test_walker_t(file_environment, status_tracker).Walk(file_environment.Src.Path);
 }
 
 void Bit::DoProduce(uint64_t worker_count,
