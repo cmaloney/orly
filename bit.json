@@ -12,9 +12,8 @@
         "-pthread",
         "-fcolor-diagnostics",
         "-Qunused-arguments",
-        "-I/home/firebird347/projects/bit",
-        "-I/usr/lib/clang/3.8.1/include",
-        "-DSRC_ROOT=\"/home/firebird347/projects/bit\""
+        "-I/Users/firebird347/projects/bit",
+        "-DSRC_ROOT=\"/Users/firebird347/projects/bit\""
       ]
     },
   "link": {

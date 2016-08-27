@@ -2,12 +2,15 @@
 
 #include <util/path.h>
 
+#include <iostream>
+
 using namespace Base;
 using namespace Bit;
 using namespace Util;
 using namespace std;
 
 TFileEnvironment::TFileEnvironment(TTree src, TTree out) : Src(src), Out(out) {}
+
 
 TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
   // TODO(cmaloney): This locking scheme is going to be a major bottleneck...
@@ -22,6 +25,8 @@ TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
   // tree file.
   TAbsPath src_abs_path = TAbsPath(Src, name);
 
+  cout << "name: " << name.Path << "src: " << Src.Path << " src_abs_path: " << src_abs_path.Path << "\n";
+
   auto add_file = [&](std::string cmd_path, bool is_src) {
     // NOTE: It is an intentional design decision that the file configuration must
     // always be in src / never be calculated. If it could have been calculated,
@@ -31,6 +36,8 @@ TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
 
     // NOTE: This is explicitly separate from the make_unique becausewe need to
     // guarantee the TRelPath copying happens before
+    cout << " cmd: " << cmd_path << "\n";
+
     auto file_info =
         make_unique<TFileInfo>(TRelPath(name), std::move(cmd_path),
                                TFileConfig(src_abs_path.AddExtension(".bitconfig.json")), is_src);

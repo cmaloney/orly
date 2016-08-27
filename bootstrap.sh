@@ -22,7 +22,8 @@ common_flags=(
   -std=c++1y
   -Wall -Werror -Wextra
   # Optimize
-  -O3 -DNDEBUG
+  -O3
+  #-DNDEBUG
   #-g
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
   -Wno-unknown-pragmas
