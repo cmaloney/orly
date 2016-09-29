@@ -44,6 +44,7 @@ void GenBacktrace(const std::function<void(const std::string &)> &cb, int skip_f
     auto frame_print = AsStr('[', frame_idx - frame_offset + 1, '/', frame_count - frame_offset, "] ");
     // TODO(cmaloney): Use debug information to print filename + line number.
     if(symbols) {
+#ifdef use_dladdr
       Dl_info info;
       if (dladdr(frames[frame_idx], &info) && info.dli_sname) {
         if (info.dli_sname[0] == '_' && info.dli_sname[1] == 'Z') {
@@ -51,7 +52,9 @@ void GenBacktrace(const std::function<void(const std::string &)> &cb, int skip_f
         } else {
           frame_print += info.dli_sname;
         }
-      } else {
+      } else
+#endif
+      {
         frame_print += symbols[frame_idx];
       }
     } else {

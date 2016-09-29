@@ -12,8 +12,8 @@
         "-pthread",
         "-fcolor-diagnostics",
         "-Qunused-arguments",
-        "-I/Users/firebird347/projects/bit",
-        "-DSRC_ROOT=\"/Users/firebird347/projects/bit\""
+        "-I/home/firebird347/projects/bit",
+        "-DSRC_ROOT=\"/home/firebird347/projects/bit\""
       ]
     },
   "link": {

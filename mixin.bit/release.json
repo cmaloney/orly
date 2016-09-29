@@ -20,7 +20,11 @@
         "-fuse-ld=gold",
         "-fwhole-program",
         "-march=native",
-        "-mtune=native"
+        "-mtune=native",
+        "-static",
+        "-Wl,--whole-archive",
+        "-lpthread",
+        "-Wl,--no-whole-archive",
       ]
     }
   }

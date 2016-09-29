@@ -19,7 +19,7 @@ set -e
 CC=g++
 common_flags=(
   # Base compile
-  -std=c++1y
+  -std=c++1z
   -Wall -Werror -Wextra
   # Optimize
   -O3
@@ -29,6 +29,7 @@ common_flags=(
   -Wno-unknown-pragmas
   -Wno-old-style-cast
   -Wno-return-type
+  -Wno-nonnull-compare
   -flto
 
   # Enable threads
@@ -40,7 +41,7 @@ common_flags=(
   # Static resulting binary
   # -static
   # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
-  # -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
   )
 
 OS=`uname -s`
