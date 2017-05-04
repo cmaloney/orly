@@ -42,7 +42,7 @@ TContext::TLog::TLog(const Base::TCodeLocation &loc, const std::string &&Test, b
   *this << Base::AsStr(loc, Test, "; ");
 }
 
-TContext::TLog::TLog(bool passed) : Passed(passed), Print(!passed || GetOptions().Verbose) {
+TContext::TLog::TLog(bool passed) : Print(!passed || GetOptions().Verbose) {
   Current()->LogResult(passed);
 }
 

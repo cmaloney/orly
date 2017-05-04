@@ -75,7 +75,7 @@ class TContext {
 
     TLog(bool passed);
 
-    bool Passed, Print;
+    bool Print;
     friend class TContext;
   };
 

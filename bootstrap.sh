@@ -16,30 +16,30 @@
 
 set -e
 
-CC=g++
+CC=clang++
 common_flags=(
   # Base compile
   -std=c++1z
   -Wall -Werror -Wextra
   # Optimize
   -O3
-  #-DNDEBUG
-  #-g
+  -DNDEBUG
+  -g
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
   -Wno-unknown-pragmas
   -Wno-old-style-cast
   -Wno-return-type
-  -Wno-nonnull-compare
+  # -Wno-nonnull-compare
   -flto
 
   # Enable threads
   -pthread
 
   # Better backtraces
-  -rdynamic
+  # -rdynamic
 
   # Static resulting binary
-  # -static
+  -static
   # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
   -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
   )
