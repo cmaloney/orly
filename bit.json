@@ -3,6 +3,8 @@
   "job_config": {
     "compile_cc": {
       "flags": [
+        "-stdlib=libc++",
+        "-fuse-ld=lld",
         "-std=c++1z",
         "-Wall",
         "-Werror",
@@ -24,6 +26,7 @@
       ]
     },
   "link": {
+    "flags": ["-fuse-ld=lld", "-stdlib=libc++", "-std=c++1z"],
     "libs": ["-ldl", "-pthread"]
   }
   }

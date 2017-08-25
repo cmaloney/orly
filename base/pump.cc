@@ -187,10 +187,12 @@ class TPump::TPipe {
 future<void> TPump::AddPipe(TPipeDirection direction,
                             TFd &&fd,
                             shared_ptr<TCyclicBuffer> &buffer) {
-  lock_guard<mutex> lock(PipeMutex);
   TPipe *pipe = new TPipe(this, direction, move(fd), buffer);
   auto future = pipe->GetFinishedFuture();
-  Pipes.insert(pipe);
+  {
+    lock_guard<mutex> lock(PipeMutex);
+    Pipes.insert(pipe);
+  }
   pipe->Start();
   return future;
 }

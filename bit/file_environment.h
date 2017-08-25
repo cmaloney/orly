@@ -35,9 +35,8 @@ class TFileEnvironment {
   // TODO(cmaloney): Switch to lock free datastructures fo both of these. They
   // both are perfectly fine having things constructed lots of times. The
   // TFileInfo one has a requirement that everyone agree on one copy, but that
-  // should be very doable. PathLookupCache really doesn't care.
+  // should be very doable.
   std::mutex Mutex;
-  std::unordered_map<std::string, TRelPath> PathLookupCache;
   Base::TInterner<TRelPath, TFileInfo> Files;
 };
 }

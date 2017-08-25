@@ -55,19 +55,11 @@ TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
 TOpt<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
   assert(&path);
 
-  // TODO(cmaloney): This locking scheme is going to be a major bottleneck...
-  lock_guard<mutex> lock(Mutex);
-
   // 0 length paths are illegal.
   assert(path.size() > 0);
 
-  // Try getting out of the cache as a performance optimization.
-  auto it = PathLookupCache.find(path);
-  if (it != PathLookupCache.end()) {
-    return it->second;
-  }
 
-  auto make_rel_remove_prefix = [&path](const TTree &tree) {
+  const auto make_rel_remove_prefix = [&path](const TTree &tree) {
     return TRelPath(path.substr(tree.Path.size()));
   };
 

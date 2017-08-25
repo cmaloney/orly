@@ -32,7 +32,10 @@ void Base::Unreachable(const TCodeLocation &loc) {
 // In release builds, don't abort
 // TODO: Move this ndebug into abort?
 #ifdef NDEBUG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-member-function"
   EXCEPTION(unreachable_t, std::runtime_error, "Unreachable code");
+#pragma clang diagnostic pop
   TThrower<unreachable_t>{loc};
 #else
   Util::Abort(loc);
