@@ -48,7 +48,7 @@ bool TDirWalker::Walk(const std::string &root) {
   }
 
   roots[0] = const_cast<char *>(root_no_slash.c_str());
-  roots[1] = 0;
+  roots[1] = nullptr;
   /* Start walking, sorting at equal depth entries by name. */
   auto tree = fts_open(roots,
                        FTS_COMFOLLOW | FTS_PHYSICAL | FTS_NOCHDIR,

@@ -113,7 +113,7 @@ FIXTURE(ManyActorsOnceCycle) {
   vector<thread> pipes;
   for (size_t i = 0; i < 300; ++i) {
     pipes.push_back(thread([&pump, &read_source_success_count, &write_success_count,
-                            &read_destination_success_count, i] {
+                            &read_destination_success_count] {
       const size_t msg_repeat_count = 300, expected_size = msg_repeat_count * MsgSize;
       ssize_t actual_size = 0;
 
@@ -149,7 +149,7 @@ FIXTURE(ManyActorsOnceCycle) {
         }
         read_from.Reset();
       });
-      thread writer([msg_repeat_count, &write_to] {
+      thread writer([&write_to] {
         for (size_t msg_idx = 0; msg_idx < msg_repeat_count; ++msg_idx) {
           WriteExactly(write_to, Msg, MsgSize);
         }

@@ -129,6 +129,7 @@ TBacktraceCatcher::TBacktraceCatcher()
       Sigsegv(SIGSEGV, &PrintSegfaultBacktrace),
       Sigpipe(SIGPIPE, &PrintSigPipe) {}
 
+#ifndef _LIBCPP_VERSION
 // Make pure virtuals print a reasonable error message
 extern "C" [[noreturn]] void __cxa_pure_virtual() {
   cerr << "PURE VIRTUAL CALLED\n"
@@ -138,3 +139,4 @@ extern "C" [[noreturn]] void __cxa_pure_virtual() {
   caused_abort = true;
   ABORT();
 }
+#endif

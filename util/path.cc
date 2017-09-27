@@ -135,7 +135,7 @@ bool Util::ExistsPath(const char *path) {
 }
 
 string Util::GetCwd() {
-  unique_ptr<char, void (*)(void *)> cwd(getcwd(0, 0), &free);
+  unique_ptr<char, void (*)(void *)> cwd(getcwd(nullptr, 0), &free);
   return string(cwd.get());
 }
 

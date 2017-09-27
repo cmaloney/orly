@@ -18,14 +18,10 @@
 
 #include <util/error.h>
 
-#include <condition_variable>
-#include <mutex>
-#include <thread>
-
-#include <signal.h>
 #include <unistd.h>
 
-#include <base/zero.h>
+#include <thread>
+
 #include <test/kit.h>
 
 using namespace std;
@@ -33,9 +29,9 @@ using namespace Base;
 using namespace Util;
 
 FIXTURE(LibraryGenerated) {
-  EXPECT_THROW(system_error, [&](){ thread().detach(); });
+  EXPECT_THROW(system_error, [&]() { thread().detach(); });
 }
 
 FIXTURE(UtilsGenerated) {
-  EXPECT_THROW(system_error, [&](){ IfLt0(read(-1, 0, 0)); });
+  EXPECT_THROW(system_error, [&]() { IfLt0(read(-1, nullptr, 0)); });
 }

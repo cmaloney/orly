@@ -230,7 +230,7 @@ class TOpt {
     assert(this);
     if(Val) {
       Val->~TVal();
-      Val = 0;
+      Val = nullptr;
     }
     return *this;
   }

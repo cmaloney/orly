@@ -13,7 +13,7 @@ TFileInfo::TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_
     : CmdPath(move(cmd_path)),
       RelPath(move(path)),
       SrcConfig(),
-      // SrcConfig(move(src_config)),
+      // TODO(cmaloney): Support SrcConfig, SrcConfig(move(src_config)),
       Completed(is_src),
       Buildable(is_src),
       BuildableSet(is_src) {

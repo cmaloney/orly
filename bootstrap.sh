@@ -23,16 +23,26 @@ common_flags=(
   -std=c++1z
   -Wall -Werror -Wextra
   -fuse-ld=lld
+  -fstrict-vtable-pointers
+  -Wthread-safety
+  -Weverything
+  -Wno-c++98-compat
+  -Wno-c++98-compat-pedantic
+  -Wno-padded
+  -Wno-weak-vtables
+  -Wno-missing-prototypes
+  -Wno-disabled-macro-expansion
+
   # Optimize
   -O3
   -DNDEBUG
-  -g
+  # -g
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
   -Wno-unknown-pragmas
   -Wno-old-style-cast
   -Wno-return-type
   # -Wno-nonnull-compare
-  -flto
+  -flto=thin
 
   # Enable threads
   -pthread
@@ -42,6 +52,10 @@ common_flags=(
 
   # Static resulting binary
   # -static
+  -lc++
+  -lc++abi
+  -Wl,--strip-all
+  -Wl,--gc-sections
   # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
   # -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
   )

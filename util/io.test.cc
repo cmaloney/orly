@@ -59,11 +59,11 @@ FIXTURE(WriteAtMost) {
   struct sigaction action;
   Zero(action);
   action.sa_handler = [](int) {};
-  sigaction(SIGPIPE, &action, 0);
+  sigaction(SIGPIPE, &action, nullptr);
   TFd readable, writeable;
   tie(readable, writeable) = TFd::Pipe();
   readable.Reset();
-  ssize_t actual_size = WriteAtMost(writeable, 0, 0);
+  ssize_t actual_size = WriteAtMost(writeable, nullptr, 0);
   EXPECT_FALSE(actual_size);
   // TODO(cmaloney): Test for EPIPE?
   writeable.Reset();
