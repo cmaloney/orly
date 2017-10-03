@@ -32,11 +32,9 @@ class TFileEnvironment {
   const TTree Src, Out;
 
   private:
-  // TODO(cmaloney): Switch to lock free datastructures fo both of these. They
-  // both are perfectly fine having things constructed lots of times. The
-  // TFileInfo one has a requirement that everyone agree on one copy, but that
-  // should be very doable.
-  std::mutex Mutex;
-  Base::TInterner<TRelPath, TFileInfo> Files;
+  // First prime > 10k. Ideally ramp quite a bit more up. Not much memory and is an absolute
+  // cap on number of files. Uses std::string instead of TRelPath as key since TRelPath doesn't
+  // have a default constructor.
+  Base::TThreadSafeInterner<10007, std::string, TFileInfo> Files;
 };
 }

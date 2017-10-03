@@ -346,4 +346,9 @@ Standard: Cpp11
 TabWidth: 2
 
 UseTab: false
+
+AlignEscapedNewlinesLeft: Left
+CompactNamespaces: true
+FixNamespaceComments: true
+
 ...

@@ -90,8 +90,9 @@ void TParser::Attach(const TArgs<TOptions> *options, TOptions *out) {
         last_positional = true;
       }
     } else {
-      for(const std::string &name : arg.Names) {
-        Named.emplace(name, consumer);
+      for(const auto &name : arg.Names) {
+        std::string newName(name);
+        Named.emplace(newName, consumer);
       }
     }
   }

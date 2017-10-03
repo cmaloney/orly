@@ -37,16 +37,14 @@ TTree GetHomeDirectory() {
 
 int Main(int argc, char *argv[]) {
   Cmd::TArgs<TOptions> args{
-      // TODO(cmaloney): print-cmd is really handy but children can run arbitrary code...
-      // Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print commands when they are run"),
       Cmd::Optional({"mixin", "m"}, &TOptions::Mixins,
                     "Configuration snippets to add on top of the base project configuration"),
-
       // TODO(cmaloney): Worker count is really coarse grained for what people want.
       // Ninja's pool options are more what is wanted / needed here.
       Cmd::Optional("max-parallel", &TOptions::WorkerCount,
                     "Max number of commands/jobs to run at once"),
       Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce"),
+      // TODO(cmaloney): print-cmd is really handy but children can run arbitrary code...
       Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print the command line of all Exec calls")};
 
   TOptions options = Cmd::Parse(args, argc, argv);

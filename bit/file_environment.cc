@@ -13,10 +13,8 @@ TFileEnvironment::TFileEnvironment(TTree src, TTree out) : Src(src), Out(out) {}
 
 
 TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
-  // TODO(cmaloney): This locking scheme is going to be a major bottleneck...
-  lock_guard<mutex> lock(Mutex);
-
-  TFileInfo *result = Files.TryGet(name);
+  // Construction is significantly more expensive than lookup, so try looking up first
+  TFileInfo *result = Files.TryGet(name.Path);
   if (result) {
     return result;
   }
@@ -32,13 +30,13 @@ TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
     // a job like the dependency finder which makes a side file of additional needed
     // information.
 
-    // NOTE: This is explicitly separate from the make_unique becausewe need to
+    // NOTE: This is explicitly separate from the make_unique because we need to
     // guarantee the TRelPath copying happens before
 
     auto file_info =
         make_unique<TFileInfo>(TRelPath(name), std::move(cmd_path),
                                TFileConfig(src_abs_path.AddExtension(".bitconfig.json")), is_src);
-    return Files.Add(TRelPath(name), std::move(file_info));
+    return Files.Ensure(std::string(name.Path), std::move(file_info));
   };
 
   if (ExistsPath(src_abs_path.Path.c_str())) {

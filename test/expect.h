@@ -8,6 +8,7 @@ TODO(cmaloney): Sample / usage. */
 #pragma once
 
 #include <cassert>
+#include <functional>
 #include <sstream>
 #include <string>
 #include <typeinfo>

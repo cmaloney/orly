@@ -17,7 +17,7 @@ EXCEPTION(TInvalidPath, std::runtime_error, nullptr);
 // TODO(cmaloney): operator+ for joining paths?
 // Starts with a '/'. Ends with a directory name followed by '/'.
 struct TTree {
-  TTree(std::string path);
+  TTree(const std::string &path);
 
   static TTree Find(std::string start_dir, const std::string &marker);
 

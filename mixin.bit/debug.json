@@ -11,7 +11,11 @@
         "-Wno-missing-prototypes",
         "-Wno-weak-vtables",
         "-Wno-disabled-macro-expansion",
+        "-fno-limit-debug-info"
      ]
+    },
+    "link": {
+      "flags": ["-rdynamic"]
     }
   }
 }

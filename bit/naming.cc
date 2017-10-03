@@ -14,7 +14,7 @@ using namespace std;
 using namespace Util;
 
 // Done as a helper function to satisfy constructor initializer list requirements.
-static string Clean(string &&path) {
+static string Clean(const string &path) {
   // Make sure the path is more than just '/'
   if (path.size() < 1) {
     THROWER(TInvalidPath) << "Invalid tree \"" << quoted(path) << "\". Too short.";
@@ -25,17 +25,17 @@ static string Clean(string &&path) {
     THROWER(TInvalidPath) << "Invalid tree \"" << quoted(path) << "\". Must start with '/'";
   }
 
-  path = Normalize(path);
+  string normalizedPath = Normalize(path);
 
   // Ensure path always ends with '/'.
-  if (path.back() != '/') {
-    path.push_back('/');
+  if (normalizedPath.back() != '/') {
+    normalizedPath.push_back('/');
   }
 
-  return path;
+  return normalizedPath;
 }
 
-TTree::TTree(string path) : Path(Clean(move(path))) {}
+TTree::TTree(const string &path) : Path(Clean(path)) {}
 
 TTree TTree::Find(string start_dir, const std::string &marker) {
   start_dir = Normalize(start_dir);
