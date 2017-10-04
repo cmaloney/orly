@@ -10,7 +10,7 @@
         "-Wno-unused",
         "-Wno-unused-parameter",
         "-Wno-unused-result",
-        "-g"
+        "-gline-tables-only"
       ]
     },
     "link": {
@@ -20,7 +20,8 @@
         "-fuse-ld=gold",
         "-fwhole-program",
         "-march=native",
-        "-mtune=native"
+        "-mtune=native",
+        "-rdynamic"
       ]
     }
   }
