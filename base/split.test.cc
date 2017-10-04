@@ -27,27 +27,27 @@ using namespace Base;
 FIXTURE(Typical) {
   vector<string> out;
   const vector<string> res1 = {"a", "b", "c", "d"};
-  Split(",", "a,b,c,d", out);
+  out = Split(",", "a,b,c,d");
   EXPECT_TRUE(out == res1);
   out.clear();
 
   const vector<string> res5 = {"a"};
-  Split(":", "a", out);
+  out = Split(":", "a");
   EXPECT_TRUE(out == res5);
   out.clear();
 
   const vector<string> res2 = {"1", "2", " 3", ""};
-  Split(":", "1:2: 3:", out);
+  out = Split(":", "1:2: 3:");
   EXPECT_TRUE(out == res2);
   out.clear();
 
   const vector<string> res3;
-  Split(":", "", out);
+  out = Split(":", "");
   EXPECT_TRUE(out == res3);
   out.clear();
 
   const vector<string> res4 = {"", "", ""};
-  Split(":", "::", out);
+  out = Split(":", "::");
   EXPECT_TRUE(out == res4);
 }
 

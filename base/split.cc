@@ -24,13 +24,14 @@
 using namespace std;
 using namespace Base;
 
-void Base::Split(const char *tok, const string &src, vector<string> &pieces) {
+vector<string> Base::Split(const char *tok, const string &src) {
   assert(tok);
   assert(&src);
-  assert(&pieces);
+
+  vector<string> pieces;
 
   if(src.size() == 0) {
-    return;
+    return pieces;
   }
 
   size_t curpos = 0, endpos = 0;
@@ -39,13 +40,15 @@ void Base::Split(const char *tok, const string &src, vector<string> &pieces) {
     endpos = src.find(tok, curpos);
 
     if(endpos == string::npos) {
-      pieces.push_back(src.size() == curpos ? "" : src.substr(curpos, src.size() - curpos));
+      pieces.push_back(src.size() == curpos ? "" : string(src.substr(curpos, src.size() - curpos)));
     } else {
       // Pull out the substring
-      pieces.push_back(src.substr(curpos, endpos - curpos));
+      pieces.push_back(string(src.substr(curpos, endpos - curpos)));
 
       // NOTE: This should always be <= src.size().
       curpos = endpos + tok_len;
     }
   } while(endpos != string::npos);
+
+  return pieces;
 }

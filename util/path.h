@@ -52,7 +52,7 @@ std::string GetCwd();
 
 /* Normalize the path by removing '/../', '/./', '//'.
    Does not consult the filesystem, so may change the meaning of the path. */
-std::string Normalize(const std::string path);
+std::string Normalize(const std::string &path);
 
 }  // Util
 

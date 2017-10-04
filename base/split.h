@@ -100,6 +100,6 @@ std::ostream &operator<<(std::ostream &strm, const TJoin<TContainer, TDelimit, T
 }
 
 /* split the src string every time tok apperas, up to count instances if count is specified */
-void Split(const char *tok, const std::string &src, std::vector<std::string> &pieces);
+std::vector<std::string> Split(const char *tok, const std::string &src);
 
 } // namespace Base

@@ -139,7 +139,7 @@ string Util::GetCwd() {
   return string(cwd.get());
 }
 
-std::string Util::Normalize(std::string path) {
+std::string Util::Normalize(const std::string &path) {
   // TODO(cmaloney): Replace with a more efficient implementation.
 
   // Replacements
@@ -149,8 +149,7 @@ std::string Util::Normalize(std::string path) {
 
   // Split path by '/'. Scan from front to back, finding 'meaningful' patterns
   // and interpreting their changes.
-  vector<string> pieces;
-  Split("/", path, pieces);
+  auto pieces = Split("/", path);
 
   auto iter = pieces.begin();
   while(iter != pieces.end()) {
