@@ -146,7 +146,7 @@ void Cmd::ParseWithStandard(TParser &parser,
                             const char *const argv[]) {
   // Attach the standard options.
   TStandardOptions standard_options;
-  const auto &standard_args = GetStandardArgs();
+  auto standard_args = GetStandardArgs();
   parser.Attach(&standard_args, &standard_options);
 
   // TODO(cmaloney): Make the arg vec just live in the parser, then help can
