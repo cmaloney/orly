@@ -45,7 +45,8 @@ int Main(int argc, char *argv[]) {
                     "Show the results of unit tests, regardless of whether they pass or fail"),
   };
   parser.Attach(&args, &GetOptionsNonConst());
-  ParseWithStandard(parser, ExtractArgVector(args), argc, argv);
+  auto arg_vector = ExtractArgVector(args);
+  ParseWithStandard(parser, arg_vector, argc, argv);
 
   // Context to aggregate all the test results.
   TContext global_ctx(nullptr);

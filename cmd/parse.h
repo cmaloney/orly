@@ -21,9 +21,9 @@ TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char *co
 
 // Mid-level interface for parsing arguments.
 // Construct a base parser however you want. This will add the standard arguments
-// as wellas handle them, and parsre the given argc/argv.
+// as well as handle them, and parsre the given argc/argv.
 void ParseWithStandard(TParser &parser,
-                       std::vector<const TArgInfo *> &&args,
+                       std::vector<const TArgInfo *> args,
                        const int argc,
                        const char *const argv[]);
 
@@ -92,8 +92,8 @@ void TParser::Attach(const TArgs<TOptions> *options, TOptions *out) {
       }
     } else {
       for(const std::string &name : arg.Names) {
-        std::string newName(name);
-        Named.emplace(newName, consumer);
+        std::cout << "NAME: " << name << "\n";
+        Named.emplace(name, consumer);
       }
     }
   }
@@ -104,7 +104,7 @@ void TParser::Attach(const TArgs<TOptions> *options, TOptions *out) {
 //                 ensure full usage
 // Helper to simplify simple parsing.
 template <typename TOptions>
-TOptions Parse(const TArgs<TOptions> &collection, const int argc, const char *const argv[]) {
+TOptions Parse(TArgs<TOptions> &collection, const int argc, const char *const argv[]) {
   TParser parser;
   TOptions ret;
   parser.Attach(&collection, &ret);

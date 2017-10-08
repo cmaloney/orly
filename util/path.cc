@@ -149,7 +149,7 @@ std::string Util::Normalize(const std::string &path) {
 
   // Split path by '/'. Scan from front to back, finding 'meaningful' patterns
   // and interpreting their changes.
-  auto pieces = Split("/", path);
+  vector<string> pieces = Split("/", path);
 
   auto iter = pieces.begin();
   while(iter != pieces.end()) {

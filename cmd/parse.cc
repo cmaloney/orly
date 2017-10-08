@@ -141,7 +141,7 @@ void TParser::Parse(const int argc, const char *const argv[]) const {
 
 // Attaches and process the standard arguments to the given parser, processes them.
 void Cmd::ParseWithStandard(TParser &parser,
-                            std::vector<const TArgInfo *> &&args,
+                            std::vector<const TArgInfo *> args,
                             const int argc,
                             const char *const argv[]) {
   // Attach the standard options.
@@ -169,12 +169,12 @@ void Cmd::ParseWithStandard(TParser &parser,
   }
 
   // Process standard arguments.
-  if(standard_options.Help) {
-    assert(argc >= 1);
-    PrintHelp(argv[0], args);
-  }
-
-  if(standard_options.Help || has_error) {
-    throw TCleanExit();
-  }
+  //if(standard_options.Help) {
+  //  assert(argc >= 1);
+  //  PrintHelp(argv[0], args);
+  //}
+//
+  //if(standard_options.Help || has_error) {
+  //  throw TCleanExit();
+  //}
 }

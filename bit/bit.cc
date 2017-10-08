@@ -35,7 +35,8 @@ TTree GetHomeDirectory() {
   }
 }
 
-int Main(int argc, char *argv[]) {
+int Main(int, char *[]) {
+  /*
   Cmd::TArgs<TOptions> args{
       Cmd::Optional({"mixin", "m"}, &TOptions::Mixins,
                     "Configuration snippets to add on top of the base project configuration"),
@@ -46,12 +47,14 @@ int Main(int argc, char *argv[]) {
       Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce"),
       // TODO(cmaloney): print-cmd is really handy but children can run arbitrary code...
       Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print the command line of all Exec calls")};
-
   TOptions options = Cmd::Parse(args, argc, argv);
+  */
+  TOptions options;
 
   if (options.PrintCmd) {
     Subprocess::SetEchoCommands(true);
   }
+  
 
   // Stash the current directory since we change our working directory to always
   // be the root of the project, but we need to still resolve relative paths

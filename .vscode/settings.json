@@ -2,6 +2,8 @@
     "files.associations": {
         "iostream": "cpp",
         "memory": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp"
     }
 }

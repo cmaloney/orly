@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 using namespace Base;
@@ -40,10 +41,19 @@ vector<string> Base::Split(const char *tok, const string &src) {
     endpos = src.find(tok, curpos);
 
     if(endpos == string::npos) {
-      pieces.push_back(src.size() == curpos ? "" : string(src.substr(curpos, src.size() - curpos)));
+      string newValue;
+      if (src.size() == curpos) {
+        pieces.push_back("");
+      } else {
+        string new_value(src.substr(curpos, src.size() - curpos));
+        cout<<"NEW1: " << new_value << "\n";
+        pieces.push_back(new_value);
+      }
     } else {
+      string new_value(src.substr(curpos, endpos - curpos));
       // Pull out the substring
-      pieces.push_back(string(src.substr(curpos, endpos - curpos)));
+      cout<<"NEW2: " << new_value << "\n";
+      pieces.push_back(new_value);
 
       // NOTE: This should always be <= src.size().
       curpos = endpos + tok_len;

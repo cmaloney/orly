@@ -6,7 +6,7 @@
 namespace Test {
 
 struct TOptions {
-  bool Verbose;
+  bool Verbose = false;
 };
 
 // TODO(cmaloney): Move to .cc
