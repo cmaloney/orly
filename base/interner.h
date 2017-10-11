@@ -59,7 +59,11 @@ class TThreadSafeInterner {
 public:
   NO_COPY(TThreadSafeInterner)
 
-  TThreadSafeInterner() = default;
+  TThreadSafeInterner() {
+    for(auto &elem: Storage) {
+      elem.Value = nullptr;
+    }
+  }
   ~TThreadSafeInterner() {
     // Empty out Storage
     for(auto &elem: Storage) {
@@ -140,6 +144,7 @@ public:
 
 private:
   struct TEntry {
+    // TODO(cmaloney): Make the key a pointer, have value pointer being set imply filled.
     TKey Key;
     std::atomic<TValue*> Value;
     std::atomic<bool> Filled;

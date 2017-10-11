@@ -46,13 +46,11 @@ vector<string> Base::Split(const char *tok, const string &src) {
         pieces.push_back("");
       } else {
         string new_value(src.substr(curpos, src.size() - curpos));
-        cout<<"NEW1: " << new_value << "\n";
         pieces.push_back(new_value);
       }
     } else {
       string new_value(src.substr(curpos, endpos - curpos));
       // Pull out the substring
-      cout<<"NEW2: " << new_value << "\n";
       pieces.push_back(new_value);
 
       // NOTE: This should always be <= src.size().
