@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 #include <future>
+#include <iostream>
 
 // Link against the platform-specific TPumper implementation.
 #ifdef __APPLE__
@@ -189,9 +190,17 @@ future<void> TPump::AddPipe(TPipeDirection direction,
                             shared_ptr<TCyclicBuffer> &buffer) {
   TPipe *pipe = new TPipe(this, direction, move(fd), buffer);
   auto future = pipe->GetFinishedFuture();
-  {
-    lock_guard<mutex> lock(PipeMutex);
-    Pipes.insert(pipe);
+
+  /* Find an empty slot in the pipes container for the pipe and start the pipe running. */
+  uint64_t start = uint64_t(pipe) % MaxPipes;
+  TPipe *nullPipe = nullptr;
+  for(uint64_t i = 0; i < MaxPipes; ++i) {
+    if (i > MaxPipes - 10) {
+      std::cout << "WARNING: Pump MaxPipes is being approached. Increase MaxPipes or things will crash\n";
+    }
+    if (Pipes[(start + i) % MaxPipes].compare_exchange_strong(nullPipe, pipe)) {
+      break;
+    }
   }
   pipe->Start();
   return future;
@@ -223,7 +232,11 @@ void TPump::WaitForIdle() const {
   }
 }
 
-TPump::TPump() : Pumper(*this) {}
+TPump::TPump() : Pumper(*this) {
+  for (uint64_t i = 0; i < MaxPipes; ++i) {
+    Pipes[i] = nullptr;
+  }
+}
 
 TPump::~TPump() {
   Pumper.Shutdown();
@@ -238,13 +251,26 @@ TPump::~TPump() {
 bool TPump::ServicePipe(TPipe *pipe) {
   assert(this);
 
-  if (!pipe->Service()) {
-    // The pipe is dead. Remove it from our set of pipes, ping PipeDied.
-    lock_guard<mutex> lock(PipeMutex);
-    Pipes.erase(pipe);
-    PipeDied.notify_all();
-    delete pipe;
-    return false;
+  // If the pipe is still active, say we serviced it and be done.
+  if (pipe->Service()) {
+    return true;
   }
-  return true;
+
+  // The pipe is dead, so remove it from the set of pipes then notify PipeDied of it's
+  // death.
+  // Find the pipe and remove it from the set of pipes.
+  uint64_t start = uint64_t(pipe) % MaxPipes;
+  for(uint64_t i = 0; i < MaxPipes; ++i) {
+    if (i > MaxPipes - 10) {
+      std::cout << "WARNING: Pump MaxPipes is being approached. Increase MaxPipes or things will crash\n";
+    }
+    if (Pipes[(start + i) % MaxPipes].compare_exchange_strong(pipe, nullptr)) {
+      // Removed. Ping PipeDied
+      PipeDied.notify_all();
+      delete pipe;
+      return false;
+    }
+  }
+
+  THROWER(std::logic_error) << "Internal consistency error: Couldn't find pipe which was running to remove. That's odd...";
 }

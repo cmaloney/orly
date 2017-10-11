@@ -32,6 +32,8 @@ common_flags=(
   -Wno-weak-vtables
   -Wno-missing-prototypes
   -Wno-disabled-macro-expansion
+  -march=native
+  -mtune=native
 
   # Optimize
   -O3
@@ -48,7 +50,7 @@ common_flags=(
   -pthread
 
   # Better backtraces
-  # -rdynamic
+  -rdynamic
 
   # Static resulting binary
   # -static
@@ -56,6 +58,7 @@ common_flags=(
   -lc++abi
   -Wl,--strip-all
   -Wl,--gc-sections
+  -fstrict-vtable-pointers
   # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
   # -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
   )

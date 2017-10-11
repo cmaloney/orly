@@ -4,6 +4,7 @@
         "memory": "cpp",
         "utility": "cpp",
         "bitset": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "cstdlib": "cpp"
     }
 }

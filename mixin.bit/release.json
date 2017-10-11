@@ -10,18 +10,21 @@
         "-Wno-unused",
         "-Wno-unused-parameter",
         "-Wno-unused-result",
-        "-gline-tables-only"
+        "-gline-tables-only",
+        "-fstrict-vtable-pointers"
       ]
     },
     "link": {
       "flags": [
         "-Ofast",
-        "-flto",
-        "-fuse-ld=gold",
+        "-flto=thin",
+        "-fuse-ld=lld",
         "-fwhole-program",
         "-march=native",
         "-mtune=native",
-        "-rdynamic"
+        "-rdynamic",
+        "-fstrict-vtable-pointers",
+        "-strip"
       ]
     }
   }

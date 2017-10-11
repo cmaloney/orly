@@ -57,6 +57,8 @@
 
 #pragma once
 
+#include <array>
+#include <atomic>
 #include <condition_variable>
 #include <future>
 #include <mutex>
@@ -100,6 +102,9 @@ class TPump final {
 
   public:
   enum class TPipeDirection { WriteToBuffer, ReadFromBuffer };
+
+  /* Arbitrary fixed max size to make adding/removing pipes cheaper / easier. */
+  static constexpr uint64_t MaxPipes = 512;
 
   /* Construct with no pipes. */
   TPump();
@@ -162,7 +167,8 @@ class TPump final {
      NOTE: It would be really nice to use unique_ptr here, but we can't because we can't lookup a
      pipe given a raw
      pointer later... */
-  std::unordered_set<TPipe *> Pipes;
+  // TODO(cmaloney): Make this resizable
+  std::array<std::atomic<TPipe *>, MaxPipes> Pipes;
 
   TPumper Pumper;
 };  // TPump
