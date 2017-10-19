@@ -202,6 +202,7 @@ future<void> TPump::AddPipe(TPipeDirection direction,
       break;
     }
   }
+  ++PipeCount;
   pipe->Start();
   return future;
 }
@@ -227,12 +228,12 @@ tuple<TFd, future<void>> TPump::NewWriteToBuffer(shared_ptr<TCyclicBuffer> &targ
 void TPump::WaitForIdle() const {
   assert(this);
   unique_lock<mutex> lock(PipeMutex);
-  while (!Pipes.empty()) {
+  while (PipeCount > 0) {
     PipeDied.wait(lock);
   }
 }
 
-TPump::TPump() : Pumper(*this) {
+TPump::TPump() : PipeCount(0), Pumper(*this) {
   for (uint64_t i = 0; i < MaxPipes; ++i) {
     Pipes[i] = nullptr;
   }
@@ -266,6 +267,7 @@ bool TPump::ServicePipe(TPipe *pipe) {
     }
     if (Pipes[(start + i) % MaxPipes].compare_exchange_strong(pipe, nullptr)) {
       // Removed. Ping PipeDied
+      --PipeCount;
       PipeDied.notify_all();
       delete pipe;
       return false;

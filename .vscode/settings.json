@@ -5,6 +5,9 @@
         "utility": "cpp",
         "bitset": "cpp",
         "chrono": "cpp",
-        "cstdlib": "cpp"
+        "cstdlib": "cpp",
+        "array": "cpp",
+        "initializer_list": "cpp",
+        "string_view": "cpp"
     }
 }

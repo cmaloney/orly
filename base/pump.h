@@ -104,7 +104,7 @@ class TPump final {
   enum class TPipeDirection { WriteToBuffer, ReadFromBuffer };
 
   /* Arbitrary fixed max size to make adding/removing pipes cheaper / easier. */
-  static constexpr uint64_t MaxPipes = 512;
+  static constexpr uint64_t MaxPipes = 4096;
 
   /* Construct with no pipes. */
   TPump();
@@ -169,6 +169,7 @@ class TPump final {
      pointer later... */
   // TODO(cmaloney): Make this resizable
   std::array<std::atomic<TPipe *>, MaxPipes> Pipes;
+  std::atomic<int> PipeCount;
 
   TPumper Pumper;
 };  // TPump
