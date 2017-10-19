@@ -35,8 +35,7 @@ TTree GetHomeDirectory() {
   }
 }
 
-int Main(int, char *[]) {
-  /*
+int Main(int argc, char *argv[]) {
   Cmd::TArgs<TOptions> args{
       Cmd::Optional({"mixin", "m"}, &TOptions::Mixins,
                     "Configuration snippets to add on top of the base project configuration"),
@@ -48,8 +47,6 @@ int Main(int, char *[]) {
       // TODO(cmaloney): print-cmd is really handy but children can run arbitrary code...
       Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print the command line of all Exec calls")};
   TOptions options = Cmd::Parse(args, argc, argv);
-  */
-  TOptions options;
 
   if (options.PrintCmd) {
     Subprocess::SetEchoCommands(true);

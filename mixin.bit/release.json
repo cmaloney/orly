@@ -10,7 +10,6 @@
         "-Wno-unused",
         "-Wno-unused-parameter",
         "-Wno-unused-result",
-        "-gline-tables-only",
         "-fstrict-vtable-pointers"
       ]
     },
@@ -24,7 +23,7 @@
         "-mtune=native",
         "-rdynamic",
         "-fstrict-vtable-pointers",
-        "-strip"
+        "-s"
       ]
     }
   }

@@ -5,7 +5,14 @@
 
 #include <base/class_traits.h>
 #include <bit/job.h>
-#include <moodycamel/blockingconcurrentqueue.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundef"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#include <concurrentqueue/blockingconcurrentqueue.h>
+#pragma clang diagnostic pop
 
 namespace Bit {
 

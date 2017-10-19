@@ -1,7 +1,6 @@
 /* Join argument collections together, parse them all at once from argc, argv */
 #pragma once
 
-#include <iostream>
 #include <memory>
 #include <unordered_map>
 
@@ -92,7 +91,6 @@ void TParser::Attach(const TArgs<TOptions> *options, TOptions *out) {
       }
     } else {
       for(const std::string &name : arg.Names) {
-        std::cout << "NAME: " << name << "\n";
         Named.emplace(name, consumer);
       }
     }
