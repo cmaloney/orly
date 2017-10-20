@@ -11,6 +11,7 @@
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <concurrentqueue/blockingconcurrentqueue.h>
 #pragma clang diagnostic pop
 

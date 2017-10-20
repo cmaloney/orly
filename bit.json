@@ -5,7 +5,7 @@
       "flags": [
         "-stdlib=libc++",
         "-fuse-ld=lld",
-        "-std=c++17",
+        "-std=c++1z",
         "-Wall",
         "-Werror",
         "-Wextra",
