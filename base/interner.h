@@ -46,7 +46,7 @@ class TInterner {
 };
 
 /* Thread-safe / concurrent safe interner. Get returns a a pointer or nullptr if no
-   entry exists. 
+   entry exists.
 
    Be certain _all_ access is done before deletion.
 
@@ -54,14 +54,15 @@ Implementation details:
  - Thread safety is done through atomic pointer swapping
  - Does a single hash then linear probing
 */
-template <size_t N, typename TKey, typename TValue, typename Hash = std::hash<TKey>> 
+template <size_t N, typename TKey, typename TValue, typename Hash = std::hash<TKey>>
 class TThreadSafeInterner {
 public:
   NO_COPY(TThreadSafeInterner)
 
-  TThreadSafeInterner() {
+  TThreadSafeInterner() : warnedScan(false) {
     for(auto &elem: Storage) {
       elem.Value = nullptr;
+      elem.Filled = false;
     }
   }
   ~TThreadSafeInterner() {
@@ -72,10 +73,10 @@ public:
       }
     }
   }
-  
+
   /* Add the given item to the interner. If an entry with the given key already exists
-     use that, discard/free the new value and return the old value. This basically 
-     "ensures" the key has a value in the map. 
+     use that, discard/free the new value and return the old value. This basically
+     "ensures" the key has a value in the map.
 
      Setting a value happens first. Getting the value set indicates that thread has "won"
      the race for that slot, and all other contestants should spin until filled is set
@@ -86,7 +87,7 @@ public:
     size_t scanLength = 0;
 
     TValue *newValue = item.get();
-    
+
     // Cycle until a spot is found, linear probing from the initial hash target.
     for(auto index = Hash()(key) % N;; index = index + 1) {
       // Compete for the spot
@@ -96,7 +97,7 @@ public:
         TValue* emptyValue = nullptr;
         if (slot.Value.compare_exchange_strong(emptyValue, newValue)) {
           // Won the set, fill the rest
-          // NOTE: This needs to be as small as possible to keep spinlocking down. 
+          // NOTE: This needs to be as small as possible to keep spinlocking down.
           slot.Key = std::move(key);
           slot.Filled = true;
           // Take ownership from the unique_ptr as the interner now owns the item.
@@ -126,7 +127,7 @@ public:
     }
   }
 
-  // TODO(cmaloney): Could further optimize later setting by returning the last attempted key in the TryGet 
+  // TODO(cmaloney): Could further optimize later setting by returning the last attempted key in the TryGet
   // and using that as the later start point for setting on miss.
   TValue *TryGet(const TKey &key) {
     for (auto index = Hash()(key) % N; true; ++index) {
@@ -137,7 +138,7 @@ public:
       if (slot.Key == key) {
         return slot.Value;
       }
-        
+
     }
   }
 
