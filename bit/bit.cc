@@ -51,7 +51,7 @@ int Main(int argc, char *argv[]) {
   if (options.PrintCmd) {
     Subprocess::SetEchoCommands(true);
   }
-  
+
 
   // Stash the current directory since we change our working directory to always
   // be the root of the project, but we need to still resolve relative paths
