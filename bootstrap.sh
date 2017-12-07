@@ -22,7 +22,7 @@ common_flags=(
   -stdlib=libc++
   -std=c++1z
   -Wall -Werror -Wextra
-  -fuse-ld=lld
+  # -fuse-ld=lld
   -fstrict-vtable-pointers
   -Wthread-safety
   -Weverything
@@ -56,8 +56,8 @@ common_flags=(
   # -static
   -lc++
   -lc++abi
-  -Wl,--strip-all
-  -Wl,--gc-sections
+  # -Wl,--strip-all
+  # -Wl,--gc-sections
   -fstrict-vtable-pointers
   # See https://gcc.gnu.org/ml/gcc-help/2010-05/msg00029.html
   # -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
