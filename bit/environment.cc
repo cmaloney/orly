@@ -74,7 +74,7 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment,
         continue;
       }
     }
-    TOpt<TRelPath> opt_path = producer.TryGetInputName(target_output->RelPath);
+    auto opt_path = producer.TryGetInputName(target_output->RelPath);
     if (!opt_path) {
       continue;
     }
@@ -134,6 +134,6 @@ std::unordered_set<TJob *> TEnvironment::GetPotentialJobsProducingFile(TFileInfo
    If the path doesn't begin with `/` it is assumed to be a relative path.
    If the path doesn't belong to any tree, the full path is given as the
    relative path. */
-TOpt<TRelPath> TEnvironment::TryGetRelPath(const std::string &path) {
+std::optional<TRelPath> TEnvironment::TryGetRelPath(const std::string &path) {
   return Files.TryGetRelPath(path);
 }

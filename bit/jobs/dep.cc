@@ -17,13 +17,8 @@ static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
   return {TRelPath(input.AddExtension(".dep"))};
 }
 
-static TOpt<TRelPath> TryGetInputName(const TRelPath &output) {
-  auto result = output.TryRemoveExtension(".dep");
-  if (result) {
-    return *result;
-  } else {
-    return TOpt<TRelPath>();
-  }
+static std::optional<TRelPath> TryGetInputName(const TRelPath &output) {
+  return output.TryRemoveExtension(".dep");
 }
 
 TJobProducer TDep::GetProducer(const TJobConfig &job_config) {

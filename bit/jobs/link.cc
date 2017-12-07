@@ -21,12 +21,14 @@ static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
   return {input.SwapExtension(".o", "")};
 }
 
-static TOpt<TRelPath> TryGetInputName(const TRelPath &output) { return output.AddExtension(".o"); }
+static optional<TRelPath> TryGetInputName(const TRelPath &output) {
+  return output.AddExtension(".o");
+}
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
 vector<string> ExtractLinkLibs(const TJobConfig *job_config) {
-  static TOpt<vector<string>> Args;
+  static optional<vector<string>> Args;
 
   if (job_config) {
     assert(!Args);
@@ -35,7 +37,7 @@ vector<string> ExtractLinkLibs(const TJobConfig *job_config) {
       Args = ExtractOptional<vector<string>>(*elem, {"flags"});
       Append(*Args, ExtractOptional<vector<string>>(*elem, {"libs"}));
     } else {
-      Args.MakeKnown();
+      Args.emplace();
     }
   }
 
@@ -80,7 +82,7 @@ TJob::TOutput TLink::Run(TFileEnvironment *file_environment) {
   while (!to_check.empty()) {
     TFileInfo *obj = Util::Pop(to_check);
 
-    if (obj->IsBuildable().IsUnknown()) {
+    if (!obj->IsBuildable().has_value()) {
       output.Needs.IfBuildable.insert(obj);
       ObjToCheck.insert(obj);
       continue;

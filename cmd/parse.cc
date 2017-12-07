@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <iomanip>
+#include <optional>
 
 #include <base/not_implemented.h>
-#include <base/opt.h>
 #include <base/thrower.h>
 #include <cmd/standard_args.h>
 
@@ -53,8 +53,8 @@ void TParser::Parse(const int argc, const char *const argv[]) const {
     // TODO(cmaloney): The '=' 1 or 2 optional split should happen via Base::Split
     auto split_pos = arg.find_first_of('=');
     const std::string key = split_pos == std::string::npos ? arg : arg.substr(0, split_pos);
-    const Base::TOpt<std::string> value_equals =
-        split_pos == std::string::npos ? Base::TOpt<std::string>() : arg.substr(split_pos + 1);
+    const std::optional<std::string> value_equals =
+        split_pos == std::string::npos ? std::optional<std::string>() : arg.substr(split_pos + 1);
 
     auto get_value_str = [&value_equals, &has_more, &i, &get_arg, &key]() {
       if(value_equals) {

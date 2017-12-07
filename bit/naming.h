@@ -1,9 +1,9 @@
 #pragma once
 
+#include <optional>
 #include <string>
 
 #include <base/exception.h>
-#include <base/opt.h>
 
 namespace Bit {
 
@@ -30,10 +30,10 @@ struct TRelPath {
   const std::string Path;
 
   TRelPath AddExtension(const char *extension) const;
-  Base::TOpt<TRelPath> TryRemoveExtension(const char *extension) const;
+  std::optional<TRelPath> TryRemoveExtension(const char *extension) const;
   bool EndsWith(const char *extension) const;
   TRelPath SwapExtension(const char *old_extension, const char *new_extension) const;
-  Base::TOpt<TRelPath> TrySwapExtension(const char *old_extension, const char *new_extension) const;
+  std::optional<TRelPath> TrySwapExtension(const char *old_extension, const char *new_extension) const;
 
   bool operator==(const TRelPath &that) const;
 };  // TPath

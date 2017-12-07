@@ -7,9 +7,10 @@ from a file which does exist which could be manipulated by known jobs to produce
 the needed file. */
 #pragma once
 
+#include <optional>
+
 #include <base/class_traits.h>
 #include <base/interner.h>
-#include <base/opt.h>
 #include <bit/file_environment.h>
 #include <bit/file_info.h>
 #include <bit/job.h>
@@ -55,7 +56,7 @@ class TEnvironment {
   /* Attempts to find the tree for the given file and return the relative path.
      If the path doesn't begin with `/` it is assumed to be a relative path.
      If the path doesn't belong to any known tree, None is reeturned. */
-  Base::TOpt<TRelPath> TryGetRelPath(const std::string &path);
+  std::optional<TRelPath> TryGetRelPath(const std::string &path);
 
   /* Get the potential jobs which could produce a given file. Just because a job
      exists doesn't mean that it is producible (The input may not exist and may

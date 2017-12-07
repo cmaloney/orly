@@ -50,7 +50,7 @@ TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
    If the path doesn't begin with `/` it is assumed to be a relative path.
    If the path doesn't belong to any tree, the full path is given as the
    relative path. */
-TOpt<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
+std::optional<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
   assert(&path);
 
   // 0 length paths are illegal.
@@ -75,5 +75,5 @@ TOpt<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
   }
 
   // Tree not known. Can't make a relative path.
-  return TNone();
+  return std::optional<TRelPath>();
 }

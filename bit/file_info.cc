@@ -20,11 +20,11 @@ TFileInfo::TFileInfo(TRelPath &&path, std::string &&cmd_path, TFileConfig &&src_
   assert(src_config.JobConfig.empty());  // No src config is currently supported
 }
 
-TOpt<bool> TFileInfo::IsBuildable() const {
+std::optional<bool> TFileInfo::IsBuildable() const {
   if (BuildableSet) {
-    return TOpt<bool>(Buildable);
+    return std::optional<bool>(Buildable);
   }
-  return TOpt<bool>(TNone());
+  return std::optional<bool>();
 }
 
 bool TFileInfo::IsComplete() const { return Completed; }

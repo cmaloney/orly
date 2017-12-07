@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <base/opt.h>
 #include <bit/job.h>
 
 namespace Bit {
