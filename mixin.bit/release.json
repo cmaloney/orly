@@ -3,7 +3,7 @@
     "compile_cc": {
       "flags": [
         "-Ofast",
-        "-flto",
+        "-flto=thin",
         "-march=native",
         "-mtune=native",
         "-DNDEBUG",
@@ -17,7 +17,6 @@
       "flags": [
         "-Ofast",
         "-flto=thin",
-        "-fuse-ld=lld",
         "-fwhole-program",
         "-march=native",
         "-mtune=native",

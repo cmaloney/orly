@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iomanip>
+#include <iostream>
 
 #include <base/not_implemented.h>
 #include <base/opt.h>
@@ -169,12 +170,12 @@ void Cmd::ParseWithStandard(TParser &parser,
   }
 
   // Process standard arguments.
-  //if(standard_options.Help) {
-  //  assert(argc >= 1);
-  //  PrintHelp(argv[0], args);
-  //}
-//
-  //if(standard_options.Help || has_error) {
-  //  throw TCleanExit();
-  //}
+  if(standard_options.Help) {
+    assert(argc >= 1);
+    PrintHelp(argv[0], args);
+  }
+
+  if(standard_options.Help || has_error) {
+    throw TCleanExit();
+  }
 }

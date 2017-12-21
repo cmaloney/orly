@@ -83,6 +83,8 @@ TJobProducer TCompileCFamily::GetCcProducer(const TJobConfig &job_config) {
 }
 
 TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
+  assert(file_environment != nullptr);
+
   TJob::TOutput output;
   output.Result = TJob::TOutput::NewNeeds;
 

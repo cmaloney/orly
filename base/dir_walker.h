@@ -29,6 +29,8 @@
 
 namespace Base {
 
+// TODO(cmaloney): Add a go Walk() function style one of these that gets the TEntry
+// + type as arguments to a lambda passed into it.
 /* Walks a dir in the file system. */
 class TDirWalker {
   public:

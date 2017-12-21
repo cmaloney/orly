@@ -347,6 +347,7 @@ void AddTests(TFileEnvironment &file_environment, TStatusTracker &status_tracker
     }
 
     TAction OnDirBegin(const TEntry &entry) final {
+      // TODO(cmaloney): Make skippable directories configurable.
       // If the directory is excluded, skip it.
       if (Contains(unordered_set<string>{".git", ".bit"}, entry.Name)) {
         return TDirWalker::Skip;
@@ -374,11 +375,11 @@ void AddTests(TFileEnvironment &file_environment, TStatusTracker &status_tracker
       path.resize(test_pos + 5);
       auto rel_path = FileEnvironment.TryGetRelPath(path);
       assert(rel_path);
-      TFileInfo *f = FileEnvironment.GetFileInfo(*rel_path);
+      TFileInfo *f = FileEnvironment.GetFileInfo(rel_path->AddExtension(".out"));
       assert(f);  // We're walking in src. We must be able to get the file from the path.
 
       // If it's buildable, add it to the set to build
-      if (StatusTracker.IsBuildable(f, TFileType::Executable)) {
+      if (StatusTracker.IsBuildable(f, TFileType::Unset)) {
         StatusTracker.AddNeeded(f);
       }
 

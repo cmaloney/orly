@@ -8,6 +8,7 @@
 #include <bit/jobs/compile_c_family.h>
 #include <bit/jobs/dep.h>
 #include <bit/jobs/link.h>
+#include <bit/jobs/run_test.h>
 #include <bit/naming.h>
 #include <util/path.h>
 #include <util/stl.h>
@@ -25,7 +26,8 @@ TJobFactory::TJobFactory(const TJobConfig &job_config, const TSet<string> &jobs)
       {"dependency", &Jobs::TDep::GetProducer},
       {"compile_c", &Jobs::TCompileCFamily::GetCProducer},
       {"compile_cc", &Jobs::TCompileCFamily::GetCcProducer},
-      {"link", &Jobs::TLink::GetProducer}};
+      {"link", &Jobs::TLink::GetProducer},
+      {"run_test", &Jobs::TRunTest::GetProducer}};
 
   if (jobs.empty()) {
     // Enable all builtin jobs
