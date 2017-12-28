@@ -70,6 +70,7 @@ TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
   // exist.
   // TODO(cmaloney): Stream from C++ struct -> json rather than doing this
   // "copy into something that looks like JSON".
+  // TODO(cmaloney): investigate mpark json lib, or move to the nhollman/json lib
   /* out_file */ {
     auto deps_json = ToJson(Needs);
     ofstream out_file(GetSoleOutput()->CmdPath);

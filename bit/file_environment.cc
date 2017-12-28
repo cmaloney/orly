@@ -40,7 +40,11 @@ TFileInfo *TFileEnvironment::GetInfo(TRelPath name) {
   };
 
   if (ExistsPath(src_abs_path.Path.c_str())) {
-    return add_file(name.Path, true);
+    // TODO(cmaloney): Is it better to cwd to the project root always or just
+    // always do absolute paths? Ideally could do things like clang vfs filesystem
+    // thing for errors. Probably better to cwd when possible to project root for 
+    // human consumption. Full path for tool consumption.
+    return add_file(src_abs_path.Path, true);
   } else {
     return add_file(TAbsPath(Out, name).Path, false);
   }
