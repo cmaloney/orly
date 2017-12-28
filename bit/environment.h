@@ -47,16 +47,6 @@ class TEnvironment {
   // TEnvironment.
   TFileEnvironment Files;
 
-  /* Get the FileInfo which contains compilation state information for a given
-     relative path. Relative paths should first be resolved from by calling
-     GetRelPath */
-  TFileInfo *GetFileInfo(TRelPath name);
-
-  /* Attempts to find the tree for the given file and return the relative path.
-     If the path doesn't begin with `/` it is assumed to be a relative path.
-     If the path doesn't belong to any known tree, None is reeturned. */
-  Base::TOpt<TRelPath> TryGetRelPath(const std::string &path);
-
   /* Get the potential jobs which could produce a given file. Just because a job
      exists doesn't mean that it is producible (The input may not exist and may
      not be producible) */

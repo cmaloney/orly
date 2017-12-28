@@ -101,7 +101,7 @@ TJob::TOutput TLink::Run(TFileEnvironment *file_environment) {
 
     for (const auto &dep : obj->GetCompleteConfig()->JobConfig.at("try_link").GetArray()) {
       TFileInfo *link_file =
-          file_environment->GetFileInfo(*file_environment->TryGetRelPath(dep.GetString()));
+          file_environment->GetInfo(*file_environment->TryGetRelPath(dep.GetString()));
 
       // If we haven't scheduled a check for this file, do so.
       if (ObjFiles.insert(link_file).second) {

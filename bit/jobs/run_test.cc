@@ -4,13 +4,13 @@
 #include <fstream>
 
 #include <base/as_str.h>
+#include <bit/file_info.h>
 #include <bit/job_producer.h>
 
 using namespace Base;
 using namespace Bit;
 using namespace Bit::Jobs;
 using namespace std;
-using namespace Util;
 
 static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
   return {input.AddExtension(".out")};

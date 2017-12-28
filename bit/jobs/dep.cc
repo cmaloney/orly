@@ -60,7 +60,7 @@ TJob::TOutput TDep::Run(TFileEnvironment *file_env) {
   for (const auto &dep : deps) {
     auto rel_path = file_env->TryGetRelPath(dep);
     if (rel_path) {
-      Needs.insert(file_env->GetFileInfo(*rel_path));
+      Needs.insert(file_env->GetInfo(*rel_path));
     }
   }
 

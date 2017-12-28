@@ -90,7 +90,7 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
 
   // TODO(cmaloney): The dep file is very much a "second mandatory input".
   if (!Needs) {
-    Needs = file_environment->GetFileInfo(GetInput()->RelPath.AddExtension(".dep"));
+    Needs = file_environment->GetInfo(GetInput()->RelPath.AddExtension(".dep"));
     output.Needs.Mandatory = unordered_set<TFileInfo *>{Needs};
     return output;
   }
@@ -117,7 +117,7 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
   for (const auto &dep : Needs->GetCompleteConfig()->JobConfig.at("dependencies").GetArray()) {
     TOpt<TRelPath> dep_rel_path = file_environment->TryGetRelPath(dep.GetString());
     if (dep_rel_path && dep_rel_path->EndsWith(".h")) {
-      TFileInfo *link_file = file_environment->GetFileInfo(dep_rel_path->SwapExtension(".h", ".o"));
+      TFileInfo *link_file = file_environment->GetInfo(dep_rel_path->SwapExtension(".h", ".o"));
       LinkNeeds.push_back(link_file->CmdPath);
     } else {
       NOT_IMPLEMENTED_S("C/C++ deps which don't end in .h");

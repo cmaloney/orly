@@ -12,7 +12,7 @@ using namespace std;
 TFileEnvironment::TFileEnvironment(TTree src, TTree out) : Src(src), Out(out) {}
 
 
-TFileInfo *TFileEnvironment::GetFileInfo(TRelPath name) {
+TFileInfo *TFileEnvironment::GetInfo(TRelPath name) {
   // Construction is significantly more expensive than lookup, so try looking up first
   TFileInfo *result = Files.TryGet(name.Path);
   if (result) {
@@ -76,4 +76,15 @@ TOpt<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
 
   // Tree not known. Can't make a relative path.
   return TNone();
+}
+
+TOpt<TRelPath> TFileEnvironment::EnvironmentRootedPath(const std::string &path) {
+  assert(&path);
+
+  // TODO(cmaloney): string_view + compare?
+  if(path.size() >= 2 && path[0] == '/'  && path[1] == '/') {
+    return TRelPath(path.substr(2));
+  }
+
+  return TFileEnvironment::TryGetRelPath(path);
 }

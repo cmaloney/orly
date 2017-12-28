@@ -375,7 +375,7 @@ void AddTests(TFileEnvironment &file_environment, TStatusTracker &status_tracker
       path.resize(test_pos + 5);
       auto rel_path = FileEnvironment.TryGetRelPath(path);
       assert(rel_path);
-      TFileInfo *f = FileEnvironment.GetFileInfo(rel_path->AddExtension(".out"));
+      TFileInfo *f = FileEnvironment.GetInfo(rel_path->AddExtension(".out"));
       assert(f);  // We're walking in src. We must be able to get the file from the path.
 
       // If it's buildable, add it to the set to build
@@ -407,13 +407,13 @@ void Bit::DoProduce(uint64_t worker_count,
   // into the job runner to start the work queue.
   bool has_failure = false;
   for (const auto &target : Targets) {
-    auto rel_path = environment.TryGetRelPath(target);
+    auto rel_path = environment.Files.EnvironmentRootedPath(target);
     if (!rel_path) {
       has_failure = true;
       THROWER(runtime_error) << "Unable to locate target " << quoted(target)
                              << ". File is not Not in src or out tree.\n";
     }
-    status_tracker.AddNeeded(environment.GetFileInfo(*rel_path));
+    status_tracker.AddNeeded(environment.Files.GetInfo(*rel_path));
   }
 
   // Add in all tests as additional builds if requested.

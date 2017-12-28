@@ -80,7 +80,7 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment,
     if (!opt_path) {
       continue;
     }
-    TFileInfo *input = environment.GetFileInfo(*opt_path);
+    TFileInfo *input = environment.Files.GetInfo(*opt_path);
     if (!input) {
       continue;
     }
@@ -96,7 +96,7 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment,
       // TODO(cmaloney): generalize this "copy across all things with lambda applied"
       TSet<TFileInfo *> output;
       for (const TRelPath &rel_path : producer.GetOutputName(*opt_path)) {
-        output.insert(environment.GetFileInfo(rel_path));
+        output.insert(environment.Files.GetInfo(rel_path));
       }
       job =
           Jobs.Add(move(job_id), producer.MakeJob(TJob::TMetadata{&producer, input, move(output)}));
@@ -124,18 +124,8 @@ TEnvironment::TEnvironment(const TConfig &config, const TTree &src)
       Src(src),
       Out(config.CacheDirectory) {}
 
-TFileInfo *TEnvironment::GetFileInfo(TRelPath name) { return Files.GetFileInfo(name); }
-
 // TODO(cmaloney): Just implement GetPotentialJobs inline here...
 std::unordered_set<TJob *> TEnvironment::GetPotentialJobsProducingFile(TFileInfo *file_info,
                                                                        TFileType file_type) {
   return Jobs.GetPotentialJobs(*this, file_info, file_type);
-}
-
-/* Attempts to find the tree for the given file and return the relative path.
-   If the path doesn't begin with `/` it is assumed to be a relative path.
-   If the path doesn't belong to any tree, the full path is given as the
-   relative path. */
-TOpt<TRelPath> TEnvironment::TryGetRelPath(const std::string &path) {
-  return Files.TryGetRelPath(path);
 }
