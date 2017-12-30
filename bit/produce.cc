@@ -273,6 +273,8 @@ void TStatusTracker::QueueJob(TJob *job) {
   // Make sure it's always in All.
   All.insert(job);
 
+  // BUG(cmaloney): This isn't checking if the job has unmet needs...
+
   if (Contains(Running, job)) {
     return;
   }

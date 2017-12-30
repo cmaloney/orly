@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <iostream>
 
 #include <base/as_str.h>
 #include <bit/file_info.h>
@@ -34,6 +35,14 @@ TJobProducer TRunTest::GetProducer(const TJobConfig &job_config) {
 
 TJob::TOutput TRunTest::Run(TFileEnvironment *) {
   TJob::TOutput output;
+
+  // TODO(cmaloney): Input should be an implicitly completed before any runs thing.
+  if (!GetInput()->IsComplete()) {
+    std::cout << "NOT done...\n";
+    output.Result = TJob::TOutput::NewNeeds;
+    output.Needs.Mandatory.insert(GetInput());
+    return output;
+  }
   // TODO(cmaloney): Stop spawning extra pumps in the Run() calls.
   output.Subprocess = Subprocess::Run({GetInput()->CmdPath});
 
