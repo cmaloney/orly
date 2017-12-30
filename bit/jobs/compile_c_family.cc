@@ -22,19 +22,19 @@ static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
 }
 
 template <bool IsCc>
-static TOpt<TRelPath> TryGetInputName(const TRelPath &output) {
-  TOpt<TRelPath> result = output.TryRemoveExtension(".o");
+static std::optional<TRelPath> TryGetInputName(const TRelPath &output) {
+  auto result = output.TryRemoveExtension(".o");
   if (result) {
     return result->AddExtension(IsCc ? ".cc" : ".c");
   }
-  return TOpt<TRelPath>();
+  return std::optional<TRelPath>();
 }
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
 template <bool IsCc>
 vector<string> ExtractBaseArgs(const TJobConfig *job_config) {
-  static TOpt<vector<string>> Args;
+  static std::optional<vector<string>> Args;
 
   if (job_config) {
     assert(!Args);
@@ -115,7 +115,7 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
   // TODO(cmaloney): This is doing a ton of excess computation converting back into fileinfo
   // objects.
   for (const auto &dep : Needs->GetCompleteConfig()->JobConfig.at("dependencies").GetArray()) {
-    TOpt<TRelPath> dep_rel_path = file_environment->TryGetRelPath(dep.GetString());
+    std::optional<TRelPath> dep_rel_path = file_environment->TryGetRelPath(dep.GetString());
     if (dep_rel_path && dep_rel_path->EndsWith(".h")) {
       TFileInfo *link_file = file_environment->GetInfo(dep_rel_path->SwapExtension(".h", ".o"));
       LinkNeeds.push_back(link_file->CmdPath);

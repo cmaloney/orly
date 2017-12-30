@@ -4,10 +4,14 @@ Steps to publishing
   - Get `bit -m msan -m debug` passing
   - Running tests (And in verbose mode?)
   - error on json unknown
-  - Make caching work
+  - Make caching work!!!!
   - C++ Include detector plugin
+  - Print what files needed / wanted unproduceable file
 
 Pretty
+  - Print command to build just what directly failed
+  - Tools built bootstrapping
+  - Distributed build / lambda
   - ccache. We know all the things being touched. Hash and store to a DFS.
     - Actually setup as idempotent build system. Basically we swap out subprocess runs with remote subprocess runs when it's
       profitable.

@@ -7,9 +7,10 @@ from a file which does exist which could be manipulated by known jobs to produce
 the needed file. */
 #pragma once
 
+#include <optional>
+
 #include <base/class_traits.h>
 #include <base/interner.h>
-#include <base/opt.h>
 #include <bit/file_environment.h>
 #include <bit/file_info.h>
 #include <bit/job.h>

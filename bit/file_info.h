@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <iosfwd>
+#include <optional>
 
 #include <bit/config.h>
 #include <bit/naming.h>
@@ -25,7 +26,7 @@ class TFileInfo {
   // Returns the complete config if IsComplete is true, otherwise returns nullptr.
   const TFileConfig *GetCompleteConfig() const;
 
-  Base::TOpt<bool> IsBuildable() const;
+  std::optional<bool> IsBuildable() const;
 
   bool IsComplete() const;
 

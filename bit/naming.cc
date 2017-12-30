@@ -80,12 +80,12 @@ TRelPath TRelPath::AddExtension(const char *extension) const {
   return TRelPath(Path + extension);
 }
 
-TOpt<TRelPath> TRelPath::TryRemoveExtension(const char *extension) const {
+std::optional<TRelPath> TRelPath::TryRemoveExtension(const char *extension) const {
   if (EndsWith(extension)) {
     auto extesion_length = strlen(extension);
     return TRelPath(Path.substr(0, Path.length() - extesion_length));
   }
-  return TOpt<TRelPath>();
+  return std::optional<TRelPath>();
 }
 bool TRelPath::EndsWith(const char *extension) const {
   auto extesion_length = strlen(extension);

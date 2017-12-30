@@ -1,5 +1,7 @@
 {
-  "targets": ["bit/bit"],
+  "targets": [
+    "bit/bit"
+  ],
   "job_config": {
     "compile_cc": {
       "flags": [
@@ -20,13 +22,19 @@
         "-pthread",
         "-fcolor-diagnostics",
         "-Qunused-arguments",
-        "-I/Users/firebird347/projects/bit",
-        "-DSRC_ROOT=\"/Users/firebird347/projects/bit\""
+        "-I/home/firebird347/projects/bit",
+        "-DSRC_ROOT=\"/home/firebird347/projects/bit\""
       ]
     },
-  "link": {
-    "flags": ["-stdlib=libc++", "-std=c++1z"],
-    "libs": ["-ldl", "-pthread"]
-  }
+    "link": {
+      "flags": [
+        "-stdlib=libc++",
+        "-std=c++1z"
+      ],
+      "libs": [
+        "-ldl",
+        "-pthread"
+      ]
+    }
   }
 }

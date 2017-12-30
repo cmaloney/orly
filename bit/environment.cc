@@ -76,7 +76,7 @@ TSet<TJob *> TJobFactory::GetPotentialJobs(TEnvironment &environment,
         continue;
       }
     }
-    TOpt<TRelPath> opt_path = producer.TryGetInputName(target_output->RelPath);
+    auto opt_path = producer.TryGetInputName(target_output->RelPath);
     if (!opt_path) {
       continue;
     }

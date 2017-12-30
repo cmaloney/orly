@@ -1,10 +1,10 @@
 #pragma once
 
+#include <optional>
 #include <unordered_map>
 
 #include <base/class_traits.h>
 #include <base/interner.h>
-#include <base/opt.h>
 #include <bit/naming.h>
 #include <bit/file_info.h>
 
@@ -26,14 +26,14 @@ class TFileEnvironment {
   /* Attempts to find the tree for the given file and return the relative path.
      If the path doesn't begin with `/` it is assumed to be a relative path.
      If the path doesn't belong to any known tree, None is reeturned. */
-  Base::TOpt<TRelPath> TryGetRelPath(const std::string &path);
+  std::optional<TRelPath> TryGetRelPath(const std::string &path);
 
   /* Attempts to find the tree for the given file and return the relative path.
      If the path doesn't begin with a `/` it is assumed to be a relative path.
      If the path begins with `//` it is relative to the root of the project.
      Otherwise the path begins with a single `/` and is assumed to be a regular
      absolute path. */
-  Base::TOpt<TRelPath> EnvironmentRootedPath(const std::string &path);
+  std::optional<TRelPath> EnvironmentRootedPath(const std::string &path);
 
   const TTree Src, Out;
 

@@ -23,8 +23,8 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <optional>
 
-#include <base/opt.h>
 #include <base/pump.h>
 #include <base/split.h>
 #include <util/error.h>
@@ -123,10 +123,10 @@ class TSubprocess final {
   std::future<void> OutputWait, ErrorWait;
 };  // TSubprocess
 
-static bool InternalEchoCommands(TOpt<bool> enable) {
+static bool InternalEchoCommands(optional<bool> enable) {
   static bool Enable = false;
 
-  if (enable.IsKnown()) {
+  if (enable.has_value()) {
     Enable = *enable;
   }
 
@@ -150,7 +150,7 @@ void Base::Subprocess::Exec(const vector<string> &cmd) {
 }
 
 TResult Base::Subprocess::Run(TPump &pump, const std::vector<std::string> &cmd) {
-  if (InternalEchoCommands(TNone())) {
+  if (InternalEchoCommands(optional<bool>())) {
     // TODO(cmaloney): Make it so copy / paste will get exact set of arguments from bash.
     cout << AsStr("Base::Subprocess::Exec([", Join(cmd, " "), "])\n");
   }

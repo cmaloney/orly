@@ -42,7 +42,7 @@ TFileInfo *TFileEnvironment::GetInfo(TRelPath name) {
   if (ExistsPath(src_abs_path.Path.c_str())) {
     // TODO(cmaloney): Is it better to cwd to the project root always or just
     // always do absolute paths? Ideally could do things like clang vfs filesystem
-    // thing for errors. Probably better to cwd when possible to project root for 
+    // thing for errors. Probably better to cwd when possible to project root for
     // human consumption. Full path for tool consumption.
     return add_file(src_abs_path.Path, true);
   } else {
@@ -54,7 +54,7 @@ TFileInfo *TFileEnvironment::GetInfo(TRelPath name) {
    If the path doesn't begin with `/` it is assumed to be a relative path.
    If the path doesn't belong to any tree, the full path is given as the
    relative path. */
-TOpt<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
+std::optional<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
   assert(&path);
 
   // 0 length paths are illegal.
@@ -79,10 +79,10 @@ TOpt<TRelPath> TFileEnvironment::TryGetRelPath(const std::string &path) {
   }
 
   // Tree not known. Can't make a relative path.
-  return TNone();
+  return std::optional<TRelPath>();
 }
 
-TOpt<TRelPath> TFileEnvironment::EnvironmentRootedPath(const std::string &path) {
+std::optional<TRelPath> TFileEnvironment::EnvironmentRootedPath(const std::string &path) {
   assert(&path);
 
   // TODO(cmaloney): string_view + compare?

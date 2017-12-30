@@ -17,7 +17,7 @@ static unordered_set<TRelPath> GetOutputName(const TRelPath &input) {
   return {input.AddExtension(".out")};
 }
 
-static TOpt<TRelPath> TryGetInputName(const TRelPath &output) { 
+static optional<TRelPath> TryGetInputName(const TRelPath &output) {
   return output.TryRemoveExtension(".out");
 }
 
