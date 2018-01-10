@@ -26,8 +26,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "/usr/include/c++/7.2.0",
-                "/usr/include/c++/7.2.0/x86_64-pc-linux-gnu",
+                "/usr/include/c++/v1",
                 "/usr/local/include",
                 "/usr/lib/clang/5.0.0/include",
                 "/usr/include",
@@ -37,10 +36,9 @@
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "/usr/include/c++/7.2.0",
-                    "/usr/include/c++/7.2.0/x86_64-pc-linux-gnu",
+                    "/usr/include/c++/v1",
+                    "/usr/lib/clang/5.0.1/include",
                     "/usr/local/include",
-                    "/usr/lib/clang/5.0.0/include",
                     "/usr/include",
                     "${workspaceRoot}"
                 ],

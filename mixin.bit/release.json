@@ -22,6 +22,7 @@
         "-mtune=native",
         "-rdynamic",
         "-fstrict-vtable-pointers",
+        "-fno-omit-frame-pointer",
         "-s"
       ]
     }
