@@ -52,10 +52,10 @@ unordered_set<string> ParseDeps(const TCyclicBuffer &gcc_deps) {
         if (is_first_item) {
           is_first_item = false;
         } else {
-          deps.emplace(buffer);
+          deps.insert(buffer);
         }
       }
-      buffer.clear();
+      buffer.resize(0);
       in_tok = false;
     } else {
       // Hit start of token?
