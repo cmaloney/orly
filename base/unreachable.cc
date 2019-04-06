@@ -34,7 +34,7 @@ void Base::Unreachable(const TCodeLocation &loc) {
 #ifdef NDEBUG
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-member-function"
-  EXCEPTION(unreachable_t, std::runtime_error, "Unreachable code");
+  EXCEPTION(unreachable_t, std::runtime_error, "Unreachable code")
 #pragma clang diagnostic pop
   TThrower<unreachable_t>{loc};
 #else

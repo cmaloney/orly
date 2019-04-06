@@ -41,7 +41,7 @@ ssize_t Util::WriteAtMost(int fd, const void *buf, size_t max_size) {
 
 bool Util::TryReadExactly(int fd, void *buf, size_t size) {
   char *cursor = static_cast<char *>(buf), *end = cursor + size;
-  ;
+
   while(cursor < end) {
     ssize_t actual_size = ReadAtMost(fd, cursor, size_t(end - cursor));
     if(!actual_size) {
@@ -57,7 +57,7 @@ bool Util::TryReadExactly(int fd, void *buf, size_t size) {
 
 bool Util::TryWriteExactly(int fd, const void *buf, size_t size) {
   const char *cursor = static_cast<const char *>(buf), *end = cursor + size;
-  ;
+
   while(cursor < end) {
     ssize_t actual_size = WriteAtMost(fd, cursor, size_t(end - cursor));
     if(!actual_size) {

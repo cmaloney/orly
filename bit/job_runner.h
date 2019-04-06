@@ -12,6 +12,7 @@
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma clang diagnostic ignored "-Wshadow-field"
 #include <concurrentqueue/blockingconcurrentqueue.h>
 #pragma clang diagnostic pop
 

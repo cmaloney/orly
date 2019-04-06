@@ -91,7 +91,7 @@ void TParser::Parse(const int argc, const char *const argv[]) const {
       }
 
       if(BeginsWith("@", key)) {
-        NOT_IMPLEMENTED_S("Argument file parsing.");
+        NOT_IMPLEMENTED_S("Argument file parsing.")
       }
 
       // Short options are '-' followed by one character options. If one of those

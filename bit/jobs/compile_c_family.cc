@@ -120,7 +120,7 @@ TJob::TOutput TCompileCFamily::Run(TFileEnvironment *file_environment) {
       TFileInfo *link_file = file_environment->GetInfo(dep_rel_path->SwapExtension(".h", ".o"));
       LinkNeeds.push_back(link_file->CmdPath);
     } else {
-      NOT_IMPLEMENTED_S("C/C++ deps which don't end in .h");
+      NOT_IMPLEMENTED_S("C/C++ deps which don't end in .h")
     }
   }
 

@@ -31,7 +31,7 @@ TTree GetHomeDirectory() {
     return TTree(home_dir);
   } else {
     // TODO(cmaloney): Implement a sane fallback if HOME isn't set.
-    NOT_IMPLEMENTED();
+    NOT_IMPLEMENTED()
   }
 }
 

@@ -93,7 +93,7 @@ std::string ReadCacheDir(const TJson &json, const TCoreDirs &core_dirs) {
       // TODO(cmaloney): obey TMP / TMPDIR / etc. See python's mkstemp()
       return "/tmp/bit_cache";
     } else {
-      NOT_IMPLEMENTED();
+      NOT_IMPLEMENTED()
     }
   } else {
     return core_dirs.Project + ".bit/cache";
