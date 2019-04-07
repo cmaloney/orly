@@ -9,6 +9,7 @@
     "-Wglobal-constructors",
     "-pthread",
     "-fcolor-diagnostics"
+    "-fmodules"
   ],
 
 }
