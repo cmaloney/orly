@@ -20,9 +20,9 @@ CC=clang++
 common_flags=(
   # Base compile
   -stdlib=libc++
-  -std=c++1z
+  -std=c++2a
   -Wall -Werror -Wextra
-  # -fuse-ld=lld
+  -fuse-ld=lld
   -fstrict-vtable-pointers
   -Wthread-safety
   -Weverything
@@ -34,6 +34,7 @@ common_flags=(
   -Wno-disabled-macro-expansion
   -march=native
   -mtune=native
+  # TODO: -fmodules
 
   # Optimize
   -O3

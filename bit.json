@@ -6,7 +6,7 @@
     "compile_cc": {
       "flags": [
         "-stdlib=libc++",
-        "-std=c++1z",
+        "-std=c++2a",
         "-Wall",
         "-Werror",
         "-Wextra",
@@ -23,13 +23,15 @@
         "-fcolor-diagnostics",
         "-Qunused-arguments",
         "-I/home/firebird347/projects/bit",
-        "-DSRC_ROOT=\"/home/firebird347/projects/bit\""
+        "-DSRC_ROOT=\"/home/firebird347/projects/bit\"",
+        "-fmodules"
       ]
     },
     "link": {
       "flags": [
         "-stdlib=libc++",
-        "-std=c++1z"
+        "-std=c++2a",
+        "-fuse-ld=lld"
       ],
       "libs": [
         "-ldl",
