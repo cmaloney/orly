@@ -19,7 +19,7 @@ struct TTypedFile {
 // One per file ever. Use TTypedFile if to do operations without manipulation.
 struct TFileInfo {
   const std::string CmdPath;
-  const TRelPath RelPath;
+  const TTypedFile Details;
 };
 
 struct TProducer {
@@ -29,8 +29,8 @@ struct TProducer {
     string Name;
     TFileType InType;
     TFileType OutType;
-    std::function<optional<TTypedFile>(TRelPath)> GuessInputFromOutput;
-    std::function<vector<TTypedFile>(TRelPath)> GetOutputForInput;
+    std::function<optional<TTypedFile>(TTypedFile)> GuessInputFromOutput;
+    std::function<vector<TTypedFile>(TTypedFile)> GetOutputForInput;
     // TODO: How to make build task return the TTypedFile of the ideal output?
     /// std::function<std::unique_ptr<TBuildTask<TOutType>>()> MakeBuildTask;
 };
@@ -41,7 +41,7 @@ struct TTaskMetadata {
     std::unordered_set<TFileInfo *> Output;
 };
 
-// One of potentially many
+// One of potentially many specific overloads that make files introspectable.
 struct TDepInfo {
     std::unordered_set<TRelPath> IncludedFiles;
 };
@@ -51,10 +51,6 @@ struct TDepInfo {
 // TBuildTask is Awaitable (can use co_await on it).
 template <typename TResult> 
 struct TBuildTask{
-    
-};
-
-struct TBuilder {
     
 };
 
