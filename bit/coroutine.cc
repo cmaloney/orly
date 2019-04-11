@@ -2,9 +2,11 @@
 #include <optional>
 #include <string>
 // TODO(cmaloney): Switch to a flat map, probably a small size pre-allocated optimized flat map
+#include <functional>
 #include <unordered_set>
 #include <vector>
 
+#include <base/subprocess.h>
 #include <bit/file_type.h>
 #include <bit/naming.h>
 
@@ -42,7 +44,7 @@ struct TTaskMetadata {
 };
 
 // One of potentially many specific overloads that make files introspectable.
-struct TDepInfo {
+struct TIncludeInfo {
     std::unordered_set<TRelPath> IncludedFiles;
 };
 
@@ -55,11 +57,35 @@ struct TBuildTask{
 };
 
 template <typename TResult> 
-TBuildTask<TResult> GetTaskFor(TRelPath BaseFile) {
+TBuildTask<TResult> GetTaskFor(TRelPath path) {
     
 }
 
 template <typename TResult> 
-TBuildTask<TResult> GetTaskFor(TTypedFile BaseFile) {
+TBuildTask<TResult> GetTaskFor(TTypedFile file) {
     
+}
+
+vector<string> GetBaseArgs() {
+    return {"clang++", "-std=c++2a"};
+}
+
+// TODO(cmaloney): Move to import scanning?
+// auto deps = GetDepsUsingClang(this, output);
+// auto deps = GetDepsWrappingCompiler(this, output);
+TBuildTask<TIncludeInfo> ScanIncludes(TTaskMetadata metadata) {
+  vector<string> cmd{"clang++", "-std=c++2a"}
+
+  // TODO(cmaloney): Switch to run process in background / on background
+  // thread+fork pool, while parsing the stdout/stderr using a generator which
+  // continuously pipes the stdout/stderr into the parser
+  Base::Subprocess::Run()
+  for (const auto &dependency : GenerateIncludes(metadata))
+  co_await subprocess.
+  
+  auto deps = GetDepsWrappingCompiler(this, output);
+
+
+
+    // Run clang 
 }
