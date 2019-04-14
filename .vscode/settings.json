@@ -48,6 +48,19 @@
         "type_traits": "cpp",
         "typeinfo": "cpp",
         "algorithm": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "deque": "cpp",
+        "unordered_set": "cpp",
+        "__config": "cpp",
+        "__nullptr": "cpp",
+        "__bit_reference": "cpp",
+        "__debug": "cpp",
+        "__functional_base": "cpp",
+        "__split_buffer": "cpp",
+        "__tuple": "cpp",
+        "bit": "cpp",
+        "coroutine": "cpp",
+        "string": "cpp"
     }
 }

@@ -2,50 +2,54 @@
 
 #include <string>
 #include <string_view>
-#include <tuple>
 #include <vector>
 
 #include <base/fd.h>
+#include <base/generator.h>
 
-// TODO
-template<typename T>
-struct generator {};
+namespace Base::Subprocess {
 
+  using TByteBlock = std::basic_string_view<uint8_t>;
+  using TBlockGenerator = cppcoro::generator<TByteBlock>;
 
-namespace Subprocess {
   enum class TBlockKind {
     Output,
     Error
   };
-  using TByteBlock = std::basic_string_view<uint8_t>;
-  using TBlockGenerator = generator<TByteBlock>;
-  using TTaggedBlockGenerator = generator<std::tuple<TByteBlock, TBlockKind>>;
 
-  // TODO(cmaloney): Make some easy way to fork off a background / early
-  // forked thread so there isn't a big cost to doing the fork/exec.
-  TProcessHandle Run(std::vector<std::string>);
-  // TProcessHandle Run(std::vector<std::string> cmd, TBlockGenerator Input);
+  struct TTaggedBlock {
+    TBlockKind Kind;
+    TByteBlock Bytes;    
+  };
+
+  using TTaggedBlockGenerator = cppcoro::generator<TTaggedBlock>;
+
+  //  Execute the given command in a shell.  This will replace the calling process
+  //  entirely with the shell process (and hence never return).
+  [[noreturn]] void Exec(const std::vector<std::string> &cmd);
 
   struct TProcessHandle {
-    friend TProcessHandle Run(std::vector<std::string);
-
+    // TODO(cmaloney): Make some easy way to fork off a background / early
+    // forked thread so there isn't a big cost to doing the fork/exec.
+    TProcessHandle(std::vector<std::string> cmd);
     TProcessHandle(const TProcessHandle&) = delete;
     TProcessHandle(TProcessHandle &&) = delete;
     ~TProcessHandle();
 
     // Gets a coroutine which will read off of stdout/stderr and pump it into the
     // given location.
-    TTaggedBlockGenerator GetOutput();
+    // TODO(cmaloney): Make it take a TTaggedBlockGenerator as input
+    TTaggedBlockGenerator Communicate() const;
 
     // Wait for the given process to exit, returning its exit status code
     int Wait() const;
   
   private:
-    TProcessHandle(std::vector<std::string> cmd, TBlockGenerator Input);
     int ChildId;
     Base::TFd Output, Error;
   };
   
+
   // TProcess Start(const std::vector<std::string> &cmd)
   // TResult RunCaptureOutput(std::vector<std::string> &cmd)
 }

@@ -28,12 +28,14 @@ common_flags=(
   -Weverything
   -Wno-c++98-compat
   -Wno-c++98-compat-pedantic
+  -Wno-c99-extensions
   -Wno-padded
   -Wno-weak-vtables
   -Wno-missing-prototypes
   -Wno-disabled-macro-expansion
   -march=native
   -mtune=native
+  -fcoroutines-ts
   # TODO: -fmodules
 
   # Optimize
@@ -86,7 +88,7 @@ $CC -o tools/bit                \
   bit/file_info.cc util/error.cc bit/jobs/dep.cc cmd/help.cc base/json_util.cc cmd/main.cc          \
   bit/config.cc base/split.cc util/path.cc bit/naming.cc bit/job.cc bit/environment.cc util/io.cc   \
   util/signal.cc cmd/parse.cc bit/file_environment.cc base/code_location.cc base/cyclic_buffer.cc   \
-  bit/bit.cc base/unreachable.cc base/subprocess.cc bit/produce.cc                                  \
+  bit/bit.cc base/unreachable.cc base/subprocess_coro.cc bit/produce.cc                                  \
   base/demangle.cc base/fd.cc base/backtrace.cc base/dir_walker.cc bit/jobs/link.cc                 \
   bit/jobs/compile_c_family.cc bit/jobs/dep_wrap_compiler.cc bit/jobs/run_test.cc                   \
   "$extra_files" \
