@@ -91,6 +91,7 @@ $CC -o tools/bit                \
   bit/bit.cc base/unreachable.cc base/subprocess_coro.cc bit/produce.cc                                  \
   base/demangle.cc base/fd.cc base/backtrace.cc base/dir_walker.cc bit/jobs/link.cc                 \
   bit/jobs/compile_c_family.cc bit/jobs/dep_wrap_compiler.cc bit/jobs/run_test.cc                   \
+  bit/coroutine.cc \
   "$extra_files" \
   -I./ -DSRC_ROOT=\"`pwd`\" \
   -ldl

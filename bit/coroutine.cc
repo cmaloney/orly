@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include <base/interner.h>
 #include <base/subprocess_coro.h>
 #include <bit/file_type.h>
 #include <bit/naming.h>
@@ -42,15 +43,53 @@ struct TProducer {
   /// function<unique_ptr<TBuildTask<TOutType>>()> MakeBuildTask;
 };
 
+// TODO(cmaloney): Combine: https://github.com/preshing/junction
+// and: https://github.com/skarupke/flat_hash_map/blob/master/flat_hash_map.hpp
+// into a fast, concurrenty hash map to use for file_environment.
+// so that this is really, really fast as it is very high contention.
+// Provides thread-safe access to FileInfo objects.
+struct TFileEnvironment {
+  TFileEnvironment(const TFileEnvironment&) = delete;
+  TFileEnvironment(TFileEnvironment &&) = delete;
+
+  TFileEnvironment(TTree src, TTree out);
+
+  /* Get the FileInfo which contains compilation state information for a given
+     relative path. Relative paths should first be resolved from by calling
+     GetRelPath. Always returns a TFileInfo / never returns null. */
+  TFileInfo *GetInfo(TRelPath name);
+
+  /* Attempts to find the tree for the given file and return the relative path.
+     If the path doesn't begin with `/` it is assumed to be a relative path.
+     If the path doesn't belong to any known tree, None is reeturned. */
+  std::optional<TRelPath> TryGetRelPath(std::string_view path);
+
+  /* Attempts to find the tree for the given file and return the relative path.
+     If the path doesn't begin with a `/` it is assumed to be a relative path.
+     If the path begins with `//` it is relative to the root of the project.
+     Otherwise the path begins with a single `/` and is assumed to be a regular
+     absolute path. */
+  std::optional<TRelPath> EnvironmentRootedPath(std::string_view path);
+
+  const TTree Src, Out;
+
+  private:
+  // First prime > 10k. Ideally ramp quite a bit more up. Not much memory and is an absolute
+  // cap on number of files. Uses std::string instead of TRelPath as key since TRelPath doesn't
+  // have a default constructor.
+  Base::TThreadSafeInterner<10007, std::string, TFileInfo> Files;
+};
+
 struct TTaskMetadata {
+  TFileEnvironment *Environment;
   const TProducer *Producer;
-  TFileInfo *Input;
-  unordered_set<TFileInfo *> Output;
+  const TFileInfo *Input;
+  unordered_set<const TFileInfo *> Output;
 };
 
 // One of potentially many specific overloads that make files introspectable.
 struct TIncludeInfo {
-  unordered_set<TRelPath> IncludedFiles;
+  unordered_set<string> IncludedFiles;
 };
 
 
@@ -71,33 +110,17 @@ TBuildTask<TResult> GetTaskFor(TTypedFile file) {
     
 }
 
-TFileInfo *GetFileInfo(string path);
+TFileInfo *GetFileInfo(string_view path);
 
-// TODO(cmaloney): Move to a dedicated import scanner
-TBuildTask<TIncludeInfo> ScanIncludes(TTaskMetadata metadata) {
-  vector<string> cmd{"clang++", "-std=c++2a", "-M", "-MG", metadata.Input.CmdPath};
-
-  // TODO(cmaloney): Switch to run process in background / on background
-  // thread+fork pool, while parsing the stdout/stderr using a generator which
-  // continuously pipes the stdout/stderr into the parser
-  auto handle = Base::Subprocess::TProcessHandle(cmd);
-  vector<TFileInfo*> dependencies;
-  // TODO(cmaloney): Tweak what is the ideal number here
-  dependencies.reserve(128);
-  for (const auto &include_path : GenerateIncludes(handle.Communicate())) {
-    dependencies.push_back(GetFileInfo(include_path));
-  }
-
-  // TODO(cmaloney): Is this await needed?
-  co_await dependencies;
-}
 
 
 // TOOD(cmaloney): Technically this should all be utf-8...
 static inline bool local_isgraph(uint8_t character) { return character > 32 && character < 127; }
 
-cppcoro::generator<string_view> GenerateIncludes(TTaggedBlockGenerator &output) {
-  unordered_set<string> deps;
+cppcoro::generator<string_view> parseIncludes(const TTaskMetadata &metadata) {
+  vector<string> cmd{"clang++", "-std=c++2a", "-M", "-MG", metadata.Input->CmdPath};
+
+  auto handle = Base::Subprocess::TProcessHandle(cmd);
 
   bool in_tok = false;
   bool eaten_start = false;
@@ -112,7 +135,7 @@ cppcoro::generator<string_view> GenerateIncludes(TTaggedBlockGenerator &output) 
   // Remove leading source file (Comes right after the ':')
   // Grab each token as a string.
   // If the string is '\' then it's a linebreak GCC added...
-  for (const auto &block: output) {
+  for (const auto &block: handle.Communicate()) {
     // Ignore all error output
     if (block.Kind == TBlockKind::Error) {
       // TODO(cmaloney): Some good way of forwarding stderr in case of failures?
@@ -141,7 +164,7 @@ cppcoro::generator<string_view> GenerateIncludes(TTaggedBlockGenerator &output) 
                 if (is_first_item) {
                     is_first_item = false;
                 } else {
-                    co_yield string_view(deps);
+                    co_yield string_view(buffer);
                 }
             }
             buffer.resize(0);
@@ -155,4 +178,16 @@ cppcoro::generator<string_view> GenerateIncludes(TTaggedBlockGenerator &output) 
             }
       }
   }
+}
+
+// TODO(cmaloney): Move to a dedicated C++20 modules import scanner
+// TODO(cmaloney): Move to a custom build task type.
+TIncludeInfo ScanIncludes(TTaskMetadata metadata) {
+  TIncludeInfo result;
+  // TODO(cmaloney): Tweak what is the ideal number here
+  result.IncludedFiles.reserve(1024);
+  for (const auto &include_path : parseIncludes(metadata)) {
+    result.IncludedFiles.emplace(string(include_path));
+  }
+  return result;
 }

@@ -42,12 +42,11 @@ TProcessHandle::TProcessHandle(std::vector<std::string> cmd) {
  
   IfLt0(ChildId = fork());
   if (!ChildId) {
-    // Soon to be child process. Duplicate the pipes into their normal fd numbers.
+    // Soon to be child process. Duplicate the pipes into their normal fd numbers
+    // And close the originals so we don't leave the child with FDs it doesn't expect.
     IfLt0(dup2(child_read_input, 0));
     IfLt0(dup2(child_write_output, 1));
     IfLt0(dup2(child_write_error, 2));
-
-    // Close the extra / duplicate fds.
     child_read_input.Reset();
     child_write_output.Reset();
     child_write_error.Reset();
@@ -102,6 +101,8 @@ TTaggedBlockGenerator TProcessHandle::Communicate() const {
         if (closed_count == 2) {
           break;
         }
+        // Remove the FD from the epoll
+        Util::IfLt0(epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, nullptr));
       }
 
       // Error occured. read_size should be -1, but make sure we don't fail hard if it isn't.

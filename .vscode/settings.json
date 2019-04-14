@@ -61,6 +61,7 @@
         "__tuple": "cpp",
         "bit": "cpp",
         "coroutine": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "__string": "cpp"
     }
 }

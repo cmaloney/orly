@@ -57,7 +57,8 @@ Implementation details:
 template <size_t N, typename TKey, typename TValue, typename Hash = std::hash<TKey>>
 class TThreadSafeInterner {
 public:
-  NO_COPY(TThreadSafeInterner)
+  TThreadSafeInterner(const TThreadSafeInterner &) = delete;
+  TThreadSafeInterner(TThreadSafeInterner &&) = delete;
 
   TThreadSafeInterner() : warnedScan(false) {
     for(auto &elem: Storage) {

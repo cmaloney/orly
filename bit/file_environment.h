@@ -10,8 +10,7 @@
 
 namespace Bit {
 
-// Provides thread-safe access to FileInfo objects.
-// Owns a
+
 class TFileEnvironment {
   public:
   NO_COPY(TFileEnvironment)
@@ -38,6 +37,12 @@ class TFileEnvironment {
   const TTree Src, Out;
 
   private:
+  // TODO(cmaloney):
+  // Combine: https://github.com/preshing/junction
+  // and: https://github.com/skarupke/flat_hash_map/blob/master/flat_hash_map.hpp
+  // into a fast, concurrenty hash map to use for file_environme nt.
+  // so that this is really, really fast as it is very high contention.
+  // Provides thread-safe access to FileInfo objects.
   // First prime > 10k. Ideally ramp quite a bit more up. Not much memory and is an absolute
   // cap on number of files. Uses std::string instead of TRelPath as key since TRelPath doesn't
   // have a default constructor.
