@@ -135,10 +135,5 @@ string TCompileCFamily::GetConfigId() const {
   return AsStr(ctime(&now));
 }
 
-std::unordered_map<TFileInfo *, TJobConfig> TCompileCFamily::GetOutputExtraData() const {
-  // Add Link needs of the .o
-  return {{GetSoleOutput(), TJobConfig{{"try_link", move(LinkNeeds)}}}};
-}
-
 TCompileCFamily::TCompileCFamily(TMetadata &&metadata, bool is_cc)
     : TJob(move(metadata)), IsCc(is_cc) {}

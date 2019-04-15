@@ -19,6 +19,7 @@ set -e
 CC=clang++
 common_flags=(
   # Base compile
+  -fcolor-diagnostics
   -stdlib=libc++
   -std=c++2a
   -Wall -Werror -Wextra

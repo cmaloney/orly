@@ -28,10 +28,12 @@ namespace Base::Subprocess {
   //  entirely with the shell process (and hence never return).
   [[noreturn]] void Exec(const std::vector<std::string> &cmd);
 
+  void RunThrowOnError(const std::vector<std::string> &cmd);
+
   struct TProcessHandle {
     // TODO(cmaloney): Make some easy way to fork off a background / early
     // forked thread so there isn't a big cost to doing the fork/exec.
-    TProcessHandle(std::vector<std::string> cmd);
+    TProcessHandle(const std::vector<std::string> &cmd);
     TProcessHandle(const TProcessHandle&) = delete;
     TProcessHandle(TProcessHandle &&) = delete;
     ~TProcessHandle();

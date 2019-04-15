@@ -1,12 +1,13 @@
 // Coroutine prototype
 #include <optional>
 #include <string>
-// TODO(cmaloney): Switch to a flat map, probably a small size pre-allocated optimized flat map
 #include <functional>
+// TODO(cmaloney): Switch to a flat map/set, probably a small size pre-allocated optimized flat map
 #include <unordered_set>
 #include <vector>
 
 #include <base/interner.h>
+#include <base/not_implemented.h>
 #include <base/subprocess_coro.h>
 #include <bit/file_type.h>
 #include <bit/naming.h>
@@ -43,6 +44,14 @@ struct TProducer {
   /// function<unique_ptr<TBuildTask<TOutType>>()> MakeBuildTask;
 };
 
+
+// C++ Strongly typed ways of building. For generics, don't use TResult bits.
+// TBuildTask is Awaitable (can use co_await on it).
+template <typename TResult> 
+struct TBuildTask{
+    
+};
+
 // TODO(cmaloney): Combine: https://github.com/preshing/junction
 // and: https://github.com/skarupke/flat_hash_map/blob/master/flat_hash_map.hpp
 // into a fast, concurrenty hash map to use for file_environment.
@@ -71,6 +80,9 @@ struct TFileEnvironment {
      absolute path. */
   std::optional<TRelPath> EnvironmentRootedPath(std::string_view path);
 
+  // Wait for a set of files 
+  TBuildTask<bool> WaitForExist(unordered_set<TRelPath>);
+
   const TTree Src, Out;
 
   private:
@@ -85,20 +97,13 @@ struct TTaskMetadata {
   const TProducer *Producer;
   const TFileInfo *Input;
   unordered_set<const TFileInfo *> Output;
+
+  const TFileInfo* GetSoleOutput() const {
+    assert(Output.size() == 1);
+    return *Output.begin();
+  }
 };
 
-// One of potentially many specific overloads that make files introspectable.
-struct TIncludeInfo {
-  unordered_set<string> IncludedFiles;
-};
-
-
-// C++ Strongly typed ways of building. For generics, don't use TResult bits.
-// TBuildTask is Awaitable (can use co_await on it).
-template <typename TResult> 
-struct TBuildTask{
-    
-};
 
 template <typename TResult> 
 TBuildTask<TResult> GetTaskFor(TRelPath path) {
@@ -180,14 +185,57 @@ cppcoro::generator<string_view> parseIncludes(const TTaskMetadata &metadata) {
   }
 }
 
+// One of potentially many specific overloads that make files introspectable.
+struct TIncludeInfo {
+  unordered_set<TRelPath> IncludedFiles;
+};
+
 // TODO(cmaloney): Move to a dedicated C++20 modules import scanner
 // TODO(cmaloney): Move to a custom build task type.
+// TODO(cmaloney): How do we build and cache the results of these?
 TIncludeInfo ScanIncludes(TTaskMetadata metadata) {
   TIncludeInfo result;
   // TODO(cmaloney): Tweak what is the ideal number here
   result.IncludedFiles.reserve(1024);
   for (const auto &include_path : parseIncludes(metadata)) {
-    result.IncludedFiles.emplace(string(include_path));
+    // Filter out system inclues
+    // TODO(cmaloney): Should ensure in the hash tree everything filtered out here
+    // actually should be filtered out.
+    auto rel_path = metadata.Environment->TryGetRelPath(include_path);
+    if (rel_path) {
+      result.IncludedFiles.emplace(move(*rel_path));
+    }
   }
   return result;
+}
+
+struct TCompileInfo {
+  unordered_set<TRelPath> LinkWants;
+};
+
+TBuildTask<TCompileInfo> Compile(TTaskMetadata metadata) {
+  TCompileInfo result;
+  auto include_info = ScanIncludes(metadata);
+
+  // Ensure all included files have been built.
+  co_await metadata.Environment->WaitForExist(include_info.IncludedFiles);
+
+  // Actually perform the compilation
+  vector<string> cmd{"clang++", "-std=c++2a", "-c", metadata.Input->CmdPath, "-o", metadata.GetSoleOutput()->CmdPath};
+
+  result.LinkWants.reserve(include_info.IncludedFiles.size());
+  for (const auto &include : include_info.IncludedFiles) {
+    if (include.EndsWith(".h")) {
+      NOT_IMPLEMENTED_S("C/C++ deps which don't end in .h")
+    }
+    // TODO(cmaloney): Rather than doing hand extension manipulation 
+    // ideally ask environment for "link lib for this rel path".
+    result.LinkWants.emplace(include.SwapExtension(".h", ".o"));
+  }
+
+  co_return result;
+}
+
+TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
+  // TODO(cmaloney): port job/link.cc
 }

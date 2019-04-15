@@ -34,7 +34,7 @@ void Base::Subprocess::Exec(const vector<string> &cmd) {
   throw;
 }
 
-TProcessHandle::TProcessHandle(std::vector<std::string> cmd) {
+TProcessHandle::TProcessHandle(const vector<string> &cmd) {
   TFd  parent_write_to_child, child_read_input, child_write_output, child_write_error;
   tie(child_read_input, parent_write_to_child) = TFd::Pipe();
   tie(Output, child_write_output) = TFd::Pipe();
