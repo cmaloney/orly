@@ -118,3 +118,8 @@ bool TRelPath::operator==(const TRelPath &that) const { return Path == that.Path
 size_t std::hash<TRelPath>::operator()(const TRelPath &rel_path) const {
   return std::hash<std::string>()(rel_path.Path);
 }
+
+
+size_t std::hash<TAbsPath>::operator()(const TAbsPath &path) const {
+  return std::hash<std::string>()(path.Path);
+}

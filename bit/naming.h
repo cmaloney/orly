@@ -57,4 +57,9 @@ template <>
 struct hash<Bit::TRelPath> {
   size_t operator()(const Bit::TRelPath &rel_path) const;
 };
+
+template <>
+struct hash<Bit::TAbsPath> {
+  size_t operator()(const Bit::TAbsPath &rel_path) const;
+};
 }

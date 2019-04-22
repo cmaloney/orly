@@ -17,6 +17,7 @@
 #include <cmd/main.h>
 #include <cmd/parse.h>
 #include <util/path.h>
+#include <util/stl.h>
 
 using namespace Bit;
 using namespace std;
@@ -64,6 +65,7 @@ struct TProducer {
   /// function<unique_ptr<TBuildTask<TOutType>>()> MakeBuildTask;
 };
 
+// NOTE: If you have an optional dependency use TBuildTask<std::optional<TResult>>
 
 // C++ Strongly typed ways of building. For generics, don't use TResult bits.
 // TBuildTask is Awaitable (can use co_await on it).
@@ -112,6 +114,17 @@ struct TBuildTask{
   void await_suspend(std::experimental::coroutine_handle<>) noexcept {}
   void await_resume() const noexcept {}
   // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
+};
+
+// Like a build task but runs optomistically / added to queue immediately. Use
+// when a job needs to fan out into many jobs, then co_away the set of async build
+// tasks.
+template <typename TResult>
+struct TBuildTaskAsync {
+  bool IsDone() const;
+
+  //Throws if IsDone returns false.
+  TResult &Result();
 };
 
 // TODO(cmaloney): Combine: https://github.com/preshing/junction
@@ -219,6 +232,11 @@ TBuildTask<TResult> GetTaskFor(TRelPath path) {
 template <typename TResult> 
 TBuildTask<TResult> GetTaskFor(TTypedFile file) {
     
+}
+
+template <typename TResult>
+TBuildTaskAsync<TResult> GetTaskForAsync(TRelPath path) {
+
 }
 
 TFileInfo *GetFileInfo(string_view path);
@@ -344,10 +362,79 @@ TBuildTask<TCompileInfo> Compile(TTaskMetadata metadata) {
 }
 
 struct TLinkInfo {
+  std::unordered_set<TAbsPath> Libs;
 };
 
+using TLinkTask = TBuildTaskAsync<optional<TCompileInfo>>;
+
 TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
-  // TODO(cmaloney): port job/link.cc
+  TLinkInfo result;
+  // Set of all files which have been checked
+  unordered_set<TRelPath> checked;
+
+  // TODO(cmaloney): This shouldn't be compile info rather "things you need to link against"
+  // which is a more general things, TCompileInfo potentially providing it's interface, or a Compile
+  // task co_returning multiple distinct types.
+  // These are going to be used quite a bit as temporary storage, make inserting fast.
+  // Keep same size since they swap each pass through the loop.
+  vector<TLinkTask> needed;
+  vector<TLinkTask> remaining_needs;
+  needed.reserve(256);
+  remaining_needs.reserve(256);
+
+  // Each object file may have an arbitrarily set of object files it requries to be
+  // linked against so work in "phases".
+  //
+  // Cycle through all the currently known link needs and mark them to be awaited to be built
+  // if possible. If not possible the system should mark them as "if this becomes buildable
+  // this build task should be invalidated."
+  //
+  // Once all currently known ones have been marked, await for any to be done. Once 1+ is done
+  // then repeat to optimistically find as much available work as possible. Keep going until 
+  // everything is known to be buildable or not, and we know the set of all things those things
+  // need to be linked against.
+  needed.push_back(GetTaskForAsync<optional<TCompileInfo>>(metadata.Input->Details.output_name));
+  while (!needed.empty()) {
+    co_await needed;
+
+    // Filter out completed tasks, and find any new link wantsarising from the
+    // new information we have.
+    remaining_needs.resize(0);
+    for (TBuildTaskAsync<optional<TCompileInfo>> need: needed) {
+      if (!need.IsDone()) {
+        remaining_needs.push_back(need);
+        continue;
+      }
+      // If the target was not buildable, then skip it. It's something we'd like
+      // to have linked against but there is no link lib needed for it.
+      if (!need.Result()) {
+        continue;
+      }
+
+      // Find any additional link wants the library has, and add them to the set of things we
+      // need to find out about.
+      for(const TRelPath &want: need.Result()->LinkWants) {
+        // TODO(cmaloney): Easy helper for "insert if not found then do something additional"
+        if (Util::Contains(checked, want)) {
+          continue;
+        }
+        checked.insert(want);
+        remaining_needs.push_back(GetTaskForAsync<optional<TCompileInfo>>(want));
+      }
+    }
+    swap(needed, remaining_needs);
+  }
+
+  // TODO(cmaloney): Run the final link job.
+  vector<string> cmd{"clang++", "-o", metadata.GetSoleOutput()->CmdPath};
+  cmd.reserve(cmd.size() + result.Libs.size());
+  // TODO(cmaloney): there is a C++ STL function I should use here...
+  // TODO(cmaloney): Need the cmd paths.
+  // TODO(cmaloney): Ordering of link libraries can matter. Cope with that.
+  for (const auto &lib: result.Libs) {
+    cmd.push_back(lib.Path);
+  }
+  co_return result;
 }
 
 int Main(int argc, char *argv[]) {
