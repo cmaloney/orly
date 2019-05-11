@@ -236,6 +236,9 @@ TBuildTask<TCompileInfo> Compile(TTaskMetadata metadata) {
   co_return result;
 }
 
+struct TLinkInfo {
+};
+
 TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   // TODO(cmaloney): port job/link.cc
 }
