@@ -49,7 +49,34 @@ struct TProducer {
 // TBuildTask is Awaitable (can use co_await on it).
 template <typename TResult> 
 struct TBuildTask{
+  struct promise_type {
+    using value_type = std::remove_reference<TResult>;
+    using reference_type = std::conditional_t<std::is_reference_v<TResult>, TResult, TResult&>;
+    using pointer_type = value_type*;
+
+    promise_type() = default;
+
+    void unhandled_exception() {
+      Exception = std::current_exception();
+    }
     
+    TBuildTask<TResult> get_return_object() noexcept {
+        using coroutine_handle = std::experimental::coroutine_handle<promise_type>;
+        return TBuildTask<TResult>{ coroutine_handle::from_promise(*this) };
+    }
+
+    constexpr std::experimental::suspend_always initial_suspend() const { return {}; }
+    constexpr std::experimental::suspend_always final_suspend() const { return {}; }
+
+    // TODO(cmaloney): the TResult should be const.
+    void return_value(TResult value) noexcept {
+      Value = std::move(value);
+    }
+
+    private:
+    std::exception_ptr Exception;
+    TResult Value; 
+  };
 };
 
 // TODO(cmaloney): Combine: https://github.com/preshing/junction
