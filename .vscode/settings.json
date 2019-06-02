@@ -62,6 +62,8 @@
         "bit": "cpp",
         "coroutine": "cpp",
         "string": "cpp",
-        "__string": "cpp"
+        "__string": "cpp",
+        "__hash_table": "cpp",
+        "__node_handle": "cpp"
     }
 }

@@ -75,6 +75,12 @@ TRelPath::TRelPath(const std::string &path) : Path(path) {
   assert(path.back() != '/');
 }
 
+TRelPath::TRelPath(std::string_view path) : Path(path) {
+  assert(!path.empty());
+  assert(path.front() != '/');
+  assert(path.back() != '/');
+}
+
 TRelPath TRelPath::AddExtension(const char *extension) const {
   assert(extension[0] == '.');
   return TRelPath(Path + extension);

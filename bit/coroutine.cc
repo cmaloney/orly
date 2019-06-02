@@ -9,13 +9,33 @@
 #include <base/interner.h>
 #include <base/not_implemented.h>
 #include <base/subprocess_coro.h>
+#include <bit/config.h>
 #include <bit/file_type.h>
 #include <bit/naming.h>
+#include <bit/options.h>
+#include <cmd/args.h>
+#include <cmd/main.h>
+#include <cmd/parse.h>
+#include <util/path.h>
 
 using namespace Bit;
 using namespace std;
 using namespace Base;
 using namespace Base::Subprocess;
+
+// TODO(cmaloney): Allow users to provide via a 'configure' type mechanism.
+static const char *SystemBitDir = "/usr/lib/bit";
+
+// TODO(cmaloney): This should be a library function.
+TTree GetHomeDirectory() {
+  char *home_dir = getenv("HOME");
+  if (home_dir) {
+    return TTree(home_dir);
+  } else {
+    // TODO(cmaloney): Implement a sane fallback if HOME isn't set.
+    NOT_IMPLEMENTED()
+  }
+}
 
 struct TTypedFile {
   TFileType type;
@@ -49,34 +69,49 @@ struct TProducer {
 // TBuildTask is Awaitable (can use co_await on it).
 template <typename TResult> 
 struct TBuildTask{
+  TBuildTask() = default;
+
   struct promise_type {
     using value_type = std::remove_reference<TResult>;
     using reference_type = std::conditional_t<std::is_reference_v<TResult>, TResult, TResult&>;
     using pointer_type = value_type*;
 
-    promise_type() = default;
+    promise_type() noexcept {}
+    ~promise_type() noexcept {}
 
     void unhandled_exception() {
-      Exception = std::current_exception();
+      Exception = std::current_exception(); 
     }
     
     TBuildTask<TResult> get_return_object() noexcept {
-        using coroutine_handle = std::experimental::coroutine_handle<promise_type>;
-        return TBuildTask<TResult>{ coroutine_handle::from_promise(*this) };
+        return TBuildTask<TResult>{};
     }
 
     constexpr std::experimental::suspend_always initial_suspend() const { return {}; }
     constexpr std::experimental::suspend_always final_suspend() const { return {}; }
 
     // TODO(cmaloney): the TResult should be const.
-    void return_value(TResult value) noexcept {
-      Value = std::move(value);
+    void return_value(TResult &value) noexcept {
+      Value = std::addressof(value);
+    }
+
+    // TODO(cmaloney): noexcept?
+    void return_value(TResult &&value) {
+      ::new (static_cast<void*>(std::addressof(Value))) TResult(forward<TResult>(value));
     }
 
     private:
-    std::exception_ptr Exception;
-    TResult Value; 
+    // TODO(cmaloney): empty vs. value vs. exception flag?
+    union {
+      std::exception_ptr Exception;
+      TResult Value; 
+    };
   };
+
+  bool await_ready() noexcept { return true; }
+  void await_suspend(std::experimental::coroutine_handle<>) noexcept {}
+  void await_resume() const noexcept {}
+  // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
 };
 
 // TODO(cmaloney): Combine: https://github.com/preshing/junction
@@ -88,7 +123,7 @@ struct TFileEnvironment {
   TFileEnvironment(const TFileEnvironment&) = delete;
   TFileEnvironment(TFileEnvironment &&) = delete;
 
-  TFileEnvironment(TTree src, TTree out);
+  TFileEnvironment(TTree src, TTree out) : Src(src), Out(out) {}
 
   /* Get the FileInfo which contains compilation state information for a given
      relative path. Relative paths should first be resolved from by calling
@@ -108,7 +143,18 @@ struct TFileEnvironment {
   std::optional<TRelPath> EnvironmentRootedPath(std::string_view path);
 
   // Wait for a set of files 
-  TBuildTask<bool> WaitForExist(unordered_set<TRelPath>);
+  // TODO(cmaloney): Not sure this should be the build task type, but keeping for now.
+  // TODO: actually a build task of void, but meh
+  TBuildTask<bool> EnsureExist(unordered_set<TRelPath>) {
+    // TODO(cmaloney):
+    // Load the file info, see if it has specifics on how to build
+    // the file. If not, check all jobs which can output the given
+    // extension, and see which of those are viable. 
+    // If the above finds multiple ways to produce the file
+    // error (user needs to disambiguate in config).
+    // If there is only one, then co_await the specific job to
+    // create the file.
+  }
 
   const TTree Src, Out;
 
@@ -118,6 +164,39 @@ struct TFileEnvironment {
   // have a default constructor.
   Base::TThreadSafeInterner<10007, std::string, TFileInfo> Files;
 };
+
+
+/* Attempts to find the tree for the given file and return the relative path.
+   If the path doesn't begin with `/` it is assumed to be a relative path.
+   If the path doesn't belong to any tree, the full path is given as the
+   relative path. */
+std::optional<TRelPath> TFileEnvironment::TryGetRelPath(std::string_view path) {
+  assert(&path);
+
+  // 0 length paths are illegal.
+  assert(path.size() > 0);
+
+
+  const auto make_rel_remove_prefix = [&path](const TTree &tree) {
+    return TRelPath(path.substr(tree.Path.size()));
+  };
+
+  // If it's already a relative path, just return it.
+  if (path[0] != '/') {
+    return TRelPath(path);
+  }
+
+  // Search for the tree which contains the path.
+  // Out might be a subdirectory of src, so check it first.
+  if (path.compare(0, Out.Path.length(), Out.Path) == 0) {
+    return make_rel_remove_prefix(Out);
+  } else if (path.compare(0, Src.Path.length(), Src.Path) == 0) {
+    return make_rel_remove_prefix(Src);
+  }
+
+  // Tree not known. Can't make a relative path.
+  return std::optional<TRelPath>();
+}
 
 struct TTaskMetadata {
   TFileEnvironment *Environment;
@@ -240,12 +319,13 @@ struct TCompileInfo {
   unordered_set<TRelPath> LinkWants;
 };
 
+
 TBuildTask<TCompileInfo> Compile(TTaskMetadata metadata) {
   TCompileInfo result;
   auto include_info = ScanIncludes(metadata);
 
   // Ensure all included files have been built.
-  co_await metadata.Environment->WaitForExist(include_info.IncludedFiles);
+  co_await metadata.Environment->EnsureExist(include_info.IncludedFiles);
 
   // Actually perform the compilation
   vector<string> cmd{"clang++", "-std=c++2a", "-c", metadata.Input->CmdPath, "-o", metadata.GetSoleOutput()->CmdPath};
@@ -268,4 +348,57 @@ struct TLinkInfo {
 
 TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   // TODO(cmaloney): port job/link.cc
+}
+
+int Main(int argc, char *argv[]) {
+  Cmd::TArgs<TOptions> args{
+      Cmd::Optional({"mixin", "m"}, &TOptions::Mixins,
+                    "Configuration snippets to add on top of the base project configuration"),
+      // TODO(cmaloney): Worker count is really coarse grained for what people want.
+      // Ninja's pool options are more what is wanted / needed here.
+      Cmd::Optional("max-parallel", &TOptions::WorkerCount,
+                    "Max number of commands/jobs to run at once"),
+      Cmd::Required(&TOptions::Targets, "targets", "List of files to try to produce"),
+      // TODO(cmaloney): print-cmd is really handy but children can run arbitrary code...
+      Cmd::Optional("print-cmd", &TOptions::PrintCmd, "Print the command line of all Exec calls")};
+  TOptions options = Cmd::Parse(args, argc, argv);
+
+  if (options.PrintCmd) {
+    // TODO(cmaloney): Subprocess::SetEchoCommands(true);
+  }
+
+
+  // Stash the current directory since we change our working directory to always
+  // be the root of the project, but we need to still resolve relative paths
+  // from the invocation location.
+  auto cwd = Util::GetCwd();
+  TTree cwd_tree(cwd);
+
+  // Find the root of the project from the current directory.
+  // TODO(cmaloney): Add config like GIT_DIR, GIT_WORK_TREE so that bit doesn't
+  // have to be run only from folders in the project.
+  // TODO(cmaloney): CURPOS. src is definitely coming out wrong.
+  // TODO(cmaloney): Allow subprojects to configure themselves pseudo-independently
+  // of base projects to allow a llvm type project structure.
+  TTree src = TTree::Find(cwd, "bit.json");
+
+  TCoreDirs core_dirs{src.Path, GetHomeDirectory().Path, TTree(SystemBitDir).Path};
+
+  // Load the config
+  auto config = TConfig::Load(core_dirs);
+
+  // Load user-given mixins. If none given, try loading `default` mixin.
+  if (!options.Mixins.empty()) {
+    for (const auto &mixin : options.Mixins) {
+      config.AddMixin(mixin, core_dirs);
+    }
+  } else {
+    config.AddMixin("default", core_dirs, true);
+  }
+  
+  TFileEnvironment env(
+    Bit::TTree("/home/firebird347/projectts/bit"),
+    TTree("/home/firebird347/projects/.bit"));
+  
+  env.EnsureExist(unordered_set{TRelPath(string("bit/coroutine"))});
 }

@@ -27,6 +27,7 @@ struct TTree {
 // RelPath doesn't start with '/'. Ends with a filename (not '/').
 struct TRelPath {
   explicit TRelPath(const std::string &rel_path);
+  explicit TRelPath(std::string_view rel_path);
   const std::string Path;
 
   TRelPath AddExtension(const char *extension) const;
