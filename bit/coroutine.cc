@@ -123,6 +123,11 @@ template <typename TResult>
 struct TBuildTaskAsync {
   bool IsDone() const;
 
+  bool await_ready() noexcept { return true; }
+  void await_suspend(std::experimental::coroutine_handle<>) noexcept {}
+  void await_resume() const noexcept {}
+  // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
+
   //Throws if IsDone returns false.
   TResult &Result();
 };
