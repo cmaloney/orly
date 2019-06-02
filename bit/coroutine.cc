@@ -93,24 +93,24 @@ struct TBuildTask{
     constexpr std::experimental::suspend_always final_suspend() const { return {}; }
 
     // TODO(cmaloney): the TResult should be const.
-    void return_value(TResult &value) noexcept {
-      Value = std::addressof(value);
+    void return_value(TResult &result) noexcept {
+      Result = std::addressof(result);
     }
 
     // TODO(cmaloney): noexcept?
-    void return_value(TResult &&value) {
-      ::new (static_cast<void*>(std::addressof(Value))) TResult(forward<TResult>(value));
+    void return_value(TResult &&result) {
+      ::new (static_cast<void*>(std::addressof(Result))) TResult(forward<TResult>(result));
     }
 
-    TResult &GetValue() {
-      return Value;
+    TResult &GetResult() {
+      return Result;
     }
 
     private:
     // TODO(cmaloney): empty vs. value vs. exception flag?
     union {
       std::exception_ptr Exception;
-      TResult Value; 
+      TResult Result; 
     };
   };
 
@@ -135,8 +135,8 @@ struct TBuildTaskAsync {
   // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
 
   //Throws if IsDone returns false.
-  TResult &Result() {
-    return Task.GetValue();
+  const TResult &GetResult() const{
+    return Task.GetResult();
   }
 
   TBuildTask<TResult> Task;
@@ -426,13 +426,14 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
       }
       // If the target was not buildable, then skip it. It's something we'd like
       // to have linked against but there is no link lib needed for it.
-      if (!need.Result()) {
+      const auto &need_result = need.GetResult();
+      if (!need_result) {
         continue;
       }
 
       // Find any additional link wants the library has, and add them to the set of things we
       // need to find out about.
-      for(const TRelPath &want: need.Result()->LinkWants) {
+      for(const TRelPath &want: need_result->LinkWants) {
         // TODO(cmaloney): Easy helper for "insert if not found then do something additional"
         if (Util::Contains(checked, want)) {
           continue;
