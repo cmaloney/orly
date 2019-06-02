@@ -102,6 +102,10 @@ struct TBuildTask{
       ::new (static_cast<void*>(std::addressof(Value))) TResult(forward<TResult>(value));
     }
 
+    TResult &GetValue() {
+      return Value;
+    }
+
     private:
     // TODO(cmaloney): empty vs. value vs. exception flag?
     union {
@@ -121,7 +125,9 @@ struct TBuildTask{
 // tasks.
 template <typename TResult>
 struct TBuildTaskAsync {
-  bool IsDone() const;
+  bool IsDone() const {
+    return false;
+  }
 
   bool await_ready() noexcept { return true; }
   void await_suspend(std::experimental::coroutine_handle<>) noexcept {}
@@ -129,7 +135,11 @@ struct TBuildTaskAsync {
   // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
 
   //Throws if IsDone returns false.
-  TResult &Result();
+  TResult &Result() {
+    return Task.GetValue();
+  }
+
+  TBuildTask<TResult> Task;
 };
 
 // TODO(cmaloney): Combine: https://github.com/preshing/junction
@@ -400,7 +410,11 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   // need to be linked against.
   needed.push_back(GetTaskForAsync<optional<TCompileInfo>>(metadata.Input->Details.output_name));
   while (!needed.empty()) {
-    co_await needed;
+    // TODO(cmaloney): it's _very_ important scheduler gets all these at once.
+    // This just gets us to working faster.
+    for (auto &need : needed) {
+      co_await need;
+    }
 
     // Filter out completed tasks, and find any new link wantsarising from the
     // new information we have.
