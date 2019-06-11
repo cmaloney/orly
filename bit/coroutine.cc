@@ -61,10 +61,11 @@ struct TProducer {
   TFileType OutType;
   function<optional<TTypedFile>(TTypedFile)> GuessInputFromOutput;
   function<vector<TTypedFile>(TTypedFile)> GetOutputForInput;
-  // TODO: How to make build task return the TTypedFile of the ideal output?
-  /// function<unique_ptr<TBuildTask<TOutType>>()> MakeBuildTask;
 };
 
+// NOTE: If the build task isn't required right now (another thread taking it in the
+// background would be a good thing / increase parallelism, use TBuildTaskAsync)
+// 
 // NOTE: If you have an optional dependency use TBuildTask<std::optional<TResult>>
 
 // C++ Strongly typed ways of building. For generics, don't use TResult bits.
@@ -110,7 +111,6 @@ struct TBuildTask{
     // TODO(cmaloney): empty vs. value vs. exception flag?
     union {
       std::exception_ptr Exception;
-      TResult Result; 
     };
   };
 
@@ -118,6 +118,18 @@ struct TBuildTask{
   void await_suspend(std::experimental::coroutine_handle<>) noexcept {}
   void await_resume() const noexcept {}
   // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
+
+  // Note: Should throw if result not yet set.
+  const TResult &GetResult() const {
+    if (!Result) {
+      // TODO(cmaloney): more details here
+      throw runtime_error("No result set.")
+    }
+    return Result;
+  };
+
+  private:
+  std::optional<TResult> Result; 
 };
 
 // Like a build task but runs optomistically / added to queue immediately. Use
