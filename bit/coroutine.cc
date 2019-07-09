@@ -123,10 +123,10 @@ struct TBuildTask{
   const TResult &GetResult() const {
     if (!Result) {
       // TODO(cmaloney): more details here
-      throw runtime_error("No result set.")
+      throw runtime_error("No result set.");
     }
     return Result;
-  };
+  }
 
   private:
   std::optional<TResult> Result; 
