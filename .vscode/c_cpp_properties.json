@@ -31,7 +31,7 @@
             "includePath": [
                 "/usr/include/c++/v1",
                 "/usr/local/include",
-                "/usr/lib/clang/8.0.0/include",
+                "/usr/lib/clang/8.0.1/include",
                 "/usr/include",
                 "${workspaceRoot}"
             ],
@@ -40,7 +40,7 @@
             "browse": {
                 "path": [
                     "/usr/include/c++/v1",
-                    "/usr/lib/clang/8.0.0/include",
+                    "/usr/lib/clang/8.0.1/include",
                     "/usr/local/include",
                     "/usr/include",
                     "${workspaceRoot}"

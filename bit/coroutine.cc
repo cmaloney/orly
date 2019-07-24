@@ -298,41 +298,43 @@ cppcoro::generator<string_view> parseIncludes(const TTaskMetadata &metadata) {
       continue;
     }
 
-      // Parse the characters into an include
-      for (auto c : block.Bytes) {
-            if (!eaten_start) {
-            if (c == ':') {
-                eaten_start = true;
-            }
-            continue;
-            }
-
-            if (in_tok) {
-            // Still in token?
-            if (local_isgraph(c)) {
-                buffer.push_back(char(c));
-                continue;
-            }
-
-            // Hit end of token. Grab token and submit.
-            // NOTE: If token is '\', then discard (Indicates GCC's line continuation)
-            if (buffer != "\\") {
-                if (is_first_item) {
-                    is_first_item = false;
-                } else {
-                    co_yield string_view(buffer);
-                }
-            }
-            buffer.resize(0);
-            in_tok = false;
-            } else {
-            // Hit start of token?
-            if (local_isgraph(c)) {
-                buffer.push_back(char(c));
-                in_tok = true;
-            }
-            }
+    // Parse the characters into an include
+    for (auto c : block.Bytes) {
+      if (!eaten_start) {
+        if (c == ':') {
+            eaten_start = true;
+        }
+      continue;
       }
+      
+      if (!in_tok) {
+        // Hit start of token?
+        if (local_isgraph(c)) {
+            buffer.push_back(char(c));
+            in_tok = true;
+        }
+        continue;
+      }
+
+      // Still in token?
+      if (local_isgraph(c)) {
+          buffer.push_back(char(c));
+          continue;
+      }
+
+      // Hit end of token. Grab token and submit.
+      // NOTE: If token is '\', then discard (Indicates GCC's line continuation)
+      if (buffer != "\\") {
+          if (is_first_item) {
+              is_first_item = false;
+          } else {
+              co_yield string_view(buffer);
+          }
+      }
+      buffer.resize(0);
+      in_tok = false;
+      continue;
+    }
   }
 }
 
