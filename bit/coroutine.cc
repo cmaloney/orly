@@ -113,6 +113,7 @@ struct TBuildTask{
     // TODO(cmaloney): empty vs. value vs. exception flag?
     union {
       std::exception_ptr Exception;
+      std::unique_ptr<TResult> Result;
     };
   };
 
@@ -127,7 +128,7 @@ struct TBuildTask{
       // TODO(cmaloney): more details here
       throw runtime_error("No result set.");
     }
-    return Result;
+    return *Result;
   }
 
   private:
