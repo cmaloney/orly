@@ -34,21 +34,23 @@ common_flags=(
   -Wno-weak-vtables
   -Wno-missing-prototypes
   -Wno-disabled-macro-expansion
-  -march=native
-  -mtune=native
+  # -march=native
+  # -mtune=native
   -fcoroutines-ts
   # TODO: -fmodules
 
   # Optimize
-  -O3
-  -DNDEBUG
-  # -g
+  # -O3
+  # -DNDEBUG
+  -g
+  -O0
+
   -Wno-unused-parameter -Wno-unused -Wno-unused-variable
   -Wno-unknown-pragmas
   -Wno-old-style-cast
   -Wno-return-type
   # -Wno-nonnull-compare
-  -flto=thin
+  # -flto=thin
 
   # Enable threads
   -pthread

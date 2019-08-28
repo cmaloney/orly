@@ -74,7 +74,6 @@ struct TProducer {
 // TBuildTask is Awaitable (can use co_await on it).
 template <typename TResult> 
 struct TBuildTask{
-  TBuildTask() = default;
 
   struct promise_type {
     using value_type = std::remove_reference<TResult>;
@@ -110,6 +109,7 @@ struct TBuildTask{
     }
 
     private:
+
     // TODO(cmaloney): empty vs. value vs. exception flag?
     union {
       std::exception_ptr Exception;
@@ -117,22 +117,34 @@ struct TBuildTask{
     };
   };
 
-  bool await_ready() noexcept { return true; }
-  void await_suspend(std::experimental::coroutine_handle<>) noexcept {}
+  using THandle = std::experimental::coroutine_handle<promise_type>;
+
+  TBuildTask(THandle h) noexcept : Coro(h) {}
+
+  bool await_ready() noexcept { 
+    cout <<" AWAIT_READY\n";
+    return false; 
+  }
+  void await_suspend(std::experimental::coroutine_handle<>) noexcept {
+    cout <<"AWAIT_SUSPEND\n";
+  }
   void await_resume() const noexcept {}
   // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
 
   // Note: Should throw if result not yet set.
+  /*
   const TResult &GetResult() const {
+
     if (!Result) {
       // TODO(cmaloney): more details here
       throw runtime_error("No result set.");
     }
     return *Result;
   }
+  */
 
   private:
-  std::optional<TResult> Result; 
+  THandle Coro;
 };
 
 // Like a build task but runs optomistically / added to queue immediately. Use
@@ -189,6 +201,7 @@ struct TFileEnvironment {
   // TODO(cmaloney): Not sure this should be the build task type, but keeping for now.
   // TODO: actually a build task of void, but meh
   TBuildTask<bool> EnsureExist(unordered_set<TRelPath>) {
+
     // TODO(cmaloney):
     // Load the file info, see if it has specifics on how to build
     // the file. If not, check all jobs which can output the given
@@ -197,6 +210,7 @@ struct TFileEnvironment {
     // error (user needs to disambiguate in config).
     // If there is only one, then co_await the specific job to
     // create the file.
+    co_return true;
   }
 
   const TTree Src, Out;
