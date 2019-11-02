@@ -77,7 +77,33 @@ struct [[nodiscard]] TTaskAlias {
   struct promise_type;
   using THandle = experimental::coroutine_handle<promise_type>;
 
+  struct promise_type {
+    // TODO(cmaloney): unhandled_exception?
+    auto get_return_object() { return TTaskAlias{*this}; }
+    void return_void() {}
+    experimental::suspend_always initial_suspend() { return {}; }
+    void unhandled_exception() { Result.emplace(std::current_exception()); }
+    auto final_suspend() {
+      struct final_awaiter {
+        bool await_ready() { return false; }
+        void await_resume() {}
+        auto await_suspend(THandle me) {
+          return me.promise().Waiter;
+        }
+      };
+      return final_awaiter{};
+    }
+
+    private:
+    experimental::coroutine_handle<> Waiter;
+    optional<exception_ptr> Result;
+
+    template <typename TResult2>
+    friend struct TTaskAlias;
+  };
+
   TTaskAlias(TTaskAlias && rhs) : Handle(rhs.Handle) { rhs.Handle = nullptr; }
+  explicit TTaskAlias(promise_type &p) : Handle(THandle::from_promise(p)) {}
   ~TTaskAlias() { 
     if (Handle) {
       Handle.destroy();
@@ -85,13 +111,11 @@ struct [[nodiscard]] TTaskAlias {
   }
 
   bool await_ready() { return false; }
-  TResult await_resume() {
+  void await_resume() {
     auto &result = Handle.promise().Result;
-    // TODO(cmaloney): Switch away from using indicies here....
-    if (result.index() == 1) {
-      return get<1>(result);
+    if (result) {
+      rethrow_exception(*result);
     }
-    rethrow_exception(get<2>(result));
   }
   void await_suspend(experimental::coroutine_handle<> waiter) {
     Handle.promise().Waiter = waiter;
@@ -190,6 +214,7 @@ struct TBuildTaskRecord {
   // Returns a co_awaitable piece which when waited upon immediately finishes if hte 
   // task is already done, otherwise runs the task.
   TTaskAlias<void> EnsureDone() {
+    co_return;
   }
 
   bool IsDone() const {
