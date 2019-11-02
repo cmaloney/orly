@@ -1,11 +1,16 @@
 
 // Coroutine prototype
+#include <any>
 #include <cstdlib>
+#include <exception>
+#include <experimental/coroutine>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <string>
 // TODO(cmaloney): Switch to a flat map/set, probably a small size pre-allocated optimized flat map
 #include <unordered_set>
+#include <variant>
 #include <vector>
 
 #include <base/interner.h>
@@ -65,108 +70,134 @@ struct TProducer {
   function<vector<TTypedFile>(TTypedFile)> GetOutputForInput;
 };
 
-// NOTE: If the build task isn't required right now (another thread taking it in the
-// background would be a good thing / increase parallelism, use TBuildTaskAsync)
-// 
-// NOTE: If you have an optional dependency use TBuildTask<std::optional<TResult>>
+// Points to a BuildTask. Does ano-op if the task was already completed, runs the coroutine of the particular
+// build task if needed.
+template <typename TResult>
+struct [[nodiscard]] TTaskAlias {
+  struct promise_type;
+  using THandle = experimental::coroutine_handle<promise_type>;
 
-// C++ Strongly typed ways of building. For generics, don't use TResult bits.
-// TBuildTask is Awaitable (can use co_await on it).
-template <typename TResult> 
-struct TBuildTask{
+  TTaskAlias(TTaskAlias && rhs) : Handle(rhs.Handle) { rhs.Handle = nullptr; }
+  ~TTaskAlias() { 
+    if (Handle) {
+      Handle.destroy();
+    }
+  }
+
+  bool await_ready() { return false; }
+  TResult await_resume() {
+    auto &result = Handle.promise().Result;
+    // TODO(cmaloney): Switch away from using indicies here....
+    if (result.index() == 1) {
+      return get<1>(result);
+    }
+    rethrow_exception(get<2>(result));
+  }
+  void await_suspend(experimental::coroutine_handle<> waiter) {
+    Handle.promise().Waiter = waiter;
+    Handle.resume();
+  }
+
+  private:
+  experimental::coroutine_handle<promise_type> Handle;
+};
+
+// A build task encapsulates that we can run some arbitrary code / coroutine to "get"
+// the needed data / result (This could be external tools or just local code).
+template <typename TResult>
+struct [[nodiscard]] TBuildTask {
+  struct promise_type;
+  using THandle = experimental::coroutine_handle<promise_type>;
 
   struct promise_type {
-    using value_type = std::remove_reference<TResult>;
-    using reference_type = std::conditional_t<std::is_reference_v<TResult>, TResult, TResult&>;
-    using pointer_type = value_type*;
-
-    promise_type() noexcept {}
-    ~promise_type() noexcept {}
-
-    void unhandled_exception() {
-      Exception = std::current_exception(); 
-    }
     
-    TBuildTask<TResult> get_return_object() noexcept {
-        return TBuildTask<TResult>{};
-    }
-
-    constexpr std::experimental::suspend_always initial_suspend() const { return {}; }
-    constexpr std::experimental::suspend_always final_suspend() const { return {}; }
-
-    // TODO(cmaloney): the TResult should be const.
-    void return_value(TResult &result) noexcept {
-      Result = std::addressof(result);
-    }
-
-    // TODO(cmaloney): noexcept?
-    void return_value(TResult &&result) {
-      ::new (static_cast<void*>(std::addressof(Result))) TResult(forward<TResult>(result));
-    }
-
-    TResult &GetResult() {
-      return Result;
+    auto get_return_object() { return TBuildTask{*this}; }
+    // TODO(cmaloney): Switch away from using indicies here....
+    auto return_value(TResult value) { Result.template emplace<1>(std::move(value)); }
+    void unhandled_exception() { Result.template emplace<2>(std::current_exception()); }
+    experimental::suspend_always initial_suspend() { return {}; }
+    auto final_suspend() {
+      struct final_awaiter {
+        bool await_ready() { return false; }
+        void await_resume() {}
+        auto await_suspend(THandle me) {
+          return me.promise().Waiter;
+        }
+      };
+      return final_awaiter{};
     }
 
     private:
+    experimental::coroutine_handle<> Waiter;
+    variant<monostate, TResult, exception_ptr> Result;
 
-    // TODO(cmaloney): empty vs. value vs. exception flag?
-    union {
-      std::exception_ptr Exception;
-      std::unique_ptr<TResult> Result;
-    };
+    template <typename TResult2>
+    friend struct TBuildTask;
   };
 
-  using THandle = std::experimental::coroutine_handle<promise_type>;
-
-  TBuildTask(THandle h) noexcept : Coro(h) {}
-
-  bool await_ready() noexcept { 
-    cout <<" AWAIT_READY\n";
-    return false; 
-  }
-  void await_suspend(std::experimental::coroutine_handle<>) noexcept {
-    cout <<"AWAIT_SUSPEND\n";
-  }
-  void await_resume() const noexcept {}
-  // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
-
-  // Note: Should throw if result not yet set.
-  /*
-  const TResult &GetResult() const {
-
-    if (!Result) {
-      // TODO(cmaloney): more details here
-      throw runtime_error("No result set.");
+  TBuildTask(TBuildTask && rhs) : Handle(rhs.Handle) { rhs.Handle = nullptr; }
+  ~TBuildTask() { 
+    if (Handle) {
+      Handle.destroy();
     }
-    return *Result;
   }
-  */
+  explicit TBuildTask(promise_type &p) : Handle(THandle::from_promise(p)) {}
+  bool await_ready() { return false; }
+  TResult await_resume() {
+    auto &result = Handle.promise().Result;
+    // TODO(cmaloney): Switch away from using indicies here....
+    if (result.index() == 1) {
+      return get<1>(result);
+    }
+    rethrow_exception(get<2>(result));
+  }
+  void await_suspend(experimental::coroutine_handle<> waiter) {
+    Handle.promise().Waiter = waiter;
+    Handle.resume();
+  }
 
   private:
-  THandle Coro;
+  experimental::coroutine_handle<promise_type> Handle;
 };
 
-// Like a build task but runs optomistically / added to queue immediately. Use
-// when a job needs to fan out into many jobs, then co_away the set of async build
-// tasks.
-template <typename TResult>
-struct TBuildTaskAsync {
+// NOTE: Singleton for each given build task.
+struct TBuildTaskRecordUntyped {
+
   bool IsDone() const {
-    return false;
+    return Done;
   }
 
-  bool await_ready() noexcept { return true; }
-  void await_suspend(std::experimental::coroutine_handle<>) noexcept {}
-  void await_resume() const noexcept {}
-  // TODO(cmaloney): await_transform: That means add awaitable as a dependency for caching.
-
-  //Throws if IsDone returns false.
-  const TResult &GetResult() const{
-    return Task.GetResult();
+  const any &GetResultGeneric() const {
+    return Result;
   }
 
-  TBuildTask<TResult> Task;
+  private:
+  atomic<bool> Done;
+  any Result;
+};
+
+// A handle can be used to talk about a task without instantiating the task itself. Can run the task, check if it's done.
+// NOTE: Build task handles are intended to be threadsafe, wheras build tasks themselves which are co_awaited are not
+// intended to be threadsafe.
+template <typename TResult>
+struct TBuildTaskRecord {
+
+  const TResult &GetResult() {
+    const auto &generic_result = Record->GetResultGeneric();
+    return any_cast<const TResult&>(generic_result);
+  }
+
+  // Returns a co_awaitable piece which when waited upon immediately finishes if hte 
+  // task is already done, otherwise runs the task.
+  TTaskAlias<void> EnsureDone() {
+  }
+
+  bool IsDone() const {
+    return Record->IsDone();
+  }
+
+private:
+  std::shared_ptr<TBuildTaskRecordUntyped> Record;
 };
 
 // TODO(cmaloney): Combine: https://github.com/preshing/junction
@@ -269,19 +300,25 @@ struct TTaskMetadata {
 
 
 template <typename TResult> 
-TBuildTask<TResult> GetTaskFor(TRelPath path) {
+TBuildTask<TResult> GetTask(TRelPath path) {
     
 }
 
 template <typename TResult> 
-TBuildTask<TResult> GetTaskFor(TTypedFile file) {
-    
+TBuildTask<TResult> GetTask(TTypedFile file) {
+
 }
 
 template <typename TResult>
-TBuildTaskAsync<TResult> GetTaskForAsync(TRelPath path) {
+TBuildTaskRecord<TResult> GetTaskHandle(TRelPath path) {
 
 }
+
+template <typename TResult>
+TBuildTaskRecord<TResult> GetTaskHandle(TTypedFile file) {
+
+}
+
 
 TFileInfo *GetFileInfo(string_view path);
 
@@ -411,7 +448,7 @@ struct TLinkInfo {
   std::unordered_set<TAbsPath> Libs;
 };
 
-using TLinkTask = TBuildTaskAsync<optional<TCompileInfo>>;
+using TLinkHandle = TBuildTaskRecord<optional<TCompileInfo>>;
 
 TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   TLinkInfo result;
@@ -423,8 +460,8 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   // task co_returning multiple distinct types.
   // These are going to be used quite a bit as temporary storage, make inserting fast.
   // Keep same size since they swap each pass through the loop.
-  vector<TLinkTask> needed;
-  vector<TLinkTask> remaining_needs;
+  vector<TLinkHandle> needed;
+  vector<TLinkHandle> remaining_needs;
   needed.reserve(256);
   remaining_needs.reserve(256);
 
@@ -439,38 +476,38 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   // then repeat to optimistically find as much available work as possible. Keep going until 
   // everything is known to be buildable or not, and we know the set of all things those things
   // need to be linked against.
-  needed.push_back(GetTaskForAsync<optional<TCompileInfo>>(metadata.Input->Details.output_name));
+  needed.push_back(GetTaskHandle<optional<TCompileInfo>>(metadata.Input->Details.output_name));
   while (!needed.empty()) {
     // TODO(cmaloney): it's _very_ important scheduler gets all these at once.
+    // So this should be a "await all" / await as manay as possible before returning type thing.
     // This just gets us to working faster.
     for (auto &need : needed) {
-      co_await need;
+      co_await need.EnsureDone();
     }
 
     // Filter out completed tasks, and find any new link wantsarising from the
     // new information we have.
     remaining_needs.resize(0);
-    for (TBuildTaskAsync<optional<TCompileInfo>> need: needed) {
+    for (TLinkHandle &need: needed) {
       if (!need.IsDone()) {
         remaining_needs.push_back(need);
         continue;
       }
       // If the target was not buildable, then skip it. It's something we'd like
       // to have linked against but there is no link lib needed for it.
-      const auto &need_result = need.GetResult();
-      if (!need_result) {
+      if (!need.GetResult()) {
         continue;
       }
 
       // Find any additional link wants the library has, and add them to the set of things we
       // need to find out about.
-      for(const TRelPath &want: need_result->LinkWants) {
+      for(const TRelPath &want: need.GetResult()->LinkWants) {
         // TODO(cmaloney): Easy helper for "insert if not found then do something additional"
         if (Util::Contains(checked, want)) {
           continue;
         }
         checked.insert(want);
-        remaining_needs.push_back(GetTaskForAsync<optional<TCompileInfo>>(want));
+        remaining_needs.push_back(GetTaskHandle<optional<TCompileInfo>>(want));
       }
     }
     swap(needed, remaining_needs);
