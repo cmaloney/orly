@@ -62,7 +62,6 @@ struct TFileInfo {
 struct TProducer {
   // NOTE: TFileType should be string keyable, default to a string
   // which is a mime-type, convertable to a file type integer (used internally for searching)
-  // The
   string Name;
   TFileType InType;
   TFileType OutType;
@@ -78,7 +77,6 @@ struct [[nodiscard]] TTaskAlias {
   using THandle = experimental::coroutine_handle<promise_type>;
 
   struct promise_type {
-    // TODO(cmaloney): unhandled_exception?
     auto get_return_object() { return TTaskAlias{*this}; }
     void return_void() {}
     experimental::suspend_always initial_suspend() { return {}; }
@@ -214,6 +212,14 @@ struct TBuildTaskRecord {
   // Returns a co_awaitable piece which when waited upon immediately finishes if hte 
   // task is already done, otherwise runs the task.
   TTaskAlias<void> EnsureDone() {
+    // Shortcut already done things to save some processing / jumping into the scheduler
+    // and back.
+    if (Record->IsDone()) {
+      co_return;
+    }
+    // TODO(cmaloney): Here we should enter the task scheduler which should return control
+    // to this particular caller when IsDone would return true.
+    //co_await Record->GetResultGeneric()
     co_return;
   }
 
@@ -266,7 +272,12 @@ struct TFileEnvironment {
     // error (user needs to disambiguate in config).
     // If there is only one, then co_await the specific job to
     // create the file.
+    cout<<"Hello, World!\n"<<endl;
     co_return true;
+  }
+
+  void EnsureExistImmediate(unordered_set<TRelPath>) {
+    return true;
   }
 
   const TTree Src, Out;
@@ -600,5 +611,6 @@ int Main(int argc, char *argv[]) {
     Bit::TTree("/home/firebird347/projectts/bit"),
     TTree("/home/firebird347/projects/.bit"));
   
-  env.EnsureExist(unordered_set{TRelPath(string("bit/coroutine"))});
+  // cout<<"AAA!\n"<<endl;
+  // env.EnsureExistImmediate(unordered_set{TRelPath(string("bit/coroutine"))});
 }

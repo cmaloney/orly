@@ -95,5 +95,5 @@ $CC -o tools/coroutine                \
   util/signal.cc cmd/parse.cc base/code_location.cc \
   base/unreachable.cc                                                     \
   base/demangle.cc base/fd.cc base/backtrace.cc base/dir_walker.cc                  \
-  -D use_dladdr \
+  -D USE_DLADDR \
   -ldl
