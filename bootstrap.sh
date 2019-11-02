@@ -36,7 +36,6 @@ common_flags=(
   -Wno-disabled-macro-expansion
   # -march=native
   # -mtune=native
-  # -fcoroutines-ts
   # TODO: -fmodules
 
   # Optimize
