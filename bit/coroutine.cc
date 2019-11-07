@@ -9,10 +9,6 @@
 #include <optional>
 #include <string>
 // TODO(cmaloney): Switch to a flat map/set, probably a small size pre-allocated optimized flat map
-#include <unordered_set>
-#include <variant>
-#include <vector>
-
 #include <base/interner.h>
 #include <base/not_implemented.h>
 #include <base/subprocess_coro.h>
@@ -25,6 +21,10 @@
 #include <cmd/parse.h>
 #include <util/path.h>
 #include <util/stl.h>
+
+#include <unordered_set>
+#include <variant>
+#include <vector>
 
 using namespace Bit;
 using namespace std;
@@ -69,8 +69,8 @@ struct TProducer {
   function<vector<TTypedFile>(TTypedFile)> GetOutputForInput;
 };
 
-// Points to a BuildTask. Does ano-op if the task was already completed, runs the coroutine of the particular
-// build task if needed.
+// Points to a BuildTask. Does ano-op if the task was already completed, runs the coroutine of the
+// particular build task if needed.
 template <typename TResult>
 struct [[nodiscard]] TTaskAlias {
   struct promise_type;
@@ -85,9 +85,7 @@ struct [[nodiscard]] TTaskAlias {
       struct final_awaiter {
         bool await_ready() { return false; }
         void await_resume() {}
-        auto await_suspend(THandle me) {
-          return me.promise().Waiter;
-        }
+        auto await_suspend(THandle me) { return me.promise().Waiter; }
       };
       return final_awaiter{};
     }
@@ -101,8 +99,8 @@ struct [[nodiscard]] TTaskAlias {
   };
 
   TTaskAlias(TTaskAlias && rhs) : Handle(rhs.Handle) { rhs.Handle = nullptr; }
-  explicit TTaskAlias(promise_type &p) : Handle(THandle::from_promise(p)) {}
-  ~TTaskAlias() { 
+  explicit TTaskAlias(promise_type & p) : Handle(THandle::from_promise(p)) {}
+  ~TTaskAlias() {
     if (Handle) {
       Handle.destroy();
     }
@@ -132,19 +130,29 @@ struct [[nodiscard]] TBuildTask {
   using THandle = experimental::coroutine_handle<promise_type>;
 
   struct promise_type {
-    
-    auto get_return_object() { return TBuildTask{*this}; }
+    auto get_return_object() {
+      cout << "get_return_object!\n" << endl;
+      return TBuildTask{*this};
+    }
     // TODO(cmaloney): Switch away from using indicies here....
-    auto return_value(TResult value) { Result.template emplace<1>(std::move(value)); }
-    void unhandled_exception() { Result.template emplace<2>(std::current_exception()); }
-    experimental::suspend_always initial_suspend() { return {}; }
+    auto return_value(TResult value) {
+      cout << "return_value!\n" << endl;
+      Result.template emplace<1>(std::move(value));
+    }
+    void unhandled_exception() { 
+      cout<<"unhandled_exception!\n"<<endl;
+      Result.template emplace<2>(std::current_exception()); 
+    }
+    experimental::suspend_always initial_suspend() { 
+      cout<<"initial_suspend\n"<<endl;
+      return {}; 
+    }
     auto final_suspend() {
+      cout<<"final_suspend\n"<<endl;
       struct final_awaiter {
         bool await_ready() { return false; }
         void await_resume() {}
-        auto await_suspend(THandle me) {
-          return me.promise().Waiter;
-        }
+        auto await_suspend(THandle me) { return me.promise().Waiter; }
       };
       return final_awaiter{};
     }
@@ -158,12 +166,12 @@ struct [[nodiscard]] TBuildTask {
   };
 
   TBuildTask(TBuildTask && rhs) : Handle(rhs.Handle) { rhs.Handle = nullptr; }
-  ~TBuildTask() { 
+  ~TBuildTask() {
     if (Handle) {
       Handle.destroy();
     }
   }
-  explicit TBuildTask(promise_type &p) : Handle(THandle::from_promise(p)) {}
+  explicit TBuildTask(promise_type & p) : Handle(THandle::from_promise(p)) {}
   bool await_ready() { return false; }
   TResult await_resume() {
     auto &result = Handle.promise().Result;
@@ -184,32 +192,26 @@ struct [[nodiscard]] TBuildTask {
 
 // NOTE: Singleton for each given build task.
 struct TBuildTaskRecordUntyped {
+  bool IsDone() const { return Done; }
 
-  bool IsDone() const {
-    return Done;
-  }
-
-  const any &GetResultGeneric() const {
-    return Result;
-  }
+  const any &GetResultGeneric() const { return Result; }
 
   private:
   atomic<bool> Done;
   any Result;
 };
 
-// A handle can be used to talk about a task without instantiating the task itself. Can run the task, check if it's done.
-// NOTE: Build task handles are intended to be threadsafe, wheras build tasks themselves which are co_awaited are not
-// intended to be threadsafe.
+// A handle can be used to talk about a task without instantiating the task itself. Can run the
+// task, check if it's done. NOTE: Build task handles are intended to be threadsafe, wheras build
+// tasks themselves which are co_awaited are not intended to be threadsafe.
 template <typename TResult>
 struct TBuildTaskRecord {
-
   const TResult &GetResult() {
     const auto &generic_result = Record->GetResultGeneric();
-    return any_cast<const TResult&>(generic_result);
+    return any_cast<const TResult &>(generic_result);
   }
 
-  // Returns a co_awaitable piece which when waited upon immediately finishes if hte 
+  // Returns a co_awaitable piece which when waited upon immediately finishes if hte
   // task is already done, otherwise runs the task.
   TTaskAlias<void> EnsureDone() {
     // Shortcut already done things to save some processing / jumping into the scheduler
@@ -219,15 +221,13 @@ struct TBuildTaskRecord {
     }
     // TODO(cmaloney): Here we should enter the task scheduler which should return control
     // to this particular caller when IsDone would return true.
-    //co_await Record->GetResultGeneric()
+    // co_await Record->GetResultGeneric()
     co_return;
   }
 
-  bool IsDone() const {
-    return Record->IsDone();
-  }
+  bool IsDone() const { return Record->IsDone(); }
 
-private:
+  private:
   std::shared_ptr<TBuildTaskRecordUntyped> Record;
 };
 
@@ -237,7 +237,7 @@ private:
 // so that this is really, really fast as it is very high contention.
 // Provides thread-safe access to FileInfo objects.
 struct TFileEnvironment {
-  TFileEnvironment(const TFileEnvironment&) = delete;
+  TFileEnvironment(const TFileEnvironment &) = delete;
   TFileEnvironment(TFileEnvironment &&) = delete;
 
   TFileEnvironment(TTree src, TTree out) : Src(src), Out(out) {}
@@ -259,25 +259,20 @@ struct TFileEnvironment {
      absolute path. */
   std::optional<TRelPath> EnvironmentRootedPath(std::string_view path);
 
-  // Wait for a set of files 
+  // Wait for a set of files
   // TODO(cmaloney): Not sure this should be the build task type, but keeping for now.
   // TODO: actually a build task of void, but meh
   TBuildTask<bool> EnsureExist(unordered_set<TRelPath>) {
-
     // TODO(cmaloney):
     // Load the file info, see if it has specifics on how to build
     // the file. If not, check all jobs which can output the given
-    // extension, and see which of those are viable. 
+    // extension, and see which of those are viable.
     // If the above finds multiple ways to produce the file
     // error (user needs to disambiguate in config).
     // If there is only one, then co_await the specific job to
     // create the file.
-    cout<<"Hello, World!\n"<<endl;
+    cout << "Hello, World!\n" << endl;
     co_return true;
-  }
-
-  void EnsureExistImmediate(unordered_set<TRelPath>) {
-    return true;
   }
 
   const TTree Src, Out;
@@ -289,7 +284,6 @@ struct TFileEnvironment {
   Base::TThreadSafeInterner<10007, std::string, TFileInfo> Files;
 };
 
-
 /* Attempts to find the tree for the given file and return the relative path.
    If the path doesn't begin with `/` it is assumed to be a relative path.
    If the path doesn't belong to any tree, the full path is given as the
@@ -299,7 +293,6 @@ std::optional<TRelPath> TFileEnvironment::TryGetRelPath(std::string_view path) {
 
   // 0 length paths are illegal.
   assert(path.size() > 0);
-
 
   const auto make_rel_remove_prefix = [&path](const TTree &tree) {
     return TRelPath(path.substr(tree.Path.size()));
@@ -328,37 +321,25 @@ struct TTaskMetadata {
   const TFileInfo *Input;
   unordered_set<const TFileInfo *> Output;
 
-  const TFileInfo* GetSoleOutput() const {
+  const TFileInfo *GetSoleOutput() const {
     assert(Output.size() == 1);
     return *Output.begin();
   }
 };
 
-
-template <typename TResult> 
-TBuildTask<TResult> GetTask(TRelPath path) {
-    
-}
-
-template <typename TResult> 
-TBuildTask<TResult> GetTask(TTypedFile file) {
-
-}
+template <typename TResult>
+TBuildTask<TResult> GetTask(TRelPath path) {}
 
 template <typename TResult>
-TBuildTaskRecord<TResult> GetTaskHandle(TRelPath path) {
-
-}
+TBuildTask<TResult> GetTask(TTypedFile file) {}
 
 template <typename TResult>
-TBuildTaskRecord<TResult> GetTaskHandle(TTypedFile file) {
+TBuildTaskRecord<TResult> GetTaskHandle(TRelPath path) {}
 
-}
-
+template <typename TResult>
+TBuildTaskRecord<TResult> GetTaskHandle(TTypedFile file) {}
 
 TFileInfo *GetFileInfo(string_view path);
-
-
 
 // TOOD(cmaloney): Technically this should all be utf-8...
 static inline bool local_isgraph(uint8_t character) { return character > 32 && character < 127; }
@@ -381,7 +362,7 @@ cppcoro::generator<string_view> parseIncludes(const TTaskMetadata &metadata) {
   // Remove leading source file (Comes right after the ':')
   // Grab each token as a string.
   // If the string is '\' then it's a linebreak GCC added...
-  for (const auto &block: handle.Communicate()) {
+  for (const auto &block : handle.Communicate()) {
     // Ignore all error output
     if (block.Kind == TBlockKind::Error) {
       // TODO(cmaloney): Some good way of forwarding stderr in case of failures?
@@ -392,34 +373,34 @@ cppcoro::generator<string_view> parseIncludes(const TTaskMetadata &metadata) {
     for (auto c : block.Bytes) {
       if (!eaten_start) {
         if (c == ':') {
-            eaten_start = true;
+          eaten_start = true;
         }
-      continue;
+        continue;
       }
-      
+
       if (!in_tok) {
         // Hit start of token?
         if (local_isgraph(c)) {
-            buffer.push_back(char(c));
-            in_tok = true;
+          buffer.push_back(char(c));
+          in_tok = true;
         }
         continue;
       }
 
       // Still in token?
       if (local_isgraph(c)) {
-          buffer.push_back(char(c));
-          continue;
+        buffer.push_back(char(c));
+        continue;
       }
 
       // Hit end of token. Grab token and submit.
       // NOTE: If token is '\', then discard (Indicates GCC's line continuation)
       if (buffer != "\\") {
-          if (is_first_item) {
-              is_first_item = false;
-          } else {
-              co_yield string_view(buffer);
-          }
+        if (is_first_item) {
+          is_first_item = false;
+        } else {
+          co_yield string_view(buffer);
+        }
       }
       buffer.resize(0);
       in_tok = false;
@@ -456,7 +437,6 @@ struct TCompileInfo {
   unordered_set<TRelPath> LinkWants;
 };
 
-
 TBuildTask<TCompileInfo> Compile(TTaskMetadata metadata) {
   TCompileInfo result;
   auto include_info = ScanIncludes(metadata);
@@ -465,14 +445,16 @@ TBuildTask<TCompileInfo> Compile(TTaskMetadata metadata) {
   co_await metadata.Environment->EnsureExist(include_info.IncludedFiles);
 
   // Actually perform the compilation
-  vector<string> cmd{"clang++", "-std=c++2a", "-c", metadata.Input->CmdPath, "-o", metadata.GetSoleOutput()->CmdPath};
+  vector<string> cmd{"clang++", "-std=c++2a",
+                     "-c",      metadata.Input->CmdPath,
+                     "-o",      metadata.GetSoleOutput()->CmdPath};
 
   result.LinkWants.reserve(include_info.IncludedFiles.size());
   for (const auto &include : include_info.IncludedFiles) {
     if (include.EndsWith(".h")) {
       NOT_IMPLEMENTED_S("C/C++ deps which don't end in .h")
     }
-    // TODO(cmaloney): Rather than doing hand extension manipulation 
+    // TODO(cmaloney): Rather than doing hand extension manipulation
     // ideally ask environment for "link lib for this rel path".
     result.LinkWants.emplace(include.SwapExtension(".h", ".o"));
   }
@@ -509,7 +491,7 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   // this build task should be invalidated."
   //
   // Once all currently known ones have been marked, await for any to be done. Once 1+ is done
-  // then repeat to optimistically find as much available work as possible. Keep going until 
+  // then repeat to optimistically find as much available work as possible. Keep going until
   // everything is known to be buildable or not, and we know the set of all things those things
   // need to be linked against.
   needed.push_back(GetTaskHandle<optional<TCompileInfo>>(metadata.Input->Details.output_name));
@@ -524,7 +506,7 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
     // Filter out completed tasks, and find any new link wantsarising from the
     // new information we have.
     remaining_needs.resize(0);
-    for (TLinkHandle &need: needed) {
+    for (TLinkHandle &need : needed) {
       if (!need.IsDone()) {
         remaining_needs.push_back(need);
         continue;
@@ -537,7 +519,7 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
 
       // Find any additional link wants the library has, and add them to the set of things we
       // need to find out about.
-      for(const TRelPath &want: need.GetResult()->LinkWants) {
+      for (const TRelPath &want : need.GetResult()->LinkWants) {
         // TODO(cmaloney): Easy helper for "insert if not found then do something additional"
         if (Util::Contains(checked, want)) {
           continue;
@@ -555,7 +537,7 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   // TODO(cmaloney): there is a C++ STL function I should use here...
   // TODO(cmaloney): Need the cmd paths.
   // TODO(cmaloney): Ordering of link libraries can matter. Cope with that.
-  for (const auto &lib: result.Libs) {
+  for (const auto &lib : result.Libs) {
     cmd.push_back(lib.Path);
   }
   co_return result;
@@ -577,7 +559,6 @@ int Main(int argc, char *argv[]) {
   if (options.PrintCmd) {
     // TODO(cmaloney): Subprocess::SetEchoCommands(true);
   }
-
 
   // Stash the current directory since we change our working directory to always
   // be the root of the project, but we need to still resolve relative paths
@@ -606,11 +587,14 @@ int Main(int argc, char *argv[]) {
   } else {
     config.AddMixin("default", core_dirs, true);
   }
-  
-  TFileEnvironment env(
-    Bit::TTree("/home/firebird347/projectts/bit"),
-    TTree("/home/firebird347/projects/.bit"));
-  
-  // cout<<"AAA!\n"<<endl;
-  // env.EnsureExistImmediate(unordered_set{TRelPath(string("bit/coroutine"))});
+
+  TFileEnvironment env(Bit::TTree("/home/firebird347/projectts/bit"),
+                       TTree("/home/firebird347/projects/.bit"));
+
+  cout << "AAA!\n" << endl;
+  // TODO(cmaloney): This adds to the set that exists, wait for all the things to come into existence.
+  // This doesn't wait for the coroutine to run...
+  auto a = env.EnsureExist(unordered_set{TRelPath(string("bit/coroutine"))});
+  a.await_suspend(experimental::coroutine_handle<> waiter)
+  return 0;
 }
