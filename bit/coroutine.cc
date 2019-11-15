@@ -131,7 +131,6 @@ struct [[nodiscard]] TBuildTask {
 
   struct promise_type {
     auto get_return_object() {
-      cout << "get_return_object!\n" << endl;
       return TBuildTask{*this};
     }
     // TODO(cmaloney): Switch away from using indicies here....
@@ -262,7 +261,7 @@ struct TFileEnvironment {
   // Wait for a set of files
   // TODO(cmaloney): Not sure this should be the build task type, but keeping for now.
   // TODO: actually a build task of void, but meh
-  TBuildTask<bool> EnsureExist(unordered_set<TRelPath>) {
+  TBuildTask<bool> FileExist(unordered_set<TRelPath>) {
     // TODO(cmaloney):
     // Load the file info, see if it has specifics on how to build
     // the file. If not, check all jobs which can output the given
@@ -327,6 +326,7 @@ struct TTaskMetadata {
   }
 };
 
+// Wrap the singleton file environment.
 template <typename TResult>
 TBuildTask<TResult> GetTask(TRelPath path) {}
 
@@ -442,7 +442,7 @@ TBuildTask<TCompileInfo> Compile(TTaskMetadata metadata) {
   auto include_info = ScanIncludes(metadata);
 
   // Ensure all included files have been built.
-  co_await metadata.Environment->EnsureExist(include_info.IncludedFiles);
+  co_await metadata.Environment->FileExist(include_info.IncludedFiles);
 
   // Actually perform the compilation
   vector<string> cmd{"clang++", "-std=c++2a",
@@ -543,6 +543,15 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   co_return result;
 }
 
+// TODO(cmaloney): Needs a better name
+class TTaskRunner {
+  public:
+  
+  TTaskRunner(uint64_t num_threads)
+
+  
+}
+
 int Main(int argc, char *argv[]) {
   Cmd::TArgs<TOptions> args{
       Cmd::Optional({"mixin", "m"}, &TOptions::Mixins,
@@ -591,10 +600,14 @@ int Main(int argc, char *argv[]) {
   TFileEnvironment env(Bit::TTree("/home/firebird347/projectts/bit"),
                        TTree("/home/firebird347/projects/.bit"));
 
-  cout << "AAA!\n" << endl;
-  // TODO(cmaloney): This adds to the set that exists, wait for all the things to come into existence.
-  // This doesn't wait for the coroutine to run...
-  auto a = env.EnsureExist(unordered_set{TRelPath(string("bit/coroutine"))});
-  a.await_suspend(experimental::coroutine_handle<> waiter)
+  // NOTE: This should spin up the threads so they are waiting
+  // TODO(cmaloney): options.WorkerCount instead of 1
+  TTaskRunner runner(1);
+  runner.Add(GetTask(TRelPath(string("bit/coroutine"))))
+  // TODO: Add the requested files to the set of things to be built
+  runner.Wait()
+  // TODO: Wait for the queue to empty (finished or error)
+  // env.WaitForEmpty();
+  // TODO: Report results to user.
   return 0;
 }
