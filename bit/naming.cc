@@ -69,7 +69,7 @@ TAbsPath::TAbsPath(std::string &&path) : Path(path) {
   assert(path.back() != '/');
 }
 
-TRelPath::TRelPath(const std::string &path) : Path(path) {
+TRelPath::TRelPath(std::string &&path) : Path(path) {
   assert(!path.empty());
   assert(path.front() != '/');
   assert(path.back() != '/');

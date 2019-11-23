@@ -17,6 +17,7 @@ Pretty
       profitable.
   - Shortcut critical chain / forward finding work rather than waiting (a.c -> a.o -> found all the deps, build everything -> a).
   - Some way of sharing code / downloading code / package managementy.
+  - Replace TCodeLocation with std::source_location
 
 Rewrite config system
   - use proper layers (project, user, system)
@@ -131,3 +132,20 @@ Need to be able to do "parameterized builds"
 
   Notes:
     - Auto generate name?
+
+
+how you extend:
+1. writing a bash script tool, adding your own mappings around using the tool
+2. Extending by compiling in an additional tool which adheres to a standard command line API
+3. Python (or other arbitrary binding)?
+4. Hand-write a simple json wrapper for the output file (one simple invocation and/or hand written deps)
+5. Build a .so conforming to a specific API?
+
+you can always:
+1. "freeze" a chain (cut off circular deps, particularly around need the tool to generate dependencies, ...)
+   - particularly useful for cutting off first compile time "longest chain"
+   - also breaking dependency loops
+
+
+What can be taken from fastbuild?
+How to do simple job scheduling / distribution to tiny cluster?

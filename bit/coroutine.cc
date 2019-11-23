@@ -26,6 +26,18 @@
 #include <variant>
 #include <vector>
 
+// TODO(cmaloney): This is a _lot_ of suppressed bits...
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundef"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma clang diagnostic ignored "-Wshadow-field"
+#include <concurrentqueue/blockingconcurrentqueue.h>
+#pragma clang diagnostic pop
+
+
 using namespace Bit;
 using namespace std;
 using namespace Base;
@@ -122,10 +134,17 @@ struct [[nodiscard]] TTaskAlias {
   experimental::coroutine_handle<promise_type> Handle;
 };
 
+// TODO(cmaloney): Move as much of TBuildTask as possible to here.
+// The generic "underbelly" of a build task.
+struct TBuildTaskUntyped {
+  TBuildTaskUntyped() = default;
+  virtual ~TBuildTaskUntyped() = default;
+};
+
 // A build task encapsulates that we can run some arbitrary code / coroutine to "get"
 // the needed data / result (This could be external tools or just local code).
 template <typename TResult>
-struct [[nodiscard]] TBuildTask {
+struct [[nodiscard]] TBuildTask : public TBuildTaskUntyped {
   struct promise_type;
   using THandle = experimental::coroutine_handle<promise_type>;
 
@@ -165,7 +184,7 @@ struct [[nodiscard]] TBuildTask {
   };
 
   TBuildTask(TBuildTask && rhs) : Handle(rhs.Handle) { rhs.Handle = nullptr; }
-  ~TBuildTask() {
+  virtual ~TBuildTask() {
     if (Handle) {
       Handle.destroy();
     }
@@ -196,6 +215,7 @@ struct TBuildTaskRecordUntyped {
   const any &GetResultGeneric() const { return Result; }
 
   private:
+  std::variant<TTypedFile, std::shared_ptr<TBuildTaskRecordUntyped>> Reference;
   atomic<bool> Done;
   any Result;
 };
@@ -203,8 +223,17 @@ struct TBuildTaskRecordUntyped {
 // A handle can be used to talk about a task without instantiating the task itself. Can run the
 // task, check if it's done. NOTE: Build task handles are intended to be threadsafe, wheras build
 // tasks themselves which are co_awaited are not intended to be threadsafe.
+// The task handles are also by default _not_ hooked up into any global set and the like. They get added to the
+// global set by being added to the task runner which is the only interaction with the "global" state.
 template <typename TResult>
 struct TBuildTaskRecord {
+  // Allow referencing a build task by a specific output file it produces.
+  // This is a fairly common use case, the build task record will be "resolved" to the
+  // actual build task when we actually go to wait on the job runner.
+  TBuildTaskRecord(TTypedFile output) : Reference(output) {}
+
+  // TODO(cmaloney): Constructor to refer to a specific build task directly.
+
   const TResult &GetResult() {
     const auto &generic_result = Record->GetResultGeneric();
     return any_cast<const TResult &>(generic_result);
@@ -224,10 +253,12 @@ struct TBuildTaskRecord {
     co_return;
   }
 
-  bool IsDone() const { return Record->IsDone(); }
+  bool IsDone() const { 
+    if (std::get<TTypedFile>()
+    return Record->IsDone(); 
+  }
 
   private:
-  std::shared_ptr<TBuildTaskRecordUntyped> Record;
 };
 
 // TODO(cmaloney): Combine: https://github.com/preshing/junction
@@ -328,16 +359,24 @@ struct TTaskMetadata {
 
 // Wrap the singleton file environment.
 template <typename TResult>
-TBuildTask<TResult> GetTask(TRelPath path) {}
+TBuildTask<TResult> GetTask(TRelPath path) {
+
+}
 
 template <typename TResult>
-TBuildTask<TResult> GetTask(TTypedFile file) {}
+TBuildTask<TResult> GetTask(TTypedFile file) {
+
+}
 
 template <typename TResult>
-TBuildTaskRecord<TResult> GetTaskHandle(TRelPath path) {}
+TBuildTaskRecord<TResult> GetTaskHandle(TRelPath path) {
+  return TBuildTaskRecord<TResult>{TTypedFile{TFileType::Unset, path}};
+}
 
 template <typename TResult>
-TBuildTaskRecord<TResult> GetTaskHandle(TTypedFile file) {}
+TBuildTaskRecord<TResult> GetTaskHandle(TTypedFile file) {
+  return TBuildTaskRecord<TResult>{file};
+}
 
 TFileInfo *GetFileInfo(string_view path);
 
@@ -417,6 +456,7 @@ struct TIncludeInfo {
 // TODO(cmaloney): Move to a dedicated C++20 modules import scanner
 // TODO(cmaloney): Move to a custom build task type.
 // TODO(cmaloney): How do we build and cache the results of these?
+// TOOD(cmaloney): Move to clang-scan-deps
 TIncludeInfo ScanIncludes(TTaskMetadata metadata) {
   TIncludeInfo result;
   // TODO(cmaloney): Tweak what is the ideal number here
@@ -543,13 +583,52 @@ TBuildTask<TLinkInfo> Link(TTaskMetadata metadata) {
   co_return result;
 }
 
+// Use this as your TResult to look for a file / path to exist.
+struct TFileExist {};
+
 // TODO(cmaloney): Needs a better name
 class TTaskRunner {
   public:
   
-  TTaskRunner(uint64_t num_threads)
-
+  TTaskRunner(uint64_t num_threads);
+  ~TTaskRunner();
   
+  // TOOD(cmaloney): Bulk add and the like.
+  template <typename TResult>
+  void Add(TBuildTaskRecord<TResult> &&task) {
+    ToRun.
+  }
+
+  void Wait();
+
+private:
+  void ProcessQueue();
+
+  moodycamel::BlockingConcurrentQueue<TBuildTaskUntyped*> ToRun;
+
+  std::vector<std::unique_ptr<std::thread>> Runners;
+};
+
+TTaskRunner::TTaskRunner(uint64_t num_threads) {
+  for (uint64_t i = 0; i < num_threads; ++i) {
+    Runners.push_back(make_unique<thread>(bind(&TTaskRunner::ProcessQueue, this)));
+  }
+}
+
+TTaskRunner::~TTaskRunner() {
+  // TODO(cmaloney): Signal all workers it is time to exit.
+  for (auto &thread_ptr: Runners) {
+    thread_ptr->join();
+    thread_ptr.reset();
+  }
+}
+
+void TTaskRunner::ProcessQueue() {
+  // TODO(cmaloney): Pop coroutines off todo queue, run them.
+}
+
+void TTaskRunner::Wait() {
+  // TODO(cmaloney): make it wait for the queue to empty _or_ for 1+ errors to occur.
 }
 
 int Main(int argc, char *argv[]) {
@@ -603,9 +682,10 @@ int Main(int argc, char *argv[]) {
   // NOTE: This should spin up the threads so they are waiting
   // TODO(cmaloney): options.WorkerCount instead of 1
   TTaskRunner runner(1);
-  runner.Add(GetTask(TRelPath(string("bit/coroutine"))))
+  runner.Add(GetTaskHandle<TFileExist>(TTypedFile{TFileType::Executable, TRelPath{"bit/coroutine"}})));
+
   // TODO: Add the requested files to the set of things to be built
-  runner.Wait()
+  runner.Wait();
   // TODO: Wait for the queue to empty (finished or error)
   // env.WaitForEmpty();
   // TODO: Report results to user.
