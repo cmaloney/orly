@@ -2,6 +2,8 @@
 
 #include <base/not_implemented.h>
 
+#include <cassert>
+
 using namespace Base;
 using namespace Bit;
 using namespace std;

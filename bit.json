@@ -18,6 +18,7 @@
         "-Wno-c++98-compat-pedantic",
         "-Wno-weak-vtables",
         "-Wno-padded",
+        "-Wno-extra-semi-stmt",
         "-Wglobal-constructors",
         "-pthread",
         "-fcolor-diagnostics",

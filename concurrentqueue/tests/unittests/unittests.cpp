@@ -4,12 +4,20 @@
 
 // Unit tests for moodycamel::ConcurrentQueue
 
+#define likely MAKE_SURE_LIKELY_MACRO_CAN_PEACEFULLY_COEXIST
+#define unlikely MAKE_SURE_UNLIKELY_MACRO_CAN_PEACEFULLY_COEXIST
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
 #include <cstddef>
 #include <string>
+#include <iterator>
+
+struct MakeSureCustomNewCanPeacefullyCoexist;
+void* operator new(size_t size, MakeSureCustomNewCanPeacefullyCoexist* x);
+void operator delete(void* ptr, MakeSureCustomNewCanPeacefullyCoexist* x);
 
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -23,6 +31,7 @@
 #include "../common/systemtime.h"
 #include "../../concurrentqueue.h"
 #include "../../blockingconcurrentqueue.h"
+#include "../../c_api/concurrentqueue.h"
 
 namespace {
 	struct tracking_allocator
@@ -39,16 +48,21 @@ namespace {
 		static inline void* malloc(std::size_t size)
 		{
 			auto ptr = std::malloc(size + sizeof(tag));
-			reinterpret_cast<tag*>(ptr)->size = size;
-			usage.fetch_add(size, std::memory_order_relaxed);
-			return reinterpret_cast<char*>(ptr) + sizeof(tag);
+			if (ptr) {
+				reinterpret_cast<tag*>(ptr)->size = size;
+				usage.fetch_add(size, std::memory_order_relaxed);
+				return reinterpret_cast<char*>(ptr) + sizeof(tag);
+			}
+			return nullptr;
 		}
 		
 		static inline void free(void* ptr)
 		{
-			ptr = reinterpret_cast<char*>(ptr) - sizeof(tag);
-			auto size = reinterpret_cast<tag*>(ptr)->size;
-			usage.fetch_add(-size, std::memory_order_relaxed);
+			if (ptr) {
+				ptr = reinterpret_cast<char*>(ptr) - sizeof(tag);
+				auto size = reinterpret_cast<tag*>(ptr)->size;
+				usage.fetch_add(-size, std::memory_order_relaxed);
+			}
 			std::free(ptr);
 		}
 		
@@ -112,6 +126,13 @@ struct ExtraSmallIndexTraits : public MallocTrackingTraits
 {
 	typedef uint8_t size_t;
 	typedef uint8_t index_t;
+};
+
+struct LargeTraits : public MallocTrackingTraits
+{
+	static const size_t BLOCK_SIZE = 128;
+	static const size_t INITIAL_IMPLICIT_PRODUCER_HASH_SIZE = 128;
+	static const size_t IMPLICIT_INITIAL_INDEX_SIZE = 128;
 };
 
 // Note: Not thread safe!
@@ -249,6 +270,53 @@ public:
 	bool throwOnSecondCctor;
 };
 
+#ifdef __arm__
+#define SUPER_ALIGNMENT 64
+#else
+#define SUPER_ALIGNMENT 128
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4324)  // structure was padded due to alignment specifier
+#endif
+
+struct MOODYCAMEL_ALIGNAS(SUPER_ALIGNMENT) VeryAligned {
+	static size_t errors;
+
+	int value;
+
+	VeryAligned() MOODYCAMEL_NOEXCEPT : value(0) {
+		if (reinterpret_cast<uintptr_t>(this) % SUPER_ALIGNMENT != 0)
+			++errors;
+	}
+
+	VeryAligned(int value) MOODYCAMEL_NOEXCEPT : value(value) {
+		if (reinterpret_cast<uintptr_t>(this) % SUPER_ALIGNMENT != 0)
+			++errors;
+	}
+
+	VeryAligned(VeryAligned&& x) MOODYCAMEL_NOEXCEPT : value(x.value) {
+		if (reinterpret_cast<uintptr_t>(this) % SUPER_ALIGNMENT != 0)
+			++errors;
+		x.value = 0;
+	}
+
+	VeryAligned& operator=(VeryAligned&& x) MOODYCAMEL_NOEXCEPT {
+		std::swap(value, x.value);
+		return *this;
+	}
+
+	VeryAligned(VeryAligned const&) MOODYCAMEL_DELETE_FUNCTION;
+	VeryAligned& operator=(VeryAligned const&) MOODYCAMEL_DELETE_FUNCTION;
+};
+size_t VeryAligned::errors = 0;
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+
 
 class ConcurrentQueueTests : public TestClass<ConcurrentQueueTests>
 {
@@ -286,6 +354,15 @@ public:
 		REGISTER_TEST(full_api<SmallIndexTraits>);
 		REGISTER_TEST(blocking_wrappers);
 		REGISTER_TEST(timed_blocking_wrappers);
+		//c_api/concurrentqueue
+		REGISTER_TEST(c_api_create);
+		REGISTER_TEST(c_api_enqueue);
+		REGISTER_TEST(c_api_try_dequeue);
+		REGISTER_TEST(c_api_destroy);
+		
+		// Semaphore
+		REGISTER_TEST(acquire_and_signal);
+		REGISTER_TEST(try_acquire_and_signal);
 		
 		// Core algos
 		REGISTER_TEST(core_add_only_list);
@@ -294,6 +371,7 @@ public:
 		REGISTER_TEST(core_spmc_hash);
 		
 		REGISTER_TEST(explicit_strings_threaded);
+		REGISTER_TEST(large_traits);
 	}
 	
 	bool postTest(bool testSucceeded) override
@@ -342,35 +420,35 @@ public:
 			ASSERT_OR_FAIL(!details::circular_less_than(a, b));
 			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
 			
-			a = 0; b = 1 << 31;
+			a = 0; b = 1u << 31;
 			ASSERT_OR_FAIL(!details::circular_less_than(a, b));
 			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
 			
-			a = 1; b = 1 << 31;
+			a = 1; b = 1u << 31;
 			ASSERT_OR_FAIL(details::circular_less_than(a, b));
 			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
 			
-			a = 0; b = (1 << 31) + 1;
-			ASSERT_OR_FAIL(!details::circular_less_than(a, b));
-			ASSERT_OR_FAIL(details::circular_less_than(b, a));
-			
-			a = 100; b = (1 << 31) + 1;
-			ASSERT_OR_FAIL(details::circular_less_than(a, b));
-			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
-			
-			a = (1 << 31) + 7; b = 5;
-			ASSERT_OR_FAIL(details::circular_less_than(a, b));
-			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
-			
-			a = (1 << 16) + 7; b = (1 << 16) + 5;
+			a = 0; b = (1u << 31) + 1;
 			ASSERT_OR_FAIL(!details::circular_less_than(a, b));
 			ASSERT_OR_FAIL(details::circular_less_than(b, a));
 			
-			a = 0xFFFFFFFF; b = 0;
+			a = 100; b = (1u << 31) + 1;
 			ASSERT_OR_FAIL(details::circular_less_than(a, b));
 			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
 			
-			a = 0xFFFFFFFF; b = 0xFFFFFF;
+			a = (1u << 31) + 7; b = 5;
+			ASSERT_OR_FAIL(details::circular_less_than(a, b));
+			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
+			
+			a = (1u << 16) + 7; b = (1 << 16) + 5;
+			ASSERT_OR_FAIL(!details::circular_less_than(a, b));
+			ASSERT_OR_FAIL(details::circular_less_than(b, a));
+			
+			a = 0xFFFFFFFFu; b = 0;
+			ASSERT_OR_FAIL(details::circular_less_than(a, b));
+			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
+			
+			a = 0xFFFFFFFFu; b = 0xFFFFFFu;
 			ASSERT_OR_FAIL(details::circular_less_than(a, b));
 			ASSERT_OR_FAIL(!details::circular_less_than(b, a));
 		}
@@ -1004,7 +1082,58 @@ public:
 		
 		ASSERT_OR_FAIL(Traits::malloc_count() == 4);
 		ASSERT_OR_FAIL(Traits::free_count() == 4);
-		
+
+		// Super-aligned
+		Traits::reset();
+		VeryAligned::errors = 0;
+		{
+			ConcurrentQueue<VeryAligned, Traits> q(7);
+			ASSERT_OR_FAIL(q.enqueue(39));
+
+			ASSERT_OR_FAIL(Traits::malloc_count() == 3);		// one for producer, one for its block index
+			ASSERT_OR_FAIL(Traits::free_count() == 0);
+			ASSERT_OR_FAIL(VeryAligned::errors == 0);
+
+			// Enqueue one item too many (force extra block allocation)
+			for (int i = 0; i != 8; ++i) {
+				ASSERT_OR_FAIL(q.enqueue(i));
+				ASSERT_OR_FAIL(VeryAligned::errors == 0);
+			}
+
+			ASSERT_OR_FAIL(Traits::malloc_count() == 4);
+			ASSERT_OR_FAIL(Traits::free_count() == 0);
+
+			// Still room for one more...
+			ASSERT_OR_FAIL(q.enqueue(8));
+			ASSERT_OR_FAIL(Traits::malloc_count() == 4);
+			ASSERT_OR_FAIL(Traits::free_count() == 0);
+			ASSERT_OR_FAIL(VeryAligned::errors == 0);
+
+			// No more room without further allocations
+			ASSERT_OR_FAIL(!q.try_enqueue(9));
+			ASSERT_OR_FAIL(Traits::malloc_count() == 4);
+			ASSERT_OR_FAIL(Traits::free_count() == 0);
+			ASSERT_OR_FAIL(VeryAligned::errors == 0);
+
+			// Check items were enqueued properly
+			VeryAligned item;
+			ASSERT_OR_FAIL(q.try_dequeue(item));
+			ASSERT_OR_FAIL(item.value == 39);
+			for (int i = 0; i != 9; ++i) {
+				ASSERT_OR_FAIL(q.try_dequeue(item));
+				ASSERT_OR_FAIL(item.value == i);
+				ASSERT_OR_FAIL(VeryAligned::errors == 0);
+			}
+
+			// Queue should be empty, but not freed
+			ASSERT_OR_FAIL(!q.try_dequeue(item));
+			ASSERT_OR_FAIL(Traits::free_count() == 0);
+			ASSERT_OR_FAIL(VeryAligned::errors == 0);
+		}
+
+		ASSERT_OR_FAIL(Traits::malloc_count() == 4);
+		ASSERT_OR_FAIL(Traits::free_count() == 4);
+
 		return true;
 	}
 	
@@ -1947,7 +2076,7 @@ public:
 			bool success[2] = { true, true };
 			for (int i = 0; i != 2; ++i) {
 				if (i == 0) {
-					threads[i] = SimpleThread([&](int i) {
+					threads[i] = SimpleThread([&](int) {
 						// Producer
 						ProducerToken tok(q);
 						for (int i = 0; i != 32*1024; ++i) {
@@ -1956,7 +2085,7 @@ public:
 					}, i);
 				}
 				else {
-					threads[i] = SimpleThread([&](int i) {
+					threads[i] = SimpleThread([&](int) {
 						// Consumer
 						int items[5];
 						int prevItem = -1;
@@ -1996,7 +2125,7 @@ public:
 			bool success[2] = { true, true };
 			for (int i = 0; i != 2; ++i) {
 				if (i == 0) {
-					threads[i] = SimpleThread([&](int i) {
+					threads[i] = SimpleThread([&](int) {
 						// Producer
 						for (int i = 0; i != 32*1024; ++i) {
 							q.enqueue(i);
@@ -2004,7 +2133,7 @@ public:
 					}, i);
 				}
 				else {
-					threads[i] = SimpleThread([&](int i) {
+					threads[i] = SimpleThread([&](int) {
 						// Consumer
 						int items[5];
 						int prevItem = -1;
@@ -3517,6 +3646,8 @@ public:
 			bool lockFree = ConcurrentQueue<Foo, Traits>::is_lock_free();
 #if defined(__amd64__) || defined(_M_X64) || defined(__x86_64__) || defined(_M_IX86) || defined(__i386__) || defined(_M_PPC) || defined(__powerpc__)
 			ASSERT_OR_FAIL(lockFree);
+#else
+			(void)lockFree;
 #endif
 		}
 		
@@ -4264,6 +4395,193 @@ public:
 		
 		return true;
 	}
+
+	
+	bool c_api_create()
+	{
+		MoodycamelCQHandle handle;
+		int rc = moodycamel_cq_create(&handle);
+		ASSERT_OR_FAIL(rc == 1);
+		ASSERT_OR_FAIL(handle != nullptr);
+		moodycamel_cq_destroy(handle);
+		return true;
+	}
+
+	bool c_api_enqueue()
+	{
+		MoodycamelCQHandle handle;
+		int rc = moodycamel_cq_create(&handle);
+		int i = 10;
+		rc = moodycamel_cq_enqueue(handle, &i);
+		ASSERT_OR_FAIL(rc == 1);
+		moodycamel_cq_destroy(handle);
+		return true;
+	}
+	
+	bool c_api_try_dequeue()
+	{
+		MoodycamelCQHandle handle;
+		int rc = moodycamel_cq_create(&handle);
+		{
+			MoodycamelValue n;
+			rc = moodycamel_cq_try_dequeue(handle, &n);
+			ASSERT_OR_FAIL(rc == 0);
+		}
+		int i = 10;
+		rc = moodycamel_cq_enqueue(handle, &i);
+		{
+			MoodycamelValue value;
+			rc = moodycamel_cq_try_dequeue(handle, &value);
+			int n = *reinterpret_cast<int*>(value);
+			ASSERT_OR_FAIL(rc == 1);
+			ASSERT_OR_FAIL(n == 10);
+		}
+		moodycamel_cq_destroy(handle);
+		return true;
+	}
+	
+	bool c_api_destroy()
+	{
+		MoodycamelCQHandle handle;
+		moodycamel_cq_create(&handle);		
+		moodycamel_cq_destroy(handle);
+		return true;
+	}
+
+	bool acquire_and_signal()
+	{
+		const unsigned TIMEOUT_US = 10 * 1000 * 1000;  // 10s
+
+		// Test resource acquisition from one other thread
+		{
+			LightweightSemaphore s;
+			s.signal(); // Single resource available
+
+			auto fnTestSingleAcquire = [&]() {
+				for (std::size_t k = 0; k < 200000; ++k) {
+					s.wait(TIMEOUT_US);
+					s.signal();
+				}
+			};
+
+			SimpleThread t1(fnTestSingleAcquire);
+			SimpleThread t2(fnTestSingleAcquire);
+
+			t1.join();
+			t2.join();
+
+			ASSERT_OR_FAIL(s.availableApprox() == 1);
+		}
+
+		// Test resource acquisition from multiple threads
+		{
+			const int THREADS = 4;
+			const std::size_t ITERATIONS = 200000;
+			SimpleThread threads[THREADS];
+			const std::size_t arrayItemsToWait[THREADS] = { 1, 2, 3, 7 };
+			LightweightSemaphore s;
+
+			for (int i = 0; i != THREADS; ++i)
+				s.signal(ITERATIONS * arrayItemsToWait[i]);
+
+			for (int i = 0; i != THREADS; ++i) {
+				threads[i] = SimpleThread([&](int tid) {
+					for (std::size_t k = 0; k < ITERATIONS; ++k)
+						s.waitMany(arrayItemsToWait[tid], TIMEOUT_US);
+				}, i);
+			}
+			for (int i = 0; i != THREADS; ++i)
+				threads[i].join();
+
+			ASSERT_OR_FAIL(s.availableApprox() == 0);
+		}
+		{
+			const int THREADS = 5;
+			const std::size_t ITERATIONS = 100000;
+			SimpleThread threads[THREADS];
+			const std::size_t arrayItemsToWait[THREADS] = { 0, 1, 2, 3, 7 };
+			LightweightSemaphore s;
+
+			for (int i = 0; i != THREADS; ++i)
+				s.signal(ITERATIONS * arrayItemsToWait[i]);
+
+			for (int i = 0; i != THREADS; ++i) {
+				threads[i] = SimpleThread([&](int tid) {
+					if (tid == 0) {
+						for (std::size_t k = 0; k < ITERATIONS * (THREADS - 1); ++k)
+							s.wait(TIMEOUT_US);
+					}
+					else {
+						for (std::size_t k = 0; k < ITERATIONS; ++k) {
+							s.signal();
+							s.waitMany(arrayItemsToWait[tid], TIMEOUT_US);
+						}
+					}
+				}, i);
+			}
+			for (int i = 0; i != THREADS; ++i)
+				threads[i].join();
+
+			ASSERT_OR_FAIL(s.availableApprox() == 0);
+		}
+
+		LightweightSemaphore s;
+		ASSERT_OR_FAIL(s.availableApprox() == 0);
+		s.signal();
+		ASSERT_OR_FAIL(s.availableApprox() == 1);
+		s.signal();
+		ASSERT_OR_FAIL(s.availableApprox() == 2);
+		s.signal(10);
+		ASSERT_OR_FAIL(s.availableApprox() == 12);
+		s.signal(10);
+		ASSERT_OR_FAIL(s.availableApprox() == 22);
+
+		ASSERT_OR_FAIL(s.wait());
+		ASSERT_OR_FAIL(s.availableApprox() == 21);
+		ASSERT_OR_FAIL(s.wait());
+		ASSERT_OR_FAIL(s.availableApprox() == 20);
+		ASSERT_OR_FAIL(s.waitMany(10) == 10);
+		ASSERT_OR_FAIL(s.availableApprox() == 10);
+		ASSERT_OR_FAIL(s.waitMany(11) == 10);
+		ASSERT_OR_FAIL(s.availableApprox() == 0);
+
+		return true;
+	}
+
+	bool try_acquire_and_signal()
+	{
+		LightweightSemaphore s;
+
+		ASSERT_OR_FAIL(s.availableApprox() == 0);
+
+		s.signal();
+		ASSERT_OR_FAIL(s.availableApprox() == 1);
+		ASSERT_OR_FAIL(s.tryWaitMany(2) == 1);
+		ASSERT_OR_FAIL(s.availableApprox() == 0);
+
+		s.signal();
+		ASSERT_OR_FAIL(s.availableApprox() == 1);
+		ASSERT_OR_FAIL(s.tryWaitMany(3) == 1);
+		ASSERT_OR_FAIL(s.availableApprox() == 0);
+
+		s.signal(10);
+		ASSERT_OR_FAIL(s.availableApprox() == 10);
+		ASSERT_OR_FAIL(s.tryWaitMany(100) == 10);
+		ASSERT_OR_FAIL(s.availableApprox() == 0);
+
+		s.signal(10);
+		ASSERT_OR_FAIL(s.availableApprox() == 10);
+		ASSERT_OR_FAIL(s.tryWaitMany(5) == 5);
+		ASSERT_OR_FAIL(s.availableApprox() == 5);
+
+		ASSERT_OR_FAIL(s.tryWait());
+		ASSERT_OR_FAIL(s.availableApprox() == 4);
+
+		ASSERT_OR_FAIL(s.tryWait());
+		ASSERT_OR_FAIL(s.availableApprox() == 3);
+
+		return true;
+	}
 	
 	struct TestListItem : corealgos::ListItem
 	{
@@ -4417,7 +4735,7 @@ public:
 							auto item = local.get_or_create();
 							item->value = (int)tid;
 							for (int i = 0; i != 1024; ++i) {
-								auto item = local.get_or_create();
+								item = local.get_or_create();
 								if (item->value != (int)tid) {
 									failed[tid] = true;
 								}
@@ -4591,8 +4909,8 @@ public:
 					else {
 						ASSERT_OR_FAIL(removed[i].load(std::memory_order_relaxed));
 					}
-					auto removed = hash.remove(i);
-					ASSERT_OR_FAIL(removed == val);
+					auto removedVal = hash.remove(i);
+					ASSERT_OR_FAIL(removedVal == val);
 				}
 				for (int i = 0; i != MAX_ENTRIES; ++i) {
 					ASSERT_OR_FAIL(hash.find(i) == nullptr);
@@ -4633,6 +4951,35 @@ public:
 			threads[tid].join();
 		}
 		
+		return true;
+	}
+
+	bool large_traits()
+	{
+		union Elem { uint32_t x; char dummy[156]; };
+
+		ConcurrentQueue<Elem, LargeTraits> q(10000, 0, 48);
+		std::vector<SimpleThread> threads(48);
+		for (size_t tid = 0; tid != threads.size(); ++tid) {
+			threads[tid] = SimpleThread([&](size_t tid) {
+				const size_t ELEMENTS = 5000;
+				if (tid != 0) {
+					// Produce
+					for (uint32_t i = 0; i != ELEMENTS; ++i)
+						q.try_enqueue(Elem { ((uint32_t)tid << 16) | i });
+				}
+				else {
+					// Consume
+					Elem item[256];
+					for (size_t i = 0; i != ELEMENTS * 200; ++i)
+						q.try_dequeue_bulk(item, sizeof(item) / sizeof(item[0]));
+				}
+			}, tid);
+		}
+		for (size_t tid = 0; tid != threads.size(); ++tid) {
+			threads[tid].join();
+		}
+
 		return true;
 	}
 };

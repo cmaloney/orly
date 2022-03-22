@@ -1,6 +1,7 @@
 #include <cmd/parse.h>
 
 #include <algorithm>
+#include <cassert>
 #include <iomanip>
 #include <optional>
 

@@ -35,6 +35,12 @@ common_flags=(
   -march=native
   -mtune=native
 
+  # Yea, just not fixing that
+  -Wno-extra-semi-stmt
+
+  # For concurrentqueue
+  -Wno-suggest-destructor-override
+
   # Optimize
   -O3
   -DNDEBUG
@@ -43,7 +49,7 @@ common_flags=(
   -Wno-unknown-pragmas
   -Wno-old-style-cast
   -Wno-return-type
-  # -Wno-nonnull-compare
+# -Wno-nonnull-compare
   -flto=thin
 
   # Enable threads

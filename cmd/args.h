@@ -111,9 +111,9 @@ struct TArgs {
     TProcessor(const std::vector<std::string> &names,
                const char *description,
                TRepetition repitition,
-               bool HasValue,
+               bool has_value,
                TConsume &&value_func)
-        : TArgInfo{false, names, description, repitition, HasValue},
+        : TArgInfo{false, names, description, repitition, has_value},
           TypedConsume(std::move(value_func)) {}
 
     // TODO(cmaloney): Disallow arguments that start with '-', '--'.
@@ -121,9 +121,9 @@ struct TArgs {
     TProcessor(TRepetition repitition,
                const char *identifier,
                const char *description,
-               bool HasValue,
+               bool has_value,
                TConsume &&value_func)
-        : TArgInfo{true, {identifier}, description, repitition, HasValue},
+        : TArgInfo{true, {identifier}, description, repitition, has_value},
           TypedConsume(std::move(value_func)) {}
 
     TConsume TypedConsume;

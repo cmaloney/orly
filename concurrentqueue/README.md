@@ -89,10 +89,10 @@ nitty-gritty details of the design][design], on my blog. Finally, the
 
 The entire queue's implementation is contained in **one header**, [`concurrentqueue.h`][concurrentqueue.h].
 Simply download and include that to use the queue. The blocking version is in a separate header,
-[`blockingconcurrentqueue.h`][blockingconcurrentqueue.h], that depends on the first.
-The implementation makes use of certain key C++11 features, so it requires a fairly recent compiler
-(e.g. VS2012+ or g++ 4.8; note that g++ 4.6 has a known bug with `std::atomic` and is thus not supported).
-The algorithm implementations themselves are platform independent.
+[`blockingconcurrentqueue.h`][blockingconcurrentqueue.h], that depends on [`concurrentqueue.h`][concurrentqueue.h] and
+[`lightweightsemaphore.h`][lightweightsemaphore.h]. The implementation makes use of certain key C++11 features,
+so it requires a fairly recent compiler (e.g. VS2012+ or g++ 4.8; note that g++ 4.6 has a known bug with `std::atomic`
+and is thus not supported). The algorithm implementations themselves are platform independent.
 
 Use it like you would any other templated queue, with the exception that you can use
 it from many threads at once :-)
@@ -356,20 +356,43 @@ workaround: Create a wrapper class that copies the memory contents of the object
 is assigned by the queue (a poor man's move, essentially). Note that this only works if
 the object contains no internal pointers. Example:
 
-    struct MyObjectMover
-    {
-        inline void operator=(MyObject&& obj)
-        {
+    struct MyObjectMover {
+        inline void operator=(MyObject&& obj) {
             std::memcpy(data, &obj, sizeof(MyObject));
             
             // TODO: Cleanup obj so that when it's destructed by the queue
             // it doesn't corrupt the data of the object we just moved it into
         }
-        
+
         inline MyObject& obj() { return *reinterpret_cast<MyObject*>(data); }
-    	
+
     private:
-    	align(alignof(MyObject)) char data[sizeof(MyObject)];
+        align(alignof(MyObject)) char data[sizeof(MyObject)];
+    };
+
+A less dodgy alternative, if moves are cheap but default construction is not, is to use a
+wrapper that defers construction until the object is assigned, enabling use of the move
+constructor:
+
+    struct MyObjectMover {
+        inline void operator=(MyObject&& x) {
+            new (data) MyObject(std::move(x));
+            created = true;
+        }
+
+        inline MyObject& obj() {
+            assert(created);
+            return *reinterpret_cast<MyObject*>(data);
+        }
+
+        ~MyObjectMover() {
+            if (created)
+                obj().~MyObject();
+        }
+
+    private:
+        align(alignof(MyObject)) char data[sizeof(MyObject)];
+        bool created = false;
     };
 
 ## Samples
@@ -403,6 +426,17 @@ written to be platform-independent, however, and should work across all processo
 Due to the complexity of the implementation and the difficult-to-test nature of lock-free code in general,
 there may still be bugs. If anyone is seeing buggy behaviour, I'd like to hear about it! (Especially if
 a unit test for it can be cooked up.) Just open an issue on GitHub.
+	
+## Using vcpkg
+You can download and install `moodycamel::ConcurrentQueue` using the [vcpkg](https://github.com/Microsoft/vcpkg) dependency manager:
+
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh
+    ./vcpkg integrate install
+    vcpkg install concurrentqueue
+	
+The `moodycamel::ConcurrentQueue` port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
 ## License
 
